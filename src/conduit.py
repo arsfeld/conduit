@@ -4,8 +4,10 @@ try:
 except:
     pass
 try:
+    import sys
     import gtk
     import gtk.glade
+    import diacanvas
 except:
     sys.exit(1)
  
@@ -23,7 +25,17 @@ class conduitGui:
             }
          
         self.wTree.signal_autoconnect(dic)
-	return
+    
+        #insert the canvas
+        self.canvas = diacanvas.Canvas()
+        box = diacanvas.CanvasBox()
+        box.set(border_width=0.3, color=diacanvas.color(200, 100, 100, 128))
+        self.canvas.root.add(box)
+        self.canvasW = self.wTree.get_widget("canvasScrolledWindow")
+        view = diacanvas.CanvasView(canvas = self.canvas)
+        view.show()
+        self.canvasW.add(view)
+        return
      
     # callbacks.
     def synchronizeSet(self, widget):
