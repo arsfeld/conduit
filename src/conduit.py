@@ -29,7 +29,7 @@ class conduitGui:
         #insert the canvas
         self.canvas = diacanvas.Canvas()
         box = diacanvas.CanvasBox()
-        box.set(border_width=0.3, color=diacanvas.color(200, 100, 100, 128))
+        box.set(border_width=0.3, color=diacanvas.color(150, 150, 150, 128))
         self.canvas.root.add(box)
         self.canvasW = self.wTree.get_widget("canvasScrolledWindow")
         view = diacanvas.CanvasView(canvas = self.canvas)
@@ -39,18 +39,19 @@ class conduitGui:
      
     # callbacks.
     def synchronizeSet(self, widget):
-	print "clicked synchronize"
+    	print "clicked synchronize"
     
 
     def configureItem(self, widget):
-	print "clicked configure"
+    	print "clicked configure"
 
 
     def linkItem(self, widget):
-	print "clicked link"
+    	print "clicked link"
 
 
-app = conduitGui()
-gtk.main()
+if __name__ == "__main__":
+    app = conduitGui()
+    gtk.main()
      
  
