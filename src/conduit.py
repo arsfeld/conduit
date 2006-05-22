@@ -8,6 +8,7 @@ try:
     import gtk
     import gtk.glade
     import diacanvas
+    import MyBox
 except:
     sys.exit(1)
  
@@ -28,8 +29,8 @@ class conduitGui:
     
         #insert the canvas
         self.canvas = diacanvas.Canvas()
-        box = diacanvas.CanvasBox()
-        box.set(border_width=0.3, color=diacanvas.color(150, 150, 150, 128))
+        box = MyBox.MyBox() #diacanvas.CanvasBox()
+        #box.set(border_width=0.3, color=diacanvas.color(150, 150, 150, 128))
         self.canvas.root.add(box)
         self.canvasW = self.wTree.get_widget("canvasScrolledWindow")
         view = diacanvas.CanvasView(canvas = self.canvas)
