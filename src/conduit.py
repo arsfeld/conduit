@@ -1,17 +1,9 @@
-try:
-    import pygtk
-    pygtk.require("2.0")
-except:
-    pass
-try:
-    import sys
-    import gtk
-    import gtk.glade
-    import diacanvas
-    import MyBox
-except:
-    sys.exit(1)
- 
+import sys
+import gtk
+import gtk.glade
+import diacanvas
+import MyBox
+
 class conduitGui:
     def __init__(self):
         self.gladefile = "conduit.glade"
@@ -29,9 +21,12 @@ class conduitGui:
     
         #insert the canvas
         self.canvas = diacanvas.Canvas()
-        box = MyBox.MyBox() #diacanvas.CanvasBox()
+        self.box = MyBox.MyBox() 
+        #box = diacanvas.CanvasBox()
         #box.set(border_width=0.3, color=diacanvas.color(150, 150, 150, 128))
-        self.canvas.root.add(box)
+        self.canvas.root.add(self.box)
+        self.box.move(100,100)
+
         self.canvasW = self.wTree.get_widget("canvasScrolledWindow")
         view = diacanvas.CanvasView(canvas = self.canvas)
         view.show()
