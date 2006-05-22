@@ -48,10 +48,6 @@ class MyBox(dia.CanvasBox, dia.CanvasGroupable):
 
     def do_update (self,  affine):
         print 'do_update(' + str(self) + ', ' + str(affine) + ')'
-	#print 'affine.__dict__ = ' + str(affine.__dict__)
-	dia.CanvasBox.on_update (self, affine)
-	self.ellipse.request_update() # request update, due to rotation
-	self.update_child(self.text, affine)
 
     def on_shape_iter (self):
 	for s in dia.CanvasBox.on_shape_iter(self):
@@ -126,7 +122,7 @@ gobject.type_register (MyBox)
 # Set DiaCanvasItem specific callbacks for the GObject side of this class
 # This only has to be done the first time you create a Python class based
 # on a diacanvas.CanvasItem (DiaCanvasItem).
-#dia.set_callbacks (MyBox)
+dia.set_callbacks (MyBox)
 dia.set_groupable (MyBox)
 
 print 'Defining class MyBox2...'
