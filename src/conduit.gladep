@@ -1,7 +1,0 @@
-<?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
-<!DOCTYPE glade-project SYSTEM "http://glade.gnome.org/glade-project-2.0.dtd">
-
-<glade-project>
-  <name>Conduit</name>
-  <program_name>conduit</program_name>
-</glade-project>
