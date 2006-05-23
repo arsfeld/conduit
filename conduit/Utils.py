@@ -1,12 +1,12 @@
 import sys
 import gtk, gobject
-import conduit
+import ConduitDefs
 
 ICON_THEME = gtk.icon_theme_get_default()
 # We load the icon file, and if it fails load an empty one
 # If the iconfile is a path starting with /, load the file
 # else try to load a stock or named icon name
-def load_icon(icon, width=conduit.ICON_HEIGHT, height=conduit.ICON_HEIGHT):
+def load_icon(icon, width=ConduitDefs.ICON_HEIGHT, height=ConduitDefs.ICON_HEIGHT):
     pixbuf = None
     if icon != None and icon != "":
         try:
@@ -17,7 +17,7 @@ def load_icon(icon, width=conduit.ICON_HEIGHT, height=conduit.ICON_HEIGHT):
                 pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(icon, width, height)
             else:
                 pixbuf = ICON_THEME.load_icon(splitext(icon)[0], width, gtk.ICON_LOOKUP_USE_BUILTIN)
-            except Exception, msg1:
+        except Exception, msg1:
             try:
                 pixbuf = ICON_THEME.load_icon(icon, width, gtk.ICON_LOOKUP_USE_BUILTIN)
             except Exception, msg2:

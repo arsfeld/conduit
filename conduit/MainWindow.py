@@ -2,11 +2,15 @@ import sys
 import gtk
 import gtk.glade
 import diacanvas
-import conduit
+
+import ConduitDefs
+import DataProvider
+from datasources import FileSource
+import datasinks
 
 class MainWindow:
     def __init__(self):
-        self.gladefile = conduit.GLADE_FILE
+        self.gladefile = ConduitDefs.GLADE_FILE
         self.mainwindowname = "window1"
         self.wTree = gtk.glade.XML(self.gladefile, self.mainwindowname)
         self.win = self.wTree.get_widget(self.mainwindowname)
@@ -21,7 +25,7 @@ class MainWindow:
     
         #insert the canvas
         self.canvas = diacanvas.Canvas()
-        self.box = MyBox.MyBox3() 
+        self.box = FileSource.FileSource() 
         #box = diacanvas.CanvasBox()
         #box.set(border_width=0.3, color=diacanvas.color(150, 150, 150, 128))
         self.canvas.root.add(self.box)

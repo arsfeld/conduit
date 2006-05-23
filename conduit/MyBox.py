@@ -183,10 +183,10 @@ class MyBox3(diacanvas.CanvasElement, diacanvas.CanvasAbstractGroup):
 
         
         # create a text object (CanvasText is a composite object)
-        #self.text = diacanvas.CanvasText()
-        #self.text.set(text="hello")
+        self.text = diacanvas.CanvasText()
+        self.text.set(text="hello")
         # make the text a child of this canvas item
-        #self.text.set_child_of(self)
+        self.text.set_child_of(self)
         #self.add_construction(self.text)
         
     def on_update(self, affine):
@@ -204,10 +204,10 @@ class MyBox3(diacanvas.CanvasElement, diacanvas.CanvasAbstractGroup):
         self.h.set_pos_i(self.width/2,self.height/2)
 
         # give the text the same width and height as out object
-        #self.text.set(width=self.width, height=self.height)
+        self.text.set(width=self.width, height=self.height)
         
         # update the text
-        #self.update_child(self.text, affine)
+        self.update_child(self.text, affine)
 
         # update the parent
         diacanvas.CanvasElement.on_update(self, affine)
@@ -245,12 +245,13 @@ class MyBox3(diacanvas.CanvasElement, diacanvas.CanvasAbstractGroup):
         """
         return 1
 
-    #def on_groupable_iter(self):
-    #    """Return an iterator that can be used to traverse the children.
-    #    """
-    #    #yield self.text
-    #    # alternative:
-    #    # return iter([self.text])
+    def on_groupable_iter(self):
+        """
+        Return an iterator that can be used to traverse the children.
+        """
+        yield self.text
+        #alternative:
+        #return iter([self.text])
 
     def on_groupable_length(self):
         """Return the number of child objects, we have just the text object.

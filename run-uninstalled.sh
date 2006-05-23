@@ -1,2 +1,2 @@
 #!/bin/sh
-python src/conduit.py
+python conduit/conduit.py
