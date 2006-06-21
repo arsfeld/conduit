@@ -6,12 +6,15 @@
 
 <widget class="GtkWindow" id="window1">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">window1</property>
+  <property name="title" translatable="yes">Editor</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
+  <property name="default_width">580</property>
+  <property name="default_height">400</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
+  <property name="icon_name">stock_draw-line-connector</property>
   <property name="decorated">True</property>
   <property name="skip_taskbar_hint">False</property>
   <property name="skip_pager_hint">False</property>
@@ -19,6 +22,9 @@
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
   <property name="urgency_hint">False</property>
+  <accessibility>
+    <atkproperty name="AtkObject::accessible_name" translatable="yes">Editor</atkproperty>
+  </accessibility>
   <signal name="destroy" handler="on_window1_destroy" last_modification_time="Wed, 17 May 2006 11:27:53 GMT"/>
 
   <child>
@@ -455,6 +461,37 @@
 	  <property name="fill">False</property>
 	</packing>
       </child>
+    </widget>
+  </child>
+</widget>
+
+<widget class="GtkMenu" id="menu1">
+
+  <child>
+    <widget class="GtkImageMenuItem" id="add_element">
+      <property name="visible">True</property>
+      <property name="tooltip" translatable="yes">Add </property>
+      <property name="label" translatable="yes">Add Element</property>
+      <property name="use_underline">True</property>
+      <signal name="activate" handler="_addElementPopup" last_modification_time="Wed, 21 Jun 2006 00:32:12 GMT"/>
+
+      <child internal-child="image">
+	<widget class="GtkImage" id="image1">
+	  <property name="visible">True</property>
+	  <property name="stock">gtk-add</property>
+	  <property name="icon_size">1</property>
+	  <property name="xalign">0.5</property>
+	  <property name="yalign">0.5</property>
+	  <property name="xpad">0</property>
+	  <property name="ypad">0</property>
+	</widget>
+      </child>
+    </widget>
+  </child>
+
+  <child>
+    <widget class="GtkSeparatorMenuItem" id="separator4">
+      <property name="visible">True</property>
     </widget>
   </child>
 </widget>

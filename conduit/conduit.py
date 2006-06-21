@@ -1,8 +1,6 @@
 import gtk
 import MainWindow
 
-if __name__ == "__main__":
-    app = MainWindow.MainWindow()
-    gtk.main()
-     
+test = MainWindow.MainWindow("Conduit Test Application")
+test.__main__()
  
