@@ -1,6 +1,6 @@
 from gettext import gettext as _
 
-import deskbar.Handler
+import DataProvider
 #from deskbar.DeskbarHistory import get_deskbar_history
 
 DATAPROVIDERS = {

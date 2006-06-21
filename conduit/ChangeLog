@@ -1,0 +1,37 @@
+2006-06-21 08:21  john
+
+	* DataSink.py, DataSource.py: more deletions
+
+2006-06-21 08:20  john
+
+	* CanvasClock.cs, ConduitDefs.py, ConduitEditorCanvas.py,
+	  DataProvider.py, DataProviderView.py, DataSource.py,
+	  MainWindow.py, Manager.py, MyBox.py, Utils.py, attic,
+	  attic/CanvasClock.cs, attic/ConduitDefs.py, attic/MyBox.py,
+	  attic/Utils.py, attic/demoitem.py, attic/diacanvasdemo.py,
+	  attic/dnd.py, attic/placementtool.py, conduit.glade,
+	  conduit.glade.bak, conduit.py, dataproviders,
+	  dataproviders/File.py, demoitem.py, diacanvasdemo.py, dnd.py,
+	  placementtool.py: refactored and now based on gsteditor code.
+	  Also started work on dynamic dataprovider loader based on deskbar
+
+2006-06-21 08:05  john
+
+	* datasinks, datasources: combined sources and sinks into providers
+
+2006-05-23 12:31  john
+
+	* ConduitDefs.py, DataProvider.py, MainWindow.py, MyBox.py,
+	  Utils.py, __init__.py, conduit.py, datasinks/__init__.py,
+	  datasources/FileSource.py, datasources/__init__.py,
+	  trunk/run-uninstalled.sh: starting to get somewhere near drawing
+	  attractive things on the canvas
+
+2006-05-23 10:07  john
+
+	* ., CanvasClock.cs, DataProvider.py, DataSink.py, DataSource.py,
+	  MainWindow.py, MyBox.py, Utils.py, __init__.py, conduit.glade,
+	  conduit.glade.bak, conduit.gladep, conduit.gladep.bak,
+	  conduit.py, conduits, datasinks, datasources, demoitem.py,
+	  diacanvasdemo.py, dnd.py, placementtool.py: moving stuff
+
