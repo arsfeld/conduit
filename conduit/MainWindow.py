@@ -9,6 +9,7 @@ import gnome.ui
 
 import DataProvider
 import ConduitEditorCanvas
+import Manager
 
 
 APPNAME="Conduit"
@@ -32,13 +33,19 @@ class MainWindow:
             "on_linkitemsbutton_clicked" : self.linkItem
             }
          
-        self.widgets.signal_autoconnect(dict)
+        self.widgets.signal_autoconnect(dic)
 
         #pass the popup menu to the canvas
         self.popwidgets = gtk.glade.XML(self.gladefile, "menu1")
         popup = self.popwidgets.get_widget("menu1")
         self.popwidgets.signal_autoconnect(self)
         self.canvas.setPopup(popup)
+        
+        foo = [ ]
+        foo.append("dataproviders")
+        print foo
+        self.m = Manager.Manager(foo)
+        self.m.load_all()
         return
      
     # callbacks.

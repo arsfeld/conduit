@@ -27,9 +27,9 @@ class DataProviderModel(gobject.GObject):
         self.widget.add_child(self.box)
         self.widget.add_child(text)
         #draw pads
-        self.pads = self._makePads()
-        self.hidePads()
-        self.widget.add_child(self.pads)
+        #self.pads = self._makePads()
+        #self.hidePads()
+        #self.widget.add_child(self.pads)
         #TODO: attach pad signals and events here
         #self.connect("button_press_event", self._onButtonPress)
 
@@ -125,6 +125,9 @@ class DataProviderModel(gobject.GObject):
         #return None
 
     def serialize(self, class_name):
+        print "not implemented"
+        
+    def initialize(self):
         print "not implemented"        
     
 
