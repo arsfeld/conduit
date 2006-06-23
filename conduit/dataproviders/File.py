@@ -7,6 +7,7 @@ MODULES = {
 		"name": _("File Source"),
 		"description": _("Source for synchronizing files"),
 		"type": "source",
+		"category": "Local",
 		"in": "file",
 		"out": "file"
 	},
@@ -14,6 +15,7 @@ MODULES = {
 		"name": _("File Sink"),
 		"description": _("Sink for synchronizing files"),
 		"type": "sink",
+		"category": "Local",
 		"in": "file",
 		"out": "file"
 	}
@@ -24,10 +26,10 @@ MODULES = {
 class FileSource(DataProvider.DataProviderModel):
 	def __init__(self):
 		DataProvider.DataProviderModel.__init__(self, _("File Source"), _("Source for synchronizing files"))
-		print "FileSource constructed"
+
 		
 #TODO: Inherit from Sink		
 class FileSink(DataProvider.DataProviderModel):
 	def __init__(self):
 		DataProvider.DataProviderModel.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
-		print "FileSink constructed"		
+

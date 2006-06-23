@@ -6,7 +6,8 @@ MODULES = {
 	"FileDataType" : {
 		"name": _("File Data Type"),
 		"description": _("Represents a Data Type"),
-		"type": "datatype"
+		"type": "datatype",
+		"category": ""
 	}
 }
 

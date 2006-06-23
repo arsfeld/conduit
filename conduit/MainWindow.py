@@ -9,7 +9,7 @@ import gnome.ui
 
 import DataProvider
 import ConduitEditorCanvas
-import Manager
+import ModuleManager
 
 
 APPNAME="Conduit"
@@ -27,27 +27,6 @@ class MainWindow:
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.canvasSW.add(self.canvas)
         
-        #populate the treeview
-        self.listmodel = Manager.DataProviderTreeModel()
-        self.treeview = self.widgets.get_widget("treeview1")
-        # create the TreeViewColumns to display the data
-        column_names = self.listmodel.get_column_names()
-        self.tvcolumn = [None] * len(column_names)
-        cellpb = gtk.CellRendererPixbuf()
-        self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0],
-                                              cellpb, pixbuf=0)
-        cell = gtk.CellRendererText()
-        self.tvcolumn[0].pack_start(cell, False)
-        self.tvcolumn[0].add_attribute(cell, 'text', 1)
-        self.treeview.append_column(self.tvcolumn[0])
-        for n in range(1, len(column_names)):
-            cell = gtk.CellRendererText()
-            if n == 1:
-                cell.set_property('xalign', 1.0)
-            self.tvcolumn[n] = gtk.TreeViewColumn(column_names[n], cell, text=n+1)
-            self.treeview.append_column(self.tvcolumn[n])
-            
-        self.treeview.set_model(self.listmodel)
         #self.widgets.show_all()            
     
         dic = {"on_window1_destroy" : gtk.main_quit,
@@ -64,11 +43,79 @@ class MainWindow:
         self.popwidgets.signal_autoconnect(self)
         self.canvas.setPopup(popup)
         
-        self.m = Manager.ModuleLoader(["datatypes","dataproviders"])
-        self.m.load_all()
-        #for q in self.m.loadedmodules:
-        #    print "Name = '%s' Description = '%s' Type = '%s'" % (q.name, q.description, q.module_type)
-        #    print "Raw ", q.module
+        #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)        
+        self.module_loader = ModuleManager.ModuleLoader(["datatypes","dataproviders"])
+        self.module_loader.load_all_modules()
+        #Split into sinks, sources and datatypes
+        self.datasink_modules = self.module_loader.get_modules("sink")
+        self.datasource_modules = self.module_loader.get_modules("source")
+        self.datatypes = self.module_loader.get_modules("datatype")
+        
+        if False:
+            print "SINKS"
+            for q in self.datasink_modules:
+                print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
+                print "Raw ", q.module
+            
+            print "SOURCES"
+            for q in self.datasource_modules:
+                print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
+                print "Raw ", q.module
+            
+            print "TYPES"
+            for q in self.datatypes:
+                print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
+                print "Raw ", q.module
+                
+        
+        #ORIGINAL IF TRUE        
+        if False:        
+            #populate the treeview
+            self.listmodel = ModuleManager.DataProviderTreeModel2()
+            self.treeview = self.widgets.get_widget("treeview1")
+            # create the TreeViewColumns to display the data
+            column_names = self.listmodel.get_column_names()
+            self.tvcolumn = [None] * len(column_names)
+            cellpb = gtk.CellRendererPixbuf()
+            self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0],
+                                                  cellpb, pixbuf=0)
+            cell = gtk.CellRendererText()
+            self.tvcolumn[0].pack_start(cell, False)
+            self.tvcolumn[0].add_attribute(cell, 'text', 1)
+            self.treeview.append_column(self.tvcolumn[0])
+            for n in range(1, len(column_names)):
+                cell = gtk.CellRendererText()
+                if n == 1:
+                    cell.set_property('xalign', 1.0)
+                self.tvcolumn[n] = gtk.TreeViewColumn(column_names[n], cell, text=n+1)
+                self.treeview.append_column(self.tvcolumn[n])
+                
+            self.treeview.set_model(self.listmodel)
+        else:
+            if True:
+                #populate the treeview
+                self.listmodel = ModuleManager.DataProviderTreeModel(self.datasource_modules)
+                self.treeview = self.widgets.get_widget("treeview1")
+                # create the TreeViewColumns to display the data
+                column_names = self.listmodel.get_column_names()
+                self.tvcolumn = [None] * len(column_names)
+                self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0],gtk.CellRendererText(), text=0)
+                self.tvcolumn[1] = gtk.TreeViewColumn(column_names[1],gtk.CellRendererText(), text=1)
+                self.treeview.append_column(self.tvcolumn[0])
+                self.treeview.append_column(self.tvcolumn[1])
+                self.treeview.set_model(self.listmodel)
+            
+            #populate the treeview
+            self.listmodel2 = ModuleManager.DataProviderTreeModel(self.datasink_modules)
+            self.treeview2 = self.widgets.get_widget("treeview2")
+            # create the TreeViewColumns to display the data
+            column_names2 = self.listmodel2.get_column_names()
+            self.tvcolumn2 = [None] * len(column_names2)
+            self.tvcolumn2[0] = gtk.TreeViewColumn(column_names2[0],gtk.CellRendererText(), text=0)
+            self.tvcolumn2[1] = gtk.TreeViewColumn(column_names2[1],gtk.CellRendererText(), text=1)
+            self.treeview2.append_column(self.tvcolumn2[0])
+            self.treeview2.append_column(self.tvcolumn2[1])
+            self.treeview2.set_model(self.listmodel2)
         return
      
     # callbacks.

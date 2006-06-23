@@ -1,3 +1,25 @@
+2006-06-23 08:10  john
+
+	* DataProvider.py, DataType.py, MainWindow.py, Manager.py,
+	  conduit.glade, conduit.py, conduits, dataproviders/File.py,
+	  dataproviders/Gmail.py, datatypes, datatypes/FileDataType.py,
+	  start_conduit.py: More dynamic loader improvements
+
+2006-06-21 22:36  john
+
+	* conduit.py, dataproviders/File.py: installed / uninstalled
+	  detection working ish
+
+2006-06-21 11:07  john
+
+	* DataProvider.py, MainWindow.py, Manager.py: some kind of module
+	  loading is working
+
+2006-06-21 11:02  john
+
+	* ChangeLog, conduit.py, dataproviders/File.py: change path at
+	  runtime - I HATE PYTHON IMPORT AND HOW IT WORKS
+
 2006-06-21 08:21  john
 
 	* DataSink.py, DataSource.py: more deletions

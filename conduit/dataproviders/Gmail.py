@@ -6,6 +6,7 @@ MODULES = {
 	"GmailSource" : {
 		"name": _("Gmail Source"),
 		"description": _("Source for synchronizing Gmail Data"),
+		"category": "Test",
 		"type": "source",
 		"in": "file",
 		"out": "file"
@@ -14,6 +15,7 @@ MODULES = {
 		"name": _("Gmail Sink"),
 		"description": _("Sink for synchronizing Gmail Data"),
 		"type": "sink",
+		"category": "Test",
 		"in": "file",
 		"out": "file"
 	}
