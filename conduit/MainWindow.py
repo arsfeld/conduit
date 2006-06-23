@@ -25,7 +25,30 @@ class MainWindow:
         #start up the canvas
         self.canvas = ConduitEditorCanvas.ConduitEditorCanvas()
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
-        self.canvasSW.add(self.canvas)    
+        self.canvasSW.add(self.canvas)
+        
+        #populate the treeview
+        self.listmodel = Manager.DataProviderTreeModel()
+        self.treeview = self.widgets.get_widget("treeview1")
+        # create the TreeViewColumns to display the data
+        column_names = self.listmodel.get_column_names()
+        self.tvcolumn = [None] * len(column_names)
+        cellpb = gtk.CellRendererPixbuf()
+        self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0],
+                                              cellpb, pixbuf=0)
+        cell = gtk.CellRendererText()
+        self.tvcolumn[0].pack_start(cell, False)
+        self.tvcolumn[0].add_attribute(cell, 'text', 1)
+        self.treeview.append_column(self.tvcolumn[0])
+        for n in range(1, len(column_names)):
+            cell = gtk.CellRendererText()
+            if n == 1:
+                cell.set_property('xalign', 1.0)
+            self.tvcolumn[n] = gtk.TreeViewColumn(column_names[n], cell, text=n+1)
+            self.treeview.append_column(self.tvcolumn[n])
+            
+        self.treeview.set_model(self.listmodel)
+        #self.widgets.show_all()            
     
         dic = {"on_window1_destroy" : gtk.main_quit,
             "on_synchronizebutton_clicked" : self.synchronizeSet,
@@ -41,11 +64,11 @@ class MainWindow:
         self.popwidgets.signal_autoconnect(self)
         self.canvas.setPopup(popup)
         
-        foo = [ ]
-        foo.append("dataproviders")
-        print foo
-        self.m = Manager.Manager(foo)
+        self.m = Manager.ModuleLoader(["datatypes","dataproviders"])
         self.m.load_all()
+        #for q in self.m.loadedmodules:
+        #    print "Name = '%s' Description = '%s' Type = '%s'" % (q.name, q.description, q.module_type)
+        #    print "Raw ", q.module
         return
      
     # callbacks.

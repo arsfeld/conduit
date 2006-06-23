@@ -12,6 +12,10 @@ class DataProviderModel(gobject.GObject):
         
         self.name = name
         self.description = description
+        try:
+            self.icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_OK, 48, 0)
+        except gobject.GError, exc:
+            print "can't load icon", exc
 
         #element.connect("element-added", self._elementAddedCb)
         #element.connect("element-removed", self._elementRemovedCb)
@@ -107,12 +111,12 @@ class DataProviderModel(gobject.GObject):
     def _elementRemovedCb(self):
         raise NotImplementedError
         
-    def _get_icon(self):
+    def get_icon(self):
         """
         Returns a GdkPixbuf hat represents this handler.
         Returns None if there is no associated icon.
         """
-        return self._icon
+        return self.icon
         
     def deserialize(self, class_name, serialized):
         print "not implemented"

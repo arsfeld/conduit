@@ -1,9 +1,8 @@
 from gettext import gettext as _
 
 import DataProvider
-#from deskbar.DeskbarHistory import get_deskbar_history
 
-DATAPROVIDERS = {
+MODULES = {
 	"FileSource" : {
 		"name": _("File Source"),
 		"description": _("Source for synchronizing files"),
