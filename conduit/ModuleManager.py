@@ -209,8 +209,8 @@ filexpm = [
 filepb = gtk.gdk.pixbuf_new_from_xpm_data(filexpm)
 
 class DataProviderTreeModel(gtk.GenericTreeModel):
-    column_types = (str, str)
-    column_names = ['Name', 'Description']
+    column_types = (gtk.gdk.Pixbuf, str, str)
+    column_names = ['Pic', 'Name', 'Description']
 
     def __init__(self, module_array):
         gtk.GenericTreeModel.__init__(self)
@@ -248,8 +248,10 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         print "on_get_value: rowref = %s column = %s" % (rowref, column)
         m = self.modules[self.get_module_index_by_name(rowref)]
         if column is 0:
-            return m.name
+            return m.module.get_icon()
         elif column is 1:
+            return m.name
+        elif column is 2:
             return m.description
         else:
             print "ERROR WILL ROBINSON"

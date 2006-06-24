@@ -133,18 +133,6 @@ class DataProviderModel(gobject.GObject):
         
     def initialize(self):
         print "not implemented"        
-    
-
-
-class TestModel(DataProviderModel):
-    """ Test Model """
-
-    def __init__(self, name=None):
-        DataProviderModel.__init__(self, name)
-        
-        
-    # actions possible, DON'T update UI here
-    # CONTROLLER
 
     def addElement(self, element):
         print "not implemented"        
@@ -168,19 +156,31 @@ class TestModel(DataProviderModel):
 
 
 class DataSource(DataProviderModel):
-    "Base Class for DataSources"
-    
+    """Base Class for DataSources
+    """
     def __init__(self, name=None, description=None):
         DataProviderModel.__init__(self, name, description)
+        try:
+            self.icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_OK, 16, 0)
+        except gobject.GError, exc:
+            print "can't load icon", exc
         
-    def get_icon(self):
-        return None
+        print "DATASOURCE"
+    
+    #def get_icon(self):
+    #    return None
         
 class DataSink(DataProviderModel):
-    "Base Class for DataSinks"
-    
+    """Base Class for DataSinks
+    """
     def __init__(self, name=None, description=None):
-        DataProviderModel.__init__(self, name, description)        
+        DataProviderModel.__init__(self, name, description)
+        try:
+            self.icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_NO, 16, 0)
+        except gobject.GError, exc:
+            print "can't load icon", exc
+            
+        print "DATASINK"
         
-    def get_icon(self):
-        return None
+    #def get_icon(self):
+    #    return None

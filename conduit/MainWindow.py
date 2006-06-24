@@ -99,10 +99,12 @@ class MainWindow:
                 # create the TreeViewColumns to display the data
                 column_names = self.listmodel.get_column_names()
                 self.tvcolumn = [None] * len(column_names)
-                self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0],gtk.CellRendererText(), text=0)
+                self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0], gtk.CellRendererPixbuf(), pixbuf=0)
                 self.tvcolumn[1] = gtk.TreeViewColumn(column_names[1],gtk.CellRendererText(), text=1)
+                self.tvcolumn[2] = gtk.TreeViewColumn(column_names[2],gtk.CellRendererText(), text=2)
                 self.treeview.append_column(self.tvcolumn[0])
                 self.treeview.append_column(self.tvcolumn[1])
+                self.treeview.append_column(self.tvcolumn[2])
                 self.treeview.set_model(self.listmodel)
             
             #populate the treeview
@@ -111,10 +113,12 @@ class MainWindow:
             # create the TreeViewColumns to display the data
             column_names2 = self.listmodel2.get_column_names()
             self.tvcolumn2 = [None] * len(column_names2)
-            self.tvcolumn2[0] = gtk.TreeViewColumn(column_names2[0],gtk.CellRendererText(), text=0)
+            self.tvcolumn2[0] = gtk.TreeViewColumn(column_names2[0], gtk.CellRendererPixbuf(), pixbuf=0)
             self.tvcolumn2[1] = gtk.TreeViewColumn(column_names2[1],gtk.CellRendererText(), text=1)
+            self.tvcolumn2[2] = gtk.TreeViewColumn(column_names2[2],gtk.CellRendererText(), text=2)
             self.treeview2.append_column(self.tvcolumn2[0])
             self.treeview2.append_column(self.tvcolumn2[1])
+            self.treeview2.append_column(self.tvcolumn2[2])
             self.treeview2.set_model(self.listmodel2)
         return
      

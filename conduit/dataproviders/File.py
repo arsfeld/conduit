@@ -23,13 +23,13 @@ MODULES = {
 }
 
 #TODO: Inherit from Source
-class FileSource(DataProvider.DataProviderModel):
+class FileSource(DataProvider.DataSource):
 	def __init__(self):
-		DataProvider.DataProviderModel.__init__(self, _("File Source"), _("Source for synchronizing files"))
+		DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"))
 
 		
 #TODO: Inherit from Sink		
-class FileSink(DataProvider.DataProviderModel):
+class FileSink(DataProvider.DataSink):
 	def __init__(self):
-		DataProvider.DataProviderModel.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
+		DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
 

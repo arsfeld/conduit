@@ -23,11 +23,11 @@ MODULES = {
 }
 
 #TODO: Inherit from Source
-class GmailSource(DataProvider.DataProviderModel):
+class GmailSource(DataProvider.DataSource):
 	def __init__(self):
-		DataProvider.DataProviderModel.__init__(self, _("Gmail Source"), _("Source for synchronizing files"))
+		DataProvider.DataSource.__init__(self, _("Gmail Source"), _("Source for synchronizing files"))
 		
 #TODO: Inherit from Sink		
-class GmailSink(DataProvider.DataProviderModel):
+class GmailSink(DataProvider.DataSink):
 	def __init__(self):
-		DataProvider.DataProviderModel.__init__(self, _("Gmail Sink"), _("Sink for synchronizing files"))
+		DataProvider.DataSink.__init__(self, _("Gmail Sink"), _("Sink for synchronizing files"))
