@@ -155,59 +155,6 @@ class ModuleWrapper(gobject.GObject):
         self.category = category
         self.module = module
                    
-import os, stat, time
-import pygtk
-pygtk.require('2.0')
-import gtk
-
-folderxpm = [
-    "17 16 7 1",
-    "  c #000000",
-    ". c #808000",
-    "X c yellow",
-    "o c #808080",
-    "O c #c0c0c0",
-    "+ c white",
-    "@ c None",
-    "@@@@@@@@@@@@@@@@@",
-    "@@@@@@@@@@@@@@@@@",
-    "@@+XXXX.@@@@@@@@@",
-    "@+OOOOOO.@@@@@@@@",
-    "@+OXOXOXOXOXOXO. ",
-    "@+XOXOXOXOXOXOX. ",
-    "@+OXOXOXOXOXOXO. ",
-    "@+XOXOXOXOXOXOX. ",
-    "@+OXOXOXOXOXOXO. ",
-    "@+XOXOXOXOXOXOX. ",
-    "@+OXOXOXOXOXOXO. ",
-    "@+XOXOXOXOXOXOX. ",
-    "@+OOOOOOOOOOOOO. ",
-    "@                ",
-    "@@@@@@@@@@@@@@@@@",
-    "@@@@@@@@@@@@@@@@@"
-    ]
-folderpb = gtk.gdk.pixbuf_new_from_xpm_data(folderxpm)
-
-filexpm = [
-    "12 12 3 1",
-    "  c #000000",
-    ". c #ffff04",
-    "X c #b2c0dc",
-    "X        XXX",
-    "X ...... XXX",
-    "X ......   X",
-    "X .    ... X",
-    "X ........ X",
-    "X .   .... X",
-    "X ........ X",
-    "X .     .. X",
-    "X ........ X",
-    "X .     .. X",
-    "X ........ X",
-    "X          X"
-    ]
-filepb = gtk.gdk.pixbuf_new_from_xpm_data(filexpm)
-
 class DataProviderTreeModel(gtk.GenericTreeModel):
     column_types = (gtk.gdk.Pixbuf, str, str)
     column_names = ['Pic', 'Name', 'Description']
@@ -297,101 +244,44 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         print "on_iter_parent: child = ", child
         return None
         
-class DataProviderTreeModel2(gtk.GenericTreeModel):
-    column_types = (gtk.gdk.Pixbuf, str, long, str, str)
-    column_names = ['Name', 'Size', 'Mode', 'Last Changed']
-
-    def __init__(self, dname=None):
-        gtk.GenericTreeModel.__init__(self)
-        if not dname:
-            self.dirname = os.path.expanduser('~')
-        else:
-            self.dirname = os.path.abspath(dname)
-        self.files = [f for f in os.listdir(self.dirname) if f[0] <> '.']
-        self.files.sort()
-        self.files = ['..'] + self.files
-        return
-
-    def get_pathname(self, path):
-        filename = self.files[path[0]]
-        return os.path.join(self.dirname, filename)
-
-    def is_folder(self, path):
-        filename = self.files[path[0]]
-        pathname = os.path.join(self.dirname, filename)
-        filestat = os.stat(pathname)
-        if stat.S_ISDIR(filestat.st_mode):
-            return True
-        return False
-
-    def get_column_names(self):
-        return self.column_names[:]
-
-    def on_get_flags(self):
-        return gtk.TREE_MODEL_LIST_ONLY|gtk.TREE_MODEL_ITERS_PERSIST
-
-    def on_get_n_columns(self):
-        return len(self.column_types)
-
-    def on_get_column_type(self, n):
-        return self.column_types[n]
-
-    def on_get_iter(self, path):
-        print "path ", path
-        return self.files[path[0]]
-
-    def on_get_path(self, rowref):
-        return self.files.index(rowref)
-
-    def on_get_value(self, rowref, column):
-        print "rowref = ", rowref
-        fname = os.path.join(self.dirname, rowref)
-        try:
-            filestat = os.stat(fname)
-        except OSError:
-            return None
-        mode = filestat.st_mode
-        if column is 0:
-            if stat.S_ISDIR(mode):
-                return folderpb
-            else:
-                return filepb
-        elif column is 1:
-            return rowref
-        elif column is 2:
-            return filestat.st_size
-        elif column is 3:
-            return oct(stat.S_IMODE(mode))
-        return time.ctime(filestat.st_mtime)
-
-    def on_iter_next(self, rowref):
-        print "cheese = ", rowref
-        try:
-            i = self.files.index(rowref)+1
-            return self.files[i]
-        except IndexError:
-            return None
-
-    def on_iter_children(self, rowref):
-        if rowref:
-            return None
-        return self.files[0]
-
-    def on_iter_has_child(self, rowref):
-        return False
-
-    def on_iter_n_children(self, rowref):
-        if rowref:
-            return 0
-        return len(self.files)
-
-    def on_iter_nth_child(self, rowref, n):
-        if rowref:
-            return None
-        try:
-            return self.files[n]
-        except IndexError:
-            return None
-
-    def on_iter_parent(child):
-        return None        
+class DataProviderTreeView(gtk.TreeView):
+    DND_TARGETS = [
+    ('STRING', 0, 0),
+    ('text/plain', 0, 1),
+    ('conduit/element-name', 0, 2)
+    ]
+    def __init__(self, model):
+        gtk.TreeView.__init__(self, model)
+        
+        column_names = model.get_column_names()
+        tvcolumn = [None] * len(column_names)
+        # First cell in the column is for an image...
+        tvcolumn[0] = gtk.TreeViewColumn(column_names[0], gtk.CellRendererPixbuf(), pixbuf=0)
+        self.append_column(tvcolumn[0])
+        # Second cell is name
+        tvcolumn[1] = gtk.TreeViewColumn(column_names[1], gtk.CellRendererText(), text=1)
+        self.append_column(tvcolumn[1])
+        # Third cell is description
+        tvcolumn[2] = gtk.TreeViewColumn(column_names[2], gtk.CellRendererText(), text=2)
+        self.append_column(tvcolumn[2])
+        
+        # DND info:
+        # drag
+        self.enable_model_drag_source(  gtk.gdk.BUTTON1_MASK,
+                                        #[DataProviderTreeView.DND_TARGETS[-1]],
+                                        DataProviderTreeView.DND_TARGETS,
+                                        gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+        self.drag_source_set(           gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
+                                        DataProviderTreeView.DND_TARGETS,
+                                        gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
+        self.connect('drag-data-get', self.on_drag_data_get)
+    
+    def on_drag_data_get(self, treeview, context, selection, target_id, etime):
+        """Get the data to be dropped by on_drag_data_received().
+        We send the id of the dragged element.
+        """
+        treeselection = treeview.get_selection()
+        model, iter = treeselection.get_selected()
+        data = model.get_value(iter, 1)
+        #print "---------------------------- data = ", data
+        selection.set(selection.target, 8, data)

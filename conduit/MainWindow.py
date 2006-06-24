@@ -27,8 +27,6 @@ class MainWindow:
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.canvasSW.add(self.canvas)
         
-        #self.widgets.show_all()            
-    
         dic = {"on_window1_destroy" : gtk.main_quit,
             "on_synchronizebutton_clicked" : self.synchronizeSet,
             "on_configurebutton_clicked" : self.configureItem,
@@ -68,59 +66,19 @@ class MainWindow:
                 print "Raw ", q.module
                 
         
-        #ORIGINAL IF TRUE        
-        if False:        
-            #populate the treeview
-            self.listmodel = ModuleManager.DataProviderTreeModel2()
-            self.treeview = self.widgets.get_widget("treeview1")
-            # create the TreeViewColumns to display the data
-            column_names = self.listmodel.get_column_names()
-            self.tvcolumn = [None] * len(column_names)
-            cellpb = gtk.CellRendererPixbuf()
-            self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0],
-                                                  cellpb, pixbuf=0)
-            cell = gtk.CellRendererText()
-            self.tvcolumn[0].pack_start(cell, False)
-            self.tvcolumn[0].add_attribute(cell, 'text', 1)
-            self.treeview.append_column(self.tvcolumn[0])
-            for n in range(1, len(column_names)):
-                cell = gtk.CellRendererText()
-                if n == 1:
-                    cell.set_property('xalign', 1.0)
-                self.tvcolumn[n] = gtk.TreeViewColumn(column_names[n], cell, text=n+1)
-                self.treeview.append_column(self.tvcolumn[n])
-                
-            self.treeview.set_model(self.listmodel)
-        else:
-            if True:
-                #populate the treeview
-                self.listmodel = ModuleManager.DataProviderTreeModel(self.datasource_modules)
-                self.treeview = self.widgets.get_widget("treeview1")
-                # create the TreeViewColumns to display the data
-                column_names = self.listmodel.get_column_names()
-                self.tvcolumn = [None] * len(column_names)
-                self.tvcolumn[0] = gtk.TreeViewColumn(column_names[0], gtk.CellRendererPixbuf(), pixbuf=0)
-                self.tvcolumn[1] = gtk.TreeViewColumn(column_names[1],gtk.CellRendererText(), text=1)
-                self.tvcolumn[2] = gtk.TreeViewColumn(column_names[2],gtk.CellRendererText(), text=2)
-                self.treeview.append_column(self.tvcolumn[0])
-                self.treeview.append_column(self.tvcolumn[1])
-                self.treeview.append_column(self.tvcolumn[2])
-                self.treeview.set_model(self.listmodel)
-            
-            #populate the treeview
-            self.listmodel2 = ModuleManager.DataProviderTreeModel(self.datasink_modules)
-            self.treeview2 = self.widgets.get_widget("treeview2")
-            # create the TreeViewColumns to display the data
-            column_names2 = self.listmodel2.get_column_names()
-            self.tvcolumn2 = [None] * len(column_names2)
-            self.tvcolumn2[0] = gtk.TreeViewColumn(column_names2[0], gtk.CellRendererPixbuf(), pixbuf=0)
-            self.tvcolumn2[1] = gtk.TreeViewColumn(column_names2[1],gtk.CellRendererText(), text=1)
-            self.tvcolumn2[2] = gtk.TreeViewColumn(column_names2[2],gtk.CellRendererText(), text=2)
-            self.treeview2.append_column(self.tvcolumn2[0])
-            self.treeview2.append_column(self.tvcolumn2[1])
-            self.treeview2.append_column(self.tvcolumn2[2])
-            self.treeview2.set_model(self.listmodel2)
-        return
+        # Populate the tree and list models
+        self.source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
+        self.sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
+        self.source_model = ModuleManager.DataProviderTreeModel(self.datasource_modules)            
+        self.sink_model = ModuleManager.DataProviderTreeModel(self.datasink_modules)
+        self.source_tree_view = ModuleManager.DataProviderTreeView(self.source_model)
+        self.sink_tree_view = ModuleManager.DataProviderTreeView(self.sink_model)
+        self.source_scrolled_window.add(self.source_tree_view)
+        self.sink_scrolled_window.add(self.sink_tree_view)
+        self.source_scrolled_window.show_all()
+        self.sink_scrolled_window.show_all()
+
+        #self.widgets.show_all()
      
     # callbacks.
     def synchronizeSet(self, widget):
@@ -190,6 +148,6 @@ class MainWindow:
     def testPrint(self, button):
         print "hello!"
         return 1
-        
+
     def __main__(self):
         gtk.main()    	
