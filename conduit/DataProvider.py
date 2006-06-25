@@ -1,4 +1,3 @@
-import gst
 import gtk
 import gobject
 import goocanvas
@@ -47,7 +46,6 @@ class DataProviderModel(gobject.GObject):
         #set a creation callback so we can grab the view and set up callbacks
         pgroup.connect("child_added", self._onPadAdded)
         
-        pgroup
         lefty = 109
         righty = 109
         leftx = 109
@@ -153,10 +151,15 @@ class DataProviderModel(gobject.GObject):
         # find the widget associated with the element
         # remove it from UI
         raise NotImplementedError
+        
+    def get_widget(self):
+        print "Getting Widget"
+        return self.widget
 
 
 class DataSource(DataProviderModel):
-    """Base Class for DataSources
+    """
+    Base Class for DataSources
     """
     def __init__(self, name=None, description=None):
         DataProviderModel.__init__(self, name, description)
@@ -167,7 +170,8 @@ class DataSource(DataProviderModel):
         
      
 class DataSink(DataProviderModel):
-    """Base Class for DataSinks
+    """
+    Base Class for DataSinks
     """
     def __init__(self, name=None, description=None):
         DataProviderModel.__init__(self, name, description)

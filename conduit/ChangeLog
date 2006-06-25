@@ -1,3 +1,28 @@
+2006-06-25 07:09  john
+
+	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,
+	  ModuleManager.py, attic/filelisting-gtm.py, attic/namespace.py:
+	  Moved drag and drop signals back into the main window.
+	  Refactored management of dynamic modules into its own class\n
+
+2006-06-24 05:56  john
+
+	* MainWindow.py, ModuleManager.py, conduit.glade,
+	  conduit.glade.bak: treeview DND working to some extent
+
+2006-06-24 02:33  john
+
+	* DataProvider.py, MainWindow.py, ModuleManager.py,
+	  dataproviders/File.py, dataproviders/Gmail.py: Custom treeview
+	  shows pixbufs (the icon of the dataprovider)
+
+2006-06-23 12:06  john
+
+	* ChangeLog, MainWindow.py, Manager.py, ModuleManager.py,
+	  dataproviders/File.py, dataproviders/Gmail.py,
+	  datatypes/FileDataType.py: Got treeview and dynamic loading
+	  playing together
+
 2006-06-23 08:10  john
 
 	* DataProvider.py, DataType.py, MainWindow.py, Manager.py,

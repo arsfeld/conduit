@@ -3,8 +3,6 @@ import gtk
 
 import ModuleManager
 
-#import gsteditorelement
-
 class ConduitEditorCanvas(goocanvas.CanvasView):
     """
     This class visually describes the state of the main GST pipeline of a
@@ -54,19 +52,12 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                 self.popup.popup(None, None, None, event.button, event.time)
                 return True
     
-    def makeNewElement(self, name, factory):
-        "Creates a new Gst element and draws it on the canvas"
-        #element = factory.create(name)
-        #desc = factory.get_longname()
-        #need some kind of workaround for bins and pipelines here
-        #self.pipeline.addElement(element)
-        
-        #elementmodel = gsteditorelement.ElementModel(element.get_name(), 
-        #                                element, desc)
-        #self.newelement = elementmodel
-        #self.root.add_child(elementmodel.widget)
-        raise NotImplementedError        
-        
+    def add_module_to_canvas(self, module):
+        """
+        Adds a new Module to the Canvas
+        """
+        self.newelement = module
+        self.root.add_child(module.widget)        
     
     def moveElement(self, element):
         "Repositions an element on the canvas and re-draws connectors"

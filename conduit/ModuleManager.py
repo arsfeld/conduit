@@ -34,6 +34,7 @@ class ModuleManager(gobject.GObject):
         for m in mods:
             if name == m.name:
                 print "FOUND name = ", name
+                return m
                 
     def get_module_do_copy(self, name=None, category=None):
         """
