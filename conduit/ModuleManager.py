@@ -6,9 +6,62 @@ import traceback
 import pydoc
 from os.path import abspath, expanduser, join, basename
 
+class ModuleManager(gobject.GObject):
+    """
+    Manager Class for ALL dynamically loaded modules.
+    Generated treeview and treestore representations of the
+    loaded modules and can instanciate new ones. 
+    Applications should use this class and its methods rather 
+    than the ModuleLoader, TreeStore and TreeView classes directly 
+    """
+    
+    def __init__(self, dirs=None):
+        """
+		dirs: A list of directories to search. Relative pathnames and paths
+			  containing ~ will be expanded. If dirs is None the 
+			  ModuleLoader will not search for modules.
+		"""
+        gobject.GObject.__init__(self)        
+        self.module_loader = ModuleLoader(dirs)
+        self.module_loader.load_all_modules()
+                
+    def get_module(self, name=None, category=None):
+        """
+        Returns a Module (not a ModuleWrapper) specified by name
+        """
+        print "SEARCHING Category = %s Name = %s" % (name, category)
+        mods = self.module_loader.get_modules(category)
+        for m in mods:
+            if name == m.name:
+                print "FOUND name = ", name
+                
+    def get_module_do_copy(self, name=None, category=None):
+        """
+        Returns a copy of a Module (not a ModuleWrapper)
+        """
+        print "not implemented"
+        
+    def get_treeview(self, category=None):
+        """
+        Returns a treeview (for displaying a list of ModuleContexts)
+        in the specified category.
+        """
+        tm = self._get_treemodel(category)
+        return DataProviderTreeView(tm)
+                
+    def _get_treemodel(self, category=None):
+        """
+        Returns a treemodel containing  the ModuleContexts
+        in the specified category
+        """
+        mods = self.module_loader.get_modules(category)
+        tm = DataProviderTreeModel(mods)
+        return tm
+
 #WAS gsteditorelement
 class ModuleLoader(gobject.GObject):
-    """Generic dynamic module loader for conduit. Given a path
+    """
+    Generic dynamic module loader for conduit. Given a path
     it loads all modules in that directory, keeping them in an
     internam array which may be returned via get_modules
     """
@@ -27,7 +80,8 @@ class ModuleLoader(gobject.GObject):
         self.loadedmodules = [] 
             
     def _build_filelist_from_directories (self, directories=None):
-        """Converts a given array of directories into a list 
+        """
+        Converts a given array of directories into a list 
         containing the filenames of all qualified modules.
         This method is automatically invoked by the constructor.
         """
@@ -53,11 +107,14 @@ class ModuleLoader(gobject.GObject):
         return res			
        
     def _is_module (self, filename):
-        """Tests whether the filename has the appropriate extension."""
+        """
+        Tests whether the filename has the appropriate extension.
+        """
         return (filename[-len(self.ext):] == self.ext)
         
     def _append_module(self, module):
-        """Checks if the given module (checks by name) is already loaded
+        """
+        Checks if the given module (checks by name) is already loaded
         into the modulelist array, if not it is added to that array
         """
         if module.name not in [i.name for i in self.loadedmodules]:
@@ -66,7 +123,8 @@ class ModuleLoader(gobject.GObject):
             print >> sys.stderr, "module named %s allready loaded" % (module.name)
             
     def _import_module (self, filename):
-        """Tries to import the specified file. Returns the python module on succes.
+        """
+        Tries to import the specified file. Returns the python module on succes.
         Primarily for internal use. Note that the python module returned may actually
         contain several more loadable modules.
         """
@@ -108,7 +166,8 @@ class ModuleLoader(gobject.GObject):
         return mod
         
     def load_modules_in_file (self, filename):
-        """Loads all modules in the given file
+        """
+        Loads all modules in the given file
         """
         mod = self._import_module (filename)
         if mod is None:
@@ -122,7 +181,8 @@ class ModuleLoader(gobject.GObject):
             #self.emit("module-loaded", context)
             
     def load_all_modules (self):
-        """Loads all modules
+        """
+        Loads all modules
         """
   	
         for f in self.filelist:
@@ -131,7 +191,8 @@ class ModuleLoader(gobject.GObject):
         #self.emit('modules-loaded')
         
     def get_modules (self, type_filter=None):
-        """Returns all loaded modules of type specified by type_filter 
+        """
+        Returns all loaded modules of type specified by type_filter 
         or all if the filter is set to None.
         """
         if type_filter is None:
@@ -146,7 +207,8 @@ class ModuleLoader(gobject.GObject):
             
         
 class ModuleWrapper(gobject.GObject): 
-    """A generic wrapper for any dynamically loaded module
+    """
+    A generic wrapper for any dynamically loaded module
     """	
     def __init__ (self, name, description, module_type, category, module):
         self.name = name
@@ -161,15 +223,19 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
 
     def __init__(self, module_array):
         gtk.GenericTreeModel.__init__(self)
-        print "init, array= ", module_array
+        #print "init, array= ", module_array
         self.modules = module_array
         return 
         
     def get_module_index_by_name(self, name):
-        print "get_module_index_by_name: name = ", name
+        #print "get_module_index_by_name: name = ", name
         for n in range(0, len(self.modules)):
             if self.modules[n].name == name:
                 return n
+                
+    def get_module_by_name(self, name):
+        #TODO: ERROR CHECK
+        return self.modules[self.get_module_index_by_name(name)]
     
     def get_column_names(self):
         return self.column_names[:]
@@ -184,15 +250,15 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         return self.column_types[n]
 
     def on_get_iter(self, path):
-        print "on_get_iter: path =", path
+        #print "on_get_iter: path =", path
         return self.modules[path[0]].name
 
     def on_get_path(self, rowref):
-        print "on_get_path: rowref = ", rowref
+        #print "on_get_path: rowref = ", rowref
         return self.modules[self.get_module_index_by_name(rowref)]
 
     def on_get_value(self, rowref, column):
-        print "on_get_value: rowref = %s column = %s" % (rowref, column)
+        #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         m = self.modules[self.get_module_index_by_name(rowref)]
         if column is 0:
             return m.module.get_icon()
@@ -205,34 +271,34 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return None
         
     def on_iter_next(self, rowref):
-        print "on_iter_next: rowref = ", rowref
+        #print "on_iter_next: rowref = ", rowref
         try:
             i = self.get_module_index_by_name(rowref)
-            print "on_iter_next: old i = ", i
+            #print "on_iter_next: old i = ", i
             i = i+1
-            print "on_iter_next: next i = ", i
+            #print "on_iter_next: next i = ", i
             return self.modules[i].name
         except IndexError:
             return None
         
     def on_iter_children(self, rowref):
-        print "on_iter_children: rowref = ", rowref
+        #print "on_iter_children: rowref = ", rowref
         if rowref:
             return None
         return self.modules[0].name
 
     def on_iter_has_child(self, rowref):
-        print "on_iter_has_child: rowref = ", rowref
+        #print "on_iter_has_child: rowref = ", rowref
         return False
 
     def on_iter_n_children(self, rowref):
-        print "on_iter_n_children: rowref = ", rowref
+        #print "on_iter_n_children: rowref = ", rowref
         if rowref:
             return 0
         return len(self.modules)
 
     def on_iter_nth_child(self, rowref, n):
-        print "on_iter_nth_chile: rowref = %s n = %s" % (rowref, n)
+        #print "on_iter_nth_chile: rowref = %s n = %s" % (rowref, n)
         if rowref:
             return None
         try:
@@ -241,13 +307,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return None
 
     def on_iter_parent(child):
-        print "on_iter_parent: child = ", child
+        #print "on_iter_parent: child = ", child
         return None
         
 class DataProviderTreeView(gtk.TreeView):
     DND_TARGETS = [
-    ('STRING', 0, 0),
-    ('text/plain', 0, 1),
+    #('STRING', 0, 0),
+    #('text/plain', 0, 1),
     ('conduit/element-name', 0, 2)
     ]
     def __init__(self, model):
@@ -275,9 +341,11 @@ class DataProviderTreeView(gtk.TreeView):
                                         DataProviderTreeView.DND_TARGETS,
                                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-data-get', self.on_drag_data_get)
+        self.connect('drag-data-delete', self.on_drag_data_delete)
     
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):
-        """Get the data to be dropped by on_drag_data_received().
+        """
+        Get the data to be dropped by on_drag_data_received().
         We send the id of the dragged element.
         """
         treeselection = treeview.get_selection()
@@ -285,3 +353,10 @@ class DataProviderTreeView(gtk.TreeView):
         data = model.get_value(iter, 1)
         #print "---------------------------- data = ", data
         selection.set(selection.target, 8, data)
+        
+    def on_drag_data_delete (self, context, etime):
+        """
+        DnD magic. do not touch
+        """
+        self.emit_stop_by_name('drag-data-delete')      
+        #context.finish(True, True, etime)

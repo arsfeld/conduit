@@ -165,11 +165,7 @@ class DataSource(DataProviderModel):
         except gobject.GError, exc:
             print "can't load icon", exc
         
-        print "DATASOURCE"
-    
-    #def get_icon(self):
-    #    return None
-        
+     
 class DataSink(DataProviderModel):
     """Base Class for DataSinks
     """
@@ -180,7 +176,4 @@ class DataSink(DataProviderModel):
         except gobject.GError, exc:
             print "can't load icon", exc
             
-        print "DATASINK"
-        
-    #def get_icon(self):
-    #    return None
+

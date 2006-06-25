@@ -27,6 +27,9 @@ class MainWindow:
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.canvasSW.add(self.canvas)
         
+        self.canvas.connect('drag-drop', self.drop_cb)
+        self.canvas.connect("drag-data-received", self.drag_data_received_data)
+        
         dic = {"on_window1_destroy" : gtk.main_quit,
             "on_synchronizebutton_clicked" : self.synchronizeSet,
             "on_configurebutton_clicked" : self.configureItem,
@@ -41,14 +44,9 @@ class MainWindow:
         self.popwidgets.signal_autoconnect(self)
         self.canvas.setPopup(popup)
         
-        #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)        
-        self.module_loader = ModuleManager.ModuleLoader(["datatypes","dataproviders"])
-        self.module_loader.load_all_modules()
-        #Split into sinks, sources and datatypes
-        self.datasink_modules = self.module_loader.get_modules("sink")
-        self.datasource_modules = self.module_loader.get_modules("source")
-        self.datatypes = self.module_loader.get_modules("datatype")
-        
+        #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
+        self.modules = ModuleManager.ModuleManager(["datatypes","dataproviders"])
+                
         if False:
             print "SINKS"
             for q in self.datasink_modules:
@@ -69,12 +67,8 @@ class MainWindow:
         # Populate the tree and list models
         self.source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
         self.sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
-        self.source_model = ModuleManager.DataProviderTreeModel(self.datasource_modules)            
-        self.sink_model = ModuleManager.DataProviderTreeModel(self.datasink_modules)
-        self.source_tree_view = ModuleManager.DataProviderTreeView(self.source_model)
-        self.sink_tree_view = ModuleManager.DataProviderTreeView(self.sink_model)
-        self.source_scrolled_window.add(self.source_tree_view)
-        self.sink_scrolled_window.add(self.sink_tree_view)
+        self.source_scrolled_window.add(self.modules.get_treeview("source"))
+        self.sink_scrolled_window.add(self.modules.get_treeview("sink"))
         self.source_scrolled_window.show_all()
         self.sink_scrolled_window.show_all()
 
@@ -148,6 +142,39 @@ class MainWindow:
     def testPrint(self, button):
         print "hello!"
         return 1
+        
+    def drop_cb(self, wid, context, x, y, time):
+        print "DND DROP = ", context.targets
+        self.canvas.drag_get_data(context, context.targets[0], time)
+        #text.join([str(t) for t in context.targets])
+        #print text
+        return True
+        
+    def drag_data_received_data(self, treeview, context, x, y, selection, info, etime):
+        print "DND RX = ", context.targets
+        tmodel = treeview.get_model()
+        tdata = selection.data
+        print "TREEVIEW ", treeview
+        print "CONTEXT ", context
+        print "SELECTION ", selection
+        print "INFO ", info
+        print "DATA ", tdata
+        print "MODEL ", tmodel
+        #drop_info = treeview.get_dest_row_at_pos(x, y)
+        #if drop_info:
+        #    path, position = drop_info
+        #    iter = model.get_iter(path)
+        #    if (position == gtk.TREE_VIEW_DROP_BEFORE
+        #        or position == gtk.TREE_VIEW_DROP_INTO_OR_BEFORE):
+        #        model.insert_before(iter, [data])
+        #    else:
+        #        model.insert_after(iter, [data])
+        #else:
+        #    model.append([data])
+        #if context.action == gtk.gdk.ACTION_MOVE:
+        #mod_wrapper = tmodel.get_module_by_name(tdata)
+        context.finish(True, True, etime)
+        return        
 
     def __main__(self):
         gtk.main()    	

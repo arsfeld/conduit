@@ -1,6 +1,8 @@
 import goocanvas
 import gtk
 
+import ModuleManager
+
 #import gsteditorelement
 
 class ConduitEditorCanvas(goocanvas.CanvasView):
@@ -24,12 +26,23 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         # create a main pipeline to contain all child elements
         #self.pipeline = gsteditorelement.PipelineModel()
         
+        #set up DND from the treeview
+        self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
+                        ModuleManager.DataProviderTreeView.DND_TARGETS,
+                        gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
+        self.connect('drag-motion', self.motion_cb)
+        
         #set callback to catch new element creation so we can set events
         self.connect("item_view_created", self.onItemViewCreated)
         
         #set callbacks for background clicks
         self.connect_after("button_press_event", self._onButtonPress)
         
+    def motion_cb(self, wid, context, x, y, time):
+        context.drag_status(gtk.gdk.ACTION_COPY, time)
+        return True
+
+    
     def setPopup(self, popup):
         self.popup = popup
     
