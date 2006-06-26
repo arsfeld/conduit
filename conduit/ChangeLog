@@ -1,3 +1,14 @@
+2006-06-26 06:02  john
+
+	* conduit.glade, conduit.glade.bak: Added hpane to gladefile
+
+2006-06-25 09:59  john
+
+	* ChangeLog, ConduitEditorCanvas.py, DataProvider.py,
+	  MainWindow.py, ModuleManager.py, dataproviders/Gmail.py: Can DND
+	  dataproviders onto canvas and they stick. Can also move them
+	  around
+
 2006-06-25 07:09  john
 
 	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,

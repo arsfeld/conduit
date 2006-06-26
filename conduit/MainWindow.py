@@ -3,17 +3,18 @@ import gtk
 import gtk.glade
 import gnome.ui
 
-import DataProvider
-import ConduitEditorCanvas
-import ModuleManager
-
-
-APPNAME="Conduit"
-APPVERSION="0.0.1"
+import conduit
+import conduit.ConduitEditorCanvas as ConduitEditorCanvas
+import conduit.ModuleManager as ModuleManager
+import conduit.SyncManager as SyncManager
 
 class MainWindow:
+    """
+    The main conduit class.
+    """
+    
     def __init__(self,name=None):
-        gnome.init(APPNAME, APPVERSION)
+        gnome.init(conduit.APPNAME, conduit.APPVERSION)
         self.name = name
         self.gladefile = "conduit.glade"
         self.widgets = gtk.glade.XML(self.gladefile, "window1")
@@ -43,19 +44,22 @@ class MainWindow:
         #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
         self.modules = ModuleManager.ModuleManager(["datatypes","dataproviders"])
                 
-        if False:
+        if True:
+            datasink_modules = self.modules.module_loader.get_modules ("sink")
+            datasource_modules = self.modules.module_loader.get_modules ("source")
+            datatypes = self.modules.module_loader.get_modules ("datatype")
             print "SINKS"
-            for q in self.datasink_modules:
+            for q in datasink_modules:
                 print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
                 print "Raw ", q.module
             
             print "SOURCES"
-            for q in self.datasource_modules:
+            for q in datasource_modules:
                 print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
                 print "Raw ", q.module
             
             print "TYPES"
-            for q in self.datatypes:
+            for q in datatypes:
                 print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
                 print "Raw ", q.module
                 
@@ -67,6 +71,9 @@ class MainWindow:
         self.sink_scrolled_window.add(self.modules.get_treeview("sink"))
         self.source_scrolled_window.show_all()
         self.sink_scrolled_window.show_all()
+        
+        #initialise the Synchronisation Manager
+        self.sync_manager = SyncManager()
 
     # callbacks.
     def synchronizeSet(self, widget):
@@ -110,11 +117,12 @@ class MainWindow:
         #tmodel = treeview.get_model()
         module_name = selection.data
         print "DND DATA ", module_name
+        print "X = %s, Y = %s" % (x,y)
         #print "MODEL ", tmodel
         
         #ADD That sausage to the canvas
         m = self.modules.get_module(module_name)
-        self.canvas.add_module_to_canvas(m.module)
+        self.canvas.add_module_to_canvas(m.module, x, y)
         
         context.finish(True, True, etime)
         return        

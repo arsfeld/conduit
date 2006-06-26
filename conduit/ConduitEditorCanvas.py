@@ -1,7 +1,8 @@
 import goocanvas
 import gtk
 
-import ModuleManager
+import conduit
+import conduit.ModuleManager as ModuleManager
 
 class ConduitEditorCanvas(goocanvas.CanvasView):
     """
@@ -52,11 +53,19 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                 self.popup.popup(None, None, None, event.button, event.time)
                 return True
     
-    def add_module_to_canvas(self, module):
+    def add_module_to_canvas(self, module, x, y):
         """
         Adds a new Module to the Canvas
+        
+        @param module: The module to add to the canvas
+        @type module: L{conduit.DataProvider.DataProviderModel}
+        @param x: The x location on the canvas to place the module widget
+        @type x: C{int}
+        @param y: The y location on the canvas to place the module widget
+        @type y: C{int}
         """
         self.newelement = module
+        module.widget.translate(x,y)
         self.root.add_child(module.widget)        
     
     def moveElement(self, element):

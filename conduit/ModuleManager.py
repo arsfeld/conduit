@@ -17,45 +17,57 @@ class ModuleManager(gobject.GObject):
     
     def __init__(self, dirs=None):
         """
-		dirs: A list of directories to search. Relative pathnames and paths
-			  containing ~ will be expanded. If dirs is None the 
-			  ModuleLoader will not search for modules.
+        Constructor for ModuleManger.
+        
+		@param dirs: A list of directories to search. Relative pathnames and 
+		paths containing ~ will be expanded. If dirs is None the 
+		ModuleLoader will not search for modules.
+		@type dirs: C{string[]}
 		"""
         gobject.GObject.__init__(self)        
         self.module_loader = ModuleLoader(dirs)
         self.module_loader.load_all_modules()
                 
-    def get_module(self, name=None, category=None):
+    def get_module(self, name=None, type_filter=None):
         """
         Returns a Module (not a ModuleWrapper) specified by name
+        
+        @param name: Name of the module to get
+        @type name: C{string}
+        @param type_filter: An option string which restrickts the search
+        to modules of a specified type. For example, to only search for
+        L{conduit.DataProvider.DataSink} specify "sink" here.
+        @type type_filter: C{string}
+        @rtype: a L{conduit.ModuleManager}
+        @returns: cheese
         """
-        print "SEARCHING Category = %s Name = %s" % (name, category)
-        mods = self.module_loader.get_modules(category)
+        print "SEARCHING Type = %s Name = %s" % (type_filter, name)
+        mods = self.module_loader.get_modules(type_filter)
         for m in mods:
             if name == m.name:
                 print "FOUND name = ", name
                 return m
                 
-    def get_module_do_copy(self, name=None, category=None):
+    def get_module_do_copy(self, name=None, type_filter=None):
         """
         Returns a copy of a Module (not a ModuleWrapper)
         """
         print "not implemented"
         
-    def get_treeview(self, category=None):
+    def get_treeview(self, type_filter=None):
         """
         Returns a treeview (for displaying a list of ModuleContexts)
-        in the specified category.
+        of the specified type.
         """
-        tm = self._get_treemodel(category)
+        tm = self._get_treemodel(type_filter)
         return DataProviderTreeView(tm)
                 
-    def _get_treemodel(self, category=None):
+    def _get_treemodel(self, type_filter=None):
         """
         Returns a treemodel containing  the ModuleContexts
-        in the specified category
+        of the specified type
         """
-        mods = self.module_loader.get_modules(category)
+        mods = self.module_loader.get_modules(type_filter)
         tm = DataProviderTreeModel(mods)
         return tm
 
@@ -69,10 +81,12 @@ class ModuleLoader(gobject.GObject):
        
     def __init__(self, dirs=None, extension=".py"):
         """
-		dirs: A list of directories to search. Relative pathnames and paths
-			  containing ~ will be expanded. If dirs is None the 
-			  ModuleLoader will not search for modules.
-		extension: What extension should this ModuleLoader accept (string).
+		@param dirs: A list of directories to search. Relative pathnames and paths
+		containing ~ will be expanded. If dirs is None the 
+		ModuleLoader will not search for modules.
+		@type dirs: C{string[]}
+		@param extension: What extension should this ModuleLoader accept (string).
+		@type extension: C{string}
 		"""
         gobject.GObject.__init__(self)
 
@@ -117,6 +131,9 @@ class ModuleLoader(gobject.GObject):
         """
         Checks if the given module (checks by name) is already loaded
         into the modulelist array, if not it is added to that array
+        
+        @param module: The module to append.
+        @type module: L{conduit.ModuleManager.ModuleWrapper}
         """
         if module.name not in [i.name for i in self.loadedmodules]:
             self.loadedmodules.append(module)
@@ -183,7 +200,7 @@ class ModuleLoader(gobject.GObject):
             
     def load_all_modules (self):
         """
-        Loads all modules
+        Loads all modules stored in the current directory
         """
   	
         for f in self.filelist:
@@ -195,6 +212,9 @@ class ModuleLoader(gobject.GObject):
         """
         Returns all loaded modules of type specified by type_filter 
         or all if the filter is set to None.
+        
+        @rtype: L{conduit.ModuleManager.ModuleWrapper}[]
+        @returns: A list of L{conduit.ModuleManager.ModuleWrapper}
         """
         if type_filter is None:
             return self.loadedmodules
@@ -209,7 +229,21 @@ class ModuleLoader(gobject.GObject):
         
 class ModuleWrapper(gobject.GObject): 
     """
-    A generic wrapper for any dynamically loaded module
+    A generic wrapper for any dynamically loaded module. Wraps the complexity
+    of a stored L{conduit.DataProvider.DataProviderModel} behind additional
+    descriptive fields like name and description. Useful for classification 
+    and searching for moldules of certain types, etc.
+    
+    @ivar name: The name of the contained module
+    @type name: C{string}
+    @ivar description: The description of the contained module
+    @type description: C{string}
+    @ivar module_type: The type of the contained module (e.g. sink, source)
+    @type module_type: C{string}
+    @ivar category: The category of the contained module
+    @type category: C{string}
+    @ivar module: The name of the contained module
+    @type module: L{conduit.DataProvider.DataProviderModel} or derived class          
     """	
     def __init__ (self, name, description, module_type, category, module):
         self.name = name
@@ -219,6 +253,13 @@ class ModuleWrapper(gobject.GObject):
         self.module = module
                    
 class DataProviderTreeModel(gtk.GenericTreeModel):
+    """
+    A treemodel for managing dynamically loaded modules. Manages an internal 
+    list of L{conduit.ModuleManager.ModuleWrapper}
+    
+    @ivar modules: The array of modules under this treeviews control.
+    @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
+    """
     column_types = (gtk.gdk.Pixbuf, str, str)
     column_names = ['Pic', 'Name', 'Description']
 

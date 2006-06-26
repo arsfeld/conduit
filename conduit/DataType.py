@@ -8,7 +8,8 @@ OLDER = 2
 ERROR = 3
 
 class DataType(gobject.GObject):
-    """Base DataType which represents any thing 
+    """
+    Base DataType which represents any thing 
     which can be synchronized between two DataProviders
     """
     

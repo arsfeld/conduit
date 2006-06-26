@@ -4,9 +4,14 @@ import goocanvas
 
 #WAS gsteditorelement
 class DataProviderModel(gobject.GObject):
-    "DataProvider Model"
+    """
+    DataProvider Model
+    """
     
     def __init__(self, name=None, description=None):
+        """
+        Test
+        """
         gobject.GObject.__init__(self)
         
         self.name = name
@@ -22,10 +27,10 @@ class DataProviderModel(gobject.GObject):
         #create widget 
         self.widget = goocanvas.Group()
         
-        self.box = goocanvas.Rect(x=100, y=100, width=100, height=66,
+        self.box = goocanvas.Rect(x=0, y=0, width=100, height=66,
                                     line_width=3, stroke_color="black",
                                     fill_color="grey", radius_y=5, radius_x=5)
-        text = goocanvas.Text(x=150, y=133, width=80, text=description, 
+        text = goocanvas.Text(x=50, y=33, width=80, text=description, 
                             anchor=gtk.ANCHOR_CENTER, font="Sans 9")
         self.widget.add_child(self.box)
         self.widget.add_child(text)
