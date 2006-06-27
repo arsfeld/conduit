@@ -3,6 +3,7 @@ import gtk
 
 import conduit
 import conduit.ModuleManager as ModuleManager
+import conduit.DataProvider as DataProvider
 
 class ConduitEditorCanvas(goocanvas.CanvasView):
     """
@@ -38,18 +39,26 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         self.connect_after("button_press_event", self._onButtonPress)
         
     def motion_cb(self, wid, context, x, y, time):
+        """
+        motion_cb
+        """
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
 
-    
-    def setPopup(self, popup):
-        self.popup = popup
+    def set_popup_menus(self, canvas_popup, item_popup):
+        """
+        setPopup
+        """
+        self.popup = canvas_popup
+        self.item_popup = item_popup
     
     def _onButtonPress(self, view, event):
+        """
+        onButtonPress
+        """
         if event.type == gtk.gdk.BUTTON_PRESS:
             if event.button == 3:
                 # pop up menu
-                print "popup menu"
                 self.popup.popup(None, None, None, event.button, event.time)
                 return True
     
@@ -64,32 +73,51 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         @param y: The y location on the canvas to place the module widget
         @type y: C{int}
         """
+        #save so that the appropriate signals can be connected
         self.newelement = module
-        module.widget.translate(x,y)
-        self.root.add_child(module.widget)        
+        #get widget for the module
+        widget = module.get_widget()
+        #adjust to DND position (where it was dropped)
+        widget_width, widget_height = module.get_widget_dimensions()
+        widget.translate(   x-(widget_width/2),
+                            y-(widget_height/2)
+                            )
+        #add to canvas
+        self.root.add_child(widget)        
     
     def moveElement(self, element):
-        "Repositions an element on the canvas and re-draws connectors"
+        """
+        Repositions an element on the canvas and re-draws connectors
+        """
         raise NotImplementedError
         
     def deleteElement(self, element):
-        "Remove an element and any connecting lines from the canvas"
+        """
+        Remove an element and any connecting lines from the canvas
+        """
         raise NotImplementedError
     
     def deleteConnector(self, connector):
-        "Deletes a connecting line between a src and a sink"
+        """
+        Deletes a connecting line between a src and a sink
+        """
         raise NotImplementedError
     
     def drawNewConnector(self, src, sink):
-        "Draws a new connector from a src to a sink"
+        """
+        Draws a new connector from a src to a sink
+        """
         raise NotImplementedError
     
     def onItemViewCreated(self, view, itemview, item):
+        """
+        onItemViewCreated
+        """
         print "element created"
         #this assumes any Group is an element.  this may need to change...
         if isinstance(item, goocanvas.Group):
             print "connected signal"
-            itemview.connect("button_press_event", self.newelement.onButtonPress)
+            itemview.connect("button_press_event", self.newelement.onButtonPress, self)
             itemview.connect("motion_notify_event", self.newelement.onMotion)
-            itemview.connect("enter_notify_event", self.newelement.onEnter)
-            itemview.connect("leave_notify_event", self.newelement.onLeave)
+            #itemview.connect("enter_notify_event", self.newelement.onEnter)
+            #itemview.connect("leave_notify_event", self.newelement.onLeave)

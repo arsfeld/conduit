@@ -13,14 +13,22 @@ class DataType(gobject.GObject):
     which can be synchronized between two DataProviders
     """
     
-    def __init__(self, name=None, description=None):
+    def __init__(self, name=None, description=None, type_name=None):
         gobject.GObject.__init__(self)
 
         self.name = name
         self.description = description
+        self.type_name = type_name
+        self.the_type = None
         
     def initialize(self):
+        """
+        Initialize
+        """
         print "not implemented"   
         
-    def synchronize(self):
+    def compare(self, from_type, to_type):
+        """
+        Synchronize
+        """
         return EQUAL

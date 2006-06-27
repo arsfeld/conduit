@@ -18,6 +18,7 @@ class MainWindow:
         self.name = name
         self.gladefile = "conduit.glade"
         self.widgets = gtk.glade.XML(self.gladefile, "window1")
+        self.widgets.get_widget("window1").set_title(conduit.APPNAME)
     
         #start up the canvas
         self.canvas = ConduitEditorCanvas.ConduitEditorCanvas()
@@ -27,24 +28,30 @@ class MainWindow:
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
         
-        dic = {"on_window1_destroy" : gtk.main_quit,
-            "on_synchronizebutton_clicked" : self.synchronizeSet,
-            "on_configurebutton_clicked" : self.configureItem,
-            "on_linkitemsbutton_clicked" : self.linkItem
-            }
+        dic = { "on_window1_destroy" : self.on_window_closed,
+                "on_synchronizebutton_clicked" : self.on_synchronize_clicked,
+                "on_configurebutton_clicked" : self.on_configure_clicked,
+                "on_linkitemsbutton_clicked" : self.on_link_clicked
+                }
          
         self.widgets.signal_autoconnect(dic)
 
-        #pass the popup menu to the canvas
-        self.popwidgets = gtk.glade.XML(self.gladefile, "menu1")
-        popup = self.popwidgets.get_widget("menu1")
-        self.popwidgets.signal_autoconnect(self)
-        self.canvas.setPopup(popup)
+        #Set up the popup widgets
+        self.canvas_popup_widgets = gtk.glade.XML(self.gladefile, "menu1")
+        self.item_popup_widgets = gtk.glade.XML(self.gladefile, "menu2")        
+        self.canvas_popup_widgets.signal_autoconnect(self)
+        self.item_popup_widgets.signal_autoconnect(self)        
+        
+        #Pass both popups to the canvas
+        self.canvas.set_popup_menus( 
+                                self.canvas_popup_widgets.get_widget("menu1"),
+                                self.item_popup_widgets.get_widget("menu2")
+                                )
         
         #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
         self.modules = ModuleManager.ModuleManager(["datatypes","dataproviders"])
                 
-        if True:
+        if conduit.DEBUG:
             datasink_modules = self.modules.module_loader.get_modules ("sink")
             datasource_modules = self.modules.module_loader.get_modules ("source")
             datatypes = self.modules.module_loader.get_modules ("datatype")
@@ -76,43 +83,74 @@ class MainWindow:
         self.sync_manager = SyncManager()
 
     # callbacks.
-    def synchronizeSet(self, widget):
+    def on_synchronize_clicked(self, widget):
+        """
+        sync
+        """
     	print "clicked synchronize"
+    	
+    def on_cut_item_clicked(self, widget):
+        """
+        cut item
+        """
+        print "cut item"
+        
+    def on_copy_item_clicked(self, widget):
+        """
+        copy item
+        """
+        print "copy item"
+        
+    def on_paste_item_clicked(self, widget):
+        """
+        paste item
+        """
+        print "paste item"
+        
+    def on_configure_item_clicked(self, widget):
+        """
+        paste item
+        """
+        print "paste item"
+        
+    def on_synchronize_item_clicked(self, widget):
+        """
+        paste item
+        """
+        print "paste item"    
     
 
-    def configureItem(self, widget):
+    def on_configure_clicked(self, widget):
+        """
+        configure
+        """
     	print "clicked configure"
 
-    def linkItem(self, widget):
+    def on_link_clicked(self, widget):
+        """
+        link
+        """
     	print "clicked link"
     	
-    def _loadFromFile(self, widget, event):
-        "Load GST Editor pipeline setup from a file and initialize" 
-        raise NotImplementedError
-
-    def _destroyWindow(self, widget):
-        "Kills the app and cleans up"
+    def on_window_closed(self, widget):
+        """
+        Kills the app and cleans up
+        """
         gtk.main_quit()
 
-    def _addElementPopup(self, event):
-        "Calls add element from a popup menu selection"
-        self._addElement(None, event)
-
-    def _addElement(self, widget, event):
-        "Pops open a dialog and adds a GST element to the editor pipeline"
-        print "cheese"
-        return
-
-    def setPlayMode(self, mode):
-        "Set the pipeline to be playing, paused, etc."
-        raise NotImplementedError
-
+        
     def drop_cb(self, wid, context, x, y, time):
+        """
+        drop cb
+        """
         print "DND DROP = ", context.targets
         self.canvas.drag_get_data(context, context.targets[0], time)
         return True
         
     def drag_data_received_data(self, treeview, context, x, y, selection, info, etime):
+        """
+        DND
+        """
         #print "DND RX = ", context.targets
         #tmodel = treeview.get_model()
         module_name = selection.data

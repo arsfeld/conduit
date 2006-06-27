@@ -4,6 +4,7 @@ import os
 import sys
 import traceback
 import pydoc
+import random
 from os.path import abspath, expanduser, join, basename
 
 class ModuleManager(gobject.GObject):
@@ -226,7 +227,9 @@ class ModuleLoader(gobject.GObject):
             
             return mods        
             
-        
+#Number of digits in the module UID string        
+UID_DIGITS = 5
+
 class ModuleWrapper(gobject.GObject): 
     """
     A generic wrapper for any dynamically loaded module. Wraps the complexity
@@ -243,14 +246,36 @@ class ModuleWrapper(gobject.GObject):
     @ivar category: The category of the contained module
     @type category: C{string}
     @ivar module: The name of the contained module
-    @type module: L{conduit.DataProvider.DataProviderModel} or derived class          
+    @type module: L{conduit.DataProvider.DataProviderModel} or derived class     
+    @ivar uid: A Unique identifier for the module
+    @type uid: C{string}
     """	
-    def __init__ (self, name, description, module_type, category, module):
+    def __init__ (self, name, description, module_type, category, module, uid=None):
+        """
+        Constructor for ModuleWrapper. A convenient wrapper around a dynamically
+        loaded module.
+        
+        @param name: The name of the contained module
+        @type name: C{string}
+        @param description: The description of the contained module
+        @type description: C{string}
+        @param module_type: The type of the contained module (e.g. sink, source)
+        @type module_type: C{string}
+        @param category: The category of the contained module
+        @type category: C{string}
+        @param module: The name of the contained module
+        @type module: L{conduit.DataProvider.DataProviderModel} or derived class     
+        @param uid: (optional) A Unique identifier for the module. This should be s
+        specified if, for example, we are recreating a previously stored sync set
+        @type uid: C{string}
+        """
         self.name = name
         self.description = description        
         self.module_type = module_type
         self.category = category
         self.module = module
+        if uid is None:
+            self.uid = str(random.randint(0,10**UID_DIGITS))
                    
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
@@ -270,36 +295,63 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         return 
         
     def get_module_index_by_name(self, name):
+        """
+        get
+        """
         #print "get_module_index_by_name: name = ", name
         for n in range(0, len(self.modules)):
             if self.modules[n].name == name:
                 return n
                 
     def get_module_by_name(self, name):
+        """
+        get mod
+        """
         #TODO: ERROR CHECK
         return self.modules[self.get_module_index_by_name(name)]
     
     def get_column_names(self):
+        """
+        get_column_names(
+        """
         return self.column_names[:]
 
     def on_get_flags(self):
+        """
+        on_get_flags(
+        """
         return gtk.TREE_MODEL_LIST_ONLY|gtk.TREE_MODEL_ITERS_PERSIST
 
     def on_get_n_columns(self):
+        """
+        on_get_n_columns(
+        """
         return len(self.column_types)
 
     def on_get_column_type(self, n):
+        """
+        on_get_column_type(
+        """
         return self.column_types[n]
 
     def on_get_iter(self, path):
         #print "on_get_iter: path =", path
+        """
+        on_get_iter(
+        """
         return self.modules[path[0]].name
 
     def on_get_path(self, rowref):
         #print "on_get_path: rowref = ", rowref
+        """
+        on_get_path(
+        """
         return self.modules[self.get_module_index_by_name(rowref)]
 
     def on_get_value(self, rowref, column):
+        """
+        on_get_value(
+        """
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         m = self.modules[self.get_module_index_by_name(rowref)]
         if column is 0:
@@ -313,6 +365,9 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return None
         
     def on_iter_next(self, rowref):
+        """
+        on_iter_next(
+        """
         #print "on_iter_next: rowref = ", rowref
         try:
             i = self.get_module_index_by_name(rowref)
@@ -324,22 +379,34 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return None
         
     def on_iter_children(self, rowref):
+        """
+        on_iter_children(
+        """
         #print "on_iter_children: rowref = ", rowref
         if rowref:
             return None
         return self.modules[0].name
 
     def on_iter_has_child(self, rowref):
+        """
+        on_iter_has_child(
+        """
         #print "on_iter_has_child: rowref = ", rowref
         return False
 
     def on_iter_n_children(self, rowref):
+        """
+        on_iter_n_children(
+        """
         #print "on_iter_n_children: rowref = ", rowref
         if rowref:
             return 0
         return len(self.modules)
 
     def on_iter_nth_child(self, rowref, n):
+        """
+        on_iter_nth_child(
+        """
         #print "on_iter_nth_chile: rowref = %s n = %s" % (rowref, n)
         if rowref:
             return None
@@ -349,13 +416,14 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return None
 
     def on_iter_parent(child):
+        """
+        on_iter_parent(
+        """
         #print "on_iter_parent: child = ", child
         return None
         
 class DataProviderTreeView(gtk.TreeView):
     DND_TARGETS = [
-    #('STRING', 0, 0),
-    #('text/plain', 0, 1),
     ('conduit/element-name', 0, 2)
     ]
     def __init__(self, model):
