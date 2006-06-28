@@ -23,9 +23,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         self.root = self.model.get_root_item()
         self.set_model(self.model)
 
-        # create a main pipeline to contain all child elements
-        #self.pipeline = gsteditorelement.PipelineModel()
-        
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
                         ModuleManager.DataProviderTreeView.DND_TARGETS,
@@ -113,7 +110,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         onItemViewCreated
         """
-        print "element created"
         #this assumes any Group is an element.  this may need to change...
         if item.get_data("item_type") == "pad":
             print "connecting pad signals"
@@ -122,7 +118,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             itemview.connect("button_press_event",  self.newelement.onPadPress)
             itemview.connect("button_release_event",self.newelement.onPadRelease)
         if isinstance(item, goocanvas.Group):
-            print "connected signal"
             itemview.connect("button_press_event",  self.newelement.onButtonPress, self)
             itemview.connect("motion_notify_event", self.newelement.onMotion)
             itemview.connect("enter_notify_event",  self.newelement.onEnter)

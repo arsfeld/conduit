@@ -40,13 +40,15 @@ class DataProviderModel(gobject.GObject):
             
 
         self.widget = None
-        #Should be overridden
-        self.widget_color = "grey"
-        self.widget_width = 100
+        #The following can be overridden to customize the appearance
+        #of the basic dataproviders
+        #self.widget_color = "grey"
+        self.widget_color_rgba = TANGO_COLOR_ALUMINIUM2_LIGHT
+        self.widget_width = 120
         self.widget_height = 80
         
         #manages the connection to other DataProviders
-        self.connected_to = []
+        self.connected_polylines = []
         #state machine for managing connecting to another DataProvider
         self.connect_state = CONNECT_STATE_NONE
         
@@ -85,40 +87,47 @@ class DataProviderModel(gobject.GObject):
         if event.state & gtk.gdk.BUTTON1_MASK:
             if self.connect_state != CONNECT_STATE_START:
                 #self.connect_state = CONNECT_STATE_DRAG
-                print "start state"
+                #print "start state"
                 # Get the new position and move by the difference
                 new_x = event.x
                 new_y = event.y
 
                 self.widget.translate(new_x - self.drag_x, new_y - self.drag_y)
+
             return True
             
     def onEnter(self, view, target, event):
-        print "dp enter"
+        #print "dp enter"
+        pass
     
     def onLeave(self, view, target, event):
-        print "dp leave"
+        #print "dp leave"
+        pass
                         
     def onPadEnter(self, view, target, event):
         item = target.get_item()
-        item.set_property("stroke_color", "green")
-        print "pad mouseover"
+        item.set_property("fill_color_rgba", TANGO_COLOR_CHOCOLATE_MID)
+        #print "pad mouseover"
         
         
     def onPadLeave(self, view, target, event):
         item = target.get_item()
-        item.set_property("stroke_color", "black")
-        print "pad mouseout"
+        item.set_property("fill_color_rgba", TANGO_COLOR_CHOCOLATE_DARK)
+        #print "pad mouseout"
         
     def onPadPress(self, view, target, event):
-        print "pad clicked"
-        print "view = ", view
-        print "target = ", target
-        print "event = ", event
-        print "self = ", self
+        #print "pad clicked"
+        #print "view = ", view
+        #print "target = ", target
+        #print "event = ", event
+        #print "self = ", self
         if self.connect_state == CONNECT_STATE_NONE:
             self.connect_state = CONNECT_STATE_START
             print "start state"
+            dapoints = goocanvas.Points([(event.x,event.y), (100,100)])
+            pl = goocanvas.Polyline(points=dapoints,close_path=True)
+            #self.connected_polylines.append(pl)
+            #self.widget.add_child(pl)
         
     def onPadRelease(self, view, target, event):
         self.connect_state = CONNECT_STATE_NONE
@@ -139,6 +148,10 @@ class DataProviderModel(gobject.GObject):
         """
         #Create it the first time
         if self.widget is None:
+            #use widget_color_rgba if specified
+            #if self.widget_color_rgba is not None:
+            #    print "pretty colors = ", self.widget_color_rgba
+                
             self.widget = goocanvas.Group()
             box = goocanvas.Rect(   x=0, 
                                     y=0, 
@@ -146,44 +159,53 @@ class DataProviderModel(gobject.GObject):
                                     height=self.widget_height,
                                     line_width=3, 
                                     stroke_color="black",
-                                    fill_color=self.widget_color, 
+                                    fill_color_rgba=self.widget_color_rgba, 
                                     radius_y=5, 
                                     radius_x=5
                                     )
-            plug = goocanvas.Ellipse(center_x = int(self.widget_width/2), 
-                                    center_y = int(self.widget_height/4),
-                                    radius_x = 4,
-                                    radius_y = 4,
-                                    fill_color = "yellow", 
-                                    line_width = 2,
-                                    stroke_color = "black"
+            rect_w = 20
+            rect_h = 20
+            plug = goocanvas.Rect(  x=int(  (self.widget_width/2) - 
+                                            (rect_w/2) ),
+                                    y=int(  (rect_h/2) + 0), 
+                                    width=rect_w, 
+                                    height=rect_h,
+                                    line_width=1, 
+                                    stroke_color="black",
+                                    fill_color_rgba=TANGO_COLOR_CHOCOLATE_DARK, 
+                                    radius_y=3, 
+                                    radius_x=3
                                     )
+            #goocanvas.Ellipse(center_x = int(self.widget_width/2), 
+            #                        center_y = int(self.widget_height/3),
+            #                        radius_x = 8,
+            #                        radius_y = 8,
+            #                        fill_color = "yellow", 
+            #                        line_width = 2,
+            #                        stroke_color = "black"
+            #                        )
             plug.set_data("item_type","pad")
             plug.set_data("pad","the pad")                                    
-            text = goocanvas.Text(  x=int(self.widget_width/2), 
-                                    y=int(self.widget_height/2), 
-                                    width=80, 
+            text = goocanvas.Text(  x=int(2*self.widget_width/5), 
+                                    y=int(2*self.widget_height/3), 
+                                    width=3*self.widget_width/5, 
                                     text=self.name, 
-                                    anchor=gtk.ANCHOR_CENTER, 
-                                    font="Sans 9"
+                                    anchor=gtk.ANCHOR_WEST, 
+                                    font="Sans 8"
                                     )
             image = goocanvas.Image(pixbuf=self.icon,
-                                    x=int(  (self.widget_width/2) - 
+                                    x=int(  (1*self.widget_width/5) - 
                                             (self.icon.get_width()/2) ),
-                                    y=int(  3*self.widget_height/4) - 
+                                    y=int(  2*self.widget_height/3) - 
                                             (self.icon.get_height()/2) 
                                     )
                                     
-            #polyline = goocanvas.Polyline(points=2,close_path=False)
-            #points = goocanvas.Points((12,2))
-             
-            #print "points = ", polyline.get_property("points")
         
             self.widget.add_child(box)
             self.widget.add_child(text)
             self.widget.add_child(image)
             self.widget.add_child(plug)       
-            #self.widget.add_chile(line)     
+
             
         return self.widget
         
@@ -249,6 +271,36 @@ class DataProviderModel(gobject.GObject):
         """
         return None        
 
+#Tango colors taken from 
+#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
+TANGO_COLOR_BUTTER_LIGHT = int("fce94fff",16)
+TANGO_COLOR_BUTTER_MID = int("edd400ff",16)
+TANGO_COLOR_BUTTER_DARK = int("c4a000ff",16)
+TANGO_COLOR_ORANGE_LIGHT = int("fcaf3eff",16)
+TANGO_COLOR_ORANGE_MID = int("f57900",16)
+TANGO_COLOR_ORANGE_DARK = int("ce5c00ff",16)
+TANGO_COLOR_CHOCOLATE_LIGHT = int("e9b96eff",16)
+TANGO_COLOR_CHOCOLATE_MID = int("c17d11ff",16)
+TANGO_COLOR_CHOCOLATE_DARK = int("8f5902ff",16)
+TANGO_COLOR_CHAMELEON_LIGHT = int("8ae234ff",16)
+TANGO_COLOR_CHAMELEON_MID = int("73d216ff",16)
+TANGO_COLOR_CHAMELEON_DARK = int("4e9a06ff",16)
+TANGO_COLOR_SKYBLUE_LIGHT = int("729fcfff",16)
+TANGO_COLOR_SKYBLUE_MID = int("3465a4ff",16)
+TANGO_COLOR_SKYBLUE_DARK = int("204a87ff",16)
+TANGO_COLOR_PLUM_LIGHT = int("ad7fa8ff",16)
+TANGO_COLOR_PLUM_MID = int("75507bff",16)
+TANGO_COLOR_PLUM_DARK = int("5c3566ff",16)
+TANGO_COLOR_SCARLETRED_LIGHT = int("ef2929ff",16)
+TANGO_COLOR_SCARLETRED_MID = int("cc0000ff",16)
+TANGO_COLOR_SCARLETRED_DARK = int("a40000ff",16)
+TANGO_COLOR_ALUMINIUM1_LIGHT = int("eeeeecff",16)
+TANGO_COLOR_ALUMINIUM1_MID = int("d3d7cfff",16)
+TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
+TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
+TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
+TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
+
 class DataSource(DataProviderModel):
     """
     Base Class for DataSources
@@ -262,7 +314,7 @@ class DataSource(DataProviderModel):
             print >> stderr, "can't load icon", exc
             
         #customize the color
-        self.widget_color = "blue"
+        self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
   
 class DataSink(DataProviderModel):
     """
@@ -278,7 +330,8 @@ class DataSink(DataProviderModel):
             print >> stderr, "can't load icon", exc
             
         #customize the color
-        self.widget_color = "red"
+        #self.widget_color = "red"
+        self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
  
         
         

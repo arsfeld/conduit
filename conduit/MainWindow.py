@@ -50,7 +50,11 @@ class MainWindow:
         
         #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
         self.modules = ModuleManager.ModuleManager(["datatypes","dataproviders"])
-                
+        
+        #dic = gtk.icon_theme_get_default().list_icons()
+        #for d in dic:
+        #    print d
+                        
         if conduit.DEBUG:
             datasink_modules = self.modules.module_loader.get_modules ("sink")
             datasource_modules = self.modules.module_loader.get_modules ("source")
@@ -81,6 +85,16 @@ class MainWindow:
         
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager()
+        #initialise the TypeConverter
+        datatypes = self.modules.module_loader.get_modules ("datatype")
+        for d in datatypes:
+            #print "Types = ",d.module
+            conv = getattr(d.module,"conversions", None)
+            if conv is not None:
+                print "Converters =", conv
+                for c in conv:
+                    res = conv[c]("param")
+                    print "Res =", res
 
     # callbacks.
     def on_synchronize_clicked(self, widget):

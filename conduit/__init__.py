@@ -2,7 +2,7 @@ APPNAME="Conduit"
 APPVERSION="0.0.1"
 SHARED_DATA_DIR = "/usr/share/conduit/data"
 
-DEBUG=True
+DEBUG=False
 
 from DataProviderView import DataProviderView
 from DataType import DataType

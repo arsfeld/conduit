@@ -15,12 +15,15 @@ class DataType(gobject.GObject):
     
     def __init__(self, name=None, description=None, type_name=None):
         gobject.GObject.__init__(self)
-
         self.name = name
         self.description = description
         self.type_name = type_name
         self.the_type = None
         
+        #initialise all possible conversions in the derived types
+        
+        self.conversions = {}  # the data structure -- a dict-of-dicts
+
     def initialize(self):
         """
         Initialize
@@ -32,3 +35,4 @@ class DataType(gobject.GObject):
         Synchronize
         """
         return EQUAL
+
