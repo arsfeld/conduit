@@ -115,9 +115,15 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         print "element created"
         #this assumes any Group is an element.  this may need to change...
+        if item.get_data("item_type") == "pad":
+            print "connecting pad signals"
+            itemview.connect("enter_notify_event",  self.newelement.onPadEnter)
+            itemview.connect("leave_notify_event",  self.newelement.onPadLeave)
+            itemview.connect("button_press_event",  self.newelement.onPadPress)
+            itemview.connect("button_release_event",self.newelement.onPadRelease)
         if isinstance(item, goocanvas.Group):
             print "connected signal"
-            itemview.connect("button_press_event", self.newelement.onButtonPress, self)
+            itemview.connect("button_press_event",  self.newelement.onButtonPress, self)
             itemview.connect("motion_notify_event", self.newelement.onMotion)
-            #itemview.connect("enter_notify_event", self.newelement.onEnter)
-            #itemview.connect("leave_notify_event", self.newelement.onLeave)
+            itemview.connect("enter_notify_event",  self.newelement.onEnter)
+            itemview.connect("leave_notify_event",  self.newelement.onLeave)
