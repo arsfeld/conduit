@@ -10,16 +10,16 @@ MODULES = {
 		"description": _("Source for synchronizing files"),
 		"type": "source",
 		"category": "Local",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	},
 	"FileSink" : {
 		"name": _("File Sink"),
 		"description": _("Sink for synchronizing files"),
 		"type": "sink",
 		"category": "Local",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	}
 	
 }

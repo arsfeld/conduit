@@ -195,7 +195,13 @@ class ModuleLoader(gobject.GObject):
         for modules, infos in mod.MODULES.items():
         	#print "Loading module '%s' from file %s." % (infos["name"], filename)
         	mod_instance = getattr (mod, modules) ()
-        	mod_wrapper = ModuleWrapper (infos["name"], infos["description"], infos["type"], infos["category"], mod_instance)
+        	mod_wrapper = ModuleWrapper (  infos["name"], 
+        	                               infos["description"], 
+        	                               infos["type"], 
+        	                               infos["category"], 
+        	                               infos["in_type"],
+        	                               infos["out_type"],
+        	                               mod_instance)
         	self._append_module(mod_wrapper)
             #self.emit("module-loaded", context)
             
@@ -250,7 +256,7 @@ class ModuleWrapper(gobject.GObject):
     @ivar uid: A Unique identifier for the module
     @type uid: C{string}
     """	
-    def __init__ (self, name, description, module_type, category, module, uid=None):
+    def __init__ (self, name, description, module_type, category, in_type, out_type, module, uid=None):
         """
         Constructor for ModuleWrapper. A convenient wrapper around a dynamically
         loaded module.
@@ -274,6 +280,8 @@ class ModuleWrapper(gobject.GObject):
         self.module_type = module_type
         self.category = category
         self.module = module
+        self.in_type = in_type
+        self.out_type = out_type
         if uid is None:
             self.uid = str(random.randint(0,10**UID_DIGITS))
                    

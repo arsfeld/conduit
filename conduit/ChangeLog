@@ -1,3 +1,45 @@
+2006-06-28 12:58  john
+
+	* ConduitEditorCanvas.py, DataProvider.py, DataType.py,
+	  MainWindow.py, __init__.py, dataproviders/Evolution.py,
+	  dataproviders/File.py, dataproviders/Gmail.py,
+	  dataproviders/StickyNotes.py, datatypes/CalDataType.py,
+	  datatypes/FileDataType.py: Added tango hotness. Got my brain
+	  around how to do type conversion from types loaded at runtime
+	  using getattr(). Created an evolution dataprovider and some more
+	  datatypes
+
+2006-06-28 07:36  john
+
+	* ConduitEditorCanvas.py, DataProvider.py: add connection points
+	  to dataproviders and start adding infrastructure to connect them
+
+2006-06-28 07:31  john
+
+	* data, data/conduit-icon.png, data/conduit-icon.svg: added
+	  conduit icon (that is lame)
+
+2006-06-27 00:26  john
+
+	* trunk, ., dataproviders, dataproviders/StickyNotes.py,
+	  datatypes, trunk/doc: svn ignore updates
+
+2006-06-27 00:17  john
+
+	* trunk, ConduitEditorCanvas.py, DataProvider.py, DataType.py,
+	  MainWindow.py, ModuleManager.py, __init__.py, conduit.glade,
+	  conduit.glade.bak, trunk/make-doc.sh: Documentation working
+	  using epydoc. DND improvements
+
+2006-06-26 06:05  john
+
+	* ChangeLog, ConduitEditorCanvas.py, DataProvider.py,
+	  DataProviderView.py, DataType.py, MainWindow.py,
+	  ModuleManager.py, SyncManager.py, TypeConverter.py, __init__.py,
+	  start_conduit.py, trunk/doc, trunk/make-doc.sh,
+	  trunk/run-uninstalled.sh: Started adding docs. Added dynamic
+	  type converter infrastructure. DND onto canvas improvements
+
 2006-06-26 06:02  john
 
 	* conduit.glade, conduit.glade.bak: Added hpane to gladefile

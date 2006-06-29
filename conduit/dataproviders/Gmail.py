@@ -10,16 +10,16 @@ MODULES = {
 		"description": _("Source for synchronizing Gmail data"),
 		"category": "Test",
 		"type": "source",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	},
 	"GmailSink" : {
 		"name": _("Gmail Sink"),
 		"description": _("Sink for synchronizing Gmail data"),
 		"type": "sink",
 		"category": "Test",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	}
 	
 }

@@ -11,6 +11,4 @@ class SyncManager(gobject.GObject):
     	
     def __init__ (self):
         gobject.GObject.__init__(self)
-       
-        self.type_converter = TypeConverter()
-        #self.type_converter.print_convertables()
+        pass

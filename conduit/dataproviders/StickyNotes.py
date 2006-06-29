@@ -11,16 +11,16 @@ MODULES = {
 		"description": _("Source for synchronizing StickyNotes"),
 		"type": "source",
 		"category": "Notes",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	},
 	"StickyNoteSink" : {
 		"name": _("StickyNote Sink"),
 		"description": _("Sink for synchronizing StickyNotes"),
 		"type": "sink",
 		"category": "Notes",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	}
 	
 }

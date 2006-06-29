@@ -11,32 +11,32 @@ MODULES = {
 		"description": _("Source for synchronizing Evolution Emails"),
 		"type": "source",
 		"category": "Notes",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	},
 	"EvoEmailSink" : {
 		"name": _("EvoEmail Sink"),
 		"description": _("Sink for synchronizing Evolution Emails"),
 		"type": "sink",
 		"category": "Notes",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	},
 	"EvoCalSource" : {
 		"name": _("EvoCal Source"),
 		"description": _("Source for synchronizing Evolution Calendar Data"),
 		"type": "source",
 		"category": "Notes",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	},
 	"EvoCalSink" : {
 		"name": _("EvoCal Sink"),
 		"description": _("Sink for synchronizing Evolution Calendar Data"),
 		"type": "sink",
 		"category": "Notes",
-		"in": "file",
-		"out": "file"
+		"in_type": "file",
+		"out_type": "file"
 	}	
 	
 }

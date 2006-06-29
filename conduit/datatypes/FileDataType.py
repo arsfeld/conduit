@@ -7,16 +7,19 @@ MODULES = {
 		"name": _("File Data Type"),
 		"description": _("Represents a file on disk"),
 		"type": "datatype",
-		"category": ""
+		"category": "",
+		"in_type": "file",
+		"out_type": "file"		
 	}
 }
 
 class FileDataType(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self, _("File Data Type"), _("Represents a file on disk"))
-        self.conversions = {    "email" : self.email_to_file,
-                                "cal"   : self.cal_to_file
-                                }
+        self.conversions =  {    
+                            "email" : self.email_to_file,
+                            "cal"   : self.cal_to_file
+                            }
                             
         
     def email_to_file(self, measure):

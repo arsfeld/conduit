@@ -7,6 +7,7 @@ import conduit
 import conduit.ConduitEditorCanvas as ConduitEditorCanvas
 import conduit.ModuleManager as ModuleManager
 import conduit.SyncManager as SyncManager
+import conduit.TypeConverter as TypeConverter
 
 class MainWindow:
     """
@@ -85,16 +86,11 @@ class MainWindow:
         
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager()
-        #initialise the TypeConverter
+        #initialise the Type Converter
         datatypes = self.modules.module_loader.get_modules ("datatype")
-        for d in datatypes:
-            #print "Types = ",d.module
-            conv = getattr(d.module,"conversions", None)
-            if conv is not None:
-                print "Converters =", conv
-                for c in conv:
-                    res = conv[c]("param")
-                    print "Res =", res
+        self.type_converter = TypeConverter(datatypes)
+        #self.type_converter.print_convertables()
+
 
     # callbacks.
     def on_synchronize_clicked(self, widget):
