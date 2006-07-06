@@ -64,6 +64,9 @@ class DataProviderModel(gobject.GObject):
         """
         
         if event.type == gtk.gdk.BUTTON_PRESS:
+            #tell the canvas we recieved the click (needed for cut, 
+            #copy, past, configure operations
+            user_data_canvas.selcted_dataprovider = self
             if event.button == 1:
                 # Remember starting position for drag moves.
                 self.drag_x = event.x
@@ -244,6 +247,15 @@ class DataProviderModel(gobject.GObject):
         Initialize
         """
         print "not implemented"
+        
+    def configure(self, window):
+        """
+        Show a configuration box for configuring the dataprovider instance
+        
+        @param window: The parent window (to show a modal dialog)
+        @type window: {gtk.Window}
+        """
+        pass
         
     def put(self, data_type):
         """

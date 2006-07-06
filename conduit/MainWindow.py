@@ -121,13 +121,13 @@ class MainWindow:
         """
         paste item
         """
-        print "paste item"
+        print "configure item"
         
     def on_synchronize_item_clicked(self, widget):
         """
         paste item
         """
-        print "paste item"    
+        print "synchronize item"    
     
 
     def on_configure_clicked(self, widget):

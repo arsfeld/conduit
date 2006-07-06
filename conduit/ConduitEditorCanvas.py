@@ -35,6 +35,10 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         #set callbacks for background clicks
         self.connect_after("button_press_event", self._onButtonPress)
         
+        #keeps a reference to the currently selected (most recently clicked)
+        #canvas item
+        self.selcted_dataprovider = None
+        
     def motion_cb(self, wid, context, x, y, time):
         """
         motion_cb
@@ -80,29 +84,69 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                             y-(widget_height/2)
                             )
         #add to canvas
-        self.root.add_child(widget)        
-    
-    def moveElement(self, element):
+        self.root.add_child(widget)
+        
+    def remove_module_from_canvas(self, module):
         """
-        Repositions an element on the canvas and re-draws connectors
+        Removes a module from the canvas
+        
+        @param module: The module to remove from the canvas
+        @type module: L{conduit.DataProvider.DataProviderModel}
+        """
+        
+        if self.selcted_dataprovider is not None:
+            print "removing module ", module
+            
+        #if module.is_connected_to_another()
+        #   self._delete_module_connectors
+        #self._delete_module
+            
+    def link_modules(self, src, sink):
+        """
+        Links two modules together graphically
+        
+        @param src: The module to link FROM
+        @type src: L{conduit.DataProvider.DataProviderModel}
+        @param sink: The module to link TO
+        @type sink: L{conduit.DataProvider.DataProviderModel}
+        """
+        raise NotImplementedError    
+    
+    def move_module_connectors(self, module):
+        """
+        Redraws an element's connection to other modules
+        
+        @param module: The module whose connections are redrawn
+        @type module: L{conduit.DataProvider.DataProviderModel}
         """
         raise NotImplementedError
         
-    def deleteElement(self, element):
+    def _delete_module(self, module):
         """
         Remove an element and any connecting lines from the canvas
+
+        @param module: The module whose connections are redrawn
+        @type module: L{conduit.DataProvider.DataProviderModel}
         """
         raise NotImplementedError
     
-    def deleteConnector(self, connector):
+    def _delete_module_connectors(self, module):
         """
-        Deletes a connecting line between a src and a sink
+        Deletes all connections from the module
+        
+        @param module: The module whose connections are deleted
+        @type module: L{conduit.DataProvider.DataProviderModel}
         """
         raise NotImplementedError
     
-    def drawNewConnector(self, src, sink):
+    def _draw_new_connector(self, src, sink):
         """
         Draws a new connector from a src to a sink
+
+        @param src: The module draw a connector FROM
+        @type src: L{conduit.DataProvider.DataProviderModel}
+        @param sink: The module to draw a connector TO
+        @type sink: L{conduit.DataProvider.DataProviderModel}
         """
         raise NotImplementedError
     

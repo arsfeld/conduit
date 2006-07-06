@@ -294,7 +294,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
     """
     column_types = (gtk.gdk.Pixbuf, str, str)
-    column_names = ['Pic', 'Name', 'Description']
+    column_names = ['Name', 'Description']
 
     def __init__(self, module_array):
         gtk.GenericTreeModel.__init__(self)
@@ -439,15 +439,16 @@ class DataProviderTreeView(gtk.TreeView):
         
         column_names = model.get_column_names()
         tvcolumn = [None] * len(column_names)
-        # First cell in the column is for an image...
-        tvcolumn[0] = gtk.TreeViewColumn(column_names[0], gtk.CellRendererPixbuf(), pixbuf=0)
+        # First column is an image and the name...
+        cellpb = gtk.CellRendererPixbuf()
+        cell = gtk.CellRendererText()
+        tvcolumn[0] = gtk.TreeViewColumn(column_names[0],cellpb, pixbuf=0)
+        tvcolumn[0].pack_start(cell, False)
+        tvcolumn[0].add_attribute(cell, 'text', 1)
         self.append_column(tvcolumn[0])
-        # Second cell is name
-        tvcolumn[1] = gtk.TreeViewColumn(column_names[1], gtk.CellRendererText(), text=1)
+        # Second cell is description
+        tvcolumn[1] = gtk.TreeViewColumn(column_names[1], gtk.CellRendererText(), text=2)
         self.append_column(tvcolumn[1])
-        # Third cell is description
-        tvcolumn[2] = gtk.TreeViewColumn(column_names[2], gtk.CellRendererText(), text=2)
-        self.append_column(tvcolumn[2])
         
         # DND info:
         # drag
