@@ -44,35 +44,19 @@ MODULES = {
 class EvoEmailSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("EvoEmail Source"), _("Source for synchronizing Evolution Emails"))
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon("internet-mail", 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
+        self.icon_name = "internet-mail"
 
 class EvoEmailSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("EvoEmail Sink"), _("Sink for synchronizing Evolution Emails"))
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon("internet-mail", 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
+        self.icon_name = "internet-mail"
             
 class EvoCalSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("EvoCal Source"), _("Source for synchronizing Evolution Calendar data"))
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon("stock_calendar", 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
+        self.icon_name = "stock_calendar"
 
 class EvoCalSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("EvoCal Sink"), _("Sink for synchronizing Evolution Calendar data"))
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon("stock_calendar", 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc              
+        self.icon_name = "stock_calendar"

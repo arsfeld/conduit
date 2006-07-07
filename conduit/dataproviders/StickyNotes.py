@@ -25,22 +25,13 @@ MODULES = {
 	
 }
 
-#TODO: Inherit from Source
+
 class StickyNoteSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("StickyNote Source"), _("Source for synchronizing StickyNotes"))
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon("sticky-notes", 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
+        self.icon_name = "sticky-notes"
 
-#TODO: Inherit from Sink		
 class StickyNoteSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("StickyNote Sink"), _("Sink for synchronizing StickyNotes"))
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon("sticky-notes", 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc        
+        self.icon_name = "sticky-notes"

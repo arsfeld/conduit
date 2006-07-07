@@ -27,17 +27,11 @@ class DataProviderModel(gobject.GObject):
         
         self.name = name
         self.description = description
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_OK, 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
-            
-
+        self.icon = None
         self.widget = None
         #The following can be overridden to customize the appearance
         #of the basic dataproviders
-        #self.widget_color = "grey"
+        self.icon_name = gtk.STOCK_OK        
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM2_LIGHT
         self.widget_width = 120
         self.widget_height = 80
@@ -46,6 +40,12 @@ class DataProviderModel(gobject.GObject):
         """
         Returns a GdkPixbuf hat represents this handler.
         """
+        if self.icon is None:
+            try:
+                self.icon = gtk.icon_theme_get_default().load_icon(self.icon_name, 16, 0)
+            except gobject.GError, exc:
+                self.icon = None
+                print >> stderr, "can't load icon", exc
         return self.icon
         
     def get_widget(self):
@@ -77,11 +77,17 @@ class DataProviderModel(gobject.GObject):
                                     anchor=gtk.ANCHOR_WEST, 
                                     font="Sans 8"
                                     )
-            image = goocanvas.Image(pixbuf=self.icon,
-                                    x=int(  (1*self.widget_width/5) - 
-                                            (self.icon.get_width()/2) ),
-                                    y=int(  2*self.widget_height/3) - 
-                                            (self.icon.get_height()/2) 
+            pb=self.get_icon()
+            image = goocanvas.Image(pixbuf=pb,
+                                    x=int(  
+                                            (1*self.widget_width/5) - 
+                                            (pb.get_width()/2) 
+                                         ),
+                                    y=int(  
+                                            (2*self.widget_height/3) - 
+                                            (pb.get_height()/2)
+                                         )
+                                             
                                     )
                                     
         
@@ -202,13 +208,9 @@ class DataSource(DataProviderModel):
     """
     def __init__(self, name=None, description=None):
         DataProviderModel.__init__(self, name, description)
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_OK, 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
-            
-        #customize the color
+        
+        #customizations
+        self.icon_name = gtk.STOCK_OK
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
   
 class DataSink(DataProviderModel):
@@ -218,14 +220,9 @@ class DataSink(DataProviderModel):
     def __init__(self, name=None, description=None):
         #super fills in the name and description
         DataProviderModel.__init__(self, name, description)
-        try:
-            self.icon = gtk.icon_theme_get_default().load_icon(gtk.STOCK_NO, 16, 0)
-        except gobject.GError, exc:
-            self.icon = None
-            print >> stderr, "can't load icon", exc
-            
-        #customize the color
-        #self.widget_color = "red"
+
+        #customizations
+        self.icon_name = gtk.STOCK_NO
         self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
  
         
