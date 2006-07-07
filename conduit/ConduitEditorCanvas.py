@@ -15,7 +15,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         "Create a new GstEditorCanvas."
         goocanvas.CanvasView.__init__(self)
         self.set_size_request(600, 450)
-        self.set_bounds(0, 0, 1000, 1000)
+        self.set_bounds(0, 0, 600, 450)
         self.show()
         
         #set up the model 
@@ -38,6 +38,27 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         #keeps a reference to the currently selected (most recently clicked)
         #canvas item
         self.selcted_dataprovider = None
+        
+        #used as a store of connections
+        self.conduits = []
+        
+        #save so that the appropriate signals can be connected
+        self.newelement = None
+        self.newconduit = None
+        
+    
+    def get_canvas_size(self):
+        """
+        Returns the size of the canvas in screen units
+        
+        @todo: There must be a built in way to do this
+        @rtype: C{int}, C{int}
+        @returns: width, height
+        """
+        rect = self.get_allocation()
+        w = rect.width
+        h = rect.height
+        return w,h
         
     def motion_cb(self, wid, context, x, y, time):
         """
@@ -76,16 +97,22 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         #save so that the appropriate signals can be connected
         self.newelement = module
-        #get widget for the module
-        widget = module.get_widget()
-        #adjust to DND position (where it was dropped)
-        widget_width, widget_height = module.get_widget_dimensions()
-        widget.translate(   x-(widget_width/2),
-                            y-(widget_height/2)
-                            )
-        #add to canvas
-        self.root.add_child(widget)
         
+        #determine the vertical location of the conduit to be created
+        offset = len(self.conduits) * ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
+        c_w, c_h = self.get_canvas_size()
+
+        #create the conduit
+        c = ConduitEditorCanvas.Conduit(offset,c_w)
+        
+        #add the dataprovider to the conduit
+        if c.add_dataprovider_to_conduit(module) == True:
+            #save so that the appropriate signals can be connected
+            self.newconduit = c
+            #now add to root element
+            self.root.add_child(c)
+            self.conduits.append(c)
+         
     def remove_module_from_canvas(self, module):
         """
         Removes a module from the canvas
@@ -154,15 +181,95 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         onItemViewCreated
         """
-        #this assumes any Group is an element.  this may need to change...
-        if item.get_data("item_type") == "pad":
-            print "connecting pad signals"
-            itemview.connect("enter_notify_event",  self.newelement.onPadEnter)
-            itemview.connect("leave_notify_event",  self.newelement.onPadLeave)
-            itemview.connect("button_press_event",  self.newelement.onPadPress)
-            itemview.connect("button_release_event",self.newelement.onPadRelease)
         if isinstance(item, goocanvas.Group):
-            itemview.connect("button_press_event",  self.newelement.onButtonPress, self)
-            itemview.connect("motion_notify_event", self.newelement.onMotion)
-            itemview.connect("enter_notify_event",  self.newelement.onEnter)
-            itemview.connect("leave_notify_event",  self.newelement.onLeave)
+            print "new conduit = ", self.newconduit
+            print "new dp = ", self.newelement.module
+            if item.get_data("is_a_dataprovider") == True:
+                print "Connecting dataprovider"
+                itemview.connect("button_press_event",  self.newelement.module.onButtonPress, self)
+                itemview.connect("motion_notify_event", self.newelement.module.onMotion)
+                itemview.connect("enter_notify_event",  self.newelement.module.onEnter)
+                itemview.connect("leave_notify_event",  self.newelement.module.onLeave)
+            elif item.get_data("is_a_conduit") == True:
+                print "Connecting conduit"
+                itemview.connect("enter_notify_event",  self.newconduit.on_mouse_enter)
+                itemview.connect("leave_notify_event",  self.newconduit.on_mouse_leave)
+            
+    class Conduit(goocanvas.Group):
+        CONDUIT_HEIGHT = 100
+        SIDE_PADDING = 10
+        def __init__(self, y_from_origin, canvas_width):
+            goocanvas.Group.__init__(self)
+            #draw a box which will contain the dataproviders
+            self.bounding_box = goocanvas.Rect(   
+                                    x=0, 
+                                    y=y_from_origin, 
+                                    width=canvas_width, 
+                                    height=ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT,
+                                    line_width=3, 
+                                    stroke_color="black",
+                                    fill_color_rgba=int("eeeeecff",16), 
+                                    radius_y=5, 
+                                    radius_x=5
+                                    )
+                                    
+            self.add_child(self.bounding_box)
+            #We need some way to tell the canvas that we are a conduit
+            self.set_data("is_a_conduit",True)
+            self.mouse_inside_me = False
+        
+        def add_dataprovider_to_conduit(self, dataprovider_wrapper):
+            """
+            Adds a dataprovider to the canvas. Positions it appropriately
+            so that sources are on the left, and sinks on the right
+            
+            @returns: True for success
+            @rtype: C{bool}
+            """
+            #only sinks and sources supported
+            if dataprovider_wrapper.module_type == "source" or dataprovider_wrapper.module_type == "sink":
+                dataprovider = dataprovider_wrapper.module
+
+                #determine our width, height, location
+                w = self.bounding_box.get_property("width")
+                h = self.bounding_box.get_property("height")
+                x = self.bounding_box.get_property("x")
+                y = self.bounding_box.get_property("y")
+
+                #get the dataprovider widget and its dimensions
+                new_widget = dataprovider.get_widget()
+                w_w, w_h = dataprovider.get_widget_dimensions()
+                
+                #position the widget
+                padding = ConduitEditorCanvas.Conduit.SIDE_PADDING
+                #determine dp type. Sources get drawn on the left, sinks on right
+                if dataprovider_wrapper.module_type == "source":
+                    x_pos = padding
+                elif dataprovider_wrapper.module_type == "sink":
+                    x_pos = w - padding - w_w
+                else:
+                    return False
+                    
+                new_widget.translate(   
+                                    x_pos,
+                                    y + (h/2) - (w_h/2)
+                                    )
+                
+                self.add_child(new_widget)
+                return True
+            else:
+                return False
+            
+        def on_mouse_enter(self, view, target, event):
+            print "cond enter"
+            self.mouse_inside_me = True
+            pass
+        
+        def on_mouse_leave(self, view, target, event):
+            print "cond leave"
+            self.mouse_inside_me = False            
+            pass
+            
+        def repaint_me(self):
+            pass
+        

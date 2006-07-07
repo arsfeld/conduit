@@ -280,6 +280,7 @@
 	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
+	  <signal name="size_request" handler="on_hpane_move_handle" last_modification_time="Thu, 06 Jul 2006 11:48:54 GMT"/>
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox2">
@@ -511,7 +512,7 @@
       <signal name="activate" handler="on_configure_item_clicked" last_modification_time="Mon, 26 Jun 2006 12:33:56 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image5">
+	<widget class="GtkImage" id="image6">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-preferences</property>
 	  <property name="icon_size">1</property>
@@ -528,12 +529,12 @@
     <widget class="GtkImageMenuItem" id="synchronize_item">
       <property name="visible">True</property>
       <property name="tooltip" translatable="yes">Synchronize this Item and its Dependancies</property>
-      <property name="label" translatable="yes">Synchronize</property>
+      <property name="label" translatable="yes">Synchronize Item</property>
       <property name="use_underline">True</property>
       <signal name="activate" handler="on_synchronize_item_clicked" last_modification_time="Mon, 26 Jun 2006 12:33:56 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image6">
+	<widget class="GtkImage" id="image7">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-refresh</property>
 	  <property name="icon_size">1</property>

@@ -26,6 +26,7 @@
     <atkproperty name="AtkObject::accessible_name" translatable="yes">Editor</atkproperty>
   </accessibility>
   <signal name="destroy" handler="on_window1_destroy" last_modification_time="Wed, 17 May 2006 11:27:53 GMT"/>
+  <signal name="size_request" handler="on_window1_resized" last_modification_time="Thu, 06 Jul 2006 11:52:12 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -280,6 +281,7 @@
 	<widget class="GtkHPaned" id="hpaned1">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
+	  <signal name="size_request" handler="on_hpane_move_handle" last_modification_time="Thu, 06 Jul 2006 11:48:54 GMT"/>
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox2">

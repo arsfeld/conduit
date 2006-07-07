@@ -19,30 +19,37 @@ class MainWindow:
         self.name = name
         self.gladefile = "conduit.glade"
         self.widgets = gtk.glade.XML(self.gladefile, "window1")
-        self.widgets.get_widget("window1").set_title(conduit.APPNAME)
     
-        #start up the canvas
-        self.canvas = ConduitEditorCanvas.ConduitEditorCanvas()
-        self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
-        self.canvasSW.add(self.canvas)
-        
-        self.canvas.connect('drag-drop', self.drop_cb)
-        self.canvas.connect("drag-data-received", self.drag_data_received_data)
-        
         dic = { "on_window1_destroy" : self.on_window_closed,
+                "on_window1_resized" : self.on_window_resized,
                 "on_synchronizebutton_clicked" : self.on_synchronize_clicked,
                 "on_configurebutton_clicked" : self.on_configure_clicked,
-                "on_linkitemsbutton_clicked" : self.on_link_clicked
+                "on_linkitemsbutton_clicked" : self.on_link_clicked,
+                "on_hpane_move_handle" : self.on_hpane_move_handle,
+                None : None
                 }
          
         self.widgets.signal_autoconnect(dic)
+        
+        #get some widget references
+        self.mainwindow = self.widgets.get_widget("window1")
+        self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
+        self.hpane = self.widgets.get_widget("hpaned1")
 
-        #Set up the popup widgets
         self.canvas_popup_widgets = gtk.glade.XML(self.gladefile, "menu1")
-        self.item_popup_widgets = gtk.glade.XML(self.gladefile, "menu2")        
+        self.item_popup_widgets = gtk.glade.XML(self.gladefile, "menu2") 
+
+
+        #customize some widgets, connect signals, etc
+        self.hpane.set_position(250)
+        #start up the canvas
+        self.canvas = ConduitEditorCanvas.ConduitEditorCanvas()
+        self.canvasSW.add(self.canvas)
+        self.canvas.connect('drag-drop', self.drop_cb)
+        self.canvas.connect("drag-data-received", self.drag_data_received_data)
+        #Set up the popup widgets
         self.canvas_popup_widgets.signal_autoconnect(self)
         self.item_popup_widgets.signal_autoconnect(self)        
-        
         #Pass both popups to the canvas
         self.canvas.set_popup_menus( 
                                 self.canvas_popup_widgets.get_widget("menu1"),
@@ -147,6 +154,18 @@ class MainWindow:
         Kills the app and cleans up
         """
         gtk.main_quit()
+        
+    #TODO: If dynamic resizing causes too much CPU usage connect to 
+    #size-allocate instead of size-request
+    def on_hpane_move_handle(self, widget, req):
+        #print "pane moved ", widget.get_position()
+        pass
+        
+    #TODO: If dynamic resizing causes too much CPU usage connect to 
+    #size-allocate instead of size-request        
+    def on_window_resized(self, widget, req):
+        #print "window resized ", self.mainwindow.get_size()
+        pass
 
         
     def drop_cb(self, wid, context, x, y, time):
@@ -170,7 +189,7 @@ class MainWindow:
         
         #ADD That sausage to the canvas
         m = self.modules.get_module(module_name)
-        self.canvas.add_module_to_canvas(m.module, x, y)
+        self.canvas.add_module_to_canvas(m, x, y)
         
         context.finish(True, True, etime)
         return        

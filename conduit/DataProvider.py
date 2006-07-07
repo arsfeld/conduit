@@ -4,6 +4,7 @@ import goocanvas
 
 import conduit
 
+
 #WAS gsteditorelement
 CONNECT_STATE_NONE = 0
 CONNECT_STATE_START = 1
@@ -166,19 +167,19 @@ class DataProviderModel(gobject.GObject):
                                     radius_y=5, 
                                     radius_x=5
                                     )
-            rect_w = 20
-            rect_h = 20
-            plug = goocanvas.Rect(  x=int(  (self.widget_width/2) - 
-                                            (rect_w/2) ),
-                                    y=int(  (rect_h/2) + 0), 
-                                    width=rect_w, 
-                                    height=rect_h,
-                                    line_width=1, 
-                                    stroke_color="black",
-                                    fill_color_rgba=TANGO_COLOR_CHOCOLATE_DARK, 
-                                    radius_y=3, 
-                                    radius_x=3
-                                    )
+            #rect_w = 20
+            #rect_h = 20
+            #plug = goocanvas.Rect(  x=int(  (self.widget_width/2) - 
+            #                                (rect_w/2) ),
+            #                        y=int(  (rect_h/2) + 0), 
+            #                        width=rect_w, 
+            #                        height=rect_h,
+            #                        line_width=1, 
+            #                        stroke_color="black",
+            #                        fill_color_rgba=TANGO_COLOR_CHOCOLATE_DARK, 
+            #                        radius_y=3, 
+            #                        radius_x=3
+            #                        )
             #goocanvas.Ellipse(center_x = int(self.widget_width/2), 
             #                        center_y = int(self.widget_height/3),
             #                        radius_x = 8,
@@ -187,8 +188,8 @@ class DataProviderModel(gobject.GObject):
             #                        line_width = 2,
             #                        stroke_color = "black"
             #                        )
-            plug.set_data("item_type","pad")
-            plug.set_data("pad","the pad")                                    
+            #plug.set_data("item_type","pad")
+            #plug.set_data("pad","the pad")                                    
             text = goocanvas.Text(  x=int(2*self.widget_width/5), 
                                     y=int(2*self.widget_height/3), 
                                     width=3*self.widget_width/5, 
@@ -204,10 +205,14 @@ class DataProviderModel(gobject.GObject):
                                     )
                                     
         
+            #We need some way to tell the canvas that we are a dataprovider
+            #and not a conduit
+            self.widget.set_data("is_a_dataprovider",True)
+            
             self.widget.add_child(box)
             self.widget.add_child(text)
             self.widget.add_child(image)
-            self.widget.add_child(plug)       
+            #self.widget.add_child(plug)       
 
             
         return self.widget

@@ -7,6 +7,9 @@ import pydoc
 import random
 from os.path import abspath, expanduser, join, basename
 
+import conduit
+#import conduit.DataProvider as DataProvider
+
 class ModuleManager(gobject.GObject):
     """
     Manager Class for ALL dynamically loaded modules.
@@ -275,6 +278,8 @@ class ModuleWrapper(gobject.GObject):
         specified if, for example, we are recreating a previously stored sync set
         @type uid: C{string}
         """
+        gobject.GObject.__init__(self)
+                
         self.name = name
         self.description = description        
         self.module_type = module_type
@@ -284,6 +289,19 @@ class ModuleWrapper(gobject.GObject):
         self.out_type = out_type
         if uid is None:
             self.uid = str(random.randint(0,10**UID_DIGITS))
+            
+    def get_icon(self):
+        """
+        Gets the icon for the contained module. A bit hackish because I could
+        not work out how to derive the dynamically loaded modules from this
+        type. If the contained module is not a source or a sink then
+        return None for the icon
+        """
+        if self.module is not None:
+            if isinstance(self.module, conduit.DataProvider.DataProviderModel):
+                return self.module.get_icon()
+        
+        return None
                    
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
@@ -363,7 +381,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         m = self.modules[self.get_module_index_by_name(rowref)]
         if column is 0:
-            return m.module.get_icon()
+            return m.get_icon()
         elif column is 1:
             return m.name
         elif column is 2:
