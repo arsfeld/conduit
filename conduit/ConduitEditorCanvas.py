@@ -70,6 +70,24 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             y = y + c.height
         return y
         
+    def get_conduit_at_coordinate(self, y):
+        """
+        Searches through the array of conduits for the one at the
+        specified y location.
+        
+        @param y: The y (positive down) coordinate under which to look for
+        a conduit.
+        @type y: C{int}
+        @returns: a Conduit or None
+        @rtype: FIXME
+        """
+        curr_offset = 0
+        for c in self.conduits:
+            if y in range(curr_offset, curr_offset + c.height):
+                return c
+            curr_offset = curr_offset + c.height
+        return None                
+        
     def on_drag_motion(self, wid, context, x, y, time):
         """
         on_drag_motion
@@ -142,6 +160,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         @param y: The y location on the canvas to place the module widget
         @type y: C{int}
         """
+        
         #save so that the appropriate signals can be connected
         self.newelement = module
         
@@ -149,16 +168,25 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         offset = self.get_bottom_of_conduits_coord()
         c_w, c_h = self.get_canvas_size()
 
-        #create the conduit
-        c = ConduitEditorCanvas.Conduit(offset,c_w)
-        
-        #add the dataprovider to the conduit
-        if c.add_dataprovider_to_conduit(module) == True:
-            #save so that the appropriate signals can be connected
-            self.newconduit = c
-            #now add to root element
-            self.root.add_child(c)
-            self.conduits.append(c)
+        #check to see if the dataprovider was dropped on an existin conduit
+        #or whether a new one shoud be created
+        existing_conduit = self.get_conduit_at_coordinate(y)
+        if existing_conduit is not None:
+            print "ADDING EXISTING"
+            existing_conduit.add_dataprovider_to_conduit(module)
+        else:
+            #create the new conduit
+            c = ConduitEditorCanvas.Conduit(offset,c_w)
+            
+            #add the dataprovider to the conduit
+            if c.add_dataprovider_to_conduit(module) == True:
+                #save so that the appropriate signals can be connected
+                self.newconduit = c
+                #now add to root element
+                self.root.add_child(c)
+                self.conduits.append(c)
+            else:
+                "BAD"
          
     def remove_module_from_canvas(self, module):
         """
@@ -190,6 +218,18 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         SIDE_PADDING = 10
         def __init__(self, y_from_origin, canvas_width):
             goocanvas.Group.__init__(self)
+            #a conduit can hold one datasource and many datasinks
+            self.datasource = None
+            self.datasinks = []
+            #We need some way to tell the canvas that we are a conduit
+            self.set_data("is_a_conduit",True)
+            #Because the height of a conduit can change depending on how many
+            #sinks are in it we must keep track our own height
+            self.height = ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
+            #unfortunately we need to keep track of the current canvas 
+            #position of all canvas items from this one
+            self.positions = {}
+            
             #draw a box which will contain the dataproviders
             self.bounding_box = goocanvas.Rect(   
                                     x=0, 
@@ -202,14 +242,37 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                                     radius_y=5, 
                                     radius_x=5
                                     )
-                                    
             self.add_child(self.bounding_box)
-            #We need some way to tell the canvas that we are a conduit
-            self.set_data("is_a_conduit",True)
-            #Because the height of a conduit can change depending on how many
-            #sinks are in it we must keep track our own height
-            self.height = 0
-        
+            #and store the positions
+            self.positions[self.bounding_box] =     {   
+                                                    "x" : 0, 
+                                                    "y" : y_from_origin,
+                                                    "w" : canvas_width,
+                                                    "h" : ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
+                                                    }
+                        
+            
+        def move_conduit_to(self,new_x,new_y):
+            #because Conduit is a goocanvas.Group all its children get
+            #automatically
+            dx = new_x - self.positions[self.bounding_box]["x"]
+            dy = new_y - self.positions[self.bounding_box]["y"]
+            self.translate(dx,dy)
+            #so we need to update all children
+            for p in self.positions.keys():
+                self.positions[p]["x"] += dx
+                self.positions[p]["y"] += dx
+            
+        def move_dataprovider_to(self,dataprovider,new_x,new_y):
+            #compute translation amount
+            dx = new_x - self.positions[dataprovider]["x"]
+            dy = new_y - self.positions[dataprovider]["y"]
+            print "Need to translate by dx, dy", dx, dy
+            dataprovider.get_widget().translate(dx,dy)
+            #update stored position
+            self.positions[dataprovider]["x"] = new_x
+            self.positions[dataprovider]["y"] = new_y
+            
         def add_dataprovider_to_conduit(self, dataprovider_wrapper):
             """
             Adds a dataprovider to the canvas. Positions it appropriately
@@ -218,40 +281,66 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             @returns: True for success
             @rtype: C{bool}
             """
-            #only sinks and sources supported
-            if dataprovider_wrapper.module_type == "source" or dataprovider_wrapper.module_type == "sink":
-                dataprovider = dataprovider_wrapper.module
-
-                #determine our width, height, location
-                w = self.bounding_box.get_property("width")
-                h = self.bounding_box.get_property("height")
-                x = self.bounding_box.get_property("x")
-                y = self.bounding_box.get_property("y")
-
-                #get the dataprovider widget and its dimensions
-                new_widget = dataprovider.get_widget()
-                w_w, w_h = dataprovider.get_widget_dimensions()
-                
-                #position the widget
-                padding = ConduitEditorCanvas.Conduit.SIDE_PADDING
-                #determine dp type. Sources get drawn on the left, sinks on right
-                if dataprovider_wrapper.module_type == "source":
-                    x_pos = padding
-                elif dataprovider_wrapper.module_type == "sink":
-                    x_pos = w - padding - w_w
-                else:
+            #determine our width, height, location
+            x = self.positions[self.bounding_box]["x"]
+            y = self.positions[self.bounding_box]["y"]
+            w = self.positions[self.bounding_box]["w"]
+            h = self.positions[self.bounding_box]["h"]
+            padding = ConduitEditorCanvas.Conduit.SIDE_PADDING
+            #now get widget dimensions
+            dataprovider = dataprovider_wrapper.module
+            w_w, w_h = dataprovider.get_widget_dimensions()
+            #if we are adding a new source we may need to resize the box
+            resize_box = False
+            
+            if dataprovider_wrapper.module_type == "source":
+                #only one source is allowed
+                if self.datasource is not None:
+                    print "datasource alreasy present"
                     return False
-                    
-                new_widget.translate(   
-                                    x_pos,
-                                    y + (h/2) - (w_h/2)
-                                    )
-                
-                self.add_child(new_widget)
-                self.height = self.height + ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
-                return True
+                else:
+                    self.datasource = dataprovider_wrapper.module
+                    #new sources go in top left of conduit
+                    x_pos = padding
+                    y_pos = y + (ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT/2) - (w_h/2)
+            elif dataprovider_wrapper.module_type == "sink":
+                #only one sink of each kind is allowed
+                if dataprovider_wrapper.module in self.datasinks:
+                    print "datasink already present"
+                    return False
+                else:
+                    self.datasinks.append(dataprovider_wrapper.module)
+                    #new sinks get added at the bottom
+                    x_pos = w - padding - w_w
+                    y_pos = y \
+                        + (len(self.datasinks)*ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT) \
+                        - (ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT/2) \
+                        - (w_h/2)
+                    #check if we also need to resize the bounding box
+                    if len(self.datasinks) > 1:
+                        resize_box = True
             else:
-                return False
+                    return False
+            
+            #now store the widget size and add to the conduit 
+            new_widget = dataprovider.get_widget()
+            self.positions[dataprovider] =  {
+                                            "x" : 0,
+                                            "y" : 0,
+                                            "w" : w_w,
+                                            "h" : w_h
+                                            }
+            #move the widget to its new position
+            self.move_dataprovider_to(dataprovider,x_pos,y_pos)
+            #add to this group
+            self.add_child(new_widget)
+            if resize_box is True:
+                b_h = self.positions[self.bounding_box]["h"] + ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
+                print "old h = ", self.bounding_box.get_property("height")
+                print "new h = ", b_h
+                self.bounding_box.set_property("height",b_h)
+                self.height = b_h            
+            return True
             
         def on_mouse_enter(self, view, target, event):
             print "cond enter"
@@ -263,6 +352,4 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             self.mouse_inside_me = False            
             pass
             
-        def repaint_me(self):
-            pass
-        
+       

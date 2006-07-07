@@ -2,6 +2,7 @@ import gobject
 import gtk
 import gtk.glade
 import gnome.ui
+import copy
 
 import conduit
 import conduit.ConduitEditorCanvas as ConduitEditorCanvas
@@ -172,7 +173,7 @@ class MainWindow:
         """
         drop cb
         """
-        print "DND DROP = ", context.targets
+        #print "DND DROP = ", context.targets
         self.canvas.drag_get_data(context, context.targets[0], time)
         return True
         
@@ -184,11 +185,12 @@ class MainWindow:
         #tmodel = treeview.get_model()
         module_name = selection.data
         #print "DND DATA ", module_name
-        #print "X = %s, Y = %s" % (x,y)
+        print "X = %s, Y = %s" % (x,y)
         #print "MODEL ", tmodel
         
         #ADD That sausage to the canvas
         m = self.modules.get_module(module_name)
+        #n = copy.deepcopy(m)
         self.canvas.add_module_to_canvas(m, x, y)
         
         context.finish(True, True, etime)
