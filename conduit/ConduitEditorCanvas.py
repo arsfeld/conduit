@@ -27,17 +27,15 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
                         ModuleManager.DataProviderTreeView.DND_TARGETS,
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
-        self.connect('drag-motion', self.motion_cb)
+        self.connect('drag-motion', self.on_drag_motion)
         
         #set callback to catch new element creation so we can set events
-        self.connect("item_view_created", self.onItemViewCreated)
+        self.connect("item_view_created", self.on_Item_view_created)
         
-        #set callbacks for background clicks
-        self.connect_after("button_press_event", self._onButtonPress)
         
         #keeps a reference to the currently selected (most recently clicked)
         #canvas item
-        self.selcted_dataprovider = None
+        self.selected_dataprovider = None
         
         #used as a store of connections
         self.conduits = []
@@ -60,9 +58,21 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         h = rect.height
         return w,h
         
-    def motion_cb(self, wid, context, x, y, time):
+    def get_bottom_of_conduits_coord(self):
         """
-        motion_cb
+        Gets the Y coordinate at the bottom of all visible conduits
+        
+        @returns: A coordinate (postivive down) from the canvas origin
+        @rtype: C{int}
+        """
+        y = 0
+        for c in self.conduits:
+            y = y + c.height
+        return y
+        
+    def on_drag_motion(self, wid, context, x, y, time):
+        """
+        on_drag_motion
         """
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
@@ -74,15 +84,52 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         self.popup = canvas_popup
         self.item_popup = item_popup
     
-    def _onButtonPress(self, view, event):
+    def on_dataprovider_button_press(self, view, target, event, user_data_dataprovider):
         """
-        onButtonPress
+        Handle button clicks
+        
+        @param user_data: The canvas popup item
+        @type user_data: L{conduit.ConduitEditorCanvas.ConduitEditorCanvas}
         """
+        
         if event.type == gtk.gdk.BUTTON_PRESS:
-            if event.button == 3:
-                # pop up menu
-                self.popup.popup(None, None, None, event.button, event.time)
+            #tell the canvas we recieved the click (needed for cut, 
+            #copy, past, configure operations
+            self.selected_dataprovider = user_data_dataprovider
+            if event.button == 1:
+                #TODO: Support dragging canvas items???
                 return True
+            elif event.button == 3:
+                self.item_popup.popup(
+                                            None, None, 
+                                            None, event.button, event.time
+                                            )
+                return True
+                
+            #TODO: double click to pop up element parameters window
+            
+    def on_conduit_button_press(self, view, target, event, user_data_conduit):
+        """
+        Handle button clicks
+        
+        @param user_data: The canvas popup item
+        @type user_data: L{conduit.ConduitEditorCanvas.ConduitEditorCanvas}
+        """
+        
+        if event.type == gtk.gdk.BUTTON_PRESS:
+            #tell the canvas we recieved the click (needed for cut, 
+            #copy, past, configure operations
+            if event.button == 1:
+                #TODO: Support dragging canvas items???
+                return True
+            elif event.button == 3:
+                self.popup.popup(
+                                            None, None, 
+                                            None, event.button, event.time
+                                            )
+                return True
+                
+            #TODO: double click to pop up element parameters window
     
     def add_module_to_canvas(self, module, x, y):
         """
@@ -99,7 +146,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         self.newelement = module
         
         #determine the vertical location of the conduit to be created
-        offset = len(self.conduits) * ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
+        offset = self.get_bottom_of_conduits_coord()
         c_w, c_h = self.get_canvas_size()
 
         #create the conduit
@@ -121,79 +168,22 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         @type module: L{conduit.DataProvider.DataProviderModel}
         """
         
-        if self.selcted_dataprovider is not None:
+        if self.selected_dataprovider is not None:
             print "removing module ", module
             
         #if module.is_connected_to_another()
         #   self._delete_module_connectors
         #self._delete_module
             
-    def link_modules(self, src, sink):
+    def on_Item_view_created(self, view, itemview, item):
         """
-        Links two modules together graphically
-        
-        @param src: The module to link FROM
-        @type src: L{conduit.DataProvider.DataProviderModel}
-        @param sink: The module to link TO
-        @type sink: L{conduit.DataProvider.DataProviderModel}
-        """
-        raise NotImplementedError    
-    
-    def move_module_connectors(self, module):
-        """
-        Redraws an element's connection to other modules
-        
-        @param module: The module whose connections are redrawn
-        @type module: L{conduit.DataProvider.DataProviderModel}
-        """
-        raise NotImplementedError
-        
-    def _delete_module(self, module):
-        """
-        Remove an element and any connecting lines from the canvas
-
-        @param module: The module whose connections are redrawn
-        @type module: L{conduit.DataProvider.DataProviderModel}
-        """
-        raise NotImplementedError
-    
-    def _delete_module_connectors(self, module):
-        """
-        Deletes all connections from the module
-        
-        @param module: The module whose connections are deleted
-        @type module: L{conduit.DataProvider.DataProviderModel}
-        """
-        raise NotImplementedError
-    
-    def _draw_new_connector(self, src, sink):
-        """
-        Draws a new connector from a src to a sink
-
-        @param src: The module draw a connector FROM
-        @type src: L{conduit.DataProvider.DataProviderModel}
-        @param sink: The module to draw a connector TO
-        @type sink: L{conduit.DataProvider.DataProviderModel}
-        """
-        raise NotImplementedError
-    
-    def onItemViewCreated(self, view, itemview, item):
-        """
-        onItemViewCreated
+        on_Item_view_created
         """
         if isinstance(item, goocanvas.Group):
-            print "new conduit = ", self.newconduit
-            print "new dp = ", self.newelement.module
             if item.get_data("is_a_dataprovider") == True:
-                print "Connecting dataprovider"
-                itemview.connect("button_press_event",  self.newelement.module.onButtonPress, self)
-                itemview.connect("motion_notify_event", self.newelement.module.onMotion)
-                itemview.connect("enter_notify_event",  self.newelement.module.onEnter)
-                itemview.connect("leave_notify_event",  self.newelement.module.onLeave)
+                itemview.connect("button_press_event",  self.on_dataprovider_button_press, self.newelement.module)
             elif item.get_data("is_a_conduit") == True:
-                print "Connecting conduit"
-                itemview.connect("enter_notify_event",  self.newconduit.on_mouse_enter)
-                itemview.connect("leave_notify_event",  self.newconduit.on_mouse_leave)
+                itemview.connect("button_press_event",  self.on_conduit_button_press, self.newconduit)
             
     class Conduit(goocanvas.Group):
         CONDUIT_HEIGHT = 100
@@ -216,7 +206,9 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             self.add_child(self.bounding_box)
             #We need some way to tell the canvas that we are a conduit
             self.set_data("is_a_conduit",True)
-            self.mouse_inside_me = False
+            #Because the height of a conduit can change depending on how many
+            #sinks are in it we must keep track our own height
+            self.height = 0
         
         def add_dataprovider_to_conduit(self, dataprovider_wrapper):
             """
@@ -256,6 +248,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                                     )
                 
                 self.add_child(new_widget)
+                self.height = self.height + ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
                 return True
             else:
                 return False

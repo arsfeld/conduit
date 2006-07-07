@@ -5,12 +5,6 @@ import goocanvas
 import conduit
 
 
-#WAS gsteditorelement
-CONNECT_STATE_NONE = 0
-CONNECT_STATE_START = 1
-CONNECT_STATE_DRAG = 2
-CONNECT_STATE_RELEASE = 3
-
 class DataProviderModel(gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
@@ -48,97 +42,6 @@ class DataProviderModel(gobject.GObject):
         self.widget_width = 120
         self.widget_height = 80
         
-        #manages the connection to other DataProviders
-        self.connected_polylines = []
-        #state machine for managing connecting to another DataProvider
-        self.connect_state = CONNECT_STATE_NONE
-        
-        #TODO: attach pad signals and events here
-        #self.connect("button_press_event", self._onButtonPress)
-
-    def onButtonPress(self, view, target, event, user_data_canvas):
-        """
-        Handle button clicks
-        
-        @param user_data: The canvas contating the popup item
-        @type user_data: L{conduit.ConduitEditorCanvas.ConduitEditorCanvas}
-        """
-        
-        if event.type == gtk.gdk.BUTTON_PRESS:
-            #tell the canvas we recieved the click (needed for cut, 
-            #copy, past, configure operations
-            user_data_canvas.selcted_dataprovider = self
-            if event.button == 1:
-                # Remember starting position for drag moves.
-                self.drag_x = event.x
-                self.drag_y = event.y
-                return True
-
-            elif event.button == 3:
-                user_data_canvas.item_popup.popup(
-                                            None, None, 
-                                            None, event.button, event.time
-                                            )
-                return True
-                
-            #TODO: double click to pop up element parameters window
-        
-    def onMotion(self, view, target, event):
-        """
-        Handles dragging of items
-        """
-        #drag move
-        if event.state & gtk.gdk.BUTTON1_MASK:
-            if self.connect_state != CONNECT_STATE_START:
-                #self.connect_state = CONNECT_STATE_DRAG
-                #print "start state"
-                # Get the new position and move by the difference
-                new_x = event.x
-                new_y = event.y
-
-                self.widget.translate(new_x - self.drag_x, new_y - self.drag_y)
-
-            return True
-            
-    def onEnter(self, view, target, event):
-        #print "dp enter"
-        pass
-    
-    def onLeave(self, view, target, event):
-        #print "dp leave"
-        pass
-                        
-    def onPadEnter(self, view, target, event):
-        item = target.get_item()
-        item.set_property("fill_color_rgba", TANGO_COLOR_CHOCOLATE_MID)
-        #print "pad mouseover"
-        
-        
-    def onPadLeave(self, view, target, event):
-        item = target.get_item()
-        item.set_property("fill_color_rgba", TANGO_COLOR_CHOCOLATE_DARK)
-        #print "pad mouseout"
-        
-    def onPadPress(self, view, target, event):
-        #print "pad clicked"
-        #print "view = ", view
-        #print "target = ", target
-        #print "event = ", event
-        #print "self = ", self
-        if self.connect_state == CONNECT_STATE_NONE:
-            self.connect_state = CONNECT_STATE_START
-            print "start state"
-            dapoints = goocanvas.Points([(event.x,event.y), (100,100)])
-            pl = goocanvas.Polyline(points=dapoints,close_path=True)
-            #self.connected_polylines.append(pl)
-            #self.widget.add_child(pl)
-        
-    def onPadRelease(self, view, target, event):
-        self.connect_state = CONNECT_STATE_NONE
-        x = event.x
-        y = event.y
-        print "release", x           
-            
     def get_icon(self):
         """
         Returns a GdkPixbuf hat represents this handler.
@@ -167,29 +70,6 @@ class DataProviderModel(gobject.GObject):
                                     radius_y=5, 
                                     radius_x=5
                                     )
-            #rect_w = 20
-            #rect_h = 20
-            #plug = goocanvas.Rect(  x=int(  (self.widget_width/2) - 
-            #                                (rect_w/2) ),
-            #                        y=int(  (rect_h/2) + 0), 
-            #                        width=rect_w, 
-            #                        height=rect_h,
-            #                        line_width=1, 
-            #                        stroke_color="black",
-            #                        fill_color_rgba=TANGO_COLOR_CHOCOLATE_DARK, 
-            #                        radius_y=3, 
-            #                        radius_x=3
-            #                        )
-            #goocanvas.Ellipse(center_x = int(self.widget_width/2), 
-            #                        center_y = int(self.widget_height/3),
-            #                        radius_x = 8,
-            #                        radius_y = 8,
-            #                        fill_color = "yellow", 
-            #                        line_width = 2,
-            #                        stroke_color = "black"
-            #                        )
-            #plug.set_data("item_type","pad")
-            #plug.set_data("pad","the pad")                                    
             text = goocanvas.Text(  x=int(2*self.widget_width/5), 
                                     y=int(2*self.widget_height/3), 
                                     width=3*self.widget_width/5, 
@@ -212,8 +92,6 @@ class DataProviderModel(gobject.GObject):
             self.widget.add_child(box)
             self.widget.add_child(text)
             self.widget.add_child(image)
-            #self.widget.add_child(plug)       
-
             
         return self.widget
         

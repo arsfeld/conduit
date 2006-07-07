@@ -183,8 +183,8 @@ class MainWindow:
         #print "DND RX = ", context.targets
         #tmodel = treeview.get_model()
         module_name = selection.data
-        print "DND DATA ", module_name
-        print "X = %s, Y = %s" % (x,y)
+        #print "DND DATA ", module_name
+        #print "X = %s, Y = %s" % (x,y)
         #print "MODEL ", tmodel
         
         #ADD That sausage to the canvas
