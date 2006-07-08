@@ -67,7 +67,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         y = 0
         for c in self.conduits:
-            y = y + c.height
+            y = y + c.get_conduit_height()
         return y
         
     def get_conduit_at_coordinate(self, y):
@@ -83,9 +83,9 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         curr_offset = 0
         for c in self.conduits:
-            if y in range(curr_offset, curr_offset + c.height):
+            if y in range(curr_offset, curr_offset + c.get_conduit_height()):
                 return c
-            curr_offset = curr_offset + c.height
+            curr_offset = curr_offset + c.get_conduit_height()
         return None                
         
     def on_drag_motion(self, wid, context, x, y, time):
@@ -148,6 +148,14 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                 return True
                 
             #TODO: double click to pop up element parameters window
+            
+    def resize_canvas(self, new_w, new_h):
+        """
+        Resizes the canvas
+        """
+        print "resizing canvas to new w,h ", new_w, new_h
+        for c in self.conduits:
+            c.resize_conduit_width(new_w)
     
     def add_module_to_canvas(self, module, x, y):
         """
@@ -223,9 +231,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             self.datasinks = []
             #We need some way to tell the canvas that we are a conduit
             self.set_data("is_a_conduit",True)
-            #Because the height of a conduit can change depending on how many
-            #sinks are in it we must keep track our own height
-            self.height = ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
             #unfortunately we need to keep track of the current canvas 
             #position of all canvas items from this one
             self.positions = {}
@@ -250,11 +255,35 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                                                     "w" : canvas_width,
                                                     "h" : ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
                                                     }
-                        
+        
+        def get_conduit_height(self):
+            """
+            Returns the graphical height of this conduit
+            (This is the height of the bounding box)
+            
+            @returns: Height in pixels
+            @rtype: C{int}
+            """
+            return self.positions[self.bounding_box]["h"]
+            
+        def resize_conduit_width(self, new_w):
+            """
+            Resizes the conduit width by
+            resizing the bounding box and by translating all the 
+            datasinks to the right
+            """
+            dw = new_w - self.positions[self.bounding_box]["w"]
+            for d in self.datasinks:
+                print "translating by ", dw
+                d.get_widget().translate(dw,0)               
+            #now update the box width
+            self.positions[self.bounding_box]["w"] = new_w
+            self.bounding_box.set_property("width",
+                                    self.positions[self.bounding_box]["w"])
             
         def move_conduit_to(self,new_x,new_y):
             #because Conduit is a goocanvas.Group all its children get
-            #automatically
+            #moved automatically when we move
             dx = new_x - self.positions[self.bounding_box]["x"]
             dy = new_y - self.positions[self.bounding_box]["y"]
             self.translate(dx,dy)
@@ -335,11 +364,12 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             #add to this group
             self.add_child(new_widget)
             if resize_box is True:
-                b_h = self.positions[self.bounding_box]["h"] + ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
-                print "old h = ", self.bounding_box.get_property("height")
-                print "new h = ", b_h
-                self.bounding_box.set_property("height",b_h)
-                self.height = b_h            
+                #increase to fit added dataprovider
+                self.positions[self.bounding_box]["h"] += ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
+                #print "old h = ", self.bounding_box.get_property("height")
+                #print "new h = ", self.positions[self.bounding_box]["h"]
+                self.bounding_box.set_property("height",
+                                    self.positions[self.bounding_box]["h"])
             return True
             
         def on_mouse_enter(self, view, target, event):

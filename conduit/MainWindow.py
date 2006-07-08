@@ -162,11 +162,10 @@ class MainWindow:
         #print "pane moved ", widget.get_position()
         pass
         
-    #TODO: If dynamic resizing causes too much CPU usage connect to 
     #size-allocate instead of size-request        
     def on_window_resized(self, widget, req):
-        #print "window resized ", self.mainwindow.get_size()
-        pass
+        rect = self.canvas.get_allocation()
+        self.canvas.resize_canvas(rect.width, rect.height)
 
         
     def drop_cb(self, wid, context, x, y, time):

@@ -210,7 +210,7 @@ class DataSource(DataProviderModel):
         DataProviderModel.__init__(self, name, description)
         
         #customizations
-        self.icon_name = gtk.STOCK_OK
+        self.icon_name = "gtk-media-next"
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
   
 class DataSink(DataProviderModel):
@@ -222,7 +222,7 @@ class DataSink(DataProviderModel):
         DataProviderModel.__init__(self, name, description)
 
         #customizations
-        self.icon_name = gtk.STOCK_NO
+        self.icon_name = "gtk-media-previous"
         self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
  
         

@@ -26,6 +26,7 @@
     <atkproperty name="AtkObject::accessible_name" translatable="yes">Editor</atkproperty>
   </accessibility>
   <signal name="destroy" handler="on_window1_destroy" last_modification_time="Wed, 17 May 2006 11:27:53 GMT"/>
+  <signal name="size_allocate" handler="on_window1_resized" last_modification_time="Sat, 08 Jul 2006 09:10:37 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">

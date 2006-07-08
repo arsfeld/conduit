@@ -314,10 +314,10 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     column_types = (gtk.gdk.Pixbuf, str, str)
     column_names = ['Name', 'Description']
 
-    def __init__(self, module_array):
+    def __init__(self, module_wrapper_list):
         gtk.GenericTreeModel.__init__(self)
         #print "init, array= ", module_array
-        self.modules = module_array
+        self.module_wrapper_list = module_wrapper_list
         return 
         
     def get_module_index_by_name(self, name):
@@ -325,8 +325,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         get
         """
         #print "get_module_index_by_name: name = ", name
-        for n in range(0, len(self.modules)):
-            if self.modules[n].name == name:
+        for n in range(0, len(self.module_wrapper_list)):
+            if self.module_wrapper_list[n].name == name:
                 return n
                 
     def get_module_by_name(self, name):
@@ -334,7 +334,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         get mod
         """
         #TODO: ERROR CHECK
-        return self.modules[self.get_module_index_by_name(name)]
+        return self.module_wrapper_list[self.get_module_index_by_name(name)]
     
     def get_column_names(self):
         """
@@ -365,21 +365,21 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_get_iter(
         """
-        return self.modules[path[0]].name
+        return self.module_wrapper_list[path[0]].name
 
     def on_get_path(self, rowref):
         #print "on_get_path: rowref = ", rowref
         """
         on_get_path(
         """
-        return self.modules[self.get_module_index_by_name(rowref)]
+        return self.module_wrapper_list[self.get_module_index_by_name(rowref)]
 
     def on_get_value(self, rowref, column):
         """
         on_get_value(
         """
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
-        m = self.modules[self.get_module_index_by_name(rowref)]
+        m = self.module_wrapper_list[self.get_module_index_by_name(rowref)]
         if column is 0:
             return m.get_icon()
         elif column is 1:
@@ -400,7 +400,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             #print "on_iter_next: old i = ", i
             i = i+1
             #print "on_iter_next: next i = ", i
-            return self.modules[i].name
+            return self.module_wrapper_list[i].name
         except IndexError:
             return None
         
@@ -411,7 +411,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #print "on_iter_children: rowref = ", rowref
         if rowref:
             return None
-        return self.modules[0].name
+        return self.module_wrapper_list[0].name
 
     def on_iter_has_child(self, rowref):
         """
@@ -427,7 +427,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #print "on_iter_n_children: rowref = ", rowref
         if rowref:
             return 0
-        return len(self.modules)
+        return len(self.module_wrapper_list)
 
     def on_iter_nth_child(self, rowref, n):
         """
@@ -437,7 +437,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         if rowref:
             return None
         try:
-            return self.modules[n].name
+            return self.module_wrapper_list[n].name
         except IndexError:
             return None
 
