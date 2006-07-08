@@ -3,6 +3,7 @@ import gtk
 import gtk.glade
 import gnome.ui
 import copy
+import os.path
 
 import conduit
 import conduit.ConduitEditorCanvas as ConduitEditorCanvas
@@ -15,17 +16,22 @@ class MainWindow:
     The main conduit class.
     """
     
-    def __init__(self,name=None):
+    def __init__(self):
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
-        self.name = name
-        self.gladefile = "conduit.glade"
-        self.widgets = gtk.glade.XML(self.gladefile, "window1")
+        self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "window1")
     
         dic = { "on_window1_destroy" : self.on_window_closed,
                 "on_window1_resized" : self.on_window_resized,
                 "on_synchronizebutton_clicked" : self.on_synchronize_clicked,
-                "on_configurebutton_clicked" : self.on_configure_clicked,
-                "on_linkitemsbutton_clicked" : self.on_link_clicked,
+                "on_open_activate" : self.on_open_sync_set,
+                "on_save_activate" : self.on_save_sync_set,
+                "on_save_as_activate" : self.on_save_as_sync_set,
+                "on_new_activate" : self.on_new_sync_set,
+                "on_quit_activate" : self.on_window_closed,
+                "on_clear_activate" : self.on_clear_sync_set,
+                "on_properties_activate" : self.on_sync_properties,
+                "on_preferences_activate" : self.on_conduit_preferences,
+                "on_about_activate" : self.on_about_conduit,
                 "on_hpane_move_handle" : self.on_hpane_move_handle,
                 None : None
                 }
@@ -37,8 +43,8 @@ class MainWindow:
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
-        self.canvas_popup_widgets = gtk.glade.XML(self.gladefile, "menu1")
-        self.item_popup_widgets = gtk.glade.XML(self.gladefile, "menu2") 
+        self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "menu1")
+        self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "menu2") 
 
 
         #customize some widgets, connect signals, etc
@@ -58,7 +64,12 @@ class MainWindow:
                                 )
         
         #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
-        self.modules = ModuleManager.ModuleManager(["datatypes","dataproviders"])
+        dirs_to_search = []
+        dirs_to_search.append(os.path.join(conduit.SHARED_MODULE_DIR,"datatypes"))
+        dirs_to_search.append(os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"))
+        dirs_to_search.append(os.path.join(conduit.USER_MODULE_DIR,"datatypes"))
+        dirs_to_search.append(os.path.join(conduit.USER_MODULE_DIR,"dataproviders"))                        
+        self.modules = ModuleManager.ModuleManager(dirs_to_search)
         
         #dic = gtk.icon_theme_get_default().list_icons()
         #for d in dic:
@@ -135,21 +146,58 @@ class MainWindow:
         """
         paste item
         """
-        print "synchronize item"    
+        print "synchronize item"
+        
+    def on_open_sync_set(self, widget):
+        """
+        Open a saved sync set from disk
+        """
+        print "open sync set"
+        
+    def on_save_sync_set(self, widget):
+        """
+        Save the current sync settings to disk
+        """
+        print "save sync set"
+        
+    def on_save_as_sync_set(self, widget):
+        """
+        Save a copy of the current sync settings to disk
+        """
+        print "saveas sync set"
+        
+    def on_new_sync_set(self, widget):
+        """
+        Clear the canvas and start a new sync set
+        """
+        print "new sync set"
+        
+    def on_clear_sync_set(self, widget):
+        """
+        Clear the canvas and start a new sync set
+        """
+        print "clear sync set"
     
+    def on_sync_properties(self, widget):
+        """
+        Show the properties of the current sync set (status, conflicts, etc
+        Edit the sync specific properties
+        """
+        print "sync properties"
+        
+    def on_conduit_preferences(self, widget):
+        """
+        Edit the application wide preferences
+        """
+        print "application preferences"
 
-    def on_configure_clicked(self, widget):
-        """
-        configure
-        """
-    	print "clicked configure"
+    def on_about_conduit(self, widget):
+        '''Display about dialog'''
+        aboutTree = gtk.glade.XML(conduit.GLADE_FILE, "AboutDialog")
+        dlg = aboutTree.get_widget("AboutDialog")
+        dlg.set_transient_for(self.mainwindow)
+        #dlg.set_icon(self.icon)        
 
-    def on_link_clicked(self, widget):
-        """
-        link
-        """
-    	print "clicked link"
-    	
     def on_window_closed(self, widget):
         """
         Kills the app and cleans up

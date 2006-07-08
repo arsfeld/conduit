@@ -1,6 +1,11 @@
 APPNAME="Conduit"
-APPVERSION="0.0.1"
+APPVERSION="0.0.0"
+#for pixmaps, glade files, etc
 SHARED_DATA_DIR = "/usr/share/conduit/data"
+GLADE_FILE = "/usr/share/conduit/data/conduit.glade"
+#for the dynamically loaded modules
+SHARED_MODULE_DIR = "/usr/share/conduit/modules"
+USER_MODULE_DIR = "~/.conduit/modules"
 
 DEBUG=False
 

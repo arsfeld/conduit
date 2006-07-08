@@ -30,21 +30,45 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         self.connect('drag-motion', self.on_drag_motion)
         
         #set callback to catch new element creation so we can set events
-        self.connect("item_view_created", self.on_Item_view_created)
+        self.connect("item_view_created", self.on_item_view_created)
         
         
         #keeps a reference to the currently selected (most recently clicked)
         #canvas item
         self.selected_dataprovider = None
         
-        #used as a store of connections
+        #used as a store of connections. Order is important because when
+        #a conduit is resized all those below it must be translated down
+        #The one at the start of the list should be at the top of the 
+        #canvas and so on
         self.conduits = []
         
         #save so that the appropriate signals can be connected
         self.newelement = None
         self.newconduit = None
         
-    
+    def remove_conduit_overlap(self):
+        for i in range(0, len(self.conduits)):
+            c = self.conduits[i]
+            try:
+                #get the conduit below the current one
+                n_c = self.conduits[i+1]
+            except:
+                #break cause on last one
+                break
+            x,y,w,h = c.get_conduit_dimensions()
+            n_x, n_y, n_w, n_h = n_c.get_conduit_dimensions()
+            #check if the current conduit overlaps onto the conduit below it
+            if n_y < (y + h):
+                new_y = y + h
+                #translate only in y direction
+                n_c.move_conduit_to(n_x, new_y)
+            #x translate not needed/supported
+            #if n_x < (x + w):
+            #    new_x = x + w
+            #    #translate only in y direction
+            #    n_c.move_conduit_to(new_x, n_y)
+            
     def get_canvas_size(self):
         """
         Returns the size of the canvas in screen units
@@ -180,8 +204,11 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         #or whether a new one shoud be created
         existing_conduit = self.get_conduit_at_coordinate(y)
         if existing_conduit is not None:
-            print "ADDING EXISTING"
             existing_conduit.add_dataprovider_to_conduit(module)
+            #if we added a new datasource to an existing conduit then it
+            #may have been resized. In that case all of the conduits below
+            #it may need to be translated
+            self.remove_conduit_overlap()
         else:
             #create the new conduit
             c = ConduitEditorCanvas.Conduit(offset,c_w)
@@ -194,7 +221,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                 self.root.add_child(c)
                 self.conduits.append(c)
             else:
-                "BAD"
+                "BAD THINGS WILL HAPPEN TO YOU"
          
     def remove_module_from_canvas(self, module):
         """
@@ -203,17 +230,12 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         @param module: The module to remove from the canvas
         @type module: L{conduit.DataProvider.DataProviderModel}
         """
-        
         if self.selected_dataprovider is not None:
             print "removing module ", module
-            
-        #if module.is_connected_to_another()
-        #   self._delete_module_connectors
-        #self._delete_module
-            
-    def on_Item_view_created(self, view, itemview, item):
+
+    def on_item_view_created(self, view, itemview, item):
         """
-        on_Item_view_created
+        on_item_view_created
         """
         if isinstance(item, goocanvas.Group):
             if item.get_data("is_a_dataprovider") == True:
@@ -255,6 +277,19 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
                                                     "w" : canvas_width,
                                                     "h" : ConduitEditorCanvas.Conduit.CONDUIT_HEIGHT
                                                     }
+        
+        def get_conduit_dimensions(self):
+            """
+            Returns the dimensions AND position of the conduit
+            
+            @returns: x, y, w, h
+            @rtype: C{int}, C{int}, C{int}, C{int}
+            """
+            x = self.positions[self.bounding_box]["x"]
+            y = self.positions[self.bounding_box]["y"]
+            w = self.positions[self.bounding_box]["w"]
+            h = self.positions[self.bounding_box]["h"]
+            return x,y,w,h
         
         def get_conduit_height(self):
             """

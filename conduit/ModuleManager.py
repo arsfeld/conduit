@@ -112,7 +112,7 @@ class ModuleLoader(gobject.GObject):
         directories = [abspath(expanduser(s)) for s in directories]
             
         for d in directories:
-        	#print >> sys.stderr, "Reading directory %s" % d
+        	print >> sys.stderr, "Reading directory %s" % d
         	try:
         		if not os.path.exists(d):
         			continue
