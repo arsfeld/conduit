@@ -41,7 +41,7 @@
 	  <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="file1">
+	    <widget class="GtkMenuItem" id="file1">
 	      <property name="visible">True</property>
 	      <property name="stock_item">GNOMEUIINFO_MENU_FILE_TREE</property>
 
@@ -49,36 +49,36 @@
 		<widget class="GtkMenu" id="file1_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="new1">
+		    <widget class="GtkImageMenuItem" id="new">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_NEW_ITEM</property>
 		      <property name="label" translatable="yes">_New</property>
 		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_new1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_new_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="open1">
+		    <widget class="GtkImageMenuItem" id="open">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_OPEN_ITEM</property>
-		      <signal name="activate" handler="on_open1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_open_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="save1">
+		    <widget class="GtkImageMenuItem" id="save">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_SAVE_ITEM</property>
-		      <signal name="activate" handler="on_save1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_save_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="save_as1">
+		    <widget class="GtkImageMenuItem" id="save_as">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_SAVE_AS_ITEM</property>
-		      <signal name="activate" handler="on_save_as1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_save_as_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 
@@ -89,10 +89,10 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="quit1">
+		    <widget class="GtkImageMenuItem" id="quit">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_EXIT_ITEM</property>
-		      <signal name="activate" handler="on_quit1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_quit_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -101,42 +101,18 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="edit1">
+	    <widget class="GtkMenuItem" id="edit">
 	      <property name="visible">True</property>
 	      <property name="stock_item">GNOMEUIINFO_MENU_EDIT_TREE</property>
 
 	      <child>
-		<widget class="GtkMenu" id="edit1_menu">
+		<widget class="GtkMenu" id="edit_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="cut1">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_CUT_ITEM</property>
-		      <signal name="activate" handler="on_cut1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="copy1">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_COPY_ITEM</property>
-		      <signal name="activate" handler="on_copy1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="paste1">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_PASTE_ITEM</property>
-		      <signal name="activate" handler="on_paste1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="clear1">
+		    <widget class="GtkImageMenuItem" id="clear">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_CLEAR_ITEM</property>
-		      <signal name="activate" handler="on_clear1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_clear_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 
@@ -147,10 +123,10 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="properties1">
+		    <widget class="GtkImageMenuItem" id="properties">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_PROPERTIES_ITEM</property>
-		      <signal name="activate" handler="on_properties1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_properties_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 
@@ -161,10 +137,10 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="preferences1">
+		    <widget class="GtkImageMenuItem" id="preferences">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_PREFERENCES_ITEM</property>
-		      <signal name="activate" handler="on_preferences1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_preferences_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -173,30 +149,39 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkImageMenuItem" id="view1">
-	      <property name="visible">True</property>
-	      <property name="stock_item">GNOMEUIINFO_MENU_VIEW_TREE</property>
-
-	      <child>
-		<widget class="GtkMenu" id="view1_menu">
-		</widget>
-	      </child>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkImageMenuItem" id="help1">
+	    <widget class="GtkMenuItem" id="help">
 	      <property name="visible">True</property>
 	      <property name="stock_item">GNOMEUIINFO_MENU_HELP_TREE</property>
 
 	      <child>
-		<widget class="GtkMenu" id="help1_menu">
+		<widget class="GtkMenu" id="help_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="about1">
+		    <widget class="GtkImageMenuItem" id="contents">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Contents</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_contents_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image8">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-help</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="about">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_ABOUT_ITEM</property>
-		      <signal name="activate" handler="on_about1_activate" last_modification_time="Wed, 17 May 2006 09:29:03 GMT"/>
+		      <signal name="activate" handler="on_about_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 		    </widget>
 		  </child>
 		</widget>
@@ -237,37 +222,11 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkToolButton" id="linkitemsbutton">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Link Items</property>
-	      <property name="use_underline">True</property>
-	      <property name="stock_id">gtk-edit</property>
-	      <property name="visible_horizontal">True</property>
-	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
-	      <signal name="clicked" handler="on_linkitemsbutton_clicked" last_modification_time="Wed, 17 May 2006 11:26:28 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="expand">False</property>
-	      <property name="homogeneous">True</property>
-	    </packing>
+	    <placeholder/>
 	  </child>
 
 	  <child>
-	    <widget class="GtkToolButton" id="configurebutton">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Configure</property>
-	      <property name="use_underline">True</property>
-	      <property name="stock_id">gtk-preferences</property>
-	      <property name="visible_horizontal">True</property>
-	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
-	      <signal name="clicked" handler="on_configurebutton_clicked" last_modification_time="Wed, 17 May 2006 11:26:34 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="expand">False</property>
-	      <property name="homogeneous">True</property>
-	    </packing>
+	    <placeholder/>
 	  </child>
 	</widget>
 	<packing>
@@ -547,6 +506,19 @@
       </child>
     </widget>
   </child>
+</widget>
+
+<widget class="GtkAboutDialog" id="AboutDialog">
+  <property name="visible">True</property>
+  <property name="destroy_with_parent">False</property>
+  <property name="name" translatable="yes">Conduit</property>
+  <property name="comments" translatable="yes">Synchronization for GNOME</property>
+  <property name="wrap_license">False</property>
+  <property name="website">http://www.conduit-project.org</property>
+  <property name="website_label" translatable="yes">Conduit Website</property>
+  <property name="authors">John Stowers &lt;john.stowers@gmail.com&gt;</property>
+  <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">translator-credits</property>
+  <property name="logo">conduit-icon.png</property>
 </widget>
 
 </glade-interface>
