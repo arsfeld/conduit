@@ -1,6 +1,7 @@
 import goocanvas
 import gtk
 
+import logging
 import conduit
 import conduit.ModuleManager as ModuleManager
 import conduit.DataProvider as DataProvider
@@ -177,7 +178,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         """
         Resizes the canvas
         """
-        print "resizing canvas to new w,h ", new_w, new_h
         for c in self.conduits:
             c.resize_conduit_width(new_w)
     
@@ -309,8 +309,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             """
             dw = new_w - self.positions[self.bounding_box]["w"]
             for d in self.datasinks:
-                print "translating by ", dw
-                d.get_widget().translate(dw,0)               
+                d.get_widget().translate(dw,0)             
             #now update the box width
             self.positions[self.bounding_box]["w"] = new_w
             self.bounding_box.set_property("width",
@@ -331,7 +330,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
             #compute translation amount
             dx = new_x - self.positions[dataprovider]["x"]
             dy = new_y - self.positions[dataprovider]["y"]
-            print "Need to translate by dx, dy", dx, dy
+            #translate
             dataprovider.get_widget().translate(dx,dy)
             #update stored position
             self.positions[dataprovider]["x"] = new_x

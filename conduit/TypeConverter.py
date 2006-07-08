@@ -1,6 +1,9 @@
 import gobject
 import traceback
 
+import logging
+import conduit
+
 class TypeConverter(gobject.GObject): 
     """
     Maintains a dictionary of dictionaries, indexed by the type converted FROM which

@@ -5,6 +5,7 @@ import gnome.ui
 import copy
 import os.path
 
+import logging
 import conduit
 import conduit.ConduitEditorCanvas as ConduitEditorCanvas
 import conduit.ModuleManager as ModuleManager
@@ -18,8 +19,14 @@ class MainWindow:
     
     def __init__(self):
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
+        #add some additional dirs to the icon theme search path so that
+        #modules can provider their own icons
+        gtk.icon_theme_get_default().prepend_search_path(conduit.SHARED_DATA_DIR)
+        gtk.icon_theme_get_default().prepend_search_path(conduit.SHARED_MODULE_DIR)
+        gtk.icon_theme_get_default().prepend_search_path(conduit.USER_MODULE_DIR)
+
         self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "window1")
-    
+        
         dic = { "on_window1_destroy" : self.on_window_closed,
                 "on_window1_resized" : self.on_window_resized,
                 "on_synchronizebutton_clicked" : self.on_synchronize_clicked,
@@ -48,6 +55,7 @@ class MainWindow:
 
 
         #customize some widgets, connect signals, etc
+        self.mainwindow.set_title(conduit.APPNAME)
         self.hpane.set_position(250)
         #start up the canvas
         self.canvas = ConduitEditorCanvas.ConduitEditorCanvas()
@@ -75,7 +83,7 @@ class MainWindow:
         #for d in dic:
         #    print d
                         
-        if conduit.DEBUG:
+        if False:#conduit.DEBUG:
             datasink_modules = self.modules.module_loader.get_modules ("sink")
             datasource_modules = self.modules.module_loader.get_modules ("source")
             datatypes = self.modules.module_loader.get_modules ("datatype")
@@ -192,9 +200,13 @@ class MainWindow:
         print "application preferences"
 
     def on_about_conduit(self, widget):
-        '''Display about dialog'''
+        """
+        Display about dialog
+        """
         aboutTree = gtk.glade.XML(conduit.GLADE_FILE, "AboutDialog")
         dlg = aboutTree.get_widget("AboutDialog")
+        dlg.set_name(conduit.APPNAME)
+        dlg.set_version(conduit.APPVERSION)
         dlg.set_transient_for(self.mainwindow)
         #dlg.set_icon(self.icon)        
 
@@ -228,16 +240,10 @@ class MainWindow:
         """
         DND
         """
-        #print "DND RX = ", context.targets
-        #tmodel = treeview.get_model()
         module_name = selection.data
-        #print "DND DATA ", module_name
-        print "X = %s, Y = %s" % (x,y)
-        #print "MODEL ", tmodel
-        
+        logging.info("DND RX = %s" % (module_name))        
         #ADD That sausage to the canvas
         m = self.modules.get_module(module_name)
-        #n = copy.deepcopy(m)
         self.canvas.add_module_to_canvas(m, x, y)
         
         context.finish(True, True, etime)

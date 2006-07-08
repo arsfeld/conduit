@@ -2,8 +2,8 @@ import gtk
 import gobject
 import goocanvas
 
+import logging
 import conduit
-
 
 class DataProviderModel(gobject.GObject):
     """

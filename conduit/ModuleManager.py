@@ -7,8 +7,8 @@ import pydoc
 import random
 from os.path import abspath, expanduser, join, basename
 
+import logging
 import conduit
-#import conduit.DataProvider as DataProvider
 
 class ModuleManager(gobject.GObject):
     """
@@ -45,11 +45,11 @@ class ModuleManager(gobject.GObject):
         @rtype: a L{conduit.ModuleManager}
         @returns: cheese
         """
-        print "SEARCHING Type = %s Name = %s" % (type_filter, name)
+        logging.info("SEARCHING Type = %s Name = %s" % (type_filter, name))
         mods = self.module_loader.get_modules(type_filter)
         for m in mods:
             if name == m.name:
-                print "FOUND name = ", name
+                logging.info("FOUND name = %s" % (name))
                 return m
                 
     def get_module_do_copy(self, name=None, type_filter=None):
@@ -112,7 +112,7 @@ class ModuleLoader(gobject.GObject):
         directories = [abspath(expanduser(s)) for s in directories]
             
         for d in directories:
-        	print >> sys.stderr, "Reading directory %s" % d
+        	logging.info("Reading directory %s" % d)
         	try:
         		if not os.path.exists(d):
         			continue
@@ -121,8 +121,8 @@ class ModuleLoader(gobject.GObject):
         			if basename(i) not in [basename(j) for j in res]:
         				res.append(i)
         	except OSError, err:
-        		print >> sys.stderr, "Error reading directory %s, skipping." % d
-        		traceback.print_exc()
+        		logging.warn("Error reading directory %s, skipping." % (d))
+        		#traceback.print_exc()
         return res			
        
     def _is_module (self, filename):
@@ -142,7 +142,7 @@ class ModuleLoader(gobject.GObject):
         if module.name not in [i.name for i in self.loadedmodules]:
             self.loadedmodules.append(module)
         else:
-            print >> sys.stderr, "module named %s allready loaded" % (module.name)
+            logging.warn("module named %s allready loaded" % (module.name))
             
     def _import_module (self, filename):
         """
@@ -153,15 +153,15 @@ class ModuleLoader(gobject.GObject):
         try:
             mod = pydoc.importfile (filename)
         except Exception:
-            print >> sys.stderr, "Error loading the file: %s." % filename
+            logging.error("Error loading the file: %s." % (filename))
             traceback.print_exc()
             return
 
         try:
             if (mod.MODULES): pass
         except AttributeError:
-            print >> sys.stderr, "The file %s is not a valid module. Skipping." %filename
-            print >> sys.stderr, "A module must have the variable MODULES defined as a dictionary."
+            logging.error("The file %s is not a valid module. Skipping." % (filename))
+            logging.error("A module must have the variable MODULES defined as a dictionary.")
             traceback.print_exc()
             return
 
@@ -169,20 +169,20 @@ class ModuleLoader(gobject.GObject):
             if not hasattr(mod, "ERROR"):
                 mod.ERROR = "Unspecified Reason"
 
-            print >> sys.stderr, "*** The file %s decided to not load itself: %s" % (filename, mod.ERROR)
+            logging.error("*** The file %s decided to not load itself: %s" % (filename, mod.ERROR))
             return
 
         for modules, infos in mod.MODULES.items():
             if hasattr(getattr(mod, modules), "initialize") and "name" in infos:
                 pass				
             else:
-                print >> sys.stderr, "Class %s in file %s does not have an initialize(self) method or does not define a 'name' attribute. Skipping." % (modules, filename)
+                logging.error("Class %s in file %s does not have an initialize(self) method or does not define a 'name' attribute. Skipping." % (modules, filename))
                 return
 
             if "requirements" in infos:
                 status, msg, callback = infos["requirements"]()
                 if status == deskbar.Handler.HANDLER_IS_NOT_APPLICABLE:
-                    print >> sys.stderr, "*** The file %s (%s) decided to not load itself: %s" % (filename, modules, msg)
+                    logging.error("*** The file %s (%s) decided to not load itself: %s" % (filename, modules, msg))
                     return
 
         return mod

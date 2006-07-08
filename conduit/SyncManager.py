@@ -1,5 +1,6 @@
 import gobject
 
+import logging
 import conduit
 import conduit.TypeConverter as TypeConverter
 
