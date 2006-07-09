@@ -3,7 +3,6 @@ import gtk
 
 import logging
 import conduit
-import conduit.ModuleManager as ModuleManager
 import conduit.DataProvider as DataProvider
 
 class Conduit(goocanvas.Group):

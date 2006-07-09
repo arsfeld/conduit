@@ -4,7 +4,6 @@ from gettext import gettext as _
 
 import logging
 import conduit
-import conduit.ModuleManager as ModuleManager
 import conduit.DataProvider as DataProvider
 import conduit.Conduit as Conduit
 
