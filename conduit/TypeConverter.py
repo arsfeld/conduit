@@ -46,13 +46,24 @@ class TypeConverter(gobject.GObject):
             if conv is not None:
                 for c in conv:
                     try:
-                        new_conv = { str(d.in_type):conv[c] }
-                        self.convertables[str(c)] = new_conv
+                        #I cant work out why in python i cant just go
+                        #bla[][] = bla to start the inner dict and 
+                        #instead have to do this 
+                        
+                        #if the from source doesnt yet exist add an inner dict
+                        #containing the FROM type and conversion function
+                        if not self.convertables.has_key(str(c)):
+                            new_conv = { str(d.in_type):conv[c] }
+                            self.convertables[str(c)] = new_conv
+                        #Otherwise we already have an inner dict so can go
+                        #ahead and insert a new TO type and conversion function
+                        else:
+                            self.convertables[str(c)][str(d.in_type)] = conv[c]
                     except KeyError, err:
-                        print "Error: Could not add conversion function from %s to %s" % (c, d.in_type)
-                        print "Error Message: ", err
+                        logger.error("Could not add conversion function from %s to %s" % (c, d.in_type))
+                        logger.error("KeyError was %s" % err)
                     except Exception:
-                        print "Error: Error adding conversion function"
+                        logger.error("Error #341")
                     
     def convert(self, from_type, to_type, data):
         """
@@ -69,13 +80,13 @@ class TypeConverter(gobject.GObject):
         try:
             return self.convertables[from_type][to_type](data)
         except TypeError, err:
-            print "Error: Could not call conversion function"
-            print "Error Message: ", err
+            logging.error("Could not call conversion function %s" % err)
             return None
         except KeyError:
-            print "Error: Conversion from %s to %s does not exist " % (from_type, to_type)
+            logger.error("Conversion from %s to %s does not exist " % (from_type, to_type))
             return None
         except Exception:
+            logger.error("Error #65")
             return None
         
     def print_convertables(self):
@@ -86,5 +97,5 @@ class TypeConverter(gobject.GObject):
         for froms in self.convertables:
             for tos in self.convertables[froms]:
                 method = self.convertables[froms][tos]
-                print "Convert from %s to %s using %s" % (froms, tos, method)      
+                logging.info("Convert from %s to %s using %s" % (froms, tos, method))
         
