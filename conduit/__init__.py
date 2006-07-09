@@ -40,10 +40,11 @@ from DataType import DataType
 from TypeConverter import TypeConverter
 from SyncManager import SyncManager
 from MainWindow import MainWindow
-from ConduitEditorCanvas import ConduitEditorCanvas
+from Canvas import Canvas
 from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
 from ModuleManager import ModuleManager, ModuleLoader, ModuleWrapper
+from Conduit import Conduit
 
 # Make sure epydoc documents the classes 
 # as part of the conduit module
-__all__ = ["DataType", "MainWindow", "ConduitEditorCanvas", "DataProviderBase", "DataSource", "DataSink", "ModuleManager", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter"]
+__all__ = ["DataType", "MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleManager", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit"]

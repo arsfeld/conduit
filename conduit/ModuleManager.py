@@ -20,7 +20,7 @@ class ModuleManager(gobject.GObject):
     Applications should use this class and its methods rather 
     than the ModuleLoader, TreeStore and TreeView classes directly 
     """
-    
+
     def __init__(self, dirs=None):
         """
         Constructor for ModuleManger.
@@ -34,50 +34,19 @@ class ModuleManager(gobject.GObject):
         self.module_loader = ModuleLoader(dirs)
         self.module_loader.load_all_modules()
                 
-    def get_module(self, name=None, type_filter=None):
+    def get_module(self, name):
         """
-        Returns a Module (not a ModuleWrapper) specified by name
-        
-        @param name: Name of the module to get
-        @type name: C{string}
-        @param type_filter: An option string which restrickts the search
-        to modules of a specified type. For example, to only search for
-        L{conduit.DataProvider.DataSink} specify "sink" here.
-        @type type_filter: C{string}
-        @rtype: a L{conduit.ModuleManager}
-        @returns: cheese
+        Returns a ModuleWrapper specified by name
         """
-        logging.info("SEARCHING Type = %s Name = %s" % (type_filter, name))
-        mods = self.module_loader.get_modules(type_filter)
-        for m in mods:
-            if name == m.name:
-                logging.info("FOUND name = %s" % (name))
-                return m
+        return self.module_loader.get_module_named(name)
                 
-    def get_module_do_copy(self, name=None, type_filter=None):
+    def get_module_do_copy(self, name):
         """
-        Returns a copy of a Module (not a ModuleWrapper)
+        Returns a copy of a ModuleWrapper
         """
-        print "not implemented"
-        
-    def get_treeview(self, type_filter=None):
-        """
-        Returns a treeview (for displaying a list of ModuleContexts)
-        of the specified type.
-        """
-        tm = self._get_treemodel(type_filter)
-        return DataProvider.DataProviderTreeView(tm)
-                
-    def _get_treemodel(self, type_filter=None):
-        """
-        Returns a treemodel containing  the ModuleContexts
-        of the specified type
-        """
-        mods = self.module_loader.get_modules(type_filter)
-        tm = DataProvider.DataProviderTreeModel(mods)
-        return tm
+        return self.module_loader.get_new_instance_module_named(name)
 
-#WAS gsteditorelement
+        
 class ModuleLoader(gobject.GObject):
     """
     Generic dynamic module loader for conduit. Given a path
@@ -97,10 +66,10 @@ class ModuleLoader(gobject.GObject):
         gobject.GObject.__init__(self)
 
         self.ext = extension
-        self.filelist = self._build_filelist_from_directories (dirs)
+        self.filelist = self.build_filelist_from_directories (dirs)
         self.loadedmodules = [] 
             
-    def _build_filelist_from_directories (self, directories=None):
+    def build_filelist_from_directories(self, directories=None):
         """
         Converts a given array of directories into a list 
         containing the filenames of all qualified modules.
@@ -119,7 +88,7 @@ class ModuleLoader(gobject.GObject):
         		if not os.path.exists(d):
         			continue
 
-        		for i in [join(d, m) for m in os.listdir (d) if self._is_module(m)]:
+        		for i in [join(d, m) for m in os.listdir (d) if self.is_module(m)]:
         			if basename(i) not in [basename(j) for j in res]:
         				res.append(i)
         	except OSError, err:
@@ -127,13 +96,13 @@ class ModuleLoader(gobject.GObject):
         		#traceback.print_exc()
         return res			
        
-    def _is_module (self, filename):
+    def is_module(self, filename):
         """
         Tests whether the filename has the appropriate extension.
         """
         return (filename[-len(self.ext):] == self.ext)
         
-    def _append_module(self, module):
+    def append_module(self, module):
         """
         Checks if the given module (checks by name) is already loaded
         into the modulelist array, if not it is added to that array
@@ -146,81 +115,67 @@ class ModuleLoader(gobject.GObject):
         else:
             logging.warn("module named %s allready loaded" % (module.name))
             
-    def _import_module (self, filename):
+    def import_file(self, filename):
         """
         Tries to import the specified file. Returns the python module on succes.
         Primarily for internal use. Note that the python module returned may actually
         contain several more loadable modules.
         """
         try:
-            mod = pydoc.importfile (filename)
+            mods = pydoc.importfile (filename)
         except Exception:
             logging.error("Error loading the file: %s." % (filename))
             traceback.print_exc()
             return
 
         try:
-            if (mod.MODULES): pass
+            if (mods.MODULES): pass
         except AttributeError:
             logging.error("The file %s is not a valid module. Skipping." % (filename))
             logging.error("A module must have the variable MODULES defined as a dictionary.")
-            traceback.print_exc()
             return
 
-        if mod.MODULES == None:
-            if not hasattr(mod, "ERROR"):
-                mod.ERROR = "Unspecified Reason"
-
-            logging.error("*** The file %s decided to not load itself: %s" % (filename, mod.ERROR))
-            return
-
-        for modules, infos in mod.MODULES.items():
-            if hasattr(getattr(mod, modules), "initialize") and "name" in infos:
-                pass				
-            else:
-                logging.error("Class %s in file %s does not have an initialize(self) method or does not define a 'name' attribute. Skipping." % (modules, filename))
-                return
-
-            if "requirements" in infos:
-                status, msg, callback = infos["requirements"]()
-                if status == deskbar.Handler.HANDLER_IS_NOT_APPLICABLE:
-                    logging.error("*** The file %s (%s) decided to not load itself: %s" % (filename, modules, msg))
+        for modules, infos in mods.MODULES.items():
+            for i in ModuleWrapper.COMPULSORY_ATTRIBUTES:
+                if i not in infos:
+                    logging.error("Class %s in file %s does define a %s attribute. Skipping." % (modules, filename, i))
                     return
 
-        return mod
+        return mods
         
     def load_modules_in_file (self, filename):
         """
         Loads all modules in the given file
         """
-        mod = self._import_module (filename)
+        mod = self.import_file(filename)
         if mod is None:
         	return
 
         for modules, infos in mod.MODULES.items():
-        	#print "Loading module '%s' from file %s." % (infos["name"], filename)
-        	mod_instance = getattr (mod, modules) ()
-        	mod_wrapper = ModuleWrapper (  infos["name"], 
+            mod_instance = getattr (mod, modules) ()
+            mod_wrapper = ModuleWrapper (  infos["name"], 
         	                               infos["description"], 
         	                               infos["type"], 
         	                               infos["category"], 
         	                               infos["in_type"],
         	                               infos["out_type"],
+        	                               str(modules),
+        	                               filename,
         	                               mod_instance)
-        	self._append_module(mod_wrapper)
+            self.append_module(mod_wrapper)
             #self.emit("module-loaded", context)
             
-    def load_all_modules (self):
+    def load_all_modules(self):
         """
         Loads all modules stored in the current directory
         """
-  	
         for f in self.filelist:
             self.load_modules_in_file (f)
-
-        #self.emit('modules-loaded')
         
-    def get_modules (self, type_filter=None):
+    def get_all_modules(self):
+        return self.loadedmodules
+        
+    def get_modules_by_type(self, type_filter):
         """
         Returns all loaded modules of type specified by type_filter 
         or all if the filter is set to None.
@@ -236,11 +191,53 @@ class ModuleLoader(gobject.GObject):
                 if i.module_type == type_filter:
                     mods.append(i)
             
-            return mods        
+            return mods
             
-#Number of digits in the module UID string        
-UID_DIGITS = 5
-
+    def get_module_named(self, name):
+        """
+        Returns a Module (not a ModuleWrapper) specified by name
+        
+        @param name: Name of the module to get
+        @type name: C{string}
+        @returns: An already instanciated ModuleWrapper
+        @rtype: a L{conduit.ModuleManager.ModuleWrapper}
+        """
+        logging.info("Searching for module named %s" % (name))
+        for m in self.loadedmodules:
+            if name == m.name:
+                logging.info("Returning module named %s" % (name))
+                return m
+                
+        logging.warn("Could not find module named %s" % (name))
+        return None
+                
+    def get_new_instance_module_named(self, name):
+        logging.info("Searching for module named %s" % (name))
+        #check if its loaded (i.e. been checked and is instanciatable)
+        if name in [i.name for i in self.loadedmodules]:
+            for m in self.loadedmodules:
+                if name == m.name:
+                    #reimport the file that the module was in
+                    mods = self.import_file(m.filename)
+                    #re-instanciate it
+                    mod_instance = getattr (mods, m.classname) ()
+                    #put it into a new wrapper
+                    mod_wrapper = ModuleWrapper(  
+                                               m.name, 
+            	                               m.description, 
+            	                               m.module_type, 
+            	                               m.category, 
+            	                               m.in_type,
+            	                               m.out_type,
+            	                               m.classname,
+            	                               m.filename,
+            	                               mod_instance)
+                    
+                    logging.info("Returning new instance of module named %s" % (m.name))
+                    return mod_wrapper
+        #Didnt load at app startup so its not gunna load now!
+        return None
+            
 class ModuleWrapper(gobject.GObject): 
     """
     A generic wrapper for any dynamically loaded module. Wraps the complexity
@@ -261,8 +258,19 @@ class ModuleWrapper(gobject.GObject):
     L{conduit.DataType.DataType} or derived class     
     @ivar uid: A Unique identifier for the module
     @type uid: C{string}
-    """	
-    def __init__ (self, name, description, module_type, category, in_type, out_type, module, uid=None):
+    """
+    
+    NUM_UID_DIGITS = 5
+    COMPULSORY_ATTRIBUTES = [
+                            "name",
+                            "description",
+                            "type",
+                            "category",
+                            "in_type",
+                            "out_type"
+                            ]
+    	
+    def __init__ (self, name, description, module_type, category, in_type, out_type, classname, filename, module):
         """
         Constructor for ModuleWrapper. A convenient wrapper around a dynamically
         loaded module.
@@ -277,9 +285,11 @@ class ModuleWrapper(gobject.GObject):
         @type category: C{string}
         @param module: The name of the contained module
         @type module: L{conduit.DataProvider.DataProvider} or derived class     
-        @param uid: (optional) A Unique identifier for the module. This should be s
-        specified if, for example, we are recreating a previously stored sync set
-        @type uid: C{string}
+        @param classname: The classname used to instanciate another
+        modulewrapper of type C{module} contained in C{filename}
+        @type classname: C{string}
+        @param filename: The filename from which this was instanciated
+        @type filename: C{string}
         """
         gobject.GObject.__init__(self)
                 
@@ -287,18 +297,37 @@ class ModuleWrapper(gobject.GObject):
         self.description = description        
         self.module_type = module_type
         self.category = category
-        self.module = module
         self.in_type = in_type
         self.out_type = out_type
-        if uid is None:
-            self.uid = str(random.randint(0,10**UID_DIGITS))
+        self.module = module
+        
+        self.classname = classname
+        self.filename = filename
+        self._uid = ""
+        #Generate a unique identifier for this instance
+        for i in range(1,ModuleWrapper.NUM_UID_DIGITS):
+            self._uid += str(random.randint(0,10))
+        
+    def get_unique_identifier(self):
+        """
+        Returs a unique identifier for the module.
+        
+        @returns: A unuque string in the form name-somerandomdigits
+        @rtype: C{string}
+        """
+        return "%s-%s" % (self.name, self._uid)
             
     def get_icon(self):
         """
         Gets the icon for the contained module. A bit hackish because I could
         not work out how to derive the dynamically loaded modules from this
-        type. If the contained module is not a source or a sink then
+        type. 
+        
+        If the contained module is not a source or a sink then
         return None for the icon
+        
+        @returns: An icon or None
+        @rtype C{gtk.gdk.Pixbuf}
         """
         if self.module is not None:
             if isinstance(self.module, conduit.DataProvider.DataProviderBase):

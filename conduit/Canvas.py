@@ -1,5 +1,6 @@
 import goocanvas
 import gtk
+from gettext import gettext as _
 
 import logging
 import conduit
@@ -7,17 +8,23 @@ import conduit.ModuleManager as ModuleManager
 import conduit.DataProvider as DataProvider
 import conduit.Conduit as Conduit
 
-class ConduitEditorCanvas(goocanvas.CanvasView):
+class Canvas(goocanvas.CanvasView):
     """
     This class visually describes the state of the main GST pipeline of a
     GstEditor object.  
     """
     
+    WELCOME_TEXT = _("Drag an Item to Continue")
+    INITIAL_WIDTH = 600
+    INITIAL_HEIGHT = 450
+    CANVAS_WIDTH = 450
+    CANVAS_HEIGHT = 600
+    
     def __init__(self):
         "Create a new GstEditorCanvas."
         goocanvas.CanvasView.__init__(self)
-        self.set_size_request(600, 450)
-        self.set_bounds(0, 0, 600, 450)
+        self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
+        self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
         self.show()
         
         #set up the model 
@@ -48,7 +55,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         #save so that the appropriate signals can be connected
         self.newelement = None
         self.newconduit = None
-        
         
     def get_sync_set(self):
         """
@@ -144,7 +150,7 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
         Handle button clicks
         
         @param user_data: The canvas popup item
-        @type user_data: L{conduit.ConduitEditorCanvas.ConduitEditorCanvas}
+        @type user_data: L{conduit.DataProvider.DataProviderBase}
         """
         
         if event.type == gtk.gdk.BUTTON_PRESS:
@@ -166,9 +172,6 @@ class ConduitEditorCanvas(goocanvas.CanvasView):
     def on_conduit_button_press(self, view, target, event, user_data_conduit):
         """
         Handle button clicks
-        
-        @param user_data: The canvas popup item
-        @type user_data: L{conduit.ConduitEditorCanvas.ConduitEditorCanvas}
         """
         
         if event.type == gtk.gdk.BUTTON_PRESS:

@@ -7,10 +7,11 @@ import os.path
 
 import logging
 import conduit
-import conduit.ConduitEditorCanvas as ConduitEditorCanvas
+import conduit.Canvas as Canvas
 import conduit.ModuleManager as ModuleManager
 import conduit.SyncManager as SyncManager
 import conduit.TypeConverter as TypeConverter
+import conduit.DataProvider as DataProvider
 
 class MainWindow:
     """
@@ -65,7 +66,7 @@ class MainWindow:
         self.mainwindow.set_title(conduit.APPNAME)
         self.hpane.set_position(250)
         #start up the canvas
-        self.canvas = ConduitEditorCanvas.ConduitEditorCanvas()
+        self.canvas = Canvas.Canvas()
         self.canvasSW.add(self.canvas)
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
@@ -85,45 +86,34 @@ class MainWindow:
                             conduit.USER_MODULE_DIR
                             ]
         self.modules = ModuleManager.ModuleManager(dirs_to_search)
+        self.datasink_modules = self.modules.module_loader.get_modules_by_type ("sink")
+        self.datasource_modules = self.modules.module_loader.get_modules_by_type ("source")
+        self.datatype_modules = self.modules.module_loader.get_modules_by_type ("datatype")
+                        
+        # Populate the tree and list models
+        #FIXME: how many of these really need to be kep around in self aye??
+        self.datasink_tm = DataProvider.DataProviderTreeModel(self.datasink_modules)
+        self.datasink_tv = DataProvider.DataProviderTreeView(self.datasink_tm)
+        self.datasource_tm = DataProvider.DataProviderTreeModel(self.datasource_modules)
+        self.datasource_tv = DataProvider.DataProviderTreeView(self.datasource_tm)
+        self.sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
+        self.source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
+        self.sink_scrolled_window.add(self.datasink_tv)
+        self.source_scrolled_window.add(self.datasource_tv)
+        self.sink_scrolled_window.show_all()
+        self.source_scrolled_window.show_all()
+
+        #initialise the Synchronisation Manager
+        self.sync_manager = SyncManager()
+        #initialise the Type Converter
+        datatypes = self.modules.module_loader.get_modules_by_type("datatype")
+        self.type_converter = TypeConverter(datatypes)
+        self.type_converter.print_convertables()
         
         #dic = gtk.icon_theme_get_default().list_icons()
         #for d in dic:
         #    print d
-                        
-        if False:#conduit.DEBUG:
-            datasink_modules = self.modules.module_loader.get_modules ("sink")
-            datasource_modules = self.modules.module_loader.get_modules ("source")
-            datatypes = self.modules.module_loader.get_modules ("datatype")
-            print "SINKS"
-            for q in datasink_modules:
-                print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
-                print "Raw ", q.module
-            
-            print "SOURCES"
-            for q in datasource_modules:
-                print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
-                print "Raw ", q.module
-            
-            print "TYPES"
-            for q in datatypes:
-                print "Name = '%s' Description = '%s' Type = '%s' Category = '%s'" % (q.name, q.description, q.module_type, q.category)
-                print "Raw ", q.module
-                
-        
-        # Populate the tree and list models
-        self.source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
-        self.sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
-        self.source_scrolled_window.add(self.modules.get_treeview("source"))
-        self.sink_scrolled_window.add(self.modules.get_treeview("sink"))
-        self.source_scrolled_window.show_all()
-        self.sink_scrolled_window.show_all()
-        
-        #initialise the Synchronisation Manager
-        self.sync_manager = SyncManager()
-        #initialise the Type Converter
-        datatypes = self.modules.module_loader.get_modules ("datatype")
-        self.type_converter = TypeConverter(datatypes)
-        self.type_converter.print_convertables()
+
 
     # callbacks.
     def on_synchronize_clicked(self, widget):
@@ -249,9 +239,12 @@ class MainWindow:
         """
         module_name = selection.data
         logging.info("DND RX = %s" % (module_name))        
-        #ADD That sausage to the canvas
-        m = self.modules.get_module(module_name)
-        self.canvas.add_module_to_canvas(m, x, y)
+        #Add a new instance if the dataprovider to the canvas. It is up to the
+        #canvas to decide if multiple instances of the specific provider are allowed
+        #m = self.modules.get_module(module_name)
+        n = self.modules.get_module_do_copy(module_name)
+        #print "Orig (%s) UID = %s Copy (%s) UID = %s" % (m,m.get_unique_identifier(),n,n.get_unique_identifier())
+        self.canvas.add_module_to_canvas(n, x, y)
         
         context.finish(True, True, etime)
         return        
