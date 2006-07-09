@@ -8,7 +8,7 @@ import os.path
 import logging
 import conduit
 import conduit.Canvas as Canvas
-import conduit.ModuleManager as ModuleManager
+import conduit.Module as Module
 import conduit.SyncManager as SyncManager
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
@@ -85,10 +85,12 @@ class MainWindow:
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                             conduit.USER_MODULE_DIR
                             ]
-        self.modules = ModuleManager.ModuleManager(dirs_to_search)
-        self.datasink_modules = self.modules.module_loader.get_modules_by_type ("sink")
-        self.datasource_modules = self.modules.module_loader.get_modules_by_type ("source")
-        self.datatype_modules = self.modules.module_loader.get_modules_by_type ("datatype")
+        self.modules = Module.ModuleLoader(dirs_to_search)
+        #@todo: Make this asyc
+        self.modules.load_all_modules()
+        self.datasink_modules = self.modules.get_modules_by_type ("sink")
+        self.datasource_modules = self.modules.get_modules_by_type ("source")
+        self.datatype_modules = self.modules.get_modules_by_type ("datatype")
                         
         # Populate the tree and list models
         #FIXME: how many of these really need to be kep around in self aye??
@@ -106,7 +108,7 @@ class MainWindow:
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager()
         #initialise the Type Converter
-        datatypes = self.modules.module_loader.get_modules_by_type("datatype")
+        datatypes = self.modules.get_modules_by_type("datatype")
         self.type_converter = TypeConverter(datatypes)
         self.type_converter.print_convertables()
         
@@ -241,10 +243,8 @@ class MainWindow:
         logging.info("DND RX = %s" % (module_name))        
         #Add a new instance if the dataprovider to the canvas. It is up to the
         #canvas to decide if multiple instances of the specific provider are allowed
-        #m = self.modules.get_module(module_name)
-        n = self.modules.get_module_do_copy(module_name)
-        #print "Orig (%s) UID = %s Copy (%s) UID = %s" % (m,m.get_unique_identifier(),n,n.get_unique_identifier())
-        self.canvas.add_module_to_canvas(n, x, y)
+        new = self.modules.get_new_instance_module_named(module_name)
+        self.canvas.add_module_to_canvas(new, x, y)
         
         context.finish(True, True, etime)
         return        

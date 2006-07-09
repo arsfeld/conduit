@@ -12,41 +12,6 @@ import conduit
 import conduit.DataProvider as DataProvider
 
 
-class ModuleManager(gobject.GObject):
-    """
-    Manager Class for ALL dynamically loaded modules.
-    Generated treeview and treestore representations of the
-    loaded modules and can instanciate new ones. 
-    Applications should use this class and its methods rather 
-    than the ModuleLoader, TreeStore and TreeView classes directly 
-    """
-
-    def __init__(self, dirs=None):
-        """
-        Constructor for ModuleManger.
-        
-		@param dirs: A list of directories to search. Relative pathnames and 
-		paths containing ~ will be expanded. If dirs is None the 
-		ModuleLoader will not search for modules.
-		@type dirs: C{string[]}
-		"""
-        gobject.GObject.__init__(self)        
-        self.module_loader = ModuleLoader(dirs)
-        self.module_loader.load_all_modules()
-                
-    def get_module(self, name):
-        """
-        Returns a ModuleWrapper specified by name
-        """
-        return self.module_loader.get_module_named(name)
-                
-    def get_module_do_copy(self, name):
-        """
-        Returns a copy of a ModuleWrapper
-        """
-        return self.module_loader.get_new_instance_module_named(name)
-
-        
 class ModuleLoader(gobject.GObject):
     """
     Generic dynamic module loader for conduit. Given a path
@@ -65,10 +30,10 @@ class ModuleLoader(gobject.GObject):
 		"""
         gobject.GObject.__init__(self)
 
+        self.loadedmodules = []
         self.ext = extension
         self.filelist = self.build_filelist_from_directories (dirs)
-        self.loadedmodules = [] 
-            
+           
     def build_filelist_from_directories(self, directories=None):
         """
         Converts a given array of directories into a list 
@@ -195,12 +160,12 @@ class ModuleLoader(gobject.GObject):
             
     def get_module_named(self, name):
         """
-        Returns a Module (not a ModuleWrapper) specified by name
+        Returns a ModuleWrapper specified by name
         
         @param name: Name of the module to get
         @type name: C{string}
         @returns: An already instanciated ModuleWrapper
-        @rtype: a L{conduit.ModuleManager.ModuleWrapper}
+        @rtype: a L{conduit.Module.ModuleWrapper}
         """
         logging.info("Searching for module named %s" % (name))
         for m in self.loadedmodules:
@@ -212,6 +177,14 @@ class ModuleLoader(gobject.GObject):
         return None
                 
     def get_new_instance_module_named(self, name):
+        """
+        Returns a new instance ModuleWrapper specified by name
+        
+        @param name: Name of the module to get
+        @type name: C{string}
+        @returns: An newly instanciated ModuleWrapper
+        @rtype: a L{conduit.Module.ModuleWrapper}
+        """    
         logging.info("Searching for module named %s" % (name))
         #check if its loaded (i.e. been checked and is instanciatable)
         if name in [i.name for i in self.loadedmodules]:
