@@ -36,15 +36,14 @@ logging.basicConfig(level=LOG_DICT[LOG_LEVEL],
 #                    filename='/tmp/myapp.log',
 #                    filemode='w')
 
-from DataProviderView import DataProviderView
 from DataType import DataType
 from TypeConverter import TypeConverter
 from SyncManager import SyncManager
 from MainWindow import MainWindow
 from ConduitEditorCanvas import ConduitEditorCanvas
-from DataProvider import DataProviderModel, DataSource, DataSink
-from ModuleManager import ModuleManager, ModuleLoader, ModuleWrapper, DataProviderTreeView, DataProviderTreeModel
+from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
+from ModuleManager import ModuleManager, ModuleLoader, ModuleWrapper
 
 # Make sure epydoc documents the classes 
 # as part of the conduit module
-__all__ = ["DataProviderView", "DataType", "MainWindow", "ConduitEditorCanvas", "DataProviderModel", "DataSource", "DataSink", "ModuleManager", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter"]
+__all__ = ["DataType", "MainWindow", "ConduitEditorCanvas", "DataProviderBase", "DataSource", "DataSink", "ModuleManager", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter"]

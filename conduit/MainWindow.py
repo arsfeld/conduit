@@ -21,9 +21,16 @@ class MainWindow:
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
-        gtk.icon_theme_get_default().prepend_search_path(conduit.SHARED_DATA_DIR)
-        gtk.icon_theme_get_default().prepend_search_path(conduit.SHARED_MODULE_DIR)
-        gtk.icon_theme_get_default().prepend_search_path(conduit.USER_MODULE_DIR)
+        icon_dirs = [
+                    conduit.SHARED_DATA_DIR,
+                    conduit.SHARED_MODULE_DIR,
+                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
+                    os.path.join(conduit.SHARED_MODULE_DIR,"datatypes"),
+                    os.path.abspath(os.path.expanduser(conduit.USER_MODULE_DIR))
+                    ]
+        for i in icon_dirs:                    
+            gtk.icon_theme_get_default().prepend_search_path(i)
+            logging.info("Adding %s to icon them search path" % (i))
 
         self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "window1")
         
@@ -72,11 +79,11 @@ class MainWindow:
                                 )
         
         #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
-        dirs_to_search = []
-        dirs_to_search.append(os.path.join(conduit.SHARED_MODULE_DIR,"datatypes"))
-        dirs_to_search.append(os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"))
-        dirs_to_search.append(os.path.join(conduit.USER_MODULE_DIR,"datatypes"))
-        dirs_to_search.append(os.path.join(conduit.USER_MODULE_DIR,"dataproviders"))                        
+        dirs_to_search =    [
+                            os.path.join(conduit.SHARED_MODULE_DIR,"datatypes"),
+                            os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
+                            conduit.USER_MODULE_DIR
+                            ]
         self.modules = ModuleManager.ModuleManager(dirs_to_search)
         
         #dic = gtk.icon_theme_get_default().list_icons()
@@ -116,15 +123,15 @@ class MainWindow:
         #initialise the Type Converter
         datatypes = self.modules.module_loader.get_modules ("datatype")
         self.type_converter = TypeConverter(datatypes)
-        #self.type_converter.print_convertables()
-
+        self.type_converter.print_convertables()
 
     # callbacks.
     def on_synchronize_clicked(self, widget):
         """
         sync
         """
-    	print "clicked synchronize"
+        sync_set = self.canvas.get_sync_set()
+        logging.debug(sync_set)
     	
     def on_cut_item_clicked(self, widget):
         """

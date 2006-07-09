@@ -9,6 +9,8 @@ from os.path import abspath, expanduser, join, basename
 
 import logging
 import conduit
+import conduit.DataProvider as DataProvider
+
 
 class ModuleManager(gobject.GObject):
     """
@@ -64,7 +66,7 @@ class ModuleManager(gobject.GObject):
         of the specified type.
         """
         tm = self._get_treemodel(type_filter)
-        return DataProviderTreeView(tm)
+        return DataProvider.DataProviderTreeView(tm)
                 
     def _get_treemodel(self, type_filter=None):
         """
@@ -72,7 +74,7 @@ class ModuleManager(gobject.GObject):
         of the specified type
         """
         mods = self.module_loader.get_modules(type_filter)
-        tm = DataProviderTreeModel(mods)
+        tm = DataProvider.DataProviderTreeModel(mods)
         return tm
 
 #WAS gsteditorelement
@@ -242,7 +244,7 @@ UID_DIGITS = 5
 class ModuleWrapper(gobject.GObject): 
     """
     A generic wrapper for any dynamically loaded module. Wraps the complexity
-    of a stored L{conduit.DataProvider.DataProviderModel} behind additional
+    of a stored L{conduit.DataProvider.DataProvider} behind additional
     descriptive fields like name and description. Useful for classification 
     and searching for moldules of certain types, etc.
     
@@ -255,7 +257,8 @@ class ModuleWrapper(gobject.GObject):
     @ivar category: The category of the contained module
     @type category: C{string}
     @ivar module: The name of the contained module
-    @type module: L{conduit.DataProvider.DataProviderModel} or derived class     
+    @type module: L{conduit.DataProvider.DataProvider}, 
+    L{conduit.DataType.DataType} or derived class     
     @ivar uid: A Unique identifier for the module
     @type uid: C{string}
     """	
@@ -273,7 +276,7 @@ class ModuleWrapper(gobject.GObject):
         @param category: The category of the contained module
         @type category: C{string}
         @param module: The name of the contained module
-        @type module: L{conduit.DataProvider.DataProviderModel} or derived class     
+        @type module: L{conduit.DataProvider.DataProvider} or derived class     
         @param uid: (optional) A Unique identifier for the module. This should be s
         specified if, for example, we are recreating a previously stored sync set
         @type uid: C{string}
@@ -298,202 +301,7 @@ class ModuleWrapper(gobject.GObject):
         return None for the icon
         """
         if self.module is not None:
-            if isinstance(self.module, conduit.DataProvider.DataProviderModel):
+            if isinstance(self.module, conduit.DataProvider.DataProviderBase):
                 return self.module.get_icon()
         
         return None
-                   
-class DataProviderTreeModel(gtk.GenericTreeModel):
-    """
-    A treemodel for managing dynamically loaded modules. Manages an internal 
-    list of L{conduit.ModuleManager.ModuleWrapper}
-    
-    @ivar modules: The array of modules under this treeviews control.
-    @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
-    """
-    column_types = (gtk.gdk.Pixbuf, str, str)
-    column_names = ['Name', 'Description']
-
-    def __init__(self, module_wrapper_list):
-        gtk.GenericTreeModel.__init__(self)
-        #print "init, array= ", module_array
-        self.module_wrapper_list = module_wrapper_list
-        return 
-        
-    def get_module_index_by_name(self, name):
-        """
-        get
-        """
-        #print "get_module_index_by_name: name = ", name
-        for n in range(0, len(self.module_wrapper_list)):
-            if self.module_wrapper_list[n].name == name:
-                return n
-                
-    def get_module_by_name(self, name):
-        """
-        get mod
-        """
-        #TODO: ERROR CHECK
-        return self.module_wrapper_list[self.get_module_index_by_name(name)]
-    
-    def get_column_names(self):
-        """
-        get_column_names(
-        """
-        return self.column_names[:]
-
-    def on_get_flags(self):
-        """
-        on_get_flags(
-        """
-        return gtk.TREE_MODEL_LIST_ONLY|gtk.TREE_MODEL_ITERS_PERSIST
-
-    def on_get_n_columns(self):
-        """
-        on_get_n_columns(
-        """
-        return len(self.column_types)
-
-    def on_get_column_type(self, n):
-        """
-        on_get_column_type(
-        """
-        return self.column_types[n]
-
-    def on_get_iter(self, path):
-        #print "on_get_iter: path =", path
-        """
-        on_get_iter(
-        """
-        return self.module_wrapper_list[path[0]].name
-
-    def on_get_path(self, rowref):
-        #print "on_get_path: rowref = ", rowref
-        """
-        on_get_path(
-        """
-        return self.module_wrapper_list[self.get_module_index_by_name(rowref)]
-
-    def on_get_value(self, rowref, column):
-        """
-        on_get_value(
-        """
-        #print "on_get_value: rowref = %s column = %s" % (rowref, column)
-        m = self.module_wrapper_list[self.get_module_index_by_name(rowref)]
-        if column is 0:
-            return m.get_icon()
-        elif column is 1:
-            return m.name
-        elif column is 2:
-            return m.description
-        else:
-            print "ERROR WILL ROBINSON"
-            return None
-        
-    def on_iter_next(self, rowref):
-        """
-        on_iter_next(
-        """
-        #print "on_iter_next: rowref = ", rowref
-        try:
-            i = self.get_module_index_by_name(rowref)
-            #print "on_iter_next: old i = ", i
-            i = i+1
-            #print "on_iter_next: next i = ", i
-            return self.module_wrapper_list[i].name
-        except IndexError:
-            return None
-        
-    def on_iter_children(self, rowref):
-        """
-        on_iter_children(
-        """
-        #print "on_iter_children: rowref = ", rowref
-        if rowref:
-            return None
-        return self.module_wrapper_list[0].name
-
-    def on_iter_has_child(self, rowref):
-        """
-        on_iter_has_child(
-        """
-        #print "on_iter_has_child: rowref = ", rowref
-        return False
-
-    def on_iter_n_children(self, rowref):
-        """
-        on_iter_n_children(
-        """
-        #print "on_iter_n_children: rowref = ", rowref
-        if rowref:
-            return 0
-        return len(self.module_wrapper_list)
-
-    def on_iter_nth_child(self, rowref, n):
-        """
-        on_iter_nth_child(
-        """
-        #print "on_iter_nth_chile: rowref = %s n = %s" % (rowref, n)
-        if rowref:
-            return None
-        try:
-            return self.module_wrapper_list[n].name
-        except IndexError:
-            return None
-
-    def on_iter_parent(child):
-        """
-        on_iter_parent(
-        """
-        #print "on_iter_parent: child = ", child
-        return None
-        
-class DataProviderTreeView(gtk.TreeView):
-    DND_TARGETS = [
-    ('conduit/element-name', 0, 2)
-    ]
-    def __init__(self, model):
-        gtk.TreeView.__init__(self, model)
-        
-        column_names = model.get_column_names()
-        tvcolumn = [None] * len(column_names)
-        # First column is an image and the name...
-        cellpb = gtk.CellRendererPixbuf()
-        cell = gtk.CellRendererText()
-        tvcolumn[0] = gtk.TreeViewColumn(column_names[0],cellpb, pixbuf=0)
-        tvcolumn[0].pack_start(cell, False)
-        tvcolumn[0].add_attribute(cell, 'text', 1)
-        self.append_column(tvcolumn[0])
-        # Second cell is description
-        tvcolumn[1] = gtk.TreeViewColumn(column_names[1], gtk.CellRendererText(), text=2)
-        self.append_column(tvcolumn[1])
-        
-        # DND info:
-        # drag
-        self.enable_model_drag_source(  gtk.gdk.BUTTON1_MASK,
-                                        #[DataProviderTreeView.DND_TARGETS[-1]],
-                                        DataProviderTreeView.DND_TARGETS,
-                                        gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
-        self.drag_source_set(           gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                                        DataProviderTreeView.DND_TARGETS,
-                                        gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
-        self.connect('drag-data-get', self.on_drag_data_get)
-        self.connect('drag-data-delete', self.on_drag_data_delete)
-    
-    def on_drag_data_get(self, treeview, context, selection, target_id, etime):
-        """
-        Get the data to be dropped by on_drag_data_received().
-        We send the id of the dragged element.
-        """
-        treeselection = treeview.get_selection()
-        model, iter = treeselection.get_selected()
-        data = model.get_value(iter, 1)
-        #print "---------------------------- data = ", data
-        selection.set(selection.target, 8, data)
-        
-    def on_drag_data_delete (self, context, etime):
-        """
-        DnD magic. do not touch
-        """
-        self.emit_stop_by_name('drag-data-delete')      
-        #context.finish(True, True, etime)
