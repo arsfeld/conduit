@@ -4,6 +4,7 @@ import gtk.glade
 import gnome.ui
 import copy
 import os.path
+from gettext import gettext as _
 
 import logging
 import conduit
@@ -17,6 +18,7 @@ class MainWindow:
     """
     The main conduit class.
     """
+    
     
     def __init__(self):
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
@@ -123,7 +125,7 @@ class MainWindow:
         sync
         """
         sync_set = self.canvas.get_sync_set()
-        logging.debug(sync_set)
+        logging.debug("Synchronisation set = %s" % (sync_set))
     	
     def on_cut_item_clicked(self, widget):
         """
@@ -145,9 +147,13 @@ class MainWindow:
         
     def on_configure_item_clicked(self, widget):
         """
-        paste item
+        Calls the C{configure(window)} method on the selected dataprovider
         """
-        print "configure item"
+        
+        dp = self.canvas.selected_dataprovider
+        logging.info("Configuring %s" % dp)
+        #May block
+        dp.configure(self.mainwindow)
         
     def on_synchronize_item_clicked(self, widget):
         """
