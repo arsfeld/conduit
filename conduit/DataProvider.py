@@ -7,6 +7,15 @@ from gettext import gettext as _
 import logging
 import conduit
 
+NO_ITEMS = 0
+STATUS_UNINITIALIZED = 1
+STATUS_INITIALIZED = 2
+STATUS_NEED_SYNC = 3
+STATUS_SYNCHRONIZING = 4
+STATUS_DONE_SYNC_OK = 5
+STATUS_DONE_SYNC_NEEDINFO = 6
+STATUS_DONE_SYNC_ERROR = 7
+
 class DataProviderBase(gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
@@ -31,6 +40,7 @@ class DataProviderBase(gobject.GObject):
         self.description = description
         self.icon = None
         self.widget = None
+        self.status = STATUS_UNINITIALIZED
         #The following can be overridden to customize the appearance
         #of the basic dataproviders
         self.icon_name = gtk.STOCK_OK        
@@ -129,15 +139,31 @@ class DataProviderBase(gobject.GObject):
 
     def serialize(self, class_name):
         """
-        Serialize
+        Serializes (pickles) the dataprovider for sending over network.
+        Designed to be used with avahi sync
+        @todo: Should this be a funtion in modulewrapper??
         """
         print "not implemented"
         
     def initialize(self):
         """
-        Initialize
+        Performs any initialization steps (logging in, etc) which must
+        be undertaken on the dataprovider. This will only be called once (or 
+        if the dataprovider had been finalized).
         """
         print "not implemented"
+        
+    def finalize(self):
+        """
+        Called after all tasks related to the dataprovider have been completed
+        """
+        print "not implemented"
+        
+    def get_status(self):
+        return self.status        
+        
+    def set_status(self):
+        return self.status
         
     def configure(self, window):
         """
@@ -168,12 +194,25 @@ class DataProviderBase(gobject.GObject):
         Returns all appropriate data.
         This function must be overridden by the appropriate dataprovider. Its
         exact behavior is behavior is determined by the derived type.
+        @todo: Make this a generator for async operation?
         
         @rtype: L{conduit.DataType.DataType}[]
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
-        return None        
+        return None
+        
+    def get_num_items(self):
+        """
+        Returns the number of items requiring sychronization. This function 
+        must be overridden by the appropriate dataprovider.
+        @todo: Use this to make a progress dialog and does this number 
+        represent the number of times that get shall be called??
+        
+        @returns: The number of items to synchronize
+        @rtype: C{int}
+        """
+        return NO_ITEMS
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines

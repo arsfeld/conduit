@@ -10,7 +10,7 @@ import logging
 import conduit
 import conduit.Canvas as Canvas
 import conduit.Module as Module
-import conduit.SyncManager as SyncManager
+import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
 
@@ -108,7 +108,7 @@ class MainWindow:
         self.source_scrolled_window.show_all()
 
         #initialise the Synchronisation Manager
-        self.sync_manager = SyncManager()
+        #self.sync_manager = SyncManager()
         #initialise the Type Converter
         datatypes = self.modules.get_modules_by_type("datatype")
         self.type_converter = TypeConverter(datatypes)
