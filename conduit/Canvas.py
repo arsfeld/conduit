@@ -43,7 +43,8 @@ class Canvas(goocanvas.CanvasView):
         
         #keeps a reference to the currently selected (most recently clicked)
         #canvas item
-        self.selected_dataprovider = None
+        self.selected_dataprovider_wrapper = None
+        self.selected_conduit = None
         
         #used as a store of connections. Order is important because when
         #a conduit is resized all those below it must be translated down
@@ -145,18 +146,18 @@ class Canvas(goocanvas.CanvasView):
         self.popup = canvas_popup
         self.item_popup = item_popup
     
-    def on_dataprovider_button_press(self, view, target, event, user_data_dataprovider):
+    def on_dataprovider_button_press(self, view, target, event, user_data_dataprovider_wrapper):
         """
         Handle button clicks
         
         @param user_data: The canvas popup item
-        @type user_data: L{conduit.DataProvider.DataProviderBase}
+        @type user_data: L{conduit.Module.ModuleWrapper}
         """
         
         if event.type == gtk.gdk.BUTTON_PRESS:
             #tell the canvas we recieved the click (needed for cut, 
             #copy, past, configure operations
-            self.selected_dataprovider = user_data_dataprovider
+            self.selected_dataprovider_wrapper = user_data_dataprovider_wrapper
             if event.button == 1:
                 #TODO: Support dragging canvas items???
                 return True
@@ -177,6 +178,7 @@ class Canvas(goocanvas.CanvasView):
         if event.type == gtk.gdk.BUTTON_PRESS:
             #tell the canvas we recieved the click (needed for cut, 
             #copy, past, configure operations
+            self.selected_conduit = user_data_conduit
             if event.button == 1:
                 #TODO: Support dragging canvas items???
                 return True
@@ -245,7 +247,7 @@ class Canvas(goocanvas.CanvasView):
         @param module: The module to remove from the canvas
         @type module: L{conduit.DataProvider.DataProvider}
         """
-        if self.selected_dataprovider is not None:
+        if self.selected_dataprovider_wrapper is not None:
             print "removing module ", module
 
     def on_item_view_created(self, view, itemview, item):
@@ -254,7 +256,7 @@ class Canvas(goocanvas.CanvasView):
         """
         if isinstance(item, goocanvas.Group):
             if item.get_data("is_a_dataprovider") == True:
-                itemview.connect("button_press_event",  self.on_dataprovider_button_press, self.newelement.module)
+                itemview.connect("button_press_event",  self.on_dataprovider_button_press, self.newelement)
             elif item.get_data("is_a_conduit") == True:
                 itemview.connect("button_press_event",  self.on_conduit_button_press, self.newconduit)
             

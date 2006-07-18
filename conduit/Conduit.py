@@ -6,11 +6,20 @@ import conduit
 import conduit.DataProvider as DataProvider
 
 class Conduit(goocanvas.Group):
+    """
+    Model of a Conduit, which is a one-to-many bridge of DataSources to
+    DataSinks.
+    
+    @ivar datasource: The DataSource to synchronize from
+    @type datasource: L{conduit.Module.ModuleWrapper}
+    @ivar datasinks: List of DataSinks to synchronize to
+    @type datasinks: L{conduit.Module.ModuleWrapper}[]
+    """
     CONDUIT_HEIGHT = 100
     SIDE_PADDING = 10
     def __init__(self, y_from_origin, canvas_width):
         goocanvas.Group.__init__(self)
-        #a conduit can hold one datasource and many datasinks
+        #a conduit can hold one datasource and many datasinks (wrappers)
         self.datasource = None
         self.datasinks = []
         #We need some way to tell the canvas that we are a conduit
@@ -71,7 +80,7 @@ class Conduit(goocanvas.Group):
         """
         dw = new_w - self.positions[self.bounding_box]["w"]
         for d in self.datasinks:
-            d.get_widget().translate(dw,0)             
+            d.module.get_widget().translate(dw,0)             
         #now update the box width
         self.positions[self.bounding_box]["w"] = new_w
         self.bounding_box.set_property("width",
@@ -93,7 +102,7 @@ class Conduit(goocanvas.Group):
         dx = new_x - self.positions[dataprovider]["x"]
         dy = new_y - self.positions[dataprovider]["y"]
         #translate
-        dataprovider.get_widget().translate(dx,dy)
+        dataprovider.module.get_widget().translate(dx,dy)
         #update stored position
         self.positions[dataprovider]["x"] = new_x
         self.positions[dataprovider]["y"] = new_y
@@ -113,8 +122,7 @@ class Conduit(goocanvas.Group):
         h = self.positions[self.bounding_box]["h"]
         padding = Conduit.SIDE_PADDING
         #now get widget dimensions
-        dataprovider = dataprovider_wrapper.module
-        w_w, w_h = dataprovider.get_widget_dimensions()
+        w_w, w_h = dataprovider_wrapper.module.get_widget_dimensions()
         #if we are adding a new source we may need to resize the box
         resize_box = False
         
@@ -124,17 +132,17 @@ class Conduit(goocanvas.Group):
                 print "datasource alreasy present"
                 return False
             else:
-                self.datasource = dataprovider_wrapper.module
+                self.datasource = dataprovider_wrapper
                 #new sources go in top left of conduit
                 x_pos = padding
                 y_pos = y + (Conduit.CONDUIT_HEIGHT/2) - (w_h/2)
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
-            if dataprovider_wrapper.module in self.datasinks:
+            if dataprovider_wrapper in self.datasinks:
                 print "datasink already present"
                 return False
             else:
-                self.datasinks.append(dataprovider_wrapper.module)
+                self.datasinks.append(dataprovider_wrapper)
                 #new sinks get added at the bottom
                 x_pos = w - padding - w_w
                 y_pos = y \
@@ -148,15 +156,15 @@ class Conduit(goocanvas.Group):
                 return False
         
         #now store the widget size and add to the conduit 
-        new_widget = dataprovider.get_widget()
-        self.positions[dataprovider] =  {
+        new_widget = dataprovider_wrapper.module.get_widget()
+        self.positions[dataprovider_wrapper] =  {
                                         "x" : 0,
                                         "y" : 0,
                                         "w" : w_w,
                                         "h" : w_h
                                         }
         #move the widget to its new position
-        self.move_dataprovider_to(dataprovider,x_pos,y_pos)
+        self.move_dataprovider_to(dataprovider_wrapper,x_pos,y_pos)
         #add to this group
         self.add_child(new_widget)
         if resize_box is True:
@@ -167,15 +175,4 @@ class Conduit(goocanvas.Group):
             self.bounding_box.set_property("height",
                                 self.positions[self.bounding_box]["h"])
         return True
-        
-    def on_mouse_enter(self, view, target, event):
-        print "cond enter"
-        self.mouse_inside_me = True
-        pass
-    
-    def on_mouse_leave(self, view, target, event):
-        print "cond leave"
-        self.mouse_inside_me = False            
-        pass
-        
-       
+               

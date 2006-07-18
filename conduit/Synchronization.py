@@ -6,15 +6,37 @@ import logging
 import conduit
 import conduit.TypeConverter as TypeConverter
 
-class SyncManager(gobject.GObject): 
+class SyncManager(object): 
     """
     Given a dictionary of relationships this class synchronizes
     the relevant sinks and sources
     """
     	
-    def __init__ (self):
-        gobject.GObject.__init__(self)
+    def __init__ (self, typeConverter):
+        self.conduits = {}
+        self.threads = []
+        self.typeConverter = typeConverter
         pass
+        
+    def add_conduit(self, conduit):
+        pass
+        
+    def remove_conduit(self, conduit):
+        pass
+        
+    def sync_conduit(self, conduit):
+        logging.info("Synchronizing %s" % conduit)
+        datasource = conduit.datasource
+        datasinks = conduit.datasinks
+        
+        sourceData = datasource.module.get()
+        for sink in datasinks:
+            logging.debug("Synchronizing from %s to %s" % (datasource.name, sink.name))
+            for data in sourceData:
+                logging.debug("Source data type = %s, Sink accepts %s" % (datasource.out_type, sink.in_type))
+                #self.typeConverter.convert(datasource.out_type, sink.in_type, data)
+                test = self.typeConverter.convert("note", "cal", data)
+                logging.debug("Dummy Conversion = %s" % test)
 
 class GIdleThread(object):
     """

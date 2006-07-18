@@ -42,6 +42,10 @@ class FileSource(DataProvider.DataSource):
         #Blocks
         f.run()
         self.files = [ r[0] for r in fileStore ]
+        
+    def get(self):
+        for f in self.files:
+            yield f
 		
 class FileSink(DataProvider.DataSink):
     def __init__(self):

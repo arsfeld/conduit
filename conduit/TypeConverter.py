@@ -61,10 +61,10 @@ class TypeConverter(gobject.GObject):
                         else:
                             self.convertables[str(c)][str(d.in_type)] = conv[c]
                     except KeyError, err:
-                        logger.error("Could not add conversion function from %s to %s" % (c, d.in_type))
-                        logger.error("KeyError was %s" % err)
+                        logging.error("Could not add conversion function from %s to %s" % (c, d.in_type))
+                        logging.error("KeyError was %s" % err)
                     except Exception:
-                        logger.error("Error #341")
+                        logging.error("Error #341")
                     
     def convert(self, from_type, to_type, data):
         """
@@ -84,10 +84,10 @@ class TypeConverter(gobject.GObject):
             logging.error("Could not call conversion function %s" % err)
             return None
         except KeyError:
-            logger.error("Conversion from %s to %s does not exist " % (from_type, to_type))
+            logging.error("Conversion from %s to %s does not exist " % (from_type, to_type))
             return None
         except Exception:
-            logger.error("Error #65")
+            logging.error("Error #65")
             return None
             
     def get_convertables_descriptive_list(self):

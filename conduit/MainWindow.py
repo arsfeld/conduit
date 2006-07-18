@@ -107,12 +107,12 @@ class MainWindow:
         self.sink_scrolled_window.show_all()
         self.source_scrolled_window.show_all()
 
-        #initialise the Synchronisation Manager
-        self.sync_manager = Synchronization.SyncManager()
+
         #initialise the Type Converter
         datatypes = self.modules.get_modules_by_type("datatype")
         self.type_converter = TypeConverter(datatypes)
-        self.type_converter.print_convertables()
+        #initialise the Synchronisation Manager
+        self.sync_manager = Synchronization.SyncManager(self.type_converter)
         
         #dic = gtk.icon_theme_get_default().list_icons()
         #for d in dic:
@@ -143,6 +143,7 @@ class MainWindow:
         """
         sync
         """
+        self.sync_manager.sync_conduit(self.canvas.selected_conduit)
         logging.debug("Synchronise Group")
     	
     def on_delete_item_clicked(self, widget):
@@ -156,7 +157,7 @@ class MainWindow:
         Calls the C{configure(window)} method on the selected dataprovider
         """
         
-        dp = self.canvas.selected_dataprovider
+        dp = self.canvas.selected_dataprovider_wrapper.module
         logging.info("Configuring %s" % dp)
         #May block
         dp.configure(self.mainWindow)

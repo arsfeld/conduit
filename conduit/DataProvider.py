@@ -200,7 +200,9 @@ class DataProviderBase(gobject.GObject):
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
-        return None
+        for i in range(0,3):
+            logging.debug("%s (%s)" % (i, self.name))
+            yield i
         
     def get_num_items(self):
         """
