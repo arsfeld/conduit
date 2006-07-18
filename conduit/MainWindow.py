@@ -108,7 +108,7 @@ class MainWindow:
         self.source_scrolled_window.show_all()
 
         #initialise the Synchronisation Manager
-        #self.sync_manager = SyncManager()
+        self.sync_manager = Synchronization.SyncManager()
         #initialise the Type Converter
         datatypes = self.modules.get_modules_by_type("datatype")
         self.type_converter = TypeConverter(datatypes)
