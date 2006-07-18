@@ -56,7 +56,7 @@ class MainWindow:
         self.widgets.signal_autoconnect(dic)
         
         #get some widget references
-        self.mainwindow = self.widgets.get_widget("window1")
+        self.mainWindow = self.widgets.get_widget("window1")
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
@@ -65,7 +65,7 @@ class MainWindow:
 
 
         #customize some widgets, connect signals, etc
-        self.mainwindow.set_title(conduit.APPNAME)
+        self.mainWindow.set_title(conduit.APPNAME)
         self.hpane.set_position(250)
         #start up the canvas
         self.canvas = Canvas.Canvas()
@@ -159,7 +159,7 @@ class MainWindow:
         dp = self.canvas.selected_dataprovider
         logging.info("Configuring %s" % dp)
         #May block
-        dp.configure(self.mainwindow)
+        dp.configure(self.mainWindow)
 
     def on_refresh_item_clicked(self, widget):
         """
@@ -208,7 +208,58 @@ class MainWindow:
         Show the properties of the current sync set (status, conflicts, etc
         Edit the sync specific properties
         """
-        print "sync properties"
+        #Build some liststores to display
+        convertables = self.type_converter.get_convertables_descriptive_list()
+        converterListStore = gtk.ListStore( str )
+        for i in convertables:
+            converterListStore.append( [i] )
+        dataProviderListStore = gtk.ListStore( str )
+        for i in self.datasink_modules:
+            dataProviderListStore.append(["%s %s (%s)" % (i.name, i.description, i.module_type)])
+        for i in self.datasource_modules:
+            dataProviderListStore.append(["%s %s (%s)" % (i.name, i.description, i.module_type)])    
+        dataTypesListStore = gtk.ListStore( str )
+        for i in self.datatype_modules:
+            dataTypesListStore.append([i.name])
+            print i.name
+            
+        
+        #construct the dialog
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "PropertiesDialog")
+        converterTreeView = tree.get_widget("dataConversionsTreeView")
+        converterTreeView.set_model(converterListStore)
+        converterTreeView.append_column(gtk.TreeViewColumn('Name', 
+                                        gtk.CellRendererText(), 
+                                        text=0)
+                                        )
+        dataproviderTreeView = tree.get_widget("dataProvidersTreeView")
+        dataproviderTreeView.set_model(dataProviderListStore)
+        dataproviderTreeView.append_column(gtk.TreeViewColumn('Name', 
+                                        gtk.CellRendererText(), 
+                                        text=0)
+                                        )                                                   
+        datatypesTreeView = tree.get_widget("dataTypesTreeView")
+        datatypesTreeView.set_model(dataTypesListStore)
+        datatypesTreeView.append_column(gtk.TreeViewColumn('Name', 
+                                        gtk.CellRendererText(), 
+                                        text=0)
+                                        )                                              
+                
+        #Show the dialog
+        dialog = tree.get_widget("PropertiesDialog")
+        dialog.set_transient_for(self.mainWindow)
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            logging.debug("OK")
+            pass
+        elif response == gtk.RESPONSE_CANCEL:
+            logging.debug("CANCEL")        
+            pass
+        else:
+            logging.debug("DUNNO")
+        dialog.destroy()                
+
+
         
     def on_conduit_preferences(self, widget):
         """
@@ -224,7 +275,7 @@ class MainWindow:
         dlg = aboutTree.get_widget("AboutDialog")
         dlg.set_name(conduit.APPNAME)
         dlg.set_version(conduit.APPVERSION)
-        dlg.set_transient_for(self.mainwindow)
+        dlg.set_transient_for(self.mainWindow)
         #dlg.set_icon(self.icon)        
 
     def on_window_closed(self, widget):

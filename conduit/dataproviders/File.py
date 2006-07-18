@@ -31,13 +31,17 @@ class FileSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"))
         self.icon_name = "gtk-file"
         
-        #list of files
+        #list of file URIs
         self.files = []
         
     def configure(self, window):
-        f = FileSourceConfigurator(conduit.GLADE_FILE, window)
+        fileStore = gtk.ListStore( str )
+        for f in self.files:
+            fileStore.append( [f] )
+        f = FileSourceConfigurator(conduit.GLADE_FILE, window, fileStore)
+        #Blocks
         f.run()
-        
+        self.files = [ r[0] for r in fileStore ]
 		
 class FileSink(DataProvider.DataSink):
     def __init__(self):
@@ -50,7 +54,7 @@ class VFSFile:
         pass
 
 class FileSourceConfigurator:
-    def __init__(self, gladefile, mainWindow):
+    def __init__(self, gladefile, mainWindow, fileStore):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "FileSourceConfigDialog")
         dic = { "on_addfile_clicked" : self.on_addfile_clicked,
                 "on_adddir_clicked" : self.on_adddir_clicked,
@@ -59,7 +63,7 @@ class FileSourceConfigurator:
                 }
         tree.signal_autoconnect(dic)
         
-        self.fileStore = gtk.ListStore( str )
+        self.fileStore = fileStore
         self.fileTreeView = tree.get_widget("fileTreeView")
         self.fileTreeView.set_model( self.fileStore )
         self.fileTreeView.append_column(gtk.TreeViewColumn('Name', 
@@ -71,8 +75,17 @@ class FileSourceConfigurator:
         self.dlg.set_transient_for(mainWindow)
     
     def run(self):
-        self.dlg.run()
-    
+        response = self.dlg.run()
+        if response == gtk.RESPONSE_OK:
+            logging.debug("OK")
+            pass
+        elif response == gtk.RESPONSE_CANCEL:
+            logging.debug("CANCEL")        
+            pass
+        else:
+            logging.debug("DUNNO")
+        self.dlg.destroy()        
+        
     def on_addfile_clicked(self, *args):
         dialog = gtk.FileChooserDialog( _("Include file ..."),  
                                         None, 
