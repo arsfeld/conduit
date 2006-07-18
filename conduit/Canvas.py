@@ -51,7 +51,8 @@ class Canvas(goocanvas.CanvasView):
         #canvas and so on
         self.conduits = []
         
-        #save so that the appropriate signals can be connected
+        #save so that the appropriate signals can be connected and so that
+        #other parts of the program can get a ref to the clicked item
         self.newelement = None
         self.newconduit = None
         

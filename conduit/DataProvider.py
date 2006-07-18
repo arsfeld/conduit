@@ -426,14 +426,14 @@ class DataProviderSimpleConfigurator:
     """
     Provides a simple modal configuration dialog for dataproviders.
     
-    Simply provide a list of dictionarys in the following format
+    Simply provide a list of dictionarys in the following format::
     
         maps = [
                     {
                     "Name" : "Setting Name",
                     "Widget" : gtk.TextView,
-                    "SaveTo" : variable
-                    },
+                    "Callback" : function
+                    }
                 ]
     """
     

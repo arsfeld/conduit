@@ -39,7 +39,7 @@ class MainWindow:
         
         dic = { "on_window1_destroy" : self.on_window_closed,
                 "on_window1_resized" : self.on_window_resized,
-                "on_synchronizebutton_clicked" : self.on_synchronize_clicked,
+                "on_synchronizeall_clicked" : self.on_synchronize_all_clicked,
                 "on_open_activate" : self.on_open_sync_set,
                 "on_save_activate" : self.on_save_sync_set,
                 "on_save_as_activate" : self.on_save_as_sync_set,
@@ -120,30 +120,36 @@ class MainWindow:
 
 
     # callbacks.
-    def on_synchronize_clicked(self, widget):
+    def on_synchronize_all_clicked(self, widget):
         """
         sync
         """
         sync_set = self.canvas.get_sync_set()
-        logging.debug("Synchronisation set = %s" % (sync_set))
+        logging.debug("Synchronise All Synchronisation set = %s" % (sync_set))
+        
+    def on_delete_group_clicked(self, widget):
+        """
+        sync
+        """
+        logging.debug("Delete Group") 
+
+    def on_refresh_group_clicked(self, widget):
+        """
+        sync
+        """
+        logging.debug("Refresh Group")    
+    
+    def on_synchronize_group_clicked(self, widget):
+        """
+        sync
+        """
+        logging.debug("Synchronise Group")
     	
-    def on_cut_item_clicked(self, widget):
+    def on_delete_item_clicked(self, widget):
         """
-        cut item
+        delete item
         """
-        print "cut item"
-        
-    def on_copy_item_clicked(self, widget):
-        """
-        copy item
-        """
-        print "copy item"
-        
-    def on_paste_item_clicked(self, widget):
-        """
-        paste item
-        """
-        print "paste item"
+        logging.debug("Delete Item")
         
     def on_configure_item_clicked(self, widget):
         """
@@ -154,12 +160,18 @@ class MainWindow:
         logging.info("Configuring %s" % dp)
         #May block
         dp.configure(self.mainwindow)
-        
+
+    def on_refresh_item_clicked(self, widget):
+        """
+        Calls the 
+        """
+        logging.debug("Refresh Item")
+
     def on_synchronize_item_clicked(self, widget):
         """
         paste item
         """
-        print "synchronize item"
+        logging.debug("Synchronize Item")
         
     def on_open_sync_set(self, widget):
         """
