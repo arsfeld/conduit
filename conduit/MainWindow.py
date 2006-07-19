@@ -166,7 +166,11 @@ class MainWindow:
         """
         Calls the 
         """
-        logging.debug("Refresh Item")
+        dp = self.canvas.selected_dataprovider_wrapper.module
+        logging.info("Refreshing %s" % dp)
+
+        dp.initialize()
+
 
     def on_synchronize_item_clicked(self, widget):
         """

@@ -128,7 +128,7 @@ class DataProviderBase(gobject.GObject):
         """
         Deserialize
         """
-        print "not implemented"
+        logging.warn("deserialize() not overridden by derived class")
         #try:
         #	match = getattr(sys.modules[self.__module__], class_name)(self, **serialized)
         #	if match.is_valid():
@@ -143,7 +143,7 @@ class DataProviderBase(gobject.GObject):
         Designed to be used with avahi sync
         @todo: Should this be a funtion in modulewrapper??
         """
-        print "not implemented"
+        logging.warn("serialize() not overridden by derived class")
         
     def initialize(self):
         """
@@ -151,13 +151,13 @@ class DataProviderBase(gobject.GObject):
         be undertaken on the dataprovider. This will only be called once (or 
         if the dataprovider had been finalized).
         """
-        print "not implemented"
+        logging.warn("initialize() not overridden by derived class")
         
     def finalize(self):
         """
         Called after all tasks related to the dataprovider have been completed
         """
-        print "not implemented"
+        logging.warn("finalize() not overridden by derived class")
         
     def get_status(self):
         return self.status        
@@ -173,7 +173,7 @@ class DataProviderBase(gobject.GObject):
         @param window: The parent window (to show a modal dialog)
         @type window: {gtk.Window}
         """
-        pass
+        logging.warn("configure() not overridden by derived class")
         
     def put(self, data_type):
         """
@@ -187,6 +187,7 @@ class DataProviderBase(gobject.GObject):
         @rtype: C{bool}
         @returns: True for success, false on failure
         """
+        logging.warn("put() not overridden by derived class")        
         return False
         
     def get(self):
@@ -200,6 +201,7 @@ class DataProviderBase(gobject.GObject):
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
+        logging.warn("get() not overridden by derived class")
         for i in range(0,3):
             logging.debug("%s (%s)" % (i, self.name))
             yield i
@@ -214,6 +216,7 @@ class DataProviderBase(gobject.GObject):
         @returns: The number of items to synchronize
         @rtype: C{int}
         """
+        logging.warn("get_num_items() not overridden by derived class")
         return NO_ITEMS
 
 #Tango colors taken from 
