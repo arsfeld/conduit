@@ -19,8 +19,7 @@ class MainWindow:
     """
     The main conduit class.
     """
-    
-    
+
     def __init__(self):
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
         #add some additional dirs to the icon theme search path so that
@@ -29,7 +28,6 @@ class MainWindow:
                     conduit.SHARED_DATA_DIR,
                     conduit.SHARED_MODULE_DIR,
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.SHARED_MODULE_DIR,"datatypes"),
                     os.path.abspath(os.path.expanduser(conduit.USER_MODULE_DIR))
                     ]
         for i in icon_dirs:                    
@@ -84,7 +82,6 @@ class MainWindow:
         
         #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
         dirs_to_search =    [
-                            os.path.join(conduit.SHARED_MODULE_DIR,"datatypes"),
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                             conduit.USER_MODULE_DIR
                             ]

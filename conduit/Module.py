@@ -65,7 +65,14 @@ class ModuleLoader(gobject.GObject):
         Tests whether the filename has the appropriate extension.
         """
         endswith = "Module.py"
-        return (filename[-len(endswith):] == endswith)
+        isModule = (filename[-len(endswith):] == endswith)
+        if not isModule:
+            logging.info(   "Not importing %s, (filenames for dynamically" \
+                            "loaded modules must end with %s" % (
+                            filename,
+                            endswith
+                            ))
+        return isModule
         
     def append_module(self, module):
         """
