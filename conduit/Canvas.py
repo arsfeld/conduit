@@ -18,7 +18,7 @@ class Canvas(goocanvas.CanvasView):
     INITIAL_HEIGHT = 450
     CANVAS_WIDTH = 450
     CANVAS_HEIGHT = 600
-    
+
     def __init__(self):
         "Create a new GstEditorCanvas."
         goocanvas.CanvasView.__init__(self)
@@ -229,16 +229,13 @@ class Canvas(goocanvas.CanvasView):
         else:
             #create the new conduit
             c = Conduit.Conduit(offset,c_w)
-            
             #add the dataprovider to the conduit
-            if c.add_dataprovider_to_conduit(module) == True:
-                #save so that the appropriate signals can be connected
-                self.newconduit = c
-                #now add to root element
-                self.root.add_child(c)
-                self.conduits.append(c)
-            else:
-                "BAD THINGS WILL HAPPEN TO YOU"
+            c.add_dataprovider_to_conduit(module)
+            #save so that the appropriate signals can be connected
+            self.newconduit = c
+            #now add to root element
+            self.root.add_child(c)
+            self.conduits.append(c)
          
     def remove_module_from_canvas(self, module):
         """
@@ -248,7 +245,7 @@ class Canvas(goocanvas.CanvasView):
         @type module: L{conduit.DataProvider.DataProvider}
         """
         if self.selected_dataprovider_wrapper is not None:
-            print "removing module ", module
+            logging.info("Removing module %s" % module)
 
     def on_item_view_created(self, view, itemview, item):
         """
@@ -259,5 +256,4 @@ class Canvas(goocanvas.CanvasView):
                 itemview.connect("button_press_event",  self.on_dataprovider_button_press, self.newelement)
             elif item.get_data("is_a_conduit") == True:
                 itemview.connect("button_press_event",  self.on_conduit_button_press, self.newconduit)
-            
-    
+

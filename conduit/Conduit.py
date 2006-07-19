@@ -17,6 +17,11 @@ class Conduit(goocanvas.Group):
     """
     CONDUIT_HEIGHT = 100
     SIDE_PADDING = 10
+    CONNECTOR_PAD_START = 30
+    CONNECTOR_PAD_END = 30
+    CONNECTOR_RADIUS = 30
+    CONNECTOR_LINE_WIDTH = 5
+    
     def __init__(self, y_from_origin, canvas_width):
         goocanvas.Group.__init__(self)
         #a conduit can hold one datasource and many datasinks (wrappers)
@@ -48,6 +53,9 @@ class Conduit(goocanvas.Group):
                                                 "w" : canvas_width,
                                                 "h" : Conduit.CONDUIT_HEIGHT
                                                 }
+                                                
+    def on_status_changed(self, foo, bar):
+        logging.debug("Recieved status changed signal (%s) (%s)" % (foo,bar))                                                
     
     def get_conduit_dimensions(self):
         """
@@ -111,9 +119,6 @@ class Conduit(goocanvas.Group):
         """
         Adds a dataprovider to the canvas. Positions it appropriately
         so that sources are on the left, and sinks on the right
-        
-        @returns: True for success
-        @rtype: C{bool}
         """
         #determine our width, height, location
         x = self.positions[self.bounding_box]["x"]
@@ -129,19 +134,23 @@ class Conduit(goocanvas.Group):
         if dataprovider_wrapper.module_type == "source":
             #only one source is allowed
             if self.datasource is not None:
-                print "datasource alreasy present"
-                return False
+                logging.warn("Only one datasource allowed per conduit")
+                return
             else:
                 self.datasource = dataprovider_wrapper
-                #new sources go in top left of conduit
+                #Connect to the signal which is fired when dataproviders change
+                #their status (initialized, synchronizing, etc
+                self.datasource.module.connect("status-changed", self.on_status_changed)
+                #New sources go in top left of conduit
                 x_pos = padding
                 y_pos = y + (Conduit.CONDUIT_HEIGHT/2) - (w_h/2)
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
             if dataprovider_wrapper in self.datasinks:
-                print "datasink already present"
-                return False
+                logging.warn("This datasink already present in this conduit")
+                return
             else:
+                #temp reference for drawing the connector line
                 self.datasinks.append(dataprovider_wrapper)
                 #new sinks get added at the bottom
                 x_pos = w - padding - w_w
@@ -153,7 +162,8 @@ class Conduit(goocanvas.Group):
                 if len(self.datasinks) > 1:
                     resize_box = True
         else:
-                return False
+                logging.warn("Only sinks or sources may be added to conduit")
+                return
         
         #now store the widget size and add to the conduit 
         new_widget = dataprovider_wrapper.module.get_widget()
@@ -170,9 +180,59 @@ class Conduit(goocanvas.Group):
         if resize_box is True:
             #increase to fit added dataprovider
             self.positions[self.bounding_box]["h"] += Conduit.CONDUIT_HEIGHT
-            #print "old h = ", self.bounding_box.get_property("height")
-            #print "new h = ", self.positions[self.bounding_box]["h"]
             self.bounding_box.set_property("height",
                                 self.positions[self.bounding_box]["h"])
-        return True
+                                
+        #Draw the pretty curvy connector lines
+        if len(self.datasinks) > 0 and self.datasource != None:
+            #calculate the start point
+            fromX = self.positions[self.datasource]["x"] + self.positions[self.datasource]["w"]
+            fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"]
+            #if we have added a sink then connect to it, otherwise we 
+            #have only one sink and we should draw to it
+            if len(self.datasinks) == 1:
+                sink = self.datasinks[0]
+            else:
+                sink = dataprovider_wrapper
+            
+            toX = self.positions[sink]["x"] #inside 
+            toY = self.positions[sink]["y"] + self.positions[sink]["h"]
+            self.make_connector(fromX,fromY,toX,toY)                                
                
+    def make_connector(self, fromX, fromY, toX, toY, bidirectional=False):
+        """
+        Makes a nice curved line which indicates a sync relationship.
+        
+        This function is a bit ugly with all its string-foo
+        
+        @returns: A Path
+        @rtype: C{goocanvas.Path}
+        """
+        #Dont build curves if its just a dead horizontal link
+        if fromY == toY:
+            #draw simple straight line
+            p = "M%s,%s "           \
+                "L%s,%s "       %   (
+                                    fromX,fromY,    #absolute start point
+                                    toX, toY        #absolute line to point
+                                    )
+        else:
+            #draw pretty curvy line            
+            r = 20
+            ls = 20
+            ld = toY - fromY - 2*r
+            p = "M%s,%s "           \
+                "l%s,%s "           \
+                "q%s,%s %s,%s "     \
+                "l%s,%s "           \
+                "q%s,%s %s,%s "     \
+                "L%s,%s"        %   (
+                                    fromX,fromY,    #absolute start point
+                                    ls,0,           #relative length line +x
+                                    r,0,r,r,        #quarter circle
+                                    0,ld,           #relative length line +y
+                                    0,r,r,r,        #quarter circle
+                                    toX, toY        #absolute line to point
+                                    )
+        path = goocanvas.Path(data=p,stroke_color="blue")
+        self.add_child(path)

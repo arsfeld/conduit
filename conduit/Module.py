@@ -124,9 +124,9 @@ class ModuleLoader(gobject.GObject):
         	                               infos["category"], 
         	                               infos["in_type"],
         	                               infos["out_type"],
-        	                               str(modules),
-        	                               filename,
-        	                               mod_instance)
+        	                               str(modules),   #classname
+        	                               filename,       #file holding me
+        	                               mod_instance)   #the actual module
             self.append_module(mod_wrapper)
             #self.emit("module-loaded", context)
             

@@ -7,7 +7,6 @@ from gettext import gettext as _
 import logging
 import conduit
 
-NO_ITEMS = 0
 STATUS_UNINITIALIZED = 1
 STATUS_INITIALIZED = 2
 STATUS_NEED_SYNC = 3
@@ -30,6 +29,11 @@ class DataProviderBase(gobject.GObject):
     @type widget_color: C{string}    
     """
     
+    __gsignals__ = { 'status-changed': (gobject.SIGNAL_RUN_FIRST, 
+                                        gobject.TYPE_NONE,      #return type
+                                        (gobject.TYPE_INT,)     #argument
+                                        )}
+    
     def __init__(self, name=None, description=None):
         """
         Test
@@ -47,6 +51,17 @@ class DataProviderBase(gobject.GObject):
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM2_LIGHT
         self.widget_width = 120
         self.widget_height = 80
+        
+    def __emit_status_changed(self):
+		"""
+		Emits a 'status-changed' signal to the main loop.
+		
+		You should connect to this signal if you wish to be notified when
+		the derived DataProvider goes through its stages (STATUS_* etc)
+		"""
+		logging.debug("Emmiting status-changed signal")
+		self.emit ("status-changed",7)
+		return False        
         
     def get_icon(self):
         """
@@ -67,10 +82,6 @@ class DataProviderBase(gobject.GObject):
         """
         #Create it the first time
         if self.widget is None:
-            #use widget_color_rgba if specified
-            #if self.widget_color_rgba is not None:
-            #    print "pretty colors = ", self.widget_color_rgba
-                
             self.widget = goocanvas.Group()
             box = goocanvas.Rect(   x=0, 
                                     y=0, 
@@ -82,8 +93,8 @@ class DataProviderBase(gobject.GObject):
                                     radius_y=5, 
                                     radius_x=5
                                     )
-            text = goocanvas.Text(  x=int(2*self.widget_width/5), 
-                                    y=int(2*self.widget_height/3), 
+            name = goocanvas.Text(  x=int(2*self.widget_width/5), 
+                                    y=int(1*self.widget_height/3), 
                                     width=3*self.widget_width/5, 
                                     text=self.name, 
                                     anchor=gtk.ANCHOR_WEST, 
@@ -96,20 +107,28 @@ class DataProviderBase(gobject.GObject):
                                             (pb.get_width()/2) 
                                          ),
                                     y=int(  
-                                            (2*self.widget_height/3) - 
+                                            (1*self.widget_height/3) - 
                                             (pb.get_height()/2)
                                          )
                                              
                                     )
-                                    
+            desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
+                                    y=int(2*self.widget_height/3), 
+                                    width=4*self.widget_width/5, 
+                                    text=self.description, 
+                                    anchor=gtk.ANCHOR_WEST, 
+                                    font="Sans 7",
+                                    fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
+                                    )                                    
         
             #We need some way to tell the canvas that we are a dataprovider
             #and not a conduit
             self.widget.set_data("is_a_dataprovider",True)
             
             self.widget.add_child(box)
-            self.widget.add_child(text)
+            self.widget.add_child(name)
             self.widget.add_child(image)
+            self.widget.add_child(desc) 
             
         return self.widget
         
@@ -128,7 +147,7 @@ class DataProviderBase(gobject.GObject):
         """
         Deserialize
         """
-        logging.warn("deserialize() not overridden by derived class")
+        logging.warn("deserialize() not overridden by derived class %s" % self.name)
         #try:
         #	match = getattr(sys.modules[self.__module__], class_name)(self, **serialized)
         #	if match.is_valid():
@@ -143,7 +162,7 @@ class DataProviderBase(gobject.GObject):
         Designed to be used with avahi sync
         @todo: Should this be a funtion in modulewrapper??
         """
-        logging.warn("serialize() not overridden by derived class")
+        logging.warn("serialize() not overridden by derived class %s" % self.name)
         
     def initialize(self):
         """
@@ -151,20 +170,23 @@ class DataProviderBase(gobject.GObject):
         be undertaken on the dataprovider. This will only be called once (or 
         if the dataprovider had been finalized).
         """
-        logging.warn("initialize() not overridden by derived class")
+        logging.warn("initialize() not overridden by derived class %s" % self.name)
         
     def finalize(self):
         """
         Called after all tasks related to the dataprovider have been completed
         """
-        logging.warn("finalize() not overridden by derived class")
+        logging.warn("finalize() not overridden by derived class %s" % self.name)
         
     def get_status(self):
         return self.status        
         
-    def set_status(self):
-        return self.status
-        
+    def set_status(self, newStatus):
+        if newStatus != self.status:
+            self.status = newStatus
+            #self.status_text.set_property("text","Cheese")
+            self.__emit_status_changed()
+
     def configure(self, window):
         """
         Show a configuration box for configuring the dataprovider instance.
@@ -173,7 +195,7 @@ class DataProviderBase(gobject.GObject):
         @param window: The parent window (to show a modal dialog)
         @type window: {gtk.Window}
         """
-        logging.warn("configure() not overridden by derived class")
+        logging.warn("configure() not overridden by derived class %s" % self.name)
         
     def put(self, data_type):
         """
@@ -187,7 +209,7 @@ class DataProviderBase(gobject.GObject):
         @rtype: C{bool}
         @returns: True for success, false on failure
         """
-        logging.warn("put() not overridden by derived class")        
+        logging.warn("put() not overridden by derived class %s" % self.name)        
         return False
         
     def get(self):
@@ -201,7 +223,7 @@ class DataProviderBase(gobject.GObject):
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
-        logging.warn("get() not overridden by derived class")
+        logging.warn("get() not overridden by derived class %s" % self.name)
         for i in range(0,3):
             logging.debug("%s (%s)" % (i, self.name))
             yield i
@@ -216,7 +238,7 @@ class DataProviderBase(gobject.GObject):
         @returns: The number of items to synchronize
         @rtype: C{int}
         """
-        logging.warn("get_num_items() not overridden by derived class")
+        logging.warn("get_num_items() not overridden by derived class %s" % self.name)
         return NO_ITEMS
 
 #Tango colors taken from 

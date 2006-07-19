@@ -170,6 +170,7 @@ class MainWindow:
         logging.info("Refreshing %s" % dp)
 
         dp.initialize()
+        dp.set_status(234)
 
 
     def on_synchronize_item_clicked(self, widget):
