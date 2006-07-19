@@ -187,7 +187,7 @@ class Conduit(goocanvas.Group):
         if len(self.datasinks) > 0 and self.datasource != None:
             #calculate the start point
             fromX = self.positions[self.datasource]["x"] + self.positions[self.datasource]["w"]
-            fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"]
+            fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"] - 20
             #if we have added a sink then connect to it, otherwise we 
             #have only one sink and we should draw to it
             if len(self.datasinks) == 1:
@@ -196,14 +196,15 @@ class Conduit(goocanvas.Group):
                 sink = dataprovider_wrapper
             
             toX = self.positions[sink]["x"] #inside 
-            toY = self.positions[sink]["y"] + self.positions[sink]["h"]
+            toY = self.positions[sink]["y"] + self.positions[sink]["h"] - 20
             self.make_connector(fromX,fromY,toX,toY)                                
                
     def make_connector(self, fromX, fromY, toX, toY, bidirectional=False):
         """
         Makes a nice curved line which indicates a sync relationship.
         
-        This function is a bit ugly with all its string-foo
+        This function is a bit ugly with all its string-foo, sorry its
+        SVG's specification fault
         
         @returns: A Path
         @rtype: C{goocanvas.Path}
@@ -218,8 +219,8 @@ class Conduit(goocanvas.Group):
                                     )
         else:
             #draw pretty curvy line            
-            r = 20
-            ls = 20
+            r = 20  #radius of curve
+            ls = 20 #len of start straight line segment
             ld = toY - fromY - 2*r
             p = "M%s,%s "           \
                 "l%s,%s "           \
@@ -234,5 +235,5 @@ class Conduit(goocanvas.Group):
                                     0,r,r,r,        #quarter circle
                                     toX, toY        #absolute line to point
                                     )
-        path = goocanvas.Path(data=p,stroke_color="blue")
+        path = goocanvas.Path(data=p,stroke_color="blue",line_width=5)
         self.add_child(path)

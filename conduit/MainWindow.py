@@ -14,6 +14,7 @@ import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
 
+
 class MainWindow:
     """
     The main conduit class.

@@ -19,7 +19,7 @@ class ModuleLoader(gobject.GObject):
     internam array which may be returned via get_modules
     """
        
-    def __init__(self, dirs=None, extension=".py"):
+    def __init__(self, dirs=None):
         """
 		@param dirs: A list of directories to search. Relative pathnames and paths
 		containing ~ will be expanded. If dirs is None the 
@@ -31,7 +31,6 @@ class ModuleLoader(gobject.GObject):
         gobject.GObject.__init__(self)
 
         self.loadedmodules = []
-        self.ext = extension
         self.filelist = self.build_filelist_from_directories (dirs)
            
     def build_filelist_from_directories(self, directories=None):
@@ -65,7 +64,8 @@ class ModuleLoader(gobject.GObject):
         """
         Tests whether the filename has the appropriate extension.
         """
-        return (filename[-len(self.ext):] == self.ext)
+        endswith = "Module.py"
+        return (filename[-len(endswith):] == endswith)
         
     def append_module(self, module):
         """

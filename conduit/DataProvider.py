@@ -356,7 +356,11 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_get_iter(
         """
-        return self.module_wrapper_list[path[0]].name
+        try:
+            return self.module_wrapper_list[path[0]].name
+        except IndexError:
+            #no modules loaded
+            return None
 
     def on_get_path(self, rowref):
         #print "on_get_path: rowref = ", rowref

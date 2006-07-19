@@ -84,8 +84,14 @@ class TypeConverter(gobject.GObject):
             logging.error("Could not call conversion function %s" % err)
             return None
         except KeyError:
-            logging.error("Conversion from %s to %s does not exist " % (from_type, to_type))
-            return None
+            logging.warn("Conversion from %s -> %s does not exist " % (from_type, to_type))
+            logging.warn("Trying conversion from %s -> text -> %s" % (from_type, to_type))
+            try:
+                intermediate = self.convertables[from_type]["text"](data)
+                return self.convertables["text"][to_type](intermediate)
+            except:
+                logger.error("Conversion through text failed")
+                return None
         except Exception:
             logging.error("Error #65")
             return None
