@@ -25,18 +25,20 @@ class SyncManager(object):
         pass
         
     def sync_conduit(self, conduit):
-        logging.info("Synchronizing %s" % conduit)
+        logging.info("Synchronizing Conduit %s" % conduit)
         datasource = conduit.datasource
         datasinks = conduit.datasinks
-        
+
         sourceData = datasource.module.get()
         for sink in datasinks:
             logging.debug("Synchronizing from %s to %s" % (datasource.name, sink.name))
             for data in sourceData:
                 logging.debug("Source data type = %s, Sink accepts %s" % (datasource.out_type, sink.in_type))
-                #self.typeConverter.convert(datasource.out_type, sink.in_type, data)
-                test = self.typeConverter.convert("note", "cal", data)
-                logging.debug("Dummy Conversion = %s" % test)
+                if datasource.out_type != sink.in_type:
+                    logging.debug("Conversion Required")
+                    data = self.typeConverter.convert(datasource.out_type, sink.in_type, data)
+                
+                sink.module.put(data)
 
 class GIdleThread(object):
     """

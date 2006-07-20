@@ -63,15 +63,15 @@ class MoinMoinDataSource(DataProvider.DataSource):
             self.srcwiki = None
             
     def get(self):
-        #for p in pages:
-        #    pageinfo = srcwiki.getPageInfo(p)
-        #    pagedata = srcwiki.getPage(p)
-        #    print "Page Info: name=%s, modified=%s, author=%s, version=%s" % (
-        #                                        pageinfo["name"], 
-        #                                        pageinfo["lastModified"], 
-        #                                        pageinfo["author"], pageinfo["version"]
-        #                                        )            
-        pass
+        for p in self.pages:
+            #Make a new page data type
+            page = WikiPageDataType()
+            pageinfo = self.srcwiki.getPageInfo(p)
+            page.name = pageinfo["name"]
+            page.modified = pageinfo["lastModified"]
+            page.contents = self.srcwiki.getPage(p)
+            
+            yield page
 		
 class WikiPageDataType(DataType.DataType):
     def __init__(self):
@@ -82,12 +82,12 @@ class WikiPageDataType(DataType.DataType):
                             }
                             
         #Instance variables
-        self.pageData = ""
-        self.pageName = "" 
-        self.pageModified = ""
+        self.contents = ""
+        self.name = "" 
+        self.modified = ""
         
     def text_to_wikipage(self, measure):
         return "text->wikipage = ", str(measure)
 
     def wikipage_to_text(self, measure):
-        return "wikipage->text = ", str(measure)
+        return ("Wiki Page Name: %s\n\n%s" % (measure.name,measure.contents))

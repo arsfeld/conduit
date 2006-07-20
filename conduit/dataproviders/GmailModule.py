@@ -2,6 +2,8 @@ import gtk
 import gobject
 from gettext import gettext as _
 
+import logging
+import conduit
 import DataProvider
 
 MODULES = {
@@ -10,16 +12,16 @@ MODULES = {
 		"description": _("Source for synchronizing Gmail data"),
 		"category": "Test",
 		"type": "source",
-		"in_type": "file",
-		"out_type": "file"
+		"in_type": "text",
+		"out_type": "text"
 	},
 	"GmailSink" : {
 		"name": _("Gmail Sink"),
 		"description": _("Sink for synchronizing Gmail data"),
 		"type": "sink",
 		"category": "Test",
-		"in_type": "file",
-		"out_type": "file"
+		"in_type": "text",
+		"out_type": "text"
 	}
 	
 }
@@ -65,4 +67,7 @@ class GmailSink(DataProvider.DataSink):
         self.icon_name = "applications-internet"
         
     def initialize(self):
-        self.set_status(DataProvider.STATUS_DONE_INIT_OK)        
+        self.set_status(DataProvider.STATUS_DONE_INIT_OK)
+        
+    def put(self, data):
+        logging.debug("Putting %s" % data)   

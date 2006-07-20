@@ -219,7 +219,7 @@ class DataProviderBase(gobject.GObject):
         """
         logging.warn("configure() not overridden by derived class %s" % self.name)
         
-    def put(self, data_type):
+    def put(self, data):
         """
         Stores data.
         This function must be overridden by the appropriate dataprovider. Its
