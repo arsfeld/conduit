@@ -32,6 +32,11 @@ class Conduit(goocanvas.Group):
         #unfortunately we need to keep track of the current canvas 
         #position of all canvas items from this one
         self.positions = {}
+        #When the box is resized the arrows must be resized differently
+        self.connectors = []
+        #To handle displaying the status of the dataproviders. Holds a 
+        #bunc of goocanvas.Text elements accessed by dataprovider
+        self.dataprovider_status = {}
         
         #draw a box which will contain the dataproviders
         self.bounding_box = goocanvas.Rect(   
@@ -54,8 +59,9 @@ class Conduit(goocanvas.Group):
                                                 "h" : Conduit.CONDUIT_HEIGHT
                                                 }
                                                 
-    def on_status_changed(self, foo, bar):
-        logging.debug("Recieved status changed signal (%s) (%s)" % (foo,bar))                                                
+    def on_status_changed(self, dataprovider, bar):
+        self.update_status_text(dataprovider,dataprovider.get_status_text())
+        logging.debug("Recieved status changed signal from %s" % dataprovider)
     
     def get_conduit_dimensions(self):
         """
@@ -93,6 +99,10 @@ class Conduit(goocanvas.Group):
         self.positions[self.bounding_box]["w"] = new_w
         self.bounding_box.set_property("width",
                                 self.positions[self.bounding_box]["w"])
+                                
+        #update the length of the connecting lines
+        for c in self.connectors:
+            self.adjust_connector_width(c, dw)
         
     def move_conduit_to(self,new_x,new_y):
         #because Conduit is a goocanvas.Group all its children get
@@ -118,8 +128,21 @@ class Conduit(goocanvas.Group):
     def add_dataprovider_to_conduit(self, dataprovider_wrapper):
         """
         Adds a dataprovider to the canvas. Positions it appropriately
-        so that sources are on the left, and sinks on the right
+        so that sources are on the left, and sinks on the right. Adds
+        Status text and connecting lines.
+        
+        The function performs in the following order
+        1) Measure our size, and the module to add's size
+        2) Move the new dp to its appropriate position and add to me
+        3) Draw connecting lines to the dp
+        4) Add status text near the dp
+        5) Expand if needed
+        
+        @param dataprovider_wrapper: The L{conduit.Module.ModuleWrapper} 
+        containing a L{conduit.DataProvider.DataProviderBase} to add
+        @type dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
+        #----- STEP ONE ------------------------------------------------------
         #determine our width, height, location
         x = self.positions[self.bounding_box]["x"]
         y = self.positions[self.bounding_box]["y"]
@@ -138,9 +161,6 @@ class Conduit(goocanvas.Group):
                 return
             else:
                 self.datasource = dataprovider_wrapper
-                #Connect to the signal which is fired when dataproviders change
-                #their status (initialized, synchronizing, etc
-                self.datasource.module.connect("status-changed", self.on_status_changed)
                 #New sources go in top left of conduit
                 x_pos = padding
                 y_pos = y + (Conduit.CONDUIT_HEIGHT/2) - (w_h/2)
@@ -164,7 +184,11 @@ class Conduit(goocanvas.Group):
         else:
                 logging.warn("Only sinks or sources may be added to conduit")
                 return
-        
+
+        #Connect to the signal which is fired when dataproviders change
+        #their status (initialized, synchronizing, etc
+        dataprovider_wrapper.module.connect("status-changed", self.on_status_changed)
+        #----- STEP TWO ------------------------------------------------------        
         #now store the widget size and add to the conduit 
         new_widget = dataprovider_wrapper.module.get_widget()
         self.positions[dataprovider_wrapper] =  {
@@ -177,13 +201,10 @@ class Conduit(goocanvas.Group):
         self.move_dataprovider_to(dataprovider_wrapper,x_pos,y_pos)
         #add to this group
         self.add_child(new_widget)
-        if resize_box is True:
-            #increase to fit added dataprovider
-            self.positions[self.bounding_box]["h"] += Conduit.CONDUIT_HEIGHT
-            self.bounding_box.set_property("height",
-                                self.positions[self.bounding_box]["h"])
-                                
-        #Draw the pretty curvy connector lines
+        
+        #----- STEP THREE ----------------------------------------------------                
+        #Draw the pretty curvy connector lines only if there
+        #is one source and >1 sinks
         if len(self.datasinks) > 0 and self.datasource != None:
             #calculate the start point
             fromX = self.positions[self.datasource]["x"] + self.positions[self.datasource]["w"]
@@ -197,17 +218,33 @@ class Conduit(goocanvas.Group):
             
             toX = self.positions[sink]["x"] #inside 
             toY = self.positions[sink]["y"] + self.positions[sink]["h"] - 20
-            self.make_connector(fromX,fromY,toX,toY)                                
-               
-    def make_connector(self, fromX, fromY, toX, toY, bidirectional=False):
+            #Draw the connecting lines between the dataproviders
+            self.add_connector_to_canvas(fromX,fromY,toX,toY)                               
+
+        #----- STEP FOUR -----------------------------------------------------                
+        if dataprovider_wrapper.module_type == "source":
+            x_offset = w_w + 5
+            y_offset = w_h - 30
+        else:
+            x_offset = -65
+            y_offset = w_h - 10            
+        statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset)
+        self.dataprovider_status[dataprovider_wrapper.module] = statusText
+        self.add_child(statusText)            
+
+        #----- STEP FIVE -----------------------------------------------------                
+        if resize_box is True:
+            #increase to fit added dataprovider
+            self.positions[self.bounding_box]["h"] += Conduit.CONDUIT_HEIGHT
+            self.bounding_box.set_property("height",
+                                self.positions[self.bounding_box]["h"])
+            
+    def make_connector_svg_string(self, fromX, fromY, toX, toY):
         """
-        Makes a nice curved line which indicates a sync relationship.
+        Builds a SVG path statement string based on its input
         
-        This function is a bit ugly with all its string-foo, sorry its
-        SVG's specification fault
-        
-        @returns: A Path
-        @rtype: C{goocanvas.Path}
+        @returns: A valid SVG path descriptor
+        @rtype: C{string}
         """
         #Dont build curves if its just a dead horizontal link
         if fromY == toY:
@@ -218,9 +255,9 @@ class Conduit(goocanvas.Group):
                                     toX, toY        #absolute line to point
                                     )
         else:
-            #draw pretty curvy line            
+            #draw pretty curvy line 
             r = 20  #radius of curve
-            ls = 20 #len of start straight line segment
+            ls = 40 #len of start straight line segment
             ld = toY - fromY - 2*r
             p = "M%s,%s "           \
                 "l%s,%s "           \
@@ -235,5 +272,65 @@ class Conduit(goocanvas.Group):
                                     0,r,r,r,        #quarter circle
                                     toX, toY        #absolute line to point
                                     )
-        path = goocanvas.Path(data=p,stroke_color="blue",line_width=5)
+            #create and return                                    
+        return p
+               
+    def add_connector_to_canvas(self, fromX, fromY, toX, toY, bidirectional=False):
+        """
+        Adds nice curved line which indicates a sync relationship to the canvas
+        """
+        #The path is a goocanvas.Path element. 
+        svgPathString = self.make_connector_svg_string(fromX, fromY, toX, toY)
+        path = goocanvas.Path(data=svgPathString,stroke_color="black",line_width=5)                
         self.add_child(path)
+        #Add to list of connectors to allow resize later
+        self.positions[path] =  {
+                                "x" : fromX,
+                                "y" : fromY,
+                                "w" : toX - fromX,
+                                "h" : toY - fromY
+                                }
+        self.connectors.append(path)
+
+    def adjust_connector_width(self, connector, dw):
+        """
+        Adjusts the size of the connector. Used when the window is resized
+        
+        @param connector: The connector to resize
+        @type connector: C{goocanvas.Path}
+        @param dw: The change in width
+        @type dw: C{int}
+        """
+        
+        #Get the current start and end points of the conector
+        #Little bit hacky but we know that
+        #toX = w - fromX and toY = h - fromY
+        fromX = self.positions[connector]["x"]
+        fromY = self.positions[connector]["y"]
+        toX = self.positions[connector]["w"] + fromX + dw
+        toY = self.positions[connector]["h"] + fromY
+        
+        #Save new width
+        self.positions[connector]["w"] += dw
+        #Update path
+        svgData = self.make_connector_svg_string(fromX, fromY, toX, toY)
+        connector.set_property("data",svgData)
+
+    def make_status_text(self, x, y):
+        text = goocanvas.Text   (  
+                                x=x, 
+                                y=y, 
+                                width=80, 
+                                text="", 
+                                anchor=gtk.ANCHOR_WEST, 
+                                font="Sans 7",
+                                fill_color_rgba=int("555753ff",16),
+                                )
+        return text
+        
+    def update_status_text(self, dataprovider, newText):
+        logging.debug("Settings Status Text for %s" % dataprovider)
+        self.dataprovider_status[dataprovider].set_property("text",newText)
+        
+        
+        

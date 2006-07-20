@@ -63,8 +63,10 @@ class StickyNoteSource(DataProvider.DataSource):
                 newNote.date = n.attributes["title"].nodeValue
                 #add to store
                 self.notes.append(newNote)
+            self.set_status(DataProvider.STATUS_DONE_INIT_OK)
         except:
-            logging.warn("Error parsing note file")                
+            logging.warn("Error parsing note file")
+            self.set_status(DataProvider.STATUS_DONE_INIT_ERROR)                
 
 class NoteDataType(DataType.DataType):
     def __init__(self):

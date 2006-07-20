@@ -1,3 +1,13 @@
+"""
+Manages adding, removing, resizing and drawing the canvas
+
+The Canvas is the main area in Conduit, the area to which DataProviders are 
+dragged onto.
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 import goocanvas
 import gtk
 from gettext import gettext as _
@@ -9,8 +19,7 @@ import conduit.Conduit as Conduit
 
 class Canvas(goocanvas.CanvasView):
     """
-    This class visually describes the state of the main GST pipeline of a
-    GstEditor object.  
+    This class manages many L{conduit.Conduit.Conduit} objects
     """
     
     WELCOME_TEXT = _("Drag an Item to Continue")

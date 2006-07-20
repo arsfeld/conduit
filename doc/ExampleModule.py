@@ -57,6 +57,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
     def initialize(self):
         if self.srcwiki is None:
             self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
+        self.set_status(DataProvider.STATUS_DONE_INIT_OK)
             
     def finalize(self):
             self.srcwiki = None

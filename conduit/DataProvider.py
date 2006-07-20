@@ -7,13 +7,14 @@ from gettext import gettext as _
 import logging
 import conduit
 
-STATUS_UNINITIALIZED = 1
-STATUS_INITIALIZED = 2
-STATUS_NEED_SYNC = 3
-STATUS_SYNCHRONIZING = 4
-STATUS_DONE_SYNC_OK = 5
-STATUS_DONE_SYNC_NEEDINFO = 6
-STATUS_DONE_SYNC_ERROR = 7
+STATUS_NONE = 1
+STATUS_INIT = 2
+STATUS_DONE_INIT_OK = 3
+STATUS_DONE_INIT_ERROR = 4
+STATUS_SYNC = 5
+STATUS_DONE_SYNC_OK = 6
+STATUS_DONE_SYNC_NEEDINFO = 7
+STATUS_DONE_SYNC_ERROR = 8
 
 class DataProviderBase(gobject.GObject):
     """
@@ -44,7 +45,7 @@ class DataProviderBase(gobject.GObject):
         self.description = description
         self.icon = None
         self.widget = None
-        self.status = STATUS_UNINITIALIZED
+        self.status = STATUS_NONE
         #The following can be overridden to customize the appearance
         #of the basic dataproviders
         self.icon_name = gtk.STOCK_OK        
@@ -179,8 +180,29 @@ class DataProviderBase(gobject.GObject):
         logging.warn("finalize() not overridden by derived class %s" % self.name)
         
     def get_status(self):
-        return self.status        
+        return self.status
         
+    def get_status_text(self):
+        s = self.status
+        if s == STATUS_NONE:
+            return ""
+        elif s == STATUS_INIT:
+            return _("Initializing...")
+        elif s == STATUS_DONE_INIT_OK:
+            return _("Initialized OK")
+        elif s == STATUS_DONE_INIT_ERROR:
+            return _("Initialization Error")
+        elif s == STATUS_SYNC:
+            return _("Synchronizing")
+        elif s == STATUS_DONE_SYNC_OK:
+            return _("Synchronized OK")
+        elif s == STATUS_DONE_SYNC_NEEDINFO:
+            return _("Conflicts")
+        elif s == STATUS_DONE_SYNC_ERROR:
+            return _("Synchronization Error")
+        else:
+            return "BAD PROGRAMMER"
+
     def set_status(self, newStatus):
         if newStatus != self.status:
             self.status = newStatus

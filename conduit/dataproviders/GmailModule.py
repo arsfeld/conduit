@@ -63,3 +63,6 @@ class GmailSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("Gmail Sink"), _("Sink for synchronizing Gmail data"))
         self.icon_name = "applications-internet"
+        
+    def initialize(self):
+        self.set_status(DataProvider.STATUS_DONE_INIT_OK)        
