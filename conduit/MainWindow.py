@@ -122,9 +122,10 @@ class MainWindow:
         """
         sync
         """
+        logging.debug("Synchronizing All Conduits") 
         sync_set = self.canvas.get_sync_set()
-        logging.debug("Synchronise All Synchronisation set = %s" % (sync_set))
-        logging.debug(self.type_converter.convert("file","wikipage","test"))
+        for conduit in sync_set:
+            self.sync_manager.sync_conduit(conduit)
         
     def on_delete_group_clicked(self, widget):
         """

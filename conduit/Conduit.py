@@ -59,9 +59,9 @@ class Conduit(goocanvas.Group):
                                                 "h" : Conduit.CONDUIT_HEIGHT
                                                 }
                                                 
-    def on_status_changed(self, dataprovider, bar):
+    def on_status_changed(self, dataprovider, status):
         self.update_status_text(dataprovider,dataprovider.get_status_text())
-        logging.debug("Recieved status changed signal from %s" % dataprovider)
+        logging.debug("Recieved status changed signal from %s (New status: %s)" % (dataprovider,status))
     
     def get_conduit_dimensions(self):
         """
@@ -232,10 +232,14 @@ class Conduit(goocanvas.Group):
         if dataprovider_wrapper.module_type == "source":
             x_offset = w_w + 5
             y_offset = w_h - 30
+            anchor = gtk.ANCHOR_WEST
         else:
-            x_offset = - 65
-            y_offset = w_h - 10            
-        statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset)
+            x_offset = - 5
+            y_offset = w_h - 10
+            anchor = gtk.ANCHOR_EAST            
+        msg = dataprovider_wrapper.module.get_status_text()             
+        statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset, msg)
+        statusText.set_property("anchor", anchor)
         self.dataprovider_status[dataprovider_wrapper.module] = statusText
         self.add_child(statusText)            
 
@@ -323,12 +327,12 @@ class Conduit(goocanvas.Group):
         svgData = self.make_connector_svg_string(fromX, fromY, toX, toY)
         connector.set_property("data",svgData)
 
-    def make_status_text(self, x, y):
+    def make_status_text(self, x, y, text=""):
         text = goocanvas.Text   (  
                                 x=x, 
                                 y=y, 
                                 width=80, 
-                                text="", 
+                                text=text, 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 7",
                                 fill_color_rgba=int("555753ff",16),
@@ -336,7 +340,6 @@ class Conduit(goocanvas.Group):
         return text
         
     def update_status_text(self, dataprovider, newText):
-        logging.debug("Settings Status Text for %s" % dataprovider)
         self.dataprovider_status[dataprovider].set_property("text",newText)
         
         

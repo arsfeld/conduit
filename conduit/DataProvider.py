@@ -13,8 +13,7 @@ STATUS_DONE_INIT_OK = 3
 STATUS_DONE_INIT_ERROR = 4
 STATUS_SYNC = 5
 STATUS_DONE_SYNC_OK = 6
-STATUS_DONE_SYNC_NEEDINFO = 7
-STATUS_DONE_SYNC_ERROR = 8
+STATUS_DONE_SYNC_ERROR = 7
 
 class DataProviderBase(gobject.GObject):
     """
@@ -60,8 +59,7 @@ class DataProviderBase(gobject.GObject):
 		You should connect to this signal if you wish to be notified when
 		the derived DataProvider goes through its stages (STATUS_* etc)
 		"""
-		logging.debug("Emmiting status-changed signal")
-		self.emit ("status-changed",7)
+		self.emit ("status-changed",self.status)
 		return False        
         
     def get_icon(self):
@@ -168,10 +166,14 @@ class DataProviderBase(gobject.GObject):
     def initialize(self):
         """
         Performs any initialization steps (logging in, etc) which must
-        be undertaken on the dataprovider. This will only be called once (or 
+        be undertaken on the dataprovider. 
+        
+        Derived types should override this function but still call it.
+        
+        This will only be called once (or 
         if the dataprovider had been finalized).
         """
-        logging.warn("initialize() not overridden by derived class %s" % self.name)
+        self.set_status(STATUS_INIT)
         
     def finalize(self):
         """
@@ -185,7 +187,7 @@ class DataProviderBase(gobject.GObject):
     def get_status_text(self):
         s = self.status
         if s == STATUS_NONE:
-            return ""
+            return _("Ready")
         elif s == STATUS_INIT:
             return _("Initializing...")
         elif s == STATUS_DONE_INIT_OK:
@@ -193,11 +195,9 @@ class DataProviderBase(gobject.GObject):
         elif s == STATUS_DONE_INIT_ERROR:
             return _("Initialization Error")
         elif s == STATUS_SYNC:
-            return _("Synchronizing")
+            return _("Synchronizing...")
         elif s == STATUS_DONE_SYNC_OK:
             return _("Synchronized OK")
-        elif s == STATUS_DONE_SYNC_NEEDINFO:
-            return _("Conflicts")
         elif s == STATUS_DONE_SYNC_ERROR:
             return _("Synchronization Error")
         else:
@@ -206,7 +206,6 @@ class DataProviderBase(gobject.GObject):
     def set_status(self, newStatus):
         if newStatus != self.status:
             self.status = newStatus
-            #self.status_text.set_property("text","Cheese")
             self.__emit_status_changed()
 
     def configure(self, window):
@@ -222,33 +221,38 @@ class DataProviderBase(gobject.GObject):
     def put(self, data):
         """
         Stores data.
-        This function must be overridden by the appropriate dataprovider. Its
-        exact behavior is behavior is determined by the derived type.
-        
+
+        Checks if the dataprovider has been initialized first, if not then
+        calls .initialize(). This function must be overridden by the 
+        appropriate dataprovider but derived classes must still call this 
+        function.
+
         @param data_type: Data which to save
         @type data_type: A L{conduit.DataType.DataType} derived type that this 
         dataprovider is capable of handling
         @rtype: C{bool}
         @returns: True for success, false on failure
         """
-        logging.warn("put() not overridden by derived class %s" % self.name)        
-        return False
-        
+        if self.status < STATUS_INIT:
+            self.initialize()
+        self.set_status(STATUS_SYNC)
+                
     def get(self):
         """
-        Returns all appropriate data.
-        This function must be overridden by the appropriate dataprovider. Its
-        exact behavior is behavior is determined by the derived type.
-        @todo: Make this a generator for async operation?
+        Returns all appropriate data. 
+        
+        Checks if the dataprovider has been initialized first, if not then
+        calls .initialize(). This function must be overridden by the 
+        appropriate dataprovider but derived classes must still call this 
+        function.
         
         @rtype: L{conduit.DataType.DataType}[]
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
-        logging.warn("get() not overridden by derived class %s" % self.name)
-        for i in range(0,3):
-            logging.debug("%s (%s)" % (i, self.name))
-            yield i
+        if self.status < STATUS_INIT:
+            self.initialize()
+        self.set_status(STATUS_SYNC)
         
     def get_num_items(self):
         """

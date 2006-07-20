@@ -31,7 +31,6 @@ MODULES = {
 
 
 class StickyNoteReader(object):
-    
     def __init__(self):
         self.doc = minidom.parse(StickyNoteReader.NOTE_FILE)
     
@@ -50,6 +49,7 @@ class StickyNoteSource(DataProvider.DataSource):
         self.notes = []
         
     def initialize(self):
+        DataProvider.DataProviderBase.initialize(self)    
         if self.xml is None:
             self.xml = minidom.parse(StickyNoteSource.NOTE_FILE)    
         

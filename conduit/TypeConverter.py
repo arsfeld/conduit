@@ -99,7 +99,7 @@ class TypeConverter(gobject.GObject):
                 intermediate = self.convertables[from_type]["text"](data)
                 return self.convertables["text"][to_type](intermediate)
             except:
-                logger.error("Conversion through text failed")
+                logging.error("Conversion through text failed")
                 return None
         except Exception:
             logging.error("Error #65")

@@ -67,7 +67,9 @@ class GmailSink(DataProvider.DataSink):
         self.icon_name = "applications-internet"
         
     def initialize(self):
+        DataProvider.DataProviderBase.initialize(self)        
         self.set_status(DataProvider.STATUS_DONE_INIT_OK)
         
     def put(self, data):
+        DataProvider.DataProviderBase.put(self, data)        
         logging.debug("Putting %s" % data)   

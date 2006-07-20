@@ -53,6 +53,7 @@ class FileSource(DataProvider.DataSource):
         self.files = [ r[0] for r in fileStore ]
         
     def get(self):
+        DataProvider.DataProviderBase.get(self)        
         for f in self.files:
             yield f
 		
