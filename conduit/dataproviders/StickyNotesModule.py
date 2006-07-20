@@ -72,7 +72,7 @@ class NoteDataType(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self, _("Note Data Type"), _("Represents a users note"))
         self.conversions =  {    
-                            "text" : self.text_to_note
+                            "text,note" : self.text_to_note
                             }
                             
         #Note properties

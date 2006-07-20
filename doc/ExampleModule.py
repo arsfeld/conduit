@@ -36,23 +36,23 @@ class MoinMoinDataSource(DataProvider.DataSource):
         self.srcwiki = None
         self.pages = []
         
-    def configure(self, mainwindow):
-        dlg = gtk.Dialog(   "Enter the Wiki Page Names to Synchronize", 
-                            mainwindow, 
-                            0,
-                            (gtk.STOCK_OK, gtk.RESPONSE_CLOSE)
-                            )
-        hbox = gtk.HBox(False,5)
-        hbox.pack_start(gtk.Label("Page Names (Comma seperated):"))
-        text = gtk.Entry()
-        hbox.pack_start(text)
-        dlg.vbox.pack_start(hbox)
-        dlg.show_all()
-        dlg.run()
-        dlg.destroy()
-        #Save the users choice
-        self.pages = text.get_text().split(',')
-        logging.debug("Configured pages = %s" % self.pages)
+    def configure(self, window):
+        def set_pages(param):
+            self.pages = param.split(',')
+            logging.debug("Configured pages = %s" % self.pages)            
+        
+        #Define the items in the configure dialogue
+        items = [
+                    {
+                    "Name" : "Page Names to Synchronize:",
+                    "Widget" : gtk.Entry,
+                    "Callback" : set_pages
+                    }                    
+                ]
+        #We just use a simple configuration dialog
+        dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
+        #This call blocks
+        dialog.run()
         
     def initialize(self):
         if self.srcwiki is None:
@@ -77,13 +77,17 @@ class WikiPageDataType(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self, _("Wiki Page Data Type"), _("Represents a Moinmoin wiki page"))
         self.conversions =  {    
-                            "email" : self.email_to_wikipage,
-                            "cal"   : self.cal_to_wikipage
+                            "text,wikipage" : self.text_to_wikipage,
+                            "wikipage,text"   : self.wikipage_to_text
                             }
                             
+        #Instance variables
+        self.pageData = ""
+        self.pageName = "" 
+        self.pageModified = ""
         
-    def email_to_wikipage(self, measure):
-        return str(measure) + " was a email now is a wikipage"
+    def text_to_wikipage(self, measure):
+        return "text->wikipage = ", str(measure)
 
-    def cal_to_wikipage(self, measure):
-        return str(measure) + " was a cal now is a wikipage"
+    def wikipage_to_text(self, measure):
+        return "wikipage->text = ", str(measure)

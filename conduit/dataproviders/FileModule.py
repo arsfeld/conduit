@@ -66,8 +66,9 @@ class FileDataType(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self, _("File Data Type"), _("Represents a file on disk"))
         self.conversions =  {    
-                            "email" : self.email_to_file,
-                            "cal"   : self.cal_to_file
+                            "email,file" : self.email_to_file,
+                            "cal,file"   : self.cal_to_file,
+                            "file,text"  : self.file_to_text
                             }
                             
         
@@ -76,6 +77,9 @@ class FileDataType(DataType.DataType):
 
     def cal_to_file(self, measure):
         return str(measure) + " was a cal now is a file"
+        
+    def file_to_text(self, measure):
+        return "file->text = ", str(measure)
 
 class FileSourceConfigurator:
     def __init__(self, gladefile, mainWindow, fileStore):

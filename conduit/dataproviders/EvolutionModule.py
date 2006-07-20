@@ -74,7 +74,7 @@ class CalDataType(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self, _("Calendar Data Type"), _("Represents an iCal"))
         self.conversions =  {    
-                            "note" : self.note_to_cal
+                            "note,cal" : self.note_to_cal
                             }
                             
         

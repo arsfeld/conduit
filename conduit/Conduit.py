@@ -92,17 +92,24 @@ class Conduit(goocanvas.Group):
         resizing the bounding box and by translating all the 
         datasinks to the right
         """
+        #Translate by
         dw = new_w - self.positions[self.bounding_box]["w"]
+        #Only move the datasinks. The datasource stays on the left
         for d in self.datasinks:
-            d.module.get_widget().translate(dw,0)             
+            #Translate the widget
+            d.module.get_widget().translate(dw,0)
+            #Move the widgets status text
+            self.dataprovider_status[d.module].translate(dw,0)
+            
         #now update the box width
         self.positions[self.bounding_box]["w"] = new_w
         self.bounding_box.set_property("width",
                                 self.positions[self.bounding_box]["w"])
                                 
-        #update the length of the connecting lines
+        #Update the length of the connecting lines
         for c in self.connectors:
             self.adjust_connector_width(c, dw)
+            
         
     def move_conduit_to(self,new_x,new_y):
         #because Conduit is a goocanvas.Group all its children get
@@ -226,7 +233,7 @@ class Conduit(goocanvas.Group):
             x_offset = w_w + 5
             y_offset = w_h - 30
         else:
-            x_offset = -65
+            x_offset = - 65
             y_offset = w_h - 10            
         statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset)
         self.dataprovider_status[dataprovider_wrapper.module] = statusText
