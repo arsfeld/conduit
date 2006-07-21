@@ -72,6 +72,7 @@ class DataProviderBase(gobject.GObject):
             except:
                 self.icon = None
                 logging.error("Could not load icon %s" % self.icon_name)
+                self.icon = gtk.icon_theme_get_default().load_icon("image-missing", 16, 0)
         return self.icon
         
     def get_widget(self):
@@ -305,7 +306,7 @@ class DataSource(DataProviderBase):
         DataProviderBase.__init__(self, name, description)
         
         #customizations
-        self.icon_name = "gtk-media-next"
+        self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
   
 class DataSink(DataProviderBase):
@@ -317,7 +318,7 @@ class DataSink(DataProviderBase):
         DataProviderBase.__init__(self, name, description)
 
         #customizations
-        self.icon_name = "gtk-media-previous"
+        self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
  
 class DataProviderTreeModel(gtk.GenericTreeModel):

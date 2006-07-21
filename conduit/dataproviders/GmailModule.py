@@ -1,40 +1,84 @@
+import os
+import sys
 import gtk
-import gobject
 from gettext import gettext as _
 
 import logging
 import conduit
-import DataProvider
+import conduit.DataProvider as DataProvider
+import conduit.datatypes.Email as Email
+
+import email
+try:
+    import libgmail
+except ImportError:
+    logging.warn("Note: Using built in libgmail")
+    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.4"))
+    import libgmail
+
 
 MODULES = {
-	"GmailSource" : {
-		"name": _("Gmail Source"),
-		"description": _("Source for synchronizing Gmail data"),
-		"category": "Test",
+	"GmailEmailSource" : {
+		"name": _("Gmail Email Source"),
+		"description": _("Sync your Gmail Emails"),
+		"category": "Gmail",
 		"type": "source",
-		"in_type": "text",
-		"out_type": "text"
+		"in_type": "email",
+		"out_type": "email"
 	},
-	"GmailSink" : {
-		"name": _("Gmail Sink"),
-		"description": _("Sink for synchronizing Gmail data"),
+	"GmailEmailSink" : {
+		"name": _("Gmail Email Sink"),
+		"description": _("Sync your Gmail Emails"),
 		"type": "sink",
-		"category": "Test",
-		"in_type": "text",
-		"out_type": "text"
+		"category": "Gmail",
+		"in_type": "email",
+		"out_type": "email"
+	},
+	"GmailContactSource" : {
+		"name": _("Gmail Contacts Source"),
+		"description": _("Sync your Gmail Contacts"),
+		"type": "source",
+		"category": "Gmail",
+		"in_type": "vCard",
+		"out_type": "vCard"
+	},
+	"GmailContactSink" : {
+		"name": _("Gmail Contacts Sink"),
+		"description": _("Sync your Gmail Contacts"),
+		"type": "sink",
+		"category": "Gmail",
+		"in_type": "vCard",
+		"out_type": "vCard"
 	}
-	
 }
 
-class GmailSource(DataProvider.DataSource):
+class GmailBase(DataProvider.DataProviderBase):
+    """
+    Simple wrapper to share gmail login stuff
+    """
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("Gmail Source"), _("Source for synchronizing Gmail data"))
-        self.icon_name = "applications-internet"
-        
-        #gmail specific settings
-        self.username = None
-        self.password = None
-        self.tag = "Sync"
+        self.username = ""
+        self.password = ""
+        self.loggedIn = False
+        self.ga = None
+    
+    def initialize(self):
+        DataProvider.DataProviderBase.initialize(self)        
+        self.ga = libgmail.GmailAccount(self.username, self.password)
+        try:
+            self.ga.login()
+            self.set_status(DataProvider.STATUS_DONE_INIT_OK)             
+            self.loggedIn = True
+        except:
+            logging.info("Gmail Login Failed")
+            self.set_status(DataProvider.STATUS_DONE_INIT_ERROR)                      
+    
+
+class GmailEmailSource(GmailBase, DataProvider.DataSource):
+    def __init__(self):
+        GmailBase.__init__(self)
+        DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"))
+        self.icon_name = "internet-mail"
         
     def configure(self, window):
         def set_username(param):
@@ -44,7 +88,7 @@ class GmailSource(DataProvider.DataSource):
             self.password = param
             
         def set_tag(param):
-            self.tag = param        
+            self.label = param        
         
         #Define the items in the configure dialogue
         items = [
@@ -70,15 +114,25 @@ class GmailSource(DataProvider.DataSource):
         #This call blocks
         dialog.run()
         
-class GmailSink(DataProvider.DataSink):
-    def __init__(self):
-        DataProvider.DataSink.__init__(self, _("Gmail Sink"), _("Sink for synchronizing Gmail data"))
-        self.icon_name = "applications-internet"
+    def get(self):
+        DataProvider.DataProviderBase.get(self)    
+        if self.loggedIn:
+            result = self.ga.getMessagesByLabel(self.label)
+            for thread in result:
+                for message in thread:
+                    mail = Email.Email()
+                    mail.create_from_raw_source(message.source)
+                    logging.debug("GOT %s" % mail)
+                    yield mail
+        
 
-        #gmail specific settings
-        self.username = None
-        self.password = None
-        self.tag = "Sync"
+class GmailEmailSink(GmailBase, DataProvider.DataSink):
+    def __init__(self):
+        GmailBase.__init__(self)
+        DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
+        self.icon_name = "internet-mail"
+
+        self.label = "Sync"
         self.skipInbox = True
         
     def configure(self, window):
@@ -89,7 +143,7 @@ class GmailSink(DataProvider.DataSink):
             self.password = param
             
         def set_tag(param):
-            self.tag = param
+            self.label = param
             
         def set_skip_inbox(param):
             self.skipInbox = param
@@ -126,3 +180,13 @@ class GmailSink(DataProvider.DataSink):
     def put(self, data):
         DataProvider.DataProviderBase.put(self, data)        
         logging.debug("Putting %s" % data)   
+
+class GmailContactSource(GmailBase, DataProvider.DataSource):
+    def __init__(self):
+        DataProvider.DataSource.__init__(self, _("Gmail Email Ssource"), _("Sync your Gmail Emails"))
+        self.icon_name = "contact-new"
+
+class GmailContactSink(GmailBase, DataProvider.DataSink):
+    def __init__(self):
+        DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
+        self.icon_name = "contact-new"

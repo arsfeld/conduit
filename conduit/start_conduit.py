@@ -22,6 +22,7 @@ import os.path
 IS_LOCAL = False
 
 name = os.path.join(os.path.dirname(__file__), '..')
+print name
 if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(name+"/conduit/ChangeLog") :
     print "Running uninstalled Conduit"
     IS_LOCAL = True
@@ -34,11 +35,14 @@ if IS_LOCAL:
     sys.path.insert(0, os.path.abspath(name))
     import conduit
     print "Modifying SHARED_DATA_DIR"
-    conduit.SHARED_DATA_DIR = os.path.abspath(name) + "/conduit/data"
+    conduit.SHARED_DATA_DIR =  os.path.join(os.path.abspath(name),"conduit","data")
     print "Modifying GLADE_FILE"
-    conduit.GLADE_FILE = os.path.abspath(name) + "/conduit/data/conduit.glade"
+    conduit.GLADE_FILE =  os.path.join(os.path.abspath(name),"conduit","data","conduit.glade")
     print "Modifying SHARED_MODULE_DIR"
-    conduit.SHARED_MODULE_DIR = os.path.abspath(name) + "/conduit"
+    conduit.SHARED_MODULE_DIR =  os.path.join(os.path.abspath(name),"conduit")
+
+#Dir where 3rd party libraries live if shipped with conduit
+conduit.EXTRA_LIB_DIR = os.path.join(os.path.abspath(name),"contrib")
 
 # Remove all the tools we loaded
 del sys, os

@@ -40,7 +40,7 @@ MODULES = {
 class FileSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"))
-        self.icon_name = "gtk-file"
+        self.icon_name = "text-x-generic"
         
         #list of file URIs
         self.files = ['ssh://root@www.greenbirdsystems.com/var/www/conduit-project.org/doc/index.html']
@@ -64,7 +64,7 @@ class FileSource(DataProvider.DataSource):
 class FileSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
-        self.icon_name = "gtk-file"
+        self.icon_name = "text-x-generic"
         
     def put(self, vfsfile):
         DataProvider.DataProviderBase.put(self, vfsfile)            

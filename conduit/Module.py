@@ -123,18 +123,21 @@ class ModuleLoader(gobject.GObject):
         	return
 
         for modules, infos in mod.MODULES.items():
-            mod_instance = getattr (mod, modules) ()
-            mod_wrapper = ModuleWrapper (  infos["name"], 
-        	                               infos["description"], 
-        	                               infos["type"], 
-        	                               infos["category"], 
-        	                               infos["in_type"],
-        	                               infos["out_type"],
-        	                               str(modules),   #classname
-        	                               filename,       #file holding me
-        	                               mod_instance)   #the actual module
-            self.append_module(mod_wrapper)
-            #self.emit("module-loaded", context)
+            try:
+                mod_instance = getattr (mod, modules) ()
+                mod_wrapper = ModuleWrapper (  infos["name"], 
+            	                               infos["description"], 
+            	                               infos["type"], 
+            	                               infos["category"], 
+            	                               infos["in_type"],
+            	                               infos["out_type"],
+            	                               str(modules),   #classname
+            	                               filename,       #file holding me
+            	                               mod_instance)   #the actual module
+                self.append_module(mod_wrapper)
+                #self.emit("module-loaded", context)
+            except AttributeError:
+                logging.error("Could not find module %s in %s" % (modules,filename))
             
     def load_all_modules(self):
         """

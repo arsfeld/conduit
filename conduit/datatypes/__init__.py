@@ -7,10 +7,14 @@ implementation. For example all email programs should share the same common
 mail datatype. For this reason DataTypes, not DataProviders are exported
 """
 
-import DataType
-import File
 
-__all__ = ["File", "Note", "Text", "DataType"]
+import File
+import Note
+import Text
+import Email
+import DataType
+
+__all__ = ["File", "Note", "Text", "Email", "DataType"]
 
 #Constants used for comparison
 EQUAL = 0
