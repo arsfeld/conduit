@@ -14,6 +14,7 @@ import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
 
+import conduit.datatypes.File as File
 
 class MainWindow:
     """
@@ -21,6 +22,8 @@ class MainWindow:
     """
 
     def __init__(self):
+        d = File.File()
+        d.compare(None, None)
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
@@ -80,7 +83,7 @@ class MainWindow:
                                 self.item_popup_widgets.get_widget("menu2")
                                 )
         
-        #Dynamically load all datasources, datasinks and datatypes (Python is COOL!)
+        #Dynamically load all datasources, datasinks and converters (Python is COOL!)
         dirs_to_search =    [
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                             conduit.USER_MODULE_DIR
@@ -90,7 +93,7 @@ class MainWindow:
         self.modules.load_all_modules()
         self.datasink_modules = self.modules.get_modules_by_type ("sink")
         self.datasource_modules = self.modules.get_modules_by_type ("source")
-        self.datatype_modules = self.modules.get_modules_by_type ("datatype")
+        self.converter_modules = self.modules.get_modules_by_type ("converter")
                         
         # Populate the tree and list models
         #FIXME: how many of these really need to be kep around in self aye??
@@ -107,8 +110,8 @@ class MainWindow:
 
 
         #initialise the Type Converter
-        datatypes = self.modules.get_modules_by_type("datatype")
-        self.type_converter = TypeConverter(datatypes)
+        converters = self.modules.get_modules_by_type("converter")
+        self.type_converter = TypeConverter(converters)
         #initialise the Synchronisation Manager
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
         
@@ -222,33 +225,23 @@ class MainWindow:
             dataProviderListStore.append(["%s %s (%s)" % (i.name, i.description, i.module_type)])
         for i in self.datasource_modules:
             dataProviderListStore.append(["%s %s (%s)" % (i.name, i.description, i.module_type)])    
-        dataTypesListStore = gtk.ListStore( str )
-        for i in self.datatype_modules:
-            dataTypesListStore.append([i.name])
-            print i.name
-            
-        
+           
         #construct the dialog
         tree = gtk.glade.XML(conduit.GLADE_FILE, "PropertiesDialog")
-        converterTreeView = tree.get_widget("dataConversionsTreeView")
-        converterTreeView.set_model(converterListStore)
-        converterTreeView.append_column(gtk.TreeViewColumn('Name', 
-                                        gtk.CellRendererText(), 
-                                        text=0)
-                                        )
         dataproviderTreeView = tree.get_widget("dataProvidersTreeView")
         dataproviderTreeView.set_model(dataProviderListStore)
         dataproviderTreeView.append_column(gtk.TreeViewColumn('Name', 
                                         gtk.CellRendererText(), 
                                         text=0)
                                         )                                                   
-        datatypesTreeView = tree.get_widget("dataTypesTreeView")
-        datatypesTreeView.set_model(dataTypesListStore)
-        datatypesTreeView.append_column(gtk.TreeViewColumn('Name', 
+        converterTreeView = tree.get_widget("dataConversionsTreeView")
+        converterTreeView.set_model(converterListStore)
+        converterTreeView.append_column(gtk.TreeViewColumn('Name', 
                                         gtk.CellRendererText(), 
                                         text=0)
-                                        )                                              
-                
+                                        )
+                                        
+                                        
         #Show the dialog
         dialog = tree.get_widget("PropertiesDialog")
         dialog.set_transient_for(self.mainWindow)

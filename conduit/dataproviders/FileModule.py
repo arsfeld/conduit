@@ -26,13 +26,13 @@ MODULES = {
 		"in_type": "file",
 		"out_type": "file"
 	},
-	"FileDataType" : {
+	"FileConverter" : {
 		"name": _("File Data Type"),
 		"description": _("Represents a file on disk"),
-		"type": "datatype",
+		"type": "converter",
 		"category": "",
-		"in_type": "file",
-		"out_type": "file"		
+		"in_type": "",
+		"out_type": ""		
 	}
 	
 }
@@ -73,24 +73,12 @@ class FileSink(DataProvider.DataSink):
         #                   gnomevfs.XFER_ERROR_MODE_ABORT,
         #                   gnomevfs.XFER_OVERWRITE_MODE_SKIP)
 
-class FileDataType(DataType.DataType):
+class FileConverter:
     def __init__(self):
-        DataType.DataType.__init__(self, _("File Data Type"), _("Represents a file on disk"))
         self.conversions =  {    
                             "text,file" : self.text_to_file,
                             "file,text" : self.file_to_text
                             }
-
-        self.uri = None                    
-        self.vfsHandle = None
-        
-    def load_from_uri(self, uri):
-        self.uri = uri
-        self.vfsFile = gnomevfs.Handle(self.uri)
-        
-    def get_mimetype(self):
-        info = gnomevfs.get_mime_type(self.uri)
-        return info
         
     def text_to_file(self, measure):
         return "text->file = ", str(measure)

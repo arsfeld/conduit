@@ -8,8 +8,6 @@ import conduit
 import conduit.DataProvider as DataProvider
 import DataType
 
-
-
 MODULES = {
 	"StickyNoteSource" : {
 		"name": _("StickyNote Source"),
@@ -19,26 +17,17 @@ MODULES = {
 		"in_type": "note",
 		"out_type": "note"
 	},
-	"NoteDataType" : {
+	"NoteConverter" : {
 		"name": _("Note Data Type"),
 		"description": _("Represents a users note"),
-		"type": "datatype",
+		"type": "converter",
 		"category": "",
-		"in_type": "note",
-		"out_type": "note",
+		"in_type": "",
+		"out_type": "",
 	}
 }
 
 
-class StickyNoteReader(object):
-    def __init__(self):
-        self.doc = minidom.parse(StickyNoteReader.NOTE_FILE)
-    
-    def get_all_notes(self):
-        notes = self.doc.documentElement.getElementsByTagName ("note")
-        for n in notes:
-            logging.debug("Note = %s (Modified %s)" % (n.childNodes[0].nodeValue, n.attributes["title"].nodeValue))
-        
 class StickyNoteSource(DataProvider.DataSource):
     NOTE_FILE = "/home/john/.gnome2/stickynotes_applet"
     def __init__(self):
@@ -68,17 +57,12 @@ class StickyNoteSource(DataProvider.DataSource):
             logging.warn("Error parsing note file")
             self.set_status(DataProvider.STATUS_DONE_INIT_ERROR)                
 
-class NoteDataType(DataType.DataType):
+class NoteConverter:
     def __init__(self):
-        DataType.DataType.__init__(self, _("Note Data Type"), _("Represents a users note"))
         self.conversions =  {    
                             "text,note" : self.text_to_note
                             }
                             
-        #Note properties
-        self.content = ""
-        self.date = 0
                             
     def text_to_note(self, measure):
         return str(measure) + " was text now a note"
-        

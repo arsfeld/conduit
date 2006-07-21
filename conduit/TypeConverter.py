@@ -140,4 +140,25 @@ class TypeConverter(gobject.GObject):
             for tos in self.convertables[froms]:
                 method = self.convertables[froms][tos]
                 logging.info("Convert from %s to %s using %s" % (froms, tos, method))
+                
+    def conversion_exists(self, from_type, to_type):
+        """
+        Checks if a conversion exists
         
+        @todo: Null check self.convertables??
+        """
+        if self.convertables.has_key(from_type):
+            #from_type exists
+            if self.convertables[from_type].has_key(to_type):
+                #conversion exists
+                return True
+            elif self.convertables[from_type].has_key("text") and self.convertables["text"].has_key(to_type):
+                #can convert via text
+                return True
+            else:
+                #to_type doesnt exists
+                return False
+        else:
+            #from_type doesnt exist
+            return False
+            
