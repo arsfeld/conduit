@@ -69,9 +69,9 @@ class DataProviderBase(gobject.GObject):
         if self.icon is None:
             try:
                 self.icon = gtk.icon_theme_get_default().load_icon(self.icon_name, 16, 0)
-            except gobject.GError, exc:
+            except:
                 self.icon = None
-                print >> stderr, "can't load icon", exc
+                logging.error("Could not load icon %s" % self.icon_name)
         return self.icon
         
     def get_widget(self):
@@ -402,7 +402,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         m = self.module_wrapper_list[self.get_module_index_by_name(rowref)]
         if column is 0:
-            return m.get_icon()
+            return m.module.get_icon()
         elif column is 1:
             return m.name
         elif column is 2:
@@ -576,6 +576,8 @@ class DataProviderSimpleConfigurator:
             #FIXME: This seems hackish
             if isinstance(w["Widget"], gtk.Entry):
                 w["Callback"](w["Widget"].get_text())
+            elif isinstance(w["Widget"], gtk.CheckButton):
+                w["Callback"](w["Widget"].get_active())
             else:
                 logging.warn("Dont know how to retrieve value from a %s" % w["Widget"])
 
@@ -594,28 +596,31 @@ class DataProviderSimpleConfigurator:
 
     def run(self):
         resp = self.dialog.run()
-        logging.debug("DIALOG RESP = %s" % resp)
-        pass
         
     def build_child(self):
         #For each item in the mappings list create the appropriate widget
         for l in self.mappings:
-            #all get packed into an HBox
-            hbox = gtk.HBox(False, 5)
-            label = gtk.Label(l["Name"])
             #New instance of the widget
             widget = l["Widget"]()
-            #FIXME: There must be a better way to do this but we need some way 
-            #to identify the widget *instance* when we save the values from it
+            #all get packed into an HBox
+            hbox = gtk.HBox(False, 5)
+
+            #FIXME: I am ashamed about this ugly hackery and dupe code....
+            if isinstance(widget, gtk.Entry):
+                #gtkEntry has its label beside it
+                label = gtk.Label(l["Name"])
+                hbox.pack_start(label)
+            elif isinstance(widget, gtk.CheckButton):
+                #gtk.CheckButton has its label built in
+                widget = l["Widget"](l["Name"])
+                        
+                #FIXME: There must be a better way to do this but we need some way 
+                #to identify the widget *instance* when we save the values from it
             self.widgetInstances.append({
                                         "Widget" : widget,
                                         "Callback" : l["Callback"]
                                         })
             #pack them all together
-            hbox.pack_start(label)
             hbox.pack_start(widget)
             self.customSettings.pack_start(hbox)
-        
-        
-        
         

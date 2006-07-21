@@ -7,6 +7,8 @@ import logging
 import DataProvider
 import DataType
 
+import gnomevfs
+
 MODULES = {
 	"FileSource" : {
 		"name": _("File Source"),
@@ -41,7 +43,7 @@ class FileSource(DataProvider.DataSource):
         self.icon_name = "gtk-file"
         
         #list of file URIs
-        self.files = []
+        self.files = ['ssh://root@www.greenbirdsystems.com/var/www/conduit-project.org/doc/index.html']
         
     def configure(self, window):
         fileStore = gtk.ListStore( str )
@@ -55,30 +57,44 @@ class FileSource(DataProvider.DataSource):
     def get(self):
         DataProvider.DataProviderBase.get(self)        
         for f in self.files:
-            yield f
+            vfsFile = FileDataType()
+            vfsFile.load_from_uri(f)
+            logging.debug("File mime type = %s" % (vfsFile.get_mimetype()))
 		
 class FileSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
         self.icon_name = "gtk-file"
-
+        
+    def put(self, vfsfile):
+        DataProvider.DataProviderBase.put(self, vfsfile)            
+        #gnomevfs.xfer_uri( inuri, outuri,
+        #                   gnomevfs.XFER_DEFAULT,
+        #                   gnomevfs.XFER_ERROR_MODE_ABORT,
+        #                   gnomevfs.XFER_OVERWRITE_MODE_SKIP)
 
 class FileDataType(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self, _("File Data Type"), _("Represents a file on disk"))
         self.conversions =  {    
-                            "email,file" : self.email_to_file,
-                            "cal,file"   : self.cal_to_file,
-                            "file,text"  : self.file_to_text
+                            "text,file" : self.text_to_file,
+                            "file,text" : self.file_to_text
                             }
-                            
-        
-    def email_to_file(self, measure):
-        return str(measure) + " was a email now is a file"
 
-    def cal_to_file(self, measure):
-        return str(measure) + " was a cal now is a file"
+        self.uri = None                    
+        self.vfsHandle = None
         
+    def load_from_uri(self, uri):
+        self.uri = uri
+        self.vfsFile = gnomevfs.Handle(self.uri)
+        
+    def get_mimetype(self):
+        info = gnomevfs.get_mime_type(self.uri)
+        return info
+        
+    def text_to_file(self, measure):
+        return "text->file = ", str(measure)
+
     def file_to_text(self, measure):
         return "file->text = ", str(measure)
 
@@ -124,6 +140,7 @@ class FileSourceConfigurator:
                                         gtk.STOCK_OPEN, gtk.RESPONSE_OK)
                                         )
         dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog.set_local_only(False)
         fileFilter = gtk.FileFilter()
         fileFilter.set_name(_("All files"))
         fileFilter.add_pattern("*")
@@ -131,8 +148,8 @@ class FileSourceConfigurator:
 
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
-            self.fileStore.append( [dialog.get_filename()] )
-            logging.debug("Selected file %s" % dialog.get_filename())
+            self.fileStore.append( [dialog.get_uri()] )
+            logging.debug("Selected file %s" % dialog.get_uri())
         elif response == gtk.RESPONSE_CANCEL:
             pass
         dialog.destroy()
@@ -147,11 +164,12 @@ class FileSourceConfigurator:
                                         gtk.RESPONSE_OK)
                                         )
         dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog.set_local_only(False)
 
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
-            self.fileStore.append( [dialog.get_filename()] )
-            logging.debug("Selected folder %s" % dialog.get_filename())
+            self.fileStore.append( [dialog.get_uri()] )
+            logging.debug("Selected folder %s" % dialog.get_uri())
         elif response == gtk.RESPONSE_CANCEL:
             pass
         dialog.destroy()

@@ -67,8 +67,7 @@ class ModuleLoader(gobject.GObject):
         endswith = "Module.py"
         isModule = (filename[-len(endswith):] == endswith)
         if not isModule:
-            logging.info(   "Not importing %s, (filenames for dynamically" \
-                            "loaded modules must end with %s" % (
+            logging.info(   "Ignoring %s, (must end with %s)" % (
                             filename,
                             endswith
                             ))
@@ -296,21 +295,3 @@ class ModuleWrapper(gobject.GObject):
         @rtype: C{string}
         """
         return "%s-%s" % (self.name, self._uid)
-            
-    def get_icon(self):
-        """
-        Gets the icon for the contained module. A bit hackish because I could
-        not work out how to derive the dynamically loaded modules from this
-        type. 
-        
-        If the contained module is not a source or a sink then
-        return None for the icon
-        
-        @returns: An icon or None
-        @rtype C{gtk.gdk.Pixbuf}
-        """
-        if self.module is not None:
-            if isinstance(self.module, conduit.DataProvider.DataProviderBase):
-                return self.module.get_icon()
-        
-        return None
