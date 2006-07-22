@@ -103,8 +103,9 @@ class TypeConverter(gobject.GObject):
                 logging.error("Traceback Follows")
                 traceback.print_exc()
                 return None
-        except Exception:
-            logging.error("Error #65")
+        except Exception, err:
+            logging.error("Error calling conversion function: %s" % err)
+            
             return None
             
     def get_convertables_descriptive_list(self):

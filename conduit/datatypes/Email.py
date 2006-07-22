@@ -15,13 +15,22 @@ class Email(DataType.DataType):
         self.to = ""
         self.emailFrom = ""
         self.subject = ""
-        self.content = ""             
+        self.content = ""   
+        self.attachments = []          
         
     def create(self, to, emailFrom, subject, content):
         self.to = to
         self.emailFrom = emailFrom
         self.subject = subject
         self.content = content                 
+        
+    def has_attachments(self):
+        if len(self.attachments) > 0:
+            return True
+        return False
+        
+    def add_attachment(self, attachmentLocalPath):
+        self.attachments.append(attachmentLocalPath)
 
     def create_from_raw_source(self, text_source):
         """

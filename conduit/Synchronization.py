@@ -26,6 +26,7 @@ class SyncManager(object):
         
     def sync_conduit(self, conduit):
         logging.info("Synchronizing Conduit %s" % conduit)
+        
         datasource = conduit.datasource
         datasinks = conduit.datasinks
 
@@ -39,7 +40,25 @@ class SyncManager(object):
                     data = self.typeConverter.convert(datasource.out_type, sink.in_type, data)
                 
                 sink.module.put(data)
-
+                    
+        
+class SyncWorker(gobject.GObject):
+    """
+    """
+    
+    __gsignals__ = { 'sync-next-step': (gobject.SIGNAL_RUN_FIRST, 
+                                        gobject.TYPE_NONE,      #return type
+                                        (gobject.TYPE_INT,)     #argument
+                                        )}
+    
+    def __init__(self, conduit):
+        """
+        Test
+        """
+        gobject.GObject.__init__(self)
+        pass
+                
+        
 class GIdleThread(object):
     """
     This is a pseudo-"thread" for use with the GTK+ main loop.
@@ -56,7 +75,10 @@ class GIdleThread(object):
     the error property. Execution of the generator is finished.
 
     Note that this routine runs in the current thread, so there is no need
-    for nasty locking schemes.
+    for nasty locking schemes.    __gsignals__ = { 'status-changed': (gobject.SIGNAL_RUN_FIRST, 
+                                        gobject.TYPE_NONE,      #return type
+                                        (gobject.TYPE_INT,)     #argument
+                                        )}
 
     Example (runs a counter through the GLib main loop routine)::
         >>> def counter(max): for x in xrange(max): yield x
@@ -66,10 +88,9 @@ class GIdleThread(object):
         ...     main.iteration(False)
     """
 
-    def __init__(self, generator, queue=None):
+    def __init__(self, generator):
         assert hasattr(generator, 'next'), 'The generator should be an iterator'
         self._generator = generator
-        self._queue = queue
         self._idle_id = 0
         self._error = None
 
@@ -117,13 +138,6 @@ class GIdleThread(object):
     def __generator_executer(self):
         try:
             result = self._generator.next()
-            if self._queue:
-                try:
-                    self._queue.put(result)
-                except QueueFull:
-                    self.wait(0.5)
-                    # If this doesn't work...
-                    self._queue.put(result)
             return True
         except StopIteration:
             self._idle_id = 0
@@ -134,88 +148,15 @@ class GIdleThread(object):
             self._idle_id = 0
             return False
 
-
-class QueueEmpty(Exception):
-    """
-    Exception raised whenever the queue is empty and someone tries to fetch
-    a value.
-    """
-    pass
-
-
-class QueueFull(Exception):
-    """
-    Exception raised when the queue is full and the oldest item may not be
-    disposed.
-    """
-    pass
-
-
-class Queue(object):
-    """
-    A FIFO queue. If the queue has a max size, the oldest item on the
-    queue is dropped if that size id exceeded.
-    """
-
-    def __init__(self, size=0, dispose_oldest=True):
-        self._queue = []
-        self._size = size
-        self._dispose_oldest = dispose_oldest
-
-    def put(self, item):
-        """
-        Put item on the queue. If the queue size is limited ...
-        """
-        if self._size > 0 and len(self._queue) >= self._size:
-            if self._dispose_oldest:
-                self.get()
-            else:
-                raise QueueFull
-
-        self._queue.insert(0, item)
-
-    def get(self):
-        """
-        Get the oldest item off the queue.
-        QueueEmpty is raised if no items are left on the queue.
-        """
-        try:
-            return self._queue.pop()
-        except IndexError:
-            raise QueueEmpty
-
-
 if __name__ == '__main__':
     def counter(max):
         for i in range(max):
             yield i
 
-    def shower(queue):
-        # Never stop reading the queue:
-        while True:
-            try:
-                cnt = queue.get()
-                print 'cnt =', cnt
-            except QueueEmpty:
-                pass
-            yield None
+    c = GIdleThread(counter(23))
+    d = GIdleThread(counter(46))
 
-    print 'Test 1: (should print range 0..22)'
-    queue = Queue()
-    c = GIdleThread(counter(23), queue)
-    s = GIdleThread(shower(queue))
     
     main = gobject.main_context_default()
     c.start()
-    s.start()
-    s.wait(2)
-
-    print 'Test 2: (should only print 22)'
-    queue = Queue(size=1)
-    c = GIdleThread(counter(23), queue)
-    s = GIdleThread(shower(queue))
-    
-    main = gobject.main_context_default()
-    c.start(priority=gobject.PRIORITY_DEFAULT)
-    s.start()
-    s.wait(3)
+    d.start()

@@ -6,7 +6,7 @@ from xml.dom import minidom
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
-import DataType
+from conduit.datatypes import DataType
 
 MODULES = {
 	"StickyNoteSource" : {

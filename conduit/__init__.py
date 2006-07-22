@@ -36,9 +36,7 @@ logging.basicConfig(level=LOG_DICT[LOG_LEVEL],
 #                    filename='/tmp/myapp.log',
 #                    filemode='w')
 
-from DataType import DataType
 from TypeConverter import TypeConverter
-from SyncManager import SyncManager
 from MainWindow import MainWindow
 from Canvas import Canvas
 from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
@@ -47,4 +45,4 @@ from Conduit import Conduit
 
 # Make sure epydoc documents the classes 
 # as part of the conduit module
-__all__ = ["DataType", "MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit"]
+__all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit"]
