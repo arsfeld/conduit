@@ -16,7 +16,8 @@ MODULES = {
 class TextConverter:
     def __init__(self):
         self.conversions =  {    
-                            "email,text" : self.to_text
+                            "email,text"    : self.to_text,
+                            "note,text"     : self.to_text
                             }
                             
                             
@@ -26,3 +27,5 @@ class TextConverter:
         """
         if hasattr(measure, "__str__"):
             return str(measure)
+        logging.warn("%s does not define __str__()" % measure)
+        return ""

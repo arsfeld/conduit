@@ -6,7 +6,7 @@ from xml.dom import minidom
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
-from conduit.datatypes import DataType
+import conduit.datatypes.Note as Note
 
 MODULES = {
 	"StickyNoteSource" : {
@@ -45,17 +45,23 @@ class StickyNoteSource(DataProvider.DataSource):
         try:
             notes = self.xml.documentElement.getElementsByTagName("note")
             for n in notes:
-                newNote = NoteDataType()
-                newNote.content = n.childNodes[0].nodeValue
+                newNote = Note.Note()
+                newNote.contents = n.childNodes[0].nodeValue
+                logging.debug("Contents %s" % newNote)
                 #this is not a typo, stickynotes puts the date the note was
                 #created in the title attribute???
-                newNote.date = n.attributes["title"].nodeValue
+                newNote.modified = n.attributes["title"].nodeValue
                 #add to store
                 self.notes.append(newNote)
             self.set_status(DataProvider.STATUS_DONE_INIT_OK)
         except:
             logging.warn("Error parsing note file")
             self.set_status(DataProvider.STATUS_DONE_INIT_ERROR)                
+            
+    def get(self):
+        DataProvider.DataProviderBase.get(self)
+        for n in self.notes:
+            yield n    
 
 class NoteConverter:
     def __init__(self):
@@ -65,4 +71,7 @@ class NoteConverter:
                             
                             
     def text_to_note(self, measure):
-        return str(measure) + " was text now a note"
+        n = Note.Note()
+        n.title = "Note Title"
+        n.contents = measure
+        return n

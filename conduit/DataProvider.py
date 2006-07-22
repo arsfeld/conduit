@@ -175,6 +175,7 @@ class DataProviderBase(gobject.GObject):
         if the dataprovider had been finalized).
         """
         self.set_status(STATUS_INIT)
+        logging.debug("Dataprovider (%s) initializing" % self.name)        
         
     def finalize(self):
         """
@@ -237,6 +238,7 @@ class DataProviderBase(gobject.GObject):
         if self.status < STATUS_INIT:
             self.initialize()
         self.set_status(STATUS_SYNC)
+        logging.debug("Dataprovider (%s) putting data: %s" % (self.name, data))
                 
     def get(self):
         """
@@ -254,6 +256,7 @@ class DataProviderBase(gobject.GObject):
         if self.status < STATUS_INIT:
             self.initialize()
         self.set_status(STATUS_SYNC)
+        logging.debug("Dataprovider (%s) returning getting data" % self.name)        
         
     def get_num_items(self):
         """

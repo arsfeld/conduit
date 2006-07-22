@@ -9,4 +9,7 @@ class Note(DataType.DataType):
         self.modified = None
         self.contents = ""
         
+    def __str__(self):
+        return ("Title: %s\n%s\n(Modified: %s)" % (self.title, self.contents, self.modified))
+        
 

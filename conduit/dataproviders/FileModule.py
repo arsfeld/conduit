@@ -45,7 +45,7 @@ class FileSource(DataProvider.DataSource):
         self.icon_name = "text-x-generic"
         
         #list of file URIs
-        self.files = ['file:///home/john/Desktop/a5440f.jpg', 'file:///home/john/Desktop/plaintext.txt']
+        self.files = []
         
     def configure(self, window):
         fileStore = gtk.ListStore( str )
@@ -61,7 +61,6 @@ class FileSource(DataProvider.DataSource):
         for f in self.files:
             vfsFile = File.File()
             vfsFile.load_from_uri(f)
-            logging.debug("File mime type = %s" % (vfsFile.get_mimetype()))
             yield vfsFile
 		
 class FileSink(DataProvider.DataSink):

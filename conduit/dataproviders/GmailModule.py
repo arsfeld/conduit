@@ -132,7 +132,6 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
                 for message in thread:
                     mail = Email.Email()
                     mail.create_from_raw_source(message.source)
-                    logging.debug("GOT %s" % mail)
                     yield mail
         
 
@@ -188,7 +187,6 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
         
     def put(self, email):
         DataProvider.DataProviderBase.put(self, email)        
-        logging.debug("Putting %s" % email)
         
         if email.has_attachments():
             attach = email.attachments
@@ -214,7 +212,8 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
 class EmailSinkConverter:
     def __init__(self):
         self.conversions =  {    
-                            "file,email" : self.file_to_email
+                            "file,email" : self.file_to_email,
+                            "text,email" : self.text_to_email
                             }
                             
                             
@@ -251,6 +250,14 @@ class EmailSinkConverter:
             email.add_attachment(thefile.create_local_tempfile())
             return email
             
+    def text_to_email(self, text):
+        email = Email.Email()
+        email.create(   "",                             #to
+                        "",                             #from
+                        "",                             #subject
+                        text                            #contents
+                        )
+        return email
         
 
 class GmailContactSource(GmailBase, DataProvider.DataSource):
