@@ -174,8 +174,7 @@ class DataProviderBase(gobject.GObject):
         This will only be called once (or 
         if the dataprovider had been finalized).
         """
-        self.set_status(STATUS_INIT)
-        logging.debug("Dataprovider (%s) initializing" % self.name)        
+        logging.warn("initialize() not overridden by derived class %s" % self.name)
         
     def finalize(self):
         """
@@ -235,10 +234,7 @@ class DataProviderBase(gobject.GObject):
         @rtype: C{bool}
         @returns: True for success, false on failure
         """
-        if self.status < STATUS_INIT:
-            self.initialize()
-        self.set_status(STATUS_SYNC)
-        logging.debug("Dataprovider (%s) putting data: %s" % (self.name, data))
+        logging.warn("put() not overridden by derived class %s" % self.name)
                 
     def get(self):
         """
@@ -253,11 +249,8 @@ class DataProviderBase(gobject.GObject):
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
-        if self.status < STATUS_INIT:
-            self.initialize()
-        self.set_status(STATUS_SYNC)
-        logging.debug("Dataprovider (%s) returning getting data" % self.name)        
-        
+        logging.warn("put() not overridden by derived class %s" % self.name)
+                
     def get_num_items(self):
         """
         Returns the number of items requiring sychronization. This function 

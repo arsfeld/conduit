@@ -73,7 +73,6 @@ class GmailBase(DataProvider.DataProviderBase):
         self.ga = None
     
     def initialize(self):
-        DataProvider.DataProviderBase.initialize(self)        
         self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
@@ -125,7 +124,6 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         dialog.run()
         
     def get(self):
-        DataProvider.DataProviderBase.get(self)    
         if self.loggedIn:
             result = self.ga.getMessagesByLabel(self.label)
             for thread in result:
@@ -140,6 +138,10 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
         GmailBase.__init__(self)
         DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
         self.icon_name = "internet-mail"
+        
+        self.username = ""
+        self.password = ""
+        self.label = "thread"
         
         self.skipInbox = True
         
@@ -186,8 +188,6 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
         dialog.run()
         
     def put(self, email):
-        DataProvider.DataProviderBase.put(self, email)        
-        
         if email.has_attachments():
             attach = email.attachments
         else:

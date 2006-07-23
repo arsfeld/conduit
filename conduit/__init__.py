@@ -42,7 +42,11 @@ from Canvas import Canvas
 from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
 from Module import ModuleLoader, ModuleWrapper
 from Conduit import Conduit
+from Exceptions import ConversionError, InitializeError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync
 
 # Make sure epydoc documents the classes 
 # as part of the conduit module
 __all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit"]
+
+import gobject
+gobject.threads_init()

@@ -45,7 +45,7 @@ class FileSource(DataProvider.DataSource):
         self.icon_name = "text-x-generic"
         
         #list of file URIs
-        self.files = []
+        self.files = ["ssh://root@www.greenbirdsystems.com/var/www/greenbirdsystems.com/logo.png", "file:///home/john/Desktop/plaintext.txt"]
         
     def configure(self, window):
         fileStore = gtk.ListStore( str )
@@ -57,7 +57,6 @@ class FileSource(DataProvider.DataSource):
         self.files = [ r[0] for r in fileStore ]
         
     def get(self):
-        DataProvider.DataProviderBase.get(self)        
         for f in self.files:
             vfsFile = File.File()
             vfsFile.load_from_uri(f)
@@ -68,8 +67,8 @@ class FileSink(DataProvider.DataSink):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
         self.icon_name = "text-x-generic"
         
-    def put(self, vfsfile):
-        DataProvider.DataProviderBase.put(self, vfsfile)            
+#    def put(self, vfsfile):
+#        pass
         #gnomevfs.xfer_uri( inuri, outuri,
         #                   gnomevfs.XFER_DEFAULT,
         #                   gnomevfs.XFER_ERROR_MODE_ABORT,

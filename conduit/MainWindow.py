@@ -14,7 +14,9 @@ import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
 
-import conduit.datatypes.File as File
+import conduit.Exceptions as Exceptions
+
+import threading
 
 class MainWindow:
     """
@@ -22,8 +24,6 @@ class MainWindow:
     """
 
     def __init__(self):
-        d = File.File()
-        d.compare(None, None)
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
@@ -146,8 +146,13 @@ class MainWindow:
         """
         sync
         """
-        self.sync_manager.sync_conduit(self.canvas.selected_conduit)
-        logging.debug("Synchronise Group")
+        #self.sync_manager.sync_conduit(self.canvas.selected_conduit)
+        #
+        #t = threading.Thread(target=self.sync_manager.sync_conduit, args=[self.canvas.selected_conduit])
+        #t.start()
+        worker = Synchronization.SyncWorker(self.type_converter, self.canvas.selected_conduit)
+        t = threading.Thread(target=worker.run)
+        t.start()
     	
     def on_delete_item_clicked(self, widget):
         """
