@@ -1,3 +1,10 @@
+"""
+Cotains classes for representing DataSources or DataSinks.
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 import gtk
 import gtk.glade
 import gobject

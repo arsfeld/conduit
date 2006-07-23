@@ -5,6 +5,9 @@ to be running from the source directory.
 If this is the case it will modify the conduit
 constants such as SHARED_DATA_DIR to reflect this
 environment.
+
+Copyright: John Stowers, 2006
+License: GPLv2
 """
 
 #

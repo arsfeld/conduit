@@ -1,3 +1,12 @@
+"""
+Draws the applications main window
+
+Also manages the callbacks from menu and GUI items
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 import gobject
 import gtk
 import gtk.glade

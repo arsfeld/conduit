@@ -139,10 +139,6 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
         DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
         self.icon_name = "internet-mail"
         
-        self.username = ""
-        self.password = ""
-        self.label = "thread"
-        
         self.skipInbox = True
         
     def configure(self, window):

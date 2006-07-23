@@ -1,3 +1,9 @@
+"""
+Represents a conduit (The joining of one source to one or more sinks)
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
 import goocanvas
 import gtk
 
@@ -61,7 +67,6 @@ class Conduit(goocanvas.Group):
                                                 
     def on_status_changed(self, dataprovider, status):
         self.update_status_text(dataprovider,dataprovider.get_status_text())
-        logging.debug("Recieved status changed signal from %s (New status: %s)" % (dataprovider,status))
     
     def get_conduit_dimensions(self):
         """

@@ -1,3 +1,10 @@
+"""
+Classes associated with dynamic module loading
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 import gtk
 import gobject
 import os
@@ -297,4 +304,7 @@ class ModuleWrapper(gobject.GObject):
         @returns: A unuque string in the form name-somerandomdigits
         @rtype: C{string}
         """
-        return "%s-%s" % (self.name, self._uid)
+        return "%s-%s" % (self.classname, self._uid)
+        
+    def __str__(self):
+        return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_unique_identifier())

@@ -1,3 +1,10 @@
+"""
+Holds the TypeConverter class
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 import gobject
 import traceback
 from gettext import gettext as _
