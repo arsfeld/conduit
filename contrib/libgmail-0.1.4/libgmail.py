@@ -1217,6 +1217,9 @@ class _LabelHandlerMixin(object):
     Note: Because a message id can be used as a thread id this works for
           messages as well as threads.
     """
+    def __init__(self):
+        self._labels = None
+        
     def _makeLabelList(self, labelList):
         self._labels = labelList
     
@@ -1269,6 +1272,7 @@ class GmailThread(_LabelHandlerMixin):
     def __init__(self, parent, threadsInfo):
         """
         """
+        _LabelHandlerMixin.__init__(self)
         
         # TODO Handle this better?
         self._parent = parent
@@ -1388,6 +1392,7 @@ class GmailMessageStub(_LabelHandlerMixin):
     def __init__(self, id = None, _account = None):
         """
         """
+        _LabelHandlerMixin.__init__(self)
         self.id = id
         self._account = _account
     
