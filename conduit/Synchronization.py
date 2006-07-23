@@ -1,3 +1,10 @@
+"""
+Holds class used for the actual synchronisation phase
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 import gobject
 import time
 import traceback
@@ -52,11 +59,15 @@ class SyncManager(object):
         
 class SyncWorker:
     """
-    j
+    Class designed to be operated within a thread used to perform the
+    synchronization operation
     """
     def __init__(self, typeConverter, conduit):
         """
-        Test
+        @param conduit: The conduit to synchronize
+        @type conduit: L{conduit.Conduit.Conduit}
+        @param typeConverter: The typeconverter
+        @type typeConverter: L{conduit.TypeConverter.TypeConverter}
         """
         self.typeConverter = typeConverter
         self.source = conduit.datasource
@@ -65,29 +76,38 @@ class SyncWorker:
 
     def run(self, startState=None):
         """
+        The main syncronisation state machine.
+        
         Takes the conduit through the init->get,put,get,put->done 
         steps, setting its status at the appropriate time and performing
-        nicely in the case of errors.
+        nicely in the case of errors. 
         
-        Oh yeah its also threaded so it shouldnt block the gui, and shouldnt
-        eat babies.
-        
-        @todo: Should this be its own inner class which throws some signals 
-        when a step is passed. Then a whole bunch of these could be handled
-        by the syncmanager
-        @todo: Glib 2.10 is threadsafe so aparently set_status() sending signals
-        will hopefully not cause Snakes on a Plane. I hope. 
+        It is also threaded so remember
+         1. Syncronization should not block the GUI
+         2. Due to pygtk/gtk single threadedness do not attempt to
+            communicate with the gui in any way other than signals, which
+            since Glib 2.10 are threadsafe.
+            
+        If any error occurs during sync raise a L{conduit.Exceptions.StopSync}
+        exception otherwise exit normally 
+
+        @raise Exceptions.StopSync: Raises a L{conduit.Exceptions.StopSync} 
+        exception if the synchronisation state machine does not complete, in
+        some way, without success.
         """
+        if startState is not None:
+            self.state = startState
+            
         finished = False
         numOKSinks = 0
         while not finished:
             sourcestatus = self.source.module.get_status()        
-            logging.debug("Syncworker State %s" % self.state)
+            logging.debug("Syncworker state %s" % self.state)
             #Init state
             if self.state is 0:
+
                 #Initialize the source
                 if sourcestatus is DataProvider.STATUS_NONE:
-                    logging.debug("Init Source")
                     try:
                         self.source.module.set_status(DataProvider.STATUS_INIT)
                         #Thread
@@ -95,13 +115,19 @@ class SyncWorker:
                         self.source.module.set_status(DataProvider.STATUS_DONE_INIT_OK)
                     except Exceptions.InitializeError:
                         self.source.module.set_status(DataProvider.STATUS_DONE_INIT_ERROR)
+                        logging.warn("Error intializing: %s" % self.source)
                         #Let the calling thread know we blew it
                         raise Exceptions.StopSync
+                    except Exception, err:
+                        logging.warn("Unknown initialization error intializing: %s" % self.source)
+                        traceback.print_exc()
+                        #Cannot continue with no source data
+                        raise Exceptions.StopSync           
+
                 #Init all the sinks. At least one must init successfully
                 for sink in self.sinks:
                     sinkstatus = sink.module.get_status()                        
                     if sinkstatus is DataProvider.STATUS_NONE:
-                        logging.debug("Init Sink %s" % sink.name)                    
                         try:
                             sink.module.set_status(DataProvider.STATUS_INIT)
                             sink.module.initialize()
@@ -110,6 +136,13 @@ class SyncWorker:
                         except Exceptions.InitializeError:
                             sink.module.set_status(DataProvider.STATUS_DONE_INIT_ERROR)
                             numOKSinks -= 1
+                            logging.warn("Error intializing: %s" % sink)
+                        except Exception, err:
+                            sink.module.set_status(DataProvider.STATUS_DONE_INIT_ERROR)
+                            numOKSinks -= 1
+                            logging.warn("Unknown initialization error intializing: %s" % sink)
+                            traceback.print_exc()
+                            
                 #Need to have at least one successfully inited sink            
                 if numOKSinks > 0:
                     #Go to sink state
@@ -117,6 +150,7 @@ class SyncWorker:
                 else:
                     #go home
                     self.finished = True
+
             #synchronize state
             elif self.state is 1:
                 #try and get the source data iterator
@@ -126,12 +160,13 @@ class SyncWorker:
                 #if the source cannot return an iterator then its over    
                 except Exceptions.SyncronizeFatalError:
                     self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                    logging.warn("Could not Get Source Data")                    
                     #Cannot continue with no source data                    
                     raise Exceptions.StopSync
                 #if we dont know what happened then thats also bad programming
                 except Exception, err:                        
                     self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                    logging.warn("UNKNOWN EXCEPTION CAUGHT GETTING SOURCE ITERATOR: %s" % err)
+                    logging.warn("Unknown error getting source iterator: %s" % err)
                     traceback.print_exc()
                     #Cannot continue with no source data
                     raise Exceptions.StopSync           
@@ -141,14 +176,13 @@ class SyncWorker:
                     sinkErrorFree = True
                     #only sync with those sinks that init'd OK
                     if sink.module.get_status() is DataProvider.STATUS_DONE_INIT_OK:
-                        #Start the sync
-                        logging.debug("Synchronizing from %s to %s" % (self.source.name, sink.name))
+
+                        #Sync each piece of data one at a time
                         #FIXME how do I check that its iteratable first????
                         for data in sourceData:
-                            logging.debug("Source data type = %s, Sink accepts %s" % (self.source.out_type, sink.in_type))
+                            logging.debug("Synchronizing %s -> %s (source data type = %s, sink accepts %s)" % (self.source, sink, self.source.out_type, sink.in_type))
                             try:
                                 if self.source.out_type != sink.in_type:
-                                    logging.debug("Conversion Required")
                                     data = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
                                 #Finally after all the schenigans try an put the data                                
                                 sink.module.put(data)
@@ -162,119 +196,30 @@ class SyncWorker:
                                 logging.warn("Sync Conflict")                            
                             except Exceptions.SyncronizeError:
                                 #non fatal, move along
-                                logging.warn("NON FATAL SYNC ERROR")                     
+                                logging.warn("Non-fatal synchronisation error")                     
                                 sinkErrorFree = False                                   
                             except Exceptions.SyncronizeFatalError:
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                                logging.warn("FATAL SYNC ERROR")            
+                                logging.warn("Fatal synchronisation error")            
                                 self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
                                 #Fatal, go home       
                                 raise Exceptions.StopSync                                                    
                             except Exception, err:                        
                                 #Bad programmer
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                                logging.warn("UNKNOWN EXCEPTION CAUGHT PUTTING DATA")
+                                logging.warn("Unknown synchronisation error")
                                 traceback.print_exc()
                                 raise Exceptions.StopSync
                         
                         if sinkErrorFree:
                             #tell the gui if the sync was ok
                             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-
                 #Done go to next state
                 self.state = 3
+
             #Done successfully go home without raising exception
             elif self.state is 3:
                 finished = True
                 #Tell the GUI
                 self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
         
-class GIdleThread(object):
-    """
-    This is a pseudo-"thread" for use with the GTK+ main loop.
-
-    This class does act a bit like a thread, all code is executed in
-    the callers thread though. The provided function should be a generator
-    (or iterator).
-
-    It can be started with start(). While the "thread" is running is_alive()
-    can be called to see if it's alive. wait([timeout]) will wait till the
-    generator is finished, or timeout seconds.
-    
-    If an exception is raised from within the generator, it is stored in
-    the error property. Execution of the generator is finished.
-
-    Note that this routine runs in the current thread, so there is no need
-    for nasty locking schemes.    __gsignals__ = { 'status-changed': (gobject.SIGNAL_RUN_FIRST, 
-                                        gobject.TYPE_NONE,      #return type
-                                        (gobject.TYPE_INT,)     #argument
-                                        )}
-
-    Example (runs a counter through the GLib main loop routine)::
-        >>> def counter(max): for x in xrange(max): yield x
-        >>> t = GIdleThread(counter(123))
-        >>> t.start()
-        >>> while gen.is_alive():
-        ...     main.iteration(False)
-    """
-
-    def __init__(self, generator):
-        assert hasattr(generator, 'next'), 'The generator should be an iterator'
-        self._generator = generator
-        self._idle_id = 0
-        self._error = None
-
-    def start(self, priority=gobject.PRIORITY_LOW):
-        """
-        Start the generator. Default priority is low, so screen updates
-        will be allowed to happen.
-        """
-        idle_id = gobject.idle_add(self.__generator_executer,
-                                   priority=priority)
-        self._idle_id = idle_id
-        return idle_id
-
-    def wait(self, timeout=0):
-        """
-        Wait until the corouine is finished or return after timeout seconds.
-        This is achieved by running the GTK+ main loop.
-        """
-        clock = time.clock
-        start_time = clock()
-        main = gobject.main_context_default()
-        while self.is_alive():
-            main.iteration(False)
-            if timeout and (clock() - start_time >= timeout):
-                return
-
-    def interrupt(self):
-        """
-        Force the generator to stop running.
-        """
-        if self.is_alive():
-            gobject.source_remove(self._idle_id)
-            self._idle_id = 0
-
-    def is_alive(self):
-        """
-        Returns True if the generator is still running.
-        """
-        return self._idle_id != 0
-
-    error = property(lambda self: self._error,
-                     doc="Return a possible exception that had occured "\
-                         "during execution of the generator")
-
-    def __generator_executer(self):
-        try:
-            result = self._generator.next()
-            return True
-        except StopIteration:
-            self._idle_id = 0
-            return False
-        except Exception, e:
-            self._error = e
-            traceback.print_exc()
-            self._idle_id = 0
-            return False
-
