@@ -9,4 +9,6 @@ epydoc  -o doc --name conduit --css white \
         --graph all \
         --verbose \
         conduit \
-        conduit/dataproviders
+        conduit/dataproviders \
+        conduit/datatypes \
+        doc/ExampleModule.py

@@ -5,14 +5,14 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import gobject
 import traceback
 from gettext import gettext as _
 
 import logging
 import conduit
+import conduit.Exceptions as Exceptions
 
-class TypeConverter(gobject.GObject): 
+class TypeConverter: 
     """
     Maintains a dictionary of dictionaries, indexed by the type converted FROM which
     maps to a list of types that can be converted TO
@@ -43,8 +43,6 @@ class TypeConverter(gobject.GObject):
     """
     	
     def __init__ (self, dynamic_modules):
-        gobject.GObject.__init__(self)
-        
         self.dynamic_modules = dynamic_modules
         #dict of dicts
         self.convertables = {}
@@ -93,12 +91,14 @@ class TypeConverter(gobject.GObject):
         @type to_type: C{string}
         @param data: The DataType to convert
         @type data: L{conduit.DataType.DataType}
+        @raise Exceptions.ConversionError: If the conversion fails
+        @todo: Make this use conversion_exists first.
         """
         try:
             return self.convertables[from_type][to_type](data)
         except TypeError, err:
-            logging.error("Could not call conversion function %s" % err)
-            return None
+            extra="Could not call conversion function\n%s" % traceback.format_exc()
+            raise Exceptions.ConversionError(from_type, to_type, extra)
         except KeyError:
             logging.warn("Conversion from %s -> %s does not exist " % (from_type, to_type))
             logging.warn("Trying conversion from %s -> text & text -> %s" % (from_type, to_type))
@@ -106,14 +106,11 @@ class TypeConverter(gobject.GObject):
                 intermediate = self.convertables[from_type]["text"](data)
                 return self.convertables["text"][to_type](intermediate)
             except:
-                logging.error("Conversion through text failed")
-                logging.error("Traceback Follows")
-                traceback.print_exc()
-                return None
+                #This is the normal case where the conversion just doesnt exist
+                raise Exceptions.ConversionError(from_type, to_type)
         except Exception, err:
-            logging.error("Error calling conversion function: %s" % err)
-            
-            return None
+            extra="Unknown error calling conversion function\n%s" % traceback.format_exc()
+            raise Exceptions.ConversionError(from_type, to_type, extra)
             
     def get_convertables_descriptive_list(self):
         """

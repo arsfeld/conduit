@@ -132,12 +132,15 @@ class MainWindow:
     # callbacks.
     def on_synchronize_all_clicked(self, widget):
         """
-        sync
+        Synchronize all valid conduits on the canvas
         """
-        logging.debug("Synchronizing All Conduits") 
         sync_set = self.canvas.get_sync_set()
         for conduit in sync_set:
-            self.sync_manager.sync_conduit(conduit)
+            if conduit.datasource is not None and len(conduit.datasinks) > 0:
+                self.sync_manager.sync_conduit(conduit)
+            else:
+                logging.info("Conduit must have a datasource and a datasink")        
+
         
     def on_delete_group_clicked(self, widget):
         """
@@ -153,15 +156,12 @@ class MainWindow:
     
     def on_synchronize_group_clicked(self, widget):
         """
-        sync
+        Synchronize the selected conduit
         """
-        #self.sync_manager.sync_conduit(self.canvas.selected_conduit)
-        #
-        #t = threading.Thread(target=self.sync_manager.sync_conduit, args=[self.canvas.selected_conduit])
-        #t.start()
-        worker = Synchronization.SyncWorker(self.type_converter, self.canvas.selected_conduit)
-        t = threading.Thread(target=worker.run)
-        t.start()
+        if self.canvas.selected_conduit.datasource is not None and len(self.canvas.selected_conduit.datasinks) > 0:
+            self.sync_manager.sync_conduit(self.canvas.selected_conduit)
+        else:
+            logging.info("Conduit must have a datasource and a datasink")
     	
     def on_delete_item_clicked(self, widget):
         """
@@ -236,9 +236,9 @@ class MainWindow:
             converterListStore.append( [i] )
         dataProviderListStore = gtk.ListStore( str )
         for i in self.datasink_modules:
-            dataProviderListStore.append(["%s %s (%s)" % (i.name, i.description, i.module_type)])
+            dataProviderListStore.append(["%s %s (type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type)])
         for i in self.datasource_modules:
-            dataProviderListStore.append(["%s %s (%s)" % (i.name, i.description, i.module_type)])    
+            dataProviderListStore.append(["%s %s (type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type)])
            
         #construct the dialog
         tree = gtk.glade.XML(conduit.GLADE_FILE, "PropertiesDialog")

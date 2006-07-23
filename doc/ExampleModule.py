@@ -4,7 +4,7 @@ from gettext import gettext as _
 import logging
 import conduit
 import DataProvider
-import DataType
+from conduit.datatypes import DataType
 
 import xmlrpclib
 
@@ -17,20 +17,20 @@ MODULES = {
 		"in_type": "wikipage",
 		"out_type": "wikipage"
 	},
-	"WikiPageDataType" : {
-		"name": _("Wiki Page Data Type"),
-		"description": _("Represents a Moinmoin wiki page"),
-		"type": "datatype",
+	"WikiPageConverter" : {
+		"name": _("Wiki Converter"),
+		"description": _("Bla"),
+		"type": "converter",
 		"category": "",
-		"in_type": "wikipage",
-		"out_type": "wikipage"		
+		"in_type": "",
+		"out_type": "",
 	}
 }
 
 class MoinMoinDataSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("Wiki Source"), _("Moinmoin Wiki Source"))
-        self.icon_name = "gtk-file"
+        self.icon_name = "applications-internet"
         
         #class specific
         self.srcwiki = None
@@ -59,9 +59,6 @@ class MoinMoinDataSource(DataProvider.DataSource):
             self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
         self.set_status(DataProvider.STATUS_DONE_INIT_OK)
             
-    def finalize(self):
-            self.srcwiki = None
-            
     def get(self):
         for p in self.pages:
             #Make a new page data type
@@ -75,19 +72,19 @@ class MoinMoinDataSource(DataProvider.DataSource):
 		
 class WikiPageDataType(DataType.DataType):
     def __init__(self):
-        DataType.DataType.__init__(self, _("Wiki Page Data Type"), _("Represents a Moinmoin wiki page"))
-        self.conversions =  {    
-                            "text,wikipage" : self.text_to_wikipage,
-                            "wikipage,text"   : self.wikipage_to_text
-                            }
+        DataType.DataType.__init__(self, "wikipage")
                             
         #Instance variables
         self.contents = ""
         self.name = "" 
         self.modified = ""
         
-    def text_to_wikipage(self, measure):
-        return "text->wikipage = ", str(measure)
+class WikiPageConverter:
+    def __init__(self):
+        self.conversions =  {    
+                            "wikipage,text"   : self.wikipage_to_text
+                            }
+                            
 
-    def wikipage_to_text(self, measure):
-        return ("Wiki Page Name: %s\n\n%s" % (measure.name,measure.contents))
+    def wikipage_to_text(self, page):
+        return ("Wiki Page Name: %s\n\n%s" % (page.name,page.contents))

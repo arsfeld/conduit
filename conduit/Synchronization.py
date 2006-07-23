@@ -5,9 +5,8 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import gobject
-import time
 import traceback
+import threading
 
 import logging
 import conduit
@@ -23,58 +22,43 @@ class SyncManager(object):
         #Dictionary of conduits and their status
         self.conduits = {}
         self.typeConverter = typeConverter
-        pass
-        
-    def add_conduit(self, conduit):
-        #Add conduit to dictionary if not present
-        #if conduit not in self.conduits:
-        #    self.conduits[conduit] = conduit.get_status()
-        pass
-
-    def initialize_conduit(self, conduit):
-        #If we do not 
-        pass
-        
-
-    def remove_conduit(self, conduit):
-        pass
         
     def sync_conduit(self, conduit):
-        logging.info("Synchronizing Conduit %s" % conduit)
-        
-        datasource = conduit.datasource
-        datasinks = conduit.datasinks
-
-        sourceData = datasource.module.get()
-        for sink in datasinks:
-            logging.debug("Synchronizing from %s to %s" % (datasource.name, sink.name))
-            for data in sourceData:
-                logging.debug("Source data type = %s, Sink accepts %s" % (datasource.out_type, sink.in_type))
-                if datasource.out_type != sink.in_type:
-                    logging.debug("Conversion Required")
-                    data = self.typeConverter.convert(datasource.out_type, sink.in_type, data)
-                
-                sink.module.put(data)
-                    
-        
-class SyncWorker:
+        """
+        @todo: Send some signals back to the GUI to disable clicking
+        on the conduit
+        @todo: Actually work out what happens if a user wants to resync 
+        a conduit
+        """
+        if conduit not in self.conduits:
+            newThread = SyncWorker(self.typeConverter, conduit)
+            self.conduits[conduit] = newThread
+            self.conduits[conduit].start()
+        else:
+            logging.warn("Conduit already in queue (alive: %s)" % self.conduits[conduit].isAlive())
+            
+                   
+class SyncWorker(threading.Thread):
     """
     Class designed to be operated within a thread used to perform the
     synchronization operation
     """
-    def __init__(self, typeConverter, conduit):
+    def __init__(self, typeConverter, conduit, startState=0):
         """
         @param conduit: The conduit to synchronize
         @type conduit: L{conduit.Conduit.Conduit}
         @param typeConverter: The typeconverter
         @type typeConverter: L{conduit.TypeConverter.TypeConverter}
         """
+        threading.Thread.__init__(self)
         self.typeConverter = typeConverter
         self.source = conduit.datasource
         self.sinks = conduit.datasinks
         self.state = 0
+        
+        self.setName("Synchronization Thread: %s" % conduit.datasource.get_unique_identifier())
 
-    def run(self, startState=None):
+    def run(self):
         """
         The main syncronisation state machine.
         
@@ -95,9 +79,6 @@ class SyncWorker:
         exception if the synchronisation state machine does not complete, in
         some way, without success.
         """
-        if startState is not None:
-            self.state = startState
-            
         finished = False
         numOKSinks = 0
         while not finished:
@@ -149,7 +130,7 @@ class SyncWorker:
                     self.state = 1
                 else:
                     #go home
-                    self.finished = True
+                    finished = True
 
             #synchronize state
             elif self.state is 1:
@@ -186,6 +167,7 @@ class SyncWorker:
                                     data = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
                                 #Finally after all the schenigans try an put the data                                
                                 sink.module.put(data)
+                                sink.module.set_status(DataProvider.STATUS_SYNC)
                             #Catch errors from a failed convert
                             except Exceptions.ConversionError, err:
                                 #Not fatal, move along

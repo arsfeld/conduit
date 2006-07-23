@@ -2,12 +2,16 @@ class ConversionError(Exception):
     """
     Exception thrown by TypeConverter when it could not convert stuff
     """
-    def __init__(self, fromType, toType):
+    def __init__(self, fromType, toType, extraMsg=None):
         self.fromType = fromType
-        self.toType = toType        
+        self.toType = toType
+        self.msg = extraMsg        
         
     def __str__(self):
-        return "Could not convert %s -> %s" % (self.fromType, self.toType)
+        if self.msg is None:
+            return "Could not convert %s -> %s" % (self.fromType, self.toType)
+        else:
+            return "Could not convert %s -> %s\nExtra info:\n%s" % (self.fromType, self.toType, self.msg)
 
 class InitializeError(Exception):
     """
