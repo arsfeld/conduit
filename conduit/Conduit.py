@@ -21,12 +21,13 @@ class Conduit(goocanvas.Group):
     @ivar datasinks: List of DataSinks to synchronize to
     @type datasinks: L{conduit.Module.ModuleWrapper}[]
     """
-    CONDUIT_HEIGHT = 100
+    HEIGHT = 100
     SIDE_PADDING = 10
-    CONNECTOR_PAD_START = 30
-    CONNECTOR_PAD_END = 30
     CONNECTOR_RADIUS = 30
     CONNECTOR_LINE_WIDTH = 5
+    CONNECTOR_YOFFSET = 20
+    CONNECTOR_TEXT_XPADDING = 5
+    CONNECTOR_TEXT_YPADDING = 10
     
     def __init__(self, y_from_origin, canvas_width):
         goocanvas.Group.__init__(self)
@@ -49,10 +50,10 @@ class Conduit(goocanvas.Group):
                                 x=0, 
                                 y=y_from_origin, 
                                 width=canvas_width, 
-                                height=Conduit.CONDUIT_HEIGHT,
+                                height=Conduit.HEIGHT,
                                 line_width=3, 
                                 stroke_color="black",
-                                fill_color_rgba=int("eeeeecff",16), 
+                                fill_color_rgba=DataProvider.TANGO_COLOR_ALUMINIUM1_LIGHT, 
                                 radius_y=5, 
                                 radius_x=5
                                 )
@@ -62,7 +63,7 @@ class Conduit(goocanvas.Group):
                                                 "x" : 0, 
                                                 "y" : y_from_origin,
                                                 "w" : canvas_width,
-                                                "h" : Conduit.CONDUIT_HEIGHT
+                                                "h" : Conduit.HEIGHT
                                                 }
                                                 
     def on_status_changed(self, dataprovider, status):
@@ -175,7 +176,7 @@ class Conduit(goocanvas.Group):
                 self.datasource = dataprovider_wrapper
                 #New sources go in top left of conduit
                 x_pos = padding
-                y_pos = y + (Conduit.CONDUIT_HEIGHT/2) - (w_h/2)
+                y_pos = y + (Conduit.HEIGHT/2) - (w_h/2)
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
             if dataprovider_wrapper in self.datasinks:
@@ -187,8 +188,8 @@ class Conduit(goocanvas.Group):
                 #new sinks get added at the bottom
                 x_pos = w - padding - w_w
                 y_pos = y \
-                    + (len(self.datasinks)*Conduit.CONDUIT_HEIGHT) \
-                    - (Conduit.CONDUIT_HEIGHT/2) \
+                    + (len(self.datasinks)*Conduit.HEIGHT) \
+                    - (Conduit.HEIGHT/2) \
                     - (w_h/2)
                 #check if we also need to resize the bounding box
                 if len(self.datasinks) > 1:
@@ -220,7 +221,7 @@ class Conduit(goocanvas.Group):
         if len(self.datasinks) > 0 and self.datasource != None:
             #calculate the start point
             fromX = self.positions[self.datasource]["x"] + self.positions[self.datasource]["w"]
-            fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"] - 20
+            fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"] - Conduit.CONNECTOR_YOFFSET
             #if we have added a sink then connect to it, otherwise we 
             #have only one sink and we should draw to it
             if len(self.datasinks) == 1:
@@ -229,18 +230,20 @@ class Conduit(goocanvas.Group):
                 sink = dataprovider_wrapper
             
             toX = self.positions[sink]["x"] #inside 
-            toY = self.positions[sink]["y"] + self.positions[sink]["h"] - 20
+            toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
             #Draw the connecting lines between the dataproviders
             self.add_connector_to_canvas(fromX,fromY,toX,toY)                               
 
         #----- STEP FOUR -----------------------------------------------------                
         if dataprovider_wrapper.module_type == "source":
-            x_offset = w_w + 5
-            y_offset = w_h - 30
+            x_offset = w_w + Conduit.CONNECTOR_TEXT_XPADDING
+            #Source text is above the line
+            y_offset = w_h - Conduit.CONNECTOR_YOFFSET - Conduit.CONNECTOR_TEXT_YPADDING
             anchor = gtk.ANCHOR_WEST
         else:
-            x_offset = - 5
-            y_offset = w_h - 10
+            x_offset = - Conduit.CONNECTOR_TEXT_XPADDING
+            #Sink text is below the line
+            y_offset = w_h - Conduit.CONNECTOR_TEXT_YPADDING
             anchor = gtk.ANCHOR_EAST            
         msg = dataprovider_wrapper.module.get_status_text()             
         statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset, msg)
@@ -251,7 +254,7 @@ class Conduit(goocanvas.Group):
         #----- STEP FIVE -----------------------------------------------------                
         if resize_box is True:
             #increase to fit added dataprovider
-            self.positions[self.bounding_box]["h"] += Conduit.CONDUIT_HEIGHT
+            self.positions[self.bounding_box]["h"] += Conduit.HEIGHT
             self.bounding_box.set_property("height",
                                 self.positions[self.bounding_box]["h"])
             
@@ -272,7 +275,7 @@ class Conduit(goocanvas.Group):
                                     )
         else:
             #draw pretty curvy line 
-            r = 20  #radius of curve
+            r = Conduit.CONNECTOR_RADIUS  #radius of curve
             ls = 40 #len of start straight line segment
             ld = toY - fromY - 2*r
             p = "M%s,%s "           \
@@ -297,7 +300,7 @@ class Conduit(goocanvas.Group):
         """
         #The path is a goocanvas.Path element. 
         svgPathString = self.make_connector_svg_string(fromX, fromY, toX, toY)
-        path = goocanvas.Path(data=svgPathString,stroke_color="black",line_width=5)                
+        path = goocanvas.Path(data=svgPathString,stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
         self.add_child(path)
         #Add to list of connectors to allow resize later
         self.positions[path] =  {
@@ -340,7 +343,7 @@ class Conduit(goocanvas.Group):
                                 text=text, 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 7",
-                                fill_color_rgba=int("555753ff",16),
+                                fill_color_rgba=DataProvider.TANGO_COLOR_ALUMINIUM2_MID,
                                 )
         return text
         

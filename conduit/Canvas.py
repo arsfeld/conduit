@@ -16,13 +16,13 @@ import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Conduit as Conduit
+import conduit.Constants as K
 
 class Canvas(goocanvas.CanvasView):
     """
     This class manages many L{conduit.Conduit.Conduit} objects
     """
     
-    WELCOME_TEXT = _("Drag an Item to Continue")
     INITIAL_WIDTH = 600
     INITIAL_HEIGHT = 450
     CANVAS_WIDTH = 450

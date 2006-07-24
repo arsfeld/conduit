@@ -148,7 +148,7 @@ class TypeConverter:
                 method = self.convertables[froms][tos]
                 logging.info("Convert from %s to %s using %s" % (froms, tos, method))
                 
-    def conversion_exists(self, from_type, to_type):
+    def conversion_exists(self, from_type, to_type, throughTextAllowed=True):
         """
         Checks if a conversion exists
         
@@ -161,11 +161,17 @@ class TypeConverter:
                 return True
             elif self.convertables[from_type].has_key("text") and self.convertables["text"].has_key(to_type):
                 #can convert via text
-                return True
+                if throughTextAllowed:
+                    return True
+                else:
+                    return False
             else:
                 #to_type doesnt exists
                 return False
         else:
             #from_type doesnt exist
             return False
+            
+    def direct_conversion_exists(self, fromType, toType):
+        return self.conversion_exists(fromType, toType, False)
             

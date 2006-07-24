@@ -50,11 +50,11 @@ class MainWindow:
         
         dic = { "on_window1_destroy" : self.on_window_closed,
                 "on_window1_resized" : self.on_window_resized,
-                "on_synchronizeall_clicked" : self.on_synchronize_all_clicked,
                 "on_open_activate" : self.on_open_sync_set,
                 "on_save_activate" : self.on_save_sync_set,
                 "on_save_as_activate" : self.on_save_as_sync_set,
                 "on_new_activate" : self.on_new_sync_set,
+                "on_synchronize_activate" : self.on_synchronize_all_clicked,      
                 "on_quit_activate" : self.on_window_closed,
                 "on_clear_activate" : self.on_clear_sync_set,
                 "on_properties_activate" : self.on_sync_properties,

@@ -22,6 +22,41 @@ STATUS_SYNC = 5
 STATUS_DONE_SYNC_OK = 6
 STATUS_DONE_SYNC_ERROR = 7
 
+#Tango colors taken from 
+#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
+TANGO_COLOR_BUTTER_LIGHT = int("fce94fff",16)
+TANGO_COLOR_BUTTER_MID = int("edd400ff",16)
+TANGO_COLOR_BUTTER_DARK = int("c4a000ff",16)
+TANGO_COLOR_ORANGE_LIGHT = int("fcaf3eff",16)
+TANGO_COLOR_ORANGE_MID = int("f57900",16)
+TANGO_COLOR_ORANGE_DARK = int("ce5c00ff",16)
+TANGO_COLOR_CHOCOLATE_LIGHT = int("e9b96eff",16)
+TANGO_COLOR_CHOCOLATE_MID = int("c17d11ff",16)
+TANGO_COLOR_CHOCOLATE_DARK = int("8f5902ff",16)
+TANGO_COLOR_CHAMELEON_LIGHT = int("8ae234ff",16)
+TANGO_COLOR_CHAMELEON_MID = int("73d216ff",16)
+TANGO_COLOR_CHAMELEON_DARK = int("4e9a06ff",16)
+TANGO_COLOR_SKYBLUE_LIGHT = int("729fcfff",16)
+TANGO_COLOR_SKYBLUE_MID = int("3465a4ff",16)
+TANGO_COLOR_SKYBLUE_DARK = int("204a87ff",16)
+TANGO_COLOR_PLUM_LIGHT = int("ad7fa8ff",16)
+TANGO_COLOR_PLUM_MID = int("75507bff",16)
+TANGO_COLOR_PLUM_DARK = int("5c3566ff",16)
+TANGO_COLOR_SCARLETRED_LIGHT = int("ef2929ff",16)
+TANGO_COLOR_SCARLETRED_MID = int("cc0000ff",16)
+TANGO_COLOR_SCARLETRED_DARK = int("a40000ff",16)
+TANGO_COLOR_ALUMINIUM1_LIGHT = int("eeeeecff",16)
+TANGO_COLOR_ALUMINIUM1_MID = int("d3d7cfff",16)
+TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
+TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
+TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
+TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
+
+LINE_WIDTH = 3
+RECTANGLE_RADIUS = 5
+WIDGET_WIDTH = 120
+WIDGET_HEIGHT = 80
+
 class DataProviderBase(gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
@@ -56,8 +91,8 @@ class DataProviderBase(gobject.GObject):
         #of the basic dataproviders
         self.icon_name = gtk.STOCK_OK        
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM2_LIGHT
-        self.widget_width = 120
-        self.widget_height = 80
+        self.widget_width = WIDGET_WIDTH
+        self.widget_height = WIDGET_HEIGHT
         
     def __emit_status_changed(self):
 		"""
@@ -94,11 +129,11 @@ class DataProviderBase(gobject.GObject):
                                     y=0, 
                                     width=self.widget_width, 
                                     height=self.widget_height,
-                                    line_width=3, 
+                                    line_width=LINE_WIDTH, 
                                     stroke_color="black",
                                     fill_color_rgba=self.widget_color_rgba, 
-                                    radius_y=5, 
-                                    radius_x=5
+                                    radius_y=RECTANGLE_RADIUS, 
+                                    radius_x=RECTANGLE_RADIUS
                                     )
             name = goocanvas.Text(  x=int(2*self.widget_width/5), 
                                     y=int(1*self.widget_height/3), 
@@ -270,36 +305,6 @@ class DataProviderBase(gobject.GObject):
         """
         logging.warn("get_num_items() not overridden by derived class %s" % self.name)
         return NO_ITEMS
-
-#Tango colors taken from 
-#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-TANGO_COLOR_BUTTER_LIGHT = int("fce94fff",16)
-TANGO_COLOR_BUTTER_MID = int("edd400ff",16)
-TANGO_COLOR_BUTTER_DARK = int("c4a000ff",16)
-TANGO_COLOR_ORANGE_LIGHT = int("fcaf3eff",16)
-TANGO_COLOR_ORANGE_MID = int("f57900",16)
-TANGO_COLOR_ORANGE_DARK = int("ce5c00ff",16)
-TANGO_COLOR_CHOCOLATE_LIGHT = int("e9b96eff",16)
-TANGO_COLOR_CHOCOLATE_MID = int("c17d11ff",16)
-TANGO_COLOR_CHOCOLATE_DARK = int("8f5902ff",16)
-TANGO_COLOR_CHAMELEON_LIGHT = int("8ae234ff",16)
-TANGO_COLOR_CHAMELEON_MID = int("73d216ff",16)
-TANGO_COLOR_CHAMELEON_DARK = int("4e9a06ff",16)
-TANGO_COLOR_SKYBLUE_LIGHT = int("729fcfff",16)
-TANGO_COLOR_SKYBLUE_MID = int("3465a4ff",16)
-TANGO_COLOR_SKYBLUE_DARK = int("204a87ff",16)
-TANGO_COLOR_PLUM_LIGHT = int("ad7fa8ff",16)
-TANGO_COLOR_PLUM_MID = int("75507bff",16)
-TANGO_COLOR_PLUM_DARK = int("5c3566ff",16)
-TANGO_COLOR_SCARLETRED_LIGHT = int("ef2929ff",16)
-TANGO_COLOR_SCARLETRED_MID = int("cc0000ff",16)
-TANGO_COLOR_SCARLETRED_DARK = int("a40000ff",16)
-TANGO_COLOR_ALUMINIUM1_LIGHT = int("eeeeecff",16)
-TANGO_COLOR_ALUMINIUM1_MID = int("d3d7cfff",16)
-TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
-TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
-TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
-TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
 
 class DataSource(DataProviderBase):
     """

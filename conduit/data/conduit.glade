@@ -49,6 +49,33 @@
 		<widget class="GtkMenu" id="file1_menu">
 
 		  <child>
+		    <widget class="GtkImageMenuItem" id="synchronize">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Synchronize</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_synchronize_activate" last_modification_time="Mon, 24 Jul 2006 05:22:10 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image43">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-execute</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separator7">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
 		    <widget class="GtkImageMenuItem" id="new">
 		      <property name="visible">True</property>
 		      <property name="stock_item">GNOMEUIINFO_MENU_NEW_ITEM</property>
@@ -164,7 +191,7 @@
 		      <signal name="activate" handler="on_contents_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image8">
+			<widget class="GtkImage" id="image44">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-help</property>
 			  <property name="icon_size">1</property>
@@ -187,38 +214,6 @@
 		</widget>
 	      </child>
 	    </widget>
-	  </child>
-	</widget>
-	<packing>
-	  <property name="padding">0</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
-	</packing>
-      </child>
-
-      <child>
-	<widget class="GtkToolbar" id="toolbar2">
-	  <property name="visible">True</property>
-	  <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
-	  <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
-	  <property name="tooltips">True</property>
-	  <property name="show_arrow">True</property>
-
-	  <child>
-	    <widget class="GtkToolButton" id="synchronizeall">
-	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Synchronize All</property>
-	      <property name="use_underline">True</property>
-	      <property name="stock_id">gtk-execute</property>
-	      <property name="visible_horizontal">True</property>
-	      <property name="visible_vertical">True</property>
-	      <property name="is_important">False</property>
-	      <signal name="clicked" handler="on_synchronizeall_clicked" last_modification_time="Mon, 17 Jul 2006 02:06:28 GMT"/>
-	    </widget>
-	    <packing>
-	      <property name="expand">False</property>
-	      <property name="homogeneous">True</property>
-	    </packing>
 	  </child>
 	</widget>
 	<packing>
