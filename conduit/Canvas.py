@@ -171,10 +171,13 @@ class Canvas(goocanvas.CanvasView):
                 #TODO: Support dragging canvas items???
                 return True
             elif event.button == 3:
-                self.item_popup.popup(
-                                            None, None, 
-                                            None, event.button, event.time
-                                            )
+                #Only show the menu if the dataprovider isnt already
+                #busy being sync'd
+                if not self.selected_dataprovider_wrapper.module.is_busy():
+                    self.item_popup.popup(
+                                                None, None, 
+                                                None, event.button, event.time
+                                                )
                 return True
                 
             #TODO: double click to pop up element parameters window
@@ -192,10 +195,11 @@ class Canvas(goocanvas.CanvasView):
                 #TODO: Support dragging canvas items???
                 return True
             elif event.button == 3:
-                self.popup.popup(
-                                            None, None, 
-                                            None, event.button, event.time
-                                            )
+                if not self.selected_conduit.is_busy():            
+                    self.popup.popup(
+                                                None, None, 
+                                                None, event.button, event.time
+                                                )
                 return True
                 
             #TODO: double click to pop up element parameters window

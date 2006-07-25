@@ -350,5 +350,23 @@ class Conduit(goocanvas.Group):
     def update_status_text(self, dataprovider, newText):
         self.dataprovider_status[dataprovider].set_property("text",newText)
         
+    def is_busy(self):
+        """
+        Tests if it is currently safe to modify the conduits settings
+        or start/restart as synchronisation. 
+        
+        @returns: True if the conduit is currenlty performing a synchronisation
+        operaton on one or more of its contained DataProviders
+        @rtype: C{bool}
+        """
+        
+        if self.datasource.module.is_busy():
+            return True
+            
+        for sink in self.datasinks:
+            if sink.module.is_busy():
+                return True
+                
+        return False
         
         

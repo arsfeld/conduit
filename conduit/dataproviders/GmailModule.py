@@ -6,9 +6,9 @@ from gettext import gettext as _
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
 import conduit.datatypes.Email as Email
 
-import email
 try:
     import libgmail
 except ImportError:
@@ -76,11 +76,9 @@ class GmailBase(DataProvider.DataProviderBase):
         self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
-            self.set_status(DataProvider.STATUS_DONE_INIT_OK)             
             self.loggedIn = True
         except:
-            logging.info("Gmail Login Failed")
-            self.set_status(DataProvider.STATUS_DONE_INIT_ERROR)                      
+            raise Exceptions.InitializeError
     
 
 class GmailEmailSource(GmailBase, DataProvider.DataSource):

@@ -227,7 +227,7 @@ class ModuleLoader(gobject.GObject):
         #Didnt load at app startup so its not gunna load now!
         return None
             
-class ModuleWrapper(gobject.GObject): 
+class ModuleWrapper: 
     """
     A generic wrapper for any dynamically loaded module. Wraps the complexity
     of a stored L{conduit.DataProvider.DataProvider} behind additional
@@ -280,8 +280,6 @@ class ModuleWrapper(gobject.GObject):
         @param filename: The filename from which this was instanciated
         @type filename: C{string}
         """
-        gobject.GObject.__init__(self)
-                
         self.name = name
         self.description = description        
         self.module_type = module_type

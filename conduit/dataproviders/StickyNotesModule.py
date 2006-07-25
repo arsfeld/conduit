@@ -1,5 +1,4 @@
 import gtk
-import gobject
 from gettext import gettext as _
 from xml.dom import minidom
 

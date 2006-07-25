@@ -1,12 +1,9 @@
 import gtk
-import gobject
 from gettext import gettext as _
 
-import conduit
 import logging
-from conduit.datatypes import DataType
-
-import DataProvider
+import conduit
+import conduit.DataProvider as DataProvider
 import conduit.datatypes.File as File
 
 import gnomevfs

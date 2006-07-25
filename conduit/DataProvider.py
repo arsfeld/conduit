@@ -245,6 +245,22 @@ class DataProviderBase(gobject.GObject):
             return _("Synchronization Error")
         else:
             return "BAD PROGRAMMER"
+            
+    def is_busy(self):
+        """
+        A DataProvider is busy if it is currently in the middle of the
+        intialization or synchronization process.
+        
+        @todo: This simple test introduces a few corner cases where 
+        the function will return the wrong result. Think about this harder
+        """
+        s = self.status
+        if s == STATUS_INIT:
+            return True
+        elif s == STATUS_SYNC:
+            return True
+        else:
+            return False
 
     def set_status(self, newStatus):
         if newStatus != self.status:

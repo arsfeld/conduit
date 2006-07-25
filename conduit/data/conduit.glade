@@ -51,12 +51,12 @@
 		  <child>
 		    <widget class="GtkImageMenuItem" id="synchronize">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Synchronize</property>
+		      <property name="label" translatable="yes">Synchronize All</property>
 		      <property name="use_underline">True</property>
 		      <signal name="activate" handler="on_synchronize_activate" last_modification_time="Mon, 24 Jul 2006 05:22:10 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image43">
+			<widget class="GtkImage" id="image44">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-execute</property>
 			  <property name="icon_size">1</property>
@@ -191,7 +191,7 @@
 		      <signal name="activate" handler="on_contents_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image44">
+			<widget class="GtkImage" id="image45">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-help</property>
 			  <property name="icon_size">1</property>
