@@ -16,7 +16,6 @@ import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Conduit as Conduit
-import conduit.Constants as K
 
 class Canvas(goocanvas.CanvasView):
     """

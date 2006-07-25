@@ -183,7 +183,6 @@ class ModuleLoader(gobject.GObject):
         @returns: An already instanciated ModuleWrapper
         @rtype: a L{conduit.Module.ModuleWrapper}
         """
-        logging.info("Searching for module named %s" % (name))
         for m in self.loadedmodules:
             if name == m.name:
                 logging.info("Returning module named %s" % (name))
@@ -201,7 +200,6 @@ class ModuleLoader(gobject.GObject):
         @returns: An newly instanciated ModuleWrapper
         @rtype: a L{conduit.Module.ModuleWrapper}
         """    
-        logging.info("Searching for module named %s" % (name))
         #check if its loaded (i.e. been checked and is instanciatable)
         if name in [i.name for i in self.loadedmodules]:
             for m in self.loadedmodules:
@@ -225,6 +223,7 @@ class ModuleLoader(gobject.GObject):
                     logging.info("Returning new instance of module named %s" % (m.name))
                     return mod_wrapper
         #Didnt load at app startup so its not gunna load now!
+        logging.warn("Could not find module named %s" % (name))        
         return None
             
 class ModuleWrapper: 

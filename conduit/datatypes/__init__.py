@@ -7,14 +7,14 @@ implementation. For example all email programs should share the same common
 mail datatype. For this reason DataTypes, not DataProviders are exported
 """
 
-
+import Feed
 import File
 import Note
 import Text
 import Email
 import DataType
 
-__all__ = ["File", "Note", "Text", "Email", "DataType"]
+__all__ = ["Feed", "File", "Note", "Text", "Email", "DataType"]
 
 #Constants used for comparison
 EQUAL = 0
