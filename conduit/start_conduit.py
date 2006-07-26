@@ -25,7 +25,6 @@ import os.path
 IS_LOCAL = False
 
 name = os.path.join(os.path.dirname(__file__), '..')
-print name
 if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(name+"/conduit/ChangeLog") :
     print "Running uninstalled Conduit"
     IS_LOCAL = True

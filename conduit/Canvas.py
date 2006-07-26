@@ -28,7 +28,6 @@ class Canvas(goocanvas.CanvasView):
     CANVAS_HEIGHT = 600
 
     def __init__(self):
-        "Create a new GstEditorCanvas."
         goocanvas.CanvasView.__init__(self)
         self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
         self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)

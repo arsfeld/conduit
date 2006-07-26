@@ -94,6 +94,8 @@ class FileSourceConfigurator:
                 }
         tree.signal_autoconnect(dic)
         
+        self.oldStore = fileStore
+        
         self.fileStore = fileStore
         self.fileTreeView = tree.get_widget("fileTreeView")
         self.fileTreeView.set_model( self.fileStore )
@@ -108,13 +110,9 @@ class FileSourceConfigurator:
     def run(self):
         response = self.dlg.run()
         if response == gtk.RESPONSE_OK:
-            logging.debug("OK")
-            pass
-        elif response == gtk.RESPONSE_CANCEL:
-            logging.debug("CANCEL")        
             pass
         else:
-            logging.debug("DUNNO")
+            self.fileStore = self.oldStore
         self.dlg.destroy()        
         
     def on_addfile_clicked(self, *args):

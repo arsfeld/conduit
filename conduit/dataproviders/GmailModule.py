@@ -67,7 +67,6 @@ class GmailBase(DataProvider.DataProviderBase):
     def __init__(self):
         self.username = ""
         self.password = ""
-        self.label = "Sync"
 
         self.loggedIn = False
         self.ga = None
@@ -87,39 +86,81 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"))
         self.icon_name = "internet-mail"
         
+        #What emails should the source return??
+        self.getAllEmail = False
+        self.getUnreadEmail = False
+        self.getWithLabel = ""
+        self.getInFolder = ""
+        
     def configure(self, window):
-        def set_username(param):
-            self.username = param
+        """
+        Configures the GmailSource for which emails it should return
         
-        def set_password(param):
-            self.password = param
+        All the inner function foo is because the allEmail
+        option is mutually exclusive with all the others (which may be
+        mixed according to the users preferences
+        """
+        def invalidate_options():
+            if allEmailsCb.get_active():
+                unreadEmailsCb.set_active(False)
+                labelEmailsCb.set_active(False)
+                folderEmailsCb.set_active(False)
+                            
+        def all_emails_toggled(foo):
+            invalidate_options()
+        
+        def other_option_toggled(button):
+            if button.get_active():
+                allEmailsCb.set_active(False)
+                invalidate_options()
             
-        def set_label(param):
-            self.label = param        
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSourceConfigDialog")
+        dic = { "on_allEmails_toggled" : all_emails_toggled,
+                "on_unreadEmails_toggled" : other_option_toggled,
+                "on_labelEmails_toggled" : other_option_toggled,
+                "on_folderEmails_toggled" : other_option_toggled,
+                None : None
+                }
+        tree.signal_autoconnect(dic)
         
-        #Define the items in the configure dialogue
-        items = [
-                    {
-                    "Name" : "Gmail Username:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_username
-                    },
-                    {
-                    "Name" : "Gmail Password:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_password
-                    },
-                    {
-                    "Name" : "Get Emails Labelged With:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_label
-                    }                       
-                ]
+        #get a whole bunch of widgets
+        allEmailsCb = tree.get_widget("allEmails")
+        unreadEmailsCb = tree.get_widget("unreadEmails")
+        labelEmailsCb = tree.get_widget("labelEmails")
+        folderEmailsCb = tree.get_widget("folderEmails")
+        labelEntry = tree.get_widget("labels")
+        folderEntry = tree.get_widget("folders")
+        usernameEntry = tree.get_widget("username")
+        passwordEntry = tree.get_widget("password")
         
-        #We just use a simple configuration dialog
-        dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
-        #This call blocks
-        dialog.run()
+        #preload the widgets
+        allEmailsCb.set_active(self.getAllEmail)
+        unreadEmailsCb.set_active(self.getUnreadEmail)
+        labelEmailsCb.set_active(len(self.getWithLabel) > 0)
+        folderEmailsCb.set_active(len(self.getInFolder) > 0)        
+        labelEntry.set_text(self.getWithLabel)
+        folderEntry.set_text(self.getInFolder)        
+        usernameEntry.set_text(self.username)
+        
+        dlg = tree.get_widget("GmailSourceConfigDialog")
+        dlg.set_transient_for(window)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            if allEmailsCb.get_active():
+                self.getAllEmail = True
+                self.getUnreadEmail = False
+                self.getWithLabel = ""
+                self.getInFolder = ""
+            else:
+                self.getAllEmail = False
+                self.getUnreadEmail = unreadEmailsCb.get_active()
+                self.getWithLabel = labelEntry.get_text()
+                self.getInFolder = folderEntry.get_text()
+            self.username = usernameEntry.get_text()
+            if passwordEntry.get_text() != self.password:
+                self.password = passwordEntry.get_text()
+        dlg.destroy()    
         
     def get(self):
         if self.loggedIn:
@@ -137,49 +178,40 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
         DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
         self.icon_name = "internet-mail"
         
-        self.skipInbox = True
+        self.label = "Conduit"
         
     def configure(self, window):
-        def set_username(param):
-            self.username = param
+        """
+        Configures the GmailSource for which emails it should return
         
-        def set_password(param):
-            self.password = param
-            
-        def set_label(param):
-            self.label = param
-            
-        def set_skip_inbox(param):
-            self.skipInbox = param
+        All the inner function foo is because the allEmail
+        option is mutually exclusive with all the others (which may be
+        mixed according to the users preferences
+        """
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")
         
-        #Define the items in the configure dialogue
-        items = [
-                    {
-                    "Name" : "Gmail Username:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_username
-                    },
-                    {
-                    "Name" : "Gmail Password:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_password
-                    },
-                    {
-                    "Name" : "Save Emails With Label:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_label
-                    },                       
-                    {
-                    "Name" : "Skip Inbox?:",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : set_skip_inbox
-                    }                                 
-                ]
+        #get a whole bunch of widgets
+        labelEmailsCb = tree.get_widget("labelEmails")
+        labelEntry = tree.get_widget("labels")
+        usernameEntry = tree.get_widget("username")
+        passwordEntry = tree.get_widget("password")
         
-        #We just use a simple configuration dialog
-        dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
-        #This call blocks
-        dialog.run()
+        #preload the widgets
+        labelEmailsCb.set_active(len(self.label) > 0)
+        labelEntry.set_text(self.label)
+        usernameEntry.set_text(self.username)
+        
+        dlg = tree.get_widget("GmailSinkConfigDialog")
+        dlg.set_transient_for(window)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            if labelEmailsCb.get_active():
+                self.label = labelEntry.get_text()
+            self.username = usernameEntry.get_text()
+            if passwordEntry.get_text() != self.password:
+                self.password = passwordEntry.get_text()
+        dlg.destroy()    
         
     def put(self, email):
         if email.has_attachments():
