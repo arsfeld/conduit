@@ -288,7 +288,7 @@ class EmailSinkConverter:
 
 class GmailContactSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("Gmail Email Ssource"), _("Sync your Gmail Emails"))
+        DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"))
         self.icon_name = "contact-new"
 
 class GmailContactSink(GmailBase, DataProvider.DataSink):

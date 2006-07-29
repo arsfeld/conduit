@@ -5,8 +5,10 @@ import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.datatypes.File as File
+import conduit.Exceptions as Exceptions
 
 import gnomevfs
+import os.path
 
 MODULES = {
 	"FileSource" : {
@@ -60,16 +62,47 @@ class FileSource(DataProvider.DataSource):
             yield vfsFile
 		
 class FileSink(DataProvider.DataSink):
+    DEFAULT_FOLDER_URI = os.path.expanduser("~")
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
         self.icon_name = "text-x-generic"
+        self.folderURI = None
         
-#    def put(self, vfsfile):
-#        pass
-        #gnomevfs.xfer_uri( inuri, outuri,
-        #                   gnomevfs.XFER_DEFAULT,
-        #                   gnomevfs.XFER_ERROR_MODE_ABORT,
-        #                   gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+    def configure(self, window):
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "FileSinkConfigDialog")
+        
+        #get a whole bunch of widgets
+        folderChooserButton = tree.get_widget("folderchooser")
+        
+        #preload the widgets
+        if self.folderURI is None:
+            folderChooserButton.set_current_folder_uri(FileSink.DEFAULT_FOLDER_URI)
+        else:
+            folderChooserButton.set_current_folder_uri(self.folderURI)
+            
+        
+        dlg = tree.get_widget("FileSinkConfigDialog")
+        dlg.set_transient_for(window)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            self.folderURI = folderChooserButton.get_uri()
+        dlg.destroy()            
+        
+    def put(self, vfsfile):
+        #Ok Put the files in the specified directory and retain their names
+        filename = vfsfile.get_filename()
+        toURI = gnomevfs.URI(os.path.join(self.folderURI, filename))
+        fromURI = gnomevfs.URI(vfsfile.get_uri_string())
+        try:
+            #FIXME: I should probbably do something with the result returned
+            #from xfer_uri
+            gnomevfs.xfer_uri( fromURI, toURI,
+                               gnomevfs.XFER_DEFAULT,
+                               gnomevfs.XFER_ERROR_MODE_ABORT,
+                               gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+        except:
+            raise Exceptions.SyncronizeError
 
 class FileConverter:
     def __init__(self):
