@@ -164,12 +164,22 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         
     def get(self):
         if self.loggedIn:
-            result = self.ga.getMessagesByLabel(self.label)
-            for thread in result:
-                for message in thread:
-                    mail = Email.Email()
-                    mail.create_from_raw_source(message.source)
-                    yield mail
+            if self.getAllEmail:
+                pass
+            else:
+                if self.getUnreadEmail:
+                    pass
+                elif len(self.getWithLabel) > 0:
+                    result = self.ga.getMessagesByLabel(self.getWithLabel)
+                    for thread in result:
+                        for message in thread:
+                            mail = Email.Email()
+                            mail.create_from_raw_source(message.source)
+                            yield mail
+                elif len(self.getInFolder) > 0:
+                    pass
+        else:
+            raise Exceptions.SyncronizeFatalError
         
 
 class GmailEmailSink(GmailBase, DataProvider.DataSink):
