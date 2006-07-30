@@ -31,6 +31,11 @@ class MainWindow:
 
     def __init__(self):
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
+        #Throw up a splash screen ASAP to look pretty
+        #FIXME: The only thing I should do before showing the splash screen
+        #is to load the app settings, (like the window position which is
+        #going to be used to position the splash)
+        self.splash = SplashScreen()
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
         icon_dirs = [
@@ -69,15 +74,11 @@ class MainWindow:
         self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         
-        #splash = SplashScreen(self.mainWindow)
-        #splash.run()
-        
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
         self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "menu1")
         self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "menu2") 
-
 
         #customize some widgets, connect signals, etc
         self.hpane.set_position(250)
@@ -103,7 +104,6 @@ class MainWindow:
         self.modules = Module.ModuleLoader(dirs_to_search)
         #self.modules.connect("all-modules-loaded", self.on_all_modules_loaded)
         #self.modules.connect("module-loaded", self.on_module_loaded)        
-        #FIXME: Put this on an idle handler as it takes the most time
         self.modules.load_all_modules()
         self.datasink_modules = self.modules.get_modules_by_type ("sink")
         self.datasource_modules = self.modules.get_modules_by_type ("source")
@@ -276,7 +276,6 @@ class MainWindow:
         dialog.destroy()                
 
 
-        
     def on_conduit_preferences(self, widget):
         """
         Edit the application wide preferences
@@ -336,18 +335,29 @@ class MainWindow:
         
 
     def __main__(self):
-        #Do all the Work on a idle handler
-        #When thats done then distroy the splash and load the gui
-        #Also connect the splash screen to the module_finished signal
+        """
+        Shows the main window and enters the gtk mainloop
+        """
         self.mainWindow.show_all()
-        gtk.main()    	
+        #FIXME: Should I distroy this or is it nicer that it hangs around?
+        self.splash.destroy()
+        gtk.main()
         
 class SplashScreen:
-    DELAY = 2000
-    def __init__(self, mainWindow):        
+    """
+    Simple splash screen class which shows an image for a predetermined period
+    of time or until L{SplashScreen.destroy} is called
+    """
+    DELAY = 1500 #msec
+    def __init__(self):        
+        """
+        Constructor
+        
+        Also connects the splash window to be destroyed via a timeout
+        callback in L{SplashScreen.DELAY}msec time
+        """
         self.wSplash = gtk.Window(gtk.WINDOW_POPUP )
         self.wSplash.set_decorated(False)
-        self.wSplash.set_transient_for(mainWindow)
         wSplashScreen = gtk.Image()
         wSplashScreen.set_from_file(os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"))
 
@@ -358,16 +368,24 @@ class SplashScreen:
         self.wSplash.add(wSplashFrame)
 
         # OK throw up the splashscreen
-        self.wSplash.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+        self.wSplash.set_position(gtk.WIN_POS_CENTER)
+        
+        #The splash screen is destroyed automatically (via timeout)
+        #or when the application is finished loading
+        self.destroyed = False
 
-    def run(self):        
         self.wSplash.show_all()
-        gtk.main_iteration(True)
-        for i in range(20):
-            gtk.main_iteration()
-        gobject.timeout_add(SplashScreen.DELAY,self.destroySplash)    
-
+        # ensure it is rendered immediately
+        while gtk.events_pending():
+            gtk.main_iteration() 
         # The idle timeout handler to destroy the splashscreen
-    def destroySplash(self):
-        self.wSplash.destroy()
-        return False
+        gobject.timeout_add(SplashScreen.DELAY,self.destroy)
+
+    def destroy(self):
+        """
+        Destroys the splashscreen. Can be safely called manually (prior to) 
+        or via the timer callback
+        """
+        if not self.destroyed:
+            self.wSplash.destroy()
+            self.destroyed = True
