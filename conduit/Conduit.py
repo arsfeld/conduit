@@ -40,7 +40,7 @@ class Conduit(goocanvas.Group):
         #position of all canvas items from this one
         self.positions = {}
         #When the box is resized the arrows must be resized differently
-        self.connectors = []
+        self.connectors = {}
         #To handle displaying the status of the dataproviders. Holds a 
         #bunc of goocanvas.Text elements accessed by dataprovider
         self.dataprovider_status = {}
@@ -67,6 +67,11 @@ class Conduit(goocanvas.Group):
                                                 }
                                                 
     def on_status_changed(self, dataprovider, status):
+        """
+        Callback that recieves status change notifications from the
+        dataproviders and adjusts the status text on the canvas
+        accordingly
+        """
         self.update_status_text(dataprovider,dataprovider.get_status_text())
     
     def get_conduit_dimensions(self):
@@ -114,7 +119,7 @@ class Conduit(goocanvas.Group):
                                 
         #Update the length of the connecting lines
         for c in self.connectors:
-            self.adjust_connector_width(c, dw)
+            self.adjust_connector_width(self.connectors[c], dw)
             
         
     def move_conduit_to(self,new_x,new_y):
@@ -232,7 +237,7 @@ class Conduit(goocanvas.Group):
             toX = self.positions[sink]["x"] #inside 
             toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
             #Draw the connecting lines between the dataproviders
-            self.add_connector_to_canvas(fromX,fromY,toX,toY)                               
+            self.add_connector_to_canvas(fromX,fromY,toX,toY,sink)                               
 
         #----- STEP FOUR -----------------------------------------------------                
         if dataprovider_wrapper.module_type == "source":
@@ -294,7 +299,7 @@ class Conduit(goocanvas.Group):
             #create and return                                    
         return p
                
-    def add_connector_to_canvas(self, fromX, fromY, toX, toY, bidirectional=False):
+    def add_connector_to_canvas(self, fromX, fromY, toX, toY, sink, bidirectional=False):
         """
         Adds nice curved line which indicates a sync relationship to the canvas
         """
@@ -309,7 +314,7 @@ class Conduit(goocanvas.Group):
                                 "w" : toX - fromX,
                                 "h" : toY - fromY
                                 }
-        self.connectors.append(path)
+        self.connectors[sink] = path
 
     def adjust_connector_width(self, connector, dw):
         """

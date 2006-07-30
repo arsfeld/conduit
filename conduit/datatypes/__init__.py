@@ -20,4 +20,4 @@ __all__ = ["Feed", "File", "Note", "Text", "Email", "DataType"]
 EQUAL = 0
 NEWER = 1
 OLDER = 2
-ERROR = 3
+UNKNOWN = 3

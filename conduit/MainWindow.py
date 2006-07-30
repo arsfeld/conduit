@@ -22,10 +22,7 @@ import conduit.Module as Module
 import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
-
 import conduit.Exceptions as Exceptions
-
-import threading
 
 class MainWindow:
     """
@@ -66,8 +63,15 @@ class MainWindow:
          
         self.widgets.signal_autoconnect(dic)
         
-        #get some widget references
+        #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("window1")
+        self.mainWindow.hide()
+        self.mainWindow.set_title(conduit.APPNAME)
+        self.mainWindow.set_position(gtk.WIN_POS_CENTER)
+        
+        #splash = SplashScreen(self.mainWindow)
+        #splash.run()
+        
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
@@ -76,7 +80,6 @@ class MainWindow:
 
 
         #customize some widgets, connect signals, etc
-        self.mainWindow.set_title(conduit.APPNAME)
         self.hpane.set_position(250)
         #start up the canvas
         self.canvas = Canvas.Canvas()
@@ -127,7 +130,6 @@ class MainWindow:
         #dic = gtk.icon_theme_get_default().list_icons()
         #for d in dic:
         #    print d
-
 
     # callbacks.
     def on_synchronize_all_clicked(self, widget):
@@ -330,4 +332,38 @@ class MainWindow:
         return        
 
     def __main__(self):
+        #Do all the Work on a idle handler
+        #When thats done then distroy the splash and load the gui
+        #Also connect the splash screen to the module_finished signal
+        self.mainWindow.show_all()
         gtk.main()    	
+        
+class SplashScreen:
+    DELAY = 2000
+    def __init__(self, mainWindow):        
+        self.wSplash = gtk.Window(gtk.WINDOW_POPUP )
+        self.wSplash.set_decorated(False)
+        self.wSplash.set_transient_for(mainWindow)
+        wSplashScreen = gtk.Image()
+        wSplashScreen.set_from_file(os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"))
+
+        # Make a pretty frame
+        wSplashFrame = gtk.Frame()
+        wSplashFrame.set_shadow_type(gtk.SHADOW_OUT)
+        wSplashFrame.add(wSplashScreen)
+        self.wSplash.add(wSplashFrame)
+
+        # OK throw up the splashscreen
+        self.wSplash.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+
+    def run(self):        
+        self.wSplash.show_all()
+        gtk.main_iteration(True)
+        for i in range(20):
+            gtk.main_iteration()
+        gobject.timeout_add(SplashScreen.DELAY,self.destroySplash)    
+
+        # The idle timeout handler to destroy the splashscreen
+    def destroySplash(self):
+        self.wSplash.destroy()
+        return False

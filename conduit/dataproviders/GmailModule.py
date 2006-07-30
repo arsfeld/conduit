@@ -247,14 +247,9 @@ class EmailSinkConverter:
         """
         If the file is non binary then include it as the
         Subject of the message. Otherwise include it as an attachment
-        return str(measure) + " was text now a note"        
         """
-        NON_BINARY_MIMETYPES = [
-                "text/plain",
-                "text/html"
-                ]
-        
-        if thefile.get_mimetype() in NON_BINARY_MIMETYPES:
+        mimeCategory = thefile.get_mimetype().split('/')[0]
+        if mimeCategory == "text":
             #insert the contents into the email
             logging.debug("Inserting file contents into email")
             email = Email.Email()

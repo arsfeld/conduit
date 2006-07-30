@@ -59,6 +59,7 @@ class FileSource(DataProvider.DataSource):
         for f in self.files:
             vfsFile = File.File()
             vfsFile.load_from_uri(f)
+            vfsFile.get_modification_time()
             yield vfsFile
 		
 class FileSink(DataProvider.DataSink):
@@ -66,7 +67,7 @@ class FileSink(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
         self.icon_name = "text-x-generic"
-        self.folderURI = None
+        self.folderURI = FileSink.DEFAULT_FOLDER_URI
         
     def configure(self, window):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "FileSinkConfigDialog")
@@ -75,12 +76,8 @@ class FileSink(DataProvider.DataSink):
         folderChooserButton = tree.get_widget("folderchooser")
         
         #preload the widgets
-        if self.folderURI is None:
-            folderChooserButton.set_current_folder_uri(FileSink.DEFAULT_FOLDER_URI)
-        else:
-            folderChooserButton.set_current_folder_uri(self.folderURI)
+        folderChooserButton.set_current_folder_uri(self.folderURI)
             
-        
         dlg = tree.get_widget("FileSinkConfigDialog")
         dlg.set_transient_for(window)
         
@@ -97,10 +94,10 @@ class FileSink(DataProvider.DataSink):
         try:
             #FIXME: I should probbably do something with the result returned
             #from xfer_uri
-            gnomevfs.xfer_uri( fromURI, toURI,
-                               gnomevfs.XFER_DEFAULT,
-                               gnomevfs.XFER_ERROR_MODE_ABORT,
-                               gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+            result = gnomevfs.xfer_uri( fromURI, toURI,
+                                        gnomevfs.XFER_DEFAULT,
+                                        gnomevfs.XFER_ERROR_MODE_ABORT,
+                                        gnomevfs.XFER_OVERWRITE_MODE_SKIP)
         except:
             raise Exceptions.SyncronizeError
 
