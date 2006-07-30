@@ -47,7 +47,7 @@ class Canvas(goocanvas.CanvasView):
         #set callback to catch new element creation so we can set events
         self.connect("item_view_created", self.on_item_view_created)
         
-        
+        self.typeConverter = None        
         #keeps a reference to the currently selected (most recently clicked)
         #canvas item
         self.selected_dataprovider_wrapper = None
@@ -63,6 +63,9 @@ class Canvas(goocanvas.CanvasView):
         #other parts of the program can get a ref to the clicked item
         self.newelement = None
         self.newconduit = None
+        
+    def set_type_converter(self, typeConverter):
+        self.typeConverter = typeConverter
         
     def get_sync_set(self):
         """
@@ -209,12 +212,12 @@ class Canvas(goocanvas.CanvasView):
         for c in self.conduits:
             c.resize_conduit_width(new_w)
     
-    def add_module_to_canvas(self, module, x, y):
+    def add_dataprovider_to_canvas(self, module, x, y):
         """
-        Adds a new Module to the Canvas
+        Adds a new dataprovider to the Canvas
         
-        @param module: The module to add to the canvas
-        @type module: L{conduit.DataProvider.DataProvider}
+        @param module: The dataprovider wrapper to add to the canvas
+        @type module: L{conduit.Module.ModuleWrapper}
         @param x: The x location on the canvas to place the module widget
         @type x: C{int}
         @param y: The y location on the canvas to place the module widget
@@ -237,6 +240,10 @@ class Canvas(goocanvas.CanvasView):
             #may have been resized. In that case all of the conduits below
             #it may need to be translated
             self.remove_conduit_overlap()
+            #Update to connectors to see if they are valid
+            #FIXME: This function probbably belongs in the conduit class
+            if self.typeConverter is not None:
+                existing_conduit.update_connectors_connectedness(self.typeConverter)
         else:
             #create the new conduit
             c = Conduit.Conduit(offset,c_w)
@@ -248,15 +255,24 @@ class Canvas(goocanvas.CanvasView):
             self.root.add_child(c)
             self.conduits.append(c)
          
-    def remove_module_from_canvas(self, module):
+    def remove_dataprovider_from_canvas(self, module):
         """
         Removes a module from the canvas
         
         @param module: The module to remove from the canvas
-        @type module: L{conduit.DataProvider.DataProvider}
+        @type module: L{conduit.Module.ModuleWrapper}
         """
         if self.selected_dataprovider_wrapper is not None:
             logging.info("Removing module %s" % module)
+            
+    def update_conduit_connectedness(self):
+        """
+        Updates all the conduits connectedness based on the conversion
+        capabilities of typeConverter
+        """
+        if self.typeConverter is not None:
+            for conduit in self.conduits:
+                conduit.update_connector_connectedness(self.typeConverter)
 
     def on_item_view_created(self, view, itemview, item):
         """

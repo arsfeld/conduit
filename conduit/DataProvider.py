@@ -71,10 +71,9 @@ class DataProviderBase(gobject.GObject):
     @type widget_color: C{string}    
     """
     
-    __gsignals__ = { 'status-changed': (gobject.SIGNAL_RUN_FIRST, 
-                                        gobject.TYPE_NONE,      #return type
-                                        (gobject.TYPE_INT,)     #argument
-                                        )}
+    __gsignals__ =  { 
+                    "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    }
     
     def __init__(self, name=None, description=None):
         """
@@ -101,7 +100,7 @@ class DataProviderBase(gobject.GObject):
 		You should connect to this signal if you wish to be notified when
 		the derived DataProvider goes through its stages (STATUS_* etc)
 		"""
-		self.emit ("status-changed",self.status)
+		self.emit ("status-changed")
 		return False        
         
     def get_icon(self):

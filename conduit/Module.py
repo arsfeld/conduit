@@ -25,6 +25,12 @@ class ModuleLoader(gobject.GObject):
     it loads all modules in that directory, keeping them in an
     internam array which may be returned via get_modules
     """
+    __gsignals__ = {
+        # Fired when the passed module context is loaded, that is the module's __init__ method has been called
+        "module-loaded" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_PYOBJECT]),
+        # Fired when load_all has loaded every available modules
+        "all-modules-loaded" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+        }
        
     def __init__(self, dirs=None):
         """
@@ -142,7 +148,8 @@ class ModuleLoader(gobject.GObject):
             	                               filename,       #file holding me
             	                               mod_instance)   #the actual module
                 self.append_module(mod_wrapper)
-                #self.emit("module-loaded", context)
+                #Emit a signal to say the module was successfully loaded
+                self.emit("module-loaded", mod_wrapper)
             except AttributeError:
                 logging.error("Could not find module %s in %s" % (modules,filename))
             
@@ -152,6 +159,8 @@ class ModuleLoader(gobject.GObject):
         """
         for f in self.filelist:
             self.load_modules_in_file (f)
+            
+        self.emit('all-modules-loaded')
         
     def get_all_modules(self):
         return self.loadedmodules

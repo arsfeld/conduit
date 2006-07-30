@@ -66,7 +66,7 @@ class Conduit(goocanvas.Group):
                                                 "h" : Conduit.HEIGHT
                                                 }
                                                 
-    def on_status_changed(self, dataprovider, status):
+    def on_status_changed(self, dataprovider):
         """
         Callback that recieves status change notifications from the
         dataproviders and adjusts the status text on the canvas
@@ -339,6 +339,20 @@ class Conduit(goocanvas.Group):
         #Update path
         svgData = self.make_connector_svg_string(fromX, fromY, toX, toY)
         connector.set_property("data",svgData)
+        
+    def update_connectors_connectedness(self, typeConverter):
+        """
+        Updates the color of the connectors joining the source to
+        the specified sink.
+        
+        The color of the connector represents whether the synchronisation 
+        can be made without conversion, made only via conversion through text, 
+        or not made at all (there is no conversion path which exists)
+        """
+        for sink in self.datasinks:
+            exists = typeConverter.conversion_exists(self.datasource.out_type, sink.in_type)
+            if not exists:
+                self.connectors[sink].set_property("stroke_color","red")
 
     def make_status_text(self, x, y, text=""):
         text = goocanvas.Text   (  

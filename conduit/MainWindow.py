@@ -101,7 +101,9 @@ class MainWindow:
                             conduit.USER_MODULE_DIR
                             ]
         self.modules = Module.ModuleLoader(dirs_to_search)
-        #@todo: Make this asyc
+        #self.modules.connect("all-modules-loaded", self.on_all_modules_loaded)
+        #self.modules.connect("module-loaded", self.on_module_loaded)        
+        #FIXME: Put this on an idle handler as it takes the most time
         self.modules.load_all_modules()
         self.datasink_modules = self.modules.get_modules_by_type ("sink")
         self.datasource_modules = self.modules.get_modules_by_type ("source")
@@ -124,6 +126,7 @@ class MainWindow:
         #initialise the Type Converter
         converters = self.modules.get_modules_by_type("converter")
         self.type_converter = TypeConverter(converters)
+        self.canvas.set_type_converter(self.type_converter)
         #initialise the Synchronisation Manager
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
         
@@ -326,10 +329,11 @@ class MainWindow:
         #Add a new instance if the dataprovider to the canvas. It is up to the
         #canvas to decide if multiple instances of the specific provider are allowed
         new = self.modules.get_new_instance_module_named(module_name)
-        self.canvas.add_module_to_canvas(new, x, y)
+        self.canvas.add_dataprovider_to_canvas(new, x, y)
         
         context.finish(True, True, etime)
-        return        
+        return
+        
 
     def __main__(self):
         #Do all the Work on a idle handler
