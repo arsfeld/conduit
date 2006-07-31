@@ -48,18 +48,14 @@ class MainWindow:
             gtk.icon_theme_get_default().prepend_search_path(i)
             logging.info("Adding %s to icon them search path" % (i))
 
-        self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "window1")
+        self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "MainWindow")
         
-        dic = { "on_window1_destroy" : self.on_window_closed,
-                "on_window1_resized" : self.on_window_resized,
-                "on_open_activate" : self.on_open_sync_set,
-                "on_save_activate" : self.on_save_sync_set,
-                "on_save_as_activate" : self.on_save_as_sync_set,
-                "on_new_activate" : self.on_new_sync_set,
+        dic = { "on_mainwindow_destroy" : self.on_window_closed,
+                "on_mainwindow_resized" : self.on_window_resized,
                 "on_synchronize_activate" : self.on_synchronize_all_clicked,      
                 "on_quit_activate" : self.on_window_closed,
-                "on_clear_activate" : self.on_clear_sync_set,
-                "on_properties_activate" : self.on_sync_properties,
+                "on_clear_canvas_activate" : self.on_clear_canvas,
+                "on_loaded_modules_activate" : self.on_loaded_modules,
                 "on_preferences_activate" : self.on_conduit_preferences,
                 "on_about_activate" : self.on_about_conduit,
                 "on_hpane_move_handle" : self.on_hpane_move_handle,
@@ -69,7 +65,7 @@ class MainWindow:
         self.widgets.signal_autoconnect(dic)
         
         #Initialize the mainWindow
-        self.mainWindow = self.widgets.get_widget("window1")
+        self.mainWindow = self.widgets.get_widget("MainWindow")
         self.mainWindow.hide()
         self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
@@ -77,8 +73,8 @@ class MainWindow:
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
-        self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "menu1")
-        self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "menu2") 
+        self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "GroupMenu")
+        self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "ItemMenu") 
 
         #customize some widgets, connect signals, etc
         self.hpane.set_position(250)
@@ -92,8 +88,8 @@ class MainWindow:
         self.item_popup_widgets.signal_autoconnect(self)        
         #Pass both popups to the canvas
         self.canvas.set_popup_menus( 
-                                self.canvas_popup_widgets.get_widget("menu1"),
-                                self.item_popup_widgets.get_widget("menu2")
+                                self.canvas_popup_widgets.get_widget("GroupMenu"),
+                                self.item_popup_widgets.get_widget("ItemMenu")
                                 )
         
         #Dynamically load all datasources, datasinks and converters (Python is COOL!)
@@ -146,16 +142,15 @@ class MainWindow:
             else:
                 logging.info("Conduit must have a datasource and a datasink")        
 
-        
     def on_delete_group_clicked(self, widget):
         """
-        sync
+        Delete a conduit and all its associated dataproviders
         """
         logging.debug("Delete Group") 
 
     def on_refresh_group_clicked(self, widget):
         """
-        sync
+        Call the initialize method on all dataproviders in the conduit
         """
         logging.debug("Refresh Group")    
     
@@ -186,50 +181,23 @@ class MainWindow:
 
     def on_refresh_item_clicked(self, widget):
         """
-        Calls the 
+        Calls the initialize method on the selected dataprovider
+        @todo: Delete this is it does not operate async
         """
+        logging.info(
+                    "Refreshing %s (FIXME: this blocks and will be deleted)" % \
+                    self.canvas.selected_dataprovider_wrapper.get_unique_identifier()
+                    )
         dp = self.canvas.selected_dataprovider_wrapper.module
-        logging.info("Refreshing %s" % dp)
-
         dp.initialize()
 
-    def on_synchronize_item_clicked(self, widget):
-        """
-        paste item
-        """
-        logging.debug("Synchronize Item")
-        
-    def on_open_sync_set(self, widget):
-        """
-        Open a saved sync set from disk
-        """
-        print "open sync set"
-        
-    def on_save_sync_set(self, widget):
-        """
-        Save the current sync settings to disk
-        """
-        print "save sync set"
-        
-    def on_save_as_sync_set(self, widget):
-        """
-        Save a copy of the current sync settings to disk
-        """
-        print "saveas sync set"
-        
-    def on_new_sync_set(self, widget):
+    def on_clear_canvas(self, widget):
         """
         Clear the canvas and start a new sync set
         """
-        print "new sync set"
-        
-    def on_clear_sync_set(self, widget):
-        """
-        Clear the canvas and start a new sync set
-        """
-        print "clear sync set"
+        logging.debug("clear canvas")
     
-    def on_sync_properties(self, widget):
+    def on_loaded_modules(self, widget):
         """
         Show the properties of the current sync set (status, conflicts, etc
         Edit the sync specific properties
@@ -246,7 +214,7 @@ class MainWindow:
             dataProviderListStore.append(["%s %s (type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type)])
            
         #construct the dialog
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "PropertiesDialog")
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "LoadedModulesDialog")
         dataproviderTreeView = tree.get_widget("dataProvidersTreeView")
         dataproviderTreeView.set_model(dataProviderListStore)
         dataproviderTreeView.append_column(gtk.TreeViewColumn('Name', 
@@ -262,17 +230,11 @@ class MainWindow:
                                         
                                         
         #Show the dialog
-        dialog = tree.get_widget("PropertiesDialog")
+        dialog = tree.get_widget("LoadedModulesDialog")
         dialog.set_transient_for(self.mainWindow)
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
-            logging.debug("OK")
             pass
-        elif response == gtk.RESPONSE_CANCEL:
-            logging.debug("CANCEL")        
-            pass
-        else:
-            logging.debug("DUNNO")
         dialog.destroy()                
 
 
@@ -280,7 +242,7 @@ class MainWindow:
         """
         Edit the application wide preferences
         """
-        print "application preferences"
+        logging.debug("application preferences")
 
     def on_about_conduit(self, widget):
         """

@@ -4,7 +4,7 @@
 <glade-interface>
 <requires lib="gnome"/>
 
-<widget class="GtkWindow" id="window1">
+<widget class="GtkWindow" id="MainWindow">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Title</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
@@ -25,8 +25,8 @@
   <accessibility>
     <atkproperty name="AtkObject::accessible_name" translatable="yes">Editor</atkproperty>
   </accessibility>
-  <signal name="destroy" handler="on_window1_destroy" last_modification_time="Wed, 17 May 2006 11:27:53 GMT"/>
-  <signal name="size_allocate" handler="on_window1_resized" last_modification_time="Sat, 08 Jul 2006 09:10:37 GMT"/>
+  <signal name="destroy" handler="on_mainwindow_destroy" last_modification_time="Mon, 31 Jul 2006 03:17:09 GMT"/>
+  <signal name="size_allocate" handler="on_mainwindow_resized" last_modification_time="Mon, 31 Jul 2006 03:17:19 GMT"/>
 
   <child>
     <widget class="GtkVBox" id="vbox1">
@@ -56,7 +56,7 @@
 		      <signal name="activate" handler="on_synchronize_activate" last_modification_time="Mon, 24 Jul 2006 05:22:10 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image44">
+			<widget class="GtkImage" id="image58">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-execute</property>
 			  <property name="icon_size">1</property>
@@ -71,46 +71,6 @@
 
 		  <child>
 		    <widget class="GtkSeparatorMenuItem" id="separator7">
-		      <property name="visible">True</property>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="new">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_NEW_ITEM</property>
-		      <property name="label" translatable="yes">_New</property>
-		      <property name="use_underline">True</property>
-		      <signal name="activate" handler="on_new_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="open">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_OPEN_ITEM</property>
-		      <signal name="activate" handler="on_open_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="save">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_SAVE_ITEM</property>
-		      <signal name="activate" handler="on_save_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkImageMenuItem" id="save_as">
-		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_SAVE_AS_ITEM</property>
-		      <signal name="activate" handler="on_save_as_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
-		    </widget>
-		  </child>
-
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separator1">
 		      <property name="visible">True</property>
 		    </widget>
 		  </child>
@@ -136,10 +96,23 @@
 		<widget class="GtkMenu" id="edit_menu">
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="clear">
+		    <widget class="GtkImageMenuItem" id="clear_canvas">
 		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_CLEAR_ITEM</property>
-		      <signal name="activate" handler="on_clear_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
+		      <property name="label" translatable="yes">Clear Canvas</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_clear_canvas_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
+
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image59">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-clear</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
 		    </widget>
 		  </child>
 
@@ -150,16 +123,23 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkImageMenuItem" id="properties">
+		    <widget class="GtkImageMenuItem" id="loaded_modules">
 		      <property name="visible">True</property>
-		      <property name="stock_item">GNOMEUIINFO_MENU_PROPERTIES_ITEM</property>
-		      <signal name="activate" handler="on_properties_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
-		    </widget>
-		  </child>
+		      <property name="label" translatable="yes">Loaded Modules</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_loaded_modules_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 
-		  <child>
-		    <widget class="GtkSeparatorMenuItem" id="separator3">
-		      <property name="visible">True</property>
+		      <child internal-child="image">
+			<widget class="GtkImage" id="image60">
+			  <property name="visible">True</property>
+			  <property name="stock">gtk-properties</property>
+			  <property name="icon_size">1</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			</widget>
+		      </child>
 		    </widget>
 		  </child>
 
@@ -191,7 +171,7 @@
 		      <signal name="activate" handler="on_contents_activate" last_modification_time="Sat, 08 Jul 2006 10:16:03 GMT"/>
 
 		      <child internal-child="image">
-			<widget class="GtkImage" id="image45">
+			<widget class="GtkImage" id="image61">
 			  <property name="visible">True</property>
 			  <property name="stock">gtk-help</property>
 			  <property name="icon_size">1</property>
@@ -398,7 +378,7 @@
   </child>
 </widget>
 
-<widget class="GtkMenu" id="menu1">
+<widget class="GtkMenu" id="GroupMenu">
 
   <child>
     <widget class="GtkImageMenuItem" id="delete_group">
@@ -471,7 +451,7 @@
   </child>
 </widget>
 
-<widget class="GtkMenu" id="menu2">
+<widget class="GtkMenu" id="ItemMenu">
 
   <child>
     <widget class="GtkImageMenuItem" id="delete_item">
@@ -481,7 +461,7 @@
       <signal name="activate" handler="on_delete_item_clicked" last_modification_time="Mon, 17 Jul 2006 01:59:22 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image27">
+	<widget class="GtkImage" id="image46">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-delete</property>
 	  <property name="icon_size">1</property>
@@ -503,7 +483,7 @@
       <signal name="activate" handler="on_configure_item_clicked" last_modification_time="Mon, 26 Jun 2006 12:33:56 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image28">
+	<widget class="GtkImage" id="image47">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-preferences</property>
 	  <property name="icon_size">1</property>
@@ -530,31 +510,9 @@
       <signal name="activate" handler="on_refresh_item_clicked" last_modification_time="Mon, 17 Jul 2006 01:59:22 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image29">
+	<widget class="GtkImage" id="image48">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-refresh</property>
-	  <property name="icon_size">1</property>
-	  <property name="xalign">0.5</property>
-	  <property name="yalign">0.5</property>
-	  <property name="xpad">0</property>
-	  <property name="ypad">0</property>
-	</widget>
-      </child>
-    </widget>
-  </child>
-
-  <child>
-    <widget class="GtkImageMenuItem" id="synchronize_item">
-      <property name="visible">True</property>
-      <property name="tooltip" translatable="yes">Synchronize this Item and its Dependancies</property>
-      <property name="label" translatable="yes">Synchronize Item</property>
-      <property name="use_underline">True</property>
-      <signal name="activate" handler="on_synchronize_item_clicked" last_modification_time="Mon, 26 Jun 2006 12:33:56 GMT"/>
-
-      <child internal-child="image">
-	<widget class="GtkImage" id="image30">
-	  <property name="visible">True</property>
-	  <property name="stock">gtk-execute</property>
 	  <property name="icon_size">1</property>
 	  <property name="xalign">0.5</property>
 	  <property name="yalign">0.5</property>
@@ -1747,12 +1705,14 @@ Ogg Vorbis</property>
   </child>
 </widget>
 
-<widget class="GtkDialog" id="PropertiesDialog">
+<widget class="GtkDialog" id="LoadedModulesDialog">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">dialog1</property>
+  <property name="title" translatable="yes">Conduit Properties</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
+  <property name="default_width">350</property>
+  <property name="default_height">450</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -1777,32 +1737,6 @@ Ogg Vorbis</property>
 
 	  <child>
 	    <widget class="GtkButton" id="helpbutton1">
-	      <property name="visible">True</property>
-	      <property name="can_default">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="label">gtk-help</property>
-	      <property name="use_stock">True</property>
-	      <property name="relief">GTK_RELIEF_NORMAL</property>
-	      <property name="focus_on_click">True</property>
-	      <property name="response_id">-11</property>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkButton" id="cancelbutton1">
-	      <property name="visible">True</property>
-	      <property name="can_default">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="label">gtk-cancel</property>
-	      <property name="use_stock">True</property>
-	      <property name="relief">GTK_RELIEF_NORMAL</property>
-	      <property name="focus_on_click">True</property>
-	      <property name="response_id">-6</property>
-	    </widget>
-	  </child>
-
-	  <child>
-	    <widget class="GtkButton" id="okbutton1">
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
