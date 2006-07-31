@@ -7,7 +7,9 @@ import conduit.DataProvider as DataProvider
 import conduit.datatypes.File as File
 import conduit.Exceptions as Exceptions
 
+import tempfile
 import gnomevfs
+import os
 import os.path
 
 MODULES = {
@@ -59,7 +61,6 @@ class FileSource(DataProvider.DataSource):
         for f in self.files:
             vfsFile = File.File()
             vfsFile.load_from_uri(f)
-            vfsFile.get_modification_time()
             yield vfsFile
 		
 class FileSink(DataProvider.DataSink):
@@ -108,11 +109,18 @@ class FileConverter:
                             "file,text" : self.file_to_text
                             }
         
-    def text_to_file(self, measure):
-        return "text->file = ", str(measure)
+    def text_to_file(self, theText):
+        #Create a tempory file
+        fd, name = tempfile.mkstemp(text=True)
+        os.write(fd, theText)
+        os.close(fd)
+        vfsFile = File.File()
+        vfsFile.load_from_uri(name)
+        return vfsFile
 
-    def file_to_text(self, measure):
-        return "file->text = ", str(measure)
+    def file_to_text(self, thefile):
+        #FIXME: Check if its a text mimetype?
+        return "Text -> File"
 
 class FileSourceConfigurator:
     def __init__(self, gladefile, mainWindow, fileStore):

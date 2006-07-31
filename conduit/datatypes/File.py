@@ -12,10 +12,22 @@ class File(DataType.DataType):
         self.uriString = None                    
         self.vfsHandle = None
         self.fileInfo = None
+        self.forceNewFilename = ""
         
     def _get_file_info(self):
         if self.fileInfo is None:
             self.fileInfo = gnomevfs.get_file_info(self.uriString, gnomevfs.FILE_INFO_DEFAULT)
+            
+    def force_new_filename(self, filename):
+        """
+        In the xfer process calling this method will cause the file to be
+        copied with the newFilename and not just to the new location but
+        retaining the old filename
+       
+        Useful if for some conversions a temp file is created that you dont
+        want to retain the name of
+        """
+        self.forceNewFilename = filename
             
     def load_from_uri(self, uri):
         """

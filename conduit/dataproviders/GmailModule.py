@@ -129,7 +129,6 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         labelEmailsCb = tree.get_widget("labelEmails")
         folderEmailsCb = tree.get_widget("folderEmails")
         labelEntry = tree.get_widget("labels")
-        folderEntry = tree.get_widget("folders")
         usernameEntry = tree.get_widget("username")
         passwordEntry = tree.get_widget("password")
         
@@ -139,8 +138,19 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         labelEmailsCb.set_active(len(self.getWithLabel) > 0)
         folderEmailsCb.set_active(len(self.getInFolder) > 0)        
         labelEntry.set_text(self.getWithLabel)
-        folderEntry.set_text(self.getInFolder)        
         usernameEntry.set_text(self.username)
+        
+        #Add and fill a combo box with the Gmail Folders
+        index = 0
+        folderComboBox = gtk.combo_box_new_text()
+        for folder in libgmail.STANDARD_FOLDERS:
+            folderComboBox.insert_text(index,folder)
+            #Check if it should be selected already
+            if folder == self.getInFolder:
+                folderComboBox.set_active(index)    
+            index += 1
+        folderComboBox.show()
+        tree.get_widget("propbox").pack_end(folderComboBox)
         
         dlg = tree.get_widget("GmailSourceConfigDialog")
         dlg.set_transient_for(window)
@@ -156,7 +166,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
                 self.getAllEmail = False
                 self.getUnreadEmail = unreadEmailsCb.get_active()
                 self.getWithLabel = labelEntry.get_text()
-                self.getInFolder = folderEntry.get_text()
+                self.getInFolder = folderComboBox.get_active_text()
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
@@ -165,19 +175,53 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
     def get(self):
         if self.loggedIn:
             if self.getAllEmail:
+                logging.debug("Getting all Email")
                 pass
             else:
                 if self.getUnreadEmail:
-                    pass
+                    logging.debug("Getting Unread Email")                
+                    #FIXME: These TODO notes taken from libgmail examples
+                    #Check if these TODOs have been answered at a future
+                    #date
+                    # TODO: Work out at what stage messages get marked as 'read'.
+                    #       (as I think of it, it happens when I retrieve the
+                    #        messages in the threads, should really preserve read/unread
+                    #        state then.)
+                    # TODO: Fix this so it does not retrieve messages that have already
+                    #       been read. ("unread" is a property of thread in this case?)
+                    #       Is this even possible without caching stuff ourselves,
+                    #       maybe use "archive" as the equivalent of read?
+                    result = self.ga.getUnreadMessages()
+                    if len(result):                    
+                        for thread in result:
+                            for message in thread:
+                                mail = Email.Email()
+                                mail.create_from_raw_source(message.source)
+                                yield mail
+                    else:
+                        raise StopIteration                           
                 elif len(self.getWithLabel) > 0:
+                    logging.debug("Getting Email Labelled: %s" % self.getWithLabel)                
                     result = self.ga.getMessagesByLabel(self.getWithLabel)
-                    for thread in result:
-                        for message in thread:
-                            mail = Email.Email()
-                            mail.create_from_raw_source(message.source)
-                            yield mail
+                    if len(result):
+                        for thread in result:
+                            for message in thread:
+                                mail = Email.Email()
+                                mail.create_from_raw_source(message.source)
+                                yield mail
+                    else:
+                        raise StopIteration
                 elif len(self.getInFolder) > 0:
-                    pass
+                    logging.debug("Getting Email in Folder: %s" % self.getInFolder)                
+                    result = self.ga.getMessagesByFolder(self.getInFolder)
+                    if len(result):
+                        for thread in result:
+                            for message in thread:
+                                mail = Email.Email()
+                                mail.create_from_raw_source(message.source)
+                                yield mail                    
+                    else:
+                        raise StopIteration
         else:
             raise Exceptions.SyncronizeFatalError
         
