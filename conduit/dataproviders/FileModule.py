@@ -7,9 +7,7 @@ import conduit.DataProvider as DataProvider
 import conduit.datatypes.File as File
 import conduit.Exceptions as Exceptions
 
-import tempfile
 import gnomevfs
-import os
 import os.path
 
 MODULES = {
@@ -89,7 +87,11 @@ class FileSink(DataProvider.DataSink):
         
     def put(self, vfsfile):
         #Ok Put the files in the specified directory and retain their names
-        filename = vfsfile.get_filename()
+        #first check if (a converter) has given us another filename to use
+        if len(vfsfile.forceNewFilename) > 0:
+            filename = vfsfile.forceNewFilename
+        else:
+            filename = vfsfile.get_filename()
         toURI = gnomevfs.URI(os.path.join(self.folderURI, filename))
         fromURI = gnomevfs.URI(vfsfile.get_uri_string())
         try:
@@ -110,13 +112,7 @@ class FileConverter:
                             }
         
     def text_to_file(self, theText):
-        #Create a tempory file
-        fd, name = tempfile.mkstemp(text=True)
-        os.write(fd, theText)
-        os.close(fd)
-        vfsFile = File.File()
-        vfsFile.load_from_uri(name)
-        return vfsFile
+        return File.new_from_tempfile(theText)
 
     def file_to_text(self, thefile):
         #FIXME: Check if its a text mimetype?

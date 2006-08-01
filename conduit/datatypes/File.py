@@ -2,9 +2,30 @@ import gnomevfs
 import conduit
 from conduit.datatypes import DataType
 
+import os
 import tempfile
 import datetime
 
+def new_from_tempfile(contents, contentsAreText=True):
+    """
+    Returns a new File onject, which has been created in the 
+    system temporary directory, and that has been filled with
+    contents
+    
+    The file is closed when it is returned
+    
+    @param contents: The data to write into the file
+    @param contentsAreText: Indicates to the OS if the file is text (as opposed
+    to a binary type file
+    @param contentsAreText: C{bool}
+    """
+    fd, name = tempfile.mkstemp(text=contentsAreText)
+    os.write(fd, contents)
+    os.close(fd)
+    vfsFile = File()
+    vfsFile.load_from_uri(name)
+    return vfsFile
+    
 class File(DataType.DataType):
     def __init__(self):
         DataType.DataType.__init__(self,"file")

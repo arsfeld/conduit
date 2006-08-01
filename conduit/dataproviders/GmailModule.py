@@ -77,6 +77,7 @@ class GmailBase(DataProvider.DataProviderBase):
             self.ga.login()
             self.loggedIn = True
         except:
+            logging.warn("Error logging into gmail (username %s)" % self.username)
             raise Exceptions.InitializeError
     
 
@@ -337,10 +338,10 @@ class EmailSinkConverter:
 
 class GmailContactSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"))
+        DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"))
         self.icon_name = "contact-new"
 
 class GmailContactSink(GmailBase, DataProvider.DataSink):
     def __init__(self):
-        DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
+        DataProvider.DataSink.__init__(self, _("Gmail Contacts Sink"), _("Sync your Gmail Contacts"))
         self.icon_name = "contact-new"
