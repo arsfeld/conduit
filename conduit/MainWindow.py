@@ -189,7 +189,7 @@ class MainWindow:
                     self.canvas.selected_dataprovider_wrapper.get_unique_identifier()
                     )
         dp = self.canvas.selected_dataprovider_wrapper.module
-        dp.initialize()
+        dp.refresh()
 
     def on_clear_canvas(self, widget):
         """
@@ -259,6 +259,8 @@ class MainWindow:
         """
         Kills the app and cleans up
         """
+        logging.info("Stopping all synchronization threads")
+        self.sync_manager.join_all()
         gtk.main_quit()
         
     #TODO: If dynamic resizing causes too much CPU usage connect to 

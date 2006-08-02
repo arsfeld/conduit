@@ -5,6 +5,7 @@ from xml.dom import minidom
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
 
@@ -46,7 +47,7 @@ class TomboyNoteSource(DataProvider.DataSource):
         self.icon_name = "tomboy"
         self.notes = []
 
-    def initialize(self):
+    def refresh(self):
         files = [i for i in os.listdir(TomboyNoteSource.NOTE_DIR) if i[-5:] == ".note"]
 
         #Parse the files into notes        
@@ -68,7 +69,7 @@ class TomboyNoteSource(DataProvider.DataSource):
                 self.notes.append(note)
             except:
                 logging.warn("Error parsing note file")
-                raise Exceptions.InitializeError
+                raise Exceptions.RefreshError
                 
     def get(self):
         for n in self.notes:
@@ -84,8 +85,7 @@ class StickyNoteSource(DataProvider.DataSource):
         self.xml = None
         self.notes = []
         
-    def initialize(self):
-        DataProvider.DataProviderBase.initialize(self)    
+    def refresh(self):
         if self.xml is None:
             self.xml = minidom.parse(StickyNoteSource.NOTE_FILE)    
         
@@ -103,7 +103,7 @@ class StickyNoteSource(DataProvider.DataSource):
                 self.notes.append(newNote)
         except:
             logging.warn("Error parsing note file")
-            raise Exceptions.InitializeError            
+            raise Exceptions.RefreshError            
             
     def get(self):
         for n in self.notes:

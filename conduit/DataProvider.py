@@ -15,9 +15,9 @@ import logging
 import conduit
 
 STATUS_NONE = 1
-STATUS_INIT = 2
-STATUS_DONE_INIT_OK = 3
-STATUS_DONE_INIT_ERROR = 4
+STATUS_REFRESH = 2
+STATUS_DONE_REFRESH_OK = 3
+STATUS_DONE_REFRESH_ERROR = 4
 STATUS_SYNC = 5
 STATUS_DONE_SYNC_OK = 6
 STATUS_DONE_SYNC_ERROR = 7
@@ -207,15 +207,33 @@ class DataProviderBase(gobject.GObject):
         
     def initialize(self):
         """
-        Performs any initialization steps (logging in, etc) which must
-        be undertaken on the dataprovider. 
+        Called when the module is loaded by the module loader. 
         
-        Derived types should override this function but still call it.
+        It is called in the main thread so should NOT block. It should perform
+        simple tests to determine whether the dataprovider is applicable to 
+        the user and whether is should be presented to them. For example it
+        may check if a specific piece of hardware is loaded, or check if
+        a user has the specific piece of software installed with which
+        it synchronizes.
         
-        This will only be called once (or 
-        if the dataprovider had been finalized).
+        @returns: True if the module initialized correctly (is appropriate
+        for the user), False otherwise
+        @rtype: C{bool}
         """
         logging.warn("initialize() not overridden by derived class %s" % self.name)
+        return True
+        
+    def refresh(self):
+        """
+        Performs any (logging in, etc) which must be undertaken on the 
+        dataprovider prior to calling get(). If possible it should gather 
+        enough information so that get_num_items() can return a
+        meaningful response
+        
+        THis function may be called multiple times so derived funcions should
+        be aware of this
+        """
+        logging.warn("refresh() not overridden by derived class %s" % self.name)
         
     def finalize(self):
         """
@@ -230,18 +248,18 @@ class DataProviderBase(gobject.GObject):
         s = self.status
         if s == STATUS_NONE:
             return _("Ready")
-        elif s == STATUS_INIT:
-            return _("Initializing...")
-        elif s == STATUS_DONE_INIT_OK:
-            return _("Initialized OK")
-        elif s == STATUS_DONE_INIT_ERROR:
-            return _("Initialization Error")
+        elif s == STATUS_REFRESH:
+            return _("Refreshing...")
+        elif s == STATUS_DONE_REFRESH_OK:
+            return _("Refreshed OK")
+        elif s == STATUS_DONE_REFRESH_ERROR:
+            return _("Error Refreshing")
         elif s == STATUS_SYNC:
             return _("Synchronizing...")
         elif s == STATUS_DONE_SYNC_OK:
             return _("Synchronized OK")
         elif s == STATUS_DONE_SYNC_ERROR:
-            return _("Synchronization Error")
+            return _("Error Synchronizing")
         else:
             return "BAD PROGRAMMER"
             
@@ -250,11 +268,11 @@ class DataProviderBase(gobject.GObject):
         A DataProvider is busy if it is currently in the middle of the
         intialization or synchronization process.
         
-        @todo: This simple test introduces a few corner cases where 
+        @todo: This simple test introduces a few (many) corner cases where 
         the function will return the wrong result. Think about this harder
         """
         s = self.status
-        if s == STATUS_INIT:
+        if s == STATUS_REFRESH:
             return True
         elif s == STATUS_SYNC:
             return True
@@ -349,6 +367,9 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     A treemodel for managing dynamically loaded modules. Manages an internal 
     list of L{conduit.ModuleManager.ModuleWrapper}
     
+    @todo: Make this display a tree
+    @reference things by classname and not by name
+    
     @ivar modules: The array of modules under this treeviews control.
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
     """
@@ -358,7 +379,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     def __init__(self, module_wrapper_list):
         gtk.GenericTreeModel.__init__(self)
         #print "init, array= ", module_array
-        self.module_wrapper_list = module_wrapper_list
+        #Only display 
+        self.module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
         return 
         
     def get_module_index_by_name(self, name):
@@ -552,7 +574,8 @@ class DataProviderSimpleConfigurator:
                     {
                     "Name" : "Setting Name",
                     "Widget" : gtk.TextView,
-                    "Callback" : function
+                    "Callback" : function,
+                    "InitialValue" : value
                     }
                 ]
     """
@@ -634,10 +657,11 @@ class DataProviderSimpleConfigurator:
                 #gtkEntry has its label beside it
                 label = gtk.Label(l["Name"])
                 hbox.pack_start(label)
+                #widget.set_text(l["InitialValue"])
             elif isinstance(widget, gtk.CheckButton):
                 #gtk.CheckButton has its label built in
                 widget = l["Widget"](l["Name"])
-                        
+                #widget.set_active(l["InitialValue"])                        
                 #FIXME: There must be a better way to do this but we need some way 
                 #to identify the widget *instance* when we save the values from it
             self.widgetInstances.append({

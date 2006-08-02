@@ -71,14 +71,14 @@ class GmailBase(DataProvider.DataProviderBase):
         self.loggedIn = False
         self.ga = None
     
-    def initialize(self):
+    def refresh(self):
         self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
             self.ga.login()
             self.loggedIn = True
         except:
             logging.warn("Error logging into gmail (username %s)" % self.username)
-            raise Exceptions.InitializeError
+            raise Exceptions.RefreshError
     
 
 class GmailEmailSource(GmailBase, DataProvider.DataSource):

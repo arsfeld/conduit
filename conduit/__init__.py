@@ -65,7 +65,7 @@ from Canvas import Canvas
 from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
 from Module import ModuleLoader, ModuleWrapper
 from Conduit import Conduit
-from Exceptions import ConversionError, InitializeError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync
+from Exceptions import ConversionError, RefreshError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync
 from Synchronization import SyncManager, SyncWorker
 
 # Make sure epydoc documents the classes 

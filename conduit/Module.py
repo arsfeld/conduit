@@ -80,7 +80,7 @@ class ModuleLoader(gobject.GObject):
         endswith = "Module.py"
         isModule = (filename[-len(endswith):] == endswith)
         if not isModule:
-            logging.info(   "Ignoring %s, (must end with %s)" % (
+            logging.debug(  "Ignoring %s, (must end with %s)" % (
                             filename,
                             endswith
                             ))
@@ -138,20 +138,29 @@ class ModuleLoader(gobject.GObject):
         for modules, infos in mod.MODULES.items():
             try:
                 mod_instance = getattr (mod, modules) ()
+                
+                #Initialize the module (only DataProviders have initialize() methods
+                enabled = True
+                if isinstance(mod_instance,DataProvider.DataProviderBase):
+                    if not mod_instance.initialize():
+                        logging.warn("%s did not initialize correctly. Starting disabled" % infos["name"])
+                        enabled = False
+                    
                 mod_wrapper = ModuleWrapper (  infos["name"], 
             	                               infos["description"], 
             	                               infos["type"], 
             	                               infos["category"], 
             	                               infos["in_type"],
             	                               infos["out_type"],
-            	                               str(modules),   #classname
-            	                               filename,       #file holding me
-            	                               mod_instance)   #the actual module
+            	                               str(modules),    #classname
+            	                               filename,        #file holding me
+            	                               mod_instance,    #the actual module
+            	                               enabled)         #did initialize() return correctly
                 self.append_module(mod_wrapper)
                 #Emit a signal to say the module was successfully loaded
                 self.emit("module-loaded", mod_wrapper)
             except AttributeError:
-                logging.error("Could not find module %s in %s" % (modules,filename))
+                logging.error("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
             
     def load_all_modules(self):
         """
@@ -217,6 +226,12 @@ class ModuleLoader(gobject.GObject):
                     mods = self.import_file(m.filename)
                     #re-instanciate it
                     mod_instance = getattr (mods, m.classname) ()
+                    #Initialize the module (only DataProviders have initialize() methods
+                    enabled = True
+                    if isinstance(mod_instance,DataProvider.DataProviderBase):
+                        if not mod_instance.initialize():
+                            logging.warn("%s did not initialize correctly. Starting disabled" % infos["name"])
+                            enabled = False                  
                     #put it into a new wrapper
                     mod_wrapper = ModuleWrapper(  
                                                m.name, 
@@ -227,7 +242,8 @@ class ModuleLoader(gobject.GObject):
             	                               m.out_type,
             	                               m.classname,
             	                               m.filename,
-            	                               mod_instance)
+            	                               mod_instance,
+            	                               enabled)
                     
                     logging.info("Returning new instance of module named %s" % (m.name))
                     return mod_wrapper
@@ -267,7 +283,7 @@ class ModuleWrapper:
                             "out_type"
                             ]
     	
-    def __init__ (self, name, description, module_type, category, in_type, out_type, classname, filename, module):
+    def __init__ (self, name, description, module_type, category, in_type, out_type, classname, filename, module, enabled):
         """
         Constructor for ModuleWrapper. A convenient wrapper around a dynamically
         loaded module.
@@ -280,13 +296,20 @@ class ModuleWrapper:
         @type module_type: C{string}
         @param category: The category of the contained module
         @type category: C{string}
-        @param module: The name of the contained module
-        @type module: L{conduit.DataProvider.DataProvider} or derived class     
+        @param in_type: The name of the datatype that the module accepts (put())
+        @type in_type: C{string}
+        @param out_type: The name of the datatype that the module produces (get())
+        @type out_type: C{string}        
         @param classname: The classname used to instanciate another
         modulewrapper of type C{module} contained in C{filename}
         @type classname: C{string}
         @param filename: The filename from which this was instanciated
         @type filename: C{string}
+        @param module: The name of the contained module
+        @type module: L{conduit.DataProvider.DataProvider} or derived class     
+        @param enabled: Whether the call to the modules initialize() method was
+        successful or not. 
+        @type enabled: C{bool}
         """
         self.name = name
         self.description = description        
@@ -294,10 +317,11 @@ class ModuleWrapper:
         self.category = category
         self.in_type = in_type
         self.out_type = out_type
-        self.module = module
-        
         self.classname = classname
         self.filename = filename
+        self.module = module
+        self.enabled = enabled
+        
         self._uid = ""
         #Generate a unique identifier for this instance
         for i in range(1,ModuleWrapper.NUM_UID_DIGITS):

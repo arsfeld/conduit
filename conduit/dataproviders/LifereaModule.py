@@ -34,10 +34,10 @@ class LifereaSource(DataProvider.DataSource):
         self.icon_name = "liferea"
         self.feedlist = None
         
-    def initialize(self):
+    def refresh(self):
         self.feedlist = OPML.import_opml(abspath(expanduser(LifereaSource.FEED_FILE)))
         if self.feedlist is None:
-            raise Exceptions.InitializeError
+            raise Exceptions.RefreshError
         
     def get(self):
         for i in range(0,5):

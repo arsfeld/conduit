@@ -13,9 +13,9 @@ class ConversionError(Exception):
         else:
             return "Could not convert %s -> %s\nExtra info:\n%s" % (self.fromType, self.toType, self.msg)
 
-class InitializeError(Exception):
+class RefreshError(Exception):
     """
-    Exception thrown upon failure to intialize conduit
+    Exception thrown upon failure to refresh conduit
     """
     pass
     
