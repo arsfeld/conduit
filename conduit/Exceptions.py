@@ -1,8 +1,25 @@
+"""
+Exceptions used to convey information during the sync process
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
 class ConversionError(Exception):
     """
     Exception thrown by TypeConverter when it could not convert stuff
     """
     def __init__(self, fromType, toType, extraMsg=None):
+        """
+        Store some extra information so we can provide a more helpful
+        error message
+        
+        @type fromType: C{str}
+        @type toType: C{str}
+        @param extraMsg: An additional, probbably conversion specific message
+        to be included in the error
+        @type extraMsg: C{str}
+        """
         self.fromType = fromType
         self.toType = toType
         self.msg = extraMsg        
@@ -41,6 +58,9 @@ class SynchronizeConflictError(Exception):
     allow this to be continued later
     """
     def __init__(self,fromData, toData, datasink):
+        """
+        Store the info required to resume this sync later
+        """
         self.fromData = fromData
         self.toData = toData
         self.datasink = datasink
@@ -55,6 +75,10 @@ class StopSync(Exception):
     go home
     """
     def __init__(self, step=0):    
+        """
+        Optionally we can specify the step at which the sync
+        was aborted to make a nicer error message
+        """
         self.step = step
         
     def __str__(self):

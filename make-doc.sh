@@ -1,7 +1,7 @@
 #!/bin/bash
 PYTHONPATH=/home/john/Programming/src/epydoc/src/ \
 epydoc  -o doc --name conduit --css white \
-        --url http://john.greenbirdsystems.com \
+        --url http://www.conduit-project.org \
         --inheritance listed \
         --no-frames \
         --show-private \

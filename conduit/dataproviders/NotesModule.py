@@ -46,6 +46,12 @@ class TomboyNoteSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self, _("Tomboy Source"), _("Source for synchronizing Tomboy Notes"))
         self.icon_name = "tomboy"
         self.notes = []
+        
+    def initialize(self):
+        """
+        Loads the tomboy source if the user has used tomboy before
+        """
+        return os.path.exists(TomboyNoteSource.NOTE_DIR)
 
     def refresh(self):
         files = [i for i in os.listdir(TomboyNoteSource.NOTE_DIR) if i[-5:] == ".note"]
@@ -84,6 +90,12 @@ class StickyNoteSource(DataProvider.DataSource):
         
         self.xml = None
         self.notes = []
+        
+    def initialize(self):
+        """
+        Loads the stickynotes source if the user has used stickynotes before
+        """
+        return os.path.exists(StickyNoteSource.NOTE_FILE)        
         
     def refresh(self):
         if self.xml is None:

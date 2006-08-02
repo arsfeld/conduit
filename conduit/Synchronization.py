@@ -19,7 +19,11 @@ class SyncManager(object):
     the relevant sinks and sources
     """
     def __init__ (self, typeConverter):
-        #Dictionary of conduits and their status
+        """
+        Constructor. 
+        
+        Creates a dictionary of conduits and their status
+        """
         self.conduits = {}
         self.typeConverter = typeConverter
         

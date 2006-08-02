@@ -30,6 +30,10 @@ class MainWindow:
     """
 
     def __init__(self):
+        """
+        Constructs the mainwindow. Throws up a splash screen to cover 
+        the most time consuming pieces
+        """
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
         #Throw up a splash screen ASAP to look pretty
         #FIXME: The only thing I should do before showing the splash screen
@@ -58,7 +62,6 @@ class MainWindow:
                 "on_loaded_modules_activate" : self.on_loaded_modules,
                 "on_preferences_activate" : self.on_conduit_preferences,
                 "on_about_activate" : self.on_about_conduit,
-                "on_hpane_move_handle" : self.on_hpane_move_handle,
                 None : None
                 }
          
@@ -263,14 +266,11 @@ class MainWindow:
         self.sync_manager.join_all()
         gtk.main_quit()
         
-    #TODO: If dynamic resizing causes too much CPU usage connect to 
-    #size-allocate instead of size-request
-    def on_hpane_move_handle(self, widget, req):
-        #print "pane moved ", widget.get_position()
-        pass
-        
     #size-allocate instead of size-request        
     def on_window_resized(self, widget, req):
+        """
+        Called when window is resized. Tells the canvas to resize itself
+        """
         rect = self.canvas.get_allocation()
         self.canvas.resize_canvas(rect.width, rect.height)
 

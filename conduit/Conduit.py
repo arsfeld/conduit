@@ -30,6 +30,10 @@ class Conduit(goocanvas.Group):
     CONNECTOR_TEXT_YPADDING = 10
     
     def __init__(self, y_from_origin, canvas_width):
+        """
+        Makes and empty conduit ready to hold one datasource and many
+        datasinks
+        """
         goocanvas.Group.__init__(self)
         #a conduit can hold one datasource and many datasinks (wrappers)
         self.datasource = None
@@ -123,6 +127,13 @@ class Conduit(goocanvas.Group):
             
         
     def move_conduit_to(self,new_x,new_y):
+        """
+        Translates a conduit to the supplied new 
+        co-ordinates and updates its stored position
+        
+        Used after the window is resized or a conduit above us grows
+        in size
+        """        
         #because Conduit is a goocanvas.Group all its children get
         #moved automatically when we move
         dx = new_x - self.positions[self.bounding_box]["x"]
@@ -134,6 +145,12 @@ class Conduit(goocanvas.Group):
             self.positions[p]["y"] += dx
         
     def move_dataprovider_to(self,dataprovider,new_x,new_y):
+        """
+        Translates a dataprovider to the supplied new 
+        co-ordinates and updates its stored position
+        
+        Used after the window is resized for example
+        """
         #compute translation amount
         dx = new_x - self.positions[dataprovider]["x"]
         dy = new_y - self.positions[dataprovider]["y"]
@@ -355,6 +372,10 @@ class Conduit(goocanvas.Group):
                 self.connectors[sink].set_property("stroke_color","red")
 
     def make_status_text(self, x, y, text=""):
+        """
+        Creates a L{goocanvas.Text} object containing text and at the 
+        supplied position
+        """
         text = goocanvas.Text   (  
                                 x=x, 
                                 y=y, 
@@ -367,6 +388,10 @@ class Conduit(goocanvas.Group):
         return text
         
     def update_status_text(self, dataprovider, newText):
+        """
+        Updates the status text which is displayed adjacent to the conduit 
+        which it describes
+        """
         self.dataprovider_status[dataprovider].set_property("text",newText)
         
     def is_busy(self):
@@ -378,7 +403,6 @@ class Conduit(goocanvas.Group):
         operaton on one or more of its contained DataProviders
         @rtype: C{bool}
         """
-        
         if self.datasource.module.is_busy():
             return True
             

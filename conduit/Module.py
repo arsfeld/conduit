@@ -172,6 +172,10 @@ class ModuleLoader(gobject.GObject):
         self.emit('all-modules-loaded')
         
     def get_all_modules(self):
+        """
+        @returns: All loaded modules
+        @rtype: L{conduit.ModuleManager.ModuleWrapper}[]
+        """
         return self.loadedmodules
         
     def get_modules_by_type(self, type_filter):
@@ -266,9 +270,20 @@ class ModuleWrapper:
     @type module_type: C{string}
     @ivar category: The category of the contained module
     @type category: C{string}
+    @ivar in_type: The name of the datatype that the module accepts (put())
+    @type in_type: C{string}
+    @ivar out_type: The name of the datatype that the module produces (get())
+    @type out_type: C{string}        
+    @ivar classname: The classname used to instanciate another
+    modulewrapper of type C{module} contained in C{filename}
+    @type classname: C{string}
+    @ivar filename: The filename from which this was instanciated
+    @type filename: C{string}
     @ivar module: The name of the contained module
-    @type module: L{conduit.DataProvider.DataProvider}, 
-    L{conduit.DataType.DataType} or derived class     
+    @type module: L{conduit.DataProvider.DataProvider} or derived class     
+    @ivar enabled: Whether the call to the modules initialize() method was
+    successful or not. 
+    @type enabled: C{bool}    
     @ivar uid: A Unique identifier for the module
     @type uid: C{string}
     """

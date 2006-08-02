@@ -224,7 +224,5 @@ def import_opml(filename,category=None):
     opml = read(fstream)
     if not opml:
         return
-    for b in opml:
-        print b
     return opml
 

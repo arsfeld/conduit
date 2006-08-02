@@ -77,7 +77,7 @@ class DataProviderBase(gobject.GObject):
     
     def __init__(self, name=None, description=None):
         """
-        Test
+        Makes a (useless) base dataprovider
         """
         gobject.GObject.__init__(self)
         
@@ -242,9 +242,17 @@ class DataProviderBase(gobject.GObject):
         logging.warn("finalize() not overridden by derived class %s" % self.name)
         
     def get_status(self):
+        """
+        @returns: The current dataproviders status (code)
+        @rtype: C{int}
+        """
         return self.status
         
     def get_status_text(self):
+        """
+        @returns: a textual representation of the current dataprover status
+        @rtype: C{str}
+        """
         s = self.status
         if s == STATUS_NONE:
             return _("Ready")
@@ -280,6 +288,13 @@ class DataProviderBase(gobject.GObject):
             return False
 
     def set_status(self, newStatus):
+        """
+        Sets the dataprovider status. If the status has changed then emits
+        a status-changed signal
+        
+        @param newStatus: The new status
+        @type newStatus: C{int}
+        """
         if newStatus != self.status:
             self.status = newStatus
             self.__emit_status_changed()
@@ -344,6 +359,9 @@ class DataSource(DataProviderBase):
     Base Class for DataSources
     """
     def __init__(self, name=None, description=None):
+        """
+        Sets the DataProvider color and a default icon
+        """
         DataProviderBase.__init__(self, name, description)
         
         #customizations
@@ -355,6 +373,9 @@ class DataSink(DataProviderBase):
     Base Class for DataSinks
     """
     def __init__(self, name=None, description=None):
+        """
+        Sets the DataProvider color and a default icon
+        """    
         #super fills in the name and description
         DataProviderBase.__init__(self, name, description)
 
@@ -373,10 +394,15 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     @ivar modules: The array of modules under this treeviews control.
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
     """
-    column_types = (gtk.gdk.Pixbuf, str, str)
-    column_names = ['Name', 'Description']
+    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str)
+    COLUMN_NAMES = ['Name', 'Description']
 
     def __init__(self, module_wrapper_list):
+        """
+        TreeModel constructor
+        
+        Ignores modules which are not enabled
+        """
         gtk.GenericTreeModel.__init__(self)
         #print "init, array= ", module_array
         #Only display 
@@ -403,7 +429,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         get_column_names(
         """
-        return self.column_names[:]
+        return self.COLUMN_NAMES[:]
 
     def on_get_flags(self):
         """
@@ -415,13 +441,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_get_n_columns(
         """
-        return len(self.column_types)
+        return len(self.COLUMN_TYPES)
 
     def on_get_column_type(self, n):
         """
         on_get_column_type(
         """
-        return self.column_types[n]
+        return self.COLUMN_TYPES[n]
 
     def on_get_iter(self, path):
         #print "on_get_iter: path =", path
@@ -516,10 +542,16 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         return None
         
 class DataProviderTreeView(gtk.TreeView):
+    """
+    Handles DND of DataProviders onto canvas
+    """
     DND_TARGETS = [
     ('conduit/element-name', 0, 2)
     ]
     def __init__(self, model):
+        """
+        Constructor
+        """
         gtk.TreeView.__init__(self, model)
         
         column_names = model.get_column_names()
@@ -618,6 +650,9 @@ class DataProviderSimpleConfigurator:
         self.customSettings.show_all()        
         
     def on_ok_clicked(self, widget):
+        """
+        on_ok_clicked
+        """
         logging.debug("OK Clicked")
         for w in self.widgetInstances:
             #FIXME: This seems hackish
@@ -631,20 +666,35 @@ class DataProviderSimpleConfigurator:
         self.dialog.destroy()
         
     def on_cancel_clicked(self, widget):
+        """
+        on_cancel_clicked
+        """
         logging.debug("Cancel Clicked")
         self.dialog.destroy()
         
     def on_help_clicked(self, widget):
+        """
+        on_help_clicked
+        """
         logging.debug("Help Clicked")
         
     def on_dialog_close(self, widget):
+        """
+        on_dialog_close
+        """
         logging.debug("Dialog Closed")
         self.dialog.destroy()                       
 
     def run(self):
+        """
+        run
+        """
         resp = self.dialog.run()
         
     def build_child(self):
+        """
+        For each item in the mappings list create the appropriate widget
+        """
         #For each item in the mappings list create the appropriate widget
         for l in self.mappings:
             #New instance of the widget

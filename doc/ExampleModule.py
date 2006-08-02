@@ -5,6 +5,7 @@ import logging
 import conduit
 import DataProvider
 from conduit.datatypes import DataType
+import conduit.Exceptions as Exceptions
 
 import xmlrpclib
 
@@ -39,7 +40,6 @@ class MoinMoinDataSource(DataProvider.DataSource):
     def configure(self, window):
         def set_pages(param):
             self.pages = param.split(',')
-            logging.debug("Configured pages = %s" % self.pages)            
         
         #Define the items in the configure dialogue
         items = [
@@ -54,10 +54,12 @@ class MoinMoinDataSource(DataProvider.DataSource):
         #This call blocks
         dialog.run()
         
-    def initialize(self):
+    def refresh(self):
         if self.srcwiki is None:
-            self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
-        self.set_status(DataProvider.STATUS_DONE_INIT_OK)
+            try:
+                self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
+            except:
+                raise Exceptions.RefreshError
             
     def get(self):
         for p in self.pages:

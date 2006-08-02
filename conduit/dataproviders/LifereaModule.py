@@ -34,6 +34,9 @@ class LifereaSource(DataProvider.DataSource):
         self.icon_name = "liferea"
         self.feedlist = None
         
+    def initialize(self):
+        return False        
+        
     def refresh(self):
         self.feedlist = OPML.import_opml(abspath(expanduser(LifereaSource.FEED_FILE)))
         if self.feedlist is None:

@@ -28,6 +28,9 @@ class Canvas(goocanvas.CanvasView):
     CANVAS_HEIGHT = 600
 
     def __init__(self):
+        """
+        Draws an empty canvas of the appropriate size
+        """
         goocanvas.CanvasView.__init__(self)
         self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
         self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
@@ -65,6 +68,10 @@ class Canvas(goocanvas.CanvasView):
         self.newconduit = None
         
     def set_type_converter(self, typeConverter):
+        """
+        Saves the typeconver as it is needed to determine whether a syncronisation
+        is possible
+        """
         self.typeConverter = typeConverter
         
     def get_sync_set(self):
@@ -78,6 +85,13 @@ class Canvas(goocanvas.CanvasView):
         return self.conduits
         
     def remove_conduit_overlap(self):
+        """
+        Searches the cavas from top to bottom to detect if any conduits
+        overlap (visually).
+        
+        This is required (for example) after a conduit above another conduit is
+        resized due to another sink being inserted
+        """
         for i in range(0, len(self.conduits)):
             c = self.conduits[i]
             try:

@@ -43,6 +43,12 @@ class TypeConverter:
     """
     	
     def __init__ (self, dynamic_modules):
+        """
+        Builds the conversion dictionary
+
+        @param dynamic_modules: The dynamically loaded converters
+        """
+        
         self.dynamic_modules = dynamic_modules
         #dict of dicts
         self.convertables = {}
@@ -82,8 +88,8 @@ class TypeConverter:
                     
     def convert(self, from_type, to_type, data):
         """
-        Converts a L{conduit.DataType.DataType} of type from_type into
-        to_type and returns that newly converted type
+        Converts a L{conduit.DataType.DataType} (or derived) of type 
+        from_type into to_type and returns that newly converted type
         
         @param from_type: The name of the type converted from
         @type from_type: C{string}
@@ -150,9 +156,18 @@ class TypeConverter:
                 
     def conversion_exists(self, from_type, to_type, throughTextAllowed=True):
         """
-        Checks if a conversion exists
+        Checks if a conversion exists 
         
+        Conversions through text are allowed if calling this function and
+        not specifying the throughTextAllowed parameter
         @todo: Null check self.convertables??
+        
+        @param from_type: Type to convert from
+        @type from_type: C{str}
+        @param to_type: Type to convert into
+        @type to_type: C{str}                
+        @param throughTextAllowed: Are conversions through text allowed?
+        @type throughTextAllowed: C{bool}
         """
         if self.convertables.has_key(from_type):
             #from_type exists
@@ -173,5 +188,14 @@ class TypeConverter:
             return False
             
     def direct_conversion_exists(self, fromType, toType):
+        """
+        Checks if a direct conversion exists (conversions through text are 
+        not direct allowed)
+        
+        @param fromType: Type to convert from
+        @type fromType: C{str}
+        @param toType: Type to convert into
+        @type toType: C{str}        
+        """
         return self.conversion_exists(fromType, toType, False)
             

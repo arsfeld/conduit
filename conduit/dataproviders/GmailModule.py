@@ -340,8 +340,14 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"))
         self.icon_name = "contact-new"
+        
+    def initialize(self):
+        return False
 
 class GmailContactSink(GmailBase, DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, _("Gmail Contacts Sink"), _("Sync your Gmail Contacts"))
         self.icon_name = "contact-new"
+
+    def initialize(self):
+        return False
