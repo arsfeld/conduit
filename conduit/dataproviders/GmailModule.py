@@ -137,9 +137,15 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         #preload the widgets
         allEmailsCb.set_active(self.getAllEmail)
         unreadEmailsCb.set_active(self.getUnreadEmail)
-        labelEmailsCb.set_active(len(self.getWithLabel) > 0)
-        folderEmailsCb.set_active(len(self.getInFolder) > 0)        
-        labelEntry.set_text(self.getWithLabel)
+        if (self.getWithLabel is not None) and (len(self.getWithLabel) > 0):
+            labelEmailsCb.set_active(True)
+            labelEntry.set_text(self.getWithLabel)
+        else:
+            labelEmailsCb.set_active(False)
+        if (self.getInFolder is not None) and (len(self.getInFolder) > 0):
+            folderEmailsCb.set_active(True)
+        else:        
+            folderEmailsCb.set_active(False)
         usernameEntry.set_text(self.username)
         
         #Add and fill a combo box with the Gmail Folders
