@@ -173,35 +173,44 @@ class SyncWorker(threading.Thread):
                     logging.critical("Unknown error getting source iterator: %s\n%s" % (err,traceback.format_exc()))
                     #Cannot continue with no source data
                     raise Exceptions.StopSync           
-                    
-                #OK if we have got this far then we have source data to sync the sinks with             
-                for sink in self.sinks:
-                    sinkErrorFree = True
-                    #only sync with those sinks that refresh'd OK
-                    if sink.module.get_status() is DataProvider.STATUS_DONE_REFRESH_OK:
-
-                        #Sync each piece of data one at a time
-                        #FIXME how do I check that its iteratable first????
-                        for data in sourceData:
-                            logging.debug("Synchronizing %s -> %s (source data type = %s, sink accepts %s)" % (self.source, sink, self.source.out_type, sink.in_type))
+                
+                #Because of how these loops are structured create a temp dict to
+                #keep track if an error has occured in a sync
+                sinkErrors = {} 
+                #Sync each piece of data one at a time
+                #FIXME how do I check that its iteratable first????
+                for data in sourceData:
+                    #OK if we have got this far then we have source data to sync the sinks with
+                    #Get each piece of data and put it in each sink             
+                    for sink in self.sinks:
+                        #only sync with those sinks that refresh'd OK
+                        if sink.module.get_status() in [DataProvider.STATUS_DONE_REFRESH_OK, DataProvider.STATUS_SYNC]:
+                            logging.debug("Synchronizing %s -> %s (source \
+                                            data type = %s, sink accepts %s)" % 
+                                            (self.source, sink, 
+                                            self.source.out_type, sink.in_type))
                             try:
                                 if self.source.out_type != sink.in_type:
-                                    data = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
+                                    newdata = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
+                                else:
+                                    newdata = data
                                 #Finally after all the schenigans try an put the data                                
-                                sink.module.put(data)
+                                sink.module.put(newdata)
                                 sink.module.set_status(DataProvider.STATUS_SYNC)
                             #Catch errors from a failed convert
                             except Exceptions.ConversionError, err:
                                 #Not fatal, move along
                                 logging.warn("Error converting %s" % err)
-                                sinkErrorFree = False
+                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                                sinkErrors[sink] = True
                             except Exceptions.SynchronizeConflictError:
                                 #FIXME. I imagine that implementing this is a bit of work!
                                 logging.warn("Sync Conflict")                            
                             except Exceptions.SyncronizeError:
                                 #non fatal, move along
                                 logging.warn("Non-fatal synchronisation error")                     
-                                sinkErrorFree = False                                   
+                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                                sinkErrors[sink] = True
                             except Exceptions.SyncronizeFatalError:
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                                 logging.warn("Fatal synchronisation error")            
@@ -211,13 +220,16 @@ class SyncWorker(threading.Thread):
                             except Exception, err:                        
                                 #Bad programmer
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                                 logging.critical("Unknown synchronisation error\n%s" % traceback.format_exc())
                                 raise Exceptions.StopSync
-                        
-                        if sinkErrorFree:
-                            #tell the gui if the sync was ok
-                            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
                 
+                #Now go back and check for errors
+                for sink in self.sinks:
+                    if sink not in sinkErrors:
+                        #tell the gui if the sync was ok
+                        sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                    
                 #Done go to next state
                 if self.state < self.finishState:
                     self.state += 1

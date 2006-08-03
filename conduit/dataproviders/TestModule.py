@@ -2,6 +2,7 @@ import gtk
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
 
 MODULES = {
 	"TestSource" : {

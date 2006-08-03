@@ -707,7 +707,7 @@ class DataProviderSimpleConfigurator:
                 #gtkEntry has its label beside it
                 label = gtk.Label(l["Name"])
                 hbox.pack_start(label)
-                #widget.set_text(l["InitialValue"])
+                widget.set_text(str(l["InitialValue"]))
             elif isinstance(widget, gtk.CheckButton):
                 #gtk.CheckButton has its label built in
                 widget = l["Widget"](l["Name"])
