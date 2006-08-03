@@ -1,3 +1,15 @@
+2006-08-03 05:50  john
+
+	* dataproviders/GmailModule.py: Fix config bug
+
+2006-08-03 02:48  john
+
+	* ChangeLog, Module.py, Synchronization.py, __init__.py,
+	  data/conduit.glade, dataproviders/BackpackModule.py,
+	  dataproviders/FeedModule.py, dataproviders/GmailModule.py:
+	  Bugfixes to prevent unhandled exceptions. Updated changelogs.
+	  Updated gladefile, added backpack notes config dialog
+
 2006-08-02 12:07  john
 
 	* data/backpack.png, dataproviders/BackpackModule.py,
