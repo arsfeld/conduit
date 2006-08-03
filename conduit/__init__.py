@@ -35,12 +35,12 @@ USER_MODULE_DIR = "~/.conduit/modules"
 
 # If the CONDUIT_LOGLEVEL evironment variable is set then this 
 #overrides the settings below
-DEFAULT_LOG_LEVEL = "DEBUG"
+DEFAULT_LOGLEVEL = "DEBUG"
 
 try:
     LOG_LEVEL = os.environ['CONDUIT_LOGLEVEL']
 except KeyError:
-    LOG_LEVEL = DEFAULT_LOG_LEVEL
+    LOG_LEVEL = DEFAULT_LOGLEVEL
     pass
     
 LOG_DICT = {"INFO" : logging.INFO,
@@ -51,7 +51,7 @@ LOG_DICT = {"INFO" : logging.INFO,
             }
     
 if LOG_LEVEL not in LOG_DICT.keys():
-    LOG_LEVEL = DEFAULT_LOG_LEVEL
+    LOG_LEVEL = DEFAULT_LOGLEVEL
  
 print "Log Level = ", LOG_LEVEL
 logging.basicConfig(level=LOG_DICT[LOG_LEVEL],

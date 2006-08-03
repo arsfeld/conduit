@@ -1,3 +1,176 @@
+2006-08-02 12:07  john
+
+	* data/backpack.png, dataproviders/BackpackModule.py,
+	  trunk/contrib/backpack-1.1,
+	  trunk/contrib/backpack-1.1/backpack.py,
+	  trunk/contrib/backpack-1.1/bptest.py,
+	  trunk/contrib/backpack-1.1/cgi,
+	  trunk/contrib/backpack-1.1/cgi/reminder.py,
+	  trunk/contrib/backpack-1.1/cgi/todo.py,
+	  trunk/contrib/backpack-1.1/data,
+	  trunk/contrib/backpack-1.1/data/email.xml,
+	  trunk/contrib/backpack-1.1/data/emaillist.xml,
+	  trunk/contrib/backpack-1.1/data/error404.xml,
+	  trunk/contrib/backpack-1.1/data/export.xml,
+	  trunk/contrib/backpack-1.1/data/list.xml,
+	  trunk/contrib/backpack-1.1/data/notelist.xml,
+	  trunk/contrib/backpack-1.1/data/page.xml,
+	  trunk/contrib/backpack-1.1/data/pages.xml,
+	  trunk/contrib/backpack-1.1/data/pagesfortag.xml,
+	  trunk/contrib/backpack-1.1/data/reminders.xml,
+	  trunk/contrib/backpack-1.1/wapsupport.py: Added a backpack note
+	  sink
+
+2006-08-02 10:00  john
+
+	* attic: Removing cruft
+
+2006-08-02 06:58  john
+
+	* trunk/check-doc.sh, Canvas.py, Conduit.py, DataProvider.py,
+	  Exceptions.py, MainWindow.py, Module.py, Synchronization.py,
+	  TypeConverter.py, dataproviders/GmailModule.py,
+	  dataproviders/LifereaModule.py, dataproviders/NotesModule.py,
+	  trunk/contrib/python-opml-0.5/OPML.py,
+	  trunk/doc/ExampleModule.py, trunk/make-doc.sh: Doc Updates.
+	  Disable a few DPs in preparation for release
+
+2006-08-02 05:40  john
+
+	* DataProvider.py, Exceptions.py, MainWindow.py, Module.py,
+	  Synchronization.py, __init__.py, dataproviders/GmailModule.py,
+	  dataproviders/LifereaModule.py, dataproviders/NotesModule.py:
+	  s/initialize/refresh and added the ability for feeds which do
+	  not initialize correctly to be hidden from the user
+
+2006-08-02 05:36  john
+
+	* data/conduit.glade, dataproviders/FeedModule.py: Added a rss2
+	  enclosure source. Great for keeping something in sync with say a
+	  frineds flickr photo stream.
+
+2006-08-02 02:41  john
+
+	* data/feed-icon.png: imported feed icon from www.feedicons.com
+
+2006-08-01 13:03  john
+
+	* data/tomboy.png, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py, dataproviders/NotesModule.py,
+	  dataproviders/StickyNotesModule.py, datatypes/File.py,
+	  datatypes/Note.py: Added Tomboy source and a few bug fixes. This
+	  is close to release now
+
+2006-07-31 04:03  john
+
+	* MainWindow.py, data/conduit.glade: Removed most of the non
+	  functioning gui and menu items
+
+2006-07-31 01:50  john
+
+	* data/conduit.glade, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py, datatypes/File.py: Gmail source
+	  updates. Seems to have trouble when you are logged into gmail in
+	  another browser window
+
+2006-07-30 23:55  john
+
+	* dataproviders/GmailModule.py: Chasing bugs in the gmail source...
+
+2006-07-30 12:51  john
+
+	* MainWindow.py: Hooked up the splash screen. Makes a pleasant
+	  difference on slower computers. Will make a bigger difference
+	  once i start calling initialize from the module loader
+
+2006-07-30 10:23  john
+
+	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
+	  Module.py: Color the connector based on whether sync can be
+	  performed (i.e. can all the needed conversions be made). Also
+	  updated some signal stuff
+
+2006-07-30 07:26  john
+
+	* Conduit.py, MainWindow.py, data/conduit-splash.png,
+	  dataproviders/FileModule.py, dataproviders/GmailModule.py,
+	  datatypes/DataType.py, datatypes/File.py, datatypes/__init__.py:
+	  File dataprovider and datatype updates. Started thinking about
+	  how a splashscreen would work
+
+2006-07-29 11:04  john
+
+	* data/conduit.glade, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py, datatypes/File.py: File sink now
+	  works. Updated the Config Guis also
+
+2006-07-26 11:34  john
+
+	* Canvas.py, data/conduit.glade, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py, dataproviders/LifereaModule.py,
+	  start_conduit.py: GUI updates to the Gmail dataproviders
+
+2006-07-25 10:35  john
+
+	* Canvas.py, MainWindow.py, Module.py, data/liferea.png,
+	  dataproviders/LifereaModule.py, datatypes/Feed.py,
+	  datatypes/__init__.py: Checked in a skeleton liferea source
+
+2006-07-25 09:16  john
+
+	* Canvas.py, Conduit.py, DataProvider.py, Module.py,
+	  data/conduit.glade, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py,
+	  dataproviders/StickyNotesModule.py: Some minor cleanups. Disable
+	  the right click menu if a sync is already in process
+
+2006-07-24 08:22  john
+
+	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
+	  TypeConverter.py, data/conduit.glade: Updated GUI, moved toolbar
+	  to file->synchronize menu item. Removed som magic numbers
+
+2006-07-23 06:45  john
+
+	* Exceptions.py, MainWindow.py, Synchronization.py,
+	  TypeConverter.py, trunk/doc/ExampleModule.py, trunk/make-doc.sh:
+	  More Syncronization cleanups. Changed to using exceptions more
+	  often. Updated the example dataprovider to the new API. This
+	  thing is actually starting to get useful now
+
+2006-07-23 04:48  john
+
+	* Conduit.py, DataProvider.py, MainWindow.py, Module.py,
+	  TypeConverter.py, __init__.py, dataproviders/GmailModule.py,
+	  start_conduit.py: Doc updates
+
+2006-07-23 04:42  john
+
+	* Synchronization.py: Removed the gtk based threading
+	  implementation as mine seems to work ok. Also improved the
+	  behavior in some error cases
+
+2006-07-23 03:28  john
+
+	* DataProvider.py, Exceptions.py, MainWindow.py,
+	  Synchronization.py, __init__.py, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py: (True) Multithreading
+	  working./check-doc.sh All synchronisation ops run on a second
+	  thread so to not block the UI. Added a whole bunch of exception
+	  classes
+
+2006-07-22 08:59  john
+
+	* ChangeLog: Updated changelog
+
+2006-07-22 08:58  john
+
+	* DataProvider.py, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py,
+	  dataproviders/StickyNotesModule.py,
+	  dataproviders/TextConverterModule.py, datatypes/Note.py:
+	  StickyNoteSource improvements
+
 2006-07-22 07:50  john
 
 	* Synchronization.py, TypeConverter.py, __init__.py,

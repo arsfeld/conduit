@@ -10,6 +10,7 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
+import traceback
 import gnomevfs
 import urllib2
 from elementtree import ElementTree
@@ -39,6 +40,7 @@ class RSSSource(DataProvider.DataSource):
         
         #self.feedUrl = "http://www.flickr.com/services/feeds/photos_public.gne?id=44124362632@N01&format=rss_200_enc"
         #self.feedUrl = "http://www.lugradio.org/episodes.ogg.rss"
+        self.feedUrl = ""
         self.files = []
 
         self.allowedTypes = []
@@ -86,43 +88,47 @@ class RSSSource(DataProvider.DataSource):
         logging.debug(self.allowedTypes)
 
     def refresh(self):
-        url_info = urllib2.urlopen(self.feedUrl)
-        if (url_info):
-            doc = ElementTree.parse(url_info).getroot()
-            #FIXME: My XML element tree foo is not that good. It seems to reprocess
-            #each item tag for each namespace???. This means i get n+1 copies
-            #of each enclosure. 1 from the bland doc, and one from each other namespace.
-            allreadyInserted = []
-            for item in doc.getiterator("item"):
-                url = None
-                t = None
-                title = None
-                for c in item.getchildren():
-                    if c.tag == "enclosure":
-                        url = c.get("url")
-                        t = c.get("type")
-                    if c.tag == "title":
-                        title = c.text
-                    
-                    #Check if we have all the info
-                    if url and t and title:
-                        if t in self.allowedTypes:
-                            if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
-                                allreadyInserted.append(url)
-                                #Make a file
-                                f = File.File()
-                                f.load_from_uri(url)
-                                #create the correct extension
-                                #FIXME:hack because no way to get extensions for
-                                #mimetype in pygtk. See 349619
-                                try:
-                                    ext = RSSSource.MIME_EXT_DICT[t]
-                                except:
-                                    ext = ""
-                                f.force_new_filename(title+ext)
-                                self.files.append(f)
-                        else:
-                            logging.debug("Enclosure %s is on non-allowed type (%s)" % (title,t))
+        try:
+            url_info = urllib2.urlopen(self.feedUrl)
+            if (url_info):
+                doc = ElementTree.parse(url_info).getroot()
+                #FIXME: My XML element tree foo is not that good. It seems to reprocess
+                #each item tag for each namespace???. This means i get n+1 copies
+                #of each enclosure. 1 from the bland doc, and one from each other namespace.
+                allreadyInserted = []
+                for item in doc.getiterator("item"):
+                    url = None
+                    t = None
+                    title = None
+                    for c in item.getchildren():
+                        if c.tag == "enclosure":
+                            url = c.get("url")
+                            t = c.get("type")
+                        if c.tag == "title":
+                            title = c.text
+                        
+                        #Check if we have all the info
+                        if url and t and title:
+                            if t in self.allowedTypes:
+                                if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
+                                    allreadyInserted.append(url)
+                                    #Make a file
+                                    f = File.File()
+                                    f.load_from_uri(url)
+                                    #create the correct extension
+                                    #FIXME:hack because no way to get extensions for
+                                    #mimetype in pygtk. See 349619
+                                    try:
+                                        ext = RSSSource.MIME_EXT_DICT[t]
+                                    except:
+                                        ext = ""
+                                    f.force_new_filename(title+ext)
+                                    self.files.append(f)
+                            else:
+                                logging.debug("Enclosure %s is on non-allowed type (%s)" % (title,t))
+        except:
+            logging.info("Error getting/parsing feed \n%s" % traceback.format_exc())
+            raise Exceptions.RefreshError
                             
     def get(self):
         for f in self.files:

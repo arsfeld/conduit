@@ -70,7 +70,6 @@ class ModuleLoader(gobject.GObject):
         				res.append(i)
         	except OSError, err:
         		logging.warn("Error reading directory %s, skipping." % (d))
-        		#traceback.print_exc()
         return res			
        
     def is_module(self, filename):
@@ -108,8 +107,7 @@ class ModuleLoader(gobject.GObject):
         try:
             mods = pydoc.importfile (filename)
         except Exception:
-            logging.error("Error loading the file: %s." % (filename))
-            traceback.print_exc()
+            logging.error("Error loading the file: %s.\n%s" % (filename, traceback.format_exc()))
             return
 
         try:

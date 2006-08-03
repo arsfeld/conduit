@@ -2,6 +2,7 @@ import os
 import sys
 import gtk
 from gettext import gettext as _
+import traceback
 
 import logging
 import conduit
@@ -72,8 +73,8 @@ class GmailBase(DataProvider.DataProviderBase):
         self.ga = None
     
     def refresh(self):
-        self.ga = libgmail.GmailAccount(self.username, self.password)
         try:
+            self.ga = libgmail.GmailAccount(self.username, self.password)
             self.ga.login()
             self.loggedIn = True
         except:
@@ -286,9 +287,7 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
             try:
                 draftMsg.addLabel(self.label)
             except Exception, err:
-                import traceback
-                traceback.print_exc()
-                print err
+                logging.warn("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
         
 class EmailSinkConverter:
     def __init__(self):

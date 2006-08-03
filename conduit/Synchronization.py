@@ -124,7 +124,7 @@ class SyncWorker(threading.Thread):
                         #Let the calling thread know we blew it
                         raise Exceptions.StopSync
                     except Exception, err:
-                        logging.warn("Unknown error refreshing: %s\n%s" % (self.source,traceback.print_exc()))
+                        logging.critical("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
                         #Cannot continue with no source data
                         raise Exceptions.StopSync           
 
@@ -144,7 +144,7 @@ class SyncWorker(threading.Thread):
                         except Exception, err:
                             sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
                             numOKSinks -= 1
-                            logging.warn("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
+                            logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
                             
                 #Need to have at least one successfully refreshed sink            
                 if numOKSinks > 0:
@@ -170,7 +170,7 @@ class SyncWorker(threading.Thread):
                 #if we dont know what happened then thats also bad programming
                 except Exception, err:                        
                     self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                    logging.warn("Unknown error getting source iterator: %s\n%s" % (err,traceback.format_exc()))
+                    logging.critical("Unknown error getting source iterator: %s\n%s" % (err,traceback.format_exc()))
                     #Cannot continue with no source data
                     raise Exceptions.StopSync           
                     
@@ -211,7 +211,7 @@ class SyncWorker(threading.Thread):
                             except Exception, err:                        
                                 #Bad programmer
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                                logging.warn("Unknown synchronisation error\n%s" % traceback.format_exc())
+                                logging.critical("Unknown synchronisation error\n%s" % traceback.format_exc())
                                 raise Exceptions.StopSync
                         
                         if sinkErrorFree:

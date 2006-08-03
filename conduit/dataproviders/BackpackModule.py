@@ -59,6 +59,30 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         self.pageID = None
         self.existingNotes = {}
         
+    def configure(self, window):
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "BackpackNotesSinkConfigDialog")
+        
+        #get a whole bunch of widgets
+        usernameEntry = tree.get_widget("username")
+        apikeyEntry = tree.get_widget("apikey")
+        pagenameEntry = tree.get_widget("pagename")        
+        
+        #preload the widgets
+        usernameEntry.set_text(self.username)
+        pagenameEntry.set_text(self.storeInPage)        
+        
+        dlg = tree.get_widget("BackpackNotesSinkConfigDialog")
+        dlg.set_transient_for(window)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            self.username = usernameEntry.get_text()
+            self.storeInPage = pagenameEntry.get_text()
+            if apikeyEntry.get_text() != self.apikey:
+                self.apikey = apikeyEntry.get_text()
+        dlg.destroy()    
+        
+        
     def put(self, note):
         #First search for the pageID of the named page to put notes in
         if self.pageID is None:
