@@ -1,3 +1,13 @@
+== Version 0.1.5 ==
+libgmail.py
+    * Fixed exception in the testcode (SF bug #1486703) --SZ--
+    * Fixed broken login caused by slight format change
+      (SF Bug #1534275 - Thanks, anonymous tipster!) --WD--
+    * Added another attribute to the message class: to
+      (SF Bug #1528766) --WD--
+    * Fixed problems caused by repeated commas
+      (SF Bug #1512361) --SZ--
+
 == Version 0.1.4 ==
 libgmail.py
     * Started new contacts code. --SZ--

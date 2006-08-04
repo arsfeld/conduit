@@ -5,7 +5,7 @@
 ## To get the version number of the available libgmail version.
 ## Reminder: add date before next release. This attribute is also
 ## used in the setup script.
-Version = '0.1.4' # (Feb 2006)
+Version = '0.1.5' # (Aug 2006)
 
 # Original author: follower@myrealbox.com
 # Maintainers: Waseem (wdaher@mit.edu) and Stas Z (stas@linux.isbeter.nl)
@@ -91,8 +91,9 @@ def _parsePage(pageContent):
     """
     lines = pageContent.splitlines()
     data = '\n'.join([x for x in lines if x and x[0] in ['D', ')', ',', ']']])
-    data = data.replace(',,',',').replace(',,',',')
-
+    #data = data.replace(',,',',').replace(',,',',')
+    data = re.sub(',{2,}', ',', data)
+    
     result = []
     try:
         exec data in {'__builtins__': None}, {'D': lambda x: result.append(x)}
@@ -304,14 +305,13 @@ class GmailAccount:
         
         # TODO: Tidy this up?
         # This requests the page that provides the required "GV" cookie.
-        RE_PAGE_REDIRECT = 'CheckCookie\?continue=([^"]+)'
+        RE_PAGE_REDIRECT = 'CheckCookie\?continue=([^"\']+)'
 
 
         # TODO: Catch more failure exceptions here...?
-        
+        link = re.search(RE_PAGE_REDIRECT, pageData).group(1)
         try:
-            redirectURL = urllib.unquote(re.search(RE_PAGE_REDIRECT,
-                                                   pageData).group(1))
+            redirectURL = urllib.unquote(link)
             
         except AttributeError:
             raise GmailLoginFailure("Login failed. (Wrong username/password?)")
@@ -1217,9 +1217,6 @@ class _LabelHandlerMixin(object):
     Note: Because a message id can be used as a thread id this works for
           messages as well as threads.
     """
-    def __init__(self):
-        self._labels = None
-        
     def _makeLabelList(self, labelList):
         self._labels = labelList
     
@@ -1272,7 +1269,6 @@ class GmailThread(_LabelHandlerMixin):
     def __init__(self, parent, threadsInfo):
         """
         """
-        _LabelHandlerMixin.__init__(self)
         
         # TODO Handle this better?
         self._parent = parent
@@ -1289,7 +1285,7 @@ class GmailThread(_LabelHandlerMixin):
 
         self._authors = threadsInfo[T_AUTHORS_HTML]
         self.info = threadsInfo
-	
+    
         try:
             # TODO: Find out if this information can be found another way...
             #       (Without another page request.)
@@ -1392,7 +1388,6 @@ class GmailMessageStub(_LabelHandlerMixin):
     def __init__(self, id = None, _account = None):
         """
         """
-        _LabelHandlerMixin.__init__(self)
         self.id = id
         self._account = _account
     
@@ -1416,6 +1411,7 @@ class GmailMessage(object):
         self.id = msgData[MI_MSGID]
         self.number = msgData[MI_NUM]
         self.subject = msgData[MI_SUBJECT]
+        self.to = msgData[MI_TO]
         self.cc = msgData[MI_CC]
         self.bcc = msgData[MI_BCC]
         self.sender = msgData[MI_AUTHOREMAIL]
@@ -1551,15 +1547,18 @@ if __name__ == "__main__":
         print "%s of %s used. (%s)\n" % (quotaMbUsed, quotaMbTotal, quotaPercent)
 
         searches = STANDARD_FOLDERS + ga.getLabelNames()
-
+        name = None
         while 1:
             try:
                 print "Select folder or label to list: (Ctrl-C to exit)"
                 for optionId, optionName in enumerate(searches):
                     print "  %d. %s" % (optionId, optionName)
-
-                name = searches[int(raw_input("Choice: "))]
-
+                while not name:
+                    try:
+                        name = searches[int(raw_input("Choice: "))]
+                    except ValueError,info:
+                        print info
+                        name = None
                 if name in STANDARD_FOLDERS:
                     result = ga.getMessagesByFolder(name, True)
                 else:
@@ -1568,7 +1567,7 @@ if __name__ == "__main__":
                 if not len(result):
                     print "No threads found in `%s`." % name
                     break
-                
+                name = None
                 tot = len(result)
                 
                 i = 0

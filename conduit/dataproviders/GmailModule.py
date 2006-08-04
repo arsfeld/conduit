@@ -14,7 +14,7 @@ try:
     import libgmail
 except ImportError:
     logging.warn("Note: Using built in libgmail")
-    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.4"))
+    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.5"))
     import libgmail
 
 
