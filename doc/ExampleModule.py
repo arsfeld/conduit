@@ -11,8 +11,8 @@ import xmlrpclib
 
 MODULES = {
 	"MoinMoinDataSource" : {
-		"name": _("Wiki Source"),
-		"description": _("Moinmoin Wiki Source"),
+		"name": _("GNOME Wiki Source"),
+		"description": _("Get Pages from the GNOME Wiki"),
 		"type": "source",
 		"category": "Local",
 		"in_type": "wikipage",
@@ -30,23 +30,26 @@ MODULES = {
 
 class MoinMoinDataSource(DataProvider.DataSource):
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("Wiki Source"), _("Moinmoin Wiki Source"))
+        DataProvider.DataSource.__init__(self, _("GNOME Wiki Source"), _("Get Pages from the GNOME Wiki"))
         self.icon_name = "applications-internet"
         
         #class specific
         self.srcwiki = None
+        self.pagesString = ""
         self.pages = []
         
     def configure(self, window):
         def set_pages(param):
             self.pages = param.split(',')
+            self.pagesString = param
         
         #Define the items in the configure dialogue
         items = [
                     {
                     "Name" : "Page Names to Synchronize:",
                     "Widget" : gtk.Entry,
-                    "Callback" : set_pages
+                    "Callback" : set_pages,
+                    "InitialValue" : self.pagesString
                     }                    
                 ]
         #We just use a simple configuration dialog
