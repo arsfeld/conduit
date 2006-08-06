@@ -25,7 +25,7 @@ import logging
 import os
 
 APPNAME="Conduit"
-APPVERSION="0.0.0"
+APPVERSION="0.1.0"
 #for pixmaps, glade files, etc
 SHARED_DATA_DIR = "/usr/share/conduit/data"
 GLADE_FILE = "/usr/share/conduit/data/conduit.glade"
@@ -35,7 +35,7 @@ USER_MODULE_DIR = "~/.conduit/modules"
 
 # If the CONDUIT_LOGLEVEL evironment variable is set then this 
 #overrides the settings below
-DEFAULT_LOGLEVEL = "DEBUG"
+DEFAULT_LOGLEVEL = "INFO"
 
 try:
     LOG_LEVEL = os.environ['CONDUIT_LOGLEVEL']

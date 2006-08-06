@@ -44,7 +44,7 @@ class FileSource(DataProvider.DataSource):
         self.icon_name = "text-x-generic"
         
         #list of file URIs
-        self.files = ["ssh://root@www.greenbirdsystems.com/var/www/greenbirdsystems.com/logo.png", "file:///home/john/Desktop/plaintext.txt"]
+        self.files = []
         
     def configure(self, window):
         fileStore = gtk.ListStore( str )

@@ -78,7 +78,7 @@ class GmailBase(DataProvider.DataProviderBase):
             self.ga.login()
             self.loggedIn = True
         except:
-            logging.warn("Error logging into gmail (username %s)" % self.username)
+            logging.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
             raise Exceptions.RefreshError
     
 
