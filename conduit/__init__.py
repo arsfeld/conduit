@@ -35,7 +35,7 @@ USER_MODULE_DIR = "~/.conduit/modules"
 
 # If the CONDUIT_LOGLEVEL evironment variable is set then this 
 #overrides the settings below
-DEFAULT_LOGLEVEL = "INFO"
+DEFAULT_LOGLEVEL = "DEBUG"
 
 try:
     LOG_LEVEL = os.environ['CONDUIT_LOGLEVEL']
@@ -65,7 +65,7 @@ from Canvas import Canvas
 from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
 from Module import ModuleLoader, ModuleWrapper
 from Conduit import Conduit
-from Exceptions import ConversionError, RefreshError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync
+from Exceptions import ConversionError, RefreshError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync,  ConversionDoesntExistError
 from Synchronization import SyncManager, SyncWorker
 
 # Make sure epydoc documents the classes 

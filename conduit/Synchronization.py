@@ -191,12 +191,19 @@ class SyncWorker(threading.Thread):
                                             self.source.out_type, sink.in_type))
                             try:
                                 if self.source.out_type != sink.in_type:
-                                    newdata = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
+                                    if self.typeConverter.conversion_exists(self.source.out_type, sink.in_type):
+                                        newdata = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
+                                    else:
+                                        raise Exceptions.ConversionDoesntExistError
                                 else:
                                     newdata = data
                                 #Finally after all the schenigans try an put the data                                
                                 sink.module.put(newdata)
                                 sink.module.set_status(DataProvider.STATUS_SYNC)
+                            #Catch exceptions if we abort the sync cause no conversion exist
+                            except Exceptions.ConversionDoesntExistError:
+                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_SKIPPED)
+                                sinkErrors[sink] = True
                             #Catch errors from a failed convert
                             except Exceptions.ConversionError, err:
                                 #Not fatal, move along

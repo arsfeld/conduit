@@ -30,6 +30,13 @@ class ConversionError(Exception):
         else:
             return "Could not convert %s -> %s\nExtra info:\n%s" % (self.fromType, self.toType, self.msg)
 
+class ConversionDoesntExistError(Exception):
+    """
+    Thrown in sync statemachine if a conversion doesnt exist. 
+    USually discovered after calling TypeConverter.conversion_exists()
+    """
+    pass
+
 class RefreshError(Exception):
     """
     Exception thrown upon failure to refresh conduit

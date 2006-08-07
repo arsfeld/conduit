@@ -21,6 +21,8 @@ STATUS_DONE_REFRESH_ERROR = 4
 STATUS_SYNC = 5
 STATUS_DONE_SYNC_OK = 6
 STATUS_DONE_SYNC_ERROR = 7
+STATUS_DONE_SYNC_SKIPPED = 8
+STATUS_DONE_SYNC_CANCELLED = 9
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -268,6 +270,10 @@ class DataProviderBase(gobject.GObject):
             return _("Synchronized OK")
         elif s == STATUS_DONE_SYNC_ERROR:
             return _("Error Synchronizing")
+        elif s == STATUS_DONE_SYNC_SKIPPED:
+            return _("Synchronization Skipped")
+        elif s == STATUS_DONE_SYNC_CANCELLED:
+            return _("Synchronization Cancelled")
         else:
             return "BAD PROGRAMMER"
             

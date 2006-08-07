@@ -142,7 +142,7 @@ class Conduit(goocanvas.Group):
         #so we need to update all children
         for p in self.positions.keys():
             self.positions[p]["x"] += dx
-            self.positions[p]["y"] += dx
+            self.positions[p]["y"] += dy
         
     def move_dataprovider_to(self,dataprovider,new_x,new_y):
         """
