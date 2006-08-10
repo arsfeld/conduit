@@ -5,7 +5,7 @@
 ## To get the version number of the available libgmail version.
 ## Reminder: add date before next release. This attribute is also
 ## used in the setup script.
-Version = '0.1.5' # (Aug 2006)
+Version = '0.1.5.1' # (Aug 2006)
 
 # Original author: follower@myrealbox.com
 # Maintainers: Waseem (wdaher@mit.edu) and Stas Z (stas@linux.isbeter.nl)
@@ -309,8 +309,8 @@ class GmailAccount:
 
 
         # TODO: Catch more failure exceptions here...?
-        link = re.search(RE_PAGE_REDIRECT, pageData).group(1)
         try:
+            link = re.search(RE_PAGE_REDIRECT, pageData).group(1)
             redirectURL = urllib.unquote(link)
             
         except AttributeError:
@@ -1391,7 +1391,7 @@ class GmailMessageStub(_LabelHandlerMixin):
     def __init__(self, id = None, _account = None):
         """
         """
-        _LabelHandlerMixin.__init__(self)
+        _LabelHandlerMixin.__init__(self)        
         self.id = id
         self._account = _account
     
