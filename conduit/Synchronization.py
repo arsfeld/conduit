@@ -27,6 +27,20 @@ class SyncManager(object):
         self.conduits = {}
         self.typeConverter = typeConverter
         
+    def cancel_conduit(self, conduit):
+        """
+        Cancel a conduit. Does not block
+        """
+        self.conduits[conduit].cancel()
+        
+    def cancel_all(self):
+        """
+        Cancels all threads and also joins() them. Will block
+        """
+        for c in self.conduits:
+            self.cancel_conduit(c)
+            self.conduits[c].join()            
+             
     def join_all(self, timeout=None):
         """
         Joins all threads. This function will block the calling thread
@@ -34,30 +48,40 @@ class SyncManager(object):
         for c in self.conduits:
             self.conduits[c].join(timeout)
             
-    def init_conduit(self, conduit):
+    def refresh_conduit(self, conduit):
         """
         Just calls the initialize method on all dp's in a conduit
         """
-        if conduit not in self.conduits:
-            newThread = SyncWorker(self.typeConverter, conduit, (0,0))
-            self.conduits[conduit] = newThread
-            self.conduits[conduit].start()
-                
+        if conduit in self.conduits:
+            #If the thread is alive then cancel it
+            if self.conduits[conduit].isAlive():
+                self.conduits[conduit].cancel()
+                self.conduits[conduit].join() #Will block
+
+        #Create a new thread over top. Thanks mr garbage collector
+        newThread = SyncWorker(self.typeConverter, conduit, (0,0))
+        self.conduits[conduit] = newThread
+        self.conduits[conduit].start()
+
     def sync_conduit(self, conduit):
         """
         @todo: Send some signals back to the GUI to disable clicking
         on the conduit
-        @todo: Actually work out what happens if a user wants to resync 
-        a conduit
         """
-        if conduit not in self.conduits:
-            newThread = SyncWorker(self.typeConverter, conduit)
-            self.conduits[conduit] = newThread
-            self.conduits[conduit].start()
-        else:
+        if conduit in self.conduits:
             logging.warn("Conduit already in queue (alive: %s)" % self.conduits[conduit].isAlive())
+            #If the thread is alive then cancel it
+            if self.conduits[conduit].isAlive():
+                logging.warn("Cancelling thread")
+                self.conduits[conduit].cancel()
+                self.conduits[conduit].join() #Will block
+
+        #Create a new thread over top. Thanks mr garbage collector
+        newThread = SyncWorker(self.typeConverter, conduit)
+        self.conduits[conduit] = newThread
+        self.conduits[conduit].start()
             
-            
+
 class SyncWorker(threading.Thread):
     """
     Class designed to be operated within a thread used to perform the
@@ -79,8 +103,18 @@ class SyncWorker(threading.Thread):
         self.sinks = conduit.datasinks
         self.state = doStates[0]
         self.finishState = doStates[1]
+        self.cancelled = False
         
         self.setName("Synchronization Thread: %s" % conduit.datasource.get_unique_identifier())
+        
+    def cancel(self):
+        self.cancelled = True
+        
+    def check_thread_not_cancelled(self, dataprovidersToCancel):
+        if self.cancelled:
+            for s in dataprovidersToCancel:
+                s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
+            raise Exceptions.StopSync
 
     def run(self):
         """
@@ -106,6 +140,7 @@ class SyncWorker(threading.Thread):
         finished = False
         numOKSinks = 0
         while not finished:
+            self.check_thread_not_cancelled([self.source] + self.sinks)
             sourcestatus = self.source.module.get_status()        
             logging.debug("Syncworker state %s" % self.state)
             #Refresh state
@@ -130,6 +165,7 @@ class SyncWorker(threading.Thread):
 
                 #Refresh all the sinks. At least one must refresh successfully
                 for sink in self.sinks:
+                    self.check_thread_not_cancelled([self.source, sink])
                     sinkstatus = sink.module.get_status()                        
                     if sinkstatus is DataProvider.STATUS_NONE:
                         try:
@@ -183,6 +219,7 @@ class SyncWorker(threading.Thread):
                     #OK if we have got this far then we have source data to sync the sinks with
                     #Get each piece of data and put it in each sink             
                     for sink in self.sinks:
+                        self.check_thread_not_cancelled([self.source, sink])
                         #only sync with those sinks that refresh'd OK
                         if sink.module.get_status() in [DataProvider.STATUS_DONE_REFRESH_OK, DataProvider.STATUS_SYNC]:
                             logging.debug("Synchronizing %s -> %s (source \

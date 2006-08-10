@@ -717,7 +717,7 @@ class DataProviderSimpleConfigurator:
             elif isinstance(widget, gtk.CheckButton):
                 #gtk.CheckButton has its label built in
                 widget = l["Widget"](l["Name"])
-                #widget.set_active(l["InitialValue"])                        
+                widget.set_active(bool(l["InitialValue"]))                        
                 #FIXME: There must be a better way to do this but we need some way 
                 #to identify the widget *instance* when we save the values from it
             self.widgetInstances.append({

@@ -54,7 +54,7 @@ class MainWindow:
 
         self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "MainWindow")
         
-        dic = { "on_mainwindow_destroy" : self.on_window_closed,
+        dic = { "on_mainwindow_delete" : self.on_window_closed,
                 "on_mainwindow_resized" : self.on_window_resized,
                 "on_synchronize_activate" : self.on_synchronize_all_clicked,      
                 "on_quit_activate" : self.on_window_closed,
@@ -138,8 +138,7 @@ class MainWindow:
         """
         Synchronize all valid conduits on the canvas
         """
-        sync_set = self.canvas.get_sync_set()
-        for conduit in sync_set:
+        for conduit in self.canvas.get_sync_set():
             if conduit.datasource is not None and len(conduit.datasinks) > 0:
                 self.sync_manager.sync_conduit(conduit)
             else:
@@ -258,13 +257,35 @@ class MainWindow:
         dlg.set_transient_for(self.mainWindow)
         #dlg.set_icon(self.icon)        
 
-    def on_window_closed(self, widget):
+    def on_window_closed(self, widget, event=None):
         """
-        Kills the app and cleans up
+        Check if there are any synchronizations currently in progress and
+        ask the user if they wish to cancel them
         """
-        logging.info("Stopping all synchronization threads")
-        self.sync_manager.join_all()
-        gtk.main_quit()
+        busy = False
+        for c in self.canvas.get_sync_set(): 
+            if c.is_busy():
+                busy = True
+               
+        if busy:       
+            dialog = gtk.MessageDialog(
+                            self.mainWindow,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            gtk.MESSAGE_QUESTION,
+                            gtk.BUTTONS_YES_NO,_("Synchronization in progress. Do you want to cancel it?")
+                            )
+            response = dialog.run()
+            if response == gtk.RESPONSE_YES:
+                logging.info("Stopping all synchronization threads")
+                self.sync_manager.cancel_all()
+                gtk.main_quit()
+            else:
+                #Dont exit
+                dialog.destroy()
+                return True
+        else:
+            gtk.main_quit()
+        
         
     #size-allocate instead of size-request        
     def on_window_resized(self, widget, req):

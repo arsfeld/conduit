@@ -4,6 +4,8 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 
+import time
+
 MODULES = {
 	"TestSource" : {
 		"name": "Test Source",
@@ -27,20 +29,29 @@ class TestBase:
     def __init__(self):
         #Through an error on the nth time through
         self.errorAfter = 999
+        self.slow = False
         
     def initialize(self):
-        return False
+        return True
 
     def configure(self, window):
-        def set(param):
+        def setError(param):
             self.errorAfter = int(param)
+        def setSlow(param):
+            self.slow = bool(param)            
         items = [
                     {
                     "Name" : "Error At:",
                     "Widget" : gtk.Entry,
-                    "Callback" : set,
+                    "Callback" : setError,
                     "InitialValue" : self.errorAfter
-                    }                    
+                    },
+                    {
+                    "Name" : "Take a Long Time?",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : setSlow,
+                    "InitialValue" : self.slow
+                    }               
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
         dialog.run()
@@ -52,6 +63,8 @@ class TestSource(TestBase, DataProvider.DataSource):
         
     def get(self):
         for i in range(0,5):
+            if self.slow:
+                time.sleep(2)
             string = "Test #%s" % i
             logging.debug("TEST SOURCE: get() returned %s" % string)
             if i == self.errorAfter:
@@ -65,6 +78,8 @@ class TestSink(TestBase, DataProvider.DataSink):
         self.count = 0
         
     def put(self, data):
+        if self.slow:
+            time.sleep(1)    
         if self.count == self.errorAfter:
             raise Exceptions.SyncronizeError
         self.count += 1
