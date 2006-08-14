@@ -169,8 +169,11 @@ class MainWindow:
         """
         delete item
         """
-        logging.debug("Delete Item")
-        
+        dp = self.canvas.selected_dataprovider_wrapper
+        for c in self.canvas.conduits:
+            if c.has_dataprovider(dp):
+                c.deleted_dataprovider_from_conduit(dp)
+                
     def on_configure_item_clicked(self, widget):
         """
         Calls the C{configure(window)} method on the selected dataprovider

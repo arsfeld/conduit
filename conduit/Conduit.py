@@ -244,17 +244,13 @@ class Conduit(goocanvas.Group):
             #calculate the start point
             fromX = self.positions[self.datasource]["x"] + self.positions[self.datasource]["w"]
             fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"] - Conduit.CONNECTOR_YOFFSET
-            #if we have added a sink then connect to it, otherwise we 
-            #have only one sink and we should draw to it
-            if len(self.datasinks) == 1:
-                sink = self.datasinks[0]
-            else:
-                sink = dataprovider_wrapper
-            
-            toX = self.positions[sink]["x"] #inside 
-            toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
-            #Draw the connecting lines between the dataproviders
-            self.add_connector_to_canvas(fromX,fromY,toX,toY,sink)                               
+            #check if there are any sinks which are unconnected and connect them
+            for sink in self.datasinks:
+                if sink not in self.connectors:
+                    toX = self.positions[sink]["x"] #connect to inside side
+                    toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
+                    #Draw the connecting lines between the dataproviders
+                    self.add_connector_to_canvas(fromX,fromY,toX,toY,sink)                       
 
         #----- STEP FOUR -----------------------------------------------------                
         if dataprovider_wrapper.module_type == "source":
@@ -367,9 +363,11 @@ class Conduit(goocanvas.Group):
         or not made at all (there is no conversion path which exists)
         """
         for sink in self.datasinks:
-            exists = typeConverter.conversion_exists(self.datasource.out_type, sink.in_type)
-            if not exists:
-                self.connectors[sink].set_property("stroke_color","red")
+            #need to check if there is actually a datasource
+            if self.datasource is not None:
+                exists = typeConverter.conversion_exists(self.datasource.out_type, sink.in_type)
+                if not exists:
+                    self.connectors[sink].set_property("stroke_color","red")
 
     def make_status_text(self, x, y, text=""):
         """
@@ -403,13 +401,53 @@ class Conduit(goocanvas.Group):
         operaton on one or more of its contained DataProviders
         @rtype: C{bool}
         """
-        if self.datasource.module.is_busy():
-            return True
-            
-        for sink in self.datasinks:
-            if sink.module.is_busy():
-                return True
+        for sink in self.datasinks + [self.datasource]:
+            if sink is not None:
+                if sink.module.is_busy():
+                    return True
                 
         return False
+        
+    def has_dataprovider(self, dataprovider):
+        """
+        Checks if the conduit containes the specified dataprovider
+        
+        @type dataprovider: L{Conduit.Module.ModuleWrapper}
+        @returns: True if the conduit contains the dataprovider
+        @rtype: C{bool}
+        """
+        if dataprovider in self.datasinks + [self.datasource]:
+            return True
+        else:
+            return False
+        
+    def deleted_dataprovider_from_conduit(self, dataprovider):
+        """
+        Removes the specified conduit from the canvas
+        """
+        if dataprovider.module_type == "source":
+            logging.debug("Deleting Source %s" % dataprovider)
+            #remove ALL connectors
+            for sink in self.datasinks:
+                connector = self.connectors[sink]
+                child = self.find_child(connector)
+                self.remove_child(child)
+                del(self.connectors[sink])
+                
+            #remove the status text
+            text = self.dataprovider_status[dataprovider.module]
+            child = self.find_child(text)
+            self.remove_child(child)
+            del(self.dataprovider_status[dataprovider.module])
+            
+            #remove the dataprovider widget and instance
+            child = self.find_child(dataprovider.module.get_widget())
+            self.remove_child(child)
+            del(self.datasource)
+            self.datasource = None
+        elif dataprovider.module_type == "sink":
+            logging.debug("Deleting Source %s" % dataprovider)                
+
+        
         
         

@@ -179,8 +179,8 @@ class Canvas(goocanvas.CanvasView):
         """
         
         if event.type == gtk.gdk.BUTTON_PRESS:
-            #tell the canvas we recieved the click (needed for cut, 
-            #copy, past, configure operations
+            #tell the canvas we recieved the click (needed for configure and 
+            #delete operations
             self.selected_dataprovider_wrapper = user_data_dataprovider_wrapper
             if event.button == 1:
                 #TODO: Support dragging canvas items???
@@ -255,7 +255,6 @@ class Canvas(goocanvas.CanvasView):
             #it may need to be translated
             self.remove_conduit_overlap()
             #Update to connectors to see if they are valid
-            #FIXME: This function probbably belongs in the conduit class
             if self.typeConverter is not None:
                 existing_conduit.update_connectors_connectedness(self.typeConverter)
         else:
@@ -269,16 +268,7 @@ class Canvas(goocanvas.CanvasView):
             self.root.add_child(c)
             self.conduits.append(c)
          
-    def remove_dataprovider_from_canvas(self, module):
-        """
-        Removes a module from the canvas
-        
-        @param module: The module to remove from the canvas
-        @type module: L{conduit.Module.ModuleWrapper}
-        """
-        if self.selected_dataprovider_wrapper is not None:
-            logging.info("Removing module %s" % module)
-            
+           
     def update_conduit_connectedness(self):
         """
         Updates all the conduits connectedness based on the conversion
