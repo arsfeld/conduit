@@ -101,6 +101,14 @@ class Conduit(goocanvas.Group):
         """
         return self.positions[self.bounding_box]["h"]
         
+    def resize_conduit_height(self, new_h):
+        """
+        Resizes the conduit height. Does not do anything fancy with the
+        dataproviders inside.
+        """
+        self.positions[self.bounding_box]["h"] = new_h
+        self.bounding_box.set_property("height",new_h)
+        
     def resize_conduit_width(self, new_w):
         """
         Resizes the conduit width by
@@ -143,10 +151,19 @@ class Conduit(goocanvas.Group):
         for p in self.positions.keys():
             self.positions[p]["x"] += dx
             self.positions[p]["y"] += dy
+            
+    def move_dataprovider_by(self,dataprovider,dx,dy):
+        """
+        Translates the supplied dataprovider by the specified amount
+        and updates the stored position
+        """
+        dataprovider.module.get_widget().translate(dx,dy)
+        self.positions[dataprovider]["x"] += dx
+        self.positions[dataprovider]["y"] += dy
         
     def move_dataprovider_to(self,dataprovider,new_x,new_y):
         """
-        Translates a dataprovider to the supplied new 
+        Translates a dataprovider to the new 
         co-ordinates and updates its stored position
         
         Used after the window is resized for example
@@ -155,10 +172,7 @@ class Conduit(goocanvas.Group):
         dx = new_x - self.positions[dataprovider]["x"]
         dy = new_y - self.positions[dataprovider]["y"]
         #translate
-        dataprovider.module.get_widget().translate(dx,dy)
-        #update stored position
-        self.positions[dataprovider]["x"] = new_x
-        self.positions[dataprovider]["y"] = new_y
+        self.move_dataprovider_by(dataprovider,dx,dy)
         
     def add_dataprovider_to_conduit(self, dataprovider_wrapper):
         """
@@ -241,16 +255,11 @@ class Conduit(goocanvas.Group):
         #Draw the pretty curvy connector lines only if there
         #is one source and >1 sinks
         if len(self.datasinks) > 0 and self.datasource != None:
-            #calculate the start point
-            fromX = self.positions[self.datasource]["x"] + self.positions[self.datasource]["w"]
-            fromY = self.positions[self.datasource]["y"] + self.positions[self.datasource]["h"] - Conduit.CONNECTOR_YOFFSET
             #check if there are any sinks which are unconnected and connect them
             for sink in self.datasinks:
                 if sink not in self.connectors:
-                    toX = self.positions[sink]["x"] #connect to inside side
-                    toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
                     #Draw the connecting lines between the dataproviders
-                    self.add_connector_to_canvas(fromX,fromY,toX,toY,sink)                       
+                    self.add_connector_to_canvas(self.datasource,sink)                       
 
         #----- STEP FOUR -----------------------------------------------------                
         if dataprovider_wrapper.module_type == "source":
@@ -272,9 +281,8 @@ class Conduit(goocanvas.Group):
         #----- STEP FIVE -----------------------------------------------------                
         if resize_box is True:
             #increase to fit added dataprovider
-            self.positions[self.bounding_box]["h"] += Conduit.HEIGHT
-            self.bounding_box.set_property("height",
-                                self.positions[self.bounding_box]["h"])
+            new_h = self.get_conduit_height() + Conduit.HEIGHT
+            self.resize_conduit_height(new_h)
             
     def make_connector_svg_string(self, fromX, fromY, toX, toY):
         """
@@ -312,10 +320,16 @@ class Conduit(goocanvas.Group):
             #create and return                                    
         return p
                
-    def add_connector_to_canvas(self, fromX, fromY, toX, toY, sink, bidirectional=False):
+    def add_connector_to_canvas(self, source, sink, bidirectional=False):
         """
         Adds nice curved line which indicates a sync relationship to the canvas
         """
+        #calculate the start point
+        fromX = self.positions[source]["x"] + self.positions[source]["w"]
+        fromY = self.positions[source]["y"] + self.positions[source]["h"] - Conduit.CONNECTOR_YOFFSET
+        #calculate end point
+        toX = self.positions[sink]["x"] #connect to inside side
+        toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
         #The path is a goocanvas.Path element. 
         svgPathString = self.make_connector_svg_string(fromX, fromY, toX, toY)
         path = goocanvas.Path(data=svgPathString,stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
@@ -420,6 +434,43 @@ class Conduit(goocanvas.Group):
             return True
         else:
             return False
+            
+    def delete_connector(self, dataprovider):
+        """
+        Deletes the connector associated with the given dataprovider
+        """
+        connector = self.connectors[dataprovider]
+        self.remove_child(self.find_child(connector))
+        del(self.connectors[dataprovider])
+    
+    def delete_status_text(self, dataprovider):
+        """
+        Deletes status text from the canvas associated with the given dataprovider
+        """
+        text = self.dataprovider_status[dataprovider.module]
+        self.remove_child(self.find_child(text))
+        del(self.dataprovider_status[dataprovider.module])
+        
+    def delete_dataprovider(self, dataprovider):
+        """
+        Deletes dataprovider
+        """
+        #Delete the widget
+        child = self.find_child(dataprovider.module.get_widget())
+        self.remove_child(child)
+        #Delete its stored position
+        del(self.positions[dataprovider])
+        #Sources and sinks are stored seperately so must be deleted from different
+        #places. Lucky there is only one source or this would be harder....
+        if dataprovider.module_type == "source":
+            del(self.datasource)
+            self.datasource = None
+        elif dataprovider.module_type == "sink":
+            try:
+                i = self.datasinks.index(dataprovider)
+                del(self.datasinks[i])
+            except ValueError:
+                logging.warn("Could not remove %s" % dataprovider)
         
     def deleted_dataprovider_from_conduit(self, dataprovider):
         """
@@ -429,25 +480,38 @@ class Conduit(goocanvas.Group):
             logging.debug("Deleting Source %s" % dataprovider)
             #remove ALL connectors
             for sink in self.datasinks:
-                connector = self.connectors[sink]
-                child = self.find_child(connector)
-                self.remove_child(child)
-                del(self.connectors[sink])
-                
+                self.delete_connector(sink)
             #remove the status text
-            text = self.dataprovider_status[dataprovider.module]
-            child = self.find_child(text)
-            self.remove_child(child)
-            del(self.dataprovider_status[dataprovider.module])
-            
+            self.delete_status_text(dataprovider)
             #remove the dataprovider widget and instance
-            child = self.find_child(dataprovider.module.get_widget())
-            self.remove_child(child)
-            del(self.datasource)
-            self.datasource = None
+            self.delete_dataprovider(dataprovider)
         elif dataprovider.module_type == "sink":
-            logging.debug("Deleting Source %s" % dataprovider)                
-
-        
+            logging.debug("Deleting Sink %s" % dataprovider)  
+            #remove the connector
+            if self.datasource is not None:
+                self.delete_connector(dataprovider)
+            #remove the status text
+            self.delete_status_text(dataprovider)
+            #remove the dataprovider widget and instance
+            i = self.datasinks.index(dataprovider)
+            self.delete_dataprovider(dataprovider)
+            
+            #Move the datasinks, and status text below the deleted one 
+            #upwards and fix all their connectors
+            for j in range(i, len(self.datasinks)):
+                #Delete the old connectors
+                self.delete_connector(self.datasinks[j])
+                #Move the sink up
+                self.move_dataprovider_by(self.datasinks[j], 0,-Conduit.HEIGHT)
+                #Move the status text up
+                self.dataprovider_status[self.datasinks[j].module].translate(0,-Conduit.HEIGHT)
+                #Make a new connector
+                self.add_connector_to_canvas(self.datasource,self.datasinks[j])
+                #Shrink the box
+                new_h = self.get_conduit_height() - Conduit.HEIGHT
+                self.resize_conduit_height(new_h)
+                #FIXME: Remove the conduit overlap
+                
+                
         
         
