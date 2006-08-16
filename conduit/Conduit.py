@@ -6,12 +6,13 @@ License: GPLv2
 """
 import goocanvas
 import gtk
+import gobject
 
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
 
-class Conduit(goocanvas.Group):
+class Conduit(goocanvas.Group, gobject.GObject):
     """
     Model of a Conduit, which is a one-to-many bridge of DataSources to
     DataSinks.
@@ -28,6 +29,10 @@ class Conduit(goocanvas.Group):
     CONNECTOR_YOFFSET = 20
     CONNECTOR_TEXT_XPADDING = 5
     CONNECTOR_TEXT_YPADDING = 10
+    
+    __gsignals__ =  { 
+                    "conduit-resized": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    }
     
     def __init__(self, y_from_origin, canvas_width):
         """
@@ -108,6 +113,8 @@ class Conduit(goocanvas.Group):
         """
         self.positions[self.bounding_box]["h"] = new_h
         self.bounding_box.set_property("height",new_h)
+        #This signal tells the canvas to resize us
+        self.emit ("conduit-resized")
         
     def resize_conduit_width(self, new_w):
         """
@@ -133,6 +140,20 @@ class Conduit(goocanvas.Group):
         for c in self.connectors:
             self.adjust_connector_width(self.connectors[c], dw)
             
+    def move_conduit_by(self,dx,dy):
+        """
+        Translates the conduit and its children by the included amount.
+        Updates the stored positions
+        
+        Because Conduit is a goocanvas.Group all its children get
+        moved automatically when we move but we still update each childs stored 
+        position
+        """
+        self.translate(dx,dy)
+        #so we need to update all children
+        for p in self.positions.keys():
+            self.positions[p]["x"] += dx
+            self.positions[p]["y"] += dy
         
     def move_conduit_to(self,new_x,new_y):
         """
@@ -142,15 +163,9 @@ class Conduit(goocanvas.Group):
         Used after the window is resized or a conduit above us grows
         in size
         """        
-        #because Conduit is a goocanvas.Group all its children get
-        #moved automatically when we move
         dx = new_x - self.positions[self.bounding_box]["x"]
         dy = new_y - self.positions[self.bounding_box]["y"]
-        self.translate(dx,dy)
-        #so we need to update all children
-        for p in self.positions.keys():
-            self.positions[p]["x"] += dx
-            self.positions[p]["y"] += dy
+        self.move_conduit_by(dx,dy)
             
     def move_dataprovider_by(self,dataprovider,dx,dy):
         """
@@ -472,7 +487,7 @@ class Conduit(goocanvas.Group):
             except ValueError:
                 logging.warn("Could not remove %s" % dataprovider)
         
-    def deleted_dataprovider_from_conduit(self, dataprovider):
+    def delete_dataprovider_from_conduit(self, dataprovider):
         """
         Removes the specified conduit from the canvas
         """
@@ -510,8 +525,4 @@ class Conduit(goocanvas.Group):
                 #Shrink the box
                 new_h = self.get_conduit_height() - Conduit.HEIGHT
                 self.resize_conduit_height(new_h)
-                #FIXME: Remove the conduit overlap
                 
-                
-        
-        

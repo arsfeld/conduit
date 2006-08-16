@@ -84,7 +84,7 @@ class Canvas(goocanvas.CanvasView):
         """        
         return self.conduits
         
-    def remove_conduit_overlap(self):
+    def remove_conduit_overlap(self, conduit=None):
         """
         Searches the cavas from top to bottom to detect if any conduits
         overlap (visually).
@@ -94,24 +94,24 @@ class Canvas(goocanvas.CanvasView):
         """
         for i in range(0, len(self.conduits)):
             c = self.conduits[i]
-            try:
-                #get the conduit below the current one
-                n_c = self.conduits[i+1]
-            except:
-                #break cause on last one
-                break
             x,y,w,h = c.get_conduit_dimensions()
-            n_x, n_y, n_w, n_h = n_c.get_conduit_dimensions()
-            #check if the current conduit overlaps onto the conduit below it
-            if n_y < (y + h):
-                new_y = y + h
-                #translate only in y direction
-                n_c.move_conduit_to(n_x, new_y)
-            #x translate not needed/supported
-            #if n_x < (x + w):
-            #    new_x = x + w
-            #    #translate only in y direction
-            #    n_c.move_conduit_to(new_x, n_y)
+            #Special case where the top conduit has been deleted and the new top
+            #conduit must be moved up
+            if (i == 0) and (y != 0):
+                c.move_conduit_by(0, -y)
+            else:
+                try:
+                    #get the conduit below the current one
+                    #n_c = next conduit
+                    n_c = self.conduits[i+1]
+                except:
+                    #break cause on last one
+                    break
+                n_x, n_y, n_w, n_h = n_c.get_conduit_dimensions()
+                #check if the current conduit overlaps onto the conduit below it
+                diff = (y + h) - n_y 
+                logging.debug("C(y,h) = %s,%s\tNC(y,h) = %s,%s\t Diff = %s" % (y,h,n_y,n_h,diff))
+                n_c.move_conduit_by(0, diff)
             
     def get_canvas_size(self):
         """
@@ -250,16 +250,15 @@ class Canvas(goocanvas.CanvasView):
         existing_conduit = self.get_conduit_at_coordinate(y)
         if existing_conduit is not None:
             existing_conduit.add_dataprovider_to_conduit(module)
-            #if we added a new datasource to an existing conduit then it
-            #may have been resized. In that case all of the conduits below
-            #it may need to be translated
-            self.remove_conduit_overlap()
             #Update to connectors to see if they are valid
             if self.typeConverter is not None:
                 existing_conduit.update_connectors_connectedness(self.typeConverter)
         else:
             #create the new conduit
             c = Conduit.Conduit(offset,c_w)
+            #connect to the conduit resized signal which signals us to 
+            #check and remove graphical overlap
+            c.connect("conduit-resized", self.remove_conduit_overlap)
             #add the dataprovider to the conduit
             c.add_dataprovider_to_conduit(module)
             #save so that the appropriate signals can be connected
@@ -277,6 +276,22 @@ class Canvas(goocanvas.CanvasView):
         if self.typeConverter is not None:
             for conduit in self.conduits:
                 conduit.update_connector_connectedness(self.typeConverter)
+                
+    def delete_conduit(self, conduit):
+        """
+        Deletes a conduit and all dataproviders contained within from
+        the canvas
+        """
+        #delete all the datasinks from the conduit
+        for s in conduit.datasinks + [conduit.datasource]:
+            if s is not None:
+                conduit.delete_dataprovider_from_conduit(s)
+        #now delete the conduit
+        self.root.remove_child(self.root.find_child(conduit))
+        i = self.conduits.index(conduit)
+        del(self.conduits[i])
+        #Now restack the conduits
+        self.remove_conduit_overlap()
 
     def on_item_view_created(self, view, itemview, item):
         """

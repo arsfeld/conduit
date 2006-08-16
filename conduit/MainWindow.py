@@ -148,7 +148,7 @@ class MainWindow:
         """
         Delete a conduit and all its associated dataproviders
         """
-        logging.debug("Delete Group") 
+        self.canvas.delete_conduit(self.canvas.selected_conduit)
 
     def on_refresh_group_clicked(self, widget):
         """
@@ -172,7 +172,7 @@ class MainWindow:
         dp = self.canvas.selected_dataprovider_wrapper
         for c in self.canvas.conduits:
             if c.has_dataprovider(dp):
-                c.deleted_dataprovider_from_conduit(dp)
+                c.delete_dataprovider_from_conduit(dp)
                 
     def on_configure_item_clicked(self, widget):
         """
