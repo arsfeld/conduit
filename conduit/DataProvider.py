@@ -400,7 +400,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     @ivar modules: The array of modules under this treeviews control.
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
     """
-    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str)
+    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool)
     COLUMN_NAMES = ['Name', 'Description']
 
     def __init__(self, module_wrapper_list):
@@ -410,12 +410,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         Ignores modules which are not enabled
         """
         gtk.GenericTreeModel.__init__(self)
-        #Only display 
-        #module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
         self.pathMappings = {}
         self.dataproviders = []
         self.cats = []
-
+        
+        #Only display enabled modules
+        module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
+        
         #Build a list of cats
         i = 0
         for mod in module_wrapper_list:
@@ -518,6 +519,16 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
                 return None
             else:        
                 return rowref.description
+        #Used internally from the TreeView to get the classname
+        elif column is 3:
+            if self.is_category_heading(rowref):
+                return "ImACategoryNotADataprovider"
+            else:
+                return rowref.classname
+        #Used internally from the TreeView to see if this is a category heading
+        #and subsequently cancel the drag and drop
+        elif column is 4:        
+            return self.is_category_heading(rowref)
 
     def on_iter_next(self, rowref):
         """
@@ -591,13 +602,14 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             path = self.pathMappings[rowref.category]
             #print "on_iter_parent: parent = ", self.cats[path[0]]
             return self.cats[path[0]]
+            
         
 class DataProviderTreeView(gtk.TreeView):
     """
     Handles DND of DataProviders onto canvas
     """
     DND_TARGETS = [
-    ('conduit/element-name', 0, 2)
+    ('conduit/element-name', 0, 0)
     ]
     def __init__(self, model):
         """
@@ -626,9 +638,20 @@ class DataProviderTreeView(gtk.TreeView):
         self.drag_source_set(           gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
                                         DataProviderTreeView.DND_TARGETS,
                                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
+        #self.connect('drag-begin', self.on_drag_begin)
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)
-    
+        
+    def on_drag_begin(self, treeview, context):
+        pass
+        #treeselection = treeview.get_selection()
+        #model, iter = treeselection.get_selected()
+        #categoryHeading = model.get_value(iter, 4)
+        #if categoryHeading:
+        #    logging.debug("Aborting DND")
+        #    context.drag_abort()
+        
+
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):
         """
         Get the data to be dropped by on_drag_data_received().
@@ -636,8 +659,8 @@ class DataProviderTreeView(gtk.TreeView):
         """
         treeselection = treeview.get_selection()
         model, iter = treeselection.get_selected()
-        data = model.get_value(iter, 1)
-        #print "---------------------------- data = ", data
+        #get the classname
+        data = model.get_value(iter, 3)
         selection.set(selection.target, 8, data)
         
     def on_drag_data_delete (self, context, etime):

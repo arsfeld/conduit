@@ -312,11 +312,14 @@ class MainWindow:
         DND
         """
         module_name = selection.data
-        #logging.info("DND RX = %s" % (module_name))        
-        #Add a new instance if the dataprovider to the canvas. It is up to the
-        #canvas to decide if multiple instances of the specific provider are allowed
-        new = self.modules.get_new_instance_module_named(module_name)
-        self.canvas.add_dataprovider_to_canvas(new, x, y)
+        #FIXME: DnD should be cancelled in the Treeview on the drag-begin 
+        #signal and NOT here
+        if module_name != "ImACategoryNotADataprovider":
+            #logging.info("DND RX = %s" % (module_name))        
+            #Add a new instance if the dataprovider to the canvas. It is up to the
+            #canvas to decide if multiple instances of the specific provider are allowed
+            new = self.modules.get_new_instance_module_named(module_name)
+            self.canvas.add_dataprovider_to_canvas(new, x, y)
         
         context.finish(True, True, etime)
         return

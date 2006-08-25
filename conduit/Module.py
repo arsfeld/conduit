@@ -194,36 +194,36 @@ class ModuleLoader(gobject.GObject):
             
             return mods
             
-    def get_module_named(self, name):
+    def get_module_named(self, classname):
         """
         Returns a ModuleWrapper specified by name
         
-        @param name: Name of the module to get
-        @type name: C{string}
+        @param classname: Classname of the module to get
+        @type classname: C{string}
         @returns: An already instanciated ModuleWrapper
         @rtype: a L{conduit.Module.ModuleWrapper}
         """
         for m in self.loadedmodules:
-            if name == m.name:
-                logging.info("Returning module named %s" % (name))
+            if classname == m.classname:
+                logging.info("Returning module named %s" % (classname))
                 return m
                 
-        logging.warn("Could not find module named %s" % (name))
+        logging.warn("Could not find module with classname %s" % (classname))
         return None
                 
-    def get_new_instance_module_named(self, name):
+    def get_new_instance_module_named(self, classname):
         """
         Returns a new instance ModuleWrapper specified by name
         
-        @param name: Name of the module to get
-        @type name: C{string}
+        @param classname: Classname of the module to get
+        @type classname: C{string}
         @returns: An newly instanciated ModuleWrapper
         @rtype: a L{conduit.Module.ModuleWrapper}
         """    
         #check if its loaded (i.e. been checked and is instanciatable)
-        if name in [i.name for i in self.loadedmodules]:
+        if classname in [i.classname for i in self.loadedmodules]:
             for m in self.loadedmodules:
-                if name == m.name:
+                if classname == m.classname:
                     #reimport the file that the module was in
                     mods = self.import_file(m.filename)
                     #re-instanciate it
@@ -232,7 +232,7 @@ class ModuleLoader(gobject.GObject):
                     enabled = True
                     if isinstance(mod_instance,DataProvider.DataProviderBase):
                         if not mod_instance.initialize():
-                            logging.warn("%s did not initialize correctly. Starting disabled" % infos["name"])
+                            logging.warn("%s did not initialize correctly. Starting disabled" % m.classname)
                             enabled = False                  
                     #put it into a new wrapper
                     mod_wrapper = ModuleWrapper(  
@@ -247,10 +247,10 @@ class ModuleLoader(gobject.GObject):
             	                               mod_instance,
             	                               enabled)
                     
-                    logging.info("Returning new instance of module named %s" % (m.name))
+                    logging.info("Returning new instance of module with classname %s" % (m.classname))
                     return mod_wrapper
         #Didnt load at app startup so its not gunna load now!
-        logging.warn("Could not find module named %s" % (name))        
+        logging.warn("Could not find module with class name %s" % (classname))        
         return None
             
 class ModuleWrapper: 
