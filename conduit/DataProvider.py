@@ -14,6 +14,7 @@ from gettext import gettext as _
 import logging
 import conduit
 
+#Constants used in the sync state machine
 STATUS_NONE = 1
 STATUS_REFRESH = 2
 STATUS_DONE_REFRESH_OK = 3
@@ -54,10 +55,31 @@ TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
 TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
 TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
 
+#Constants affecting how the dataproviders are drawn onto the Canvas 
 LINE_WIDTH = 3
 RECTANGLE_RADIUS = 5
 WIDGET_WIDTH = 120
 WIDGET_HEIGHT = 80
+
+#Store the translated catgory names
+CATEGORY_NAMES = {
+    "Files and Folders" : "Files",
+    "Google" : "Google",
+    "Notes" : "Notes",
+    "RSS" : "RSS",
+    "Test" : "Test",
+    "Websites" : "Websites"
+    }
+
+#Icon names for each category
+CATEGORY_IMAGES = {
+    "Files and Folders" : None,
+    "Google" : None,
+    "Notes" : None,
+    "RSS" : None,
+    "Test" : None,
+    "Websites" : None
+    } 
 
 class DataProviderBase(gobject.GObject):
     """
@@ -359,6 +381,22 @@ class DataProviderBase(gobject.GObject):
         """
         logging.warn("get_num_items() not overridden by derived class %s" % self.name)
         return NO_ITEMS
+        
+    def get_configuration(self):
+        """
+        Returns a dictionary of strings to be saved, representing the dataproviders
+        current configuration. Should be overridden by all dataproviders wishing
+        to be able to save their state between application runs
+        @returns: Dictionary of strings containing application settings
+        @rtype: C{dict(string)}
+        """
+        return {}
+
+    def set_configuration(self, config):
+        """
+        Restores applications settings
+        """
+        pass
 
 class DataSource(DataProviderBase):
     """
@@ -511,7 +549,12 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
                 return rowref.module.get_icon()
         elif column is 1:
             if self.is_category_heading(rowref):
-                return rowref
+                #For i8n we store some common translated category names
+                try:
+                    name = CATEGORY_NAMES[rowref]
+                except KeyError:
+                    name = rowref
+                return name
             else:        
                 return rowref.name
         elif column is 2:

@@ -14,6 +14,7 @@ import gnome.ui
 import copy
 import os.path
 from gettext import gettext as _
+import elementtree.ElementTree as ET
 
 import logging
 import conduit
@@ -248,6 +249,7 @@ class MainWindow:
         Edit the application wide preferences
         """
         logging.debug("application preferences")
+        #self.save_settings()
 
     def on_about_conduit(self, widget):
         """
@@ -324,6 +326,47 @@ class MainWindow:
         context.finish(True, True, etime)
         return
         
+    def save_settings(self):
+        """
+        Saves the application settings to an XML document
+        """
+        import conduit
+        #Build the application settings xml document
+        rootxml = ET.Element("conduit-application")
+        rootxml.set("version", conduit.APPVERSION)
+        #Store the conduits
+        for conduit in self.canvas.get_sync_set():
+            conduitxml = ET.SubElement(rootxml, "conduit")
+            #First store conduit specific settings
+            x,y,w,h = conduit.get_conduit_dimensions()
+            conduitxml.set("x",str(x))
+            conduitxml.set("y",str(y))
+            conduitxml.set("w",str(w))
+            conduitxml.set("h",str(h))
+            #Store the source
+            source = conduit.datasource
+            sourcexml = ET.SubElement(conduitxml, "datasource")
+            sourcexml.set("classname", source.classname)
+            #Store source settings
+            configurations = source.module.get_configuration()
+            logging.debug("Source Settings %s" % configurations)
+            for config in configurations:
+                configxml = ET.SubElement(sourcexml, str(config))
+                configxml.text = str(configurations[config])
+            #Store all sinks
+            sinksxml = ET.SubElement(conduitxml, "datasinks")
+            for sink in conduit.datasinks:
+                sinkxml = ET.SubElement(sinksxml, "datasink")
+                sinkxml.set("classname", sink.classname)
+                #Store sink settings
+                configurations = sink.module.get_configuration()
+                logging.debug("Sink Settings %s" % configurations)
+                for config in configurations:
+                    configxml = ET.SubElement(sinkxml, str(config))
+                    configxml.text = str(configurations[config])
+                    
+        tree = ET.ElementTree(rootxml)
+        tree.write("settings.xml")
 
     def __main__(self):
         """

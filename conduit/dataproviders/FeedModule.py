@@ -20,7 +20,7 @@ MODULES = {
 		"name": _("RSS Source"),
 		"description": _("Sync data from RSS enclosures"),
 		"type": "source",
-		"category": "Test",
+		"category": "RSS",
 		"in_type": "file",
 		"out_type": "file"
 	}	
@@ -73,7 +73,7 @@ class RSSSource(DataProvider.DataSource):
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            self.rssUrl = url.get_text()
+            self.feedUrl = url.get_text()
             if limitCb.get_active():
                 self.limit = limitSb.get_value()
             self.allowedTypes = []
@@ -133,3 +133,9 @@ class RSSSource(DataProvider.DataSource):
     def get(self):
         for f in self.files:
             yield f                            
+
+    def get_configuration(self):
+        return {
+            "feedUrl" : self.feedUrl,
+            "limit" : self.limit
+            }

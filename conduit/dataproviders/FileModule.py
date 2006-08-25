@@ -15,7 +15,7 @@ MODULES = {
 		"name": _("File Source"),
 		"description": _("Source for synchronizing files"),
 		"type": "source",
-		"category": "Local",
+		"category": "Files and Folders",
 		"in_type": "file",
 		"out_type": "file"
 	},
@@ -23,7 +23,7 @@ MODULES = {
 		"name": _("File Sink"),
 		"description": _("Sink for synchronizing files"),
 		"type": "sink",
-		"category": "Local",
+		"category": "Files and Folders",
 		"in_type": "file",
 		"out_type": "file"
 	},
