@@ -410,27 +410,43 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         Ignores modules which are not enabled
         """
         gtk.GenericTreeModel.__init__(self)
-        #print "init, array= ", module_array
         #Only display 
-        self.module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
-        return 
-        
-    def get_module_index_by_name(self, name):
-        """
-        get
-        """
-        #print "get_module_index_by_name: name = ", name
-        for n in range(0, len(self.module_wrapper_list)):
-            if self.module_wrapper_list[n].name == name:
-                return n
+        #module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
+        self.pathMappings = {}
+        self.dataproviders = []
+        self.cats = []
+
+        #Build a list of cats
+        i = 0
+        for mod in module_wrapper_list:
+            if mod.category not in self.cats:
+                self.cats.append(mod.category)
+                #put into the path mappings
+                self.pathMappings[mod.category] = (i,)
+                i += 1
+
+        #Put dp's of the same cat into different lists
+        for cat in self.cats:
+            #put each module in its own list
+            listy = []
+            for m in [x for x in module_wrapper_list if x.category == cat]:
+                listy.append(m)
+                #Store its path
+                self.pathMappings[m] = (self.cats.index(cat),listy.index(m)) 
+            self.dataproviders.append(listy)
+           
+        #for i in self.pathMappings:
+        #    if isinstance(i,str):
+        #        name = i
+        #    else:
+        #        name = i.name
+        #    tup = self.pathMappings[i]
+        #    logging.debug("Tree Model: %s : %s (%s)" % (name, tup, self.on_get_iter(tup,False)))
                 
-    def get_module_by_name(self, name):
-        """
-        get mod
-        """
-        #TODO: ERROR CHECK
-        return self.module_wrapper_list[self.get_module_index_by_name(name)]
-    
+
+    def is_category_heading(self, rowref):
+        return isinstance(rowref, str)
+        
     def get_column_names(self):
         """
         get_column_names(
@@ -441,7 +457,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_get_flags(
         """
-        return gtk.TREE_MODEL_LIST_ONLY|gtk.TREE_MODEL_ITERS_PERSIST
+        return gtk.TREE_MODEL_ITERS_PERSIST
 
     def on_get_n_columns(self):
         """
@@ -455,97 +471,126 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         return self.COLUMN_TYPES[n]
 
-    def on_get_iter(self, path):
-        #print "on_get_iter: path =", path
+    def on_get_iter(self, path, debug=False):
         """
         on_get_iter(
         """
-        try:
-            return self.module_wrapper_list[path[0]].name
-        except IndexError:
-            #no modules loaded
-            return None
+        #Check if this is a toplevel row
+        if len(path) == 1:
+            if debug:
+                print "on_get_iter: path = %s cat = %s" % (path, self.cats[path[0]])
+            return self.cats[path[0]]
+        else:
+            try:
+                if debug:
+                    print "on_get_iter: path = %s dataprovider = %s" % (path, self.dataproviders[path[0]][path[1]])
+                return self.dataproviders[path[0]][path[1]]
+            except IndexError:
+                #no modules loaded
+                if debug:
+                    print "on_get_iter: No modules loaded path = ", path
+                return None
 
     def on_get_path(self, rowref):
-        #print "on_get_path: rowref = ", rowref
         """
         on_get_path(
         """
-        return self.module_wrapper_list[self.get_module_index_by_name(rowref)]
+        #print "on_get_path: rowref = ", rowref
+        return self.pathMappings[rowref]
 
     def on_get_value(self, rowref, column):
         """
         on_get_value(
         """
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
-        m = self.module_wrapper_list[self.get_module_index_by_name(rowref)]
         if column is 0:
-            return m.module.get_icon()
+            if self.is_category_heading(rowref):
+                return None
+            else:
+                return rowref.module.get_icon()
         elif column is 1:
-            return m.name
+            if self.is_category_heading(rowref):
+                return rowref
+            else:        
+                return rowref.name
         elif column is 2:
-            return m.description
-        else:
-            print "ERROR WILL ROBINSON"
-            return None
-        
+            if self.is_category_heading(rowref):
+                return None
+            else:        
+                return rowref.description
+
     def on_iter_next(self, rowref):
         """
         on_iter_next(
         """
-        #print "on_iter_next: rowref = ", rowref
+        path = self.pathMappings[rowref]
         try:
-            i = self.get_module_index_by_name(rowref)
-            #print "on_iter_next: old i = ", i
-            i = i+1
-            #print "on_iter_next: next i = ", i
-            return self.module_wrapper_list[i].name
+            #print "on_iter_next: current rowref = %s, path = %s" % (rowref, path)        
+            #Check if its a toplevel row
+            if len(path) == 1:
+                return self.cats[path[0]+1]
+            else:            
+                return self.dataproviders[path[0]][path[1]+1] 
         except IndexError:
+            #print "on_iter_next: index error iter next"
             return None
         
     def on_iter_children(self, rowref):
         """
         on_iter_children(
         """
-        #print "on_iter_children: rowref = ", rowref
-        if rowref:
-            return None
-        return self.module_wrapper_list[0].name
+        #print "on_iter_children: parent = ", rowref
+        if rowref is None:
+            return self.cats[0]
+        else:
+            path = self.pathMappings[rowref]
+            #print "on_iter_children: children = ", self.dataproviders[path[0]][0]
+            return self.dataproviders[path[0]][0]
 
     def on_iter_has_child(self, rowref):
         """
         on_iter_has_child(
         """
-        #print "on_iter_has_child: rowref = ", rowref
-        return False
+        #print "on_iter_has_child: rowref = %s, has child = %s" % (rowref,self.is_category_heading(rowref))
+        return self.is_category_heading(rowref)
 
     def on_iter_n_children(self, rowref):
         """
         on_iter_n_children(
         """
-        #print "on_iter_n_children: rowref = ", rowref
+        #print "on_iter_n_children: parent = ", rowref
         if rowref:
-            return 0
-        return len(self.module_wrapper_list)
+            path = self.pathMappings[rowref]
+            return len(self.dataproviders[path[0]])
+        return len(self.cats)
 
     def on_iter_nth_child(self, rowref, n):
         """
         on_iter_nth_child(
         """
-        #print "on_iter_nth_chile: rowref = %s n = %s" % (rowref, n)
-        if rowref:
-            return None
-        try:
-            return self.module_wrapper_list[n].name
-        except IndexError:
-            return None
+        #print "on_iter_nth_child: rowref = %s n = %s" % (rowref, n)
+        if rowref is None:
+            return self.cats[n]
+        else:
+            path = self.pathMappings[rowref]
+            try:
+                return self.dataproviders[path[0]][n]
+            except IndexError:
+                return None
+            
 
-    def on_iter_parent(child):
+    def on_iter_parent(self, rowref):
         """
         on_iter_parent(
         """
-        #print "on_iter_parent: child = ", child
-        return None
+        #print "on_iter_parent: child = ", rowref
+        if self.is_category_heading(rowref):
+            #print "on_iter_parent: parent = None"
+            return None
+        else:
+            path = self.pathMappings[rowref.category]
+            #print "on_iter_parent: parent = ", self.cats[path[0]]
+            return self.cats[path[0]]
         
 class DataProviderTreeView(gtk.TreeView):
     """
