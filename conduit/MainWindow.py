@@ -63,6 +63,7 @@ class MainWindow:
                 "on_loaded_modules_activate" : self.on_loaded_modules,
                 "on_preferences_activate" : self.on_conduit_preferences,
                 "on_about_activate" : self.on_about_conduit,
+                "on_save1_activate" : self.save_settings,
                 None : None
                 }
          
@@ -249,7 +250,6 @@ class MainWindow:
         Edit the application wide preferences
         """
         logging.debug("application preferences")
-        #self.save_settings()
 
     def on_about_conduit(self, widget):
         """
@@ -326,47 +326,59 @@ class MainWindow:
         context.finish(True, True, etime)
         return
         
-    def save_settings(self):
+    def save_settings(self, widget):
         """
         Saves the application settings to an XML document
         """
         import conduit
+        from xml.dom.minidom import Document
         #Build the application settings xml document
-        rootxml = ET.Element("conduit-application")
-        rootxml.set("version", conduit.APPVERSION)
+        doc = Document()
+        rootxml = doc.createElement("conduit-application")
+        rootxml.setAttribute("version", conduit.APPVERSION)
+        doc.appendChild(rootxml)
+        
         #Store the conduits
         for conduit in self.canvas.get_sync_set():
-            conduitxml = ET.SubElement(rootxml, "conduit")
+            conduitxml = doc.createElement("conduit")
             #First store conduit specific settings
             x,y,w,h = conduit.get_conduit_dimensions()
-            conduitxml.set("x",str(x))
-            conduitxml.set("y",str(y))
-            conduitxml.set("w",str(w))
-            conduitxml.set("h",str(h))
+            conduitxml.setAttribute("x",str(x))
+            conduitxml.setAttribute("y",str(y))
+            conduitxml.setAttribute("w",str(w))
+            conduitxml.setAttribute("h",str(h))
+            rootxml.appendChild(conduitxml)
+            
             #Store the source
             source = conduit.datasource
-            sourcexml = ET.SubElement(conduitxml, "datasource")
-            sourcexml.set("classname", source.classname)
+            sourcexml = doc.createElement("datasource")
+            sourcexml.setAttribute("classname", source.classname)
+            conduitxml.appendChild(sourcexml)
             #Store source settings
             configurations = source.module.get_configuration()
-            logging.debug("Source Settings %s" % configurations)
+            #logging.debug("Source Settings %s" % configurations)
             for config in configurations:
-                configxml = ET.SubElement(sourcexml, str(config))
-                configxml.text = str(configurations[config])
+                configxml = doc.createElement(str(config))
+                configxml.appendChild(doc.createTextNode(str(configurations[config])))
+                sourcexml.appendChild(configxml)
+            
             #Store all sinks
-            sinksxml = ET.SubElement(conduitxml, "datasinks")
+            sinksxml = doc.createElement("datasinks")
             for sink in conduit.datasinks:
-                sinkxml = ET.SubElement(sinksxml, "datasink")
-                sinkxml.set("classname", sink.classname)
+                sinkxml = doc.createElement("datasink")
+                sinkxml.setAttribute("classname", sink.classname)
+                sinksxml.appendChild(sinkxml)
                 #Store sink settings
                 configurations = sink.module.get_configuration()
-                logging.debug("Sink Settings %s" % configurations)
+                #logging.debug("Sink Settings %s" % configurations)
                 for config in configurations:
-                    configxml = ET.SubElement(sinkxml, str(config))
-                    configxml.text = str(configurations[config])
-                    
-        tree = ET.ElementTree(rootxml)
-        tree.write("settings.xml")
+                    configxml = doc.createElement(str(config))
+                    configxml.appendChild(doc.createTextNode(str(configurations[config])))
+                    sinkxml.appendChild(configxml)
+            conduitxml.appendChild(sinksxml)        
+
+        #FIXME: Save to disk
+        print doc.toprettyxml(indent="  ")
 
     def __main__(self):
         """

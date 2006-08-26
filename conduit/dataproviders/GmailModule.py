@@ -80,8 +80,7 @@ class GmailBase(DataProvider.DataProviderBase):
         except:
             logging.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
             raise Exceptions.RefreshError
-    
-
+            
 class GmailEmailSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
         GmailBase.__init__(self)
@@ -234,6 +233,17 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
             raise Exceptions.SyncronizeFatalError
         
 
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "password" : self.password,
+            "getAllEmals" : self.getAllEmail,
+            "getUnreadEmail" : self.getUnreadEmail,
+            "getWithLabel" : self.getWithLabel,
+            "getInFolder" : self.getInFolder
+            }            
+
+
 class GmailEmailSink(GmailBase, DataProvider.DataSink):
     def __init__(self):
         GmailBase.__init__(self)
@@ -294,6 +304,13 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
                 draftMsg.addLabel(self.label)
             except Exception, err:
                 logging.warn("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
+
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "password" : self.password,
+            "label" : self.label
+            } 
         
 class EmailSinkConverter:
     def __init__(self):

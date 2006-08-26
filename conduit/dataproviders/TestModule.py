@@ -55,6 +55,12 @@ class TestBase:
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
         dialog.run()
+        
+    def get_configuration(self):
+        return {
+            "errorAfter" : self.errorAfter,
+            "slow" : self.slow
+            }
 
 class TestSource(TestBase, DataProvider.DataSource):
     def __init__(self):

@@ -121,3 +121,9 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             logging.info("Could not sync note (%s)" % err)
             raise SyncronizeError
                 
+    def get_configuration(self):
+        return {
+            "storeInPage" : self.storeInPage,
+            "username" : self.username,
+            "apikey" : self.apikey
+            }

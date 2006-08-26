@@ -137,5 +137,8 @@ class RSSSource(DataProvider.DataSource):
     def get_configuration(self):
         return {
             "feedUrl" : self.feedUrl,
-            "limit" : self.limit
+            "allowedTypes" : str(self.allowedTypes),
+            "limit" : self.limit,
+            "downloadPhotos" : self.downloadPhotos,
+            "downloadAudio" : self.downloadAudio
             }
