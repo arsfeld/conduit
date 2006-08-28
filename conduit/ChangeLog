@@ -1,3 +1,74 @@
+2006-08-25 03:11  john
+
+	* DataProvider.py, MainWindow.py, Module.py: Use classname to
+	  identify DnD dataproviders
+
+2006-08-25 02:20  john
+
+	* DataProvider.py: Finally the dataprovider treemodel support
+	  grouping into categories. And it only took 4 attempts at
+	  rewriting it
+
+2006-08-16 05:45  john
+
+	* Canvas.py, Conduit.py, MainWindow.py: Can now remove conduits
+	  and dataproviders relatively OK
+
+2006-08-15 01:14  john
+
+	* Conduit.py: Considerable refactoring to make deleting sinks
+	  cleaner and actually work. Probbably introduced a heapo bugs and
+	  untested corner cases
+
+2006-08-14 05:35  john
+
+	* Canvas.py, Conduit.py, MainWindow.py: Can now delete sources
+	  from the canvas. Deleting sinks is going to be so much harder
+
+2006-08-10 09:01  john
+
+	* DataProvider.py, MainWindow.py, Synchronization.py,
+	  data/conduit.glade, dataproviders/TestModule.py: Threading
+	  updates to allow synchronization to be cancelled
+
+2006-08-07 00:33  john
+
+	* Conduit.py, DataProvider.py, Exceptions.py, Synchronization.py,
+	  __init__.py: Fix DND Canvas bug and improve UI for cases where
+	  conversion is not available
+
+2006-08-06 07:46  john
+
+	* __init__.py, dataproviders/FileModule.py,
+	  dataproviders/GmailModule.py, trunk/contrib/libgmail-0.1.5,
+	  trunk/contrib/libgmail-0.1.5/libgmail.py: Final bug fixes
+
+2006-08-04 23:47  john
+
+	* dataproviders/GmailModule.py, trunk/contrib/libgmail-0.1.4,
+	  trunk/contrib/libgmail-0.1.5,
+	  trunk/contrib/libgmail-0.1.5/CHANGELOG,
+	  trunk/contrib/libgmail-0.1.5/COPYING,
+	  trunk/contrib/libgmail-0.1.5/PKG-INFO,
+	  trunk/contrib/libgmail-0.1.5/README,
+	  trunk/contrib/libgmail-0.1.5/lgconstants.py,
+	  trunk/contrib/libgmail-0.1.5/libgmail.py,
+	  trunk/contrib/libgmail-0.1.5/setup.py: Upgraded libgmail version
+
+2006-08-03 09:01  john
+
+	* ChangeLog, trunk/notes.txt: Updated ChangeLog
+
+2006-08-03 09:00  john
+
+	* DataProvider.py, Synchronization.py,
+	  dataproviders/TestModule.py: Fixed the sync state machine logic
+	  to work better in the case of multiple sinks and errors
+
+2006-08-03 08:44  john
+
+	* dataproviders/TestModule.py: Added module for testing
+
 2006-08-03 05:50  john
 
 	* dataproviders/GmailModule.py: Fix config bug
