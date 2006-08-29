@@ -426,6 +426,167 @@ class DataSink(DataProviderBase):
         #customizations
         self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
+        
+class DataProviderListModel(gtk.GenericTreeModel):
+    """
+    A listmodel for managing dynamically loaded modules. Manages an internal 
+    list of L{conduit.ModuleManager.ModuleWrapper}
+    
+    @ivar modules: The array of modules under this treeviews control.
+    @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
+    """
+    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool)
+    COLUMN_NAMES = ['Name', 'Description']
+
+    def __init__(self, module_wrapper_list):
+        """
+        TreeModel constructor
+        
+        Ignores modules which are not enabled
+        """
+        gtk.GenericTreeModel.__init__(self)
+        #print "init, array= ", module_array
+        #Only display 
+        self.module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
+        return 
+        
+    def get_module_index_by_name(self, name):
+        """
+        get
+        """
+        #print "get_module_index_by_name: name = ", name
+        for n in range(0, len(self.module_wrapper_list)):
+            if self.module_wrapper_list[n].name == name:
+                return n
+                
+    def get_module_by_name(self, name):
+        """
+        get mod
+        """
+        #TODO: ERROR CHECK
+        return self.module_wrapper_list[self.get_module_index_by_name(name)]
+    
+    def get_column_names(self):
+        """
+        get_column_names(
+        """
+        return self.COLUMN_NAMES[:]
+
+    def on_get_flags(self):
+        """
+        on_get_flags(
+        """
+        return gtk.TREE_MODEL_LIST_ONLY|gtk.TREE_MODEL_ITERS_PERSIST
+
+    def on_get_n_columns(self):
+        """
+        on_get_n_columns(
+        """
+        return len(self.COLUMN_TYPES)
+
+    def on_get_column_type(self, n):
+        """
+        on_get_column_type(
+        """
+        return self.COLUMN_TYPES[n]
+
+    def on_get_iter(self, path):
+        #print "on_get_iter: path =", path
+        """
+        on_get_iter(
+        """
+        try:
+            return self.module_wrapper_list[path[0]].name
+        except IndexError:
+            #no modules loaded
+            return None
+
+    def on_get_path(self, rowref):
+        #print "on_get_path: rowref = ", rowref
+        """
+        on_get_path(
+        """
+        return self.module_wrapper_list[self.get_module_index_by_name(rowref)]
+
+    def on_get_value(self, rowref, column):
+        """
+        on_get_value(
+        """
+        #print "on_get_value: rowref = %s column = %s" % (rowref, column)
+        m = self.module_wrapper_list[self.get_module_index_by_name(rowref)]
+        if column is 0:
+            return m.module.get_icon()
+        elif column is 1:
+            return m.name
+        elif column is 2:
+            return m.description
+        #Used internally from the TreeView to get the classname
+        elif column is 3:
+            return m.classname
+        #Used internally from the TreeView to see if this is a category heading
+        #and subsequently cancel the drag and drop
+        elif column is 4:
+            return False
+        else:
+            return None
+        
+    def on_iter_next(self, rowref):
+        """
+        on_iter_next(
+        """
+        #print "on_iter_next: rowref = ", rowref
+        try:
+            i = self.get_module_index_by_name(rowref)
+            #print "on_iter_next: old i = ", i
+            i = i+1
+            #print "on_iter_next: next i = ", i
+            return self.module_wrapper_list[i].name
+        except IndexError:
+            return None
+        
+    def on_iter_children(self, rowref):
+        """
+        on_iter_children(
+        """
+        #print "on_iter_children: rowref = ", rowref
+        if rowref:
+            return None
+        return self.module_wrapper_list[0].name
+
+    def on_iter_has_child(self, rowref):
+        """
+        on_iter_has_child(
+        """
+        #print "on_iter_has_child: rowref = ", rowref
+        return False
+
+    def on_iter_n_children(self, rowref):
+        """
+        on_iter_n_children(
+        """
+        #print "on_iter_n_children: rowref = ", rowref
+        if rowref:
+            return 0
+        return len(self.module_wrapper_list)
+
+    def on_iter_nth_child(self, rowref, n):
+        """
+        on_iter_nth_child(
+        """
+        #print "on_iter_nth_chile: rowref = %s n = %s" % (rowref, n)
+        if rowref:
+            return None
+        try:
+            return self.module_wrapper_list[n].name
+        except IndexError:
+            return None
+
+    def on_iter_parent(child):
+        """
+        on_iter_parent(
+        """
+        #print "on_iter_parent: child = ", child
+        return None        
  
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """

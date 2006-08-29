@@ -110,19 +110,24 @@ class MainWindow:
         self.datasource_modules = self.modules.get_modules_by_type ("source")
         self.converter_modules = self.modules.get_modules_by_type ("converter")
                         
+        use_tree_view = False                        
+                        
         # Populate the tree and list models
-        #FIXME: how many of these really need to be kep around in self aye??
-        self.datasink_tm = DataProvider.DataProviderTreeModel(self.datasink_modules)
-        self.datasink_tv = DataProvider.DataProviderTreeView(self.datasink_tm)
-        self.datasource_tm = DataProvider.DataProviderTreeModel(self.datasource_modules)
-        self.datasource_tv = DataProvider.DataProviderTreeView(self.datasource_tm)
-        self.sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
-        self.source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
-        self.sink_scrolled_window.add(self.datasink_tv)
-        self.source_scrolled_window.add(self.datasource_tv)
-        self.sink_scrolled_window.show_all()
-        self.source_scrolled_window.show_all()
-
+        if use_tree_view:
+            datasink_tm = DataProvider.DataProviderTreeModel(self.datasink_modules)
+            datasource_tm = DataProvider.DataProviderTreeModel(self.datasource_modules) 
+        else:
+            datasink_tm = DataProvider.DataProviderListModel(self.datasink_modules)
+            datasource_tm = DataProvider.DataProviderListModel(self.datasource_modules) 
+        
+        datasink_tv = DataProvider.DataProviderTreeView(datasink_tm)
+        datasource_tv = DataProvider.DataProviderTreeView(datasource_tm)
+        sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
+        source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
+        sink_scrolled_window.add(datasink_tv)
+        source_scrolled_window.add(datasource_tv)
+        sink_scrolled_window.show_all()
+        source_scrolled_window.show_all()
 
         #initialise the Type Converter
         converters = self.modules.get_modules_by_type("converter")
@@ -131,10 +136,6 @@ class MainWindow:
         #initialise the Synchronisation Manager
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
         
-        #dic = gtk.icon_theme_get_default().list_icons()
-        #for d in dic:
-        #    print d
-
     # callbacks.
     def on_synchronize_all_clicked(self, widget):
         """
