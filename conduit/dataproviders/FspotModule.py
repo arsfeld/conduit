@@ -18,7 +18,7 @@ MODULES = {
 		"name": _("Fspot Photos"),
 		"description": _("Source for Fspot Photos"),
 		"type": "source",
-		"category": "Photos",
+		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "file",
 		"out_type": "file"
 	}

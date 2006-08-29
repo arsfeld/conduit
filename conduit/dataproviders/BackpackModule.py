@@ -22,7 +22,7 @@ MODULES = {
 	"BackpackNoteSink" : {
 		"name": _("Backpack Note Sink"),
 		"description": _("Store things in Backpack Notes"),
-		"category": "Backpack",
+		"category": DataProvider.CATEGORY_WEB,
 		"type": "sink",
 		"in_type": "note",
 		"out_type": "note"

@@ -15,7 +15,7 @@ MODULES = {
 		"name": _("File Source"),
 		"description": _("Source for synchronizing files"),
 		"type": "source",
-		"category": "Files and Folders",
+		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "file",
 		"out_type": "file"
 	},
@@ -23,7 +23,7 @@ MODULES = {
 		"name": _("File Sink"),
 		"description": _("Sink for synchronizing files"),
 		"type": "sink",
-		"category": "Files and Folders",
+		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "file",
 		"out_type": "file"
 	},

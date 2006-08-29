@@ -21,7 +21,7 @@ MODULES = {
 		"name": _("Liferea"),
 		"description": _("Sync your liferea feeds"),
 		"type": "source",
-		"category": "RSS",
+		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "feed",
 		"out_type": "feed"
 	}	

@@ -61,24 +61,23 @@ RECTANGLE_RADIUS = 5
 WIDGET_WIDTH = 120
 WIDGET_HEIGHT = 80
 
+#List of availabel categories that dataproviders can belong. 
+CATEGORY_LOCAL = "Local"
+CATEGORY_WEB = "Web"
+CATEGORY_GOOGLE = "Google"
+
 #Store the translated catgory names
 CATEGORY_NAMES = {
-    "Files and Folders" : "Files",
-    "Google" : "Google",
-    "Notes" : "Notes",
-    "RSS" : "RSS",
-    "Test" : "Test",
-    "Websites" : "Websites"
+    CATEGORY_LOCAL : _("On This Computer"),
+    CATEGORY_WEB : _("On The Web"),
+    CATEGORY_GOOGLE : _("Google")
     }
 
 #Icon names for each category
-CATEGORY_IMAGES = {
-    "Files and Folders" : None,
-    "Google" : None,
-    "Notes" : None,
-    "RSS" : None,
-    "Test" : None,
-    "Websites" : None
+CATEGORY_ICONS = {
+    CATEGORY_LOCAL : "computer",
+    CATEGORY_WEB : "applications-internet",
+    CATEGORY_GOOGLE : "applications-internet"
     } 
 
 class DataProviderBase(gobject.GObject):
@@ -131,10 +130,11 @@ class DataProviderBase(gobject.GObject):
         """
         Returns a GdkPixbuf hat represents this handler.
         """
+        import traceback
         if self.icon is None:
             try:
                 self.icon = gtk.icon_theme_get_default().load_icon(self.icon_name, 16, 0)
-            except:
+            except gobject.GError:
                 self.icon = None
                 logging.error("Could not load icon %s" % self.icon_name)
                 self.icon = gtk.icon_theme_get_default().load_icon("image-missing", 16, 0)
@@ -452,6 +452,9 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         self.dataproviders = []
         self.cats = []
         
+        #store a cache of loaded category icons for speed
+        self.categoryIconCache = {}
+        
         #Only display enabled modules
         module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
         
@@ -544,7 +547,22 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         if column is 0:
             if self.is_category_heading(rowref):
-                return None
+                try:
+                    #look to see if we have cached the icon
+                    icon = self.categoryIconCache[rowref]
+                except KeyError:
+                    #not in cache, so load
+                    try:
+                        icon = gtk.icon_theme_get_default().load_icon(CATEGORY_ICONS[rowref], 16, 0)
+                    except KeyError:
+                        #dataprovider specified its own category so it gets a default icon
+                        icon = gtk.icon_theme_get_default().load_icon("image-missing", 16, 0)
+                    except gobject.GError:
+                        #error loading fallback icon
+                        icon = None
+                    #store in cache for next time                        
+                    self.categoryIconCache[rowref] = icon                      
+                return icon
             else:
                 return rowref.module.get_icon()
         elif column is 1:
@@ -684,6 +702,9 @@ class DataProviderTreeView(gtk.TreeView):
         #self.connect('drag-begin', self.on_drag_begin)
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)
+        
+        #FIXME: Why does this cause it to hang??
+        #gtk.TreeView.expand_all(self)
         
     def on_drag_begin(self, treeview, context):
         pass

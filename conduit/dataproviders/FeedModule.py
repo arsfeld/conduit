@@ -20,7 +20,7 @@ MODULES = {
 		"name": _("RSS Source"),
 		"description": _("Sync data from RSS enclosures"),
 		"type": "source",
-		"category": "RSS",
+		"category": DataProvider.CATEGORY_WEB,
 		"in_type": "file",
 		"out_type": "file"
 	}	

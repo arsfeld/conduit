@@ -22,7 +22,7 @@ MODULES = {
 	"GmailEmailSource" : {
 		"name": _("Gmail Email Source"),
 		"description": _("Sync your Gmail Emails"),
-		"category": "Google",
+		"category": DataProvider.CATEGORY_GOOGLE,
 		"type": "source",
 		"in_type": "email",
 		"out_type": "email"
@@ -31,7 +31,7 @@ MODULES = {
 		"name": _("Gmail Email Sink"),
 		"description": _("Sync your Gmail Emails"),
 		"type": "sink",
-		"category": "Google",
+		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "email",
 		"out_type": "email"
 	},
@@ -39,7 +39,7 @@ MODULES = {
 		"name": _("Gmail Contacts Source"),
 		"description": _("Sync your Gmail Contacts"),
 		"type": "source",
-		"category": "Google",
+		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "vCard",
 		"out_type": "vCard"
 	},
@@ -47,7 +47,7 @@ MODULES = {
 		"name": _("Gmail Contacts Sink"),
 		"description": _("Sync your Gmail Contacts"),
 		"type": "sink",
-		"category": "Google",
+		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "vCard",
 		"out_type": "vCard"
 	},

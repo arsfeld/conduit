@@ -1,6 +1,7 @@
 import gtk
 from gettext import gettext as _
 from xml.dom import minidom
+from elementtree import ElementTree
 
 import logging
 import conduit
@@ -11,14 +12,14 @@ import conduit.datatypes.File as File
 
 import os
 import os.path
-
+import traceback
 
 MODULES = {
 	"TomboyNoteSource" : {
 		"name": _("Tomboy Source"),
 		"description": _("Source for synchronizing Tomboy Notes"),
 		"type": "source",
-		"category": "Notes",
+		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "note",
 		"out_type": "note"
 	},
@@ -26,7 +27,7 @@ MODULES = {
 		"name": _("StickyNote Source"),
 		"description": _("Source for synchronizing StickyNotes"),
 		"type": "source",
-		"category": "Notes",
+		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "note",
 		"out_type": "note"
 	},
@@ -74,7 +75,7 @@ class TomboyNoteSource(DataProvider.DataSource):
                 note.createdUsing = "tomboy"
                 self.notes.append(note)
             except:
-                logging.warn("Error parsing note file")
+                logging.warn("Error parsing note file\n%s" % traceback.format_exc())
                 raise Exceptions.RefreshError
                 
     def get(self):
@@ -114,7 +115,7 @@ class StickyNoteSource(DataProvider.DataSource):
                 #add to store
                 self.notes.append(newNote)
         except:
-            logging.warn("Error parsing note file")
+            logging.warn("Error parsing note file\n%s" % traceback.format_exc())
             raise Exceptions.RefreshError            
             
     def get(self):

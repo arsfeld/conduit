@@ -14,7 +14,7 @@ MODULES = {
 		"name": _("GNOME Wiki Source"),
 		"description": _("Get Pages from the GNOME Wiki"),
 		"type": "source",
-		"category": "Websites",
+		"category": DataProvider.CATEGORY_WEB,
 		"in_type": "wikipage",
 		"out_type": "wikipage"
 	},
