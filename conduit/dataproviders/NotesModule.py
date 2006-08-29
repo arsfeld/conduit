@@ -1,6 +1,5 @@
 import gtk
 from gettext import gettext as _
-from xml.dom import minidom
 from elementtree import ElementTree
 
 import logging
@@ -55,23 +54,28 @@ class TomboyNoteSource(DataProvider.DataSource):
         return os.path.exists(TomboyNoteSource.NOTE_DIR)
 
     def refresh(self):
-        files = [i for i in os.listdir(TomboyNoteSource.NOTE_DIR) if i[-5:] == ".note"]
-
-        #Parse the files into notes        
+        #FIXME: How can I do this namespace bit in ElementTree
+        def remove_namespace(string):
+            return string.split("}")[1]
+        
+        #Parse the files into notes
+        files = [i for i in os.listdir(TomboyNoteSource.NOTE_DIR) if i[-5:] == ".note"]    
         for f in files:
-            xml = minidom.parse(os.path.join(TomboyNoteSource.NOTE_DIR,f))
             try:
-                #Convenience wrapper to overcome my dumbness, minidoms verboseness
-                #and my lazyness
-                def i_hate_xml(verbose):
-                    return verbose[0].childNodes[0].data
-                    
-                title = i_hate_xml(xml.documentElement.getElementsByTagName("title"))
-                modified = i_hate_xml(xml.documentElement.getElementsByTagName("last-change-date"))
-                content = i_hate_xml(xml.documentElement.getElementsByTagName("note-content"))
-
+                doc = ElementTree.parse(os.path.join(TomboyNoteSource.NOTE_DIR,f)).getroot()
+                for i in doc:
+                    tag = remove_namespace(i.tag)
+                    if tag == "text":
+                        for j in i.getchildren():
+                            if remove_namespace(j.tag) == "note-content":
+                                content = j.text
+                    if tag == "last-change-date":
+                        modified = i.text
+                    if tag == "title":
+                        title = i.text            
+                            
                 #logging.debug("Title: %s, Modified: %s \nContent:\n%s" % (title, modified, content))
-                note = Note.Note(title, modified, content)
+                note = Note.Note(str(title), str(modified), str(content))
                 note.createdUsing = "tomboy"
                 self.notes.append(note)
             except:
@@ -99,21 +103,26 @@ class StickyNoteSource(DataProvider.DataSource):
         return os.path.exists(StickyNoteSource.NOTE_FILE)        
         
     def refresh(self):
-        if self.xml is None:
-            self.xml = minidom.parse(StickyNoteSource.NOTE_FILE)    
-        
         try:
-            notes = self.xml.documentElement.getElementsByTagName("note")
-            for n in notes:
-                newNote = Note.Note()
-                newNote.contents = n.childNodes[0].nodeValue
-                logging.debug("Contents %s" % newNote)
-                #this is not a typo, stickynotes puts the date the note was
-                #created in the title attribute???
-                newNote.modified = n.attributes["title"].nodeValue
-                newNote.createdUsing = "stickynotes"
-                #add to store
-                self.notes.append(newNote)
+            if self.xml is None:
+                self.xml = ElementTree.parse(StickyNoteSource.NOTE_FILE).getroot()
+            
+            for n in self.xml:
+                #I think the following is always true... I am mediocre at XML
+                if n.tag == "note":
+                    newNote = Note.Note()
+                    newNote.contents = str(n.text)
+                    #this is not a typo, stickynotes puts the date the note was
+                    #created in the title attribute???
+                    newNote.modified = str(n.get("title"))
+                    newNote.createdUsing = "stickynotes"
+                    #Use the first line of the note as its title
+                    try:
+                        newNote.title = str(newNote.contents.split("\n")[0])
+                    except:
+                        newNote.title = ""
+                    #add to store
+                    self.notes.append(newNote)
         except:
             logging.warn("Error parsing note file\n%s" % traceback.format_exc())
             raise Exceptions.RefreshError            
@@ -141,6 +150,6 @@ class NoteConverter:
         if len(note.title) > 0:
             f.force_new_filename("%s.%s_note" % (note.title, note.createdUsing))
         else:
-            #FIXME: This is for stickynotes cause the title field is seldom used
+            #This is for stickynotes cause the title field is seldom used
             f.force_new_filename("%s.%s_note" % (f.get_filename(), note.createdUsing))
         return f

@@ -137,7 +137,7 @@ class DataProviderBase(gobject.GObject):
             except gobject.GError:
                 self.icon = None
                 logging.error("Could not load icon %s" % self.icon_name)
-                self.icon = gtk.icon_theme_get_default().load_icon("image-missing", 16, 0)
+                self.icon = gtk.icon_theme_get_default().load_icon("gtk-missing-image", 16, 0)
         return self.icon
         
     def get_widget(self):
