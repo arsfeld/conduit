@@ -338,6 +338,6 @@ class Canvas(goocanvas.CanvasView):
         been added
         """
         if self.welcomeMessage is not None:
-            self.root.remove_child(self.welcomeMessage)
+            self.root.remove_child(self.root.find_child(self.welcomeMessage))
             del(self.welcomeMessage)
             self.welcomeMessage = None
