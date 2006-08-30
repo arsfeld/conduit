@@ -26,6 +26,7 @@ class Canvas(goocanvas.CanvasView):
     INITIAL_HEIGHT = 450
     CANVAS_WIDTH = 450
     CANVAS_HEIGHT = 600
+    WELCOME_MESSAGE = _("Drag a Source or Sink here to continue")
 
     def __init__(self):
         """
@@ -66,6 +67,10 @@ class Canvas(goocanvas.CanvasView):
         #other parts of the program can get a ref to the clicked item
         self.newelement = None
         self.newconduit = None
+        
+        #Show a friendly welcome message on the canvas the first time the
+        #application is launched
+        self.welcomeMessage = None
         
     def set_type_converter(self, typeConverter):
         """
@@ -237,6 +242,8 @@ class Canvas(goocanvas.CanvasView):
         @param y: The y location on the canvas to place the module widget
         @type y: C{int}
         """
+        #delete the welcome message
+        self.delete_welcome_message()
         
         #save so that the appropriate signals can be connected
         self.newelement = module
@@ -303,3 +310,34 @@ class Canvas(goocanvas.CanvasView):
             elif item.get_data("is_a_conduit") == True:
                 itemview.connect("button_press_event",  self.on_conduit_button_press, self.newconduit)
 
+    def add_welcome_message(self):
+        """
+        Adds a friendly welcome message to the canvas.
+        
+        Does so only if there are no conduits, otherwise it would just
+        get in the way.
+        """
+        if self.welcomeMessage is None and len(self.conduits) == 0:
+            import pango
+            self.welcomeMessage = goocanvas.Text(  
+                                    x=Canvas.CANVAS_WIDTH/2, 
+                                    y=Canvas.CANVAS_HEIGHT/3, 
+                                    width=2*Canvas.CANVAS_WIDTH/5, 
+                                    text=Canvas.WELCOME_MESSAGE, 
+                                    anchor=gtk.ANCHOR_CENTER,
+                                    alignment=pango.ALIGN_CENTER,
+                                    font="Sans 10",
+                                    fill_color="black",
+                                    )
+            self.root.add_child(self.welcomeMessage)   
+            del pango
+
+    def delete_welcome_message(self):
+        """
+        Removes the welcome message from the canvas if it has previously
+        been added
+        """
+        if self.welcomeMessage is not None:
+            self.root.remove_child(self.welcomeMessage)
+            del(self.welcomeMessage)
+            self.welcomeMessage = None
