@@ -26,12 +26,19 @@ import os
 
 APPNAME="Conduit"
 APPVERSION="0.1.0"
+#The following variables are empty only as placeholders.
+#they are filled out in start_conduit.py based upon whether conduit is
+#installed or not
 #for pixmaps, glade files, etc
 SHARED_DATA_DIR = "/usr/share/conduit/data"
 GLADE_FILE = "/usr/share/conduit/data/conduit.glade"
 #for the dynamically loaded modules
 SHARED_MODULE_DIR = "/usr/share/conduit/modules"
 USER_MODULE_DIR = "~/.conduit/modules"
+#Dir where 3rd party libraries live if shipped with conduit
+EXTRA_LIB_DIR = ""
+#Can be used to determine if the app is running installed or not
+IS_INSTALLED = False
 
 # If the CONDUIT_LOGLEVEL evironment variable is set then this 
 #overrides the settings below

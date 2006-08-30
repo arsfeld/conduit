@@ -22,30 +22,26 @@ import os.path
 # Check if the given path looks like the conduit parent path
 # Add the parent dir of conduit to the python path if so
 
-IS_LOCAL = False
-
 name = os.path.join(os.path.dirname(__file__), '..')
-if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(name+"/conduit/ChangeLog") :
+if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(os.path.join(name,"conduit","ChangeLog")):
     print "Running uninstalled Conduit"
-    IS_LOCAL = True
-else:
-    print "Running installed version of Conduit."
-
-# Now set up conduit to run non-installed
-if IS_LOCAL:
     print "Modifying python path"
     sys.path.insert(0, os.path.abspath(name))
     import conduit
+    conduit.IS_INSTALLED = False
     print "Modifying SHARED_DATA_DIR"
     conduit.SHARED_DATA_DIR =  os.path.join(os.path.abspath(name),"conduit","data")
     print "Modifying GLADE_FILE"
     conduit.GLADE_FILE =  os.path.join(os.path.abspath(name),"conduit","data","conduit.glade")
     print "Modifying SHARED_MODULE_DIR"
     conduit.SHARED_MODULE_DIR =  os.path.join(os.path.abspath(name),"conduit")
-
-#Dir where 3rd party libraries live if shipped with conduit
-conduit.EXTRA_LIB_DIR = os.path.join(os.path.abspath(name),"contrib")
-
+    print "Modifying EXTRA_LIB_DIR"
+    conduit.EXTRA_LIB_DIR = os.path.join(os.path.abspath(name),"contrib")
+else:
+    print "Running installed version of Conduit."
+    import conduit
+    conduit.IS_INSTALLED = True
+        
 # Remove all the tools we loaded
 del sys, os
 
