@@ -42,9 +42,6 @@ else:
     import conduit
     conduit.IS_INSTALLED = True
         
-# Remove all the tools we loaded
-del sys, os
-
 # Start the application
 import conduit.MainWindow as MainWindow
 test = MainWindow()

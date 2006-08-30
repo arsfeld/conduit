@@ -156,7 +156,7 @@ class Canvas(goocanvas.CanvasView):
         """
         curr_offset = 0
         for c in self.conduits:
-            if y in range(curr_offset, curr_offset + c.get_conduit_height()):
+            if int(y) in range(int(curr_offset),int(curr_offset + c.get_conduit_height())):
                 return c
             curr_offset = curr_offset + c.get_conduit_height()
         return None                

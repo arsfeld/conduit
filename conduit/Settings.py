@@ -1,0 +1,244 @@
+"""
+Stores application settings
+
+Part of this code copied from Gimmie (c) Alex Gravely
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+
+import os.path
+import gobject
+import gconf
+import xml.dom.ext
+from xml.dom import minidom
+from xml.dom.minidom import Document
+
+import conduit
+import logging
+
+class Settings(gobject.GObject):
+    """
+    Class for storing conduit settings. 
+    
+    Settings come in two categories.
+    1) Preferences which are application specific and get stored in gconf
+    2) Per conduit settings which describe the way dataproviders are connected
+    and the specific per dataprovider sync settings.
+    
+    Keys of type str and bool supported at this stage
+    """
+    DEFAULTS = {
+        'use_treeview'  : False,    #Arrange the dataproviders in a treeview (or a listview)
+        'save_on_exit'  : False     #Is the sync set saved on exit automatically?
+    }
+    CONDUIT_GCONF_DIR = "/apps/conduit/"
+
+    __gsignals__ = {
+        'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
+    }
+
+
+    def __init__(self, xmlSettingFilePath="settings.xml"):
+        """
+        @param xmlSettingFilePath: The path to the xml file in which to store
+        the per-conduit settings
+        @type xmlSettingsFilePath: C{string}
+        """
+        gobject.GObject.__init__(self)
+        self.client = gconf.client_get_default()
+        # Preload gconf directories
+        self.client.add_dir(self.CONDUIT_GCONF_DIR[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)  
+        
+        self.xmlSettingFilePath = xmlSettingFilePath
+        self.notifications = []
+        
+    def _fix_key(self, key):
+        """
+        Appends the CONDUIT_GCONF_PREFIX to the key if needed
+        
+        @param key: The key to check
+        @type key: C{string}
+        @returns: The fixed key
+        @rtype: C{string}
+        """
+        if not key.startswith(self.CONDUIT_GCONF_DIR):
+            return self.CONDUIT_GCONF_DIR + key
+        else:
+            return key
+        
+    def get(self, key, vtype=None, default=None):
+        """
+        Returns the value of the key or the default value if the key is 
+        not yet in gconf
+        """
+        if key in self.DEFAULTS:
+            default = self.DEFAULTS[key]
+            vtype = type(default)
+
+        #for gconf refer to the full key path
+        key = self._fix_key(key)
+
+        if key not in self.notifications:
+            self.client.notify_add(key, self._key_changed)
+            self.notifications.append(key)
+        value = self.client.get(key)
+        if not value:
+            self.set(key, vtype, default)
+            return default
+
+        if vtype is bool:
+            return value.get_bool()
+        elif vtype is str:
+            return value.get_string()
+
+    def set(self, key, value, vtype=None):
+        """
+        Sets the key value in gconf and connects adds a signal 
+        which is fired if the key changes
+        """
+        if key in self.DEFAULTS and not vtype:
+            vtype = type(self.DEFAULTS[key])
+
+        #for gconf refer to the full key path
+        key = self._fix_key(key)
+
+        if vtype is bool:
+            self.client.set_bool(key, value)
+        elif vtype is str:
+            self.client.set_string(key, value)
+
+    def _key_changed(self, client, cnxn_id, entry, data=None):
+        key = self._fix_key(entry.key)
+        detailed_signal = 'changed::%s' % key
+        self.emit(detailed_signal)
+        
+    def save_sync_set(self, version, syncSet):
+        """
+        Saves the synchronisation settings (icluding all dataproviders and how
+        they are connected) to an xml file so that the 'sync set' can
+        be restored later
+        
+        @param version: The version of the saved settings xml file. Necessary
+        when conduit is updated and the xml format may change.
+        @type version: C{string}
+        @param syncSet: A list of conduits to save
+        @type syncSet: L{conduit.Conduit.Conduit}[]
+        """
+        logging.info("Saving Sync Set")
+        #Build the application settings xml document
+        doc = Document()
+        rootxml = doc.createElement("conduit-application")
+        rootxml.setAttribute("version", version)
+        doc.appendChild(rootxml)
+        
+        #Store the conduits
+        for conduit in syncSet:
+            conduitxml = doc.createElement("conduit")
+            #First store conduit specific settings
+            x,y,w,h = conduit.get_conduit_dimensions()
+            conduitxml.setAttribute("x",str(x))
+            conduitxml.setAttribute("y",str(y))
+            conduitxml.setAttribute("w",str(w))
+            conduitxml.setAttribute("h",str(h))
+            rootxml.appendChild(conduitxml)
+            
+            #Store the source
+            source = conduit.datasource
+            if source is not None:
+                sourcexml = doc.createElement("datasource")
+                sourcexml.setAttribute("classname", source.classname)
+                conduitxml.appendChild(sourcexml)
+                #Store source settings
+                configurations = source.module.get_configuration()
+                #logging.debug("Source Settings %s" % configurations)
+                for config in configurations:
+                    configxml = doc.createElement(str(config))
+                    configxml.appendChild(doc.createTextNode(str(configurations[config])))
+                    sourcexml.appendChild(configxml)
+            
+            #Store all sinks
+            sinksxml = doc.createElement("datasinks")
+            for sink in conduit.datasinks:
+                sinkxml = doc.createElement("datasink")
+                sinkxml.setAttribute("classname", sink.classname)
+                sinksxml.appendChild(sinkxml)
+                #Store sink settings
+                configurations = sink.module.get_configuration()
+                #logging.debug("Sink Settings %s" % configurations)
+                for config in configurations:
+                    configxml = doc.createElement(str(config))
+                    configxml.appendChild(doc.createTextNode(str(configurations[config])))
+                    sinkxml.appendChild(configxml)
+            conduitxml.appendChild(sinksxml)        
+
+        #Save to disk
+        file_object = open(self.xmlSettingFilePath, "w")
+        xml.dom.ext.PrettyPrint(doc, file_object)
+        file_object.close()        
+        
+    def restore_sync_set(self, expectedVersion, mainWindow):
+        """
+        Restores sync settings from the xml file
+        
+        SORRY ABOUT THE UGLYNESS AND COMPLETE LACK OF ROBUSTNESS
+        """
+        logging.info("Restoring Sync Set")
+        def get_settings(xml):
+            """
+            Makes a dict of dataprovider settings (settings are child nodes
+            of dataproviders and in the form <settingname>value</settingname>
+            """
+            settings = {}
+            for s in xml.childNodes:
+                if s.nodeType == s.ELEMENT_NODE:
+                    settings[s.localName] = s.childNodes[0].data
+            return settings
+            
+        def restore_dataprovider(dpClassname, dpSettings, x, y):
+            """
+            Adds the dataprovider back onto the canvas at the specifed
+            location and configures it with the given settings
+            """
+            logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
+            dp = mainWindow.modules.get_new_instance_module_named(dpClassname)
+            #dp.set_configuration(dpSettings)
+            mainWindow.canvas.add_dataprovider_to_canvas(dp, x, y)
+            
+
+        #Check the file exists
+        if not os.path.isfile(self.xmlSettingFilePath):
+            logging.info("Sync Set xml not present")
+            return            
+        #Open                
+        doc = minidom.parse(self.xmlSettingFilePath)
+        xmlVersion = doc.getElementsByTagName("conduit-application")[0].getAttribute("version")
+        #And check it is the correct version        
+        if expectedVersion != xmlVersion:
+            logging.info("Sync Set xml file is incorrect version")
+            return
+        
+        #Parse...    
+        for conds in doc.getElementsByTagName("conduit"):
+            x = conds.getAttribute("x")
+            y = conds.getAttribute("y")
+            #each conduit
+            for i in conds.childNodes:
+                #one datasource
+                if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
+                    classname = i.getAttribute("classname")
+                    settings = get_settings(i)
+                    #add to canvas
+                    if len(classname) > 0:
+                        restore_dataprovider(classname,settings,x,y)
+                #many datasinks
+                elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
+                    #each datasink
+                    for sink in i.childNodes:
+                        if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
+                            classname = sink.getAttribute("classname")
+                            settings = get_settings(sink)
+                            #add to canvas
+                            if len(classname) > 0:
+                                restore_dataprovider(classname,settings,x,y)                        
+

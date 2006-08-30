@@ -110,10 +110,8 @@ class MainWindow:
         self.datasource_modules = self.modules.get_modules_by_type ("source")
         self.converter_modules = self.modules.get_modules_by_type ("converter")
                         
-        use_tree_view = False                        
-                        
         # Populate the tree and list models
-        if use_tree_view:
+        if conduit.settings.get("use_treeview") == True:
             datasink_tm = DataProvider.DataProviderTreeModel(self.datasink_modules)
             datasource_tm = DataProvider.DataProviderTreeModel(self.datasource_modules) 
         else:
@@ -203,7 +201,8 @@ class MainWindow:
         """
         Clear the canvas and start a new sync set
         """
-        logging.debug("clear canvas")
+        for c in self.canvas.get_sync_set():
+            self.canvas.delete_conduit(c)
     
     def on_loaded_modules(self, widget):
         """
@@ -269,6 +268,7 @@ class MainWindow:
         ask the user if they wish to cancel them
         """
         busy = False
+        quit = False
         for c in self.canvas.get_sync_set(): 
             if c.is_busy():
                 busy = True
@@ -284,12 +284,18 @@ class MainWindow:
             if response == gtk.RESPONSE_YES:
                 logging.info("Stopping all synchronization threads")
                 self.sync_manager.cancel_all()
-                gtk.main_quit()
+                quit = True
             else:
                 #Dont exit
                 dialog.destroy()
                 return True
         else:
+            quit = True
+            
+        #OK, if we have decided to quit then perform any cleanup tasks
+        if quit:
+            if conduit.settings.get("save_on_exit") == True:
+                conduit.settings.save_sync_set(conduit.APPVERSION,self.canvas.get_sync_set())
             gtk.main_quit()
         
         
@@ -314,14 +320,14 @@ class MainWindow:
         """
         DND
         """
-        module_name = selection.data
+        moduleClassName = selection.data
         #FIXME: DnD should be cancelled in the Treeview on the drag-begin 
         #signal and NOT here
-        if module_name != "ImACategoryNotADataprovider":
+        if moduleClassName != "ImACategoryNotADataprovider":
             #logging.info("DND RX = %s" % (module_name))        
             #Add a new instance if the dataprovider to the canvas. It is up to the
             #canvas to decide if multiple instances of the specific provider are allowed
-            new = self.modules.get_new_instance_module_named(module_name)
+            new = self.modules.get_new_instance_module_named(moduleClassName)
             self.canvas.add_dataprovider_to_canvas(new, x, y)
         
         context.finish(True, True, etime)
@@ -331,69 +337,26 @@ class MainWindow:
         """
         Saves the application settings to an XML document
         """
-        import conduit
-        from xml.dom.minidom import Document
-        #Build the application settings xml document
-        doc = Document()
-        rootxml = doc.createElement("conduit-application")
-        rootxml.setAttribute("version", conduit.APPVERSION)
-        doc.appendChild(rootxml)
-        
-        #Store the conduits
-        for conduit in self.canvas.get_sync_set():
-            conduitxml = doc.createElement("conduit")
-            #First store conduit specific settings
-            x,y,w,h = conduit.get_conduit_dimensions()
-            conduitxml.setAttribute("x",str(x))
-            conduitxml.setAttribute("y",str(y))
-            conduitxml.setAttribute("w",str(w))
-            conduitxml.setAttribute("h",str(h))
-            rootxml.appendChild(conduitxml)
-            
-            #Store the source
-            source = conduit.datasource
-            sourcexml = doc.createElement("datasource")
-            sourcexml.setAttribute("classname", source.classname)
-            conduitxml.appendChild(sourcexml)
-            #Store source settings
-            configurations = source.module.get_configuration()
-            #logging.debug("Source Settings %s" % configurations)
-            for config in configurations:
-                configxml = doc.createElement(str(config))
-                configxml.appendChild(doc.createTextNode(str(configurations[config])))
-                sourcexml.appendChild(configxml)
-            
-            #Store all sinks
-            sinksxml = doc.createElement("datasinks")
-            for sink in conduit.datasinks:
-                sinkxml = doc.createElement("datasink")
-                sinkxml.setAttribute("classname", sink.classname)
-                sinksxml.appendChild(sinkxml)
-                #Store sink settings
-                configurations = sink.module.get_configuration()
-                #logging.debug("Sink Settings %s" % configurations)
-                for config in configurations:
-                    configxml = doc.createElement(str(config))
-                    configxml.appendChild(doc.createTextNode(str(configurations[config])))
-                    sinkxml.appendChild(configxml)
-            conduitxml.appendChild(sinksxml)        
-
-        #FIXME: Save to disk
-        print doc.toprettyxml(indent="  ")
+        conduit.settings.save_sync_set( conduit.APPVERSION,
+                                        self.canvas.get_sync_set()
+                                        )
 
     def __main__(self):
         """
         Shows the main window and enters the gtk mainloop
         """
         self.mainWindow.show_all()
-        #FIXME: Should I distroy this or is it nicer that it hangs around?
+        conduit.settings.restore_sync_set(conduit.APPVERSION,self)
+        self.canvas.add_welcome_message()
         self.splash.destroy()
         gtk.main()
         
 class SplashScreen:
     """
     Simple splash screen class which shows an image for a predetermined period
-    of time or until L{SplashScreen.destroy} is called
+    of time or until L{SplashScreen.destroy} is called.
+    
+    Code adapted from banshee
     """
     DELAY = 1500 #msec
     def __init__(self):        

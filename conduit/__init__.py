@@ -23,6 +23,7 @@ License: GPLv2
 
 import logging
 import os
+import gobject
 
 APPNAME="Conduit"
 APPVERSION="0.1.0"
@@ -74,10 +75,11 @@ from Module import ModuleLoader, ModuleWrapper
 from Conduit import Conduit
 from Exceptions import ConversionError, RefreshError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync,  ConversionDoesntExistError
 from Synchronization import SyncManager, SyncWorker
+from Settings import Settings
 
 # Make sure epydoc documents the classes 
 # as part of the conduit module
-__all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit", "SyncManager", "SyncWorker"]
+__all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit", "SyncManager", "SyncWorker", "Settings"]
 
-import gobject
 gobject.threads_init()
+settings = Settings()
