@@ -344,6 +344,9 @@ class MainWindow:
     def __main__(self):
         """
         Shows the main window and enters the gtk mainloop
+        
+        Restores application settings, shows a welcome message and
+        closes the splash screen
         """
         self.mainWindow.show_all()
         conduit.settings.restore_sync_set(conduit.APPVERSION,self)

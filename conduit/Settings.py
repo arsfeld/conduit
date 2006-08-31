@@ -28,16 +28,29 @@ class Settings(gobject.GObject):
     
     Keys of type str and bool supported at this stage
     """
+    __gsignals__ = {
+        'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
+    }
+
+    #Default values for conduit settings
     DEFAULTS = {
         'use_treeview'  : False,    #Arrange the dataproviders in a treeview (or a listview)
         'save_on_exit'  : False     #Is the sync set saved on exit automatically?
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
-
-    __gsignals__ = {
-        'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
+    #these two dicts are used for mapping config setting types to type names
+    #and back again (isnt python cool...)
+    TYPE_TO_STRING = {
+        int     :   "int",
+        bool    :   "bool",
+        str     :   "string"
     }
-
+    STRING_TO_TYPE = {
+        "int"       :   lambda x: int(x),
+        "bool"      :   lambda x: bool(x),
+        "string"    :   lambda x: str(x)
+    }
+        
 
     def __init__(self, xmlSettingFilePath="settings.xml"):
         """
@@ -125,6 +138,19 @@ class Settings(gobject.GObject):
         @param syncSet: A list of conduits to save
         @type syncSet: L{conduit.Conduit.Conduit}[]
         """
+        def make_xml_configuration(parentNode, configDict):
+            for config in configDict:
+                    configxml = doc.createElement(str(config))
+                    #store the value and value type
+                    value = configDict[config]
+                    try:
+                        vtype = Settings.TYPE_TO_STRING[type(value)]
+                    except KeyError:
+                        vtype = Settings.TYPE_TO_STRING[str]
+                    configxml.setAttribute("type", vtype)
+                    configxml.appendChild(doc.createTextNode(str(value)))
+                    parentNode.appendChild(configxml)    
+            
         logging.info("Saving Sync Set")
         #Build the application settings xml document
         doc = Document()
@@ -152,10 +178,7 @@ class Settings(gobject.GObject):
                 #Store source settings
                 configurations = source.module.get_configuration()
                 #logging.debug("Source Settings %s" % configurations)
-                for config in configurations:
-                    configxml = doc.createElement(str(config))
-                    configxml.appendChild(doc.createTextNode(str(configurations[config])))
-                    sourcexml.appendChild(configxml)
+                make_xml_configuration(sourcexml, configurations)
             
             #Store all sinks
             sinksxml = doc.createElement("datasinks")
@@ -166,10 +189,7 @@ class Settings(gobject.GObject):
                 #Store sink settings
                 configurations = sink.module.get_configuration()
                 #logging.debug("Sink Settings %s" % configurations)
-                for config in configurations:
-                    configxml = doc.createElement(str(config))
-                    configxml.appendChild(doc.createTextNode(str(configurations[config])))
-                    sinkxml.appendChild(configxml)
+                make_xml_configuration(sinkxml, configurations)
             conduitxml.appendChild(sinksxml)        
 
         #Save to disk
@@ -192,7 +212,15 @@ class Settings(gobject.GObject):
             settings = {}
             for s in xml.childNodes:
                 if s.nodeType == s.ELEMENT_NODE:
-                    settings[s.localName] = s.childNodes[0].data
+                    #now convert the setting to the correct type
+                    raw = s.childNodes[0].data
+                    try:
+                        data = Settings.STRING_TO_TYPE[s.getAttribute("type")](raw)
+                    except KeyError:
+                        #fallback to string type
+                        data = str(raw)
+                    #logging.debug("Restored Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                    settings[s.localName] = data
             return settings
             
         def restore_dataprovider(dpClassname, dpSettings, x, y):
