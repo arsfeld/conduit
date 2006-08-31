@@ -390,13 +390,26 @@ class DataProviderBase(gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
+        logging.warn("get_configuration() not overridden by derived class %s" % self.name)
         return {}
 
     def set_configuration(self, config):
         """
         Restores applications settings
+        @param config: dictionary of dataprovider settings to restore
         """
-        pass
+        logging.warn("set_configuration() not overridden by derived class %s" % self.name)
+        for c in config:
+            #Perform these checks to stop malformed xml from stomping on
+            #unintended variables or posing a security risk by overwriting methods
+            if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
+                setattr(self,c,config[c])
+            else:
+                logging.warn("Not restoring %s setting: Exists=%s Callable=%s" % (
+                    c,
+                    getattr(self, c, False),
+                    callable(getattr(self, c, None)))
+                    )
 
 class DataSource(DataProviderBase):
     """

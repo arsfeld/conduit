@@ -115,7 +115,7 @@ class Canvas(goocanvas.CanvasView):
                 n_x, n_y, n_w, n_h = n_c.get_conduit_dimensions()
                 #check if the current conduit overlaps onto the conduit below it
                 diff = (y + h) - n_y 
-                logging.debug("C(y,h) = %s,%s\tNC(y,h) = %s,%s\t Diff = %s" % (y,h,n_y,n_h,diff))
+                #logging.debug("C(y,h) = %s,%s\tNC(y,h) = %s,%s\t Diff = %s" % (y,h,n_y,n_h,diff))
                 n_c.move_conduit_by(0, diff)
             
     def get_canvas_size(self):

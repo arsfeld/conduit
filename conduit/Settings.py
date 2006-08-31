@@ -228,22 +228,22 @@ class Settings(gobject.GObject):
             Adds the dataprovider back onto the canvas at the specifed
             location and configures it with the given settings
             """
-            logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
-            dp = mainWindow.modules.get_new_instance_module_named(dpClassname)
-            #dp.set_configuration(dpSettings)
-            mainWindow.canvas.add_dataprovider_to_canvas(dp, x, y)
+            #logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
+            dpWrapper = mainWindow.modules.get_new_instance_module_named(dpClassname)
+            dpWrapper.module.set_configuration(dpSettings)
+            mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)
             
 
         #Check the file exists
         if not os.path.isfile(self.xmlSettingFilePath):
-            logging.info("Sync Set xml not present")
+            logging.info("%s not present" % self.xmlSettingFilePath)
             return            
         #Open                
         doc = minidom.parse(self.xmlSettingFilePath)
         xmlVersion = doc.getElementsByTagName("conduit-application")[0].getAttribute("version")
         #And check it is the correct version        
         if expectedVersion != xmlVersion:
-            logging.info("Sync Set xml file is incorrect version")
+            logging.info("%s xml file is incorrect version" % self.xmlSettingFilePath)
             return
         
         #Parse...    
