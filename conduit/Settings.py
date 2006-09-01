@@ -7,9 +7,11 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
+import os
 import os.path
 import gobject
 import gconf
+import traceback
 import xml.dom.ext
 from xml.dom import minidom
 from xml.dom.minidom import Document
@@ -38,20 +40,27 @@ class Settings(gobject.GObject):
         'save_on_exit'  : False     #Is the sync set saved on exit automatically?
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
-    #these two dicts are used for mapping config setting types to type names
+    #these dicts are used for mapping config setting types to type names
     #and back again (isnt python cool...)
-    TYPE_TO_STRING = {
+    TYPE_TO_TYPE_NAME = {
         int     :   "int",
         bool    :   "bool",
-        str     :   "string"
+        str     :   "string",
+        list    :   "list"
     }
     STRING_TO_TYPE = {
         "int"       :   lambda x: int(x),
         "bool"      :   lambda x: bool(x),
-        "string"    :   lambda x: str(x)
+        "string"    :   lambda x: str(x),
+        "list"      :   lambda x: Settings._string_to_list(x)
+    }
+    TYPE_TO_STRING = {
+        int     :   lambda x: str(x),
+        bool    :   lambda x: str(x),
+        str     :   lambda x: str(x),
+        list    :   lambda x: Settings._list_to_string(x)
     }
         
-
     def __init__(self, xmlSettingFilePath="settings.xml"):
         """
         @param xmlSettingFilePath: The path to the xml file in which to store
@@ -65,6 +74,21 @@ class Settings(gobject.GObject):
         
         self.xmlSettingFilePath = xmlSettingFilePath
         self.notifications = []
+    
+    @staticmethod    
+    def _list_to_string(listy):
+        s = ""
+        if type(listy) is list:
+            for l in listy:
+                s = s + "," + str(l)
+        return s
+        
+    @staticmethod
+    def _string_to_list(string, vtype=str):
+        l = string.split(",")
+        for i in range(0, len(l)):
+            l[i] = Settings.STRING_TO_TYPE[vtype](l[i])
+        return l
         
     def _fix_key(self, key):
         """
@@ -142,13 +166,15 @@ class Settings(gobject.GObject):
             for config in configDict:
                     configxml = doc.createElement(str(config))
                     #store the value and value type
-                    value = configDict[config]
                     try:
-                        vtype = Settings.TYPE_TO_STRING[type(value)]
+                        vtype = Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
+                        value = Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
                     except KeyError:
-                        vtype = Settings.TYPE_TO_STRING[str]
+                        logging.debug("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
+                        vtype = Settings.TYPE_TO_TYPE_NAME[str]
+                        value = Settings.TYPE_TO_STRING[str](configDict[config])
                     configxml.setAttribute("type", vtype)
-                    configxml.appendChild(doc.createTextNode(str(value)))
+                    configxml.appendChild(doc.createTextNode(value))
                     parentNode.appendChild(configxml)    
             
         logging.info("Saving Sync Set")
@@ -237,36 +263,43 @@ class Settings(gobject.GObject):
         #Check the file exists
         if not os.path.isfile(self.xmlSettingFilePath):
             logging.info("%s not present" % self.xmlSettingFilePath)
-            return            
-        #Open                
-        doc = minidom.parse(self.xmlSettingFilePath)
-        xmlVersion = doc.getElementsByTagName("conduit-application")[0].getAttribute("version")
-        #And check it is the correct version        
-        if expectedVersion != xmlVersion:
-            logging.info("%s xml file is incorrect version" % self.xmlSettingFilePath)
             return
-        
-        #Parse...    
-        for conds in doc.getElementsByTagName("conduit"):
-            x = conds.getAttribute("x")
-            y = conds.getAttribute("y")
-            #each conduit
-            for i in conds.childNodes:
-                #one datasource
-                if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
-                    classname = i.getAttribute("classname")
-                    settings = get_settings(i)
-                    #add to canvas
-                    if len(classname) > 0:
-                        restore_dataprovider(classname,settings,x,y)
-                #many datasinks
-                elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
-                    #each datasink
-                    for sink in i.childNodes:
-                        if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
-                            classname = sink.getAttribute("classname")
-                            settings = get_settings(sink)
-                            #add to canvas
-                            if len(classname) > 0:
-                                restore_dataprovider(classname,settings,x,y)                        
+            
+        try:
+            #Open                
+            doc = minidom.parse(self.xmlSettingFilePath)
+            xmlVersion = doc.getElementsByTagName("conduit-application")[0].getAttribute("version")
+            #And check it is the correct version        
+            if expectedVersion != xmlVersion:
+                logging.info("%s xml file is incorrect version" % self.xmlSettingFilePath)
+                os.remove(self.xmlSettingFilePath)
+                return
+            
+            #Parse...    
+            for conds in doc.getElementsByTagName("conduit"):
+                x = conds.getAttribute("x")
+                y = conds.getAttribute("y")
+                #each conduit
+                for i in conds.childNodes:
+                    #one datasource
+                    if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
+                        classname = i.getAttribute("classname")
+                        settings = get_settings(i)
+                        #add to canvas
+                        if len(classname) > 0:
+                            restore_dataprovider(classname,settings,x,y)
+                    #many datasinks
+                    elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
+                        #each datasink
+                        for sink in i.childNodes:
+                            if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
+                                classname = sink.getAttribute("classname")
+                                settings = get_settings(sink)
+                                #add to canvas
+                                if len(classname) > 0:
+                                    restore_dataprovider(classname,settings,x,y)                        
 
+        #FIXME: Should i special case different exceptions here....?
+        except:
+            logging.warn("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
+            os.remove(self.xmlSettingFilePath)

@@ -47,7 +47,7 @@ class MainWindow:
                     conduit.SHARED_DATA_DIR,
                     conduit.SHARED_MODULE_DIR,
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.abspath(os.path.expanduser(conduit.USER_MODULE_DIR))
+                    os.path.join(conduit.USER_DIR, "modules")
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
@@ -100,7 +100,7 @@ class MainWindow:
         #Dynamically load all datasources, datasinks and converters (Python is COOL!)
         dirs_to_search =    [
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                            conduit.USER_MODULE_DIR
+                            os.path.join(conduit.USER_DIR, "modules")
                             ]
         self.modules = Module.ModuleLoader(dirs_to_search)
         #self.modules.connect("all-modules-loaded", self.on_all_modules_loaded)
@@ -194,15 +194,16 @@ class MainWindow:
                     "Refreshing %s (FIXME: this blocks and will be deleted)" % \
                     self.canvas.selected_dataprovider_wrapper.get_unique_identifier()
                     )
-        dp = self.canvas.selected_dataprovider_wrapper.module
-        dp.refresh()
+        self.canvas.selected_dataprovider_wrapper.module.refresh()
 
     def on_clear_canvas(self, widget):
         """
         Clear the canvas and start a new sync set
         """
-        for c in self.canvas.get_sync_set():
-            self.canvas.delete_conduit(c)
+        #FIXME: Why does this need to be called in a loop?
+        while len(self.canvas.get_sync_set()) > 0:
+            for c in self.canvas.get_sync_set():
+                self.canvas.delete_conduit(c)
     
     def on_loaded_modules(self, widget):
         """

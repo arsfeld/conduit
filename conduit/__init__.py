@@ -27,30 +27,20 @@ import gobject
 
 APPNAME="Conduit"
 APPVERSION="0.1.0"
+USER_DIR = os.path.join(os.environ['HOME'],".conduit")
 #The following variables are empty only as placeholders.
 #they are filled out in start_conduit.py based upon whether conduit is
 #installed or not
-#for pixmaps, glade files, etc
-SHARED_DATA_DIR = "/usr/share/conduit/data"
-GLADE_FILE = "/usr/share/conduit/data/conduit.glade"
-#for the dynamically loaded modules
-SHARED_MODULE_DIR = "/usr/share/conduit/modules"
-USER_MODULE_DIR = "~/.conduit/modules"
-#Dir where 3rd party libraries live if shipped with conduit
-EXTRA_LIB_DIR = ""
-#Can be used to determine if the app is running installed or not
-IS_INSTALLED = False
+SHARED_DATA_DIR = "" #for pixmaps, glade files, etc
+GLADE_FILE = ""
+SHARED_MODULE_DIR = "" #for the dynamically loaded modules
+EXTRA_LIB_DIR = "" #Dir where 3rd party libraries live if shipped with conduit
+IS_INSTALLED = False #Can be used to determine if the app is running installed or not
 
 # If the CONDUIT_LOGLEVEL evironment variable is set then this 
 #overrides the settings below
-DEFAULT_LOGLEVEL = "DEBUG"
+DEFAULT_LOG_LEVEL = "DEBUG"
 
-try:
-    LOG_LEVEL = os.environ['CONDUIT_LOGLEVEL']
-except KeyError:
-    LOG_LEVEL = DEFAULT_LOGLEVEL
-    pass
-    
 LOG_DICT = {"INFO" : logging.INFO,
             "DEBUG" : logging.DEBUG,
             "WARNING" : logging.WARNING,
@@ -58,11 +48,15 @@ LOG_DICT = {"INFO" : logging.INFO,
             "CRITICAL" : logging.CRITICAL
             }
     
-if LOG_LEVEL not in LOG_DICT.keys():
-    LOG_LEVEL = DEFAULT_LOGLEVEL
- 
-print "Log Level = ", LOG_LEVEL
-logging.basicConfig(level=LOG_DICT[LOG_LEVEL],
+try:
+    LOG_LEVEL = os.environ['CONDUIT_LOGLEVEL']
+    level=LOG_DICT[LOG_LEVEL]
+except KeyError:
+    LOG_LEVEL = DEFAULT_LOG_LEVEL
+    level = LOG_DICT[LOG_LEVEL]
+
+print "Log Level =", LOG_LEVEL
+logging.basicConfig(level=level,
                     format='[%(levelname)s] %(message)s (%(filename)s)')
 #                    filename='/tmp/myapp.log',
 #                    filemode='w')
@@ -82,4 +76,4 @@ from Settings import Settings
 __all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit", "SyncManager", "SyncWorker", "Settings"]
 
 gobject.threads_init()
-settings = Settings()
+settings = Settings(os.path.join(USER_DIR, "settings.xml"))

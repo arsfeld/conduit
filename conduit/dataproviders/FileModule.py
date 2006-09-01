@@ -60,6 +60,9 @@ class FileSource(DataProvider.DataSource):
             vfsFile = File.File()
             vfsFile.load_from_uri(f)
             yield vfsFile
+            
+    def get_configuration(self):
+        return {"files" : self.files}
 		
 class FileSink(DataProvider.DataSink):
     DEFAULT_FOLDER_URI = os.path.expanduser("~")

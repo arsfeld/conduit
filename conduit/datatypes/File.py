@@ -140,3 +140,21 @@ class File(DataType.DataType):
         else:
             return conduit.datatypes.UNKNOWN
             
+def TaggedFile(File):
+    """
+    A simple class to allow tags to be applied to files for those
+    dataproviders that need this information (e.g. f-spot)
+    """
+    def __init__(self):
+        File.__init__(self)
+        self.tags = []
+    
+    def set_tags(self, tags):
+        self.tags = tags
+
+    def get_tags(self, tags):
+        return self.tags
+
+    def add_tag(self, tag):
+        if tag not in self.tags:
+            self.tags.append(tag)

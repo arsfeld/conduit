@@ -299,7 +299,9 @@ class Canvas(goocanvas.CanvasView):
         del(self.conduits[i])
         #Now restack the conduits
         self.remove_conduit_overlap()
-
+        #Add the welcome message if we have deleted the last conduit
+        self.add_welcome_message()
+        
     def on_item_view_created(self, view, itemview, item):
         """
         on_item_view_created
