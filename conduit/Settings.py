@@ -80,14 +80,19 @@ class Settings(gobject.GObject):
         s = ""
         if type(listy) is list:
             for l in listy:
-                s = s + "," + str(l)
+                #FIXME: This could be nicer done with list comprehension?
+                if len(s) == 0:
+                    s = str(l)
+                else:
+                    s = s + "," + str(l)
         return s
         
     @staticmethod
-    def _string_to_list(string, vtype=str):
+    def _string_to_list(string, listInternalVtype=str):
         l = string.split(",")
+        internalTypeName = Settings.TYPE_TO_TYPE_NAME[listInternalVtype]
         for i in range(0, len(l)):
-            l[i] = Settings.STRING_TO_TYPE[vtype](l[i])
+            l[i] = Settings.STRING_TO_TYPE[internalTypeName](l[i])
         return l
         
     def _fix_key(self, key):
@@ -170,7 +175,7 @@ class Settings(gobject.GObject):
                         vtype = Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
                         value = Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
                     except KeyError:
-                        logging.debug("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
+                        logging.warn("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
                         vtype = Settings.TYPE_TO_TYPE_NAME[str]
                         value = Settings.TYPE_TO_STRING[str](configDict[config])
                     configxml.setAttribute("type", vtype)
@@ -240,12 +245,15 @@ class Settings(gobject.GObject):
                 if s.nodeType == s.ELEMENT_NODE:
                     #now convert the setting to the correct type
                     raw = s.childNodes[0].data
+                    vtype = s.getAttribute("type")
                     try:
-                        data = Settings.STRING_TO_TYPE[s.getAttribute("type")](raw)
+                        data = Settings.STRING_TO_TYPE[vtype](raw)
                     except KeyError:
                         #fallback to string type
+                        logging.warn("Cannot restore string (%s) to native type %s" % (raw, vtype))
+                        traceback.print_exc()
                         data = str(raw)
-                    #logging.debug("Restored Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                    logging.debug("Restored Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
                     settings[s.localName] = data
             return settings
             

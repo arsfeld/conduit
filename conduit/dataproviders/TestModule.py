@@ -30,6 +30,11 @@ class TestBase:
         #Through an error on the nth time through
         self.errorAfter = 999
         self.slow = False
+        #Variables to test the config fuctions
+        self.aString = ""
+        self.aInt = 0
+        self.aBool = False
+        self.aList = []
         
     def initialize(self):
         return True
@@ -56,10 +61,36 @@ class TestBase:
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
         dialog.run()
         
+    def refresh(self):
+        #Print out values of the instance vars
+        import textwrap
+        logging.debug(  textwrap.dedent("""
+                        Instance Variables:
+                        errorAfter\t%s
+                        slow\t\t%s
+                        aString\t\t%s
+                        aInt\t\t%s
+                        aBool\t\t%s
+                        aList\t\t%s
+                        """) % (
+                        self.errorAfter,
+                        self.slow,
+                        self.aString,
+                        self.aInt,
+                        self.aBool,
+                        self.aList,
+                        ))
+        del textwrap
+
+        
     def get_configuration(self):
         return {
             "errorAfter" : self.errorAfter,
-            "slow" : self.slow
+            "slow" : self.slow,
+            "aString" : "im a string",
+            "aInt" : 5,
+            "aBool" : True,
+            "aList" : ["ListItem1", "ListItem2"]
             }
 
 class TestSource(TestBase, DataProvider.DataSource):

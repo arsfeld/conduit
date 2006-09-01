@@ -212,7 +212,7 @@ class DataProviderBase(gobject.GObject):
         """
         Deserialize
         """
-        logging.warn("deserialize() not overridden by derived class %s" % self.name)
+        logging.info("deserialize() not overridden by derived class %s" % self.name)
         #try:
         #	match = getattr(sys.modules[self.__module__], class_name)(self, **serialized)
         #	if match.is_valid():
@@ -227,7 +227,7 @@ class DataProviderBase(gobject.GObject):
         Designed to be used with avahi sync
         @todo: Should this be a funtion in modulewrapper??
         """
-        logging.warn("serialize() not overridden by derived class %s" % self.name)
+        logging.info("serialize() not overridden by derived class %s" % self.name)
         
     def initialize(self):
         """
@@ -244,7 +244,7 @@ class DataProviderBase(gobject.GObject):
         for the user), False otherwise
         @rtype: C{bool}
         """
-        logging.warn("initialize() not overridden by derived class %s" % self.name)
+        logging.info("initialize() not overridden by derived class %s" % self.name)
         return True
         
     def refresh(self):
@@ -257,13 +257,13 @@ class DataProviderBase(gobject.GObject):
         THis function may be called multiple times so derived funcions should
         be aware of this
         """
-        logging.warn("refresh() not overridden by derived class %s" % self.name)
+        logging.info("refresh() not overridden by derived class %s" % self.name)
         
     def finalize(self):
         """
         Called after all tasks related to the dataprovider have been completed
         """
-        logging.warn("finalize() not overridden by derived class %s" % self.name)
+        logging.info("finalize() not overridden by derived class %s" % self.name)
         
     def get_status(self):
         """
@@ -335,7 +335,7 @@ class DataProviderBase(gobject.GObject):
         @param window: The parent window (to show a modal dialog)
         @type window: {gtk.Window}
         """
-        logging.warn("configure() not overridden by derived class %s" % self.name)
+        logging.info("configure() not overridden by derived class %s" % self.name)
         
     def put(self, data):
         """
@@ -352,7 +352,7 @@ class DataProviderBase(gobject.GObject):
         @rtype: C{bool}
         @returns: True for success, false on failure
         """
-        logging.warn("put() not overridden by derived class %s" % self.name)
+        logging.info("put() not overridden by derived class %s" % self.name)
                 
     def get(self):
         """
@@ -367,7 +367,7 @@ class DataProviderBase(gobject.GObject):
         @returns: An array of all data needed for synchronization and provided
         through configuration by this dataprovider.
         """
-        logging.warn("put() not overridden by derived class %s" % self.name)
+        logging.info("put() not overridden by derived class %s" % self.name)
                 
     def get_num_items(self):
         """
@@ -379,7 +379,7 @@ class DataProviderBase(gobject.GObject):
         @returns: The number of items to synchronize
         @rtype: C{int}
         """
-        logging.warn("get_num_items() not overridden by derived class %s" % self.name)
+        logging.info("get_num_items() not overridden by derived class %s" % self.name)
         return NO_ITEMS
         
     def get_configuration(self):
@@ -390,7 +390,7 @@ class DataProviderBase(gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
-        logging.warn("get_configuration() not overridden by derived class %s" % self.name)
+        logging.info("get_configuration() not overridden by derived class %s" % self.name)
         return {}
 
     def set_configuration(self, config):
@@ -398,7 +398,7 @@ class DataProviderBase(gobject.GObject):
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        logging.warn("set_configuration() not overridden by derived class %s" % self.name)
+        logging.info("set_configuration() not overridden by derived class %s" % self.name)
         for c in config:
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods
