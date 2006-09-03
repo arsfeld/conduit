@@ -30,10 +30,8 @@ class FspotSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("Fspot Photos"), _("Source for Fspot Photos"))
         self.icon_name = "f-spot"
-        #DB stuff
-        self.con = None
-        self.cur = None
         #Settings
+        self.enabledTags = [] #Just used to save and restore settings
         self.tags = []
         self.photoURIs = []
 
@@ -42,35 +40,59 @@ class FspotSource(DataProvider.DataSource):
             return False
         else:
             #Create a connection to the database
-            self.con = sqlite.connect(FspotSource.PHOTO_DB)
-            self.cur = self.con.cursor()
+            con = sqlite.connect(FspotSource.PHOTO_DB)
+            cur = con.cursor()
 
             #Get a list of all tags for the config dialog
-            self.cur.execute("SELECT id, name FROM tags")
-            for (tagid, tagname) in self.cur:
+            cur.execute("SELECT id, name FROM tags")
+            for (tagid, tagname) in cur:
                 self.tags.append([{"Id" : tagid, "Name" : tagname}, False])
             
-            self.con.close()  
+            con.close()  
             return True
         
     def refresh(self):
         #Stupid pysqlite thread stuff. Connection must be made in the same thread
         #as any execute statements
-
+        self.photoURIs = []
         #Create a connection to the database
-        self.con = sqlite.connect(FspotSource.PHOTO_DB)
-        self.cur = self.con.cursor()
-        #FIXME: Should only get ones associated with the selected tag
-        self.cur.execute("SELECT directory_path, name FROM photos")
-        for (directory_path, name) in self.cur:
-            self.photoURIs.append(os.path.join(directory_path, name))
-        self.con.close()
+        con = sqlite.connect(FspotSource.PHOTO_DB)
+        tagCur = con.cursor()
+        photoCur = con.cursor()
+        for tag in [t for t in self.tags if t[1]]:
+            tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tag[0]["Id"]))
+            for photoID in tagCur:
+                photoCur.execute("SELECT directory_path, name FROM photos WHERE id=?", (photoID))
+                for (directory_path, name) in photoCur:
+                    #Return the file, loaded from a (local only??) URI
+                    logging.debug("Found photo with name=%s" % name)
+                    self.photoURIs.append(os.path.join(directory_path, name))
 
+        con.close()
+        
     def get(self):
         for uri in self.photoURIs:
             f = File.File()
             f.load_from_uri(str(uri))
             yield f
+            
+    def set_configuration(self, config):
+        #We need to override set_configuration because we need to fold the
+        #list of enabled tags into the datastore that is used for the
+        #config dialog
+        if not config.has_key("enabledTags"):
+            return
+        #This is a bit of a hack (i.e. inefficient - looped in statement) way 
+        #to set the default enabled tags
+        for t in self.tags:
+            if t[0]["Name"] in config["enabledTags"]:
+                logging.debug("Renabling %s tag" % t[0]["Name"])
+                t[1] = True
+            
+
+    def get_configuration(self):
+        #Save enabled tags
+        return {"enabledTags" : [ t[0]["Name"] for t in self.tags if t[1] ]}        
 
     def configure(self, window):
         """
@@ -116,6 +138,7 @@ class FspotSource(DataProvider.DataSource):
 
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            print self.tags
+            #print self.tags
+            pass
         dlg.destroy()
 

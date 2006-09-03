@@ -106,6 +106,9 @@ class FileSink(DataProvider.DataSink):
                                         gnomevfs.XFER_OVERWRITE_MODE_SKIP)
         except:
             raise Exceptions.SyncronizeError
+            
+    def get_configuration(self):
+        return {"folderURI" : self.folderURI}
 
 class FileConverter:
     def __init__(self):
