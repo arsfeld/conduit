@@ -264,8 +264,11 @@ class Settings(gobject.GObject):
             """
             #logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
             dpWrapper = mainWindow.modules.get_new_instance_module_named(dpClassname)
-            dpWrapper.module.set_configuration(dpSettings)
-            mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)
+            if dpWrapper is not None:
+                dpWrapper.module.set_configuration(dpSettings)
+                mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)
+            else:
+                logging.warn("Could not restore %s to (x=%s,y=%s)" % (dpClassname,x,y))
             
 
         #Check the file exists
