@@ -12,6 +12,7 @@ import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+import conduit.datatypes as DataType
 
 class SyncManager(object): 
     """
@@ -108,9 +109,18 @@ class SyncWorker(threading.Thread):
         self.setName("Synchronization Thread: %s" % conduit.datasource.get_unique_identifier())
         
     def cancel(self):
+        """
+        Cancels the sync thread. Does not do so immediately but as soon as
+        possible.
+        """
         self.cancelled = True
         
     def check_thread_not_cancelled(self, dataprovidersToCancel):
+        """
+        Checks if the thread has been scheduled to be cancelled. If it has
+        then this function sets the status of the dataproviders to indicate
+        that they were stopped through a cancel operation.
+        """
         if self.cancelled:
             for s in dataprovidersToCancel:
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
@@ -234,10 +244,37 @@ class SyncWorker(threading.Thread):
                                         raise Exceptions.ConversionDoesntExistError
                                 else:
                                     newdata = data
-                                #Finally after all the schenigans try an put the data                                
-                                sink.module.put(newdata)
+
+                                #Finally after all the schenigans try an put the data. If there is
+                                #a conflict then this will raise a conflict error. This code would be nicer
+                                #if python had supported the retry keyword.
                                 sink.module.set_status(DataProvider.STATUS_SYNC)
-                            #Catch exceptions if we abort the sync cause no conversion exist
+                                finishedPutting = False
+                                while not finishedPutting:
+                                    try:
+                                        sink.module.put(newdata)
+                                        finishedPutting = True
+                                    except Exceptions.SynchronizeConflictError, err:
+                                        #unpack args
+                                        #(comparison, fromData, toData, datasink) = err
+                                        logging.debug(err)
+                                        #Have tried put() one way (and it failed, geting us here). 
+                                        #Only try once the other way (and only if supported)
+                                        #Do not loop forever
+                                        finishedPutting = True
+                                        if self.source.two_way:
+                                            #If the comparison was the other way then
+                                            if err.comparison == DataType.COMPARISON_OLDER:
+                                                logging.debug("Sync Conflict: Putting OLD Data")
+                                            elif err.comparison == DataType.COMPARISON_EQUAL or err.comparison == DataType.COMPARISON_UNKNOWN:
+                                                #FIXME. I imagine that implementing this is a bit of work!
+                                                #The data needs to get back to the main gui thread safely...
+                                                logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
+                                        #Nothing we can do 
+                                        else:
+                                            logging.error("Sync Conflict: Cannot resolve conflict, source does not support put()")
+   
+                            #Catch exceptions if we abort the sync cause no conversion exists
                             except Exceptions.ConversionDoesntExistError:
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_SKIPPED)
                                 sinkErrors[sink] = True
@@ -247,9 +284,6 @@ class SyncWorker(threading.Thread):
                                 logging.warn("Error converting %s" % err)
                                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                                 sinkErrors[sink] = True
-                            except Exceptions.SynchronizeConflictError:
-                                #FIXME. I imagine that implementing this is a bit of work!
-                                logging.warn("Sync Conflict")                            
                             except Exceptions.SyncronizeError:
                                 #non fatal, move along
                                 logging.warn("Non-fatal synchronisation error")                     

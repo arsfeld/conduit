@@ -119,26 +119,26 @@ class File(DataType.DataType):
         """
         #If B doesnt exist then A is clearly newer
         if not gnomevfs.exists(B.get_uri_string()):
-            return conduit.datatypes.NEWER
+            return conduit.datatypes.COMPARISON_NEWER
 
         #Else look at the modification times
         aTime = A.get_modification_time()
         bTime = B.get_modification_time()
         if aTime is None:
-            return conduit.datatypes.UNKNOWN
+            return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            
-            return conduit.datatypes.UNKNOWN
+            return conduit.datatypes.COMPARISON_UNKNOWN
         
         #Is A less (older) than B?
         if aTime < bTime:
-            return conduit.datatypes.OLDER
+            return conduit.datatypes.COMPARISON_OLDER
         #Is A greater (newer) than B
         elif aTime > bTime:
-            return conduit.datatypes.NEWER
+            return conduit.datatypes.COMPARISON_NEWER
         elif aTime == bTime:
-            return conduit.datatypes.EQUAL
+            return conduit.datatypes.COMPARISON_EQUAL
         else:
-            return conduit.datatypes.UNKNOWN
+            return conduit.datatypes.COMPARISON_UNKNOWN
             
 def TaggedFile(File):
     """

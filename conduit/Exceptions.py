@@ -64,16 +64,16 @@ class SynchronizeConflictError(Exception):
     @todo: Should accept the from_data, the to_data, and the datasink to 
     allow this to be continued later
     """
-    def __init__(self,fromData, toData, datasink):
+    def __init__(self, comparison, fromData, toData):
         """
         Store the info required to resume this sync later
         """
+        self.comparison = comparison
         self.fromData = fromData
         self.toData = toData
-        self.datasink = datasink
 
     def __str__(self):
-        return "Sync Conflict (From: %s, To:%s, Data:%s" % (self.fromData, self.toData, self.datasink)
+        return "Sync Conflict: Comparison=%s (From: %s, To:%s)" % (self.comparison, self.fromData, self.toData)
 
         
 class StopSync(Exception):

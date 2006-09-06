@@ -334,6 +334,7 @@ class ModuleWrapper:
         self.filename = filename
         self.module = module
         self.enabled = enabled
+        self.two_way = False
         
         self._uid = ""
         #Generate a unique identifier for this instance

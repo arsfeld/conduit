@@ -4,6 +4,7 @@ from gettext import gettext as _
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.datatypes as DataType
 import conduit.datatypes.File as File
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
@@ -73,7 +74,7 @@ class FileSource(DataProvider.DataSource):
             dir = dirs.pop(0)
             try:hdir = gnomevfs.DirectoryHandle(dir)
             except: 
-                logging.warn("%s Not found" % dir)
+                logging.warn("Folder %s Not found" % dir)
                 continue
             try: fileinfo = hdir.next()
             except StopIteration: continue;
@@ -177,16 +178,25 @@ class FileSink(DataProvider.DataSink):
         else:
             filename = vfsfile.get_filename()
         toURI = gnomevfs.URI(os.path.join(self.folderURI, filename))
-        fromURI = gnomevfs.URI(vfsfile.get_uri_string())
-        try:
-            #FIXME: I should probbably do something with the result returned
-            #from xfer_uri
-            result = gnomevfs.xfer_uri( fromURI, toURI,
-                                        gnomevfs.XFER_DEFAULT,
-                                        gnomevfs.XFER_ERROR_MODE_ABORT,
-                                        gnomevfs.XFER_OVERWRITE_MODE_SKIP)
-        except:
-            raise Exceptions.SyncronizeError
+        #Now compare the files to decide if this sink is newer than the source
+        toFile = File.File()
+        toFile.load_from_uri(toURI)
+        comparison = toFile.compare(toFile, vfsfile)
+        #Only put the file if its newer (the case of the file not existing is 
+        #handled in the File datatype (it is considered newer)
+        if comparison == DataType.COMPARISON_NEWER:
+            fromURI = gnomevfs.URI(vfsfile.get_uri_string())
+            try:
+                #FIXME: I should probbably do something with the result returned
+                #from xfer_uri
+                result = gnomevfs.xfer_uri( fromURI, toURI,
+                                            gnomevfs.XFER_DEFAULT,
+                                            gnomevfs.XFER_ERROR_MODE_ABORT,
+                                            gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+            except:
+                raise Exceptions.SyncronizeError
+        else:
+            raise Exceptions.SynchronizeConflictError(comparison, vfsfile, toFile)
             
     def get_configuration(self):
         return {"folderURI" : self.folderURI}

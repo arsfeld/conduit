@@ -17,7 +17,9 @@ import DataType
 __all__ = ["Feed", "File", "Note", "Text", "Email", "DataType"]
 
 #Constants used for comparison
-EQUAL = 0
-NEWER = 1
-OLDER = 2
-UNKNOWN = 3
+COMPARISON_EQUAL = 0
+COMPARISON_NEWER = 1
+COMPARISON_OLDER = 2
+COMPARISON_UNKNOWN = 3
+
+    
