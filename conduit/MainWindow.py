@@ -60,7 +60,6 @@ class MainWindow:
                 "on_synchronize_activate" : self.on_synchronize_all_clicked,      
                 "on_quit_activate" : self.on_window_closed,
                 "on_clear_canvas_activate" : self.on_clear_canvas,
-                "on_loaded_modules_activate" : self.on_loaded_modules,
                 "on_preferences_activate" : self.on_conduit_preferences,
                 "on_about_activate" : self.on_about_conduit,
                 "on_save1_activate" : self.save_settings,
@@ -205,7 +204,7 @@ class MainWindow:
             for c in self.canvas.get_sync_set():
                 self.canvas.delete_conduit(c)
     
-    def on_loaded_modules(self, widget):
+    def on_conduit_preferences(self, widget):
         """
         Show the properties of the current sync set (status, conflicts, etc
         Edit the sync specific properties
@@ -215,42 +214,46 @@ class MainWindow:
         converterListStore = gtk.ListStore( str )
         for i in convertables:
             converterListStore.append( [i] )
-        dataProviderListStore = gtk.ListStore( str )
+        dataProviderListStore = gtk.ListStore( str, bool )
         for i in self.datasink_modules:
-            dataProviderListStore.append(["%s %s (type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type)])
+            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
         for i in self.datasource_modules:
-            dataProviderListStore.append(["%s %s (type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type)])
+            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
            
         #construct the dialog
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "LoadedModulesDialog")
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "PreferencesDialog")
+        converterTreeView = tree.get_widget("dataConversionsTreeView")
+        converterTreeView.set_model(converterListStore)
+        converterTreeView.append_column(gtk.TreeViewColumn('Conversions Available', 
+                                        gtk.CellRendererText(), 
+                                        text=0)
+                                        )
         dataproviderTreeView = tree.get_widget("dataProvidersTreeView")
         dataproviderTreeView.set_model(dataProviderListStore)
         dataproviderTreeView.append_column(gtk.TreeViewColumn('Name', 
                                         gtk.CellRendererText(), 
                                         text=0)
                                         )                                                   
-        converterTreeView = tree.get_widget("dataConversionsTreeView")
-        converterTreeView.set_model(converterListStore)
-        converterTreeView.append_column(gtk.TreeViewColumn('Name', 
-                                        gtk.CellRendererText(), 
-                                        text=0)
-                                        )
+        dataproviderTreeView.append_column(gtk.TreeViewColumn('Enabled', 
+                                        gtk.CellRendererToggle(), 
+                                        active=1)
+                                        )                                        
                                         
+        #fill out the configuration tab
+        save_settings_check = tree.get_widget("save_settings_check")
+        save_settings_check.set_active(conduit.settings.get("save_on_exit"))
+        use_treeview_check = tree.get_widget("use_treeview_check")
+        use_treeview_check.set_active(conduit.settings.get("use_treeview"))                            
                                         
         #Show the dialog
-        dialog = tree.get_widget("LoadedModulesDialog")
+        dialog = tree.get_widget("PreferencesDialog")
         dialog.set_transient_for(self.mainWindow)
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
-            pass
+            conduit.settings.set("save_on_exit", save_settings_check.get_active())
+            conduit.settings.set("use_treeview", use_treeview_check.get_active())
         dialog.destroy()                
 
-
-    def on_conduit_preferences(self, widget):
-        """
-        Edit the application wide preferences
-        """
-        logging.debug("application preferences")
 
     def on_about_conduit(self, widget):
         """
