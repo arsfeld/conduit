@@ -40,6 +40,24 @@ MODULES = {
 	
 }
 
+def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
+    """
+    Xfers a file from fromURI to destURI. Overwrites if commanded.
+    @raise Exception: if anything goes wrong in xfer
+    """
+    logging.debug("Transfering file from %s -> %s (Overwrite: %s)" % (sourceURI, destURI, overwrite))
+    if overwrite:
+        mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
+    else:
+        mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
+        
+    #FIXME: I should probbably do something with the result returned
+    #from xfer_uri
+    result = gnomevfs.xfer_uri( sourceURI, destURI,
+                                gnomevfs.XFER_DEFAULT,
+                                mode,
+                                gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+    
 class FileSource(DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"))
@@ -136,8 +154,7 @@ class FileSource(DataProvider.DataSource):
        
     def get(self):
         for f in self.allURIs:
-            vfsFile = File.File()
-            vfsFile.load_from_uri(f)
+            vfsFile = File.File(f)
             yield vfsFile
             
     def get_configuration(self):
@@ -170,33 +187,31 @@ class FileSink(DataProvider.DataSink):
             self.folderURI = folderChooserButton.get_uri()
         dlg.destroy()            
         
-    def put(self, vfsfile):
+    def put(self, sourceFile):
+        sourceURI = gnomevfs.URI(sourceFile.get_uri_string())
         #Ok Put the files in the specified directory and retain their names
         #first check if (a converter) has given us another filename to use
-        if len(vfsfile.forceNewFilename) > 0:
-            filename = vfsfile.forceNewFilename
+        if len(sourceFile.forceNewFilename) > 0:
+            filename = sourceFile.forceNewFilename
         else:
-            filename = vfsfile.get_filename()
-        toURI = gnomevfs.URI(os.path.join(self.folderURI, filename))
-        #Now compare the files to decide if this sink is newer than the source
-        toFile = File.File()
-        toFile.load_from_uri(toURI)
-        comparison = toFile.compare(toFile, vfsfile)
-        #Only put the file if its newer (the case of the file not existing is 
-        #handled in the File datatype (it is considered newer)
+            filename = sourceFile.get_filename()
+        destURI = gnomevfs.URI(os.path.join(self.folderURI, filename))
+        destFile = File.File(destURI)
+        #compare sourceFile with its destination path. if sourceFile is newer than
+        #destination then overwrite it.
+        comparison = destFile.compare(sourceFile, destFile)
+        logging.debug("File Sink: Put %s -> %s (Comparison: %s)" % (sourceURI, destURI, comparison))
         if comparison == DataType.COMPARISON_NEWER:
-            fromURI = gnomevfs.URI(vfsfile.get_uri_string())
             try:
-                #FIXME: I should probbably do something with the result returned
-                #from xfer_uri
-                result = gnomevfs.xfer_uri( fromURI, toURI,
-                                            gnomevfs.XFER_DEFAULT,
-                                            gnomevfs.XFER_ERROR_MODE_ABORT,
-                                            gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+                #its newer so overwrite the old file
+                do_gnomevfs_transfer(sourceURI, destURI, True)
             except:
                 raise Exceptions.SyncronizeError
+        elif comparison == DataType.COMPARISON_EQUAL:
+            #dont bother copying if the files are the same
+            pass
         else:
-            raise Exceptions.SynchronizeConflictError(comparison, vfsfile, toFile)
+            raise Exceptions.SynchronizeConflictError(comparison, sourceFile, destFile)
             
     def get_configuration(self):
         return {"folderURI" : self.folderURI}
@@ -270,6 +285,13 @@ class FileSourceConfigurator:
         dialog.destroy()
 
     def on_adddir_clicked(self, *args):
+        #Its not worth bothering to implement this yet until I
+        #work out a way to store and communicate the base path of this
+        #added dir to the corresponding sink funtion. Otherwise
+        #I cannot recreate the relative path of dirs so this function is
+        #useless
+        logging.info("NOT IMPLEMENTED")
+        return
         dialog = gtk.FileChooserDialog( _("Include folder ..."), 
                                         None, 
                                         gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, 

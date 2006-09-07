@@ -232,10 +232,12 @@ class SyncWorker(threading.Thread):
                         self.check_thread_not_cancelled([self.source, sink])
                         #only sync with those sinks that refresh'd OK
                         if sink.module.get_status() in [DataProvider.STATUS_DONE_REFRESH_OK, DataProvider.STATUS_SYNC]:
-                            logging.debug("Synchronizing %s -> %s (source \
-                                            data type = %s, sink accepts %s)" % 
-                                            (self.source, sink, 
-                                            self.source.out_type, sink.in_type))
+                            logging.debug(  "Synchronizing %s -> %s (source data type = %s, sink accepts %s)" % 
+                                            (self.source, 
+                                            sink, 
+                                            self.source.out_type, 
+                                            sink.in_type)
+                                            )
                             try:
                                 if self.source.out_type != sink.in_type:
                                     if self.typeConverter.conversion_exists(self.source.out_type, sink.in_type):

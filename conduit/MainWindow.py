@@ -6,7 +6,7 @@ Also manages the callbacks from menu and GUI items
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
+import gnomevfs
 import gobject
 import gtk
 import gtk.glade
@@ -36,6 +36,8 @@ class MainWindow:
         the most time consuming pieces
         """
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
+        #FIXME: This causes X errors (async reply??) sometimes in the sync thread???
+        gnome.ui.authentication_manager_init()        
         #Throw up a splash screen ASAP to look pretty
         #FIXME: The only thing I should do before showing the splash screen
         #is to load the app settings, (like the window position which is

@@ -79,12 +79,7 @@ class Settings(gobject.GObject):
     def _list_to_string(listy):
         s = ""
         if type(listy) is list:
-            for l in listy:
-                #FIXME: This could be nicer done with list comprehension?
-                if len(s) == 0:
-                    s = str(l)
-                else:
-                    s = s + "," + str(l)
+            s = ",".join(listy) #cool
         return s
         
     @staticmethod

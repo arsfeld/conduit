@@ -1,10 +1,12 @@
 import gnomevfs
 import conduit
+import logging
 from conduit.datatypes import DataType
 
 import os
 import tempfile
 import datetime
+import traceback
 
 def new_from_tempfile(contents, contentsAreText=True):
     """
@@ -22,22 +24,72 @@ def new_from_tempfile(contents, contentsAreText=True):
     fd, name = tempfile.mkstemp(text=contentsAreText)
     os.write(fd, contents)
     os.close(fd)
-    vfsFile = File()
-    vfsFile.load_from_uri(name)
+    vfsFile = File(name)
     return vfsFile
     
 class File(DataType.DataType):
-    def __init__(self):
+    def __init__(self, uriString=None):
         DataType.DataType.__init__(self,"file")
 
-        self.uriString = None                    
+        self.uriString = uriString            
         self.vfsHandle = None
         self.fileInfo = None
         self.forceNewFilename = ""
+        self.triedOpen = False
+        self.fileExists = False
         
+    def _open_file(self):
+        """
+        Opens the file. 
+        
+        Only tries to do this once for performance reasons
+        """
+        if self.triedOpen == False:
+            #Catches the case of a file which is used only as a temp
+            #file, like in some dataproviders
+            if self.uriString == None:
+                self.fileExists = False
+                self.triedOpen = True
+                return
+                
+            #Otherwise try and get the file info
+            try:
+                self.vfsFile = gnomevfs.Handle(self.uriString)
+                self.fileExists = True
+                self.triedOpen = True
+            except gnomevfs.NotFoundError:
+                logging.debug("Could not open file %s. Does not exist" % self.uriString)
+                self.fileExists = False
+                self.triedOpen = True
+            except:
+                logging.debug("Could not open file %s. Exception:\n%s" % (self.uriString, traceback.format_exc()))
+                self.fileExists = False
+                self.triedOpen = True
+            
     def _get_file_info(self):
-        if self.fileInfo is None:
-            self.fileInfo = gnomevfs.get_file_info(self.uriString, gnomevfs.FILE_INFO_DEFAULT)
+        """
+        Gets the file info. Because gnomevfs is dumb this method works a lot
+        more reliably than self.vfsFile.get_file_info().
+        
+        Only tries to get the info once for performance reasons
+        """
+        #Open the file (if not already done so)
+        self._open_file()
+        #The get_file_info works more reliably on remote vfs shares
+        if self.fileInfo == None:
+            if self.fileExists == True:
+                self.fileInfo = gnomevfs.get_file_info(self.uriString, gnomevfs.FILE_INFO_DEFAULT)
+            else:
+                logging.warn("Cannot get info on non-existant file %s" % self.uriString)
+
+    def file_exists(self):
+        """
+        Checks if this file exists or not.
+        """
+        if self.triedOpen:
+            return self.fileExists
+        else:
+            return gnomevfs.exists(self.get_uri_string())
             
     def force_new_filename(self, filename):
         """
@@ -50,13 +102,6 @@ class File(DataType.DataType):
         """
         self.forceNewFilename = filename
             
-    def load_from_uri(self, uri):
-        """
-        Creates a vfsFile from a uri string
-        """
-        self.uriString = uri
-        self.vfsFile = gnomevfs.Handle(self.uriString)
-        
     def get_mimetype(self):
         self._get_file_info()
         try:
@@ -80,6 +125,16 @@ class File(DataType.DataType):
         self._get_file_info()
         try:
             return datetime.datetime.fromtimestamp(self.fileInfo.mtime)
+        except:
+            return None
+    
+    def get_size(self):
+        """
+        Gets the file size
+        """
+        self._get_file_info()
+        try:
+            return self.fileInfo.size
         except:
             return None
                        
@@ -124,6 +179,7 @@ class File(DataType.DataType):
         #Else look at the modification times
         aTime = A.get_modification_time()
         bTime = B.get_modification_time()
+        #logging.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.uriString, aTime, B.uriString, bTime))
         if aTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            
@@ -136,8 +192,24 @@ class File(DataType.DataType):
         elif aTime > bTime:
             return conduit.datatypes.COMPARISON_NEWER
         elif aTime == bTime:
-            return conduit.datatypes.COMPARISON_EQUAL
+            aSize = A.get_size()
+            bSize = B.get_size()
+            #logging.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.uriString, aSize, B.uriString, bSize))
+            #If the times are equal, and the sizes are equal then assume
+            #that they are the same.
+            #FIXME: Shoud i check md5 instead?
+            if aSize == None or bSize == None:
+                #In case of error
+                return conduit.datatypes.COMPARISON_UNKNOWN
+            elif aSize == bSize:
+                return conduit.datatypes.COMPARISON_EQUAL
+            else:
+                #shouldnt get here
+                logging.error("Error comparing file sizes")
+                return conduit.datatypes.COMPARISON_UNKNOWN
+                
         else:
+            logging.error("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
             
 def TaggedFile(File):

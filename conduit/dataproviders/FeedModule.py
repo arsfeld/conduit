@@ -75,7 +75,8 @@ class RSSSource(DataProvider.DataSource):
         if response == gtk.RESPONSE_OK:
             self.feedUrl = url.get_text()
             if limitCb.get_active():
-                self.limit = limitSb.get_value()
+                #Need to cast to a float cause it returns an int
+                self.limit = int(limitSb.get_value())
             self.allowedTypes = []
             if photosCb.get_active():
                 self.allowedTypes += RSSSource.PHOTO_TYPES
@@ -113,8 +114,7 @@ class RSSSource(DataProvider.DataSource):
                                 if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
                                     allreadyInserted.append(url)
                                     #Make a file
-                                    f = File.File()
-                                    f.load_from_uri(url)
+                                    f = File.File(url)
                                     #create the correct extension
                                     #FIXME:hack because no way to get extensions for
                                     #mimetype in pygtk. See 349619

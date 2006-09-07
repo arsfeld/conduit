@@ -72,8 +72,7 @@ class FspotSource(DataProvider.DataSource):
         
     def get(self):
         for uri in self.photoURIs:
-            f = File.File()
-            f.load_from_uri(str(uri))
+            f = File.File(str(uri))
             yield f
             
     def set_configuration(self, config):
