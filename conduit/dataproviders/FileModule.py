@@ -55,8 +55,8 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
     #from xfer_uri
     result = gnomevfs.xfer_uri( sourceURI, destURI,
                                 gnomevfs.XFER_DEFAULT,
-                                mode,
-                                gnomevfs.XFER_OVERWRITE_MODE_SKIP)
+                                gnomevfs.XFER_ERROR_MODE_ABORT,
+                                mode)
     
 class FileSource(DataProvider.DataSource):
     def __init__(self):
