@@ -75,10 +75,11 @@ class MainWindow:
         self.mainWindow.hide()
         self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
+        self.mainWindow.set_icon_from_file(os.path.join(conduit.SHARED_DATA_DIR, "conduit-icon.png"))
         
+        #Configure canvas and canvas menus
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
-
         self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "GroupMenu")
         self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "ItemMenu") 
 

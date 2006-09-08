@@ -35,21 +35,21 @@ class MoinMoinDataSource(DataProvider.DataSource):
         
         #class specific
         self.srcwiki = None
-        self.pagesString = ""
         self.pages = []
         
     def configure(self, window):
         def set_pages(param):
             self.pages = param.split(',')
-            self.pagesString = param
         
+        #Make the list into a comma seperated string for display
+        pageString = ",".join(self.pages)
         #Define the items in the configure dialogue
         items = [
                     {
-                    "Name" : "Page Names to Synchronize:",
+                    "Name" : "Page Name to Synchronize:",
                     "Widget" : gtk.Entry,
                     "Callback" : set_pages,
-                    "InitialValue" : self.pagesString
+                    "InitialValue" : pageString
                     }                    
                 ]
         #We just use a simple configuration dialog
@@ -74,6 +74,9 @@ class MoinMoinDataSource(DataProvider.DataSource):
             page.contents = self.srcwiki.getPage(p)
             
             yield page
+            
+    def get_configuration(self):
+        return {"pages" : self.pages}
 		
 class WikiPageDataType(DataType.DataType):
     def __init__(self):

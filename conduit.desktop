@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=Conduit
+GenericName=Conduit Synchronizer
+Comment=Synchronization for GNOME
+Exec=conduit
+Terminal=false
+Type=Application
+Icon=conduit-icon.png
+Categories=Application;System;GTK
+
