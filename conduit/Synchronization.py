@@ -265,17 +265,24 @@ class SyncWorker(threading.Thread):
                                         #Only try once the other way (and only if supported)
                                         #Do not loop forever
                                         finishedPutting = True
-                                        if self.source.two_way:
+                                        if self.source.module.is_two_way():
                                             #If the comparison was the other way then
                                             if err.comparison == DataType.COMPARISON_OLDER:
                                                 logging.debug("Sync Conflict: Putting OLD Data")
+                                                #Put the other way....
+                                                #self.source.module.put(...
                                             elif err.comparison == DataType.COMPARISON_EQUAL or err.comparison == DataType.COMPARISON_UNKNOWN:
                                                 #FIXME. I imagine that implementing this is a bit of work!
-                                                #The data needs to get back to the main gui thread safely...
+                                                #The data needs to get back to the main gui thread safely
+                                                #so that the user can decide...
                                                 logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
+                                            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+                                            sinkErrors[sink] = True
                                         #Nothing we can do 
                                         else:
-                                            logging.error("Sync Conflict: Cannot resolve conflict, source does not support put()")
+                                            logging.error("Sync Conflict: Cannot resolve conflict, source is not two-way")
+                                            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+                                            sinkErrors[sink] = True
    
                             #Catch exceptions if we abort the sync cause no conversion exists
                             except Exceptions.ConversionDoesntExistError:

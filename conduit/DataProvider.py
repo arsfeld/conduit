@@ -24,6 +24,7 @@ STATUS_DONE_SYNC_OK = 6
 STATUS_DONE_SYNC_ERROR = 7
 STATUS_DONE_SYNC_SKIPPED = 8
 STATUS_DONE_SYNC_CANCELLED = 9
+STATUS_DONE_SYNC_CONFLICT = 10
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -111,7 +112,7 @@ class DataProviderBase(gobject.GObject):
         self.status = STATUS_NONE
         #The following can be overridden to customize the appearance
         #of the basic dataproviders
-        self.icon_name = gtk.STOCK_OK        
+        self.icon_name = "gtk-missing-image"   
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM2_LIGHT
         self.widget_width = WIDGET_WIDTH
         self.widget_height = WIDGET_HEIGHT
@@ -208,27 +209,6 @@ class DataProviderBase(gobject.GObject):
         """
         return self.widget_width, self.widget_height
         
-    def deserialize(self, class_name, serialized):
-        """
-        Deserialize
-        """
-        logging.info("deserialize() not overridden by derived class %s" % self.name)
-        #try:
-        #	match = getattr(sys.modules[self.__module__], class_name)(self, **serialized)
-        #	if match.is_valid():
-        #		return match
-        #except Exception, msg:
-        #	print 'Warning:Error while deserializing match:', class_name, serialized, msg
-        #return None
-
-    def serialize(self, class_name):
-        """
-        Serializes (pickles) the dataprovider for sending over network.
-        Designed to be used with avahi sync
-        @todo: Should this be a funtion in modulewrapper??
-        """
-        logging.info("serialize() not overridden by derived class %s" % self.name)
-        
     def initialize(self):
         """
         Called when the module is loaded by the module loader. 
@@ -296,6 +276,8 @@ class DataProviderBase(gobject.GObject):
             return _("Synchronization Skipped")
         elif s == STATUS_DONE_SYNC_CANCELLED:
             return _("Synchronization Cancelled")
+        elif s == STATUS_DONE_SYNC_CONFLICT:
+            return _("Synchronization Conflict")
         else:
             return "BAD PROGRAMMER"
             
@@ -314,6 +296,11 @@ class DataProviderBase(gobject.GObject):
             return True
         else:
             return False
+            
+    def is_two_way(self):
+        twoWay = hasattr(self, "put") and hasattr(self, "get")
+        logging.debug("TWO WAY %s" % twoWay)
+        return twoWay
 
     def set_status(self, newStatus):
         """
@@ -336,51 +323,6 @@ class DataProviderBase(gobject.GObject):
         @type window: {gtk.Window}
         """
         logging.info("configure() not overridden by derived class %s" % self.name)
-        
-    def put(self, data):
-        """
-        Stores data.
-
-        Checks if the dataprovider has been initialized first, if not then
-        calls .initialize(). This function must be overridden by the 
-        appropriate dataprovider but derived classes must still call this 
-        function.
-
-        @param data_type: Data which to save
-        @type data_type: A L{conduit.DataType.DataType} derived type that this 
-        dataprovider is capable of handling
-        @rtype: C{bool}
-        @returns: True for success, false on failure
-        """
-        logging.info("put() not overridden by derived class %s" % self.name)
-                
-    def get(self):
-        """
-        Returns all appropriate data. 
-        
-        Checks if the dataprovider has been initialized first, if not then
-        calls .initialize(). This function must be overridden by the 
-        appropriate dataprovider but derived classes must still call this 
-        function.
-        
-        @rtype: L{conduit.DataType.DataType}[]
-        @returns: An array of all data needed for synchronization and provided
-        through configuration by this dataprovider.
-        """
-        logging.info("put() not overridden by derived class %s" % self.name)
-                
-    def get_num_items(self):
-        """
-        Returns the number of items requiring sychronization. This function 
-        must be overridden by the appropriate dataprovider.
-        @todo: Use this to make a progress dialog and does this number 
-        represent the number of times that get shall be called??
-        
-        @returns: The number of items to synchronize
-        @rtype: C{int}
-        """
-        logging.info("get_num_items() not overridden by derived class %s" % self.name)
-        return NO_ITEMS
         
     def get_configuration(self):
         """
@@ -424,7 +366,35 @@ class DataSource(DataProviderBase):
         #customizations
         self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
-  
+
+    def get(self):
+        """
+        Returns all appropriate data. 
+        
+        Checks if the dataprovider has been initialized first, if not then
+        calls .initialize(). This function must be overridden by the 
+        appropriate dataprovider but derived classes must still call this 
+        function.
+        
+        @rtype: L{conduit.DataType.DataType}[]
+        @returns: An array of all data needed for synchronization and provided
+        through configuration by this dataprovider.
+        """
+        logging.info("put() not overridden by derived class %s" % self.name)
+                
+    def get_num_items(self):
+        """
+        Returns the number of items requiring sychronization. This function 
+        must be overridden by the appropriate dataprovider.
+        @todo: Use this to make a progress dialog and does this number 
+        represent the number of times that get shall be called??
+        
+        @returns: The number of items to synchronize
+        @rtype: C{int}
+        """
+        logging.info("get_num_items() not overridden by derived class %s" % self.name)
+        return NO_ITEMS
+
 class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
@@ -439,7 +409,24 @@ class DataSink(DataProviderBase):
         #customizations
         self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
-        
+
+    def put(self, data):
+        """
+        Stores data.
+
+        Checks if the dataprovider has been initialized first, if not then
+        calls .initialize(). This function must be overridden by the 
+        appropriate dataprovider but derived classes must still call this 
+        function.
+
+        @param data_type: Data which to save
+        @type data_type: A L{conduit.DataType.DataType} derived type that this 
+        dataprovider is capable of handling
+        @rtype: C{bool}
+        @returns: True for success, false on failure
+        """
+        logging.info("put() not overridden by derived class %s" % self.name)
+
 class DataProviderListModel(gtk.GenericTreeModel):
     """
     A listmodel for managing dynamically loaded modules. Manages an internal 

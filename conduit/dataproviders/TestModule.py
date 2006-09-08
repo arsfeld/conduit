@@ -22,7 +22,15 @@ MODULES = {
 		"category": "Test",
 		"in_type": "text",
 		"out_type": "text"
-	},		
+	},
+	"TestTwoWay" : {
+		"name": "Two Way",
+		"description": "Prints Debug Messages",
+		"type": "source",
+		"category": "Test",
+		"in_type": "text",
+		"out_type": "text"
+	}
 }
 
 class TestBase:
@@ -121,3 +129,7 @@ class TestSink(TestBase, DataProvider.DataSink):
             raise Exceptions.SyncronizeError
         self.count += 1
         logging.debug("TEST SINK: put(): %s" % data)
+
+class TestTwoWay(DataProvider.DataSink, DataProvider.DataSource):
+    def __init__(self):
+        DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages")

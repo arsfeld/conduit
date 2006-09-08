@@ -136,14 +136,13 @@ class ModuleLoader(gobject.GObject):
         for modules, infos in mod.MODULES.items():
             try:
                 mod_instance = getattr (mod, modules) ()
-                
                 #Initialize the module (only DataProviders have initialize() methods
                 enabled = True
                 if isinstance(mod_instance,DataProvider.DataProviderBase):
                     if not mod_instance.initialize():
                         logging.warn("%s did not initialize correctly. Starting disabled" % infos["name"])
                         enabled = False
-                    
+                
                 mod_wrapper = ModuleWrapper (  infos["name"], 
             	                               infos["description"], 
             	                               infos["type"], 
@@ -334,7 +333,6 @@ class ModuleWrapper:
         self.filename = filename
         self.module = module
         self.enabled = enabled
-        self.two_way = False
         
         self._uid = ""
         #Generate a unique identifier for this instance
