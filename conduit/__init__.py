@@ -76,4 +76,4 @@ from Settings import Settings
 __all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit", "SyncManager", "SyncWorker", "Settings"]
 
 gobject.threads_init()
-settings = Settings(os.path.join(USER_DIR, "settings.xml"))
+settings = Settings()

@@ -103,6 +103,15 @@ class Settings(gobject.GObject):
             return self.CONDUIT_GCONF_DIR + key
         else:
             return key
+            
+    def set_settings_file(self, xmlSettingFilePath):
+        """
+        Sets the xml settings file to be used in the restore_sync_set
+        and save_sync_set methods
+        @param xmlSettingFilePath: Full locl path to the settings.xml file
+        """
+        logging.debug("Settings stored in %s" % xmlSettingFilePath)
+        self.xmlSettingFilePath = xmlSettingFilePath
         
     def get(self, key, vtype=None, default=None):
         """

@@ -353,13 +353,32 @@ class MainWindow:
 
     def __main__(self):
         """
-        Shows the main window and enters the gtk mainloop
+        Parses command line arguments. Shows the main window and 
+        enters the gtk mainloop
         
         Restores application settings, shows a welcome message and
         closes the splash screen
         """
+        import getopt, sys
+        #Default command line values
+        settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "hs:", ["help", "settings="])
+            #parse args
+            for o, a in opts:
+                if o in ("-h", "--help"):
+                    pass
+                if o in ("-s", "--settings"):
+                    settingsFile = os.path.join(os.getcwd(), a)
+        except getopt.GetoptError:
+            # print help information and exit:
+            logging.warn("Unknown command line option")
+            pass
+
+        #Start the app using the new args...
         self.mainWindow.show_all()
-        conduit.settings.restore_sync_set(conduit.APPVERSION,self)
+        conduit.settings.set_settings_file(settingsFile)
+        conduit.settings.restore_sync_set(conduit.APPVERSION, self)
         self.canvas.add_welcome_message()
         self.splash.destroy()
         gtk.main()
