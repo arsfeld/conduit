@@ -156,7 +156,10 @@ class MainWindow:
         """
         Call the initialize method on all dataproviders in the conduit
         """
-        logging.debug("Refresh Group")    
+        if self.canvas.selected_conduit.datasource is not None and len(self.canvas.selected_conduit.datasinks) > 0:
+            self.sync_manager.refresh_conduit(self.canvas.selected_conduit)
+        else:
+            logging.info("Conduit must have a datasource and a datasink")
     
     def on_synchronize_group_clicked(self, widget):
         """

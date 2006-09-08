@@ -58,8 +58,10 @@ class SyncManager(object):
             if self.conduits[conduit].isAlive():
                 self.conduits[conduit].cancel()
                 self.conduits[conduit].join() #Will block
+            #Thanks mr garbage collector    
+            del(self.conduits[conduit])
 
-        #Create a new thread over top. Thanks mr garbage collector
+        #Create a new thread over top
         newThread = SyncWorker(self.typeConverter, conduit, (0,0))
         self.conduits[conduit] = newThread
         self.conduits[conduit].start()
@@ -76,9 +78,11 @@ class SyncManager(object):
                 logging.warn("Cancelling thread")
                 self.conduits[conduit].cancel()
                 self.conduits[conduit].join() #Will block
+            #Thanks mr garbage collector    
+            del(self.conduits[conduit])
 
-        #Create a new thread over top. Thanks mr garbage collector
-        newThread = SyncWorker(self.typeConverter, conduit)
+        #Create a new thread over top.
+        newThread = SyncWorker(self.typeConverter, conduit, (0,1))
         self.conduits[conduit] = newThread
         self.conduits[conduit].start()
             
@@ -151,52 +155,49 @@ class SyncWorker(threading.Thread):
         numOKSinks = 0
         while not finished:
             self.check_thread_not_cancelled([self.source] + self.sinks)
-            sourcestatus = self.source.module.get_status()        
             logging.debug("Syncworker state %s" % self.state)
             #Refresh state
             if self.state is SyncWorker.REFRESH_STATE:
-
+                logging.debug("Source Status = %s" % self.source.module.get_status_text())
                 #Refresh the source
-                if sourcestatus is DataProvider.STATUS_NONE:
-                    try:
-                        self.source.module.set_status(DataProvider.STATUS_REFRESH)
-                        #Thread
-                        self.source.module.refresh()
-                        self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
-                    except Exceptions.RefreshError:
-                        self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                        logging.warn("Error Refreshing: %s" % self.source)
-                        #Let the calling thread know we blew it
-                        raise Exceptions.StopSync
-                    except Exception, err:
-                        logging.critical("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
-                        #Cannot continue with no source data
-                        raise Exceptions.StopSync           
+                try:
+                    self.source.module.set_status(DataProvider.STATUS_REFRESH)
+                    self.source.module.refresh()
+                    self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
+                except Exceptions.RefreshError:
+                    self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
+                    logging.warn("Error Refreshing: %s" % self.source)
+                    #Let the calling thread know we blew it
+                    raise Exceptions.StopSync
+                except Exception, err:
+                    logging.critical("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
+                    #Cannot continue with no source data
+                    raise Exceptions.StopSync           
 
                 #Refresh all the sinks. At least one must refresh successfully
                 for sink in self.sinks:
                     self.check_thread_not_cancelled([self.source, sink])
-                    sinkstatus = sink.module.get_status()                        
-                    if sinkstatus is DataProvider.STATUS_NONE:
-                        try:
-                            sink.module.set_status(DataProvider.STATUS_REFRESH)
-                            sink.module.refresh()
-                            sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
-                            numOKSinks += 1
-                        except Exceptions.RefreshError:
-                            sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                            numOKSinks -= 1
-                            logging.warn("Error refreshing: %s" % sink)
-                        except Exception, err:
-                            sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                            numOKSinks -= 1
-                            logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
+                    try:
+                        sink.module.set_status(DataProvider.STATUS_REFRESH)
+                        sink.module.refresh()
+                        sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
+                        numOKSinks += 1
+                    except Exceptions.RefreshError:
+                        sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
+                        numOKSinks -= 1
+                        logging.warn("Error refreshing: %s" % sink)
+                    except Exception, err:
+                        sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
+                        numOKSinks -= 1
+                        logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
                             
                 #Need to have at least one successfully refreshed sink            
                 if numOKSinks > 0:
                     #Go to next state state
                     if self.state < self.finishState:
                         self.state += 1
+                    else:
+                        self.state = SyncWorker.DONE_STATE                        
                 else:
                     #go home
                     finished = True
@@ -304,19 +305,24 @@ class SyncWorker(threading.Thread):
                                 logging.critical("Unknown synchronisation error\n%s" % traceback.format_exc())
                                 raise Exceptions.StopSync
                 
-                #Now go back and check for errors
+                #Now go back and check for errors, so that we can tell the GUI we are OK
                 for sink in self.sinks:
                     if sink not in sinkErrors:
                         #tell the gui if the sync was ok
                         sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                
+                #It is safe to put this call here because all other source related
+                #Errors raise a StopSync exception and the thread exits
+                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
                     
                 #Done go to next state
                 if self.state < self.finishState:
                     self.state += 1
+                else:
+                    self.state = SyncWorker.DONE_STATE
 
             #Done successfully go home without raising exception
             elif self.state is SyncWorker.DONE_STATE:
                 finished = True
-                #Tell the GUI
-                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                
         
