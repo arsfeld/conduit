@@ -12,6 +12,11 @@ import conduit.datatypes.Email as Email
 
 try:
     import libgmail
+    if libgmail.Version < "0.1.5.1":
+        del(libgmail)
+        logging.warn("Note: Using built in libgmail")
+        sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.5"))
+        import libgmail
 except ImportError:
     logging.warn("Note: Using built in libgmail")
     sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.5"))
