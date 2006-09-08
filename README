@@ -1,0 +1,50 @@
+What is Conduit
+==========
+Conduit is a synchronization application for GNOME. It allows you to
+synchronize your data between online web services (Gmail,
+backpackit.com, etc) and your computer.
+
+Conduit is not a PIM synchronization application for sync'ing your
+mobile phone with your Evolution notes. This functionality is planned
+for the future
+
+
+What Can Conduit Do
+=============
+This release aims to show the possibilities of Conduit and to try and
+get other developers interested. It is the first release that is
+Useful but still has limitations.
+
+You can synchronize (one way at this stage) between the following
+   * Gmail Emails
+   * Gnome-vfs Files
+   * RSS Feed with Enclosures
+   * Tomboy Notes
+   * Stickynotes applet Notes
+   * Backpackit.com Notes
+
+If conversion of data is required between these items then that will
+be handled automatically and transparently. E.g binary files will be
+attached to email, text files will be inserted inline.
+
+
+Development
+=========
+I am actively looking for help with this project.
+   * Conduit is written in python and PyGTK
+   * Conduit has been designed to be easy to extend. It implements a
+plugin system much like deskbar.
+   * One of Conduits main aims is to encourage other developers to
+come onto the project through supplying:
+       ** Full API Documentation: http://doc.conduit-project.org/
+       ** Developer Walkthrough:
+http://www.conduit-project.org/wiki/Development
+
+
+Conclusion
+=======
+More and more people use online services to organise their life, I
+hope Conduit can be the bridge between peoples computers and the web.
+
+http://www.conduit-project.org
+
