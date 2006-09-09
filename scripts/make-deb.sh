@@ -55,5 +55,8 @@ else #Minor Release
     dch -v $VERSION "Bugfix Release"
 fi 
 
+#Binary??? unsigned package
+debuild -i -uc -us -b
+debuild clean
+
 exit 0
-debuild -i -S -sa

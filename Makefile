@@ -21,12 +21,12 @@ all:
 doc-stamp: $(SRC)
 	@echo "Making Docs"
 	@touch doc-stamp
-	@./make-doc.sh
+	@./scripts/make-doc.sh
 	
 doc: doc-stamp
 	
 upload-doc: doc
-	@./upload-doc.sh
+	@./scripts/upload-doc.sh
 
 make-install-dirs: 
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -79,9 +79,10 @@ dist-stamp:
 dist-files: dist-stamp
 
 deb:
-	./make-deb.sh $(VERSION)
+	@echo "Building Deb File"
+	@./scripts/make-deb.sh $(VERSION)
 
-release: tarball upload-doc
+release: tarball upload-doc deb
 	@echo "Tagging Release"
 	svn cp ../trunk/ ../tags/$(VERSION)
 	
