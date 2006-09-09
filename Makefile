@@ -78,6 +78,9 @@ dist-stamp:
 	
 dist-files: dist-stamp
 
+deb:
+	./make-deb.sh $(VERSION)
+
 release: tarball upload-doc
 	@echo "Tagging Release"
 	svn cp ../trunk/ ../tags/$(VERSION)

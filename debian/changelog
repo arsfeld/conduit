@@ -1,0 +1,14 @@
+conduit (0.1.0) unreleased; urgency=low
+
+  * Initial release.
+  * Dynamic loading of data providers
+  * Population of available type conversions from dynamically loaded
+    modules
+  * DND onto canvas
+  * Linking Sinks and Sources together graphically
+  * Sample Sink/Sources
+  * Converters
+  * Full developer documentation
+  * Asynchronous sync operation  
+
+ -- John Stowers <john@localhost>  Sat,  9 Sep 2006 01:21:15 +1200

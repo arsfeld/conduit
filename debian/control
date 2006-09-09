@@ -1,0 +1,14 @@
+Source: conduit
+Section: devel
+Priority: optional
+Maintainer: John Stowers <john.stowers@gmail.com>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.2
+
+Package: conduit
+Architecture: any
+Depends: ${shlibs:Depends}, python-pysqlite2, 
+ python2.4, python2.4-gtk2, python-glade2
+Recommends: gstreamer-0.10-plugins-ugly, python2.4-gnome-extras, python-cddb
+Description: Conduit- Synchronization for GNOME!
+ A application to sync your data anywhere
