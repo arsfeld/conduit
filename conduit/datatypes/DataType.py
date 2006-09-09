@@ -4,9 +4,17 @@ class DataType:
     """
     Base DataType which represents any thing 
     which can be synchronized between two DataProviders
+
+    @ivar type_name: The name of the type
+    @type type_name: C{string}
+    @ivar URI: A URI which uniquely represents the location of the datatype. 
+    This is particuarly neccessary on types that are used in two-way sync
+    datasources
+    @type URI: C{string}
     """
     def __init__(self,type_name):
         self.type_name = type_name
+        self.URI = None
 
     def compare(self, A, B):
         """

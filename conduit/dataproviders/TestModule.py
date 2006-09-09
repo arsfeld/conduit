@@ -122,7 +122,7 @@ class TestSink(TestBase, DataProvider.DataSink):
         DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages")
         self.count = 0
         
-    def put(self, data):
+    def put(self, data, dataOnTopOf=None):
         if self.slow:
             time.sleep(1)    
         if self.count == self.errorAfter:

@@ -136,6 +136,10 @@ class MainWindow:
         #initialise the Synchronisation Manager
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
         
+        #Use two-way sync on those datasources and conduits which support it?
+        #Obviously move this into Settings.py when its more mature
+        self.EXPERIMENTAL_TWO_WAY_SYNC = False
+        
     # callbacks.
     def on_synchronize_all_clicked(self, widget):
         """
@@ -250,6 +254,8 @@ class MainWindow:
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
         use_treeview_check = tree.get_widget("use_treeview_check")
         use_treeview_check.set_active(conduit.settings.get("use_treeview"))                            
+        use_two_way_sync_check = tree.get_widget("use_two_way_sync_check")
+        use_two_way_sync_check.set_active(self.EXPERIMENTAL_TWO_WAY_SYNC)                            
                                         
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
@@ -258,6 +264,8 @@ class MainWindow:
         if response == gtk.RESPONSE_OK:
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.settings.set("use_treeview", use_treeview_check.get_active())
+            self.EXPERIMENTAL_TWO_WAY_SYNC = use_two_way_sync_check.get_active()
+            self.canvas.enable_disable_two_way_sync(self.EXPERIMENTAL_TWO_WAY_SYNC)
         dialog.destroy()                
 
 

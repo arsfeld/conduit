@@ -26,9 +26,9 @@ class ConversionError(Exception):
         
     def __str__(self):
         if self.msg is None:
-            return "Could not convert %s -> %s" % (self.fromType, self.toType)
+            return "ConversionError: Could not convert %s -> %s" % (self.fromType, self.toType)
         else:
-            return "Could not convert %s -> %s\nExtra info:\n%s" % (self.fromType, self.toType, self.msg)
+            return "ConversionError: Could not convert %s -> %s\nExtra info:\n%s" % (self.fromType, self.toType, self.msg)
 
 class ConversionDoesntExistError(Exception):
     """
@@ -60,9 +60,6 @@ class SynchronizeConflictError(Exception):
     """
     Raised in the put() method when the input data conflicts with data 
     already present and user intervention is needed to resolve
-    
-    @todo: Should accept the from_data, the to_data, and the datasink to 
-    allow this to be continued later
     """
     def __init__(self, comparison, fromData, toData):
         """
@@ -73,7 +70,7 @@ class SynchronizeConflictError(Exception):
         self.toData = toData
 
     def __str__(self):
-        return "Sync Conflict: Comparison=%s (From: %s, To:%s)" % (self.comparison, self.fromData, self.toData)
+        return "SynchronizeConflictError: Comparison=%s (From: %s, To:%s)" % (self.comparison, self.fromData, self.toData)
 
         
 class StopSync(Exception):
@@ -89,7 +86,7 @@ class StopSync(Exception):
         self.step = step
         
     def __str__(self):
-        return "Sync aborted at step %s" % self.step
+        return "StopSync: Sync aborted at step %s" % self.step
         
             
     

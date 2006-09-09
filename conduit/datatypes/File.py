@@ -31,7 +31,7 @@ class File(DataType.DataType):
     def __init__(self, uriString=None):
         DataType.DataType.__init__(self,"file")
 
-        self.uriString = uriString            
+        self.URI = uriString            
         self.vfsHandle = None
         self.fileInfo = None
         self.forceNewFilename = ""
@@ -47,22 +47,22 @@ class File(DataType.DataType):
         if self.triedOpen == False:
             #Catches the case of a file which is used only as a temp
             #file, like in some dataproviders
-            if self.uriString == None:
+            if self.URI == None:
                 self.fileExists = False
                 self.triedOpen = True
                 return
                 
             #Otherwise try and get the file info
             try:
-                self.vfsFile = gnomevfs.Handle(self.uriString)
+                self.vfsFile = gnomevfs.Handle(self.URI)
                 self.fileExists = True
                 self.triedOpen = True
             except gnomevfs.NotFoundError:
-                logging.debug("Could not open file %s. Does not exist" % self.uriString)
+                logging.debug("Could not open file %s. Does not exist" % self.URI)
                 self.fileExists = False
                 self.triedOpen = True
             except:
-                logging.debug("Could not open file %s. Exception:\n%s" % (self.uriString, traceback.format_exc()))
+                logging.debug("Could not open file %s. Exception:\n%s" % (self.URI, traceback.format_exc()))
                 self.fileExists = False
                 self.triedOpen = True
             
@@ -78,9 +78,9 @@ class File(DataType.DataType):
         #The get_file_info works more reliably on remote vfs shares
         if self.fileInfo == None:
             if self.fileExists == True:
-                self.fileInfo = gnomevfs.get_file_info(self.uriString, gnomevfs.FILE_INFO_DEFAULT)
+                self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
-                logging.warn("Cannot get info on non-existant file %s" % self.uriString)
+                logging.warn("Cannot get info on non-existant file %s" % self.URI)
 
     def file_exists(self):
         """
@@ -109,10 +109,10 @@ class File(DataType.DataType):
         except ValueError:
             #Why is gnomevfs so stupid and must I do this for
             #non local URIs??
-            return gnomevfs.get_mime_type(self.uriString)
+            return gnomevfs.get_mime_type(self.URI)
         
     def get_uri_string(self):
-        return self.uriString
+        return self.URI
         
     def get_modification_time(self):
         """
@@ -146,7 +146,7 @@ class File(DataType.DataType):
         return self.fileInfo.name
         
     def get_contents_as_text(self):
-        return gnomevfs.read_entire_file(self.uriString)
+        return gnomevfs.read_entire_file(self.URI)
         
     def create_local_tempfile(self):
         """
@@ -160,7 +160,7 @@ class File(DataType.DataType):
         #Get a temporary file name
         tempname = tempfile.mkstemp()[1]
         toURI = gnomevfs.URI(tempname)
-        fromURI = gnomevfs.URI(self.uriString)
+        fromURI = gnomevfs.URI(self.URI)
         #Xfer to the temp file. 
         gnomevfs.xfer_uri( fromURI, toURI,
                            gnomevfs.XFER_DEFAULT,
@@ -179,7 +179,7 @@ class File(DataType.DataType):
         #Else look at the modification times
         aTime = A.get_modification_time()
         bTime = B.get_modification_time()
-        #logging.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.uriString, aTime, B.uriString, bTime))
+        #logging.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, aTime, B.URI, bTime))
         if aTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            
@@ -194,7 +194,7 @@ class File(DataType.DataType):
         elif aTime == bTime:
             aSize = A.get_size()
             bSize = B.get_size()
-            #logging.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.uriString, aSize, B.uriString, bSize))
+            #logging.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, aSize, B.URI, bSize))
             #If the times are equal, and the sizes are equal then assume
             #that they are the same.
             #FIXME: Shoud i check md5 instead?

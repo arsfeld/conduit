@@ -290,7 +290,7 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
                 self.password = passwordEntry.get_text()
         dlg.destroy()    
         
-    def put(self, email):
+    def put(self, email, emailOnTopOf=None):
         if email.has_attachments():
             attach = email.attachments
         else:

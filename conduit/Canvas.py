@@ -72,6 +72,9 @@ class Canvas(goocanvas.CanvasView):
         #application is launched
         self.welcomeMessage = None
         
+        #Use two-way sync on those datasources and conduits which support it?
+        self.EXPERIMENTAL_TWO_WAY_SYNC = False
+        
     def set_type_converter(self, typeConverter):
         """
         Saves the typeconver as it is needed to determine whether a syncronisation
@@ -273,7 +276,9 @@ class Canvas(goocanvas.CanvasView):
             #now add to root element
             self.root.add_child(c)
             self.conduits.append(c)
-         
+            
+        #Update the two-way syncability of the conduits
+        self.update_two_way_sync_on_supported_conduits() 
            
     def update_conduit_connectedness(self):
         """
@@ -343,3 +348,40 @@ class Canvas(goocanvas.CanvasView):
             self.root.remove_child(self.root.find_child(self.welcomeMessage))
             del(self.welcomeMessage)
             self.welcomeMessage = None
+            
+    def enable_disable_two_way_sync(self, enableDisable):
+        """
+        Sets whether the canvas should enable/disable two-way
+        sync on all those conduits that support it
+        
+        @param enableDisable: Whether to enable or disable two-way sync.
+        True for try and enable, False for disable
+        @type enableDisable: C{bool}
+        """
+        self.EXPERIMENTAL_TWO_WAY_SYNC = enableDisable
+        logging.debug("Setting two-way sync to %s" % self.EXPERIMENTAL_TWO_WAY_SYNC)
+        self.update_two_way_sync_on_supported_conduits()
+        
+    def update_two_way_sync_on_supported_conduits(self):
+        """
+        Enable or disable two way sync capable conduits if the following
+        conditions are met:
+        1) There is only one source and one sink
+        2) The source supports two_way_sync
+        """
+        for conduit in self.conduits:
+            if conduit.datasource != None:
+                #Two way only makes sense in a 1-1 sync
+                if len(conduit.datasinks) == 1:
+                    if conduit.datasource.module.is_two_way():
+                        #Change the conduit background to an ugly color to remind the
+                        #user it may eat their data
+                        if self.EXPERIMENTAL_TWO_WAY_SYNC == True:
+                            conduit.bounding_box.set_property("fill_color_rgba", DataProvider.TANGO_COLOR_PLUM_LIGHT)
+                            conduit.datasource.module.twoWayEnabled = True
+                        elif self.EXPERIMENTAL_TWO_WAY_SYNC == False:
+                            conduit.bounding_box.set_property("fill_color_rgba", DataProvider.TANGO_COLOR_ALUMINIUM1_LIGHT)
+                            conduit.datasource.module.twoWayEnabled = False
+                else:
+                    conduit.bounding_box.set_property("fill_color_rgba", DataProvider.TANGO_COLOR_ALUMINIUM1_LIGHT)
+                    conduit.datasource.module.twoWayEnabled = False

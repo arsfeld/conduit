@@ -36,8 +36,8 @@ class Settings(gobject.GObject):
 
     #Default values for conduit settings
     DEFAULTS = {
-        'use_treeview'  : False,    #Arrange the dataproviders in a treeview (or a listview)
-        'save_on_exit'  : False     #Is the sync set saved on exit automatically?
+        'use_treeview'      :   False,  #Arrange the dataproviders in a treeview (or a listview)
+        'save_on_exit'      :   False   #Is the sync set saved on exit automatically?
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names

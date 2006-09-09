@@ -260,24 +260,24 @@ class SyncWorker(threading.Thread):
                                     except Exceptions.SynchronizeConflictError, err:
                                         #unpack args
                                         #(comparison, fromData, toData, datasink) = err
-                                        logging.debug(err)
+                                        logging.debug("Sync Conflict: \n%s" % err)
                                         #Have tried put() one way (and it failed, geting us here). 
                                         #Only try once the other way (and only if supported)
                                         #Do not loop forever
                                         finishedPutting = True
-                                        if self.source.module.is_two_way():
+                                        if self.source.module.is_two_way_enabled():
                                             #If the comparison was the other way then
                                             if err.comparison == DataType.COMPARISON_OLDER:
                                                 logging.debug("Sync Conflict: Putting OLD Data")
-                                                #Put the other way....
-                                                #self.source.module.put(...
+                                                #Put the data the other way around
+                                                self.source.module.put(err.toData, newdata)
                                             elif err.comparison == DataType.COMPARISON_EQUAL or err.comparison == DataType.COMPARISON_UNKNOWN:
                                                 #FIXME. I imagine that implementing this is a bit of work!
                                                 #The data needs to get back to the main gui thread safely
                                                 #so that the user can decide...
                                                 logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
-                                            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
-                                            sinkErrors[sink] = True
+                                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+                                                sinkErrors[sink] = True
                                         #Nothing we can do 
                                         else:
                                             logging.error("Sync Conflict: Cannot resolve conflict, source is not two-way")

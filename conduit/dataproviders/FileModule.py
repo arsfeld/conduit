@@ -151,7 +151,20 @@ class FileSource(DataProvider.DataSource):
         for i in self.files:
             self.allURIs.append(i)
             logging.debug("Got URI %s" % i)
-       
+            
+    def put(self, vfsFile, vfsFileOnTopOf=None):
+        #This is a two way capable datasource, so it also implements the put
+        #method.
+        if vfsFileOnTopOf:
+            logging.debug("File Source: put %s -> %s" % (vfsFile.URI, vfsFileOnTopOf.URI))
+            if vfsFile.URI != None and vfsFileOnTopOf.URI != None:
+                #its newer so overwrite the old file
+                do_gnomevfs_transfer(
+                    gnomevfs.URI(vfsFile.URI), 
+                    gnomevfs.URI(vfsFileOnTopOf.URI), 
+                    True
+                    )
+                
     def get(self):
         for f in self.allURIs:
             vfsFile = File.File(f)
@@ -187,31 +200,35 @@ class FileSink(DataProvider.DataSink):
             self.folderURI = folderChooserButton.get_uri()
         dlg.destroy()            
         
-    def put(self, sourceFile):
-        sourceURI = gnomevfs.URI(sourceFile.get_uri_string())
+    def put(self, vfsFile, vfsFileOnTopOf=None):
+        sourceURIString = vfsFile.get_uri_string()
         #Ok Put the files in the specified directory and retain their names
         #first check if (a converter) has given us another filename to use
-        if len(sourceFile.forceNewFilename) > 0:
-            filename = sourceFile.forceNewFilename
+        if len(vfsFile.forceNewFilename) > 0:
+            filename = vfsFile.forceNewFilename
         else:
-            filename = sourceFile.get_filename()
-        destURI = gnomevfs.URI(os.path.join(self.folderURI, filename))
-        destFile = File.File(destURI)
-        #compare sourceFile with its destination path. if sourceFile is newer than
+            filename = vfsFile.get_filename()
+        destURIString = os.path.join(self.folderURI, filename)
+        destFile = File.File(destURIString)
+        #compare vfsFile with its destination path. if vfsFile is newer than
         #destination then overwrite it.
-        comparison = destFile.compare(sourceFile, destFile)
-        logging.debug("File Sink: Put %s -> %s (Comparison: %s)" % (sourceURI, destURI, comparison))
+        comparison = destFile.compare(vfsFile, destFile)
+        logging.debug("File Sink: Put %s -> %s (Comparison: %s)" % (sourceURIString, destURIString, comparison))
         if comparison == DataType.COMPARISON_NEWER:
             try:
                 #its newer so overwrite the old file
-                do_gnomevfs_transfer(sourceURI, destURI, True)
+                do_gnomevfs_transfer(
+                    gnomevfs.URI(sourceURIString), 
+                    gnomevfs.URI(destURIString), 
+                    True
+                    )
             except:
                 raise Exceptions.SyncronizeError
         elif comparison == DataType.COMPARISON_EQUAL:
             #dont bother copying if the files are the same
             pass
         else:
-            raise Exceptions.SynchronizeConflictError(comparison, sourceFile, destFile)
+            raise Exceptions.SynchronizeConflictError(comparison, vfsFile, destFile)
             
     def get_configuration(self):
         return {"folderURI" : self.folderURI}

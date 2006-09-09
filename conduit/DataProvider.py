@@ -117,6 +117,9 @@ class DataProviderBase(gobject.GObject):
         self.widget_width = WIDGET_WIDTH
         self.widget_height = WIDGET_HEIGHT
         
+        #EXPERIMENTAL: Set this to True to enable two-way sync
+        self.twoWayEnabled = False
+        
     def __emit_status_changed(self):
 		"""
 		Emits a 'status-changed' signal to the main loop.
@@ -297,10 +300,24 @@ class DataProviderBase(gobject.GObject):
         else:
             return False
             
+    def is_two_way_enabled(self):
+        """
+        Determines if the DataProvider supports two-way synchronization. This
+        is true if it implements get(), put() and explicitly 
+        sets self.twoWayEnabled to True
+        """
+        return self.is_two_way() and self.twoWayEnabled
+            
     def is_two_way(self):
-        twoWay = hasattr(self, "put") and hasattr(self, "get")
-        logging.debug("TWO WAY %s" % twoWay)
-        return twoWay
+        """
+        If the derived dataprovider includes both get() and set() then
+        it is considered to support two way sync. We still need to
+        check that it is enabled, it might eat your children
+        
+        A Default DataProvider does not support two-way sync. 
+        See L{conduit.DataProvider.DataSource.is_two_way}
+        """
+        return False
 
     def set_status(self, newStatus):
         """
@@ -355,7 +372,10 @@ class DataProviderBase(gobject.GObject):
 
 class DataSource(DataProviderBase):
     """
-    Base Class for DataSources
+    Base Class for DataSources.
+    
+    DataSources can become two way datasources if they also override
+    put() and set twoWayEnable to True
     """
     def __init__(self, name=None, description=None):
         """
@@ -366,6 +386,16 @@ class DataSource(DataProviderBase):
         #customizations
         self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
+        
+    def is_two_way(self):
+        """
+        Checks if we implement get() and put()
+
+        DataSources can become two way datasources if they also override
+        put() and set twoWayEnable to True
+        """
+        twoWay = hasattr(self, "put") and hasattr(self, "get")
+        return twoWay
 
     def get(self):
         """
@@ -410,20 +440,24 @@ class DataSink(DataProviderBase):
         self.icon_name = "image-missing"
         self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
 
-    def put(self, data):
+    def put(self, putData, onTopOf=None):
         """
-        Stores data.
+        Stores data. The derived class is responsible for checking if putData
+        conflicts. 
+        
+        In the case of a two-way datasource, the derived type should
+        consider the onTopOf parameter, which if present, should provide the
+        necesary information such that putData can replace (overwrite) it.
 
-        Checks if the dataprovider has been initialized first, if not then
-        calls .initialize(). This function must be overridden by the 
-        appropriate dataprovider but derived classes must still call this 
-        function.
-
-        @param data_type: Data which to save
-        @type data_type: A L{conduit.DataType.DataType} derived type that this 
+        @param putData: Data which to save
+        @type putData: A L{conduit.DataType.DataType} derived type that this 
         dataprovider is capable of handling
-        @rtype: C{bool}
-        @returns: True for success, false on failure
+        @param onTopOf: If this argument is not none, the dataprovider should
+        ensure that putData replaces onTopOf (overwrites it). 
+        @type onTopOf: A L{conduit.DataType.DataType} derived type that this 
+        dataprovider is capable of handling        
+        @raise: L{conduit.Exceptions.SynchronizeConflictError} if there is a
+        conflict between the data being put, and that which it is overwriting
         """
         logging.info("put() not overridden by derived class %s" % self.name)
 

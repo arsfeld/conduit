@@ -83,7 +83,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         dlg.destroy()    
         
         
-    def put(self, note):
+    def put(self, note, noteOnTopOf=None):
         #First search for the pageID of the named page to put notes in
         if self.pageID is None:
             pages = self.ba.page.list()
