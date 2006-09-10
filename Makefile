@@ -1,5 +1,5 @@
 #Conduit Version Number
-VERSION=`cat conduit/__init__.py | grep APPVERSION | sed -e 's/APPVERSION=//' -e 's/\"//g'`
+VERSION=`cat conduit/__init__.py | grep 'APPVERSION=\"' | sed -e 's/APPVERSION=//' -e 's/\"//g'`
 
 #Install prefix, can be overridden by setting DESTDIR
 PREFIX=/usr
@@ -87,9 +87,10 @@ dist-stamp:
 	
 dist-files: dist-stamp
 
-deb:
+deb: $(SRC)
 	@echo "Building Deb File"
 	@./scripts/make-deb.sh $(VERSION)
+	debuild clean
 
 release: tarball upload-doc deb
 	@echo "Tagging Release"
@@ -100,3 +101,4 @@ uninstall:
 	rm -r $(DESTDIR)$(PREFIX)/share/applications/conduit.desktop
 	rm -r $(PYTHON_PATH)/conduit
 	rm -r $(DESTDIR)$(PREFIX)/bin/conduit
+	rm ~/.conduit/modules/MoinModule.py
