@@ -228,7 +228,7 @@ class SyncWorker(threading.Thread):
                 #FIXME how do I check that its iteratable first????
                 for data in sourceData:
                     #OK if we have got this far then we have source data to sync the sinks with
-                    #Get each piece of data and put it in each sink             
+                    #Get each piece of data and put it in each sink
                     for sink in self.sinks:
                         self.check_thread_not_cancelled([self.source, sink])
                         #only sync with those sinks that refresh'd OK
@@ -247,7 +247,6 @@ class SyncWorker(threading.Thread):
                                         raise Exceptions.ConversionDoesntExistError
                                 else:
                                     newdata = data
-
                                 #Finally after all the schenigans try an put the data. If there is
                                 #a conflict then this will raise a conflict error. This code would be nicer
                                 #if python had supported the retry keyword.

@@ -1,3 +1,4 @@
+import gtk
 import gnomevfs
 import conduit
 import logging
@@ -37,6 +38,11 @@ class File(DataType.DataType):
         self.forceNewFilename = ""
         self.triedOpen = False
         self.fileExists = False
+        
+        #Ensure that the full URI is always stored in the URI
+        #cariable, i.e. including the schema
+        if uriString != None:
+            self.URI = gnomevfs.make_uri_canonical(uriString)
         
     def _open_file(self):
         """
@@ -81,6 +87,17 @@ class File(DataType.DataType):
                 self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
                 logging.warn("Cannot get info on non-existant file %s" % self.URI)
+
+    def is_local(self):
+        """
+        Checks if a File is on the local filesystem or not. If not, it is
+        expected that the caller will call get_local_filename, which will
+        copy the file to that location, and return the new path
+        """
+        if self.URI is None:
+            return False
+        
+        return gnomevfs.URI(self.URI).is_local
 
     def file_exists(self):
         """
@@ -148,25 +165,37 @@ class File(DataType.DataType):
     def get_contents_as_text(self):
         return gnomevfs.read_entire_file(self.URI)
         
-    def create_local_tempfile(self):
+    def get_local_filename(self):
         """
-        Creates a local temporary file copy of the vfs file. This is useful
-        for non gnomevfs enabled libs
+        Gets the local filename (full path) for the file. If the file is 
+        already on the local system then its local path is returned 
+        (excluding the vfs sheme, i.e. file:///foo/bar becomes /foo/bar)
+        
+        If it is a remote file then a local temporary file copy is created
+        
+        This function is useful for non gnomevfs enabled libs
 
-        @returns: local absolute path the the newly created temp file or
-        None on error
+        @returns: local absolute path the the file or None on error
         @rtype: C{string}
         """
-        #Get a temporary file name
-        tempname = tempfile.mkstemp()[1]
-        toURI = gnomevfs.URI(tempname)
-        fromURI = gnomevfs.URI(self.URI)
-        #Xfer to the temp file. 
-        gnomevfs.xfer_uri( fromURI, toURI,
-                           gnomevfs.XFER_DEFAULT,
-                           gnomevfs.XFER_ERROR_MODE_ABORT,
-                           gnomevfs.XFER_OVERWRITE_MODE_REPLACE)
-        return tempname
+        if self.is_local():
+            #FIXME: The following call produces a runtime error if the URI
+            #is malformed. Reason number 37 gnomevfs should die
+            u = gnomevfs.get_local_path_from_uri(self.URI)
+            #Backup approach...
+            #u = self.URI[len("file://"):]
+            return gnomevfs.get_local_path_from_uri(self.URI)
+        else: 
+            #Get a temporary file name
+            tempname = tempfile.mkstemp()[1]
+            toURI = gnomevfs.URI(tempname)
+            fromURI = gnomevfs.URI(self.URI)
+            #Xfer to the temp file. 
+            gnomevfs.xfer_uri( fromURI, toURI,
+                               gnomevfs.XFER_DEFAULT,
+                               gnomevfs.XFER_ERROR_MODE_ABORT,
+                               gnomevfs.XFER_OVERWRITE_MODE_REPLACE)
+            return tempname
 
     def compare(self, A, B):
         """
