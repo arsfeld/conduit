@@ -3,7 +3,7 @@ from gettext import gettext as _
 
 import logging
 import conduit
-import DataProvider
+import conduit.DataProvider as DataProvider
 from conduit.datatypes import DataType
 import conduit.Exceptions as Exceptions
 

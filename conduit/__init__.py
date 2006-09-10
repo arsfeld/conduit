@@ -26,7 +26,7 @@ import os
 import gobject
 
 APPNAME="Conduit"
-APPVERSION="0.1.0"
+APPVERSION="0.2.0"
 USER_DIR = os.path.join(os.environ['HOME'],".conduit")
 #The following variables are empty only as placeholders.
 #they are filled out in start_conduit.py based upon whether conduit is
