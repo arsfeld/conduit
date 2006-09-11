@@ -182,8 +182,8 @@ class Canvas(goocanvas.CanvasView):
         """
         Handle button clicks
         
-        @param user_data: The canvas popup item
-        @type user_data: L{conduit.Module.ModuleWrapper}
+        @param user_data_dataprovider_wrapper: The dpw that was clicked
+        @type user_data_dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
         
         if event.type == gtk.gdk.BUTTON_PRESS:

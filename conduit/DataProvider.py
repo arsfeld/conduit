@@ -456,8 +456,9 @@ class DataSink(DataProviderBase):
         ensure that putData replaces onTopOf (overwrites it). 
         @type onTopOf: A L{conduit.DataType.DataType} derived type that this 
         dataprovider is capable of handling        
-        @raise: L{conduit.Exceptions.SynchronizeConflictError} if there is a
-        conflict between the data being put, and that which it is overwriting
+        @raise conduit.Exceptions.SynchronizeConflictError: if there is a 
+        conflict between the data being put, and that which it is overwriting 
+        a L{conduit.Exceptions.SynchronizeConflictError} is raised.
         """
         logging.info("put() not overridden by derived class %s" % self.name)
 
@@ -952,7 +953,7 @@ class DataProviderSimpleConfigurator:
         @param window: Parent window (this dialog is modal)
         @type window: C{gtk.Window}
         @param dp_name: The dataprovider name to display in the dialog title
-        @type title: C{string}
+        @type dp_name: C{string}
         @param config_mappings: The list of dicts explained earlier
         @type config_mappings: C{[{}]}
         """

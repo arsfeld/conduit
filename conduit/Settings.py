@@ -65,7 +65,7 @@ class Settings(gobject.GObject):
         """
         @param xmlSettingFilePath: The path to the xml file in which to store
         the per-conduit settings
-        @type xmlSettingsFilePath: C{string}
+        @type xmlSettingFilePath: C{string}
         """
         gobject.GObject.__init__(self)
         self.client = gconf.client_get_default()
@@ -228,9 +228,12 @@ class Settings(gobject.GObject):
             conduitxml.appendChild(sinksxml)        
 
         #Save to disk
-        file_object = open(self.xmlSettingFilePath, "w")
-        xml.dom.ext.PrettyPrint(doc, file_object)
-        file_object.close()        
+        try:
+            file_object = open(self.xmlSettingFilePath, "w")
+            xml.dom.ext.PrettyPrint(doc, file_object)
+            file_object.close()        
+        except IOError, err:
+            logging.critical("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
         
     def restore_sync_set(self, expectedVersion, mainWindow):
         """

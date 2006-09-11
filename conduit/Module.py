@@ -38,8 +38,6 @@ class ModuleLoader(gobject.GObject):
 		containing ~ will be expanded. If dirs is None the 
 		ModuleLoader will not search for modules.
 		@type dirs: C{string[]}
-		@param extension: What extension should this ModuleLoader accept (string).
-		@type extension: C{string}
 		"""
         gobject.GObject.__init__(self)
 
