@@ -25,10 +25,7 @@ class ConversionError(Exception):
         self.msg = extraMsg        
         
     def __str__(self):
-        if self.msg is None:
-            return "ConversionError: Could not convert %s -> %s" % (self.fromType, self.toType)
-        else:
-            return "ConversionError: Could not convert %s -> %s\nExtra info:\n%s" % (self.fromType, self.toType, self.msg)
+        return "ConversionError: Could not convert %s -> %s\nExtra Info: %s" % (self.fromType, self.toType, self.msg)
 
 class ConversionDoesntExistError(Exception):
     """
@@ -48,13 +45,21 @@ class SyncronizeError(Exception):
     Non-fatal, i.e. dont stop the whole sync process, just ignore this 
     one particular attempt to get() a resource as failed
     """
-    pass
+    def __init__(self, extraMsg=None):
+        self.msg = extraMsg
+        
+    def __str__(self):
+        return "Non Fatal Synchronize Error\nExtra Info: %s" % (self.msg)
     
 class SyncronizeFatalError(Exception):
     """
     Fatal error returned from sync. Do not attempt again
     """
-    pass
+    def __init__(self, extraMsg=None):
+        self.msg = extraMsg
+        
+    def __str__(self):
+        return "Fatal Synchronize Error\nExtra Info: %s" % (self.msg)
     
 class SynchronizeConflictError(Exception):
     """

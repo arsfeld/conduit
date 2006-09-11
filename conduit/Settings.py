@@ -50,7 +50,7 @@ class Settings(gobject.GObject):
     }
     STRING_TO_TYPE = {
         "int"       :   lambda x: int(x),
-        "bool"      :   lambda x: bool(x),
+        "bool"      :   lambda x: Settings._string_to_bool(x),
         "string"    :   lambda x: str(x),
         "list"      :   lambda x: Settings._string_to_list(x)
     }
@@ -74,7 +74,15 @@ class Settings(gobject.GObject):
         
         self.xmlSettingFilePath = xmlSettingFilePath
         self.notifications = []
-    
+        
+    @staticmethod
+    def _string_to_bool(stringy):
+        #Because bool("False") doesnt work as expected when restoring strings
+        if stringy == "True":
+            return True
+        else:
+            return False
+        
     @staticmethod    
     def _list_to_string(listy):
         s = ""
@@ -257,10 +265,10 @@ class Settings(gobject.GObject):
                         data = Settings.STRING_TO_TYPE[vtype](raw)
                     except KeyError:
                         #fallback to string type
-                        logging.warn("Cannot restore string (%s) to native type %s" % (raw, vtype))
+                        logging.warn("Cannot convert string (%s) to native type %s" % (raw, vtype))
                         traceback.print_exc()
                         data = str(raw)
-                    logging.debug("Restored Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                    logging.debug("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
                     settings[s.localName] = data
             return settings
             

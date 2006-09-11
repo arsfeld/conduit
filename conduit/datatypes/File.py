@@ -253,8 +253,11 @@ def TaggedFile(File):
     def set_tags(self, tags):
         self.tags = tags
 
-    def get_tags(self, tags):
+    def get_tags(self):
         return self.tags
+        
+    def get_tag_string(self):
+        return ",".join(self.tags)
 
     def add_tag(self, tag):
         if tag not in self.tags:

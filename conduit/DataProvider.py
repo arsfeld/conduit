@@ -362,6 +362,7 @@ class DataProviderBase(gobject.GObject):
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods
             if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
+                logging.debug("Setting %s to %s" % (c, config[c]))
                 setattr(self,c,config[c])
             else:
                 logging.warn("Not restoring %s setting: Exists=%s Callable=%s" % (

@@ -30,7 +30,16 @@ MODULES = {
 		"category": "Test",
 		"in_type": "text",
 		"out_type": "text"
-	}
+	},
+	"TestSinkFailRefresh" : {
+		"name": "Test Refresh Sink",
+		"description": "Fails Refresh",
+		"type": "sink",
+		"category": "Test",
+		"in_type": "text",
+		"out_type": "text"
+	},
+
 }
 
 class TestBase:
@@ -133,3 +142,10 @@ class TestSink(TestBase, DataProvider.DataSink):
 class TestTwoWay(DataProvider.DataSink, DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages")
+
+class TestSinkFailRefresh(DataProvider.DataSink):
+    def __init__(self):
+        DataProvider.DataSink.__init__(self, "Test Refresh Sink", "Fails Refresh")
+        
+    def refresh(self):
+        raise Exceptions.RefreshError

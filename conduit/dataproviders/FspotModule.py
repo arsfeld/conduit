@@ -20,8 +20,8 @@ MODULES = {
 		"description": _("Source for Fspot Photos"),
 		"type": "source",
 		"category": DataProvider.CATEGORY_LOCAL,
-		"in_type": "file",
-		"out_type": "file"
+		"in_type": "taggedfile",
+		"out_type": "taggedfile"
 	}
 }
 
