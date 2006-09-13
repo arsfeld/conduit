@@ -91,7 +91,7 @@ class File(DataType.DataType):
     def is_local(self):
         """
         Checks if a File is on the local filesystem or not. If not, it is
-        expected that the caller will call get_local_filename, which will
+        expected that the caller will call get_local_uri, which will
         copy the file to that location, and return the new path
         """
         if self.URI is None:
@@ -165,9 +165,9 @@ class File(DataType.DataType):
     def get_contents_as_text(self):
         return gnomevfs.read_entire_file(self.URI)
         
-    def get_local_filename(self):
+    def get_local_uri(self):
         """
-        Gets the local filename (full path) for the file. If the file is 
+        Gets the local URI (full path) for the file. If the file is 
         already on the local system then its local path is returned 
         (excluding the vfs sheme, i.e. file:///foo/bar becomes /foo/bar)
         

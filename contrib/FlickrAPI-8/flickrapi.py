@@ -478,7 +478,7 @@ class FlickrAPI:
 
 			# get a token
 			rsp = self.auth_getToken(api_key=self.apiKey, frob=frob)
-			self.testFailure(rsp)
+			self.getPrintableError(rsp)
 
 			token = rsp.auth[0].token[0].elementText
 

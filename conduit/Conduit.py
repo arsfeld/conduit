@@ -394,9 +394,13 @@ class Conduit(goocanvas.Group, gobject.GObject):
         for sink in self.datasinks:
             #need to check if there is actually a datasource
             if self.datasource is not None:
-                exists = typeConverter.conversion_exists(self.datasource.out_type, sink.in_type)
-                if not exists:
-                    self.connectors[sink].set_property("stroke_color","red")
+                if self.datasource.out_type == sink.in_type:
+                    self.connectors[sink].set_property("stroke_color","black")
+                else:
+                    #Conversion through text allowed
+                    #FIXME: Dont draw invalid connections here, or draw a dotted line or something
+                    if not typeConverter.conversion_exists(self.datasource.out_type, sink.in_type):
+                        self.connectors[sink].set_property("stroke_color","red")
 
     def make_status_text(self, x, y, text=""):
         """

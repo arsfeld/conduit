@@ -350,7 +350,7 @@ class EmailSinkConverter:
                             thefile.get_filename(),         #subject
                             "Attached"                      #contents
                             )
-            email.add_attachment(thefile.get_local_filename())
+            email.add_attachment(thefile.get_local_uri())
             return email
             
     def text_to_email(self, text):
