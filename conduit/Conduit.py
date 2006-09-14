@@ -511,22 +511,34 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 self.delete_connector(dataprovider)
             #remove the status text
             self.delete_status_text(dataprovider)
-            #remove the dataprovider widget and instance
+           
             i = self.datasinks.index(dataprovider)
-            self.delete_dataprovider(dataprovider)
-            
-            #Move the datasinks, and status text below the deleted one 
-            #upwards and fix all their connectors
-            for j in range(i, len(self.datasinks)):
-                #Delete the old connectors
-                self.delete_connector(self.datasinks[j])
-                #Move the sink up
-                self.move_dataprovider_by(self.datasinks[j], 0,-Conduit.HEIGHT)
-                #Move the status text up
-                self.dataprovider_status[self.datasinks[j].module].translate(0,-Conduit.HEIGHT)
-                #Make a new connector
-                self.add_connector_to_canvas(self.datasource,self.datasinks[j])
-                #Shrink the box
+            #If we deleted the last sink then we dont need to move sinks below it up
+            if (i == (len(self.datasinks)-1)) and (len(self.datasinks) > 1):
+                #remove the dataprovider widget and instance
+                self.delete_dataprovider(dataprovider)  
+                self.resize_conduit_height(self.get_conduit_height() - Conduit.HEIGHT)    
+            else:
+                #remove the dataprovider widget and instance
+                self.delete_dataprovider(dataprovider)  
+                #Move the datasinks, and status text below the deleted one 
+                #upwards and fix all their connectors
+                for j in range(i, len(self.datasinks)):
+                    #logging.debug("Del Conduit at Index %s, Checking %s of %s" % (i,j,len(self.datasinks)))
+                    #Delete the old connectors
+                    if self.datasource is not None:
+                        self.delete_connector(self.datasinks[j])
+                    #Move the sink up
+                    self.move_dataprovider_by(self.datasinks[j], 0,-Conduit.HEIGHT)
+                    #Move the status text up
+                    self.dataprovider_status[self.datasinks[j].module].translate(0,-Conduit.HEIGHT)
+                    #Make a new connector
+                    if self.datasource is not None:
+                        self.add_connector_to_canvas(self.datasource,self.datasinks[j])
+
+                #Shrink the box (but never shrink it to zero or we cant see anything)
                 new_h = self.get_conduit_height() - Conduit.HEIGHT
-                self.resize_conduit_height(new_h)
-                
+                if new_h > 0:
+                    self.resize_conduit_height(new_h)
+                    
+            
