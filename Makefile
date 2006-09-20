@@ -73,13 +73,13 @@ clean-bin:
 
 tarball: clean-bin $(SRC) dist-files
 	@echo "Creating Tarball"
-	tar --exclude .svn -czf ../Conduit-$(VERSION).tar.gz \
-	    conduit contrib Makefile ChangeLog TODO NEWS README AUTHORS MAINTAINERS
+	tar --exclude .svn -czf ../conduit-$(VERSION).tar.gz \
+	    conduit contrib Makefile TODO NEWS README AUTHORS MAINTAINERS
 
 dist-stamp:
 	@touch dist-stamp
 	@echo "Updating ChangeLog"
-	@-svn2cl.sh
+	@-svn2cl.sh --output=conduit/ChangeLog
 	@echo "Updating TODO"
 	@-wget -q -O - http://www.conduit-project.org/wiki/TODO?format=txt > TODO
 	@echo "Updating NEWS"

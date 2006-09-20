@@ -54,7 +54,7 @@ class TestBase:
         self.aList = []
         
     def initialize(self):
-        return True
+        return False
 
     def configure(self, window):
         def setError(param):
@@ -143,9 +143,15 @@ class TestTwoWay(DataProvider.DataSink, DataProvider.DataSource):
     def __init__(self):
         DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages")
 
+    def initialize(self):
+        return False
+
 class TestSinkFailRefresh(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, "Test Refresh Sink", "Fails Refresh")
         
+    def initialize(self):
+        return False
+
     def refresh(self):
         raise Exceptions.RefreshError

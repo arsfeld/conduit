@@ -1,618 +1,1096 @@
+2006-09-14 13:28  john
+
+	* conduit/Conduit.py: Fixed a canvas deleting bug
+
+2006-09-13 00:31  john
+
+	* conduit/Conduit.py, conduit/dataproviders/FlickrModule.py,
+	  conduit/dataproviders/GmailModule.py, conduit/datatypes/File.py,
+	  contrib/FlickrAPI-8/flickrapi.py: Fixed a canvas drawing bug.
+	  When uploading to flickr store the photo URI to try and prevent
+	  duplicate uploads. Works OK but there is a few minute lag before
+	  uploaded things show up as searchable in Flickrs database
+
+2006-09-11 11:33  john
+
+	* conduit/DataProvider.py, conduit/Exceptions.py,
+	  conduit/Settings.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/FlickrModule.py,
+	  conduit/dataproviders/FspotModule.py,
+	  conduit/dataproviders/TestModule.py, conduit/datatypes/File.py:
+	  Tidied up the Flickr datasink a bit, saving settings bug fix,
+	  dialog box tidyups
+
+2006-09-11 11:19  john
+
+	* conduit/Synchronization.py: Bug fixes on the syncronization
+	  state machine
+
+2006-09-11 05:44  john
+
+	* conduit/Canvas.py, conduit/DataProvider.py, conduit/Module.py,
+	  conduit/Settings.py, conduit/__init__.py, debian/control: Doc
+	  and makefile updates
+
+2006-09-10 11:35  john
+
+	* Makefile: Makefile tidy ups
+
+2006-09-10 11:25  john
+
+	* Makefile, conduit/__init__.py, doc/ExampleModule.py: Conduit now
+	  works just as well installed as uninstalled
+
+2006-09-10 04:08  john
+
+	* contrib/FlickrAPI-8/flickrapi.pyc: Added experimental Flickr sink
+
+2006-09-10 04:07  john
+
+	* conduit/Synchronization.py,
+	  conduit/dataproviders/FlickrModule.py,
+	  conduit/dataproviders/GmailModule.py, conduit/datatypes/File.py,
+	  contrib/EXIF-15-FEB-04, contrib/EXIF-15-FEB-04/EXIF.py,
+	  contrib/FlickrAPI-8, contrib/FlickrAPI-8/PKG-INFO,
+	  contrib/FlickrAPI-8/flickrapi.py,
+	  contrib/FlickrAPI-8/flickrapi.pyc, contrib/FlickrAPI-8/setup.py:
+	  Added experimental Flickr sink
+
+2006-09-09 12:34  john
+
+	* conduit/Canvas.py, conduit/DataProvider.py,
+	  conduit/Exceptions.py, conduit/MainWindow.py,
+	  conduit/Settings.py, conduit/Synchronization.py,
+	  conduit/data/conduit.glade,
+	  conduit/dataproviders/BackpackModule.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/TestModule.py,
+	  conduit/datatypes/DataType.py, conduit/datatypes/File.py:
+	  Enabled **EXPERIMENTAL** two way sync on supported dataproviders
+
+2006-09-09 01:37  john
+
+	* Makefile, check-doc.sh, debian/rules, make-deb.sh, make-doc.sh,
+	  make-goocanvas-doc.sh, scripts, scripts/check-doc.sh,
+	  scripts/make-deb.sh, scripts/make-doc.sh,
+	  scripts/make-goocanvas-doc.sh, scripts/upload-doc.sh,
+	  upload-doc.sh: Repository tidy ups, deb build now works, kinda
+
+2006-09-09 00:48  john
+
+	* Makefile, debian, debian/README.Debian, debian/changelog,
+	  debian/compat, debian/control, debian/copyright, debian/docs,
+	  debian/rules, make-deb.sh: Added NOT WORKING deb building foo
+	  based on exaile media player
+
+2006-09-08 11:55  john
+
+	* conduit/MainWindow.py, conduit/Settings.py, conduit/__init__.py,
+	  conduit/data/conduit.glade: Added a
+	  --settings=/path/to/settings.xml file command line option,
+	  currently used for testing
+
+2006-09-08 09:59  john
+
+	* conduit/DataProvider.py, conduit/Module.py,
+	  conduit/Synchronization.py, conduit/dataproviders/TestModule.py:
+	  Added some more two-way sync architectural stuff
+
+2006-09-08 09:55  john
+
+	* conduit/dataproviders/GmailModule.py: Fixed a libgmail bug
+
+2006-09-08 07:31  john
+
+	* tags/test.txt, ., AUTHORS, COPYING, INSTALL, MAINTAINERS,
+	  Makefile, README, doc: Makefile improvements
+
+2006-09-08 04:03  john
+
+	* conduit/data/conduit.glade: Oops, typo
+
+2006-09-08 04:00  john
+
+	* Makefile, conduit.desktop, conduit/MainWindow.py,
+	  conduit/data/conduit.glade, conduit/start_conduit.py,
+	  doc/ExampleModule.py, upload-doc.sh: Added a makefile to help
+	  installing and releasing conduit. Conduit can now be run
+	  installed
+
+2006-09-08 02:12  john
+
+	* conduit/MainWindow.py, conduit/Synchronization.py: Sync state
+	  machine tidy ups to allow better behavior when a sync group is
+	  restarted or refreshed
+
+2006-09-07 12:01  john
+
+	* conduit/dataproviders/FileModule.py: Oops, typo
+
+2006-09-07 11:37  john
+
+	* conduit/MainWindow.py, conduit/Settings.py,
+	  conduit/Synchronization.py, conduit/dataproviders/FeedModule.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/FspotModule.py, conduit/datatypes/File.py:
+	  Substancial quality improvements to the File dataprovider
+
+2006-09-06 06:10  john
+
+	* conduit/MainWindow.py, conduit/data/conduit.glade: Added some
+	  useful settings to the prefs dialog and combined it with the
+	  loaded modules dialog
+
+2006-09-06 04:41  john
+
+	* conduit/Exceptions.py, conduit/Module.py,
+	  conduit/Synchronization.py, conduit/dataproviders/FileModule.py,
+	  conduit/datatypes/File.py, conduit/datatypes/__init__.py:
+	  Putting some mechanics in place for two way sync. Still a while
+	  away though
+
+2006-09-06 02:05  john
+
+	* conduit/Settings.py, conduit/Utils.py,
+	  conduit/dataproviders/FileModule.py: Add recursive folder
+	  support in the file dataprovider. When a folder is added all the
+	  contents of that folder will be added to the sync. I still need
+	  to preserve the relative path...
+
+2006-09-03 11:21  john
+
+	* conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/FspotModule.py: Fspot source is now
+	  feature complete and moderately useful
+
+2006-09-01 12:57  john
+
+	* conduit/DataProvider.py, conduit/Settings.py,
+	  conduit/dataproviders/TestModule.py: Can now save and restore
+	  list type settings properly
+
+2006-09-01 09:38  john
+
+	* conduit/Canvas.py, conduit/MainWindow.py, conduit/Settings.py,
+	  conduit/__init__.py, conduit/dataproviders/FileModule.py,
+	  conduit/datatypes/File.py: Saved settings improvements. Still a
+	  bit of trouble saving and restoring list types but at least
+	  things have been abstracted nicely so the implementation can be
+	  improved at a later date
+
+2006-09-01 09:29  john
+
+	* conduit/data/conduit.glade,
+	  conduit/dataproviders/FspotModule.py: Started adding a config
+	  gui for Fspot dataprovider
+
+2006-08-31 03:01  john
+
+	* conduit/Canvas.py, conduit/DataProvider.py, conduit/Settings.py:
+	  Resotre configuration values to dataproviders using a nifty
+	  dynamic python trick
+
+2006-08-31 00:50  john
+
+	* conduit/MainWindow.py, conduit/Settings.py: When storing
+	  dataprovider configs, also store their type(). This will make
+	  it easier to store composite types later, like a list of strings
+	  for example
+
+2006-08-30 13:17  john
+
+	* conduit/Canvas.py: Oops. Hmm, wonder why this worked on my
+	  desktop but not my laptop
+
+2006-08-30 12:15  john
+
+	* conduit, conduit/Canvas.py, conduit/MainWindow.py,
+	  conduit/Settings.py, conduit/__init__.py,
+	  conduit/start_conduit.py: Application can now save sync set
+	  between runs. Needs testing....
+
+2006-08-30 09:29  john
+
+	* conduit/Canvas.py: Add a friendly welcome message to the canvas
+	  to help new users
+
+2006-08-30 03:49  john
+
+	* conduit/__init__.py, conduit/start_conduit.py: A few minor
+	  cleanups to allow autotools foo later
+
+2006-08-29 09:01  john
+
+	* conduit/DataProvider.py, conduit/data/f-spot.png,
+	  conduit/dataproviders/FspotModule.py,
+	  conduit/dataproviders/NotesModule.py: Updated notes dataprovider
+	  to use elementtree. This fixes some bugs and improves
+	  robustness. Fixed icon them bug, patch from Alberto Ruiz
+
+2006-08-29 04:54  john
+
+	* conduit/DataProvider.py, conduit/MainWindow.py: Default back to
+	  a non treeview of the dataproviders
+
+2006-08-29 04:37  john
+
+	* conduit/DataProvider.py,
+	  conduit/dataproviders/BackpackModule.py,
+	  conduit/dataproviders/FeedModule.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/FspotModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/LifereaModule.py,
+	  conduit/dataproviders/NotesModule.py, doc/ExampleModule.py: Made
+	  the dataprovider treeview look nicer by adding icons and
+	  removing some categories
+
+2006-08-28 11:54  john
+
+	* conduit/ChangeLog, conduit/dataproviders/FspotModule.py,
+	  doc/ExampleModule.py: Added a skeleton f-spot dataprovider
+	  (requires pysylite2)
+
+2006-08-26 10:52  john
+
+	* conduit/MainWindow.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/BackpackModule.py,
+	  conduit/dataproviders/FeedModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/TestModule.py: Changed to DOM for writing
+	  XML settings because it looks prettier. Started filling out the
+	  get_configuartion method for some more dataproviders
+
+2006-08-25 07:38  john
+
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/dataproviders/FeedModule.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/LifereaModule.py: Cleaned up categories a
+	  bit. Started adding the ability to save application settings
+
 2006-08-25 03:11  john
 
-	* DataProvider.py, MainWindow.py, Module.py: Use classname to
-	  identify DnD dataproviders
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/Module.py: Use classname to identify DnD dataproviders
 
 2006-08-25 02:20  john
 
-	* DataProvider.py: Finally the dataprovider treemodel support
-	  grouping into categories. And it only took 4 attempts at
+	* conduit/DataProvider.py: Finally the dataprovider treemodel
+	  support grouping into categories. And it only took 4 attempts at
 	  rewriting it
 
 2006-08-16 05:45  john
 
-	* Canvas.py, Conduit.py, MainWindow.py: Can now remove conduits
-	  and dataproviders relatively OK
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/MainWindow.py:
+	  Can now remove conduits and dataproviders relatively OK
 
 2006-08-15 01:14  john
 
-	* Conduit.py: Considerable refactoring to make deleting sinks
-	  cleaner and actually work. Probbably introduced a heapo bugs and
-	  untested corner cases
+	* conduit/Conduit.py: Considerable refactoring to make deleting
+	  sinks cleaner and actually work. Probbably introduced a heapo
+	  bugs and untested corner cases
 
 2006-08-14 05:35  john
 
-	* Canvas.py, Conduit.py, MainWindow.py: Can now delete sources
-	  from the canvas. Deleting sinks is going to be so much harder
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/MainWindow.py:
+	  Can now delete sources from the canvas. Deleting sinks is going
+	  to be so much harder
 
 2006-08-10 09:01  john
 
-	* DataProvider.py, MainWindow.py, Synchronization.py,
-	  data/conduit.glade, dataproviders/TestModule.py: Threading
-	  updates to allow synchronization to be cancelled
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/Synchronization.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/TestModule.py: Threading updates to allow
+	  synchronization to be cancelled
+
+2006-08-10 08:52  john
+
+	* contrib/libgmail-0.1.5/libgmail.py: Updated libgmail version
 
 2006-08-07 00:33  john
 
-	* Conduit.py, DataProvider.py, Exceptions.py, Synchronization.py,
-	  __init__.py: Fix DND Canvas bug and improve UI for cases where
-	  conversion is not available
+	* conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/Exceptions.py, conduit/Synchronization.py,
+	  conduit/__init__.py: Fix DND Canvas bug and improve UI for cases
+	  where conversion is not available
+
+2006-08-06 11:39  john
+
+	* doc/ExampleModule.py: Update example module to new API.
+
+2006-08-06 07:53  john
+
+	* contrib/google-notebook-api.py: Removed as it doesnt actually
+	  work
 
 2006-08-06 07:46  john
 
-	* __init__.py, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py, trunk/contrib/libgmail-0.1.5,
-	  trunk/contrib/libgmail-0.1.5/libgmail.py: Final bug fixes
+	* conduit/__init__.py, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py, contrib/libgmail-0.1.5,
+	  contrib/libgmail-0.1.5/libgmail.py: Final bug fixes
 
 2006-08-04 23:47  john
 
-	* dataproviders/GmailModule.py, trunk/contrib/libgmail-0.1.4,
-	  trunk/contrib/libgmail-0.1.5,
-	  trunk/contrib/libgmail-0.1.5/CHANGELOG,
-	  trunk/contrib/libgmail-0.1.5/COPYING,
-	  trunk/contrib/libgmail-0.1.5/PKG-INFO,
-	  trunk/contrib/libgmail-0.1.5/README,
-	  trunk/contrib/libgmail-0.1.5/lgconstants.py,
-	  trunk/contrib/libgmail-0.1.5/libgmail.py,
-	  trunk/contrib/libgmail-0.1.5/setup.py: Upgraded libgmail version
+	* conduit/dataproviders/GmailModule.py, contrib/libgmail-0.1.4,
+	  contrib/libgmail-0.1.5, contrib/libgmail-0.1.5/CHANGELOG,
+	  contrib/libgmail-0.1.5/COPYING, contrib/libgmail-0.1.5/PKG-INFO,
+	  contrib/libgmail-0.1.5/README,
+	  contrib/libgmail-0.1.5/lgconstants.py,
+	  contrib/libgmail-0.1.5/libgmail.py,
+	  contrib/libgmail-0.1.5/setup.py: Upgraded libgmail version
 
 2006-08-03 09:01  john
 
-	* ChangeLog, trunk/notes.txt: Updated ChangeLog
+	* conduit/ChangeLog, notes.txt: Updated ChangeLog
 
 2006-08-03 09:00  john
 
-	* DataProvider.py, Synchronization.py,
-	  dataproviders/TestModule.py: Fixed the sync state machine logic
-	  to work better in the case of multiple sinks and errors
+	* conduit/DataProvider.py, conduit/Synchronization.py,
+	  conduit/dataproviders/TestModule.py: Fixed the sync state
+	  machine logic to work better in the case of multiple sinks and
+	  errors
 
 2006-08-03 08:44  john
 
-	* dataproviders/TestModule.py: Added module for testing
+	* conduit/dataproviders/TestModule.py: Added module for testing
 
 2006-08-03 05:50  john
 
-	* dataproviders/GmailModule.py: Fix config bug
+	* conduit/dataproviders/GmailModule.py: Fix config bug
 
 2006-08-03 02:48  john
 
-	* ChangeLog, Module.py, Synchronization.py, __init__.py,
-	  data/conduit.glade, dataproviders/BackpackModule.py,
-	  dataproviders/FeedModule.py, dataproviders/GmailModule.py:
-	  Bugfixes to prevent unhandled exceptions. Updated changelogs.
-	  Updated gladefile, added backpack notes config dialog
+	* conduit/ChangeLog, conduit/Module.py,
+	  conduit/Synchronization.py, conduit/__init__.py,
+	  conduit/data/conduit.glade,
+	  conduit/dataproviders/BackpackModule.py,
+	  conduit/dataproviders/FeedModule.py,
+	  conduit/dataproviders/GmailModule.py: Bugfixes to prevent
+	  unhandled exceptions. Updated changelogs. Updated gladefile,
+	  added backpack notes config dialog
 
 2006-08-02 12:07  john
 
-	* data/backpack.png, dataproviders/BackpackModule.py,
-	  trunk/contrib/backpack-1.1,
-	  trunk/contrib/backpack-1.1/backpack.py,
-	  trunk/contrib/backpack-1.1/bptest.py,
-	  trunk/contrib/backpack-1.1/cgi,
-	  trunk/contrib/backpack-1.1/cgi/reminder.py,
-	  trunk/contrib/backpack-1.1/cgi/todo.py,
-	  trunk/contrib/backpack-1.1/data,
-	  trunk/contrib/backpack-1.1/data/email.xml,
-	  trunk/contrib/backpack-1.1/data/emaillist.xml,
-	  trunk/contrib/backpack-1.1/data/error404.xml,
-	  trunk/contrib/backpack-1.1/data/export.xml,
-	  trunk/contrib/backpack-1.1/data/list.xml,
-	  trunk/contrib/backpack-1.1/data/notelist.xml,
-	  trunk/contrib/backpack-1.1/data/page.xml,
-	  trunk/contrib/backpack-1.1/data/pages.xml,
-	  trunk/contrib/backpack-1.1/data/pagesfortag.xml,
-	  trunk/contrib/backpack-1.1/data/reminders.xml,
-	  trunk/contrib/backpack-1.1/wapsupport.py: Added a backpack note
-	  sink
+	* conduit/data/backpack.png,
+	  conduit/dataproviders/BackpackModule.py, contrib/backpack-1.1,
+	  contrib/backpack-1.1/backpack.py,
+	  contrib/backpack-1.1/bptest.py, contrib/backpack-1.1/cgi,
+	  contrib/backpack-1.1/cgi/reminder.py,
+	  contrib/backpack-1.1/cgi/todo.py, contrib/backpack-1.1/data,
+	  contrib/backpack-1.1/data/email.xml,
+	  contrib/backpack-1.1/data/emaillist.xml,
+	  contrib/backpack-1.1/data/error404.xml,
+	  contrib/backpack-1.1/data/export.xml,
+	  contrib/backpack-1.1/data/list.xml,
+	  contrib/backpack-1.1/data/notelist.xml,
+	  contrib/backpack-1.1/data/page.xml,
+	  contrib/backpack-1.1/data/pages.xml,
+	  contrib/backpack-1.1/data/pagesfortag.xml,
+	  contrib/backpack-1.1/data/reminders.xml,
+	  contrib/backpack-1.1/wapsupport.py: Added a backpack note sink
 
 2006-08-02 10:00  john
 
-	* attic: Removing cruft
+	* conduit/attic: Removing cruft
 
 2006-08-02 06:58  john
 
-	* trunk/check-doc.sh, Canvas.py, Conduit.py, DataProvider.py,
-	  Exceptions.py, MainWindow.py, Module.py, Synchronization.py,
-	  TypeConverter.py, dataproviders/GmailModule.py,
-	  dataproviders/LifereaModule.py, dataproviders/NotesModule.py,
-	  trunk/contrib/python-opml-0.5/OPML.py,
-	  trunk/doc/ExampleModule.py, trunk/make-doc.sh: Doc Updates.
-	  Disable a few DPs in preparation for release
+	* check-doc.sh, conduit/Canvas.py, conduit/Conduit.py,
+	  conduit/DataProvider.py, conduit/Exceptions.py,
+	  conduit/MainWindow.py, conduit/Module.py,
+	  conduit/Synchronization.py, conduit/TypeConverter.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/LifereaModule.py,
+	  conduit/dataproviders/NotesModule.py,
+	  contrib/python-opml-0.5/OPML.py, doc/ExampleModule.py,
+	  make-doc.sh: Doc Updates. Disable a few DPs in preparation for
+	  release
 
 2006-08-02 05:40  john
 
-	* DataProvider.py, Exceptions.py, MainWindow.py, Module.py,
-	  Synchronization.py, __init__.py, dataproviders/GmailModule.py,
-	  dataproviders/LifereaModule.py, dataproviders/NotesModule.py:
-	  s/initialize/refresh and added the ability for feeds which do
-	  not initialize correctly to be hidden from the user
+	* conduit/DataProvider.py, conduit/Exceptions.py,
+	  conduit/MainWindow.py, conduit/Module.py,
+	  conduit/Synchronization.py, conduit/__init__.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/LifereaModule.py,
+	  conduit/dataproviders/NotesModule.py: s/initialize/refresh and
+	  added the ability for feeds which do not initialize correctly to
+	  be hidden from the user
 
 2006-08-02 05:36  john
 
-	* data/conduit.glade, dataproviders/FeedModule.py: Added a rss2
-	  enclosure source. Great for keeping something in sync with say a
-	  frineds flickr photo stream.
+	* conduit/data/conduit.glade, conduit/dataproviders/FeedModule.py:
+	  Added a rss2 enclosure source. Great for keeping something in
+	  sync with say a frineds flickr photo stream.
 
 2006-08-02 02:41  john
 
-	* data/feed-icon.png: imported feed icon from www.feedicons.com
+	* conduit/data/feed-icon.png: imported feed icon from
+	  www.feedicons.com
 
 2006-08-01 13:03  john
 
-	* data/tomboy.png, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py, dataproviders/NotesModule.py,
-	  dataproviders/StickyNotesModule.py, datatypes/File.py,
-	  datatypes/Note.py: Added Tomboy source and a few bug fixes. This
-	  is close to release now
+	* conduit/data/tomboy.png, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/NotesModule.py,
+	  conduit/dataproviders/StickyNotesModule.py,
+	  conduit/datatypes/File.py, conduit/datatypes/Note.py: Added
+	  Tomboy source and a few bug fixes. This is close to release now
 
 2006-07-31 04:03  john
 
-	* MainWindow.py, data/conduit.glade: Removed most of the non
-	  functioning gui and menu items
+	* conduit/MainWindow.py, conduit/data/conduit.glade: Removed most
+	  of the non functioning gui and menu items
 
 2006-07-31 01:50  john
 
-	* data/conduit.glade, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py, datatypes/File.py: Gmail source
-	  updates. Seems to have trouble when you are logged into gmail in
-	  another browser window
+	* conduit/data/conduit.glade, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py, conduit/datatypes/File.py:
+	  Gmail source updates. Seems to have trouble when you are logged
+	  into gmail in another browser window
 
 2006-07-30 23:55  john
 
-	* dataproviders/GmailModule.py: Chasing bugs in the gmail source...
+	* conduit/dataproviders/GmailModule.py: Chasing bugs in the gmail
+	  source...
 
 2006-07-30 12:51  john
 
-	* MainWindow.py: Hooked up the splash screen. Makes a pleasant
-	  difference on slower computers. Will make a bigger difference
-	  once i start calling initialize from the module loader
+	* conduit/MainWindow.py: Hooked up the splash screen. Makes a
+	  pleasant difference on slower computers. Will make a bigger
+	  difference once i start calling initialize from the module loader
 
 2006-07-30 10:23  john
 
-	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
-	  Module.py: Color the connector based on whether sync can be
-	  performed (i.e. can all the needed conversions be made). Also
-	  updated some signal stuff
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/Module.py: Color the connector
+	  based on whether sync can be performed (i.e. can all the needed
+	  conversions be made). Also updated some signal stuff
 
 2006-07-30 07:26  john
 
-	* Conduit.py, MainWindow.py, data/conduit-splash.png,
-	  dataproviders/FileModule.py, dataproviders/GmailModule.py,
-	  datatypes/DataType.py, datatypes/File.py, datatypes/__init__.py:
-	  File dataprovider and datatype updates. Started thinking about
-	  how a splashscreen would work
+	* conduit/Conduit.py, conduit/MainWindow.py,
+	  conduit/data/conduit-splash.png,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/datatypes/DataType.py, conduit/datatypes/File.py,
+	  conduit/datatypes/__init__.py: File dataprovider and datatype
+	  updates. Started thinking about how a splashscreen would work
 
 2006-07-29 11:04  john
 
-	* data/conduit.glade, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py, datatypes/File.py: File sink now
-	  works. Updated the Config Guis also
+	* conduit/data/conduit.glade, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py, conduit/datatypes/File.py:
+	  File sink now works. Updated the Config Guis also
 
 2006-07-26 11:34  john
 
-	* Canvas.py, data/conduit.glade, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py, dataproviders/LifereaModule.py,
-	  start_conduit.py: GUI updates to the Gmail dataproviders
+	* conduit/Canvas.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/LifereaModule.py,
+	  conduit/start_conduit.py: GUI updates to the Gmail dataproviders
+
+2006-07-26 11:26  john
+
+	* contrib/python-opml-0.5, contrib/python-opml-0.5/OPML.py:
+	  Imported OPML parsing stuff from staw
+	  www.gnome.org/projects/straw. It needs cleaning up
+
+2006-07-25 11:20  john
+
+	* contrib/httplib2, contrib/httplib2/__init__.py: Imported
+	  httplib2 from bitworking.org/projects/httplib2/ to use for the
+	  GData stuff
 
 2006-07-25 10:35  john
 
-	* Canvas.py, MainWindow.py, Module.py, data/liferea.png,
-	  dataproviders/LifereaModule.py, datatypes/Feed.py,
-	  datatypes/__init__.py: Checked in a skeleton liferea source
+	* conduit/Canvas.py, conduit/MainWindow.py, conduit/Module.py,
+	  conduit/data/liferea.png,
+	  conduit/dataproviders/LifereaModule.py,
+	  conduit/datatypes/Feed.py, conduit/datatypes/__init__.py:
+	  Checked in a skeleton liferea source
 
 2006-07-25 09:16  john
 
-	* Canvas.py, Conduit.py, DataProvider.py, Module.py,
-	  data/conduit.glade, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py,
-	  dataproviders/StickyNotesModule.py: Some minor cleanups. Disable
-	  the right click menu if a sync is already in process
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/Module.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotesModule.py: Some minor cleanups.
+	  Disable the right click menu if a sync is already in process
 
 2006-07-24 08:22  john
 
-	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
-	  TypeConverter.py, data/conduit.glade: Updated GUI, moved toolbar
-	  to file->synchronize menu item. Removed som magic numbers
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/TypeConverter.py,
+	  conduit/data/conduit.glade: Updated GUI, moved toolbar to
+	  file->synchronize menu item. Removed som magic numbers
 
 2006-07-23 06:45  john
 
-	* Exceptions.py, MainWindow.py, Synchronization.py,
-	  TypeConverter.py, trunk/doc/ExampleModule.py, trunk/make-doc.sh:
-	  More Syncronization cleanups. Changed to using exceptions more
-	  often. Updated the example dataprovider to the new API. This
-	  thing is actually starting to get useful now
+	* conduit/Exceptions.py, conduit/MainWindow.py,
+	  conduit/Synchronization.py, conduit/TypeConverter.py,
+	  doc/ExampleModule.py, make-doc.sh: More Syncronization cleanups.
+	  Changed to using exceptions more often. Updated the example
+	  dataprovider to the new API. This thing is actually starting to
+	  get useful now
+
+2006-07-23 04:50  john
+
+	* contrib/libgmail-0.1.4/libgmail.py: fix an annoying bug in
+	  libgmail
 
 2006-07-23 04:48  john
 
-	* Conduit.py, DataProvider.py, MainWindow.py, Module.py,
-	  TypeConverter.py, __init__.py, dataproviders/GmailModule.py,
-	  start_conduit.py: Doc updates
+	* conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/Module.py,
+	  conduit/TypeConverter.py, conduit/__init__.py,
+	  conduit/dataproviders/GmailModule.py, conduit/start_conduit.py:
+	  Doc updates
 
 2006-07-23 04:42  john
 
-	* Synchronization.py: Removed the gtk based threading
+	* conduit/Synchronization.py: Removed the gtk based threading
 	  implementation as mine seems to work ok. Also improved the
 	  behavior in some error cases
 
 2006-07-23 03:28  john
 
-	* DataProvider.py, Exceptions.py, MainWindow.py,
-	  Synchronization.py, __init__.py, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py: (True) Multithreading
+	* conduit/DataProvider.py, conduit/Exceptions.py,
+	  conduit/MainWindow.py, conduit/Synchronization.py,
+	  conduit/__init__.py, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py: (True) Multithreading
 	  working./check-doc.sh All synchronisation ops run on a second
 	  thread so to not block the UI. Added a whole bunch of exception
 	  classes
 
 2006-07-22 08:59  john
 
-	* ChangeLog: Updated changelog
+	* conduit/ChangeLog: Updated changelog
 
 2006-07-22 08:58  john
 
-	* DataProvider.py, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py,
-	  dataproviders/StickyNotesModule.py,
-	  dataproviders/TextConverterModule.py, datatypes/Note.py:
-	  StickyNoteSource improvements
+	* conduit/DataProvider.py, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotesModule.py,
+	  conduit/dataproviders/TextConverterModule.py,
+	  conduit/datatypes/Note.py: StickyNoteSource improvements
 
 2006-07-22 07:50  john
 
-	* Synchronization.py, TypeConverter.py, __init__.py,
-	  dataproviders/FileModule.py, dataproviders/GmailModule.py,
-	  dataproviders/StickyNotesModule.py, datatypes/Email.py,
-	  datatypes/File.py: Filesource now does something
+	* conduit/Synchronization.py, conduit/TypeConverter.py,
+	  conduit/__init__.py, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotesModule.py,
+	  conduit/datatypes/Email.py, conduit/datatypes/File.py:
+	  Filesource now does something
 
 2006-07-21 12:58  john
 
-	* DataProvider.py, Module.py, TypeConverter.py,
-	  dataproviders/FileModule.py, dataproviders/GmailModule.py,
-	  dataproviders/TextConverterModule.py, datatypes,
-	  datatypes/Email.py, datatypes/__init__.py, start_conduit.py:
-	  Gmail email source now working
+	* conduit/DataProvider.py, conduit/Module.py,
+	  conduit/TypeConverter.py, conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/TextConverterModule.py, conduit/datatypes,
+	  conduit/datatypes/Email.py, conduit/datatypes/__init__.py,
+	  conduit/start_conduit.py: Gmail email source now working
+
+2006-07-21 12:55  john
+
+	* contrib/libgmail-0.1.4, contrib/libgmail-0.1.4/CHANGELOG,
+	  contrib/libgmail-0.1.4/COPYING, contrib/libgmail-0.1.4/PKG-INFO,
+	  contrib/libgmail-0.1.4/README,
+	  contrib/libgmail-0.1.4/lgconstants.py,
+	  contrib/libgmail-0.1.4/libgmail.py,
+	  contrib/libgmail-0.1.4/setup.py: Imported libgmail
 
 2006-07-21 08:37  john
 
-	* DataType.py, MainWindow.py, TypeConverter.py,
-	  data/conduit.glade, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py,
-	  dataproviders/StickyNotesModule.py, datatypes,
-	  datatypes/DataType.py, datatypes/File.py, datatypes/Note.py,
-	  datatypes/Text.py, datatypes/__init__.py: Refactored datatypes
-	  out, they are no longer treated as dataproviders, Instead the
-	  same dynamic loading stuff has been applied to converters
+	* conduit/DataType.py, conduit/MainWindow.py,
+	  conduit/TypeConverter.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotesModule.py, conduit/datatypes,
+	  conduit/datatypes/DataType.py, conduit/datatypes/File.py,
+	  conduit/datatypes/Note.py, conduit/datatypes/Text.py,
+	  conduit/datatypes/__init__.py: Refactored datatypes out, they
+	  are no longer treated as dataproviders, Instead the same dynamic
+	  loading stuff has been applied to converters
 
 2006-07-21 01:06  john
 
-	* DataProvider.py, Module.py, dataproviders/FileModule.py: Updated
-	  the FileSource with some vfs stuff
+	* conduit/DataProvider.py, conduit/Module.py,
+	  conduit/dataproviders/FileModule.py: Updated the FileSource with
+	  some vfs stuff
 
 2006-07-20 08:09  john
 
-	* Conduit.py, DataProvider.py, MainWindow.py, TypeConverter.py,
-	  dataproviders/EvolutionModule.py, dataproviders/FileModule.py,
-	  dataproviders/GmailModule.py,
-	  dataproviders/StickyNotesModule.py: Small update to ensure that
-	  all dataproviders pass through initialize(). Removed the
-	  evolution module until a c wrapper around evo can ve build.
+	* conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/TypeConverter.py,
+	  conduit/dataproviders/EvolutionModule.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotesModule.py: Small update to
+	  ensure that all dataproviders pass through initialize(). Removed
+	  the evolution module until a c wrapper around evo can ve build.
 	  Stupid evolution why must you be binding-less??
 
 2006-07-20 06:05  john
 
-	* DataProvider.py, Synchronization.py,
-	  dataproviders/GmailModule.py, trunk/doc/ExampleModule.py: YAY,
+	* conduit/DataProvider.py, conduit/Synchronization.py,
+	  conduit/dataproviders/GmailModule.py, doc/ExampleModule.py: YAY,
 	  first synchronization of one thing to another, including all the
 	  type conversion stuff.
 
 2006-07-20 05:18  john
 
-	* Conduit.py, MainWindow.py, TypeConverter.py,
-	  dataproviders/EvolutionModule.py, dataproviders/FileModule.py,
-	  dataproviders/StickyNotesModule.py, trunk/doc/ExampleModule.py:
-	  Changed the dataconversion syntax. Fixed the display of
-	  dataprovider state on the canvas
+	* conduit/Conduit.py, conduit/MainWindow.py,
+	  conduit/TypeConverter.py,
+	  conduit/dataproviders/EvolutionModule.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/StickyNotesModule.py,
+	  doc/ExampleModule.py: Changed the dataconversion syntax. Fixed
+	  the display of dataprovider state on the canvas
 
 2006-07-20 02:47  john
 
-	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
-	  data/conduit.glade, dataproviders/GmailModule.py,
-	  dataproviders/StickyNotesModule.py, trunk/doc/ExampleModule.py:
-	  Canvas Updates. Now draw prerry connectors and status text onto
-	  the canvas and in the right place
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotesModule.py,
+	  doc/ExampleModule.py: Canvas Updates. Now draw prerry connectors
+	  and status text onto the canvas and in the right place
 
 2006-07-19 11:47  john
 
-	* MainWindow.py, Module.py, dataproviders/__init__.py, datatypes,
-	  trunk/doc/ExampleDataProvider.py, trunk/doc/ExampleModule.py:
-	  Updated example module
+	* conduit/MainWindow.py, conduit/Module.py,
+	  conduit/dataproviders/__init__.py, conduit/datatypes,
+	  doc/ExampleDataProvider.py, doc/ExampleModule.py: Updated
+	  example module
 
 2006-07-19 11:02  john
 
-	* trunk/check-doc.sh, Conduit.py, DataProvider.py, MainWindow.py,
-	  Module.py, TypeConverter.py, dataproviders/Evolution.py,
-	  dataproviders/EvolutionModule.py, dataproviders/File.py,
-	  dataproviders/FileModule.py, dataproviders/Gmail.py,
-	  dataproviders/GmailModule.py, dataproviders/StickyNotes.py,
-	  dataproviders/StickyNotesModule.py, trunk/make-doc.sh: Made
+	* check-doc.sh, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/Module.py,
+	  conduit/TypeConverter.py, conduit/dataproviders/Evolution.py,
+	  conduit/dataproviders/EvolutionModule.py,
+	  conduit/dataproviders/File.py,
+	  conduit/dataproviders/FileModule.py,
+	  conduit/dataproviders/Gmail.py,
+	  conduit/dataproviders/GmailModule.py,
+	  conduit/dataproviders/StickyNotes.py,
+	  conduit/dataproviders/StickyNotesModule.py, make-doc.sh: Made
 	  dataproviders an importable module and re-organized the project
 	  to allow dataproviders to share datatypes.
 
 2006-07-19 09:31  john
 
-	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
-	  Module.py: Added connector lines to canvas
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/Module.py: Added connector lines
+	  to canvas
 
 2006-07-19 02:05  john
 
-	* DataProvider.py, MainWindow.py, dataproviders/StickyNotes.py:
-	  Implemented stickynote source
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/dataproviders/StickyNotes.py: Implemented stickynote
+	  source
 
 2006-07-18 11:39  john
 
-	* Canvas.py, Conduit.py, DataProvider.py, MainWindow.py,
-	  Synchronization.py, TypeConverter.py, dataproviders/File.py,
-	  dataproviders/StickyNotes.py: Everything Glued together. Canvas,
-	  Type Conversion, Get and Put all work. Now the hard work begins
+	* conduit/Canvas.py, conduit/Conduit.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/Synchronization.py,
+	  conduit/TypeConverter.py, conduit/dataproviders/File.py,
+	  conduit/dataproviders/StickyNotes.py: Everything Glued together.
+	  Canvas, Type Conversion, Get and Put all work. Now the hard work
+	  begins
 
 2006-07-18 10:11  john
 
-	* MainWindow.py, Synchronization.py: Imported GIdleThread from
+	* conduit/MainWindow.py, conduit/Synchronization.py: Imported
+	  GIdleThread from
 	  aspn.activestate.com/ASPN/Cookbook/Python/Recipe/327082
 
 2006-07-18 10:05  john
 
-	* DataProvider.py, MainWindow.py, SyncManager.py,
-	  Synchronization.py: Started work on making get() a generator and
-	  other async synchronization preparations
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/SyncManager.py, conduit/Synchronization.py: Started work
+	  on making get() a generator and other async synchronization
+	  preparations
 
 2006-07-18 05:22  john
 
-	* MainWindow.py, TypeConverter.py, data/conduit.glade,
-	  dataproviders/File.py: Added Properties dialog. Glade cleanups
+	* conduit/MainWindow.py, conduit/TypeConverter.py,
+	  conduit/data/conduit.glade, conduit/dataproviders/File.py: Added
+	  Properties dialog. Glade cleanups
 
 2006-07-18 03:41  john
 
-	* Canvas.py, DataProvider.py, MainWindow.py, data/conduit.glade,
-	  dataproviders/File.py: Started adding config dialog for
+	* conduit/Canvas.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/data/conduit.glade,
+	  conduit/dataproviders/File.py: Started adding config dialog for
 	  FileSource
 
 2006-07-12 04:33  john
 
-	* DataProvider.py, MainWindow.py, data/conduit.glade,
-	  dataproviders/Gmail.py: Started added simple configuration GUI
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/data/conduit.glade, conduit/dataproviders/Gmail.py:
+	  Started added simple configuration GUI
 
 2006-07-09 20:22  john
 
-	* ChangeLog, data/conduit-icon.svg, trunk/doc,
-	  trunk/doc/ExampleDataProvider.py: Added example DataProvider.
-	  Updated ChangeLog
+	* conduit/ChangeLog, conduit/data/conduit-icon.svg, doc,
+	  doc/ExampleDataProvider.py: Added example DataProvider. Updated
+	  ChangeLog
 
 2006-07-09 12:19  john
 
-	* Canvas.py, Conduit.py: Oops should check it works first\!
+	* conduit/Canvas.py, conduit/Conduit.py: Oops should check it
+	  works first\!
 
 2006-07-09 12:15  john
 
-	* trunk/check-doc.sh, MainWindow.py, Module.py, ModuleManager.py,
-	  __init__.py: Finished refactroing the ModuleLoader
+	* check-doc.sh, conduit/MainWindow.py, conduit/Module.py,
+	  conduit/ModuleManager.py, conduit/__init__.py: Finished
+	  refactroing the ModuleLoader
 
 2006-07-09 11:58  john
 
-	* Canvas.py, ConduitEditorCanvas.py, MainWindow.py,
-	  ModuleManager.py, __init__.py: Refactored ModuleManager to allow
-	  getting a new instance of a dynamic module. Documentation
-	  updates and considerable refactoring of Canvas class
+	* conduit/Canvas.py, conduit/ConduitEditorCanvas.py,
+	  conduit/MainWindow.py, conduit/ModuleManager.py,
+	  conduit/__init__.py: Refactored ModuleManager to allow getting a
+	  new instance of a dynamic module. Documentation updates and
+	  considerable refactoring of Canvas class
 
 2006-07-09 09:04  john
 
-	* Conduit.py, ConduitEditorCanvas.py, DataProvider.py,
-	  DataProviderView.py, MainWindow.py, ModuleManager.py,
-	  __init__.py, data/conduit.glade: Refactoring things into
-	  different files
+	* conduit/Conduit.py, conduit/ConduitEditorCanvas.py,
+	  conduit/DataProvider.py, conduit/DataProviderView.py,
+	  conduit/MainWindow.py, conduit/ModuleManager.py,
+	  conduit/__init__.py, conduit/data/conduit.glade: Refactoring
+	  things into different files
 
 2006-07-09 07:44  john
 
-	* TypeConverter.py: fixed an inner dict bug in the type converter
+	* conduit/TypeConverter.py: fixed an inner dict bug in the type
+	  converter
 
 2006-07-08 13:53  john
 
-	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,
-	  ModuleManager.py, SyncManager.py, TypeConverter.py, __init__.py,
-	  start_conduit.py: Added logging support
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/ModuleManager.py,
+	  conduit/SyncManager.py, conduit/TypeConverter.py,
+	  conduit/__init__.py, conduit/start_conduit.py: Added logging
+	  support
 
 2006-07-08 11:18  john
 
-	* ConduitEditorCanvas.py, MainWindow.py, ModuleManager.py,
-	  __init__.py, conduit.glade, conduit.glade.bak, conduit.gladep,
-	  conduit.gladep.bak, data, data/conduit.glade, start_conduit.py:
-	  Moved glade file into data dir and improved the installed vs
-	  uninstalled performance of conduit
+	* conduit/ConduitEditorCanvas.py, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/__init__.py,
+	  conduit/conduit.glade, conduit/conduit.glade.bak,
+	  conduit/conduit.gladep, conduit/conduit.gladep.bak,
+	  conduit/data, conduit/data/conduit.glade,
+	  conduit/start_conduit.py: Moved glade file into data dir and
+	  improved the installed vs uninstalled performance of conduit
 
 2006-07-08 11:01  john
 
-	* conduit.glade: Removed useless menu items from glade file
+	* conduit/conduit.glade: Removed useless menu items from glade file
 
 2006-07-08 09:21  john
 
-	* ., ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,
-	  ModuleManager.py, conduit.glade, conduit.glade.bak: canvas
-	  resize working
+	* conduit, conduit/ConduitEditorCanvas.py,
+	  conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/conduit.glade,
+	  conduit/conduit.glade.bak: canvas resize working
 
 2006-07-07 13:14  john
 
-	* ConduitEditorCanvas.py, MainWindow.py,
-	  trunk/make-goocanvas-doc.sh: Checked in new canvas layout. This
-	  Looks like it has the potential to be made pretty looking by
-	  those with more graphic skill than me. It will also be easier to
-	  keep track of the conduit connections
+	* conduit/ConduitEditorCanvas.py, conduit/MainWindow.py,
+	  make-goocanvas-doc.sh: Checked in new canvas layout. This Looks
+	  like it has the potential to be made pretty looking by those
+	  with more graphic skill than me. It will also be easier to keep
+	  track of the conduit connections
 
 2006-07-07 06:01  john
 
-	* DataProvider.py, dataproviders/Evolution.py,
-	  dataproviders/File.py, dataproviders/Gmail.py,
-	  dataproviders/StickyNotes.py: cleaned up the dataprovider icon
-	  stuff a bit better
+	* conduit/DataProvider.py, conduit/dataproviders/Evolution.py,
+	  conduit/dataproviders/File.py, conduit/dataproviders/Gmail.py,
+	  conduit/dataproviders/StickyNotes.py: cleaned up the
+	  dataprovider icon stuff a bit better
 
 2006-07-07 04:13  john
 
-	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py: Disabled
-	  dragging of canvas items. Fixed item popups. Deleted stale code
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py: Disabled dragging of canvas items. Fixed
+	  item popups. Deleted stale code
 
 2006-07-07 03:28  john
 
-	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,
-	  ModuleManager.py, conduit.glade, conduit.glade.bak: New GUI
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/ModuleManager.py,
+	  conduit/conduit.glade, conduit/conduit.glade.bak: New GUI
 	  layout. Dropped the UML style diagrams because I dont think they
 	  will be worh the complexity. Most use cases will be just a 1-1
 	  sync and not a 1-many
 
 2006-07-06 11:22  john
 
-	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,
-	  ModuleManager.py: a few more doc updates and putting some more
-	  skeleton code into the base classes
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/ModuleManager.py: a few more doc
+	  updates and putting some more skeleton code into the base classes
+
+2006-07-06 03:10  john
+
+	* website, website/conduit_header.png, website/conduit_header.xcf:
+	  added website logos
 
 2006-06-29 11:18  john
 
-	* ChangeLog, MainWindow.py, ModuleManager.py, SyncManager.py,
-	  TypeConverter.py, data/conduit-icon.svg,
-	  dataproviders/Evolution.py, dataproviders/File.py,
-	  dataproviders/Gmail.py, dataproviders/StickyNotes.py,
-	  datatypes/CalDataType.py, datatypes/FileDataType.py: implemented
-	  dynamic type loading and conversion
+	* conduit/ChangeLog, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/SyncManager.py,
+	  conduit/TypeConverter.py, conduit/data/conduit-icon.svg,
+	  conduit/dataproviders/Evolution.py,
+	  conduit/dataproviders/File.py, conduit/dataproviders/Gmail.py,
+	  conduit/dataproviders/StickyNotes.py,
+	  conduit/datatypes/CalDataType.py,
+	  conduit/datatypes/FileDataType.py: implemented dynamic type
+	  loading and conversion
 
 2006-06-28 12:58  john
 
-	* ConduitEditorCanvas.py, DataProvider.py, DataType.py,
-	  MainWindow.py, __init__.py, dataproviders/Evolution.py,
-	  dataproviders/File.py, dataproviders/Gmail.py,
-	  dataproviders/StickyNotes.py, datatypes/CalDataType.py,
-	  datatypes/FileDataType.py: Added tango hotness. Got my brain
-	  around how to do type conversion from types loaded at runtime
-	  using getattr(). Created an evolution dataprovider and some more
-	  datatypes
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/DataType.py, conduit/MainWindow.py, conduit/__init__.py,
+	  conduit/dataproviders/Evolution.py,
+	  conduit/dataproviders/File.py, conduit/dataproviders/Gmail.py,
+	  conduit/dataproviders/StickyNotes.py,
+	  conduit/datatypes/CalDataType.py,
+	  conduit/datatypes/FileDataType.py: Added tango hotness. Got my
+	  brain around how to do type conversion from types loaded at
+	  runtime using getattr(). Created an evolution dataprovider and
+	  some more datatypes
 
 2006-06-28 07:36  john
 
-	* ConduitEditorCanvas.py, DataProvider.py: add connection points
-	  to dataproviders and start adding infrastructure to connect them
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py: add
+	  connection points to dataproviders and start adding
+	  infrastructure to connect them
 
 2006-06-28 07:31  john
 
-	* data, data/conduit-icon.png, data/conduit-icon.svg: added
-	  conduit icon (that is lame)
+	* conduit/data, conduit/data/conduit-icon.png,
+	  conduit/data/conduit-icon.svg: added conduit icon (that is lame)
 
 2006-06-27 00:26  john
 
-	* trunk, ., dataproviders, dataproviders/StickyNotes.py,
-	  datatypes, trunk/doc: svn ignore updates
+	* ., conduit, conduit/dataproviders,
+	  conduit/dataproviders/StickyNotes.py, conduit/datatypes, doc:
+	  svn ignore updates
 
 2006-06-27 00:17  john
 
-	* trunk, ConduitEditorCanvas.py, DataProvider.py, DataType.py,
-	  MainWindow.py, ModuleManager.py, __init__.py, conduit.glade,
-	  conduit.glade.bak, trunk/make-doc.sh: Documentation working
-	  using epydoc. DND improvements
+	* ., conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/DataType.py, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/__init__.py,
+	  conduit/conduit.glade, conduit/conduit.glade.bak, make-doc.sh:
+	  Documentation working using epydoc. DND improvements
 
 2006-06-26 06:05  john
 
-	* ChangeLog, ConduitEditorCanvas.py, DataProvider.py,
-	  DataProviderView.py, DataType.py, MainWindow.py,
-	  ModuleManager.py, SyncManager.py, TypeConverter.py, __init__.py,
-	  start_conduit.py, trunk/doc, trunk/make-doc.sh,
-	  trunk/run-uninstalled.sh: Started adding docs. Added dynamic
-	  type converter infrastructure. DND onto canvas improvements
+	* conduit/ChangeLog, conduit/ConduitEditorCanvas.py,
+	  conduit/DataProvider.py, conduit/DataProviderView.py,
+	  conduit/DataType.py, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/SyncManager.py,
+	  conduit/TypeConverter.py, conduit/__init__.py,
+	  conduit/start_conduit.py, doc, make-doc.sh, run-uninstalled.sh:
+	  Started adding docs. Added dynamic type converter
+	  infrastructure. DND onto canvas improvements
 
 2006-06-26 06:02  john
 
-	* conduit.glade, conduit.glade.bak: Added hpane to gladefile
+	* conduit/conduit.glade, conduit/conduit.glade.bak: Added hpane to
+	  gladefile
 
 2006-06-25 09:59  john
 
-	* ChangeLog, ConduitEditorCanvas.py, DataProvider.py,
-	  MainWindow.py, ModuleManager.py, dataproviders/Gmail.py: Can DND
-	  dataproviders onto canvas and they stick. Can also move them
+	* conduit/ChangeLog, conduit/ConduitEditorCanvas.py,
+	  conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/dataproviders/Gmail.py: Can
+	  DND dataproviders onto canvas and they stick. Can also move them
 	  around
 
 2006-06-25 07:09  john
 
-	* ConduitEditorCanvas.py, DataProvider.py, MainWindow.py,
-	  ModuleManager.py, attic/filelisting-gtm.py, attic/namespace.py:
+	* conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/ModuleManager.py,
+	  conduit/attic/filelisting-gtm.py, conduit/attic/namespace.py:
 	  Moved drag and drop signals back into the main window.
 	  Refactored management of dynamic modules into its own class\n
 
 2006-06-24 05:56  john
 
-	* MainWindow.py, ModuleManager.py, conduit.glade,
-	  conduit.glade.bak: treeview DND working to some extent
+	* conduit/MainWindow.py, conduit/ModuleManager.py,
+	  conduit/conduit.glade, conduit/conduit.glade.bak: treeview DND
+	  working to some extent
 
 2006-06-24 02:33  john
 
-	* DataProvider.py, MainWindow.py, ModuleManager.py,
-	  dataproviders/File.py, dataproviders/Gmail.py: Custom treeview
-	  shows pixbufs (the icon of the dataprovider)
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/ModuleManager.py, conduit/dataproviders/File.py,
+	  conduit/dataproviders/Gmail.py: Custom treeview shows pixbufs
+	  (the icon of the dataprovider)
 
 2006-06-23 12:06  john
 
-	* ChangeLog, MainWindow.py, Manager.py, ModuleManager.py,
-	  dataproviders/File.py, dataproviders/Gmail.py,
-	  datatypes/FileDataType.py: Got treeview and dynamic loading
-	  playing together
+	* conduit/ChangeLog, conduit/MainWindow.py, conduit/Manager.py,
+	  conduit/ModuleManager.py, conduit/dataproviders/File.py,
+	  conduit/dataproviders/Gmail.py,
+	  conduit/datatypes/FileDataType.py: Got treeview and dynamic
+	  loading playing together
 
 2006-06-23 08:10  john
 
-	* DataProvider.py, DataType.py, MainWindow.py, Manager.py,
-	  conduit.glade, conduit.py, conduits, dataproviders/File.py,
-	  dataproviders/Gmail.py, datatypes, datatypes/FileDataType.py,
-	  start_conduit.py: More dynamic loader improvements
+	* conduit/DataProvider.py, conduit/DataType.py,
+	  conduit/MainWindow.py, conduit/Manager.py,
+	  conduit/conduit.glade, conduit/conduit.py, conduit/conduits,
+	  conduit/dataproviders/File.py, conduit/dataproviders/Gmail.py,
+	  conduit/datatypes, conduit/datatypes/FileDataType.py,
+	  conduit/start_conduit.py: More dynamic loader improvements
 
 2006-06-21 22:36  john
 
-	* conduit.py, dataproviders/File.py: installed / uninstalled
-	  detection working ish
+	* conduit/conduit.py, conduit/dataproviders/File.py: installed /
+	  uninstalled detection working ish
 
 2006-06-21 11:07  john
 
-	* DataProvider.py, MainWindow.py, Manager.py: some kind of module
-	  loading is working
+	* conduit/DataProvider.py, conduit/MainWindow.py,
+	  conduit/Manager.py: some kind of module loading is working
 
 2006-06-21 11:02  john
 
-	* ChangeLog, conduit.py, dataproviders/File.py: change path at
-	  runtime - I HATE PYTHON IMPORT AND HOW IT WORKS
+	* conduit/ChangeLog, conduit/conduit.py,
+	  conduit/dataproviders/File.py: change path at runtime - I HATE
+	  PYTHON IMPORT AND HOW IT WORKS
 
 2006-06-21 08:21  john
 
-	* DataSink.py, DataSource.py: more deletions
+	* conduit/DataSink.py, conduit/DataSource.py: more deletions
 
 2006-06-21 08:20  john
 
-	* CanvasClock.cs, ConduitDefs.py, ConduitEditorCanvas.py,
-	  DataProvider.py, DataProviderView.py, DataSource.py,
-	  MainWindow.py, Manager.py, MyBox.py, Utils.py, attic,
-	  attic/CanvasClock.cs, attic/ConduitDefs.py, attic/MyBox.py,
-	  attic/Utils.py, attic/demoitem.py, attic/diacanvasdemo.py,
-	  attic/dnd.py, attic/placementtool.py, conduit.glade,
-	  conduit.glade.bak, conduit.py, dataproviders,
-	  dataproviders/File.py, demoitem.py, diacanvasdemo.py, dnd.py,
-	  placementtool.py: refactored and now based on gsteditor code.
-	  Also started work on dynamic dataprovider loader based on deskbar
+	* conduit/CanvasClock.cs, conduit/ConduitDefs.py,
+	  conduit/ConduitEditorCanvas.py, conduit/DataProvider.py,
+	  conduit/DataProviderView.py, conduit/DataSource.py,
+	  conduit/MainWindow.py, conduit/Manager.py, conduit/MyBox.py,
+	  conduit/Utils.py, conduit/attic, conduit/attic/CanvasClock.cs,
+	  conduit/attic/ConduitDefs.py, conduit/attic/MyBox.py,
+	  conduit/attic/Utils.py, conduit/attic/demoitem.py,
+	  conduit/attic/diacanvasdemo.py, conduit/attic/dnd.py,
+	  conduit/attic/placementtool.py, conduit/conduit.glade,
+	  conduit/conduit.glade.bak, conduit/conduit.py,
+	  conduit/dataproviders, conduit/dataproviders/File.py,
+	  conduit/demoitem.py, conduit/diacanvasdemo.py, conduit/dnd.py,
+	  conduit/placementtool.py: refactored and now based on gsteditor
+	  code. Also started work on dynamic dataprovider loader based on
+	  deskbar
 
 2006-06-21 08:05  john
 
-	* datasinks, datasources: combined sources and sinks into providers
+	* conduit/datasinks, conduit/datasources: combined sources and
+	  sinks into providers
 
 2006-05-23 12:31  john
 
-	* ConduitDefs.py, DataProvider.py, MainWindow.py, MyBox.py,
-	  Utils.py, __init__.py, conduit.py, datasinks/__init__.py,
-	  datasources/FileSource.py, datasources/__init__.py,
-	  trunk/run-uninstalled.sh: starting to get somewhere near drawing
-	  attractive things on the canvas
+	* conduit/ConduitDefs.py, conduit/DataProvider.py,
+	  conduit/MainWindow.py, conduit/MyBox.py, conduit/Utils.py,
+	  conduit/__init__.py, conduit/conduit.py,
+	  conduit/datasinks/__init__.py,
+	  conduit/datasources/FileSource.py,
+	  conduit/datasources/__init__.py, run-uninstalled.sh: starting to
+	  get somewhere near drawing attractive things on the canvas
+
+2006-05-23 10:08  john
+
+	* src: moving stuff
 
 2006-05-23 10:07  john
 
-	* ., CanvasClock.cs, DataProvider.py, DataSink.py, DataSource.py,
-	  MainWindow.py, MyBox.py, Utils.py, __init__.py, conduit.glade,
-	  conduit.glade.bak, conduit.gladep, conduit.gladep.bak,
-	  conduit.py, conduits, datasinks, datasources, demoitem.py,
-	  diacanvasdemo.py, dnd.py, placementtool.py: moving stuff
+	* conduit, conduit/CanvasClock.cs, conduit/DataProvider.py,
+	  conduit/DataSink.py, conduit/DataSource.py,
+	  conduit/MainWindow.py, conduit/MyBox.py, conduit/Utils.py,
+	  conduit/__init__.py, conduit/conduit.glade,
+	  conduit/conduit.glade.bak, conduit/conduit.gladep,
+	  conduit/conduit.gladep.bak, conduit/conduit.py,
+	  conduit/conduits, conduit/datasinks, conduit/datasources,
+	  conduit/demoitem.py, conduit/diacanvasdemo.py, conduit/dnd.py,
+	  conduit/placementtool.py: moving stuff
+
+2006-05-23 10:04  john
+
+	* run-uninstalled.sh, src/DataProvider.py, src/MainWindow.py,
+	  src/MyBox.py, src/Utils.py, src/__init__.py, src/conduit.py:
+	  moving things around to match the deskbar layout
+
+2006-05-22 11:10  john
+
+	* src/MyBox.py, src/diacanvasdemo.py: callbacks actually working
+	  now
+
+2006-05-22 10:02  john
+
+	* src/MyBox.py, src/conduit.py: can derive shitty classes from
+	  canvasbox
+
+2006-05-22 08:33  john
+
+	* src/datasinks, src/datasources: added folder structure
+
+2006-05-22 08:33  john
+
+	* src/CanvasClock.cs, src/MyBox.py, src/conduit.py,
+	  src/demoitem.py, src/diacanvasdemo.py, src/placementtool.py:
+	  imported some examples
+
+2006-05-21 21:47  john
+
+	* src/DataProvider.py, src/DataSink.py, src/DataSource.py,
+	  src/conduit.py, src/dnd.py: shadow oo structure
+
+2006-05-17 12:22  john
+
+	* src/conduit.glade, src/conduit.glade.bak, src/conduit.py:
+	  connected diacanvas
+
+2006-05-17 11:53  john
+
+	* contrib, contrib/google-notebook-api.py, notes.txt, src,
+	  src/conduit.glade, src/conduit.glade.bak, src/conduit.gladep,
+	  src/conduit.gladep.bak, src/conduit.py: first hack at python
+	  conduit
+
+2006-05-17 09:27  john
+
+	* Conduit.mdp, Conduit.mds, data, src: deleted. Changing to python
+
+2005-12-02 05:16  john
+
+	* data/gui.glade: Setting up Repo
+
+2005-12-02 05:01  john
+
+	* AssemblyInfo.cs, Conduit.mdp, Main.cs, data, data/gui.glade,
+	  gui.glade, src/AssemblyInfo.cs, src/Main.cs: Setting up Repo
+
+2005-12-02 04:59  john
+
+	* ., AssemblyInfo.cs, Conduit.mdp, Conduit.mds, Main.cs,
+	  gui.glade, src, test.txt: Setting up Repo
+
+2005-12-01 00:32  john
+
+	* branches, branches/test.txt, tags, tags/test.txt, ., test.txt:
+	  Initial Import
 

@@ -1,3 +1,17 @@
+conduit (0.2.0) unreleased; urgency=low
+
+  * New version with the following improvements:
+  * Save application settings
+  * Multiple sinks per source
+  * Flickr dataprovider
+  * Use classname instead of name to identify DataProviders
+  * Treemodel should put dataproviders in categories
+  * DND Onto canvas does not shift items down correctly
+  * Proper two way file/folder sync
+  * Delete items from canvas
+
+ -- John Stowers <john@localhost>  Wed, 20 Sep 2006 21:37:36 +1200
+
 conduit (0.1.0) unreleased; urgency=low
 
   * Initial release.
