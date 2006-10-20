@@ -54,7 +54,7 @@ class TestBase:
         self.aList = []
         
     def initialize(self):
-        return False
+        return True
 
     def configure(self, window):
         def setError(param):
