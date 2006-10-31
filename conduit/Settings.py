@@ -15,6 +15,7 @@ import traceback
 import xml.dom.ext
 from xml.dom import minidom
 from xml.dom.minidom import Document
+import gnomekeyring
 
 import conduit
 import logging
@@ -71,10 +72,13 @@ class Settings(gobject.GObject):
         self.client = gconf.client_get_default()
         # Preload gconf directories
         self.client.add_dir(self.CONDUIT_GCONF_DIR[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)  
-        
         self.xmlSettingFilePath = xmlSettingFilePath
         self.notifications = []
-        
+
+        # Init the keyring
+        self.classUsernamesAndPasswords = {}
+        self._init_keyring()
+
     @staticmethod
     def _string_to_bool(stringy):
         #Because bool("False") doesnt work as expected when restoring strings
@@ -97,7 +101,26 @@ class Settings(gobject.GObject):
         for i in range(0, len(l)):
             l[i] = Settings.STRING_TO_TYPE[internalTypeName](l[i])
         return l
-        
+
+    def _init_keyring(self):
+        """
+        Connects to the Gnome Keyring. All passwords are stored under a 
+        conduit key, in the format
+
+        classname:username:password;classname:username:password
+
+        This function gets all the usernames and passwords and puts them in a
+        dict organised by class name
+        """
+
+        self.keyring = gnomekeyring.get_default_keyring_sync()
+        token = self.get("%s_token" % conduit.APPNAME, int, 0)
+        if token > 0:
+            secrets = gnomekeyring.item_get_info_sync(self.keyring, token).get_secret()
+            for i in secrets.split(';'):
+                j = i.split(':')
+                self.classUsernamesAndPasswords[j[0]] = (j[0], j[1])
+
     def _fix_key(self, key):
         """
         Appends the CONDUIT_GCONF_PREFIX to the key if needed
@@ -112,6 +135,14 @@ class Settings(gobject.GObject):
         else:
             return key
             
+    def _key_changed(self, client, cnxn_id, entry, data=None):
+        """
+        Callback when a gconf key changes
+        """
+        key = self._fix_key(entry.key)
+        detailed_signal = 'changed::%s' % key
+        self.emit(detailed_signal)
+
     def set_settings_file(self, xmlSettingFilePath):
         """
         Sets the xml settings file to be used in the restore_sync_set
@@ -127,8 +158,11 @@ class Settings(gobject.GObject):
         not yet in gconf
         """
         if key in self.DEFAULTS:
-            default = self.DEFAULTS[key]
-            vtype = type(default)
+        #function arguments override defaults
+            if default is None:
+                default = self.DEFAULTS[key]
+            if vtype is None:
+                vtype = type(default)
 
         #for gconf refer to the full key path
         key = self._fix_key(key)
@@ -136,6 +170,7 @@ class Settings(gobject.GObject):
         if key not in self.notifications:
             self.client.notify_add(key, self._key_changed)
             self.notifications.append(key)
+        
         value = self.client.get(key)
         if not value:
             self.set(key, vtype, default)
@@ -145,6 +180,8 @@ class Settings(gobject.GObject):
             return value.get_bool()
         elif vtype is str:
             return value.get_string()
+        elif vtype is int:
+            return value.get_int()
 
     def set(self, key, value, vtype=None):
         """
@@ -162,11 +199,19 @@ class Settings(gobject.GObject):
         elif vtype is str:
             self.client.set_string(key, value)
 
-    def _key_changed(self, client, cnxn_id, entry, data=None):
-        key = self._fix_key(entry.key)
-        detailed_signal = 'changed::%s' % key
-        self.emit(detailed_signal)
-        
+    def get_username_and_password(self, classname):
+        """
+        Returns a tuple of username and password for the class defined
+        by classname
+        """
+        pass
+    
+    def set_username_and_password(self, classname, password, username=''):
+        """
+        Stores the username and password for the class called classname
+        """        
+        pass
+
     def save_sync_set(self, version, syncSet):
         """
         Saves the synchronisation settings (icluding all dataproviders and how

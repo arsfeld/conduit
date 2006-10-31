@@ -26,7 +26,7 @@ import os
 import gobject
 
 APPNAME="Conduit"
-APPVERSION="0.2.0"
+APPVERSION="0.3.0"
 USER_DIR = os.path.join(os.environ['HOME'],".conduit")
 if not os.path.exists(USER_DIR):
     os.mkdir(USER_DIR)
