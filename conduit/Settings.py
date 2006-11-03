@@ -37,6 +37,7 @@ class Settings(gobject.GObject):
 
     #Default values for conduit settings
     DEFAULTS = {
+        'show_splashscreen' :   True,   #The splashscreen can be quite useful on slow computers
         'use_treeview'      :   False,  #Arrange the dataproviders in a treeview (or a listview)
         'save_on_exit'      :   False   #Is the sync set saved on exit automatically?
     }

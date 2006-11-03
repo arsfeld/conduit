@@ -38,11 +38,11 @@ class MainWindow:
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
         #FIXME: This causes X errors (async reply??) sometimes in the sync thread???
         gnome.ui.authentication_manager_init()        
-        #Throw up a splash screen ASAP to look pretty
-        #FIXME: The only thing I should do before showing the splash screen
-        #is to load the app settings, (like the window position which is
-        #going to be used to position the splash)
+        #Throw up a splash screen ASAP to look pretty (if the user wants) 
         self.splash = SplashScreen()
+        if conduit.settings.get("show_splashscreen") == True:
+            self.splash.show()
+
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
         icon_dirs = [
@@ -278,6 +278,7 @@ class MainWindow:
         dlg.set_name(conduit.APPNAME)
         dlg.set_version(conduit.APPVERSION)
         dlg.set_transient_for(self.mainWindow)
+        dlg.connect('response', lambda widget, response: widget.destroy())
         #dlg.set_icon(self.icon)        
 
     def on_window_closed(self, widget, event=None):
@@ -402,11 +403,18 @@ class SplashScreen:
     def __init__(self):        
         """
         Constructor
-        
-        Also connects the splash window to be destroyed via a timeout
-        callback in L{SplashScreen.DELAY}msec time
         """
-        self.wSplash = gtk.Window(gtk.WINDOW_POPUP )
+        #If false the main window should call destroy() to remove the splash
+        self.destroyed = True
+        
+    def show(self):
+        """
+        Builds the splashscreen and connects the splash window to be destroyed 
+        via a timeout callback in L{SplashScreen.DELAY}msec time.
+
+        The splash can also be destroyed manually by the application
+        """
+        self.wSplash = gtk.Window(gtk.WINDOW_POPUP)
         self.wSplash.set_decorated(False)
         wSplashScreen = gtk.Image()
         wSplashScreen.set_from_file(os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"))
