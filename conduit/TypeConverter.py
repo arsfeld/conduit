@@ -101,6 +101,7 @@ class TypeConverter:
         @todo: Make this use conversion_exists first.
         """
         try:
+            logging.debug("Converting %s -> %s" % (from_type, to_type))
             return self.convertables[from_type][to_type](data)
         except TypeError, err:
             extra="Could not call conversion function\n%s" % traceback.format_exc()

@@ -111,19 +111,22 @@ class TestBase:
             }
 
 class TestSource(TestBase, DataProvider.DataSource):
+    NUM_DATA = 5    
     def __init__(self):
         TestBase.__init__(self)
         DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages")
         
-    def get(self):
-        for i in range(0,5):
-            if self.slow:
-                time.sleep(2)
-            string = "Test #%s" % i
-            logging.debug("TEST SOURCE: get() returned %s" % string)
-            if i == self.errorAfter:
-                raise Exceptions.SyncronizeError
-            yield string
+    def get_num_items(self):
+        return TestSource.NUM_DATA
+
+    def get(self, index):
+        if self.slow:
+            time.sleep(2)
+        string = "data #%s" % index
+        logging.debug("TEST SOURCE: get() returned %s" % string)
+        if index == self.errorAfter:
+            raise Exceptions.SyncronizeError
+        return string
 		
 class TestSink(TestBase, DataProvider.DataSink):
     def __init__(self):

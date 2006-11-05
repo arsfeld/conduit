@@ -129,6 +129,94 @@ class SyncWorker(threading.Thread):
             for s in dataprovidersToCancel:
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
             raise Exceptions.StopSync
+            
+    def _convert_data(self, fromType, toType, data):
+        """
+        Converts and returns data from fromType to toType.
+        Handles all errors nicely and returns none on error
+        """
+        try:
+            if fromType != toType:
+                if self.typeConverter.conversion_exists(fromType, toType):
+                    newdata = self.typeConverter.convert(fromType, toType, data)
+                else:
+                    newdata = None
+                    raise Exceptions.ConversionDoesntExistError
+                    
+            else:
+                newdata = data
+        #Catch exceptions if we abort the sync cause no conversion exists
+        except Exceptions.ConversionDoesntExistError:
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
+        #Catch errors from a failed convert
+        except Exceptions.ConversionError, err:
+            #Not fatal, move along
+            logging.warn("Error converting %s" % err)
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
+
+        return newdata
+
+
+    def _put_data(self, dataproviderWrapper, data):
+        """
+        Puts data into dataproviderModule and handles 
+        non fatal exceptions gracefully.
+        """
+        try:
+            #Puts the data, providing it is newer
+            dataproviderWrapper.module.put(data)
+        except Exceptions.SynchronizeConflictError, err:
+            #unpack args
+            #(comparison, fromData, toData, datasink) = err
+            if err.comparison == DataType.COMPARISON_OLDER:
+                logging.debug("Sync Conflict: Skipping OLD Data\n%s" % err)
+            #If the data could not be compared then the user must decide
+            elif err.comparison == DataType.COMPARISON_EQUAL or err.comparison == DataType.COMPARISON_UNKNOWN:
+                #FIXME. I imagine that implementing this is a bit of work!
+                #The data needs to get back to the main gui thread safely
+                #so that the user can decide... Perhaps a signal???
+                logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
+                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+            #This should not happen...
+            else:
+                logging.critical("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+            
+    def one_way_sync(self, source, sink, numItems):
+        """
+        Transfers numItems of data from source to sink
+        """
+        logging.debug("Synchronizing %s |--> %s " % (source, sink))
+        for i in range(0, numItems):
+            data = source.module.get(i)
+            #all non fatal errors are handled by _put_data and convert_data
+            #so all that we need to care about are fatal errors
+            try:
+                #convert data type if necessary
+                newdata = self._convert_data(source.out_type, sink.in_type, data)
+                #store it 
+                if newdata != None:
+                    self._put_data(sink, newdata)
+            except Exceptions.SyncronizeError, err:
+                #non fatal, move along
+                logging.warn("Error synchronizing %s", err)                     
+                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
+            except Exceptions.SyncronizeFatalError, err:
+                #Fatal, go home       
+                logging.warn("Error synchronizing %s", err)
+                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
+                source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
+                raise Exceptions.StopSync                  
+            except Exception, err:                        
+                #Fatal, go home       
+                logging.critical("Unknown synchronisation error (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                raise Exceptions.StopSync
+
+        
+    def two_way_sync(self, source, sink, numItems):
+        logging.debug("Synchronizing %s <--> %s " % (source, sink))
 
     def run(self):
         """
@@ -218,11 +306,12 @@ class SyncWorker(threading.Thread):
 
             #synchronize state
             elif self.state is SyncWorker.SYNC_STATE:
-                #try and get the source data iterator
                 try:
                     self.source.module.set_status(DataProvider.STATUS_SYNC)
-                    sourceData = self.source.module.get()
-                #if the source cannot return an iterator then its over    
+                    #Depending on the dp, this call make take a while as it may need
+                    #to get all the data to tell how many items there are...
+                    numItems = self.source.module.get_num_items()
+                #if the source errors then its not worth doing anything to the sink
                 except Exceptions.SyncronizeFatalError:
                     self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                     logging.warn("Could not Get Source Data")                    
@@ -235,88 +324,20 @@ class SyncWorker(threading.Thread):
                     #Cannot continue with no source data
                     raise Exceptions.StopSync           
                 
-                #Sync each piece of data one at a time
-                #FIXME how do I check that its iteratable first????
-                for data in sourceData:
-                    #OK if we have got this far then we have source data to sync the sinks with
-                    #Get each piece of data and put it in each sink
-                    for sink in self.sinks:
-                        self.check_thread_not_cancelled([self.source, sink])
-                        #only sync with those sinks that refresh'd OK
-                        if sink not in sinkDidntRefreshOK:
-                            logging.debug(  "Synchronizing %s -> %s (source data type = %s, sink accepts %s)" % 
-                                            (self.source, 
-                                            sink, 
-                                            self.source.out_type, 
-                                            sink.in_type)
-                                            )
-                            try:
-                                if self.source.out_type != sink.in_type:
-                                    if self.typeConverter.conversion_exists(self.source.out_type, sink.in_type):
-                                        newdata = self.typeConverter.convert(self.source.out_type, sink.in_type, data)
-                                    else:
-                                        raise Exceptions.ConversionDoesntExistError
-                                else:
-                                    newdata = data
-                                #Finally after all the schenigans try an put the data. If there is
-                                #a conflict then this will raise a conflict error. This code would be nicer
-                                #if python had supported the retry keyword.
-                                sink.module.set_status(DataProvider.STATUS_SYNC)
-                                finishedPutting = False
-                                while not finishedPutting:
-                                    try:
-                                        sink.module.put(newdata)
-                                        finishedPutting = True
-                                    except Exceptions.SynchronizeConflictError, err:
-                                        #unpack args
-                                        #(comparison, fromData, toData, datasink) = err
-                                        logging.debug("Sync Conflict: \n%s" % err)
-                                        #Have tried put() one way (and it failed, geting us here). 
-                                        #Only try once the other way (and only if supported)
-                                        #Do not loop forever
-                                        finishedPutting = True
-                                        if self.source.module.is_two_way_enabled():
-                                            #If the comparison was the other way then
-                                            if err.comparison == DataType.COMPARISON_OLDER:
-                                                logging.debug("Sync Conflict: Putting OLD Data")
-                                                #Put the data the other way around
-                                                self.source.module.put(err.toData, newdata)
-                                            elif err.comparison == DataType.COMPARISON_EQUAL or err.comparison == DataType.COMPARISON_UNKNOWN:
-                                                #FIXME. I imagine that implementing this is a bit of work!
-                                                #The data needs to get back to the main gui thread safely
-                                                #so that the user can decide...
-                                                logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
-                                                sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_CONFLICT
-                                        #Nothing we can do 
-                                        else:
-                                            logging.error("Sync Conflict: Cannot resolve conflict, source is not two-way")
-                                            sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_CONFLICT
-   
-                            #Catch exceptions if we abort the sync cause no conversion exists
-                            except Exceptions.ConversionDoesntExistError:
-                                sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
-                            #Catch errors from a failed convert
-                            except Exceptions.ConversionError, err:
-                                #Not fatal, move along
-                                logging.warn("Error converting %s" % err)
-                                sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-                            except Exceptions.SyncronizeError, err:
-                                #non fatal, move along
-                                logging.warn("Error synchronizing %s", err)                     
-                                sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-                            except Exceptions.SyncronizeFatalError, err:
-                                #Fatal, go home       
-                                logging.warn("Error synchronizing %s", err)
-                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
-                                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
-                                raise Exceptions.StopSync                  
-                            except Exception, err:                        
-                                #Fatal, go home       
-                                logging.critical("Unknown synchronisation error (BAD PROGRAMMER)\n%s" % traceback.format_exc())
-                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                                raise Exceptions.StopSync
-                
+                for sink in self.sinks:
+                    self.check_thread_not_cancelled([self.source, sink])
+                    #only sync with those sinks that refresh'd OK
+                    if sink not in sinkDidntRefreshOK:
+                        #now perform a one or two way sync depending on the user prefs
+                        #and the capabilities of the dataprovider
+                        #FIXME: Check the dataproviders are capable and the conduit has two way enabled
+                        if  False: ##self.conduit.is_two_way_sync_enabled(self.source, sink): ## && conduit.two_way_enabled...
+                            #two way
+                            self.two_way_sync(self.source, sink, numItems)
+                        else:
+                            #one way
+                            self.one_way_sync(self.source, sink, numItems)
+ 
                 #Done go to next state
                 if self.state < self.finishState:
                     self.state += 1

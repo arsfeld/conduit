@@ -398,33 +398,31 @@ class DataSource(DataProviderBase):
         twoWay = hasattr(self, "put") and hasattr(self, "get")
         return twoWay
 
-    def get(self):
+    def get(self, index):
         """
-        Returns all appropriate data. 
+        Returns data at specified index. This function must be overridden by the 
+        appropriate dataprovider. 
+
+        It is expected that you may call this function with numbers in the 
+        range 0 -> L{conduit.DataProvider.DataSource.get_num_items}.
         
-        Checks if the dataprovider has been initialized first, if not then
-        calls .initialize(). This function must be overridden by the 
-        appropriate dataprovider but derived classes must still call this 
-        function.
-        
-        @rtype: L{conduit.DataType.DataType}[]
-        @returns: An array of all data needed for synchronization and provided
-        through configuration by this dataprovider.
+        @param index: The index of the data to return
+        @type index: C{int}
+        @rtype: L{conduit.DataType.DataType}
+        @returns: An item of data
         """
-        logging.info("put() not overridden by derived class %s" % self.name)
+        logging.info("get() not overridden by derived class %s" % self.name)
                 
     def get_num_items(self):
         """
         Returns the number of items requiring sychronization. This function 
         must be overridden by the appropriate dataprovider.
-        @todo: Use this to make a progress dialog and does this number 
-        represent the number of times that get shall be called??
         
         @returns: The number of items to synchronize
         @rtype: C{int}
         """
         logging.info("get_num_items() not overridden by derived class %s" % self.name)
-        return NO_ITEMS
+        return 0
 
 class DataSink(DataProviderBase):
     """
