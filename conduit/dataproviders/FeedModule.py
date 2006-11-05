@@ -48,6 +48,9 @@ class RSSSource(DataProvider.DataSource):
         self.downloadPhotos = True
         self.downloadAudio = True
 
+    def initialize(self):
+        return False
+
     def configure(self, window):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "RSSSourceConfigDialog")
         

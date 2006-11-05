@@ -34,8 +34,10 @@ class LifereaSource(DataProvider.DataSource):
         self.icon_name = "liferea"
         self.feedlist = None
         
+    #FIXME: Remove when this dataprovider has been converted to the 
+    #new get_num_items method
     def initialize(self):
-        return False        
+        return False      
         
     def refresh(self):
         self.feedlist = OPML.import_opml(abspath(expanduser(LifereaSource.FEED_FILE)))

@@ -8,13 +8,15 @@ class DataType:
     @ivar type_name: The name of the type
     @type type_name: C{string}
     @ivar URI: A URI which uniquely represents the location of the datatype. 
-    This is particuarly neccessary on types that are used in two-way sync
-    datasources
     @type URI: C{string}
+    @ivar UID: A Unique identifier for this type. This is particuarly 
+    neccessary on types that are used in two-way sync.
+    @type UID: C{string}
     """
     def __init__(self,type_name):
         self.type_name = type_name
         self.URI = None
+        self.UID = None
 
     def compare(self, A, B):
         """
@@ -33,3 +35,14 @@ class DataType:
         """
         return conduit.datatypes.EQUAL
 
+    def set_UID(self, UID):
+        """
+        Sets the UID for the data
+        """
+        self.UID = UID
+
+    def get_UID(self, UID):
+        """
+        Gets the UID for this data
+        """
+        return self.UID

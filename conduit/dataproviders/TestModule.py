@@ -1,8 +1,10 @@
 import gtk
+import random
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import DataType
 
 import time
 
@@ -42,6 +44,34 @@ MODULES = {
 
 }
 
+#Test datatype is a thin wrapper around an integer string in the form
+#"xy" where x is supplied at construction time, and y is a random integer
+#in the range 0-9. 
+class TestDataType(DataType.DataType):
+    def __init__(self, integerData):
+        DataType.DataType.__init__(self,"text")
+        #In this case the UID is the data but that is not the case
+        #for more complex datatypes
+        self.UID = 10*integerData + random.randint(1,4)
+        
+    def __str__(self):
+        return "testData %s" % self.UID
+    
+    #The strings are numerically compared. If A < B then it is older
+    #If A is larger than B then it is newer.
+    def compare(self, A, B):
+        a = int(A.UID)
+        b = int(B.UID)
+        if a < b:
+            return conduit.datatypes.OLDER
+        elif a > b:
+            return conduit.datatypes.NEWER
+        elif a == b:
+            return conduit.datatypes.EQUAL
+        else:
+            return conduit.datatypes.UNKNOWN
+            
+
 class TestBase:
     def __init__(self):
         #Through an error on the nth time through
@@ -80,16 +110,15 @@ class TestBase:
         
     def refresh(self):
         #Print out values of the instance vars
-        import textwrap
-        logging.debug(  textwrap.dedent("""
-                        Instance Variables:
-                        errorAfter\t%s
-                        slow\t\t%s
-                        aString\t\t%s
-                        aInt\t\t%s
-                        aBool\t\t%s
-                        aList\t\t%s
-                        """) % (
+        string = "Instance Variables:\n"
+        string += "errorAfter\t%s\n"
+        string += "slow\t\t%s\n"
+        string += "aString\t\t%s\n"
+        string += "aInt\t\t%s\n"
+        string += "aBool\t\t%s\n"
+        string += "aList\t\t%s"
+        logging.debug(
+                        string % (
                         self.errorAfter,
                         self.slow,
                         self.aString,
@@ -97,8 +126,6 @@ class TestBase:
                         self.aBool,
                         self.aList,
                         ))
-        del textwrap
-
         
     def get_configuration(self):
         return {
@@ -122,11 +149,11 @@ class TestSource(TestBase, DataProvider.DataSource):
     def get(self, index):
         if self.slow:
             time.sleep(2)
-        string = "data #%s" % index
-        logging.debug("TEST SOURCE: get() returned %s" % string)
+        data = TestDataType(index)
+        logging.debug("TEST SOURCE: get() returned %s" % data)
         if index == self.errorAfter:
             raise Exceptions.SyncronizeError
-        return string
+        return data
 		
 class TestSink(TestBase, DataProvider.DataSink):
     def __init__(self):
@@ -142,19 +169,19 @@ class TestSink(TestBase, DataProvider.DataSink):
         self.count += 1
         logging.debug("TEST SINK: put(): %s" % data)
 
-class TestTwoWay(DataProvider.DataSink, DataProvider.DataSource):
+class TestTwoWay(TestSink, TestSource):
     def __init__(self):
         DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages")
 
     def initialize(self):
-        return False
+        return True
 
 class TestSinkFailRefresh(DataProvider.DataSink):
     def __init__(self):
         DataProvider.DataSink.__init__(self, "Test Refresh Sink", "Fails Refresh")
         
     def initialize(self):
-        return False
+        return True
 
     def refresh(self):
         raise Exceptions.RefreshError

@@ -64,6 +64,11 @@ class FlickrSink(DataProvider.DataSink):
         self.showPublic = True
         self.showFriends = True
         self.showFamily = True
+
+    #FIXME: Remove when this dataprovider has been converted to the 
+    #new get_num_items method
+    def initialize(self):
+        return False
         
     def refresh(self):
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)

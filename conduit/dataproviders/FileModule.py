@@ -71,6 +71,11 @@ class FileSource(DataProvider.DataSource):
         #are added to this along with self.files
         self.allURIs = []
 
+    #FIXME: Remove when this dataprovider has been converted to the 
+    #new get_num_items method
+    def initialize(self):
+        return False
+
     def _import_folder_real(self, dirs):
         """
         Recursively adds all files in dirs within the given list.
@@ -182,6 +187,11 @@ class FileSink(DataProvider.DataSink):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
         self.icon_name = "text-x-generic"
         self.folderURI = FileSink.DEFAULT_FOLDER_URI
+
+    #FIXME: Remove when this dataprovider has been converted to the 
+    #new get_num_items method
+    def initialize(self):
+        return False
         
     def configure(self, window):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "FileSinkConfigDialog")

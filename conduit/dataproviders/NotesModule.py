@@ -51,6 +51,9 @@ class TomboyNoteSource(DataProvider.DataSource):
         """
         Loads the tomboy source if the user has used tomboy before
         """
+        #FIXME: Remove when this dataprovider has been converted to the 
+        #new get_num_items method
+        return False
         return os.path.exists(TomboyNoteSource.NOTE_DIR)
 
     def refresh(self):
@@ -100,6 +103,9 @@ class StickyNoteSource(DataProvider.DataSource):
         """
         Loads the stickynotes source if the user has used stickynotes before
         """
+        #FIXME: Remove when this dataprovider has been converted to the 
+        #new get_num_items method
+        return False
         return os.path.exists(StickyNoteSource.NOTE_FILE)        
         
     def refresh(self):

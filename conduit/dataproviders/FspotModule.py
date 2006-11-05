@@ -36,6 +36,9 @@ class FspotSource(DataProvider.DataSource):
         self.photoURIs = []
 
     def initialize(self):
+        #FIXME: Remove when this dataprovider has been converted to the 
+        #new get_num_items method
+        return False
         if not os.path.exists(FspotSource.PHOTO_DB):
             return False
         else:

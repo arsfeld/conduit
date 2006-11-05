@@ -38,6 +38,11 @@ class BackpackBase(DataProvider.DataProviderBase):
         self.apikey = ""
 
         self.ba = None
+
+    #FIXME: Remove when this dataprovider has been converted to the 
+    #new get_num_items method
+    def initialize(self):
+        return False
     
     def refresh(self):
         username = "http://" + self.username + ".backpackit.com/"
