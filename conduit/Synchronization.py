@@ -62,7 +62,7 @@ class SyncManager(object):
             del(self.conduits[conduit])
 
         #Create a new thread over top
-        newThread = SyncWorker(self.typeConverter, conduit, (0,0))
+        newThread = SyncWorker(self.typeConverter, conduit, False)
         self.conduits[conduit] = newThread
         self.conduits[conduit].start()
 
@@ -82,7 +82,7 @@ class SyncManager(object):
             del(self.conduits[conduit])
 
         #Create a new thread over top.
-        newThread = SyncWorker(self.typeConverter, conduit, (0,1))
+        newThread = SyncWorker(self.typeConverter, conduit, True)
         self.conduits[conduit] = newThread
         self.conduits[conduit].start()
             
@@ -95,7 +95,7 @@ class SyncWorker(threading.Thread):
     REFRESH_STATE = 0
     SYNC_STATE = 1
     DONE_STATE = 2
-    def __init__(self, typeConverter, conduit, doStates=(0,2)):
+    def __init__(self, typeConverter, conduit, do_sync):
         """
         @param conduit: The conduit to synchronize
         @type conduit: L{conduit.Conduit.Conduit}
@@ -106,10 +106,11 @@ class SyncWorker(threading.Thread):
         self.typeConverter = typeConverter
         self.source = conduit.datasource
         self.sinks = conduit.datasinks
-        self.state = doStates[0]
-        self.finishState = doStates[1]
+        self.do_sync = do_sync
+
+        #Start at the beginning
+        self.state = SyncWorker.REFRESH_STATE
         self.cancelled = False
-        
         self.setName("Synchronization Thread: %s" % conduit.datasource.get_unique_identifier())
         
     def cancel(self):
@@ -295,10 +296,11 @@ class SyncWorker(threading.Thread):
                             
                 #Need to have at least one successfully refreshed sink            
                 if len(sinkErrors) < len(self.sinks):
-                    #Go to next state state
-                    if self.state < self.finishState:
-                        self.state += 1
+                    #If this thread is a sync thread do a sync
+                    if self.do_sync:
+                        self.state = SyncWorker.SYNC_STATE
                     else:
+                        #This must be a refresh thread so we are done
                         self.state = SyncWorker.DONE_STATE                        
                 else:
                     #go home
@@ -338,11 +340,8 @@ class SyncWorker(threading.Thread):
                             #one way
                             self.one_way_sync(self.source, sink, numItems)
  
-                #Done go to next state
-                if self.state < self.finishState:
-                    self.state += 1
-                else:
-                    self.state = SyncWorker.DONE_STATE
+                #Done go clean up
+                self.state = SyncWorker.DONE_STATE
 
             #Done successfully go home without raising exception
             elif self.state is SyncWorker.DONE_STATE:
@@ -350,16 +349,21 @@ class SyncWorker(threading.Thread):
                 #First update those sinks which had no errors
                 for sink in self.sinks:
                     if sink not in sinkErrors:
-                        #tell the gui if the sync was ok
-                        sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                        #Tell the gui if things went OK.
+                        if self.do_sync:
+                            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                        else:
+                            sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                 #Then those sinks which had some error
                 for sink in sinkErrors:
                     sink.module.set_status(sinkErrors[sink])
                 
                 #It is safe to put this call here because all other source related
                 #Errors raise a StopSync exception and the thread exits
-                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-                
+                if self.do_sync:
+                    self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                else:
+                    self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                 #Exit thread
                 finished = True
                 

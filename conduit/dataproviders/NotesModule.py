@@ -51,9 +51,6 @@ class TomboyNoteSource(DataProvider.DataSource):
         """
         Loads the tomboy source if the user has used tomboy before
         """
-        #FIXME: Remove when this dataprovider has been converted to the 
-        #new get_num_items method
-        return False
         return os.path.exists(TomboyNoteSource.NOTE_DIR)
 
     def refresh(self):
@@ -85,10 +82,11 @@ class TomboyNoteSource(DataProvider.DataSource):
                 logging.warn("Error parsing note file\n%s" % traceback.format_exc())
                 raise Exceptions.RefreshError
                 
-    def get(self):
-        for n in self.notes:
-            yield n    
+    def get(self, index):
+        return self.notes[index]
                 
+    def get_num_items(self):
+        return len(self.notes)
 
 class StickyNoteSource(DataProvider.DataSource):
     NOTE_FILE = os.path.join(os.path.expanduser("~"),".gnome2","stickynotes_applet")
