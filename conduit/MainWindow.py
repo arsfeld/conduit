@@ -24,6 +24,7 @@ import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+import conduit.Network as Network
 
 class MainWindow:
     """
@@ -136,6 +137,11 @@ class MainWindow:
         #initialise the Synchronisation Manager
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
         
+        #Advertise conduit on the network
+        if conduit.settings.get("enable_network") == True:
+            self.networkManager = Network.ConduitNetworkManager()
+            self.networkManager.advertise_dataprovider("baz")
+
         #Use two-way sync on those datasources and conduits which support it?
         #Obviously move this into Settings.py when its more mature
         self.EXPERIMENTAL_TWO_WAY_SYNC = False

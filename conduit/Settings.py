@@ -29,7 +29,7 @@ class Settings(gobject.GObject):
     2) Per conduit settings which describe the way dataproviders are connected
     and the specific per dataprovider sync settings.
     
-    Keys of type str and bool supported at this stage
+    Keys of type str, bool, int, and list of strings supported at this stage
     """
     __gsignals__ = {
         'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
@@ -39,7 +39,8 @@ class Settings(gobject.GObject):
     DEFAULTS = {
         'show_splashscreen' :   True,   #The splashscreen can be quite useful on slow computers
         'use_treeview'      :   False,  #Arrange the dataproviders in a treeview (or a listview)
-        'save_on_exit'      :   False   #Is the sync set saved on exit automatically?
+        'save_on_exit'      :   False,  #Is the sync set saved on exit automatically?
+        'enable_network'    :   True    #Should conduit look for other conduits on the local network
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names

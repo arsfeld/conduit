@@ -9,7 +9,8 @@ Package: conduit
 Architecture: any
 Depends: ${shlibs:Depends}, python-pysqlite2, 
  python, python-gtk2, python-glade2, python-elementtree, python-pysqlite2,
- python-pygoocanvas (>= 0.4.0)
-Recommends: gstreamer-0.10-plugins-ugly, python2.4-gnome-extras, python-cddb
+ python-pygoocanvas (>= 0.4.0), python-avahi (>= 0.6.13), python-dbus (>= 0.71)
+ python-gnome2-extras (>= 2.14.2)
+Recommends: gstreamer-0.10-plugins-ugly
 Description: Conduit- Synchronization for GNOME!
  A application to sync your data anywhere

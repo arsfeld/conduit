@@ -9,14 +9,16 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-#import conduit
-#import logging
+import conduit
+import logging
 
 import avahi
 import dbus
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = "local"
+ALLOWED_PORT_FROM = 3400
+ALLOWED_PORT_TO = 3410
 
 PORT_IDX = 0
 VERSION_IDX = 1
@@ -32,13 +34,36 @@ class ConduitNetworkManager:
         self.reporter = DataProviderReporter()
         self.detectedConduits = {}
 
+        #Keep record of which ports are already used
+        self.usedPorts = {}
+        for i in range(ALLOWED_PORT_FROM, ALLOWED_PORT_TO):
+            self.usedPorts[i] = False
+
     def advertise_dataprovider(self, dataproviderWrapper):
         """
         Announces the availability of the dataproviderWrapper on the network
-        by selecting am allowed port and announcing as such
+        by selecting an allowed port and announcing as such.
         """
-        port = 3405
-        self.reporter.advertise_dataprovider(dataproviderWrapper, port)
+        print "foo"
+        port = None
+        for i in range(ALLOWED_PORT_FROM, ALLOWED_PORT_TO):
+            if self.usedPorts[i] == False:
+                port = i
+                break
+        
+        if port != None:
+            logging.debug("Advertising %s on port %s" % (dataproviderWrapper, port))
+            self.reporter.advertise_dataprovider(dataproviderWrapper, port)
+            self.usedPorts[port] = True
+        else:
+            logging.warn("Could not find free a free port to advertise %s" % dataproviderWrapper)
+
+    def unadvertise_dataprovider(self, dataproviderWrapper):
+        #Look up the port, remove it from the list of used ports
+        port = self.reporter.get_advertised_dataprovider_port(dataproviderWrapper)
+        self.usedPorts[port] = False
+        #Unadvertise
+        self.reporter.unadvertise_dataprovider(dataproviderWrapper)
 
 class RemoteDataProvider:
     """
@@ -54,7 +79,7 @@ class RemoteDataProvider:
 
 class DataProviderReporter:
     """
-    Reports the presence of dataprovider instances on the network using avahi.
+    Advertises the presence of dataprovider instances on the network using avahi.
     Wraps up some of the complexity due to it being hard to add additional
     services to a group once that group has been committed
     """
@@ -97,7 +122,7 @@ class DataProviderReporter:
                     AVAHI_SERVICE_DOMAIN,   #domain
                     '',                     #host
                     port,                   #port
-                    avahi.string_array_to_txt_array(['version='])
+                    avahi.string_array_to_txt_array(["version=%s" % version])
                     )
         except dbus.dbus_bindings.DBusException, err:
             print err            
@@ -137,19 +162,9 @@ class DataProviderReporter:
             #re-advertise all services
             self._advertise_all_services()
 
-import gobject
-
-if __name__ == "__main__":
-    print "Running"
-
-    c = ConduitNetworkManager()
-    c.advertise_dataprovider("foo")
-    c.advertise_dataprovider("bar")
-
-    try:
-        gobject.MainLoop().run()
-    except KeyboardInterrupt, k:
-        pass
+    def get_advertised_dataprovider_port(self, dataproviderWrapper):
+        name = dataproviderWrapper
+        return self.advertisedDataProviders[name][PORT_IDX]
 
 
 ################################################################################

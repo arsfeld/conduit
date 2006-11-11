@@ -7,6 +7,7 @@ License: GPLv2
 
 import traceback
 import threading
+import gobject
 
 import logging
 import conduit
@@ -17,84 +18,92 @@ import conduit.datatypes as DataType
 class SyncManager(object): 
     """
     Given a dictionary of relationships this class synchronizes
-    the relevant sinks and sources
+    the relevant sinks and sources. If there is a conflict then this is
+    handled by the conflictResolver
     """
-    def __init__ (self, typeConverter):
+    def __init__ (self, typeConverter, conflictResolver=None):
         """
         Constructor. 
         
-        Creates a dictionary of conduits and their status
+        Creates a dictionary of syncWorkers indexed by conduit
         """
-        self.conduits = {}
+        self.syncWorkers = {}
         self.typeConverter = typeConverter
+        self.conflictResolver = conflictResolver
         
     def cancel_conduit(self, conduit):
         """
         Cancel a conduit. Does not block
         """
-        self.conduits[conduit].cancel()
+        self.syncWorkers[conduit].cancel()
         
     def cancel_all(self):
         """
         Cancels all threads and also joins() them. Will block
         """
-        for c in self.conduits:
+        for c in self.syncWorkers:
             self.cancel_conduit(c)
-            self.conduits[c].join()            
+            self.syncWorkers[c].join()            
              
     def join_all(self, timeout=None):
         """
         Joins all threads. This function will block the calling thread
         """
-        for c in self.conduits:
-            self.conduits[c].join(timeout)
+        for c in self.syncWorkers:
+            self.syncWorkers[c].join(timeout)
             
     def refresh_conduit(self, conduit):
         """
         Just calls the initialize method on all dp's in a conduit
         """
-        if conduit in self.conduits:
+        if conduit in self.syncWorkers:
             #If the thread is alive then cancel it
-            if self.conduits[conduit].isAlive():
-                self.conduits[conduit].cancel()
-                self.conduits[conduit].join() #Will block
+            if self.syncWorkers[conduit].isAlive():
+                self.syncWorkers[conduit].cancel()
+                self.syncWorkers[conduit].join() #Will block
             #Thanks mr garbage collector    
-            del(self.conduits[conduit])
+            del(self.syncWorkers[conduit])
 
         #Create a new thread over top
         newThread = SyncWorker(self.typeConverter, conduit, False)
-        self.conduits[conduit] = newThread
-        self.conduits[conduit].start()
+        self.syncWorkers[conduit] = newThread
+        self.syncWorkers[conduit].start()
 
     def sync_conduit(self, conduit):
         """
         @todo: Send some signals back to the GUI to disable clicking
         on the conduit
         """
-        if conduit in self.conduits:
-            logging.warn("Conduit already in queue (alive: %s)" % self.conduits[conduit].isAlive())
+        if conduit in self.syncWorkers:
+            logging.warn("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
             #If the thread is alive then cancel it
-            if self.conduits[conduit].isAlive():
+            if self.syncWorkers[conduit].isAlive():
                 logging.warn("Cancelling thread")
-                self.conduits[conduit].cancel()
-                self.conduits[conduit].join() #Will block
+                self.syncWorkers[conduit].cancel()
+                self.syncWorkers[conduit].join() #Will block
             #Thanks mr garbage collector    
-            del(self.conduits[conduit])
+            del(self.syncWorkers[conduit])
 
         #Create a new thread over top.
         newThread = SyncWorker(self.typeConverter, conduit, True)
-        self.conduits[conduit] = newThread
-        self.conduits[conduit].start()
+        self.syncWorkers[conduit] = newThread
+        self.syncWorkers[conduit].start()
             
 
-class SyncWorker(threading.Thread):
+class SyncWorker(threading.Thread, gobject.GObject):
     """
     Class designed to be operated within a thread used to perform the
-    synchronization operation
+    synchronization operation. Inherits from GObject because it uses 
+    signals to communcate with the main GUI.
     """
     REFRESH_STATE = 0
     SYNC_STATE = 1
     DONE_STATE = 2
+
+    __gsignals__ =  { 
+                    "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    }
+
     def __init__(self, typeConverter, conduit, do_sync):
         """
         @param conduit: The conduit to synchronize
@@ -103,6 +112,7 @@ class SyncWorker(threading.Thread):
         @type typeConverter: L{conduit.TypeConverter.TypeConverter}
         """
         threading.Thread.__init__(self)
+        gobject.GObject.__init__(self)
         self.typeConverter = typeConverter
         self.source = conduit.datasource
         self.sinks = conduit.datasinks
