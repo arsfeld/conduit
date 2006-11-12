@@ -129,33 +129,49 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #Only display enabled modules
         module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
         
-        #Build a list of cats
-        i = 0
+        #Add them to the module
         for mod in module_wrapper_list:
-            if mod.category not in self.cats:
-                self.cats.append(mod.category)
-                #put into the path mappings
-                self.pathMappings[mod.category] = (i,)
-                i += 1
-
-        #Put dp's of the same cat into different lists
-        for cat in self.cats:
-            #put each module in its own list
-            listy = []
-            for m in [x for x in module_wrapper_list if x.category == cat]:
-                listy.append(m)
-                #Store its path
-                self.pathMappings[m] = (self.cats.index(cat),listy.index(m)) 
-            self.dataproviders.append(listy)
-           
-        #for i in self.pathMappings:
-        #    if isinstance(i,str):
-        #        name = i
-        #    else:
-        #        name = i.name
-        #    tup = self.pathMappings[i]
-        #    logging.debug("Tree Model: %s : %s (%s)" % (name, tup, self.on_get_iter(tup,False)))
+            self.add_dataprovider(mod, False)
                 
+    def add_dataprovider(self, dpw, signal=True):
+        """
+        Adds a dataprovider to the model. Creating a category for it if
+        it does not exist
+
+        @param dpw: The dataproviderwrapper to add
+        @param signal: Whether the associated treeview should be signaled to
+        update the GUI. Set to False for the first time the model is 
+        built (in the constructor)
+        @type signal: C{bool}
+        """
+        #Do we need to create a category first?
+        if dpw.category in self.cats:
+            i = self.cats.index(dpw.category)
+        else:
+            self.cats.append(dpw.category)
+            i = self.cats.index(dpw.category)
+            self.pathMappings[dpw.category] = (i,)
+
+        #Now add the dataprovider to the categories children
+        try:
+            self.dataproviders[i].append(dpw)
+        except IndexError:
+            #Doesnt have any kids... yet!
+            self.dataproviders.insert(i, [dpw])
+
+        #Store the index            
+        j = self.dataproviders[i].index(dpw)
+        self.pathMappings[dpw] = (i,j)
+        
+        #Signal the treeview to redraw
+        if signal:
+            path=self.on_get_path(dpw)
+            self.row_inserted(path, self.get_iter(path))
+
+    def remove_dataprovider(self, dpw, signal=True):
+        pass
+        #self.row_deleted(path)
+        #del (self.childrencache[parent])
 
     def is_category_heading(self, rowref):
         return isinstance(rowref, str)
@@ -209,7 +225,9 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         on_get_path(
         """
         #print "on_get_path: rowref = ", rowref
-        return self.pathMappings[rowref]
+        path = self.pathMappings[rowref]
+        #print "PATH = ", path
+        return path
 
     def on_get_value(self, rowref, column):
         """
