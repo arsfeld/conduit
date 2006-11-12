@@ -114,15 +114,12 @@ class MainWindow:
         self.converter_modules = self.modules.get_modules_by_type ("converter")
                         
         # Populate the tree models
-        datasink_tm = Tree.DataProviderTreeModel(self.datasink_modules)
-        datasource_tm = Tree.DataProviderTreeModel(self.datasource_modules) 
-               
-        datasink_tv = Tree.DataProviderTreeView(datasink_tm)
-        datasource_tv = Tree.DataProviderTreeView(datasource_tm)
+        self.datasink_tm = Tree.DataProviderTreeModel(self.datasink_modules)
+        self.datasource_tm = Tree.DataProviderTreeModel(self.datasource_modules) 
         sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
         source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
-        sink_scrolled_window.add(datasink_tv)
-        source_scrolled_window.add(datasource_tv)
+        sink_scrolled_window.add(Tree.DataProviderTreeView(self.datasink_tm))
+        source_scrolled_window.add(Tree.DataProviderTreeView(self.datasource_tm))
         sink_scrolled_window.show_all()
         source_scrolled_window.show_all()
 
@@ -136,13 +133,20 @@ class MainWindow:
         #Advertise conduit on the network
         if conduit.settings.get("enable_network") == True:
             self.networkManager = Network.ConduitNetworkManager()
-            self.networkManager.advertise_dataprovider("baz")
 
         #Use two-way sync on those datasources and conduits which support it?
         #Obviously move this into Settings.py when its more mature
         self.EXPERIMENTAL_TWO_WAY_SYNC = False
         
-    # callbacks.
+    def on_dataprovider_added(self, dataprovider):
+        """
+        Called by those classes which only provide dataproviders
+        under some conditions that change while the application is running,
+        for example an Ipod is plugged in or another conduit instance is
+        detected on the network
+        """
+        pass
+
     def on_synchronize_all_clicked(self, widget):
         """
         Synchronize all valid conduits on the canvas
@@ -272,6 +276,9 @@ class MainWindow:
         """
         Display about dialog
         """
+        #FIXME        
+        self.networkManager.advertise_dataprovider("foo")
+
         aboutTree = gtk.glade.XML(conduit.GLADE_FILE, "AboutDialog")
         dlg = aboutTree.get_widget("AboutDialog")
         dlg.set_name(conduit.APPNAME)
