@@ -790,7 +790,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_iter_next(
         """
-        path = self.pathMappings[rowref]
+        path = self.on_get_path(rowref)
         try:
             #print "on_iter_next: current rowref = %s, path = %s" % (rowref, path)        
             #Check if its a toplevel row
@@ -810,7 +810,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         if rowref is None:
             return self.cats[0]
         else:
-            path = self.pathMappings[rowref]
+            path = self.on_get_path(rowref)
             #print "on_iter_children: children = ", self.dataproviders[path[0]][0]
             return self.dataproviders[path[0]][0]
 
@@ -827,7 +827,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         #print "on_iter_n_children: parent = ", rowref
         if rowref:
-            path = self.pathMappings[rowref]
+            path = self.on_get_path(rowref)
             return len(self.dataproviders[path[0]])
         return len(self.cats)
 
@@ -839,7 +839,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         if rowref is None:
             return self.cats[n]
         else:
-            path = self.pathMappings[rowref]
+            path = self.on_get_path(rowref)
             try:
                 return self.dataproviders[path[0]][n]
             except IndexError:
@@ -855,7 +855,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             #print "on_iter_parent: parent = None"
             return None
         else:
-            path = self.pathMappings[rowref.category]
+            path = self.on_get_path(rowref.category)
             #print "on_iter_parent: parent = ", self.cats[path[0]]
             return self.cats[path[0]]
             

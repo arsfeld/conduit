@@ -22,9 +22,9 @@ import conduit.Canvas as Canvas
 import conduit.Module as Module
 import conduit.Synchronization as Synchronization
 import conduit.TypeConverter as TypeConverter
-import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Network as Network
+import conduit.Tree as Tree
 
 class MainWindow:
     """
@@ -113,16 +113,12 @@ class MainWindow:
         self.datasource_modules = self.modules.get_modules_by_type ("source")
         self.converter_modules = self.modules.get_modules_by_type ("converter")
                         
-        # Populate the tree and list models
-        if conduit.settings.get("use_treeview") == True:
-            datasink_tm = DataProvider.DataProviderTreeModel(self.datasink_modules)
-            datasource_tm = DataProvider.DataProviderTreeModel(self.datasource_modules) 
-        else:
-            datasink_tm = DataProvider.DataProviderListModel(self.datasink_modules)
-            datasource_tm = DataProvider.DataProviderListModel(self.datasource_modules) 
-        
-        datasink_tv = DataProvider.DataProviderTreeView(datasink_tm)
-        datasource_tv = DataProvider.DataProviderTreeView(datasource_tm)
+        # Populate the tree models
+        datasink_tm = Tree.DataProviderTreeModel(self.datasink_modules)
+        datasource_tm = Tree.DataProviderTreeModel(self.datasource_modules) 
+               
+        datasink_tv = Tree.DataProviderTreeView(datasink_tm)
+        datasource_tv = Tree.DataProviderTreeView(datasource_tm)
         sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
         source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
         sink_scrolled_window.add(datasink_tv)
@@ -258,8 +254,6 @@ class MainWindow:
         #fill out the configuration tab
         save_settings_check = tree.get_widget("save_settings_check")
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
-        use_treeview_check = tree.get_widget("use_treeview_check")
-        use_treeview_check.set_active(conduit.settings.get("use_treeview"))                            
         use_two_way_sync_check = tree.get_widget("use_two_way_sync_check")
         use_two_way_sync_check.set_active(self.EXPERIMENTAL_TWO_WAY_SYNC)                            
                                         
@@ -269,7 +263,6 @@ class MainWindow:
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
-            conduit.settings.set("use_treeview", use_treeview_check.get_active())
             self.EXPERIMENTAL_TWO_WAY_SYNC = use_two_way_sync_check.get_active()
             self.canvas.enable_disable_two_way_sync(self.EXPERIMENTAL_TWO_WAY_SYNC)
         dialog.destroy()                
