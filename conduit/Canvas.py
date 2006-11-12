@@ -15,6 +15,7 @@ from gettext import gettext as _
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.Tree as Tree
 import conduit.Conduit as Conduit
 
 class Canvas(goocanvas.CanvasView):
@@ -44,7 +45,7 @@ class Canvas(goocanvas.CanvasView):
 
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                        DataProvider.DataProviderTreeView.DND_TARGETS,
+                        Tree.DataProviderTreeView.DND_TARGETS,
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         

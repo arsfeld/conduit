@@ -66,7 +66,8 @@ logging.basicConfig(level=level,
 from TypeConverter import TypeConverter
 from MainWindow import MainWindow
 from Canvas import Canvas
-from DataProvider import DataProviderBase, DataSource, DataSink, DataProviderTreeView, DataProviderTreeModel
+from DataProvider import DataProviderBase, DataSource, DataSink
+from Tree import DataProviderTreeView, DataProviderTreeModel
 from Module import ModuleLoader, ModuleWrapper
 from Conduit import Conduit
 from Exceptions import ConversionError, RefreshError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync,  ConversionDoesntExistError
