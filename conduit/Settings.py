@@ -15,7 +15,7 @@ import traceback
 import xml.dom.ext
 from xml.dom import minidom
 from xml.dom.minidom import Document
-import gnomekeyring
+#import gnomekeyring
 
 import conduit
 import logging
@@ -78,7 +78,7 @@ class Settings(gobject.GObject):
 
         # Init the keyring
         self.classUsernamesAndPasswords = {}
-        self._init_keyring()
+        #self._init_keyring()
 
     @staticmethod
     def _string_to_bool(stringy):

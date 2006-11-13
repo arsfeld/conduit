@@ -12,6 +12,7 @@ License: GPLv2
 """
 
 import conduit
+import conduit.Module as Module
 import logging
 
 import avahi
@@ -34,6 +35,12 @@ def decode_avahi_text_array_to_dict(array):
             d[bits[0]] = bits[1]
     return d
 
+def encode_dict_to_avahi_text_array(d):
+    array = []
+    for key in d:
+        array.append("%s=%s" % (key, d[key]))
+    return array
+    
 class ConduitNetworkManager:
     """
     Controlls all network related communication aspects. This involves
@@ -86,17 +93,14 @@ class ConduitNetworkManager:
     def dataprovider_removed(self):
         logging.debug("Remote Dataprovider removed")
 
-class RemoteDataProvider:
+class RemoteModuleWrapper(Module.ModuleWrapper):
     """
-    A DataProviderWrapper but running on another machine
+    A DataProviderWrapper but running on another machine. Intercepts 
+    calls to .module.foo() functions and calls these over RPC to the 
+    remote module instead.
     """
-    def __init__(self, className, hostName, hostAddress, hostPort):
-        """
-        """
-        self.className = className
-        self.hostName = hostName
-        self.hostAddress = hostAddress
-        self.hostPort = hostPort
+    def __init__(self, classname, host, address, port):
+        pass
 
 class AvahiAdvertiser:
     """

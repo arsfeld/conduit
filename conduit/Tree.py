@@ -30,81 +30,10 @@ CATEGORY_ICONS = {
     DataProvider.CATEGORY_GOOGLE : "applications-internet"
     } 
 
-ICON_IDX = 0
-NAME_IDX = 1
-DESCRIPTION_IDX = 2
-CLASSNAME_IDX = 3
-IS_HEADING_IDX = 4
-class Thingee:
-    """
-    Light wrapper class to store information about dataproviders stored in the
-    DataProvider tree model.
-    """
-    def __init__(self, name, icon, description, classname=None, category=None, flags={}):
-        self.name = name
-        self.icon = icon
-        self.description = description
-        self.classname = classname
-        self.category = category
-        self.flags = flags
-
-    @staticmethod
-    def new_from_dataprovider(dataproviderWrapper):
-        return Thingee(
-            dataproviderWrapper.name,
-            dataproviderWrapper.module.get_icon(),
-            dataproviderWrapper.description,
-            dataproviderWrapper.classname,
-            dataproviderWrapper.category
-            )
-
-    @staticmethod
-    def new_from_category(categoryName):
-        return Thingee(
-            categoryName,
-            None,
-            None,
-            None,
-            None
-            )
-
-    #This class is accessed like a list by the treeview
-    def __getitem__(self, i):
-        if i == ICON_IDX:
-            pass
-        elif i == NAME_IDX:
-            pass
-        elif i == DESCRIPTION_IDX:
-            pass
-        elif i == CLASSNAME_IDX:
-            pass
-        elif i == IS_HEADING_IDX:
-            pass
-        else:
-            pass
-
-    def __str__(self):
-        return "Classname=%s" % self.classname
-        
-    def is_category(self):
-        return self.classname == None
-
-    def in_category(self, categoryName):
-        return self.category == categoryName
-
-    def get_flag(self, key):
-        if not self.flags.has_key(key):
-            return None
-        else:
-            return self.flags[key]
-
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
     A treemodel for managing dynamically loaded modules. Manages an internal 
     list of L{conduit.ModuleManager.ModuleWrapper}
-    
-    @todo: Make this display a tree
-    @reference things by classname and not by name
     
     @ivar modules: The array of modules under this treeviews control.
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
@@ -253,7 +182,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
                     self.categoryIconCache[rowref] = icon                      
                 return icon
             else:
-                return rowref.module.get_icon()
+                return rowref.icon
         elif column is 1:
             if self.is_category_heading(rowref):
                 #For i8n we store some common translated category names

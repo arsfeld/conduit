@@ -281,6 +281,8 @@ class ModuleWrapper:
     @type enabled: C{bool}    
     @ivar uid: A Unique identifier for the module
     @type uid: C{string}
+    @ivar icon: A Unique identifier for the module
+    @type icon: C{pixbuf}
     """
     
     NUM_UID_DIGITS = 5
@@ -336,6 +338,11 @@ class ModuleWrapper:
         #Generate a unique identifier for this instance
         for i in range(1,ModuleWrapper.NUM_UID_DIGITS):
             self._uid += str(random.randint(0,10))
+
+        #Get the icon from the contained module
+        self.icon = None
+        if self.module != None:
+            self.icon = module.get_icon()
         
     def get_unique_identifier(self):
         """

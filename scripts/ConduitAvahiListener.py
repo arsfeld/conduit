@@ -4,7 +4,7 @@ import dbus.glib
 import avahi
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
-AVAHI_SERVICE_DOMAIN = "local"
+AVAHI_SERVICE_DOMAIN = ""
 
 class AvahiMonitor:
     def __init__(self):
