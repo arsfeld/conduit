@@ -22,7 +22,7 @@ import avahi
 import dbus
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
-AVAHI_SERVICE_DOMAIN = "local"
+AVAHI_SERVICE_DOMAIN = ""
 ALLOWED_PORT_FROM = 3400
 ALLOWED_PORT_TO = 3410
 
@@ -38,9 +38,10 @@ class ConduitNetworkManager:
     """
     def __init__(self):
         self.dataproviderAdvertiser = AvahiAdvertiser()
-        #self.dataproviderMonitor = AvahiMonitor()
+        self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
         self.detectedConduits = {}
 
+        #Keep record of advertised dataproviders
         #Keep record of which ports are already used
         self.usedPorts = {}
         for i in range(ALLOWED_PORT_FROM, ALLOWED_PORT_TO):
@@ -59,8 +60,11 @@ class ConduitNetworkManager:
         
         if port != None:
             logging.debug("Advertising %s on port %s" % (dataproviderWrapper, port))
-            self.dataproviderAdvertiser.advertise_dataprovider(dataproviderWrapper, port)
-            self.usedPorts[port] = True
+            ok = self.dataproviderAdvertiser.advertise_dataprovider(dataproviderWrapper, port)
+            if ok:
+                self.usedPorts[port] = True
+            else:
+                logging.warn("Could not advertise dataprovider")
         else:
             logging.warn("Could not find free a free port to advertise %s" % dataproviderWrapper)
 
@@ -70,6 +74,12 @@ class ConduitNetworkManager:
         self.usedPorts[port] = False
         #Unadvertise
         self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
+
+    def dataprovider_detected(self):
+        logging.debug("Dataprovider detected")
+
+    def dataprovider_removed(self):
+        logging.debug("Dataprovider removed")
 
 class RemoteDataProvider:
     """
@@ -87,9 +97,24 @@ class AvahiAdvertiser:
     """
     Advertises the presence of dataprovider instances on the network using avahi.
     Wraps up some of the complexity due to it being hard to add additional
-    services to a group once that group has been committed
+    services to a group once that group has been committed.
 
     Code adapted from glchess
+
+    Each advertised dataprovider is given its own service. This done for 
+    several reasons.
+    1) Each dataprovider that is advertised is given its own port. Because
+    subservices cannot specify a port (or a txt variable into which a port may
+    be encoded) i encode the hostname in the advertised service to form some
+    sort of namespacing.
+    e.g.    hostname:advertisedDataProvider1
+            hostname:advertisedDataProvider2
+            hostname2:advertisedDataProvider1
+    2) I could have encoded all of the advertised services in the
+    txtdata field of the sercice. However it is easier to have one callback 
+    for ItemNew than it is to have seperate callbacks for New Item, and when the
+    textdata changes. Furthurmore I want each dataprovider to be on its own
+    port so being limited to one service and port is a disadvantage here    
     """
     def __init__(self):
         """
@@ -107,7 +132,7 @@ class AvahiAdvertiser:
                             ), 
                         avahi.DBUS_INTERFACE_SERVER
                         )
-
+        self.hostname = server.GetHostName()
         # Register this service
         path = server.EntryGroupNew()
         self.group = dbus.Interface(
@@ -125,7 +150,7 @@ class AvahiAdvertiser:
                     avahi.IF_UNSPEC,        #interface
                     avahi.PROTO_UNSPEC,     #protocol
                     0,                      #flags
-                    name,                   #name
+                    "%s:%s" % (self.hostname,name),     #name
                     AVAHI_SERVICE_NAME,     #service type
                     AVAHI_SERVICE_DOMAIN,   #domain
                     '',                     #host
@@ -154,6 +179,10 @@ class AvahiAdvertiser:
         self.group.Commit()
         
     def advertise_dataprovider(self, dataproviderWrapper, port):
+        """
+        Advertises the dataprovider on the local network. Returns true if the
+        dataprovider is successfully advertised.
+        """
         name = dataproviderWrapper
         version = conduit.APPVERSION
         if name not in self.advertisedDataProviders:
@@ -161,7 +190,9 @@ class AvahiAdvertiser:
             self.advertisedDataProviders[name] = (port, version)
             #re-advertise all services
             self._advertise_all_services()
-            
+            return True
+        return False            
+
     def unadvertise_dataprovider(self, dataproviderWrapper):
         name = dataproviderWrapper
         if name in self.advertisedDataProviders:
@@ -180,11 +211,15 @@ class AvahiMonitor:
 
     Code adapted from elisa
     """
-    def __init__(self):
+    def __init__(self, dataprovider_detected_cb, dataprovider_removed_cb):
         """
         Connects to the system bus and configures avahi to listen for
         Conduit services
         """
+        #Callbacks fired when a conduit dataprovider is detected
+        self.detected_cb = dataprovider_detected_cb
+        self.removed_cb = dataprovider_removed_cb
+
         bus = dbus.SystemBus()
         self.server = dbus.Interface(
                             bus.get_object(
@@ -209,7 +244,6 @@ class AvahiMonitor:
         """
         DBus callback when a new service is detected
         """
-        print "NEW SERVICE"
         service = self.server.ResolveService(
                                         interface, 
                                         protocol,
@@ -228,12 +262,14 @@ class AvahiMonitor:
         """
         extra_info = avahi.txt_array_to_string_array(txt)
         print "RESOLVED SERVICE %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info)
+        self.detected_cb()
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
         Dbus callback when a service is removed
         """
         print "REMOVED SERVICE"
+        self.removed_cb()
 
     def _resolve_error(self, error):
         """
@@ -241,18 +277,6 @@ class AvahiMonitor:
         """
         print 'Avahi/D-Bus error: ' + repr(error)
 
-if __name__ == "__main__":
-    import gobject
-
-    print "Listening for Conduit (%s) Services" % AVAHI_SERVICE_NAME
-
-    a = AvahiMonitor()
-
-    try:
-        gobject.MainLoop().run()
-    except KeyboardInterrupt, k:
-        pass         
-        
 
 ################################################################################
 # From http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/457669
