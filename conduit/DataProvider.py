@@ -67,20 +67,6 @@ CATEGORY_LOCAL = "Local"
 CATEGORY_WEB = "Web"
 CATEGORY_GOOGLE = "Google"
 
-#Store the translated catgory names
-CATEGORY_NAMES = {
-    CATEGORY_LOCAL : _("On This Computer"),
-    CATEGORY_WEB : _("On The Web"),
-    CATEGORY_GOOGLE : _("Google")
-    }
-
-#Icon names for each category
-CATEGORY_ICONS = {
-    CATEGORY_LOCAL : "computer",
-    CATEGORY_WEB : "applications-internet",
-    CATEGORY_GOOGLE : "applications-internet"
-    } 
-
 class DataProviderBase(gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink

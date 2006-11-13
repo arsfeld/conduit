@@ -28,6 +28,10 @@ PORT_IDX = 0
 VERSION_IDX = 1
 
 def decode_avahi_text_array_to_dict(array):
+    """
+    Avahi text arrays are encoded as key=value
+    This function converts the array to a dict
+    """
     d = {}
     for i in array:
         bits = i.split("=")
@@ -36,6 +40,10 @@ def decode_avahi_text_array_to_dict(array):
     return d
 
 def encode_dict_to_avahi_text_array(d):
+    """
+    Encodes a python dict to the 'key=value' format expected
+    by avahi
+    """
     array = []
     for key in d:
         array.append("%s=%s" % (key, d[key]))
@@ -81,6 +89,10 @@ class ConduitNetworkManager:
             logging.warn("Could not find free a free port to advertise %s" % dataproviderWrapper)
 
     def unadvertise_dataprovider(self, dataproviderWrapper):
+        """
+        Removes the advertised dataprovider and makes its port
+        available to be assigned to another dataprovider later
+        """
         #Look up the port, remove it from the list of used ports
         port = self.dataproviderAdvertiser.get_advertised_dataprovider_port(dataproviderWrapper)
         self.usedPorts[port] = False
@@ -88,9 +100,17 @@ class ConduitNetworkManager:
         self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
 
     def dataprovider_detected(self):
+        """
+        Callback which is triggered when a dataprovider is advertised on 
+        a remote conduit instance
+        """
         logging.debug("Remote Dataprovider detected")
 
     def dataprovider_removed(self):
+        """
+        Callback which is triggered when a dataprovider is unadvertised 
+        from a remote conduit instance
+        """
         logging.debug("Remote Dataprovider removed")
 
 class RemoteModuleWrapper(Module.ModuleWrapper):
@@ -191,6 +211,9 @@ class AvahiAdvertiser:
         """
         Advertises the dataprovider on the local network. Returns true if the
         dataprovider is successfully advertised.
+
+        @returns: True if the dataprovder is successfully advertised
+        @rtype:C{bool}
         """
         name = dataproviderWrapper
         version = conduit.APPVERSION
@@ -203,6 +226,9 @@ class AvahiAdvertiser:
         return False            
 
     def unadvertise_dataprovider(self, dataproviderWrapper):
+        """
+        Unadvertises the dataprovider on the local network.
+        """
         name = dataproviderWrapper
         if name in self.advertisedDataProviders:
             #Remove the old service to the list to be advertised
@@ -211,6 +237,11 @@ class AvahiAdvertiser:
             self._advertise_all_services()
 
     def get_advertised_dataprovider_port(self, dataproviderWrapper):
+        """
+        Returns the port on which the dataprovider is advertised
+        @returns: Port number
+        @rtype: C{int}
+        """
         name = dataproviderWrapper
         return self.advertisedDataProviders[name][PORT_IDX]
 

@@ -281,7 +281,7 @@ class ModuleWrapper:
     @type enabled: C{bool}    
     @ivar uid: A Unique identifier for the module
     @type uid: C{string}
-    @ivar icon: A Unique identifier for the module
+    @ivar icon: An icon representing this wrapper or the module it holds
     @type icon: C{pixbuf}
     """
     
@@ -339,11 +339,8 @@ class ModuleWrapper:
         for i in range(1,ModuleWrapper.NUM_UID_DIGITS):
             self._uid += str(random.randint(0,10))
 
-        #Get the icon from the contained module
         self.icon = None
-        if self.module != None:
-            self.icon = module.get_icon()
-        
+       
     def get_unique_identifier(self):
         """
         Returs a unique identifier for the module.
@@ -352,6 +349,20 @@ class ModuleWrapper:
         @rtype: C{string}
         """
         return "%s-%s" % (self.classname, self._uid)
+
+    def get_icon(self):
+        """
+        Returns the icon for the module contained in this wrapper.
+        In the case of a sink or source this is easy as the module
+        contains the icon.
+
+        Wrappers derived from this class (such as the CategoryWrapper)
+        should override this function
+        """
+        if self.module_type == "source" or self.module_type == "sink":
+            if self.icon == None:
+                self.icon = self.module.get_icon()
+            return self.icon
         
     def __str__(self):
         return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_unique_identifier())

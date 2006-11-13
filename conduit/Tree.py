@@ -15,6 +15,7 @@ from gettext import gettext as _
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.Module as Module
 
 #Store the translated catgory names
 CATEGORY_NAMES = {
@@ -30,6 +31,56 @@ CATEGORY_ICONS = {
     DataProvider.CATEGORY_GOOGLE : "applications-internet"
     } 
 
+class CategoryWrapper(Module.ModuleWrapper):
+    """
+    Represents a category stored in the treemodel. Not generally intended 
+    to be used outside of C{conduit.Tree.DataProviderTreeModel}
+    """
+    def __init__(self, category_name, icon_name=None):
+        self.icon = None
+        #See if the name is translated
+        try:
+            name = CATEGORY_NAMES[category_name]
+        except KeyError:
+            name = category_name
+
+        #Call base constructor
+        Module.ModuleWrapper.__init__(
+                            self,
+                            name,           #name: shows in name column
+                            None,           #description: shows in description column
+                            "category",     #module_type: used to cancel drag and drop
+                            category_name,  #category: untranslated version on Name 
+                            None,           #in_type: N/A
+                            None,           #out_type: N/A
+                            None,           #classname: N/A
+                            None,           #filename: N/A
+                            None,           #object instance: N/A
+                            True)           #enabled: True but N/A
+
+        #For common categories the icon names are pre-specified
+        try:
+            self.icon_name = CATEGORY_ICONS[category_name]
+        except KeyError:
+            #If the user didnt specify a custom icon default to the missing-icon
+            if icon_name == None:
+                self.icon_name = "image-missing"
+            else:
+                self.icon_name = icon_name
+
+    def get_icon(self):
+        """
+        @returns: The icon for the category or the default image-missing icon
+        @rtype: pixbuf
+        """
+        if self.icon == None:
+            try:
+                self.icon = gtk.icon_theme_get_default().load_icon(self.icon_name, 16, 0)
+            except gobject.GError:
+                #error loading fallback icon
+                logging.warn("Could not find category icon: %s" % self.icon_name)
+        return self.icon
+        
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
     A treemodel for managing dynamically loaded modules. Manages an internal 
@@ -48,12 +99,12 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         Ignores modules which are not enabled
         """
         gtk.GenericTreeModel.__init__(self)
+        #A dictionary mapping wrappers to paths
         self.pathMappings = {}
+        #2D array of wrappers at their path indexes
         self.dataproviders = []
+        #Array of wrappers at their path indexes
         self.cats = []
-        
-        #store a cache of loaded category icons for speed
-        self.categoryIconCache = {}
         
         #Only display enabled modules
         module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
@@ -61,6 +112,21 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #Add them to the module
         for mod in module_wrapper_list:
             self.add_dataprovider(mod, False)
+
+    def _is_category_heading(self, rowref):
+        return rowref.module_type == "category"
+
+    def _get_category_index_by_name(self, category_name):
+        i = 0
+        for j in self.cats:
+            if j.category == category_name:
+                return i
+            i += 1
+        return None
+
+    def _get_category_by_name(self, category_name):
+        idx = self._get_category_index_by_name(category_name)
+        return self.cats[idx]
                 
     def add_dataprovider(self, dpw, signal=True):
         """
@@ -74,12 +140,12 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         @type signal: C{bool}
         """
         #Do we need to create a category first?
-        if dpw.category in self.cats:
-            i = self.cats.index(dpw.category)
-        else:
-            self.cats.append(dpw.category)
-            i = self.cats.index(dpw.category)
-            self.pathMappings[dpw.category] = (i,)
+        i = self._get_category_index_by_name(dpw.category)
+        if i == None:
+            new_cat = CategoryWrapper(dpw.category)
+            self.cats.append(new_cat)
+            i = self.cats.index(new_cat)
+            self.pathMappings[new_cat] = (i,)
 
         #Now add the dataprovider to the categories children
         try:
@@ -98,13 +164,15 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             self.row_inserted(path, self.get_iter(path))
 
     def remove_dataprovider(self, dpw, signal=True):
+        """
+        Removes the dataprovider from the treemodel. Also removes the
+        category that it was in if there is no remaining dataproviders in
+        that category
+        """
         pass
         #self.row_deleted(path)
         #del (self.childrencache[parent])
 
-    def is_category_heading(self, rowref):
-        return isinstance(rowref, str)
-        
     def get_column_names(self):
         """
         get_column_names(
@@ -164,50 +232,21 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         if column is 0:
-            if self.is_category_heading(rowref):
-                try:
-                    #look to see if we have cached the icon
-                    icon = self.categoryIconCache[rowref]
-                except KeyError:
-                    #not in cache, so load
-                    try:
-                        icon = gtk.icon_theme_get_default().load_icon(CATEGORY_ICONS[rowref], 16, 0)
-                    except KeyError:
-                        #dataprovider specified its own category so it gets a default icon
-                        icon = gtk.icon_theme_get_default().load_icon("image-missing", 16, 0)
-                    except gobject.GError:
-                        #error loading fallback icon
-                        icon = None
-                    #store in cache for next time                        
-                    self.categoryIconCache[rowref] = icon                      
-                return icon
-            else:
-                return rowref.icon
+            return rowref.get_icon()
         elif column is 1:
-            if self.is_category_heading(rowref):
-                #For i8n we store some common translated category names
-                try:
-                    name = CATEGORY_NAMES[rowref]
-                except KeyError:
-                    name = rowref
-                return name
-            else:        
-                return rowref.name
+            return rowref.name
         elif column is 2:
-            if self.is_category_heading(rowref):
-                return None
-            else:        
-                return rowref.description
+            return rowref.description
         #Used internally from the TreeView to get the classname
         elif column is 3:
-            if self.is_category_heading(rowref):
+            if self._is_category_heading(rowref):
                 return "ImACategoryNotADataprovider"
             else:
                 return rowref.classname
         #Used internally from the TreeView to see if this is a category heading
         #and subsequently cancel the drag and drop
         elif column is 4:        
-            return self.is_category_heading(rowref)
+            return self._is_category_heading(rowref)
 
     def on_iter_next(self, rowref):
         """
@@ -241,8 +280,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_iter_has_child(
         """
-        #print "on_iter_has_child: rowref = %s, has child = %s" % (rowref,self.is_category_heading(rowref))
-        return self.is_category_heading(rowref)
+        #print "on_iter_has_child: rowref = %s, has child = %s" % (rowref,self._is_category_heading(rowref))
+        return self._is_category_heading(rowref)
 
     def on_iter_n_children(self, rowref):
         """
@@ -274,11 +313,12 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         on_iter_parent(
         """
         #print "on_iter_parent: child = ", rowref
-        if self.is_category_heading(rowref):
+        if self._is_category_heading(rowref):
             #print "on_iter_parent: parent = None"
             return None
         else:
-            path = self.on_get_path(rowref.category)
+            cat = self._get_category_by_name(rowref.category)
+            path = self.on_get_path(cat)
             #print "on_iter_parent: parent = ", self.cats[path[0]]
             return self.cats[path[0]]
             
