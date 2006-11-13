@@ -11,15 +11,12 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-#Hack when run from command line
-try:
-    import conduit
-    import logging
-except:
-    pass
+import conduit
+import logging
 
 import avahi
 import dbus
+import dbus.glib
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
@@ -28,6 +25,14 @@ ALLOWED_PORT_TO = 3410
 
 PORT_IDX = 0
 VERSION_IDX = 1
+
+def decode_avahi_text_array_to_dict(array):
+    d = {}
+    for i in array:
+        bits = i.split("=")
+        if len(bits) == 2:
+            d[bits[0]] = bits[1]
+    return d
 
 class ConduitNetworkManager:
     """
@@ -76,10 +81,10 @@ class ConduitNetworkManager:
         self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
 
     def dataprovider_detected(self):
-        logging.debug("Dataprovider detected")
+        logging.debug("Remote Dataprovider detected")
 
     def dataprovider_removed(self):
-        logging.debug("Dataprovider removed")
+        logging.debug("Remote Dataprovider removed")
 
 class RemoteDataProvider:
     """
@@ -226,6 +231,7 @@ class AvahiMonitor:
                                 avahi.DBUS_NAME,
                                 avahi.DBUS_PATH_SERVER),
                             avahi.DBUS_INTERFACE_SERVER)
+        self.hostname = self.server.GetHostName()
         obj = bus.get_object(
                             avahi.DBUS_NAME,
                             self.server.ServiceBrowserNew(
@@ -261,21 +267,29 @@ class AvahiMonitor:
         Dbus callback
         """
         extra_info = avahi.txt_array_to_string_array(txt)
-        print "RESOLVED SERVICE %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info)
-        self.detected_cb()
+        logging.debug("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
+        #Check if the service is local and then check the 
+        #conduit versions are identical
+        if name.split(":")[0] == self.hostname: #FIXME: Avahi 0.6.15 has a built in check function for this
+            logging.debug("Ignoring %s because it is on the local machine" % name)
+        else:
+            extra = decode_avahi_text_array_to_dict(extra_info)
+            if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
+                self.detected_cb()
+            else:
+                logging.debug("Ignoring %s because remote conduit is different version" % name)
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
         Dbus callback when a service is removed
         """
-        print "REMOVED SERVICE"
         self.removed_cb()
 
     def _resolve_error(self, error):
         """
         Dbus callback when a service details cannot be resolved
         """
-        print 'Avahi/D-Bus error: ' + repr(error)
+        logging.warn("Avahi/D-Bus error: %s" % repr(error))
 
 
 ################################################################################
