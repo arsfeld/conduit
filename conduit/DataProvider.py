@@ -85,22 +85,29 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                     "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
-    def __init__(self, name=None, description=None):
+    def __init__(self, name=None, description=None, iconName=None, widgetColorRGBA=0):
         """
         Handles a lot of the canvas and UI related aspects of a dataprovider
         All sync functionality should be provided by derived classes
+        @param name: The name of the dataprovider to display on canvas
+        @param description: A SHORT descriptive string
+        @param iconName: An icon-naming-spec compliant icon name to display
+        @param widgetColorRGBA: RGBA integer color of the box in which the name
+        description, and icon are drawn
+        @type widgerColorRGBA: C{int}
         """
         goocanvas.Group.__init__(self)
         gobject.GObject.__init__(self)
         
         self.name = name
         self.description = description
+        self.iconName = iconName
+        self.widgetColorRGBA = widgetColorRGBA
+
         self.icon = None
         self.status = STATUS_NONE
         #The following can be overridden to customize the appearance
         #of the basic dataproviders
-        self.icon_name = "gtk-missing-image"   
-        self.widget_color_rgba = TANGO_COLOR_ALUMINIUM2_LIGHT
         self.widget_width = WIDGET_WIDTH
         self.widget_height = WIDGET_HEIGHT
         
@@ -134,7 +141,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                 height=self.widget_height,
                                 line_width=LINE_WIDTH, 
                                 stroke_color="black",
-                                fill_color_rgba=self.widget_color_rgba, 
+                                fill_color_rgba=self.widgetColorRGBA, 
                                 radius_y=RECTANGLE_RADIUS, 
                                 radius_x=RECTANGLE_RADIUS
                                 )
@@ -183,11 +190,13 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         import traceback
         if self.icon is None:
             try:
-                self.icon = gtk.icon_theme_get_default().load_icon(self.icon_name, 16, 0)
+                self.icon = gtk.icon_theme_get_default().load_icon(self.iconName, 16, 0)
             except gobject.GError:
                 self.icon = None
-                logging.error("Could not load icon %s" % self.icon_name)
-                self.icon = gtk.icon_theme_get_default().load_icon("gtk-missing-image", 16, 0)
+                logging.error("Could not load icon %s" % self.iconName)
+                #Last resort: Try the non icon-naming-spec compliant icon
+                self.iconName = "gtk-missing-image"
+                self.icon = gtk.icon_theme_get_default().load_icon(self.iconName, 16, 0)
         return self.icon
         
     def get_widget_dimensions(self):
@@ -367,15 +376,11 @@ class DataSource(DataProviderBase):
     DataSources can become two way datasources if they also override
     put() and set twoWayEnable to True
     """
-    def __init__(self, name=None, description=None):
+    def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
         """
-        Sets the DataProvider color and a default icon
+        Sets the DataProvider color
         """
-        DataProviderBase.__init__(self, name, description)
-        
-        #customizations
-        self.icon_name = "image-missing"
-        self.widget_color_rgba = TANGO_COLOR_ALUMINIUM1_MID
+        DataProviderBase.__init__(self, name, description, iconName, widgetColorRGBA)
         
     def is_two_way(self):
         """
@@ -417,16 +422,11 @@ class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
     """
-    def __init__(self, name=None, description=None):
+    def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_SKYBLUE_LIGHT):
         """
-        Sets the DataProvider color and a default icon
+        Sets the DataProvider color
         """    
-        #super fills in the name and description
-        DataProviderBase.__init__(self, name, description)
-
-        #customizations
-        self.icon_name = "image-missing"
-        self.widget_color_rgba = TANGO_COLOR_SKYBLUE_LIGHT
+        DataProviderBase.__init__(self, name, description, iconName, widgetColorRGBA)
 
     def put(self, putData, onTopOf=None):
         """

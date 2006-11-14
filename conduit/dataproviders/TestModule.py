@@ -141,7 +141,7 @@ class TestSource(TestBase, DataProvider.DataSource):
     NUM_DATA = 5    
     def __init__(self):
         TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages")
+        DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages", "emblem-system")
         
     def get_num_items(self):
         return TestSource.NUM_DATA
@@ -158,7 +158,7 @@ class TestSource(TestBase, DataProvider.DataSource):
 class TestSink(TestBase, DataProvider.DataSink):
     def __init__(self):
         TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages")
+        DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages", "emblem-system")
         self.count = 0
         
     def put(self, data, dataOnTopOf=None):
@@ -171,7 +171,7 @@ class TestSink(TestBase, DataProvider.DataSink):
 
 class TestTwoWay(TestSink, TestSource):
     def __init__(self):
-        DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages")
+        DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages", "emblem-system")
 
     def initialize(self):
         return True
