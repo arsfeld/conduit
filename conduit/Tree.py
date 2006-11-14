@@ -361,8 +361,8 @@ class DataProviderTreeView(gtk.TreeView):
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)
         
-        #FIXME: Why does this cause it to hang??
-        #gtk.TreeView.expand_all(self)
+        #FIXME: This used to cause the GUI to hang. Now it doesnt... curious
+        gtk.TreeView.expand_all(self)
         
     def on_drag_begin(self, treeview, context):
         pass

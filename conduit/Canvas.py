@@ -172,12 +172,12 @@ class Canvas(goocanvas.CanvasView):
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
 
-    def set_popup_menus(self, canvas_popup, item_popup):
+    def set_popup_menus(self, conduit_popup, dataprovider_popup):
         """
         setPopup
         """
-        self.popup = canvas_popup
-        self.item_popup = item_popup
+        self.conduit_popup = conduit_popup
+        self.dataprovider_popup = dataprovider_popup
     
     def on_dataprovider_button_press(self, view, target, event, user_data_dataprovider_wrapper):
         """
@@ -192,19 +192,17 @@ class Canvas(goocanvas.CanvasView):
             #delete operations
             self.selected_dataprovider_wrapper = user_data_dataprovider_wrapper
             if event.button == 1:
-                #TODO: Support dragging canvas items???
                 return True
             elif event.button == 3:
                 #Only show the menu if the dataprovider isnt already
                 #busy being sync'd
                 if not self.selected_dataprovider_wrapper.module.is_busy():
-                    self.item_popup.popup(
+                    self.dataprovider_popup.popup(
                                                 None, None, 
                                                 None, event.button, event.time
                                                 )
                 return True
                 
-            #TODO: double click to pop up element parameters window
             
     def on_conduit_button_press(self, view, target, event, user_data_conduit):
         """
@@ -216,17 +214,15 @@ class Canvas(goocanvas.CanvasView):
             #copy, past, configure operations
             self.selected_conduit = user_data_conduit
             if event.button == 1:
-                #TODO: Support dragging canvas items???
                 return True
             elif event.button == 3:
                 if not self.selected_conduit.is_busy():            
-                    self.popup.popup(
+                    self.conduit_popup.popup(
                                                 None, None, 
                                                 None, event.button, event.time
                                                 )
                 return True
                 
-            #TODO: double click to pop up element parameters window
             
     def resize_canvas(self, new_w, new_h):
         """

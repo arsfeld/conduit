@@ -40,6 +40,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         datasinks
         """
         goocanvas.Group.__init__(self)
+        gobject.GObject.__init__(self)
         #a conduit can hold one datasource and many datasinks (wrappers)
         self.datasource = None
         self.datasinks = []
@@ -127,7 +128,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         #Only move the datasinks. The datasource stays on the left
         for d in self.datasinks:
             #Translate the widget
-            d.module.get_widget().translate(dw,0)
+            d.module.translate(dw,0)
             #Move the widgets status text
             self.dataprovider_status[d.module].translate(dw,0)
             
@@ -172,7 +173,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         Translates the supplied dataprovider by the specified amount
         and updates the stored position
         """
-        dataprovider.module.get_widget().translate(dx,dy)
+        dataprovider.module.translate(dx,dy)
         self.positions[dataprovider]["x"] += dx
         self.positions[dataprovider]["y"] += dy
         
@@ -254,7 +255,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         dataprovider_wrapper.module.connect("status-changed", self.on_status_changed)
         #----- STEP TWO ------------------------------------------------------        
         #now store the widget size and add to the conduit 
-        new_widget = dataprovider_wrapper.module.get_widget()
+        new_widget = dataprovider_wrapper.module
         self.positions[dataprovider_wrapper] =  {
                                         "x" : 0,
                                         "y" : 0,
@@ -475,7 +476,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         Deletes dataprovider
         """
         #Delete the widget
-        child = self.find_child(dataprovider.module.get_widget())
+        child = self.find_child(dataprovider.module)
         self.remove_child(child)
         #Delete its stored position
         del(self.positions[dataprovider])

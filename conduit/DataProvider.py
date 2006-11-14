@@ -67,7 +67,7 @@ CATEGORY_LOCAL = "Local"
 CATEGORY_WEB = "Web"
 CATEGORY_GOOGLE = "Google"
 
-class DataProviderBase(gobject.GObject):
+class DataProviderBase(goocanvas.Group, gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
     
@@ -87,14 +87,15 @@ class DataProviderBase(gobject.GObject):
     
     def __init__(self, name=None, description=None):
         """
-        Makes a (useless) base dataprovider
+        Handles a lot of the canvas and UI related aspects of a dataprovider
+        All sync functionality should be provided by derived classes
         """
+        goocanvas.Group.__init__(self)
         gobject.GObject.__init__(self)
         
         self.name = name
         self.description = description
         self.icon = None
-        self.widget = None
         self.status = STATUS_NONE
         #The following can be overridden to customize the appearance
         #of the basic dataproviders
@@ -103,6 +104,9 @@ class DataProviderBase(gobject.GObject):
         self.widget_width = WIDGET_WIDTH
         self.widget_height = WIDGET_HEIGHT
         
+        #Build the child widgets
+        self._build_widget()
+
         #EXPERIMENTAL: Set this to True to enable two-way sync
         self.twoWayEnabled = False
         
@@ -116,6 +120,62 @@ class DataProviderBase(gobject.GObject):
 		self.emit ("status-changed")
 		return False        
         
+    def _build_widget(self):
+        """
+        Drawing this widget by drawing all the items which represent a
+        dataprovider, including the icon, text, etc
+        """
+        #Create it the first time
+        #if self.widget is None:
+        #    self.widget = goocanvas.Group()
+        box = goocanvas.Rect(   x=0, 
+                                y=0, 
+                                width=self.widget_width, 
+                                height=self.widget_height,
+                                line_width=LINE_WIDTH, 
+                                stroke_color="black",
+                                fill_color_rgba=self.widget_color_rgba, 
+                                radius_y=RECTANGLE_RADIUS, 
+                                radius_x=RECTANGLE_RADIUS
+                                )
+        name = goocanvas.Text(  x=int(2*self.widget_width/5), 
+                                y=int(1*self.widget_height/3), 
+                                width=3*self.widget_width/5, 
+                                text=self.name, 
+                                anchor=gtk.ANCHOR_WEST, 
+                                font="Sans 8"
+                                )
+        pb=self.get_icon()
+        image = goocanvas.Image(pixbuf=pb,
+                                x=int(  
+                                        (1*self.widget_width/5) - 
+                                        (pb.get_width()/2) 
+                                        ),
+                                y=int(  
+                                        (1*self.widget_height/3) - 
+                                        (pb.get_height()/2)
+                                        )
+                                            
+                                )
+        desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
+                                y=int(2*self.widget_height/3), 
+                                width=4*self.widget_width/5, 
+                                text=self.description, 
+                                anchor=gtk.ANCHOR_WEST, 
+                                font="Sans 7",
+                                fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
+                                )                                    
+    
+        #We need some way to tell the canvas that we are a dataprovider
+        #and not a conduit
+        self.set_data("is_a_dataprovider",True)
+        
+        #Add all the visual elements which represent a dataprovider    
+        self.add_child(box)
+        self.add_child(name)
+        self.add_child(image)
+        self.add_child(desc) 
+            
     def get_icon(self):
         """
         Returns a GdkPixbuf hat represents this handler.
@@ -129,63 +189,6 @@ class DataProviderBase(gobject.GObject):
                 logging.error("Could not load icon %s" % self.icon_name)
                 self.icon = gtk.icon_theme_get_default().load_icon("gtk-missing-image", 16, 0)
         return self.icon
-        
-    def get_widget(self):
-        """
-        Returns the goocanvas item for drawing this widget on the canvas. 
-        Subclasses may override this method to draw more custom widgets
-        """
-        #Create it the first time
-        if self.widget is None:
-            self.widget = goocanvas.Group()
-            box = goocanvas.Rect(   x=0, 
-                                    y=0, 
-                                    width=self.widget_width, 
-                                    height=self.widget_height,
-                                    line_width=LINE_WIDTH, 
-                                    stroke_color="black",
-                                    fill_color_rgba=self.widget_color_rgba, 
-                                    radius_y=RECTANGLE_RADIUS, 
-                                    radius_x=RECTANGLE_RADIUS
-                                    )
-            name = goocanvas.Text(  x=int(2*self.widget_width/5), 
-                                    y=int(1*self.widget_height/3), 
-                                    width=3*self.widget_width/5, 
-                                    text=self.name, 
-                                    anchor=gtk.ANCHOR_WEST, 
-                                    font="Sans 8"
-                                    )
-            pb=self.get_icon()
-            image = goocanvas.Image(pixbuf=pb,
-                                    x=int(  
-                                            (1*self.widget_width/5) - 
-                                            (pb.get_width()/2) 
-                                         ),
-                                    y=int(  
-                                            (1*self.widget_height/3) - 
-                                            (pb.get_height()/2)
-                                         )
-                                             
-                                    )
-            desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
-                                    y=int(2*self.widget_height/3), 
-                                    width=4*self.widget_width/5, 
-                                    text=self.description, 
-                                    anchor=gtk.ANCHOR_WEST, 
-                                    font="Sans 7",
-                                    fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
-                                    )                                    
-        
-            #We need some way to tell the canvas that we are a dataprovider
-            #and not a conduit
-            self.widget.set_data("is_a_dataprovider",True)
-            
-            self.widget.add_child(box)
-            self.widget.add_child(name)
-            self.widget.add_child(image)
-            self.widget.add_child(desc) 
-            
-        return self.widget
         
     def get_widget_dimensions(self):
         """
