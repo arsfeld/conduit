@@ -37,9 +37,10 @@ class Settings(gobject.GObject):
 
     #Default values for conduit settings
     DEFAULTS = {
-        'show_splashscreen' :   True,   #The splashscreen can be quite useful on slow computers
-        'save_on_exit'      :   False,  #Is the sync set saved on exit automatically?
-        'enable_network'    :   True    #Should conduit look for other conduits on the local network
+        'show_splashscreen'     :   True,   #The splashscreen can be quite useful on slow computers
+        'save_on_exit'          :   False,  #Is the sync set saved on exit automatically?
+        'enable_network'        :   True,   #Should conduit look for other conduits on the local network
+        'disable_twoway_sync'   :   True    #If the user selects it, shoud two way sync be used
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names

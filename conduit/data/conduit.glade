@@ -440,7 +440,7 @@
       <signal name="activate" handler="on_delete_group_clicked" last_modification_time="Mon, 17 Jul 2006 02:15:50 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image34">
+	<widget class="GtkImage" id="image70">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-delete</property>
 	  <property name="icon_size">1</property>
@@ -467,7 +467,7 @@
       <signal name="activate" handler="on_refresh_group_clicked" last_modification_time="Mon, 17 Jul 2006 02:08:48 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image35">
+	<widget class="GtkImage" id="image71">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-refresh</property>
 	  <property name="icon_size">1</property>
@@ -489,7 +489,7 @@
       <signal name="activate" handler="on_synchronize_group_clicked" last_modification_time="Mon, 17 Jul 2006 02:08:57 GMT"/>
 
       <child internal-child="image">
-	<widget class="GtkImage" id="image36">
+	<widget class="GtkImage" id="image72">
 	  <property name="visible">True</property>
 	  <property name="stock">gtk-execute</property>
 	  <property name="icon_size">1</property>
@@ -499,6 +499,22 @@
 	  <property name="ypad">0</property>
 	</widget>
       </child>
+    </widget>
+  </child>
+
+  <child>
+    <widget class="GtkSeparatorMenuItem" id="separator8">
+      <property name="visible">True</property>
+    </widget>
+  </child>
+
+  <child>
+    <widget class="GtkCheckMenuItem" id="two_way_sync">
+      <property name="visible">True</property>
+      <property name="label" translatable="yes">Two Way Sync</property>
+      <property name="use_underline">True</property>
+      <property name="active">False</property>
+      <signal name="activate" handler="on_two_way_sync_group_clicked" last_modification_time="Tue, 14 Nov 2006 11:25:33 GMT"/>
     </widget>
   </child>
 </widget>
@@ -1105,8 +1121,7 @@
 			    <widget class="GtkCheckButton" id="use_two_way_sync_check">
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Enable **Experimental** Two-way 
-File Synchronization</property>
+			      <property name="label" translatable="yes">Disable Two-way Synchronization</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>

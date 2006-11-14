@@ -72,9 +72,9 @@ class Canvas(goocanvas.CanvasView):
         #Show a friendly welcome message on the canvas the first time the
         #application is launched
         self.welcomeMessage = None
-        
-        #Use two-way sync on those datasources and conduits which support it?
-        self.EXPERIMENTAL_TWO_WAY_SYNC = False
+
+        #FIXME: When more testing is complete, this can be removed
+        self.disableTwoWaySync = True
         
     def set_type_converter(self, typeConverter):
         """
@@ -174,7 +174,7 @@ class Canvas(goocanvas.CanvasView):
 
     def set_popup_menus(self, conduit_popup, dataprovider_popup):
         """
-        setPopup
+        sets up the poput menus and their callbacks
         """
         self.conduit_popup = conduit_popup
         self.dataprovider_popup = dataprovider_popup
@@ -274,9 +274,6 @@ class Canvas(goocanvas.CanvasView):
             self.root.add_child(c)
             self.conduits.append(c)
             
-        #Update the two-way syncability of the conduits
-        self.update_two_way_sync_on_supported_conduits() 
-           
     def update_conduit_connectedness(self):
         """
         Updates all the conduits connectedness based on the conversion
@@ -346,39 +343,14 @@ class Canvas(goocanvas.CanvasView):
             del(self.welcomeMessage)
             self.welcomeMessage = None
             
-    def enable_disable_two_way_sync(self, enableDisable):
+    def disable_two_way_sync(self, disable):
         """
         Sets whether the canvas should enable/disable two-way
         sync on all those conduits that support it
         
-        @param enableDisable: Whether to enable or disable two-way sync.
-        True for try and enable, False for disable
-        @type enableDisable: C{bool}
+        @param disable: Whether to enable or disable two-way sync.
+        True for disable
+        @type disable: C{bool}
         """
-        self.EXPERIMENTAL_TWO_WAY_SYNC = enableDisable
-        logging.debug("Setting two-way sync to %s" % self.EXPERIMENTAL_TWO_WAY_SYNC)
-        self.update_two_way_sync_on_supported_conduits()
-        
-    def update_two_way_sync_on_supported_conduits(self):
-        """
-        Enable or disable two way sync capable conduits if the following
-        conditions are met:
-        1) There is only one source and one sink
-        2) The source supports two_way_sync
-        """
-        for conduit in self.conduits:
-            if conduit.datasource != None:
-                #Two way only makes sense in a 1-1 sync
-                if len(conduit.datasinks) == 1:
-                    if conduit.datasource.module.is_two_way():
-                        #Change the conduit background to an ugly color to remind the
-                        #user it may eat their data
-                        if self.EXPERIMENTAL_TWO_WAY_SYNC == True:
-                            conduit.bounding_box.set_property("fill_color_rgba", DataProvider.TANGO_COLOR_PLUM_LIGHT)
-                            conduit.datasource.module.twoWayEnabled = True
-                        elif self.EXPERIMENTAL_TWO_WAY_SYNC == False:
-                            conduit.bounding_box.set_property("fill_color_rgba", DataProvider.TANGO_COLOR_ALUMINIUM1_LIGHT)
-                            conduit.datasource.module.twoWayEnabled = False
-                else:
-                    conduit.bounding_box.set_property("fill_color_rgba", DataProvider.TANGO_COLOR_ALUMINIUM1_LIGHT)
-                    conduit.datasource.module.twoWayEnabled = False
+        logging.debug("Disable two-way sync? %s" % disable)
+        self.disableTwoWaySync = disable

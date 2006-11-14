@@ -75,6 +75,8 @@ class Conduit(goocanvas.Group, gobject.GObject):
                                                 "w" : canvas_width,
                                                 "h" : Conduit.HEIGHT
                                                 }
+
+        self.twoWaySync = False
                                                 
     def on_status_changed(self, dataprovider):
         """

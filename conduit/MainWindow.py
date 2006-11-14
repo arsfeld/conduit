@@ -89,6 +89,8 @@ class MainWindow:
         #start up the canvas
         self.canvas = Canvas.Canvas()
         self.canvasSW.add(self.canvas)
+        #set canvas options
+        self.canvas.disable_two_way_sync(conduit.settings.get("disable_twoway_sync"))
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
         #Set up the popup widgets
@@ -134,10 +136,6 @@ class MainWindow:
         if conduit.settings.get("enable_network") == True:
             self.networkManager = Network.ConduitNetworkManager()
 
-        #Use two-way sync on those datasources and conduits which support it?
-        #Obviously move this into Settings.py when its more mature
-        self.EXPERIMENTAL_TWO_WAY_SYNC = False
-        
     def on_dataprovider_added(self, dataprovider):
         """
         Called by those classes which only provide dataproviders
@@ -162,6 +160,13 @@ class MainWindow:
         Delete a conduit and all its associated dataproviders
         """
         self.canvas.delete_conduit(self.canvas.selected_conduit)
+
+    def on_twoway_clicked(self, widget):
+        """
+        Hmm
+        """
+        print "fooo"
+        
 
     def on_refresh_group_clicked(self, widget):
         """
@@ -259,16 +264,19 @@ class MainWindow:
         save_settings_check = tree.get_widget("save_settings_check")
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
         use_two_way_sync_check = tree.get_widget("use_two_way_sync_check")
-        use_two_way_sync_check.set_active(self.EXPERIMENTAL_TWO_WAY_SYNC)                            
+        use_two_way_sync_check.set_active(conduit.settings.get("disable_twoway_sync"))                            
                                         
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
         dialog.set_transient_for(self.mainWindow)
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
+            disable = use_two_way_sync_check.get_active()
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
-            self.EXPERIMENTAL_TWO_WAY_SYNC = use_two_way_sync_check.get_active()
-            self.canvas.enable_disable_two_way_sync(self.EXPERIMENTAL_TWO_WAY_SYNC)
+            conduit.settings.set("disable_twoway_sync", disable)
+            #FIXME: One the 2way stuff is confirmed, this setting will be removed
+            #From the prefs, and be managed entirely from the right click conduit menu
+            self.canvas.disable_two_way_sync(disable)
         dialog.destroy()                
 
 
