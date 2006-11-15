@@ -108,25 +108,6 @@ class TestBase:
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
         dialog.run()
         
-    def refresh(self):
-        #Print out values of the instance vars
-        string = "Instance Variables:\n"
-        string += "errorAfter\t%s\n"
-        string += "slow\t\t%s\n"
-        string += "aString\t\t%s\n"
-        string += "aInt\t\t%s\n"
-        string += "aBool\t\t%s\n"
-        string += "aList\t\t%s"
-        logging.debug(
-                        string % (
-                        self.errorAfter,
-                        self.slow,
-                        self.aString,
-                        self.aInt,
-                        self.aBool,
-                        self.aList,
-                        ))
-        
     def get_configuration(self):
         return {
             "errorAfter" : self.errorAfter,
@@ -144,9 +125,11 @@ class TestSource(TestBase, DataProvider.DataSource):
         DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages", "emblem-system")
         
     def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
         return TestSource.NUM_DATA
 
     def get(self, index):
+        DataProvider.DataSource.get(self, index)
         if self.slow:
             time.sleep(2)
         data = TestDataType(index)
@@ -162,6 +145,7 @@ class TestSink(TestBase, DataProvider.DataSink):
         self.count = 0
         
     def put(self, data, dataOnTopOf=None):
+        DataProvider.DataSink.put(self, data, dataOnTopOf)
         if self.slow:
             time.sleep(1)    
         if self.count == self.errorAfter:
@@ -184,4 +168,5 @@ class TestSinkFailRefresh(DataProvider.DataSink):
         return True
 
     def refresh(self):
+        DataProvider.DataSink.refresh(self)
         raise Exceptions.RefreshError

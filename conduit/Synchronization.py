@@ -275,7 +275,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 logging.debug("Source Status = %s" % self.source.module.get_status_text())
                 #Refresh the source
                 try:
-                    self.source.module.set_status(DataProvider.STATUS_REFRESH)
                     self.source.module.refresh()
                     self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                 except Exceptions.RefreshError:
@@ -284,6 +283,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     #Cannot continue with no source data
                     raise Exceptions.StopSync
                 except Exception, err:
+                    self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
                     logging.critical("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
                     #Cannot continue with no source data
                     raise Exceptions.StopSync           
@@ -292,7 +292,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 for sink in self.sinks:
                     self.check_thread_not_cancelled([self.source, sink])
                     try:
-                        sink.module.set_status(DataProvider.STATUS_REFRESH)
                         sink.module.refresh()
                         sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                     except Exceptions.RefreshError:
@@ -319,7 +318,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
             #synchronize state
             elif self.state is SyncWorker.SYNC_STATE:
                 try:
-                    self.source.module.set_status(DataProvider.STATUS_SYNC)
                     #Depending on the dp, this call make take a while as it may need
                     #to get all the data to tell how many items there are...
                     numItems = self.source.module.get_num_items()

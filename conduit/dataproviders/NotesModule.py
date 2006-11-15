@@ -53,6 +53,7 @@ class TomboyNoteSource(DataProvider.DataSource):
         return os.path.exists(TomboyNoteSource.NOTE_DIR)
 
     def refresh(self):
+        DataProvider.DataSource.refresh(self)
         #FIXME: How can I do this namespace bit in ElementTree
         def remove_namespace(string):
             return string.split("}")[1]
@@ -82,9 +83,11 @@ class TomboyNoteSource(DataProvider.DataSource):
                 raise Exceptions.RefreshError
                 
     def get(self, index):
+        DataProvider.DataSource.get(self, index)
         return self.notes[index]
                 
     def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
         return len(self.notes)
 
 class StickyNoteSource(DataProvider.DataSource):
@@ -105,6 +108,7 @@ class StickyNoteSource(DataProvider.DataSource):
         return os.path.exists(StickyNoteSource.NOTE_FILE)        
         
     def refresh(self):
+        DataProvider.DataSource.refresh()
         try:
             if self.xml is None:
                 self.xml = ElementTree.parse(StickyNoteSource.NOTE_FILE).getroot()
@@ -129,9 +133,13 @@ class StickyNoteSource(DataProvider.DataSource):
             logging.warn("Error parsing note file\n%s" % traceback.format_exc())
             raise Exceptions.RefreshError            
             
-    def get(self):
-        for n in self.notes:
-            yield n    
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return self.notes[index]
+
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
+        return len(self.notes)
 
 class NoteConverter:
     def __init__(self):

@@ -225,7 +225,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         for the user), False otherwise
         @rtype: C{bool}
         """
-        logging.info("initialize() not overridden by derived class %s" % self.name)
         return True
         
     def refresh(self):
@@ -235,16 +234,25 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         enough information so that get_num_items() can return a
         meaningful response
         
-        THis function may be called multiple times so derived funcions should
-        be aware of this
+        This function may be called multiple times so derived classes should
+        be aware of this.
+
+        Derived classes should call this function to ensure the dataprovider
+        status is updated.
         """
-        logging.info("refresh() not overridden by derived class %s" % self.name)
+        self.set_status(STATUS_REFRESH)
+
+    def set_status(self, newStatus):
+        """
+        Sets the dataprovider status. If the status has changed then emits
+        a status-changed signal
         
-    def finalize(self):
+        @param newStatus: The new status
+        @type newStatus: C{int}
         """
-        Called after all tasks related to the dataprovider have been completed
-        """
-        logging.info("finalize() not overridden by derived class %s" % self.name)
+        if newStatus != self.status:
+            self.status = newStatus
+            self.__emit_status_changed()
         
     def get_status(self):
         """
@@ -298,14 +306,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         else:
             return False
             
-    def is_two_way_enabled(self):
-        """
-        Determines if the DataProvider supports two-way synchronization. This
-        is true if it implements get(), put() and explicitly 
-        sets self.twoWayEnabled to True
-        """
-        return self.is_two_way() and self.twoWayEnabled
-            
     def is_two_way(self):
         """
         If the derived dataprovider includes both get() and set() then
@@ -316,18 +316,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         See L{conduit.DataProvider.DataSource.is_two_way}
         """
         return False
-
-    def set_status(self, newStatus):
-        """
-        Sets the dataprovider status. If the status has changed then emits
-        a status-changed signal
-        
-        @param newStatus: The new status
-        @type newStatus: C{int}
-        """
-        if newStatus != self.status:
-            self.status = newStatus
-            self.__emit_status_changed()
 
     def configure(self, window):
         """
@@ -395,7 +383,10 @@ class DataSource(DataProviderBase):
     def get(self, index):
         """
         Returns data at specified index. This function must be overridden by the 
-        appropriate dataprovider. 
+        appropriate dataprovider.
+
+        Derived classes should call this function to ensure the dataprovider
+        status is updated.
 
         It is expected that you may call this function with numbers in the 
         range 0 -> L{conduit.DataProvider.DataSource.get_num_items}.
@@ -405,7 +396,8 @@ class DataSource(DataProviderBase):
         @rtype: L{conduit.DataType.DataType}
         @returns: An item of data
         """
-        logging.info("get() not overridden by derived class %s" % self.name)
+        self.set_status(STATUS_SYNC)
+        return None
                 
     def get_num_items(self):
         """
@@ -415,7 +407,7 @@ class DataSource(DataProviderBase):
         @returns: The number of items to synchronize
         @rtype: C{int}
         """
-        logging.info("get_num_items() not overridden by derived class %s" % self.name)
+        self.set_status(STATUS_SYNC)
         return 0
 
 class DataSink(DataProviderBase):
@@ -437,6 +429,9 @@ class DataSink(DataProviderBase):
         consider the onTopOf parameter, which if present, should provide the
         necesary information such that putData can replace (overwrite) it.
 
+        Derived classes should call this function to ensure the dataprovider
+        status is updated.
+
         @param putData: Data which to save
         @type putData: A L{conduit.DataType.DataType} derived type that this 
         dataprovider is capable of handling
@@ -448,7 +443,7 @@ class DataSink(DataProviderBase):
         conflict between the data being put, and that which it is overwriting 
         a L{conduit.Exceptions.SynchronizeConflictError} is raised.
         """
-        logging.info("put() not overridden by derived class %s" % self.name)
+        self.set_status(STATUS_SYNC)
 
 class DataProviderSimpleConfigurator:
     """
