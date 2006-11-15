@@ -63,17 +63,17 @@ class MoinMoinDataSource(DataProvider.DataSource):
                 self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
             except:
                 raise Exceptions.RefreshError
+
+    def get_num_items(self):
+        return len(self.pages)
             
-    def get(self):
-        for p in self.pages:
-            #Make a new page data type
-            page = WikiPageDataType()
-            pageinfo = self.srcwiki.getPageInfo(p)
-            page.name = pageinfo["name"]
-            page.modified = pageinfo["lastModified"]
-            page.contents = self.srcwiki.getPage(p)
-            
-            yield page
+    def get(self, index):
+        #Make a new page data type
+        page = WikiPageDataType()
+        pageinfo = self.srcwiki.getPageInfo(self.pages[index])
+        page.name = pageinfo["name"]
+        page.modified = pageinfo["lastModified"]
+        page.contents = self.srcwiki.getPage(p)
             
     def get_configuration(self):
         return {"pages" : self.pages}

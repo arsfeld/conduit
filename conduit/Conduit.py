@@ -141,7 +141,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                                 
         #Update the length of the connecting lines
         for c in self.connectors:
-            self.adjust_connector_width(self.connectors[c], dw)
+            self.connectors[c].resize_connector_width(dw)
             
     def move_conduit_by(self,dx,dy):
         """
@@ -302,42 +302,6 @@ class Conduit(goocanvas.Group, gobject.GObject):
             new_h = self.get_conduit_height() + Conduit.HEIGHT
             self.resize_conduit_height(new_h)
             
-    def make_connector_svg_string(self, fromX, fromY, toX, toY):
-        """
-        Builds a SVG path statement string based on its input
-        
-        @returns: A valid SVG path descriptor
-        @rtype: C{string}
-        """
-        #Dont build curves if its just a dead horizontal link
-        if fromY == toY:
-            #draw simple straight line
-            p = "M%s,%s "           \
-                "L%s,%s "       %   (
-                                    fromX,fromY,    #absolute start point
-                                    toX, toY        #absolute line to point
-                                    )
-        else:
-            #draw pretty curvy line 
-            r = Conduit.CONNECTOR_RADIUS  #radius of curve
-            ls = 40 #len of start straight line segment
-            ld = toY - fromY - 2*r
-            p = "M%s,%s "           \
-                "l%s,%s "           \
-                "q%s,%s %s,%s "     \
-                "l%s,%s "           \
-                "q%s,%s %s,%s "     \
-                "L%s,%s"        %   (
-                                    fromX,fromY,    #absolute start point
-                                    ls,0,           #relative length line +x
-                                    r,0,r,r,        #quarter circle
-                                    0,ld,           #relative length line +y
-                                    0,r,r,r,        #quarter circle
-                                    toX, toY        #absolute line to point
-                                    )
-            #create and return                                    
-        return p
-               
     def add_connector_to_canvas(self, source, sink, bidirectional=False):
         """
         Adds nice curved line which indicates a sync relationship to the canvas
@@ -348,43 +312,11 @@ class Conduit(goocanvas.Group, gobject.GObject):
         #calculate end point
         toX = self.positions[sink]["x"] #connect to inside side
         toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
-        #The path is a goocanvas.Path element. 
-        svgPathString = self.make_connector_svg_string(fromX, fromY, toX, toY)
-        path = goocanvas.Path(data=svgPathString,stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
-        self.add_child(path)
-        #Add to list of connectors to allow resize later
-        self.positions[path] =  {
-                                "x" : fromX,
-                                "y" : fromY,
-                                "w" : toX - fromX,
-                                "h" : toY - fromY
-                                }
-        self.connectors[sink] = path
+        #draw the connector and add it as child
+        con = Connector(fromX, fromY, toX, toY)
+        self.add_child(con)
+        self.connectors[sink] = con
 
-    def adjust_connector_width(self, connector, dw):
-        """
-        Adjusts the size of the connector. Used when the window is resized
-        
-        @param connector: The connector to resize
-        @type connector: C{goocanvas.Path}
-        @param dw: The change in width
-        @type dw: C{int}
-        """
-        
-        #Get the current start and end points of the conector
-        #Little bit hacky but we know that
-        #toX = w - fromX and toY = h - fromY
-        fromX = self.positions[connector]["x"]
-        fromY = self.positions[connector]["y"]
-        toX = self.positions[connector]["w"] + fromX + dw
-        toY = self.positions[connector]["h"] + fromY
-        
-        #Save new width
-        self.positions[connector]["w"] += dw
-        #Update path
-        svgData = self.make_connector_svg_string(fromX, fromY, toX, toY)
-        connector.set_property("data",svgData)
-        
     def update_connectors_connectedness(self, typeConverter):
         """
         Updates the color of the connectors joining the source to
@@ -398,12 +330,12 @@ class Conduit(goocanvas.Group, gobject.GObject):
             #need to check if there is actually a datasource
             if self.datasource is not None:
                 if self.datasource.out_type == sink.in_type:
-                    self.connectors[sink].set_property("stroke_color","black")
+                    self.connectors[sink].set_color("black")
                 else:
                     #Conversion through text allowed
                     #FIXME: Dont draw invalid connections here, or draw a dotted line or something
                     if not typeConverter.conversion_exists(self.datasource.out_type, sink.in_type):
-                        self.connectors[sink].set_property("stroke_color","red")
+                        self.connectors[sink].set_color("red")
 
     def make_status_text(self, x, y, text=""):
         """
@@ -545,3 +477,76 @@ class Conduit(goocanvas.Group, gobject.GObject):
                     self.resize_conduit_height(new_h)
                     
             
+class Connector(goocanvas.Group):
+    """
+    Represents the graphical connection between a datasource and a datasink
+
+    @todo: Extend this to draw end caps on the line to represent two way
+    @todo: Animate the connector when synchronizing
+
+    Contains a single goocanvas.Path element
+    """
+    def __init__(self, fromX, fromY, toX, toY):
+        goocanvas.Group.__init__(self)
+        self.fromX = fromX
+        self.fromY = fromY
+        self.toX = toX
+        self.toY = toY
+
+        #The path is a goocanvas.Path element. 
+        self.path = goocanvas.Path(data="",stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
+        self._draw_path()
+        self.add_child(self.path)
+
+    def _draw_path(self):
+        """
+        Builds a SVG path statement. This represents the (optionally) curved 
+        connector between a datasource and datasink. Then assigns the path
+        to the internal path object
+        """
+        #Dont build curves if its just a dead horizontal link
+        if self.fromY == self.toY:
+            #draw simple straight line
+            p = "M%s,%s "           \
+                "L%s,%s "       %   (
+                                    self.fromX,self.fromY,  #absolute start point
+                                    self.toX,self.toY       #absolute line to point
+                                    )
+        else:
+            #draw pretty curvy line 
+            r = Conduit.CONNECTOR_RADIUS  #radius of curve
+            ls = 40 #len of start straight line segment
+            ld = self.toY - self.fromY - 2*r
+            p = "M%s,%s "           \
+                "l%s,%s "           \
+                "q%s,%s %s,%s "     \
+                "l%s,%s "           \
+                "q%s,%s %s,%s "     \
+                "L%s,%s"        %   (
+                                    self.fromX,self.fromY,  #absolute start point
+                                    ls,0,                   #relative length line +x
+                                    r,0,r,r,                #quarter circle
+                                    0,ld,                   #relative length line +y
+                                    0,r,r,r,                #quarter circle
+                                    self.toX,self.toY       #absolute line to point
+                                    )
+        #Asign to the internal path object
+        self.path.set_property("data",p)
+            
+    def resize_connector_width(self, dw):
+        """
+        Adjusts the size of the connector. Used when the window is resized
+        
+        @param dw: The change in width
+        @type dw: C{int}
+        """
+        #Only the X location changes
+        self.toX += dw
+        self._draw_path()
+
+    def set_color(self, color):
+        """
+        @param color: The connectors new color
+        @type color: C{string}
+        """
+        self.path.set_property("stroke_color",color)
