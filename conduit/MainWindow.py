@@ -25,6 +25,7 @@ import conduit.TypeConverter as TypeConverter
 import conduit.Exceptions as Exceptions
 import conduit.Network as Network
 import conduit.Tree as Tree
+import conduit.Hal as Hal
 
 class MainWindow:
     """
@@ -135,6 +136,8 @@ class MainWindow:
         #Advertise conduit on the network
         if conduit.settings.get("enable_network") == True:
             self.networkManager = Network.ConduitNetworkManager()
+
+        self.hal = Hal.HalMonitor()
 
     def on_dataprovider_added(self, dataprovider):
         """
