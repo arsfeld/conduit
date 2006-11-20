@@ -26,6 +26,7 @@ import conduit.Exceptions as Exceptions
 import conduit.Network as Network
 import conduit.Tree as Tree
 import conduit.Hal as Hal
+import conduit.dataproviders.RemovableDevices as RemovableDevices
 
 class MainWindow:
     """
@@ -103,22 +104,9 @@ class MainWindow:
                                 self.item_popup_widgets.get_widget("ItemMenu")
                                 )
         
-        #Dynamically load all datasources, datasinks and converters (Python is COOL!)
-        dirs_to_search =    [
-                            os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                            os.path.join(conduit.USER_DIR, "modules")
-                            ]
-        self.modules = Module.ModuleLoader(dirs_to_search)
-        #self.modules.connect("all-modules-loaded", self.on_all_modules_loaded)
-        #self.modules.connect("module-loaded", self.on_module_loaded)        
-        self.modules.load_all_modules()
-        self.datasink_modules = self.modules.get_modules_by_type ("sink")
-        self.datasource_modules = self.modules.get_modules_by_type ("source")
-        self.converter_modules = self.modules.get_modules_by_type ("converter")
-                        
         # Populate the tree models
-        self.datasink_tm = Tree.DataProviderTreeModel(self.datasink_modules)
-        self.datasource_tm = Tree.DataProviderTreeModel(self.datasource_modules) 
+        self.datasink_tm = Tree.DataProviderTreeModel()
+        self.datasource_tm = Tree.DataProviderTreeModel() 
         sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
         source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
         sink_scrolled_window.add(Tree.DataProviderTreeView(self.datasink_tm))
@@ -126,8 +114,20 @@ class MainWindow:
         sink_scrolled_window.show_all()
         source_scrolled_window.show_all()
 
+        #Dynamically load all datasources, datasinks and converters
+        dirs_to_search =    [
+                            os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
+                            os.path.join(conduit.USER_DIR, "modules")
+                            ]
+        self.moduleLoader = Module.ModuleLoader(dirs_to_search)
+        #Load all dataproviders in the callback to excercise the common code
+        #path and because it will be easier to convert to a more MVC frinedly
+        #design later
+        self.moduleLoader.connect("module-loaded", self.on_dataprovider_added)        
+        self.moduleLoader.load_all_modules()
+
         #initialise the Type Converter
-        converters = self.modules.get_modules_by_type("converter")
+        converters = self.moduleLoader.get_modules_by_type("converter")
         self.type_converter = TypeConverter(converters)
         self.canvas.set_type_converter(self.type_converter)
         #initialise the Synchronisation Manager
@@ -136,17 +136,26 @@ class MainWindow:
         #Advertise conduit on the network
         if conduit.settings.get("enable_network") == True:
             self.networkManager = Network.ConduitNetworkManager()
+            self.networkManager.connect("dataprovider-added", self.on_dataprovider_added)
 
-        self.hal = Hal.HalMonitor()
+        #Support removable devices, ipods, etc
+        if conduit.settings.get("enable_removable_devices") == True:
+            hal = Hal.HalMonitor()
+            self.removableDeviceManager = RemovableDevices.RemovableDeviceManager(hal)
+            self.removableDeviceManager.connect("dataprovider-added", self.on_dataprovider_added)
 
-    def on_dataprovider_added(self, dataprovider):
+    def on_dataprovider_added(self, loader, dataprovider):
         """
         Called by those classes which only provide dataproviders
         under some conditions that change while the application is running,
         for example an Ipod is plugged in or another conduit instance is
         detected on the network
         """
-        pass
+        if dataprovider.enabled == True:
+            if dataprovider.module_type == "source":
+                self.datasource_tm.add_dataprovider(dataprovider)
+            elif dataprovider.module_type == "sink":
+                self.datasink_tm.add_dataprovider(dataprovider)
 
     def on_synchronize_all_clicked(self, widget):
         """
@@ -239,9 +248,9 @@ class MainWindow:
         for i in convertables:
             converterListStore.append( [i] )
         dataProviderListStore = gtk.ListStore( str, bool )
-        for i in self.datasink_modules:
+        for i in self.moduleLoader.get_modules_by_type("sink"):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
-        for i in self.datasource_modules:
+        for i in self.moduleLoader.get_modules_by_type("source"):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
            
         #construct the dialog
@@ -287,8 +296,13 @@ class MainWindow:
         """
         Display about dialog
         """
-        #FIXME        
+        import conduit.Module as Module
+        import conduit.DataProvider as DataProvider
+        #FIXME: Testing
         self.networkManager.advertise_dataprovider("foo")
+        #FIXME: Testing
+        dpw = Module.ModuleWrapper("name","desc","source", DataProvider.CATEGORY_IPOD,"text","text","classname",None,None,True)
+        self.on_dataprovider_added(None, dpw)
 
         aboutTree = gtk.glade.XML(conduit.GLADE_FILE, "AboutDialog")
         dlg = aboutTree.get_widget("AboutDialog")
@@ -363,7 +377,7 @@ class MainWindow:
             #logging.info("DND RX = %s" % (module_name))        
             #Add a new instance if the dataprovider to the canvas. It is up to the
             #canvas to decide if multiple instances of the specific provider are allowed
-            new = self.modules.get_new_instance_module_named(moduleClassName)
+            new = self.moduleLoader.get_new_instance_module_named(moduleClassName)
             self.canvas.add_dataprovider_to_canvas(new, x, y)
         
         context.finish(True, True, etime)

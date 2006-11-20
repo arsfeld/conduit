@@ -85,16 +85,16 @@ class ModuleLoader(gobject.GObject):
         
     def append_module(self, module):
         """
-        Checks if the given module (checks by name) is already loaded
+        Checks if the given module (checks by classname) is already loaded
         into the modulelist array, if not it is added to that array
         
         @param module: The module to append.
         @type module: L{conduit.ModuleManager.ModuleWrapper}
         """
-        if module.name not in [i.name for i in self.loadedmodules]:
+        if module.classname not in [i.classname for i in self.loadedmodules]:
             self.loadedmodules.append(module)
         else:
-            logging.warn("module named %s allready loaded" % (module.name))
+            logging.warn("Module named %s allready loaded" % (module.classname))
             
     def import_file(self, filename):
         """

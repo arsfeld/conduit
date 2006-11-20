@@ -64,8 +64,11 @@ WIDGET_HEIGHT = 80
 
 #List of availabel categories that dataproviders can belong. 
 CATEGORY_LOCAL = "Local"
+CATEGORY_REMOTE = "Remote"
 CATEGORY_WEB = "Web"
 CATEGORY_GOOGLE = "Google"
+CATEGORY_IPOD = "iPod"
+CATEGORY_USB = "Remote"
 
 class DataProviderBase(goocanvas.Group, gobject.GObject):
     """

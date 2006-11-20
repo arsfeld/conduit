@@ -7,6 +7,3 @@ implementation. For example all email programs should share the same common
 mail datatype. For this reason DataTypes, not DataProviders are exported
 """
 
-from StickyNotesModule import NoteDataType
-
-__all__ = ["NoteDataType"]

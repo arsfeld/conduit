@@ -20,15 +20,21 @@ import conduit.Module as Module
 #Store the translated catgory names
 CATEGORY_NAMES = {
     DataProvider.CATEGORY_LOCAL : _("On This Computer"),
+    DataProvider.CATEGORY_REMOTE : _("On Another Computer"),
     DataProvider.CATEGORY_WEB : _("On The Web"),
-    DataProvider.CATEGORY_GOOGLE : _("Google")
+    DataProvider.CATEGORY_GOOGLE : _("Google"),
+    DataProvider.CATEGORY_IPOD : _("iPod"),
+    DataProvider.CATEGORY_USB : _("USB")
     }
 
 #Icon names for each category
 CATEGORY_ICONS = {
     DataProvider.CATEGORY_LOCAL : "computer",
+    DataProvider.CATEGORY_REMOTE : "network-server",
     DataProvider.CATEGORY_WEB : "applications-internet",
-    DataProvider.CATEGORY_GOOGLE : "applications-internet"
+    DataProvider.CATEGORY_GOOGLE : "applications-internet",
+    DataProvider.CATEGORY_IPOD : "ipod-icon",
+    DataProvider.CATEGORY_USB : "drive-removable-media"
     } 
 
 class CategoryWrapper(Module.ModuleWrapper):
@@ -92,7 +98,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool)
     COLUMN_NAMES = ['Name', 'Description']
 
-    def __init__(self, module_wrapper_list):
+    def __init__(self, module_wrapper_list=[]):
         """
         TreeModel constructor
         
@@ -146,6 +152,10 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             self.cats.append(new_cat)
             i = self.cats.index(new_cat)
             self.pathMappings[new_cat] = (i,)
+            #Signal the treeview to redraw
+            if signal:
+                path=self.on_get_path(new_cat)
+                self.row_inserted(path, self.get_iter(path))
 
         #Now add the dataprovider to the categories children
         try:

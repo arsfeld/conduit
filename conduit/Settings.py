@@ -37,10 +37,11 @@ class Settings(gobject.GObject):
 
     #Default values for conduit settings
     DEFAULTS = {
-        'show_splashscreen'     :   True,   #The splashscreen can be quite useful on slow computers
-        'save_on_exit'          :   False,  #Is the sync set saved on exit automatically?
-        'enable_network'        :   True,   #Should conduit look for other conduits on the local network
-        'disable_twoway_sync'   :   True    #If the user selects it, shoud two way sync be used
+        'show_splashscreen'         :   True,   #The splashscreen can be quite useful on slow computers
+        'save_on_exit'              :   False,  #Is the sync set saved on exit automatically?
+        'enable_network'            :   True,   #Should conduit look for other conduits on the local network
+        'enable_removable_devices'  :   True,   #Should conduit support iPods, USB keys, etc
+        'disable_twoway_sync'       :   True    #If the user selects it, shoud two way sync be used
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names
@@ -325,7 +326,7 @@ class Settings(gobject.GObject):
             location and configures it with the given settings
             """
             #logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
-            dpWrapper = mainWindow.modules.get_new_instance_module_named(dpClassname)
+            dpWrapper = mainWindow.moduleLoader.get_new_instance_module_named(dpClassname)
             if dpWrapper is not None:
                 dpWrapper.module.set_configuration(dpSettings)
                 mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)

@@ -18,6 +18,7 @@ import logging
 import avahi
 import dbus
 import dbus.glib
+import gobject
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
@@ -49,14 +50,19 @@ def encode_dict_to_avahi_text_array(d):
         array.append("%s=%s" % (key, d[key]))
     return array
     
-class ConduitNetworkManager:
+class ConduitNetworkManager(gobject.GObject):
     """
     Controlls all network related communication aspects. This involves
     1) Advertising dataprovider presence on local network using avahi
     2) Discovering remote conduit capabilities (i.e. what dataproviders it has advertised)
     3) Data transmission to/from remote conduit instances
     """
+    __gsignals__ = {
+        #Fired when the module detects a dataprovider on the remote machine added
+        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_PYOBJECT])
+    }
     def __init__(self):
+        gobject.GObject.__init__(self)
         self.dataproviderAdvertiser = AvahiAdvertiser()
         self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
         self.detectedConduits = {}
@@ -104,6 +110,7 @@ class ConduitNetworkManager:
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
+        #FIXME: Do protocol negotionation and then emit "dataprovider-added"
         logging.debug("Remote Dataprovider detected")
 
     def dataprovider_removed(self):
@@ -111,6 +118,7 @@ class ConduitNetworkManager:
         Callback which is triggered when a dataprovider is unadvertised 
         from a remote conduit instance
         """
+        #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
         logging.debug("Remote Dataprovider removed")
 
 class RemoteModuleWrapper(Module.ModuleWrapper):
