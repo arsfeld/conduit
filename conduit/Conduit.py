@@ -301,6 +301,11 @@ class Conduit(goocanvas.Group, gobject.GObject):
             #increase to fit added dataprovider
             new_h = self.get_conduit_height() + Conduit.HEIGHT
             self.resize_conduit_height(new_h)
+
+        #----- STEP SIX ------------------------------------------------------
+        #Check if a two way sync can still be performed
+        if not self.can_do_two_way_sync():
+            self.disable_two_way_sync()
             
     def add_connector_to_canvas(self, source, sink, bidirectional=False):
         """
@@ -475,8 +480,28 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 new_h = self.get_conduit_height() - Conduit.HEIGHT
                 if new_h > 0:
                     self.resize_conduit_height(new_h)
+
+        #Can the conduit can now perform a two way sync if requested by the user?
+        if not self.can_do_two_way_sync():
+            self.disable_two_way_sync()
+
+    def can_do_two_way_sync(self):
+        """
+        Checks if the conduit is eleigable for two way sync, which is true
+        if it has one source and once sink. Two way doesnt make sense in 
+        any other case
+        """
+        return self.datasource != None and len(self.datasinks) == 1
+
+    def enable_two_way_sync(self):
+        logging.debug("Enabling Two Way Sync")
+        self.twoWaySync = True
                     
-            
+    def disable_two_way_sync(self):
+        logging.debug("Disabling Two Way Sync")
+        self.twoWaySync = False
+
+           
 class Connector(goocanvas.Group):
     """
     Represents the graphical connection between a datasource and a datasink

@@ -172,13 +172,32 @@ class Canvas(goocanvas.CanvasView):
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
 
-    def set_popup_menus(self, conduit_popup, dataprovider_popup):
+    def set_popup_menus(self, conduitPopupXML, dataproviderPopupXML):
         """
-        sets up the poput menus and their callbacks
+        Sets up the popup menus and their callbacks
+
+        @param conduitPopupXML: The menu which is popped up when the user right
+        clicks on a conduit
+        @type conduitPopupXML: C{gtk.glade.XML}
+        @param dataproviderPopupXML: The menu which is popped up when the user right
+        clicks on a dataprovider
+        @type dataproviderPopupXML: C{gtk.glade.XML}
         """
-        self.conduit_popup = conduit_popup
-        self.dataprovider_popup = dataprovider_popup
-    
+        self.conduitMenu = conduitPopupXML.get_widget("GroupMenu")
+        self.dataproviderMenu = dataproviderPopupXML.get_widget("ItemMenu")
+
+        self.twoWayMenuItem = conduitPopupXML.get_widget("two_way_sync")
+        self.twoWayMenuItem.connect("toggled", self.on_two_way_sync_toggle)
+
+    def on_two_way_sync_toggle(self, widget):
+        """
+        Hmm
+        """
+        if widget.get_active():
+            self.selected_conduit.enable_two_way_sync()
+        else:
+            self.selected_conduit.disable_two_way_sync()
+
     def on_dataprovider_button_press(self, view, target, event, user_data_dataprovider_wrapper):
         """
         Handle button clicks
@@ -197,7 +216,7 @@ class Canvas(goocanvas.CanvasView):
                 #Only show the menu if the dataprovider isnt already
                 #busy being sync'd
                 if not self.selected_dataprovider_wrapper.module.is_busy():
-                    self.dataprovider_popup.popup(
+                    self.dataproviderMenu.popup(
                                                 None, None, 
                                                 None, event.button, event.time
                                                 )
@@ -206,9 +225,8 @@ class Canvas(goocanvas.CanvasView):
             
     def on_conduit_button_press(self, view, target, event, user_data_conduit):
         """
-        Handle button clicks
+        Handle button clicks on conduits
         """
-        
         if event.type == gtk.gdk.BUTTON_PRESS:
             #tell the canvas we recieved the click (needed for cut, 
             #copy, past, configure operations
@@ -216,8 +234,16 @@ class Canvas(goocanvas.CanvasView):
             if event.button == 1:
                 return True
             elif event.button == 3:
-                if not self.selected_conduit.is_busy():            
-                    self.conduit_popup.popup(
+                #Preset the two way menu items sensitivity
+                if not self.selected_conduit.can_do_two_way_sync() or self.disableTwoWaySync:
+                    self.twoWayMenuItem.set_property("sensitive", False)
+                else:
+                    self.twoWayMenuItem.set_property("sensitive", True)
+                #Set if the item is ticked
+                self.twoWayMenuItem.set_active(self.selected_conduit.twoWaySync)
+                #Show the menu                
+                if not self.selected_conduit.is_busy():
+                    self.conduitMenu.popup(
                                                 None, None, 
                                                 None, event.button, event.time
                                                 )
@@ -343,6 +369,9 @@ class Canvas(goocanvas.CanvasView):
             del(self.welcomeMessage)
             self.welcomeMessage = None
             
+    #FIXME: CAN DELETE THIS FUNCTION WHEN TWO WAY HAS HAD MORE TESTING AND
+    #IS SUFFICIENTLY TRUSTED TO BE ENABLED/DISABLED ON A PER CONDUIT BASIS
+    #ALONE
     def disable_two_way_sync(self, disable):
         """
         Sets whether the canvas should enable/disable two-way
@@ -354,3 +383,6 @@ class Canvas(goocanvas.CanvasView):
         """
         logging.debug("Disable two-way sync? %s" % disable)
         self.disableTwoWaySync = disable
+        if disable == True:
+            for conduit in self.conduits:
+                conduit.disable_two_way_sync()

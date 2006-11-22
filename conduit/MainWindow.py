@@ -80,11 +80,15 @@ class MainWindow:
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_from_file(os.path.join(conduit.SHARED_DATA_DIR, "conduit-icon.png"))
         
-        #Configure canvas and canvas menus
+        #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
+
+        #Configure popup menus
         self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "GroupMenu")
         self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "ItemMenu") 
+        self.canvas_popup_widgets.signal_autoconnect(self)
+        self.item_popup_widgets.signal_autoconnect(self)        
 
         #customize some widgets, connect signals, etc
         self.hpane.set_position(250)
@@ -95,13 +99,10 @@ class MainWindow:
         self.canvas.disable_two_way_sync(conduit.settings.get("disable_twoway_sync"))
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
-        #Set up the popup widgets
-        self.canvas_popup_widgets.signal_autoconnect(self)
-        self.item_popup_widgets.signal_autoconnect(self)        
         #Pass both popups to the canvas
         self.canvas.set_popup_menus( 
-                                self.canvas_popup_widgets.get_widget("GroupMenu"),
-                                self.item_popup_widgets.get_widget("ItemMenu")
+                                self.canvas_popup_widgets,
+                                self.item_popup_widgets
                                 )
         
         # Populate the tree models
@@ -172,13 +173,6 @@ class MainWindow:
         Delete a conduit and all its associated dataproviders
         """
         self.canvas.delete_conduit(self.canvas.selected_conduit)
-
-    def on_twoway_clicked(self, widget):
-        """
-        Hmm
-        """
-        print "fooo"
-        
 
     def on_refresh_group_clicked(self, widget):
         """

@@ -114,6 +114,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         self.typeConverter = typeConverter
+        self.conduit = conduit
         self.source = conduit.datasource
         self.sinks = conduit.datasinks
         self.do_sync = do_sync
@@ -340,8 +341,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     if sink not in sinkDidntRefreshOK:
                         #now perform a one or two way sync depending on the user prefs
                         #and the capabilities of the dataprovider
-                        #FIXME: Check the dataproviders are capable and the conduit has two way enabled
-                        if  False: ##self.conduit.is_two_way_sync_enabled(self.source, sink): ## && conduit.two_way_enabled...
+                        if  self.conduit.twoWaySync:
                             #two way
                             self.two_way_sync(self.source, sink, numItems)
                         else:
