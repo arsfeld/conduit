@@ -266,7 +266,7 @@ class MainWindow:
             disable = use_two_way_sync_check.get_active()
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.settings.set("disable_twoway_sync", disable)
-            #FIXME: One the 2way stuff is confirmed, this setting will be removed
+            #FIXME: Once the 2way stuff is confirmed, this setting will be removed
             #From the prefs, and be managed entirely from the right click conduit menu
             self.canvas.disable_two_way_sync(disable)
         dialog.destroy()                

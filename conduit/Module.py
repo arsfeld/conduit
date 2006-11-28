@@ -179,7 +179,7 @@ class ModuleManager(gobject.GObject):
                 enabled = True
                 if isinstance(mod_instance,DataProviderBase):
                     if not mod_instance.initialize():
-                        logging.warn("%s did not initialize correctly. Starting disabled" % infos["name"])
+                        logging.debug("%s Starting disabled" % infos["name"])
                         enabled = False
                 
                 mod_wrapper = ModuleWrapper (  infos["name"], 

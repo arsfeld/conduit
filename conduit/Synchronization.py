@@ -200,7 +200,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         """
         Transfers numItems of data from source to sink
         """
-        logging.debug("Synchronizing %s |--> %s " % (source, sink))
+        logging.info("Synchronizing %s |--> %s " % (source, sink))
         for i in range(0, numItems):
             data = source.module.get(i)
             #all non fatal errors are handled by _put_data and convert_data
@@ -230,7 +230,49 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         
     def two_way_sync(self, source, sink, numItems):
-        logging.debug("Synchronizing %s <--> %s " % (source, sink))
+        """
+        Performs a two way sync from source to sink and back
+
+        General approach
+         1. Get items from source, store them in a dict indexed by data UID
+         2. Get all items from B, store them in a dict indexed by data UID
+         3. Classify data, two sub cases
+            a. If data is in one and not the other then transfer
+            b. If data is in both then compare, applying the users policy
+            c. If data is in both and comparison is unknown then ask user
+        """
+        logging.info("Synchronizing %s <--> %s " % (source, sink))
+        
+        #Holds Data items indexed by UID
+        sourceItems = {}
+        sinkItems = {}
+
+        #Get all the data
+        for i in range(0, source.module.get_num_items()):
+            data = source.module.get(i)
+            sourceItems[data.UID] = (data, i)
+        for i in range(0, sink.module.get_num_items()):
+            data = sink.module.get(i)
+            sinkItems[data.UID] = (data, i)
+        
+        #Build a list of items missing from the other, List contains a tuple of
+        #(the data, the place where its going)
+        missing = []
+        missing += [(sinkItems[i][0],source) for i in sinkItems.keys() if i not in sourceItems]
+        missing += [(sourceItems[i][0],sink) for i in sourceItems.keys() if i not in sinkItems]
+        for data,dest in missing:
+            #FIXME: Apply user policy
+            dest.module.put(data)
+
+        #Build a list of conflicts (Items in both) - from the perspective of the source
+        for key in [i for i in sinkItems.keys() if i in sourceItems]:
+            fromData, fromIndex = sourceItems[key]
+            toData, toIndex = sinkItems[key]
+            #FIXME: Apply policy
+            #if self._compare_bla():
+            #    pass
+            #else:
+            #    self.emit("conflict",fromData, fromIndex, toData, toIndex)
 
     def run(self):
         """
