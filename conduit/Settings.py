@@ -17,8 +17,8 @@ from xml.dom import minidom
 from xml.dom.minidom import Document
 #import gnomekeyring
 
-import conduit
 import logging
+import conduit
 
 class Settings(gobject.GObject):
     """
@@ -326,7 +326,7 @@ class Settings(gobject.GObject):
             location and configures it with the given settings
             """
             #logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
-            dpWrapper = mainWindow.moduleLoader.get_new_instance_module_named(dpClassname)
+            dpWrapper = mainWindow.moduleManager.get_new_module_instance(dpClassname)
             if dpWrapper is not None:
                 dpWrapper.module.set_configuration(dpSettings)
                 mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)

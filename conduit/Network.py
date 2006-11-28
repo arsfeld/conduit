@@ -11,9 +11,9 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import conduit
-import conduit.Module as Module
 import logging
+import conduit
+from conduit.ModuleWrapper import ModuleWrapper
 
 import avahi
 import dbus
@@ -121,7 +121,7 @@ class ConduitNetworkManager(gobject.GObject):
         #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
         logging.debug("Remote Dataprovider removed")
 
-class RemoteModuleWrapper(Module.ModuleWrapper):
+class RemoteModuleWrapper(ModuleWrapper):
     """
     A DataProviderWrapper but running on another machine. Intercepts 
     calls to .module.foo() functions and calls these over RPC to the 

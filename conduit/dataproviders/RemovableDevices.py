@@ -10,12 +10,12 @@ order to listen to HAL events
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import gobject
 
 import logging
-import conduit
-import conduit.DataProvider as DataProvider
-import conduit.Module as Module
-import gobject
+import conduit, conduit.dataproviders
+from conduit.DataProvider import DataSource
+from conduit.ModuleWrapper import ModuleWrapper
 
 class RemovableDeviceManager(gobject.GObject):
     __gsignals__ = {
@@ -29,14 +29,38 @@ class RemovableDeviceManager(gobject.GObject):
         self.hal.connect("usb-added", self._usb_added)
 
     def _ipod_added(self, hal, udi, mount, name):
-        dpw = Module.ModuleWrapper("hal",name,"source", DataProvider.CATEGORY_IPOD,"text","text","classname",None,None,True)
+        ipodnote = IPodNoteSource(mount, name)
+        dpw = ModuleWrapper(
+                    ipodnote.name,
+                    ipodnote.description,
+                    "source", 
+                    conduit.DataProvider.CATEGORY_IPOD,
+                    "note",
+                    "note",
+                    "%s:IPodNoteSource" % mount,    #classname has to be unique
+                    "",                             #filename N/A
+                    ipodnote,
+                    True)
         self.emit("dataprovider-added", dpw)
-        
-
+        #FIXME: self.emit again with a IPodPhoto/Note/Source/Sink/etc
+     
     def _usb_added(self, hal, udi, mount, name):
-        dpw = Module.ModuleWrapper("usb",name,"source", DataProvider.CATEGORY_USB,"text","text","classname",None,None,True)
-        self.emit("dataprovider-added", dpw)
-        
+        #dpw = ModuleWrapper("usb",name,"source", CATEGORY_USB,"text","text","classname",None,None,True)
+        #self.emit("dataprovider-added", dpw)
+        print "USB"
 
-    
+class USBKeySource(DataSource):
+    """
+    Class will provide a simple way to share files on usb keys between 
+    different PCs   
+    """
+    pass
+
+
+class IPodNoteSource(DataSource):
+    def __init__(self, mountPoint, name):
+        DataSource.__init__(self, "%s IPod" % name, "Sync you iPod notes", "sticky-notes")
+        
+        self.name = name
+        self.mountPoint = mountPoint
     

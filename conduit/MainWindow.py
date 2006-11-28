@@ -18,15 +18,11 @@ import elementtree.ElementTree as ET
 
 import logging
 import conduit
-import conduit.Canvas as Canvas
-import conduit.Module as Module
-import conduit.Synchronization as Synchronization
-import conduit.TypeConverter as TypeConverter
-import conduit.Exceptions as Exceptions
-import conduit.Network as Network
-import conduit.Tree as Tree
-import conduit.Hal as Hal
-import conduit.dataproviders.RemovableDevices as RemovableDevices
+from conduit.Module import ModuleManager
+from conduit.Canvas import Canvas
+from conduit.Synchronization import SyncManager
+from conduit.TypeConverter import TypeConverter
+from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 
 class MainWindow:
     """
@@ -93,7 +89,7 @@ class MainWindow:
         #customize some widgets, connect signals, etc
         self.hpane.set_position(250)
         #start up the canvas
-        self.canvas = Canvas.Canvas()
+        self.canvas = Canvas()
         self.canvasSW.add(self.canvas)
         #set canvas options
         self.canvas.disable_two_way_sync(conduit.settings.get("disable_twoway_sync"))
@@ -106,12 +102,12 @@ class MainWindow:
                                 )
         
         # Populate the tree models
-        self.datasink_tm = Tree.DataProviderTreeModel()
-        self.datasource_tm = Tree.DataProviderTreeModel() 
+        self.datasink_tm = DataProviderTreeModel()
+        self.datasource_tm = DataProviderTreeModel() 
         sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
         source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
-        sink_scrolled_window.add(Tree.DataProviderTreeView(self.datasink_tm))
-        source_scrolled_window.add(Tree.DataProviderTreeView(self.datasource_tm))
+        sink_scrolled_window.add(DataProviderTreeView(self.datasink_tm))
+        source_scrolled_window.add(DataProviderTreeView(self.datasource_tm))
         sink_scrolled_window.show_all()
         source_scrolled_window.show_all()
 
@@ -120,31 +116,21 @@ class MainWindow:
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                             os.path.join(conduit.USER_DIR, "modules")
                             ]
-        self.moduleLoader = Module.ModuleLoader(dirs_to_search)
+        self.moduleManager = ModuleManager(dirs_to_search)
         #Load all dataproviders in the callback to excercise the common code
         #path and because it will be easier to convert to a more MVC frinedly
         #design later
-        self.moduleLoader.connect("module-loaded", self.on_dataprovider_added)        
-        self.moduleLoader.load_all_modules()
+        self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)        
+        self.moduleManager.load_static_modules()
 
         #initialise the Type Converter
-        converters = self.moduleLoader.get_modules_by_type("converter")
+        converters = self.moduleManager.get_modules_by_type("converter")
         self.type_converter = TypeConverter(converters)
         self.canvas.set_type_converter(self.type_converter)
         #initialise the Synchronisation Manager
-        self.sync_manager = Synchronization.SyncManager(self.type_converter)
-        
-        #Advertise conduit on the network
-        if conduit.settings.get("enable_network") == True:
-            self.networkManager = Network.ConduitNetworkManager()
-            self.networkManager.connect("dataprovider-added", self.on_dataprovider_added)
+        self.sync_manager = SyncManager(self.type_converter)
 
-        #Support removable devices, ipods, etc
-        if conduit.settings.get("enable_removable_devices") == True:
-            hal = Hal.HalMonitor()
-            self.removableDeviceManager = RemovableDevices.RemovableDeviceManager(hal)
-            self.removableDeviceManager.connect("dataprovider-added", self.on_dataprovider_added)
-
+       
     def on_dataprovider_added(self, loader, dataprovider):
         """
         Called by those classes which only provide dataproviders
@@ -242,9 +228,9 @@ class MainWindow:
         for i in convertables:
             converterListStore.append( [i] )
         dataProviderListStore = gtk.ListStore( str, bool )
-        for i in self.moduleLoader.get_modules_by_type("sink"):
+        for i in self.moduleManager.get_modules_by_type("sink"):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
-        for i in self.moduleLoader.get_modules_by_type("source"):
+        for i in self.moduleManager.get_modules_by_type("source"):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
            
         #construct the dialog
@@ -290,14 +276,6 @@ class MainWindow:
         """
         Display about dialog
         """
-        import conduit.Module as Module
-        import conduit.DataProvider as DataProvider
-        #FIXME: Testing
-        self.networkManager.advertise_dataprovider("foo")
-        #FIXME: Testing
-        dpw = Module.ModuleWrapper("name","desc","source", DataProvider.CATEGORY_IPOD,"text","text","classname",None,None,True)
-        self.on_dataprovider_added(None, dpw)
-
         aboutTree = gtk.glade.XML(conduit.GLADE_FILE, "AboutDialog")
         dlg = aboutTree.get_widget("AboutDialog")
         dlg.set_name(conduit.APPNAME)
@@ -371,8 +349,9 @@ class MainWindow:
             #logging.info("DND RX = %s" % (module_name))        
             #Add a new instance if the dataprovider to the canvas. It is up to the
             #canvas to decide if multiple instances of the specific provider are allowed
-            new = self.moduleLoader.get_new_instance_module_named(moduleClassName)
-            self.canvas.add_dataprovider_to_canvas(new, x, y)
+            new = self.moduleManager.get_new_module_instance(moduleClassName)
+            if new != None:
+                self.canvas.add_dataprovider_to_canvas(new, x, y)
         
         context.finish(True, True, etime)
         return

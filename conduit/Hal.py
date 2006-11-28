@@ -116,7 +116,12 @@ class HalMonitor(gobject.GObject):
             if device_udi!=None:
                 properties = self._get_properties(device_udi)
                 if self._is_ipod(properties):
-                    logging.debug("IPOD Detected")
+                    mount, name = self.get_device_information(properties)
+                    self.emit("ipod-added", device_udi, mount, name)
+                else:
+                    #FIXME: How do I determine if a volume is removable
+                    #(i.e. a USB key) instead of a normal hard disk
+                    pass
         #Only run once in the idle handler
         return False
                     

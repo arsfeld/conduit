@@ -63,20 +63,8 @@ logging.basicConfig(level=level,
 #                    filename='/tmp/myapp.log',
 #                    filemode='w')
 
-from TypeConverter import TypeConverter
-from MainWindow import MainWindow
-from Canvas import Canvas
-from DataProvider import DataProviderBase, DataSource, DataSink
-from Tree import DataProviderTreeView, DataProviderTreeModel
-from Module import ModuleLoader, ModuleWrapper
-from Conduit import Conduit
-from Exceptions import ConversionError, RefreshError, SyncronizeError, SyncronizeFatalError, SynchronizeConflictError, StopSync,  ConversionDoesntExistError
-from Synchronization import SyncManager, SyncWorker
-from Settings import Settings
-
-# Make sure epydoc documents the classes 
-# as part of the conduit module
-__all__ = ["MainWindow", "Canvas", "DataProviderBase", "DataSource", "DataSink", "ModuleLoader", "ModuleWrapper", "DataProviderTreeView", "DataProviderTreeModel", "TypeConverter", "Conduit", "SyncManager", "SyncWorker", "Settings"]
+import Settings
 
 gobject.threads_init()
-settings = Settings()
+settings = Settings.Settings()
+
