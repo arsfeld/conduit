@@ -52,7 +52,6 @@ else:
     conduit.EXTRA_LIB_DIR = "/usr/share/conduit/contrib"
     
 # Start the application
-from conduit.MainWindow import MainWindow
-test = MainWindow()
-test.__main__()
+from conduit.MainWindow import conduit_main
+conduit_main()
  

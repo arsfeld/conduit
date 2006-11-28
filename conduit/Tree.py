@@ -111,14 +111,10 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         self.dataproviders = []
         #Array of wrappers at their path indexes
         self.cats = []
-        
-        #Only display enabled modules
-        module_wrapper_list = [m for m in module_wrapper_list if m.enabled]
-        
-        #Add them to the module
-        for mod in module_wrapper_list:
-            self.add_dataprovider(mod, False)
 
+        #Add dataproviders
+        self.add_dataproviders(module_wrapper_list)
+        
     def _is_category_heading(self, rowref):
         return rowref.module_type == "category"
 
@@ -133,6 +129,17 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     def _get_category_by_name(self, category_name):
         idx = self._get_category_index_by_name(category_name)
         return self.cats[idx]
+
+    def add_dataproviders(self, dpw=[]):
+        """
+        Adds all enabled dataproviders to the model
+        """
+        #Only display enabled modules
+        module_wrapper_list = [m for m in dpw if m.enabled]
+        
+        #Add them to the module
+        for mod in module_wrapper_list:
+            self.add_dataprovider(mod, True)
                 
     def add_dataprovider(self, dpw, signal=True):
         """
@@ -145,9 +152,11 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         built (in the constructor)
         @type signal: C{bool}
         """
+        logging.debug("Adding DataProvider %s to TreeModel" % dpw)
         #Do we need to create a category first?
         i = self._get_category_index_by_name(dpw.category)
         if i == None:
+            logging.debug("Creating Category %s" % dpw.category)
             new_cat = CategoryWrapper(dpw.category)
             self.cats.append(new_cat)
             i = self.cats.index(new_cat)
@@ -211,6 +220,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_get_iter(
         """
+        if len(self.cats) == 0:
+            return None            
         #Check if this is a toplevel row
         if len(path) == 1:
             if debug:

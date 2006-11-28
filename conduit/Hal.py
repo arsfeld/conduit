@@ -67,7 +67,7 @@ class HalMonitor(gobject.GObject):
                 self.bus=None
             
         if dbus_imported and self.bus and DBus.dbus_service_available(self.bus,'org.freedesktop.Hal'):
-            logging.debug("HAL Initialized")
+            logging.info("HAL Initialized")
             self.vol_monitor.connect("volume-mounted",self._volume_mounted_cb)
             self.vol_monitor.connect("volume-pre-unmount",self._volume_pre_unmounted_cb)
             self.vol_monitor.connect("volume-unmounted",self._volume_unmounted_cb)

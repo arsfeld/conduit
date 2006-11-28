@@ -111,17 +111,21 @@ class MainWindow:
         sink_scrolled_window.show_all()
         source_scrolled_window.show_all()
 
-        #Dynamically load all datasources, datasinks and converters
-        dirs_to_search =    [
-                            os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                            os.path.join(conduit.USER_DIR, "modules")
-                            ]
-        self.moduleManager = ModuleManager(dirs_to_search)
-        #Load all dataproviders in the callback to excercise the common code
-        #path and because it will be easier to convert to a more MVC frinedly
-        #design later
+    def set_model(self, model):
+        """
+        In conduit the model manages all available dataproviders. It is shared
+        between the dbus and the Gtk interface.
+
+        This function
+        """
+        self.moduleManager = model
+
+        #add the dataproviders to the treemodel
+        self.datasource_tm.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
+        self.datasink_tm.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
+        #furthur from this point all dataproviders are loaded in callback as 
+        #its the easiest way modules which can be added and removed at runtime (like ipods)
         self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)        
-        self.moduleManager.load_static_modules()
 
         #initialise the Type Converter
         converters = self.moduleManager.get_modules_by_type("converter")
@@ -364,38 +368,7 @@ class MainWindow:
                                         self.canvas.get_sync_set()
                                         )
 
-    def __main__(self):
-        """
-        Parses command line arguments. Shows the main window and 
-        enters the gtk mainloop
-        
-        Restores application settings, shows a welcome message and
-        closes the splash screen
-        """
-        import getopt, sys
-        #Default command line values
-        settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
-        try:
-            opts, args = getopt.getopt(sys.argv[1:], "hs:", ["help", "settings="])
-            #parse args
-            for o, a in opts:
-                if o in ("-h", "--help"):
-                    pass
-                if o in ("-s", "--settings"):
-                    settingsFile = os.path.join(os.getcwd(), a)
-        except getopt.GetoptError:
-            # print help information and exit:
-            logging.warn("Unknown command line option")
-            pass
-
-        #Start the app using the new args...
-        self.mainWindow.show_all()
-        conduit.settings.set_settings_file(settingsFile)
-        conduit.settings.restore_sync_set(conduit.APPVERSION, self)
-        self.canvas.add_welcome_message()
-        self.splash.destroy()
-        gtk.main()
-        
+    
 class SplashScreen:
     """
     Simple splash screen class which shows an image for a predetermined period
@@ -451,3 +424,53 @@ class SplashScreen:
         if not self.destroyed:
             self.wSplash.destroy()
             self.destroyed = True
+
+def conduit_main():
+    """
+    Conduit main initialization function
+
+    Parses command line arguments. Shows the main window and 
+    enters the gtk mainloop. Sets up the views and models;
+    restores application settings, shows a welcome message and
+    closes the splash screen
+    """
+    import getopt, sys
+    #Default command line values
+    settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hs:", ["help", "settings="])
+        #parse args
+        for o, a in opts:
+            if o in ("-h", "--help"):
+                pass
+            if o in ("-s", "--settings"):
+                settingsFile = os.path.join(os.getcwd(), a)
+    except getopt.GetoptError:
+        # print help information and exit:
+        logging.warn("Unknown command line option")
+        pass
+
+    #Draw the views..
+    gtkView = MainWindow()
+
+    #Dynamically load all datasources, datasinks and converters
+    dirs_to_search =    [
+                        os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
+                        os.path.join(conduit.USER_DIR, "modules")
+                        ]
+    model = ModuleManager(dirs_to_search)
+    model.load_static_modules()
+
+    #Set the view models
+    #gtkView...
+    gtkView.set_model(model)
+    conduit.settings.set_settings_file(settingsFile)
+    conduit.settings.restore_sync_set(conduit.APPVERSION, gtkView)
+    #Dbus view...
+    #FIXME:
+
+    #Start the application
+    gtkView.canvas.add_welcome_message()
+    gtkView.splash.destroy()
+    gtkView.mainWindow.show_all()
+    gtk.main()
