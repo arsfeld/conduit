@@ -36,9 +36,6 @@ class FspotSource(DataProvider.DataSource):
         self.photoURIs = []
 
     def initialize(self):
-        #FIXME: Remove when this dataprovider has been converted to the 
-        #new get_num_items method
-        return False
         if not os.path.exists(FspotSource.PHOTO_DB):
             return False
         else:
@@ -55,6 +52,8 @@ class FspotSource(DataProvider.DataSource):
             return True
         
     def refresh(self):
+        DataProvider.DataSource.refresh(self)
+
         #Stupid pysqlite thread stuff. Connection must be made in the same thread
         #as any execute statements
         self.photoURIs = []
@@ -73,11 +72,14 @@ class FspotSource(DataProvider.DataSource):
 
         con.close()
         
-    def get(self):
-        for uri in self.photoURIs:
-            f = File.File(str(uri))
-            yield f
-            
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return self.photoURIs[index]
+
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
+        return len(self.photoURIs)
+    
     def set_configuration(self, config):
         #We need to override set_configuration because we need to fold the
         #list of enabled tags into the datastore that is used for the

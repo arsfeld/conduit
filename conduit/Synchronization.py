@@ -119,6 +119,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.sinks = conduit.datasinks
         self.do_sync = do_sync
 
+        self.sinkErrors = {}
+
         #Start at the beginning
         self.state = SyncWorker.REFRESH_STATE
         self.cancelled = False
@@ -142,7 +144,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
             raise Exceptions.StopSync
             
-    def _convert_data(self, fromType, toType, data):
+    def _convert_data(self, sink, fromType, toType, data):
         """
         Converts and returns data from fromType to toType.
         Handles all errors nicely and returns none on error
@@ -188,11 +190,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 #The data needs to get back to the main gui thread safely
                 #so that the user can decide... Perhaps a signal???
                 logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
-                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+                self.sinkErrors[dataproviderWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             #This should not happen...
             else:
                 logging.critical("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
-                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+                self.sinkErrors[dataproviderWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             
     def one_way_sync(self, source, sink, numItems):
         """
@@ -205,7 +207,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             #so all that we need to care about are fatal errors
             try:
                 #convert data type if necessary
-                newdata = self._convert_data(source.out_type, sink.in_type, data)
+                newdata = self._convert_data(sink, source.out_type, sink.in_type, data)
                 #store it 
                 if newdata != None:
                     self._put_data(sink, newdata)
