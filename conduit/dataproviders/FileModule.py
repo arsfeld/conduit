@@ -60,8 +60,7 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
     
 class FileSource(DataProvider.DataSource):
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"))
-        self.icon_name = "text-x-generic"
+        DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"), "text-x-generic")
         
         #list of file URIs (from the "add file" button
         self.files = []
@@ -71,10 +70,8 @@ class FileSource(DataProvider.DataSource):
         #are added to this along with self.files
         self.allURIs = []
 
-    #FIXME: Remove when this dataprovider has been converted to the 
-    #new get_num_items method
     def initialize(self):
-        return False
+        return True
 
     def _import_folder_real(self, dirs):
         """
@@ -147,6 +144,8 @@ class FileSource(DataProvider.DataSource):
         self.folders = [ r[0] for r in fileStore if r[1] == "Folder" ]
        
     def refresh(self):
+        DataProvider.DataSource.refresh(self)
+
         #Join the list of discovered files from the recursive directory search
         #to the list of explicitly selected files
         self.allURIs = []
@@ -158,7 +157,8 @@ class FileSource(DataProvider.DataSource):
             logging.debug("Got URI %s" % i)
             
     def put(self, vfsFile, vfsFileOnTopOf=None):
-        #This is a two way capable datasource, so it also implements the put
+	DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)        
+	#This is a two way capable datasource, so it also implements the put
         #method.
         if vfsFileOnTopOf:
             logging.debug("File Source: put %s -> %s" % (vfsFile.URI, vfsFileOnTopOf.URI))
@@ -170,10 +170,13 @@ class FileSource(DataProvider.DataSource):
                     True
                     )
                 
-    def get(self):
-        for f in self.allURIs:
-            vfsFile = File.File(f)
-            yield vfsFile
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return File.File(self.allURIs[index])
+
+    def get_num_items(index):
+        DataProvider.DataSource.get_num_items(self)
+        return len(self.allURIs)
             
     def get_configuration(self):
         return {
@@ -184,14 +187,11 @@ class FileSource(DataProvider.DataSource):
 class FileSink(DataProvider.DataSink):
     DEFAULT_FOLDER_URI = os.path.expanduser("~")
     def __init__(self):
-        DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
-        self.icon_name = "text-x-generic"
+        DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"), "text-x-generic")
         self.folderURI = FileSink.DEFAULT_FOLDER_URI
 
-    #FIXME: Remove when this dataprovider has been converted to the 
-    #new get_num_items method
     def initialize(self):
-        return False
+        return True
         
     def configure(self, window):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "FileSinkConfigDialog")
@@ -211,6 +211,7 @@ class FileSink(DataProvider.DataSink):
         dlg.destroy()            
         
     def put(self, vfsFile, vfsFileOnTopOf=None):
+	DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)
         sourceURIString = vfsFile.get_uri_string()
         #Ok Put the files in the specified directory and retain their names
         #first check if (a converter) has given us another filename to use

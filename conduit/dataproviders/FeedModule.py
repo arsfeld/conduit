@@ -15,28 +15,26 @@ import gnomevfs
 import urllib2
 from elementtree import ElementTree
 
+import mimetypes
+
 MODULES = {
-	"RSSSource" : {
-		"name": _("RSS Source"),
-		"description": _("Sync data from RSS enclosures"),
-		"type": "source",
-		"category": DataProvider.CATEGORY_WEB,
-		"in_type": "file",
-		"out_type": "file"
-	}	
+    "RSSSource" : {
+        "name": _("RSS Source"),
+        "description": _("Sync data from RSS enclosures"),
+        "type": "source",
+        "category": DataProvider.CATEGORY_WEB,
+        "in_type": "file",
+        "out_type": "file"
+    }    
 }
 
 class RSSSource(DataProvider.DataSource):
-    MIME_EXT_DICT = {
-                    "image/jpeg" : ".jpg",
-                    "audio/mpeg" : ".mp3",
-                    "application/ogg" : ".ogg"
-                    }
-    PHOTO_TYPES = ["image/jpeg"]
-    AUDIO_TYPES = ["audio/mpeg", "application/ogg"]
+    PHOTO_TYPES = []
+    AUDIO_TYPES = []
+    VIDEO_TYPES = []
+
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("RSS Source"), _("Sync data from RSS enclosures"))
-        self.icon_name = "feed-icon"
+        DataProvider.DataSource.__init__(self, _("RSS Source"), _("Sync data from RSS enclosures"), "feed-icon")
         
         #self.feedUrl = "http://www.flickr.com/services/feeds/photos_public.gne?id=44124362632@N01&format=rss_200_enc"
         #self.feedUrl = "http://www.lugradio.org/episodes.ogg.rss"
@@ -48,8 +46,22 @@ class RSSSource(DataProvider.DataSource):
         self.downloadPhotos = True
         self.downloadAudio = True
 
+        mimetypes.init()
+
+        # loop through all mime types and detect common mime types
+        for m in mimetypes.types_map.values():
+            if m[:6] == "image/":
+                self.PHOTO_TYPES.append(m)
+            elif m[:6] == "audio/":
+                self.AUDIO_TYPES.append(m)
+            elif m[:6] == "video/":
+                self.VIDEO_TYPES.append(m)
+
+        # why on gods green earth is there an application/ogg :(
+        self.AUDIO_TYPES.append("application/ogg")
+
     def initialize(self):
-        return False
+        return True
 
     def configure(self, window):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "RSSSourceConfigDialog")
@@ -92,6 +104,7 @@ class RSSSource(DataProvider.DataSource):
         logging.debug(self.allowedTypes)
 
     def refresh(self):
+        DataProvider.DataSource.refresh(self)
         try:
             url_info = urllib2.urlopen(self.feedUrl)
             if (url_info):
@@ -119,10 +132,10 @@ class RSSSource(DataProvider.DataSource):
                                     #Make a file
                                     f = File.File(url)
                                     #create the correct extension
-                                    #FIXME:hack because no way to get extensions for
-                                    #mimetype in pygtk. See 349619
+                                    # use python built in mimetypes (utilises /etc/mime.types)
+                                    #  fix to use pygtk when they are out of api freeze and can fix 349619?
                                     try:
-                                        ext = RSSSource.MIME_EXT_DICT[t]
+                                        ext = mimetypes.guess_extension(t)
                                     except:
                                         ext = ""
                                     f.force_new_filename(title+ext)
@@ -133,9 +146,13 @@ class RSSSource(DataProvider.DataSource):
             logging.info("Error getting/parsing feed \n%s" % traceback.format_exc())
             raise Exceptions.RefreshError
                             
-    def get(self):
-        for f in self.files:
-            yield f                            
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return self.files[index]
+
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)                            
+        return len(self.files)
 
     def get_configuration(self):
         return {
