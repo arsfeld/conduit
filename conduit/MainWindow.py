@@ -23,6 +23,7 @@ from conduit.Canvas import Canvas
 from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
+from conduit.Conflict import ConflictResolver
 
 class MainWindow:
     """
@@ -110,6 +111,10 @@ class MainWindow:
         source_scrolled_window.add(DataProviderTreeView(self.datasource_tm))
         sink_scrolled_window.show_all()
         source_scrolled_window.show_all()
+
+        #Set up the expander used for resolving sync conflicts
+        self.conflictResolver = ConflictResolver()
+        self.widgets.get_widget("conflictScrolledWindow").add(self.conflictResolver.view)
 
     def set_model(self, model):
         """

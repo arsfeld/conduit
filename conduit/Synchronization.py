@@ -272,7 +272,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             #if self._compare_bla():
             #    pass
             #else:
-            #    self.emit("conflict",fromData, fromIndex, toData, toIndex)
+            #    self.emit("conflict",source.name, sink.name, fromData, fromIndex, toData, toIndex)
 
     def run(self):
         """
