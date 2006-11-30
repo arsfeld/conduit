@@ -85,7 +85,8 @@ class ArrowCellRenderer(gtk.GenericCellRenderer):
                     os.path.join(conduit.SHARED_DATA_DIR, "one-way-right.png"))
     BOTH_IMAGE = gtk.gdk.pixbuf_new_from_file(
                     os.path.join(conduit.SHARED_DATA_DIR, "two-way.png"))
-    SKIP_IMAGE = None
+    SKIP_IMAGE = gtk.gdk.pixbuf_new_from_file(
+                    os.path.join(conduit.SHARED_DATA_DIR, "skip.png"))
 
     def __init__(self):
         gtk.GenericCellRenderer.__init__(self)
