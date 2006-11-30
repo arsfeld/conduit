@@ -18,6 +18,7 @@ import elementtree.ElementTree as ET
 
 import logging
 import conduit
+from conduit.DBus import DBusView
 from conduit.Module import ModuleManager
 from conduit.Canvas import Canvas
 from conduit.Synchronization import SyncManager
@@ -25,9 +26,9 @@ from conduit.TypeConverter import TypeConverter
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 
-class MainWindow:
+class GtkView:
     """
-    The main conduit class.
+    The main conduit window.
     """
 
     def __init__(self):
@@ -455,8 +456,8 @@ def conduit_main():
         logging.warn("Unknown command line option")
         pass
 
-    #Draw the views..
-    gtkView = MainWindow()
+    #Draw the GUI asap so that the user sees the splash screen
+    gtkView = GtkView()
 
     #Dynamically load all datasources, datasinks and converters
     dirs_to_search =    [
@@ -472,7 +473,9 @@ def conduit_main():
     conduit.settings.set_settings_file(settingsFile)
     conduit.settings.restore_sync_set(conduit.APPVERSION, gtkView)
     #Dbus view...
-    #FIXME:
+    if conduit.settings.get("enable_dbus_interface") == True:
+        dbusView = DBusView()
+        dbusView.set_model(model)
 
     #Start the application
     gtkView.canvas.add_welcome_message()
