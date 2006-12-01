@@ -465,6 +465,8 @@ def conduit_main():
                         os.path.join(conduit.USER_DIR, "modules")
                         ]
     model = ModuleManager(dirs_to_search)
+    #Unfortunately to be able to restore sync settings all modules must be loaded
+    #in this blocking function.
     model.load_static_modules()
 
     #Set the view models

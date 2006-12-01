@@ -211,7 +211,7 @@ class FileSink(DataProvider.DataSink):
         dlg.destroy()            
         
     def put(self, vfsFile, vfsFileOnTopOf=None):
-	DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)
+        DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)
         sourceURIString = vfsFile.get_uri_string()
         #Ok Put the files in the specified directory and retain their names
         #first check if (a converter) has given us another filename to use

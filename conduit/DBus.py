@@ -20,8 +20,10 @@ CONDUIT_DBUS_PATH = "/org/freedesktop/conduit"
 CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
 
 def dbus_service_available(bus,interface):
-    try: import dbus
-    except: return False
+    try: 
+        import dbus
+    except: 
+        return False
     obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
     dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus') 
     avail = dbus_iface.ListNames()
@@ -31,7 +33,7 @@ class DBusView(dbus.service.Object):
     def __init__(self):
         bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, CONDUIT_DBUS_PATH)
-        logging.info("Dbus interface initialized")
+        logging.info("DBus interface initialized")
 
         self.model = None
 

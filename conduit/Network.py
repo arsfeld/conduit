@@ -121,6 +121,12 @@ class ConduitNetworkManager(gobject.GObject):
         #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
         logging.debug("Remote Dataprovider removed")
 
+    def load_all_modules(self):
+        pass
+
+    def get_all_modules(self):
+        return []
+
 class RemoteModuleWrapper(ModuleWrapper):
     """
     A DataProviderWrapper but running on another machine. Intercepts 

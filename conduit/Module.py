@@ -59,7 +59,7 @@ class ModuleManager(gobject.GObject):
                 self.networkManager = ConduitNetworkManager()
                 self.networkManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
             except:
-                logging.warn("unable to initiate network, disabling..")
+                logging.warn("Unable to initiate network, disabling..")
                 # conduit.settings.set("enable_network", False)
                 self.networkManager = None
  
@@ -73,7 +73,7 @@ class ModuleManager(gobject.GObject):
         #Store the ipod so it can be retrieved later by the treeview/model
         #emit a signal so it is added to the GUI
         
-        logging.debug("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
+        logging.info("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
         #FIXME: Should I be checking if its already in there. They cant be
         #singleton objects incase the person has multiple ipods or USB keys.
         #Hmmmmmm
@@ -205,10 +205,20 @@ class ModuleManager(gobject.GObject):
             
     def load_static_modules(self):
         """
-        Loads all modules stored in the current directory
+        Loads all modules. Slow blocking call to be used at startup
+        Necessary because settings cannot be restored until all modules
+        are loaded, and hence we cant wait for signals
         """
         for f in self.filelist:
             self._load_modules_in_file (f)
+
+        if conduit.settings.get("enable_network") == True:
+            self.networkManager.load_all_modules()
+            self.dynamicModules += self.networkManager.get_all_modules()
+             
+        if conduit.settings.get("enable_removable_devices") == True:
+            self.removableDeviceManager.load_all_modules()
+            self.dynamicModules += self.removableDeviceManager.get_all_modules()
             
         self.emit('all-modules-loaded')
         
@@ -217,7 +227,7 @@ class ModuleManager(gobject.GObject):
         @returns: All loaded modules
         @rtype: L{conduit.ModuleManager.ModuleWrapper}[]
         """
-        return self.fileModules
+        return self.fileModules + self.dynamicModules
         
     def get_modules_by_type(self, type_filter):
         """
@@ -228,10 +238,10 @@ class ModuleManager(gobject.GObject):
         @returns: A list of L{conduit.ModuleManager.ModuleWrapper}
         """
         if type_filter is None:
-            return self.fileModules
+            return self.fileModules + self.dynamicModules
         else:
             mods = []
-            for i in self.fileModules:
+            for i in self.fileModules + self.dynamicModules:
                 if i.module_type == type_filter:
                     mods.append(i)
             

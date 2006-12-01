@@ -38,6 +38,7 @@ class ConflictResolver:
         self._test_data()
 
         self.view = gtk.TreeView( self.model )
+        self.view.set_property("enable-search", False)
         self._build_view()
 
     def _test_data(self):
@@ -48,18 +49,23 @@ class ConflictResolver:
     def _build_view(self):
         #Visible column0 is the name of the datasource
         column0 = gtk.TreeViewColumn("Source Name", gtk.CellRendererText(), text=SOURCE_NAME_IDX)
+        column0.set_property("expand", True)
+        column0.set_property("sizing", gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
         #Visible column1 is the arrow to decide the direction
         confRenderer = ConflictCellRenderer()
         column1 = gtk.TreeViewColumn("Conflict", confRenderer)
         column1.set_cell_data_func(confRenderer, self.set_direction_func, DIRECTION_IDX)
+        column1.set_property("expand", False)
+        column1.set_property("sizing", gtk.TREE_VIEW_COLUMN_AUTOSIZE)
 
         #Visible column2 is the name of the datasource
         column2 = gtk.TreeViewColumn("Sink Name", gtk.CellRendererText(), text=SINK_NAME_IDX)
+        column2.set_property("expand", True)
+        column2.set_property("sizing", gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
-        self.view.append_column( column0 )
-        self.view.append_column( column1 )
-        self.view.append_column( column2 )
+        for c in [column0,column1,column2]:
+            self.view.append_column( c )
 
     def set_direction_func(self, column, cell_renderer, tree_model, iter, user_data):
         direction = tree_model.get_value(iter, user_data)
