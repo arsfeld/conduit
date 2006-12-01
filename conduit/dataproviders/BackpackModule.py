@@ -39,10 +39,8 @@ class BackpackBase(DataProvider.DataProviderBase):
 
         self.ba = None
 
-    #FIXME: Remove when this dataprovider has been converted to the 
-    #new get_num_items method
     def initialize(self):
-        return False
+        return True
     
     def refresh(self):
         username = "http://" + self.username + ".backpackit.com/"
@@ -57,8 +55,7 @@ class BackpackBase(DataProvider.DataProviderBase):
 class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
     def __init__(self):
         BackpackBase.__init__(self)
-        DataProvider.DataSink.__init__(self, _("Backpack Note Sink"), _("Store things in Backpack Notes"))
-        self.icon_name = "backpack"
+        DataProvider.DataSink.__init__(self, _("Backpack Note Sink"), _("Store things in Backpack Notes"), "backpack")
         
         self.storeInPage = "Conduit"
         self.pageID = None
@@ -89,6 +86,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         
         
     def put(self, note, noteOnTopOf=None):
+        DataProvider.DataSink.put(self, note, notOnTopOf)
         #First search for the pageID of the named page to put notes in
         if self.pageID is None:
             pages = self.ba.page.list()

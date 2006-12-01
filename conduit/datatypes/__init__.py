@@ -12,6 +12,7 @@ import File
 import Note
 import Text
 import Email
+#import Contact
 import DataType
 
 __all__ = ["Feed", "File", "Note", "Text", "Email", "DataType"]

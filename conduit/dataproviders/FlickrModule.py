@@ -55,8 +55,7 @@ class FlickrSink(DataProvider.DataSink):
     ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
     
     def __init__(self):
-        DataProvider.DataSink.__init__(self, "Flickr Sink", "Your Photos")
-        self.icon_name = "image-x-generic"
+        DataProvider.DataSink.__init__(self, "Flickr Sink", "Your Photos", "image-x-generic")
         
         self.fapi = None
         self.token = None
@@ -65,12 +64,11 @@ class FlickrSink(DataProvider.DataSink):
         self.showFriends = True
         self.showFamily = True
 
-    #FIXME: Remove when this dataprovider has been converted to the 
-    #new get_num_items method
     def initialize(self):
-        return False
+        return True
         
     def refresh(self):
+        DataProvider.DataSink.refresh(self)
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
         self.token = self.fapi.getToken(browser="gnome-www-browser -p", perms="write")
         
@@ -79,6 +77,8 @@ class FlickrSink(DataProvider.DataSink):
         Accepts a vfs file. Must be made local.
         I also store a md5 of the photos uri to check for duplicates
         """
+        DataProvider.DataSink.put(self, photo, photoOnTop)
+        
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
         photoURI = photo.get_local_uri()

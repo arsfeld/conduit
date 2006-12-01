@@ -9,6 +9,7 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Email as Email
+#import conduit.datatypes.Contact as Contact
 
 try:
     import libgmail
@@ -45,8 +46,8 @@ MODULES = {
 		"description": _("Sync your Gmail Contacts"),
 		"type": "source",
 		"category": DataProvider.CATEGORY_GOOGLE,
-		"in_type": "vCard",
-		"out_type": "vCard"
+		"in_type": "contact",
+		"out_type": "contact"
 	},
 	"GmailContactSink" : {
 		"name": _("Gmail Contacts Sink"),
@@ -77,10 +78,8 @@ class GmailBase(DataProvider.DataProviderBase):
         self.loggedIn = False
         self.ga = None
     
-    #FIXME: Remove when this dataprovider has been converted to the 
-    #new get_num_items method
     def initialize(self):
-        return False
+        return True
 
     def refresh(self):
         try:
@@ -94,14 +93,14 @@ class GmailBase(DataProvider.DataProviderBase):
 class GmailEmailSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
         GmailBase.__init__(self)
-        DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"))
-        self.icon_name = "internet-mail"
+        DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"), "internet-mail")
         
         #What emails should the source return??
         self.getAllEmail = False
         self.getUnreadEmail = False
         self.getWithLabel = ""
         self.getInFolder = ""
+        self.mails = []
         
     def configure(self, window):
         """
@@ -188,8 +187,11 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
         dlg.destroy()    
-        
-    def get(self):
+
+    def refresh(self):
+        DataProvider.DataSource.refresh(self)
+        GmailBase.refresh(self)
+
         if self.loggedIn:
             if self.getAllEmail:
                 logging.debug("Getting all Email")
@@ -214,9 +216,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
                             for message in thread:
                                 mail = Email.Email()
                                 mail.create_from_raw_source(message.source)
-                                yield mail
-                    else:
-                        raise StopIteration                           
+                                self.mails.append(mail)                    
                 elif len(self.getWithLabel) > 0:
                     logging.debug("Getting Email Labelled: %s" % self.getWithLabel)                
                     result = self.ga.getMessagesByLabel(self.getWithLabel)
@@ -225,9 +225,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
                             for message in thread:
                                 mail = Email.Email()
                                 mail.create_from_raw_source(message.source)
-                                yield mail
-                    else:
-                        raise StopIteration
+                                self.mails.append(mail)
                 elif len(self.getInFolder) > 0:
                     logging.debug("Getting Email in Folder: %s" % self.getInFolder)                
                     result = self.ga.getMessagesByFolder(self.getInFolder)
@@ -236,12 +234,17 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
                             for message in thread:
                                 mail = Email.Email()
                                 mail.create_from_raw_source(message.source)
-                                yield mail                    
-                    else:
-                        raise StopIteration
+                                self.mails.append(mail)
         else:
             raise Exceptions.SyncronizeFatalError
-        
+                
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return self.mails[index]
+
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
+        return len(self.mails)
 
     def get_configuration(self):
         return {
@@ -257,8 +260,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
 class GmailEmailSink(GmailBase, DataProvider.DataSink):
     def __init__(self):
         GmailBase.__init__(self)
-        DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"))
-        self.icon_name = "internet-mail"
+        DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"), "internet-mail")
         
         self.label = "Conduit"
         
@@ -296,6 +298,8 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
         dlg.destroy()    
         
     def put(self, email, emailOnTopOf=None):
+        DataProvider.DataSink.put(self, email, emailOnTopOf)
+
         if email.has_attachments():
             attach = email.attachments
         else:
@@ -370,16 +374,76 @@ class EmailSinkConverter:
 
 class GmailContactSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"))
-        self.icon_name = "contact-new"
-        
+        GmailBase.__init__(self)
+        DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"), "contact-new")
+        self.contacts = []
+        self.username = ""
+        self.password = ""
+
     def initialize(self):
-        return False
+        return True
+
+    def refresh(self):
+        DataProvider.DataSource.refresh(self)
+        GmailBase.refresh(self)
+
+        if self.loggedIn:
+            result = self.ga.getContacts().getAllContacts()
+            self.contacts = []
+            for c in result:
+                #FIXME: When Contact can load a vcard file, use that instead!
+               contact = Contact.Contact(c.name, c.email)
+               self.contacts.append(contact)
+        else:
+            raise Exceptions.SyncronizeFatalError
+
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
+        return len(self.contacts)
+
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return self.contacts[index]
+
+    def configure(self, window):
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")
+        
+        #get a whole bunch of widgets
+        labelEmailsCb = tree.get_widget("labelEmails")
+        labelEntry = tree.get_widget("labels")
+        usernameEntry = tree.get_widget("username")
+        passwordEntry = tree.get_widget("password")
+        
+        #preload the widgets
+        usernameEntry.set_text(self.username)
+        
+        dlg = tree.get_widget("GmailSinkConfigDialog")
+        dlg.set_transient_for(window)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            self.username = usernameEntry.get_text()
+            if passwordEntry.get_text() != self.password:
+                self.password = passwordEntry.get_text()
+        dlg.destroy()
+
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "password" : self.password,
+            }
 
 class GmailContactSink(GmailBase, DataProvider.DataSink):
     def __init__(self):
-        DataProvider.DataSink.__init__(self, _("Gmail Contacts Sink"), _("Sync your Gmail Contacts"))
-        self.icon_name = "contact-new"
+        GmailBase.__init__(self)
+        DataProvider.DataSink.__init__(self, _("Gmail Contacts Sink"), _("Sync your Gmail Contacts"), "contact-new")
 
     def initialize(self):
         return False
+
+    def refresh(self):
+        DataProvider.DataSink.refresh(self)
+        GmailBase.refresh(self)
+
+    def put(self, contact, contactOnTopOf):
+        DataProvider.DataSink.put(self, contact, contactOnTopOf)

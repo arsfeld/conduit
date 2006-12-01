@@ -55,8 +55,13 @@ class ModuleManager(gobject.GObject):
 
         #Advertise conduit on the network
         if conduit.settings.get("enable_network") == True:
-            self.networkManager = ConduitNetworkManager()
-            self.networkManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
+            try:
+                self.networkManager = ConduitNetworkManager()
+                self.networkManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
+            except:
+                logging.warn("unable to initiate network, disabling..")
+                # conduit.settings.set("enable_network", False)
+                self.networkManager = None
  
         #Support removable devices, ipods, etc
         if conduit.settings.get("enable_removable_devices") == True:

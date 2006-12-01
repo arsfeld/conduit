@@ -149,6 +149,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
         Converts and returns data from fromType to toType.
         Handles all errors nicely and returns none on error
         """
+        newdata = None
+
         try:
             if fromType != toType:
                 if self.typeConverter.conversion_exists(fromType, toType):

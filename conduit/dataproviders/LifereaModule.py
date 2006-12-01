@@ -30,23 +30,27 @@ MODULES = {
 class LifereaSource(DataProvider.DataSource):
     FEED_FILE = "~/.liferea/feedlist.opml"
     def __init__(self):
-        DataProvider.DataSource.__init__(self, _("Liferea"), _("Sync your liferea feeds"))
-        self.icon_name = "liferea"
+        DataProvider.DataSource.__init__(self, _("Liferea"), _("Sync your liferea feeds"), "liferea")
         self.feedlist = None
         
-    #FIXME: Remove when this dataprovider has been converted to the 
-    #new get_num_items method
     def initialize(self):
-        return False      
+        """
+        Load Liferea Source if feed exists
+        """
+        return os.path.exists(LifereaSource.FEED_FILE)
         
     def refresh(self):
+        DataProvider.DataSource.refresh(self)
         self.feedlist = OPML.import_opml(abspath(expanduser(LifereaSource.FEED_FILE)))
         if self.feedlist is None:
             raise Exceptions.RefreshError
-        
-    def get(self):
-        for i in range(0,5):
-            feed = Feed.Feed()
-            feed.title = i
-            yield feed
-		
+    
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
+        return 5
+
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        feed = Feed.Feed()
+        feed.title = index
+        return feed
