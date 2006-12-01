@@ -12,10 +12,10 @@ import File
 import Note
 import Text
 import Email
-#import Contact
+import Contact
 import DataType
 
-__all__ = ["Feed", "File", "Note", "Text", "Email", "DataType"]
+__all__ = ["Feed", "File", "Note", "Text", "Email", "Contact", "DataType"]
 
 #Constants used for comparison
 COMPARISON_EQUAL = 0

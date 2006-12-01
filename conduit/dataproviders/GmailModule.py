@@ -9,7 +9,7 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Email as Email
-#import conduit.datatypes.Contact as Contact
+import conduit.datatypes.Contact as Contact
 
 try:
     import libgmail
