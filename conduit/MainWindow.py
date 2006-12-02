@@ -440,6 +440,7 @@ def conduit_main():
     restores application settings, shows a welcome message and
     closes the splash screen
     """
+    memstats = conduit.memstats()
     import getopt, sys
     #Default command line values
     settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
@@ -483,4 +484,5 @@ def conduit_main():
     gtkView.canvas.add_welcome_message()
     gtkView.splash.destroy()
     gtkView.mainWindow.show_all()
+    memstats = conduit.memstats(memstats)
     gtk.main()
