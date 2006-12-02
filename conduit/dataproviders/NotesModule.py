@@ -145,6 +145,7 @@ class NoteConverter:
     def __init__(self):
         self.conversions =  {    
                             "text,note" : self.text_to_note,
+                            "note,text" : self.note_to_text,
                             "note,file" : self.note_to_file
                             }
                             
@@ -154,6 +155,9 @@ class NoteConverter:
         n.title = "Note Title"
         n.contents = measure
         return n
+
+    def note_to_text(self, note):
+        return note.contents
 
     def note_to_file(self, note):
         f = File.new_from_tempfile(note.contents)

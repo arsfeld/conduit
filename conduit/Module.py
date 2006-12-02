@@ -212,12 +212,12 @@ class ModuleManager(gobject.GObject):
         for f in self.filelist:
             self._load_modules_in_file (f)
 
-        if conduit.settings.get("enable_network") == True:
-            self.networkManager.load_all_modules()
+        if self.networkManager:
+            #self.networkManager.load_all_modules()
             self.dynamicModules += self.networkManager.get_all_modules()
              
         if conduit.settings.get("enable_removable_devices") == True:
-            self.removableDeviceManager.load_all_modules()
+            #self.removableDeviceManager.load_all_modules()
             self.dynamicModules += self.removableDeviceManager.get_all_modules()
             
         self.emit('all-modules-loaded')

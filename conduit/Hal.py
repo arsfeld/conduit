@@ -64,32 +64,55 @@ class HalMonitor(gobject.GObject):
         
         self.registered_volumes = []
         self.bus = dbus.SystemBus()
-            
+
         if dbus_service_available(self.bus,'org.freedesktop.Hal'):
             logging.info("HAL Initialized")
+            #Scan hardware first.
+            self._scan_hardware()
+            #Subsequent detected volumes are added via signals
             self.vol_monitor.connect("volume-mounted",self._volume_mounted_cb)
             self.vol_monitor.connect("volume-pre-unmount",self._volume_pre_unmounted_cb)
             self.vol_monitor.connect("volume-unmounted",self._volume_unmounted_cb)
         else:
             logging.warn("HAL Could not be Initialized")
 
-    def _emit(self, signal, volume_type, device_udi, mount, name):
-        signature = (volume_type, device_udi, mount, name)
-        if signature in self.registered_volumes:
-            #Remove already detected volumes
-            if signal in ["ipod-removed", "usb-removed"]:
-                self.registered_volumes.pop(signature)
-            else:
-                return
-        else:
-            #Add new volume
-            if signal in ["ipod-added", "usb-added"]:
-                self.registered_volumes.append(signature)
-            else:
-                return
-
+    def _emit(self, signal, device_udi, mount, name):
         logging.info("Hal: Emitting %s for Volume %s at %s )" % (signal, name, mount))
         self.emit(signal, device_udi, mount, name)
+
+    def _add_volume(self, volume_type, device_udi, mount, name):
+        signature = (volume_type, device_udi, mount, name)
+        if signature not in self.registered_volumes:
+            self.registered_volumes.append(signature)
+            if volume_type == IPOD:
+                signal = "ipod-added"
+            elif volume_type == USB_KEY:
+                signal = "usb-added"
+            else:
+                logging.warn("Hal: Unknown volume type")
+                return
+            
+            #emit the signal
+            self._emit(signal, device_udi, mount, name)
+        else:
+            logging.warn("Hal: Volume allready present. Not adding")
+
+    def _remove_volume(self, volume_type, device_udi, mount, name):
+        signature = (volume_type, device_udi, mount, name)
+        if signature in self.registered_volumes:
+            self.registered_volumes.pop(signature)
+            if volume_type == IPOD:
+                signal = "ipod-removed"
+            elif volume_type == USB_KEY:
+                signal = "usb-removed"
+            else:
+                logging.warn("Hal: Unknown volume type")
+                return
+            
+            #emit the signal
+            self._emit(signal, device_udi, mount, name)
+        else:
+            logging.warn("Hal: Volume doesnt exist. Cannot remove")
 
     def _volume_mounted_cb(self,monitor,volume):
         device_udi = volume.get_hal_udi()
@@ -97,9 +120,9 @@ class HalMonitor(gobject.GObject):
             properties = self._get_properties(device_udi)
             mount, name = self.get_device_information(properties)
             if self._is_ipod(properties):
-                self._emit("ipod-added", IPOD, device_udi, mount, name)
+                self._add_volume(IPOD, device_udi, mount, name)
             else:
-                self._emit("usb-added", USB_KEY, device_udi, mount, name)
+                self._add_volume(USB_KEY, device_udi, mount, name)
         return True
                 
     def _volume_pre_unmounted_cb(self,monitor,volume):
@@ -116,9 +139,9 @@ class HalMonitor(gobject.GObject):
             properties = self._get_properties(device_udi)
             mount, name = self.get_device_information(properties)
             if self._is_ipod(properties):
-                self._emit("ipod-removed", IPOD, device_udi, mount, name)
+                self._remove_volume(IPOD, device_udi, mount, name)
             else:
-                self._emit("usb-removed", USB_KEY, device_udi, mount, name)
+                self._remove_volume(USB_KEY, device_udi, mount, name)
         return False
 
     def _get_properties(self,device_udi):
@@ -135,6 +158,28 @@ class HalMonitor(gobject.GObject):
                return True
         return False  
 
+    def _scan_hardware(self):
+        """
+        Scans for removable volumes. Adds to the list of registered volumes.
+        Does not emit any signals
+        """
+        for volume in self.vol_monitor.get_mounted_volumes():
+            device_udi = volume.get_hal_udi()
+            if device_udi!=None:
+                properties = self._get_properties(device_udi)
+                if self._is_ipod(properties):
+                    mount, name = self.get_device_information(properties)
+                    signature = (IPOD, device_udi, mount, name)
+                    self._add_volume(IPOD, device_udi, mount, name)
+                else:
+                    #FIXME: How do I determine if a volume is removable
+                    #(i.e. a USB key) instead of a normal hard disk
+                    #self._add_volume(USB_KEY, device_udi, mount, name)
+                    logging.debug("Hal: Skipping non ipod UDI %s" % device_udi)
+                    pass
+        #Only run once if run in the idle handler
+        return False
+
     def get_device_information(self,properties):
         """
         Returns the mount point and label in a 2-tuple
@@ -149,21 +194,6 @@ class HalMonitor(gobject.GObject):
             label = ""
 
         return (mount, label)
-
-    def scan_hardware(self):
-        for volume in self.vol_monitor.get_mounted_volumes():
-            device_udi = volume.get_hal_udi()
-            if device_udi!=None:
-                properties = self._get_properties(device_udi)
-                if self._is_ipod(properties):
-                    mount, name = self.get_device_information(properties)
-                    self._emit("ipod-added", IPOD, device_udi, mount, name)
-                else:
-                    #FIXME: How do I determine if a volume is removable
-                    #(i.e. a USB key) instead of a normal hard disk
-                    pass
-        #Only run once if run in the idle handler
-        return False
 
     def get_all_ipods(self):
         return [i for i in self.registered_volumes if i[TYPE_IDX] == IPOD]

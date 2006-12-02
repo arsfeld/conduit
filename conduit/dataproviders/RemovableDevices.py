@@ -15,8 +15,12 @@ import gobject
 import logging
 import conduit, conduit.dataproviders
 from conduit.DataProvider import DataSource
+from conduit.DataProvider import DataSink
 from conduit.ModuleWrapper import ModuleWrapper
 from Hal import UDI_IDX, MOUNT_IDX, NAME_IDX
+
+import os
+import conduit.datatypes.Note as Note
 
 class RemovableDeviceManager(gobject.GObject):
     __gsignals__ = {
@@ -25,49 +29,69 @@ class RemovableDeviceManager(gobject.GObject):
     }
     def __init__(self, hal):
         gobject.GObject.__init__(self)
-        #Dict of dataproviders indexed by classname
-        self.removable_devices = {}
+
+        #dict of detected volumes
+        self.UDIs = []
+        #Removable device classes
+        self.removable_devices = []
         self.hal = hal
+        
+        #Hal scans in __init__. Get all conected ipods/usb keys
+        for device_type, udi, mount, name in self.hal.get_all_ipods():
+            self._ipod_added(None,udi,mount,name)
+
         self.hal.connect("ipod-added", self._ipod_added)
         self.hal.connect("usb-added", self._usb_added)
 
     def _emit(self, signal, dpw):
-        if dpw.classname not in self.removable_devices:
-            #Add new device
-            logging.info("Removable device %s added" % dpw.classname)
-            self.removable_devices[dpw.classname] = dpw
-            self.emit("dataprovider-added", dpw)
+        logging.info("Removable Devices: Emitting %s for %s" % (signal, dpw.classname))
+        self.emit("dataprovider-added", dpw)
 
     def _ipod_added(self, hal, udi, mount, name):
-        ipodnote = IPodNoteSource(mount, name)
-        dpw = ModuleWrapper(
-                    ipodnote.name,
-                    ipodnote.description,
-                    "source", 
-                    conduit.DataProvider.CATEGORY_IPOD,
-                    "note",
-                    "note",
-                    "%s:IPodNoteSource" % mount,    #classname has to be unique
-                    "",                             #filename N/A
-                    ipodnote,
-                    True)
-        self._emit("dataprovider-added", dpw)
+        if udi in self.UDIs:
+            logging.warn("Removable Devices: UDI %s already used" % udi)
+            return
+        else:
+            #Mark UDI as used
+            self.UDIs.append(udi)
+
+            ipodnote = IPodNoteSource(mount, name)
+            dpw = ModuleWrapper(
+                        ipodnote.name,
+                        ipodnote.description,
+                        "source", 
+                        conduit.DataProvider.CATEGORY_IPOD,
+                        "note",
+                        "note",
+                        "%s:IPodNoteSource" % mount,    #classname has to be unique
+                        "",                             #filename N/A
+                        ipodnote,
+                        True)
+            self.removable_devices.append(dpw)
+            self._emit("dataprovider-added", dpw)
+
+            ipodNoteSink = IPodNoteSink(mount, name)
+            dpw = ModuleWrapper(
+                        ipodNoteSink.name,
+                        ipodNoteSink.description,
+                        "sink", 
+                        conduit.DataProvider.CATEGORY_IPOD,
+                        "note",
+                        "note",
+                        "%s:IPodNoteSink" % mount,      #classname has to be unique
+                        "",                             #filename N/A
+                        ipodNoteSink,
+                        True)
+            self.removable_devices.append(dpw)
+            self._emit("dataprovider-added", dpw)
+
         #FIXME: self._emit again with a IPodPhoto/Note/Source/Sink/etc
      
     def _usb_added(self, hal, udi, mount, name):
-        #dpw = ModuleWrapper("usb",name,"source", CATEGORY_USB,"text","text","classname",None,None,True)
-        #self._emit("dataprovider-added", dpw)
-        print "USB"
-
-    def load_all_modules(self):
-        self.hal.scan_hardware()
-        for i in self.hal.get_all_ipods():
-            self._ipod_added(None,i[UDI_IDX], i[MOUNT_IDX], i[NAME_IDX])
-        for i in self.hal.get_all_usb_keys():
-            self._usb_added(None,i[UDI_IDX], i[MOUNT_IDX], i[NAME_IDX])
+        pass
 
     def get_all_modules(self):
-        return self.removable_devices.values()
+        return self.removable_devices
 
 class USBKeySource(DataSource):
     """
@@ -79,8 +103,49 @@ class USBKeySource(DataSource):
 
 class IPodNoteSource(DataSource):
     def __init__(self, mountPoint, name):
-        DataSource.__init__(self, "%s IPod" % name, "Sync you iPod notes", "sticky-notes")
+        DataSource.__init__(self, "%s IPod" % name, "Sync you iPod notes", "tomboy")
         
         self.name = name
         self.mountPoint = mountPoint
-    
+        self.notes = []
+
+    def refresh(self):
+        DataSource.refresh(self)
+        
+        mypath = os.path.join(self.mountPoint, 'Notes/')
+        logging.info(mypath)
+        for f in os.listdir(mypath):
+            fullpath = os.path.join(mypath, f)
+            logging.info(fullpath)
+            if os.path.isfile(fullpath):
+                title = f
+                modified = os.stat(fullpath).st_mtime
+                contents = open(fullpath, 'r').read()
+
+                note = Note.Note(title,modified,contents)
+                self.notes.append(note)
+
+    def get_num_items(self):
+        DataSource.get_num_items(self)
+        logging.info(len(self.notes))
+        return len(self.notes)
+
+    def get(self, index):
+        DataSource.get(self, index)
+        return self.notes[index]
+
+class IPodNoteSink(DataSink):
+    def __init__(self, mountPoint, name):
+        DataSink.__init__(self, "%s IPod" % name, "Sync you iPod notes", "tomboy")
+        
+        self.name = name
+        self.mountPoint = mountPoint
+        self.notesPoint = os.path.join(mountPoint, 'Notes/')
+
+    def refresh(self):
+        DataSink.refresh(self)
+        
+    def put(self, note, noteOnTopOf=None):
+        DataSink.put(self, note, noteOnTopOf)
+	open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
+        
