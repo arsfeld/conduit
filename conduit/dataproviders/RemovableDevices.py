@@ -55,38 +55,22 @@ class RemovableDeviceManager(gobject.GObject):
             #Mark UDI as used
             self.UDIs.append(udi)
 
-            ipodnote = IPodNoteSource(mount, name)
-            dpw = ModuleWrapper(
-                        ipodnote.name,
-                        ipodnote.description,
-                        "source", 
-                        conduit.DataProvider.CATEGORY_IPOD,
-                        "note",
-                        "note",
-                        "%s:IPodNoteSource" % mount,    #classname has to be unique
-                        "",                             #filename N/A
-                        ipodnote,
-                        True)
-            self.removable_devices.append(dpw)
-            self._emit("dataprovider-added", dpw)
+            for klass,type in [(IPodNoteSource,"source"), (IPodNoteSink,"sink")]:
+                instance = klass(mount, name)
+                dpw = ModuleWrapper(
+                            instance.name,
+                            instance.description,
+                            type, 
+                            conduit.DataProvider.CATEGORY_IPOD,
+                            "note",
+                            "note",
+                            "%s:%s" % (klass.__name__, mount),       #classname has to be unique
+                            "",                                         #filename N/A
+                            instance,
+                            True)
+                self.removable_devices.append(dpw)
+                self._emit("dataprovider-added", dpw)
 
-            ipodNoteSink = IPodNoteSink(mount, name)
-            dpw = ModuleWrapper(
-                        ipodNoteSink.name,
-                        ipodNoteSink.description,
-                        "sink", 
-                        conduit.DataProvider.CATEGORY_IPOD,
-                        "note",
-                        "note",
-                        "%s:IPodNoteSink" % mount,      #classname has to be unique
-                        "",                             #filename N/A
-                        ipodNoteSink,
-                        True)
-            self.removable_devices.append(dpw)
-            self._emit("dataprovider-added", dpw)
-
-        #FIXME: self._emit again with a IPodPhoto/Note/Source/Sink/etc
-     
     def _usb_added(self, hal, udi, mount, name):
         pass
 
