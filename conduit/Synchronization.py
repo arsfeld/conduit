@@ -359,8 +359,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         #This must be a refresh thread so we are done
                         self.state = SyncWorker.DONE_STATE                        
                 else:
-                    #go home
-                    finished = True
+                    #We are finished
+                    self.state = SyncWorker.DONE_STATE                        
 
             #synchronize state
             elif self.state is SyncWorker.SYNC_STATE:
