@@ -392,7 +392,8 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
             self.contacts = []
             for c in result:
                 #FIXME: When Contact can load a vcard file, use that instead!
-               contact = Contact.Contact(c.name, c.email)
+               contact = Contact.Contact()
+               contact.readVCard(c.getVCard())
                self.contacts.append(contact)
         else:
             raise Exceptions.SyncronizeFatalError
