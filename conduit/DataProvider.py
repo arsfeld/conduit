@@ -62,13 +62,19 @@ RECTANGLE_RADIUS = 5
 WIDGET_WIDTH = 120
 WIDGET_HEIGHT = 80
 
-#List of availabel categories that dataproviders can belong. 
-CATEGORY_LOCAL = "Local"
-CATEGORY_REMOTE = "Remote"
-CATEGORY_WEB = "Web"
-CATEGORY_GOOGLE = "Google"
-CATEGORY_IPOD = "iPod"
-CATEGORY_USB = "Remote"
+class DataProviderCategory:
+    def __init__(self, name, icon="image-missing", key=""):
+        self.name = _(name)
+        self.icon = icon
+        self.key = name + key
+
+CATEGORY_LOCAL = DataProviderCategory("Local", "computer")
+CATEGORY_REMOTE = DataProviderCategory("Remote", "network-server")
+CATEGORY_WEB = DataProviderCategory("Web", "applications-internet")
+CATEGORY_GOOGLE = DataProviderCategory("Google", "applications-internet")
+CATEGORY_IPOD = DataProviderCategory("iPod", "ipod-icon")
+CATEGORY_USB = DataProviderCategory("USB", "drive-removable-media")
+CATEGORY_TEST = DataProviderCategory("Test")
 
 class DataProviderBase(goocanvas.Group, gobject.GObject):
     """

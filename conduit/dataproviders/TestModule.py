@@ -13,7 +13,7 @@ MODULES = {
 		"name": "Test Source",
 		"description": "Prints Debug Messages",
 		"type": "source",
-		"category": "Test",
+		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
 		"out_type": "text"
 	},
@@ -21,7 +21,7 @@ MODULES = {
 		"name": "Test Sink",
 		"description": "Prints Debug Messages",
 		"type": "sink",
-		"category": "Test",
+		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
 		"out_type": "text"
 	},
@@ -29,7 +29,7 @@ MODULES = {
 		"name": "Two Way",
 		"description": "Prints Debug Messages",
 		"type": "source",
-		"category": "Test",
+		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
 		"out_type": "text"
 	},
@@ -37,7 +37,7 @@ MODULES = {
 		"name": "Test Refresh Sink",
 		"description": "Fails Refresh",
 		"type": "sink",
-		"category": "Test",
+		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
 		"out_type": "text"
 	},

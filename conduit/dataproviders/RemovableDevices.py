@@ -12,6 +12,8 @@ License: GPLv2
 """
 import gobject
 
+from gettext import gettext as _
+
 import logging
 import conduit, conduit.dataproviders
 from conduit.DataProvider import DataSource
@@ -55,13 +57,18 @@ class RemovableDeviceManager(gobject.GObject):
             #Mark UDI as used
             self.UDIs.append(udi)
 
+            category = conduit.DataProvider.DataProviderCategory(
+                            name,
+                            "ipod-icon",
+                            mount)
+
             for klass,type in [(IPodNoteSource,"source"), (IPodNoteSink,"sink")]:
-                instance = klass(mount, name)
+                instance = klass(mount)
                 dpw = ModuleWrapper(
                             instance.name,
                             instance.description,
                             type, 
-                            conduit.DataProvider.CATEGORY_IPOD,
+                            category,
                             "note",
                             "note",
                             "%s:%s" % (klass.__name__, mount),       #classname has to be unique
@@ -86,10 +93,9 @@ class USBKeySource(DataSource):
 
 
 class IPodNoteSource(DataSource):
-    def __init__(self, mountPoint, name):
-        DataSource.__init__(self, "%s IPod" % name, "Sync you iPod notes", "tomboy")
+    def __init__(self, mountPoint):
+        DataSource.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
         
-        self.name = name
         self.mountPoint = mountPoint
         self.notes = []
 
@@ -119,10 +125,9 @@ class IPodNoteSource(DataSource):
         return self.notes[index]
 
 class IPodNoteSink(DataSink):
-    def __init__(self, mountPoint, name):
-        DataSink.__init__(self, "%s IPod" % name, "Sync you iPod notes", "tomboy")
+    def __init__(self, mountPoint):
+        DataSink.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
         
-        self.name = name
         self.mountPoint = mountPoint
         self.notesPoint = os.path.join(mountPoint, 'Notes/')
 

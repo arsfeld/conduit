@@ -17,62 +17,30 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Module as Module
 
-#Store the translated catgory names
-CATEGORY_NAMES = {
-    DataProvider.CATEGORY_LOCAL : _("On This Computer"),
-    DataProvider.CATEGORY_REMOTE : _("On Another Computer"),
-    DataProvider.CATEGORY_WEB : _("On The Web"),
-    DataProvider.CATEGORY_GOOGLE : _("Google"),
-    DataProvider.CATEGORY_IPOD : _("iPod"),
-    DataProvider.CATEGORY_USB : _("USB")
-    }
-
-#Icon names for each category
-CATEGORY_ICONS = {
-    DataProvider.CATEGORY_LOCAL : "computer",
-    DataProvider.CATEGORY_REMOTE : "network-server",
-    DataProvider.CATEGORY_WEB : "applications-internet",
-    DataProvider.CATEGORY_GOOGLE : "applications-internet",
-    DataProvider.CATEGORY_IPOD : "ipod-icon",
-    DataProvider.CATEGORY_USB : "drive-removable-media"
-    } 
-
 class CategoryWrapper(Module.ModuleWrapper):
     """
     Represents a category stored in the treemodel. Not generally intended 
     to be used outside of C{conduit.Tree.DataProviderTreeModel}
     """
-    def __init__(self, category_name, icon_name=None):
-        self.icon = None
-        #See if the name is translated
-        try:
-            name = CATEGORY_NAMES[category_name]
-        except KeyError:
-            name = category_name
+    def __init__(self, category):
+        self.category = category
+        self.key = category.key
+        self.name = category.name
+        self.icon_name = category.icon
 
         #Call base constructor
         Module.ModuleWrapper.__init__(
                             self,
-                            name,           #name: shows in name column
+                            self.name,      #name: shows in name column
                             None,           #description: shows in description column
                             "category",     #module_type: used to cancel drag and drop
-                            category_name,  #category: untranslated version on Name 
+                            self.category,  #category: untranslated version on Name 
                             None,           #in_type: N/A
                             None,           #out_type: N/A
                             None,           #classname: N/A
                             None,           #filename: N/A
-                            None,           #object instance: N/A
+                            self.category,  #object instance: N/A
                             True)           #enabled: True but N/A
-
-        #For common categories the icon names are pre-specified
-        try:
-            self.icon_name = CATEGORY_ICONS[category_name]
-        except KeyError:
-            #If the user didnt specify a custom icon default to the missing-icon
-            if icon_name == None:
-                self.icon_name = "image-missing"
-            else:
-                self.icon_name = icon_name
 
     def get_icon(self):
         """

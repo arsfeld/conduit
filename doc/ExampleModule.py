@@ -14,8 +14,8 @@ The keys in the inner dict represent
  -  description: Description of the DataProvider (for graphical purposes)
  -  type: String, "source" for Datasource, "sink" for Datasinks
     and "converter" for classes contating DataType conversion methods
- -  category: The name of the category to which the DataProvider belongs or 
-    a stock category. This is used in the GUI
+ -  category: a DataProviderCategory object specifying a category name 
+    and icon ("MoinMoin", "applications-internet" respecively)
  -  in_type: The name of the DataType this DataProvider accepts in its
     put() method (if present)
  -  out_type: The name of the DataType returned from this classes get()
@@ -28,7 +28,7 @@ The dictionary is in the following format:::
     		"name": _("GNOME Wiki Source"),
     		"description": _("Get Pages from the GNOME Wiki"),
     		"type": "source",
-    		"category": DataProvider.CATEGORY_WEB,
+    		"category": DataProviderCategory("MoinMoin", "applications-internet"),
     		"in_type": "wikipage",
     		"out_type": "wikipage"
     	},
@@ -48,7 +48,7 @@ from gettext import gettext as _
 
 import logging
 import conduit
-import conduit.DataProvider as DataProvider
+from conduit.DataProvider import DataSource, DataProviderCategory, DataProviderSimpleConfigurator
 from conduit.datatypes import DataType
 import conduit.Exceptions as Exceptions
 
@@ -59,7 +59,7 @@ MODULES = {
 		"name": _("GNOME Wiki Source"),
 		"description": _("Get Pages from the GNOME Wiki"),
 		"type": "source",
-		"category": DataProvider.CATEGORY_WEB,
+		"category": DataProviderCategory("MoinMoin", "applications-internet"),
 		"in_type": "wikipage",
 		"out_type": "wikipage"
 	},
@@ -73,7 +73,7 @@ MODULES = {
 	}
 }
 
-class MoinMoinDataSource(DataProvider.DataSource):
+class MoinMoinDataSource(DataSource):
     """
     This datasource fetches pages from the GNOME wiki.
     DataSources are presumed to be one-way, that is they are a source
@@ -92,7 +92,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
         The name and description are typically the same values as specified
         in the MODULES dict at the top of the file
         """
-        DataProvider.DataSource.__init__(self, _("GNOME Wiki Source"), _("Get Pages from the GNOME Wiki"), "applications-internet")
+        DataSource.__init__(self, _("GNOME Wiki Source"), _("Get Pages from the GNOME Wiki"), "applications-internet")
         
         #class specific
         self.srcwiki = None
@@ -123,7 +123,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
                     }                    
                 ]
         #We just use a simple configuration dialog
-        dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
+        dialog = DataProviderSimpleConfigurator(window, self.name, items)
         #This call blocks
         dialog.run()
         
@@ -135,7 +135,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
         The refresh method is always called before the sync step. DataSources 
         should always call the base classes refresh() method
         """
-        DataProvider.DataSource.refresh(self)
+        DataSource.refresh(self)
         if self.srcwiki is None:
             try:
                 self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
@@ -149,7 +149,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
         
         DataSources should always call the base classes get_num_items() method
         """
-        DataProvider.DataSource.get_num_items(self)        
+        DataSource.get_num_items(self)        
         return len(self.pages)
             
     def get(self, index):
@@ -163,7 +163,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
         @param index: An index which uniquely represents data to return
         @type index: C{int}
         """
-        DataProvider.DataSource.get(self, index)
+        DataSource.get(self, index)
         #Make a new page data type
         page = WikiPageDataType()
         #Get some meta-information atbout the page like date modified
