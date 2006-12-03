@@ -387,7 +387,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     if sink not in sinkDidntRefreshOK:
                         #now perform a one or two way sync depending on the user prefs
                         #and the capabilities of the dataprovider
-                        if  self.conduit.twoWaySync:
+                        if  self.conduit.is_two_way():
                             #two way
                             self.two_way_sync(self.source, sink, numItems)
                         else:

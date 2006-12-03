@@ -76,7 +76,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                                                 "h" : Conduit.HEIGHT
                                                 }
 
-        self.twoWaySync = False
+        self.twoWaySyncEnabled = False
                                                 
     def on_status_changed(self, dataprovider):
         """
@@ -224,8 +224,20 @@ class Conduit(goocanvas.Group, gobject.GObject):
         if dataprovider_wrapper.module_type == "source":
             #only one source is allowed
             if self.datasource is not None:
-                logging.warn("Only one datasource allowed per conduit")
-                return
+                #unles it is two-way, then it can go in the other position
+                #providing their are no other sinks
+                if dataprovider_wrapper.module.is_two_way() and len(self.datasinks) == 0:
+                    logging.debug("Adding two way source into sink position")
+                    self.datasinks.append(dataprovider_wrapper)
+                    #new sinks get added at the bottom
+                    x_pos = w - padding - w_w
+                    y_pos = y \
+                        + (len(self.datasinks)*Conduit.HEIGHT) \
+                        - (Conduit.HEIGHT/2) \
+                        - (w_h/2)
+                else:         
+                    logging.warn("Only one datasource allowed per conduit")
+                    return
             else:
                 self.datasource = dataprovider_wrapper
                 #New sources go in top left of conduit
@@ -272,12 +284,12 @@ class Conduit(goocanvas.Group, gobject.GObject):
         #----- STEP THREE ----------------------------------------------------                
         #Draw the pretty curvy connector lines only if there
         #is one source and >1 sinks
-        if len(self.datasinks) > 0 and self.datasource != None:
+        if self.datasource != None and len(self.datasinks) > 0:
             #check if there are any sinks which are unconnected and connect them
             for sink in self.datasinks:
                 if sink not in self.connectors:
                     #Draw the connecting lines between the dataproviders
-                    self.add_connector_to_canvas(self.datasource,sink)                       
+                    self.add_connector_to_canvas(self.datasource,sink)
 
         #----- STEP FOUR -----------------------------------------------------                
         if dataprovider_wrapper.module_type == "source":
@@ -491,15 +503,20 @@ class Conduit(goocanvas.Group, gobject.GObject):
         if it has one source and once sink. Two way doesnt make sense in 
         any other case
         """
-        return self.datasource != None and len(self.datasinks) == 1
+        if self.datasource != None and len(self.datasinks) == 1:
+            return self.datasource.module.is_two_way() and self.datasinks[0].module.is_two_way()
+        return False
 
     def enable_two_way_sync(self):
         logging.debug("Enabling Two Way Sync")
-        self.twoWaySync = True
+        self.twoWaySyncEnabled = True
                     
     def disable_two_way_sync(self):
         logging.debug("Disabling Two Way Sync")
-        self.twoWaySync = False
+        self.twoWaySyncEnabled = False
+
+    def is_two_way(self):
+        return self.can_do_two_way_sync() and self.twoWaySyncEnabled
 
            
 class Connector(goocanvas.Group):

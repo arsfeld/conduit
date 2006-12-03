@@ -240,7 +240,7 @@ class Canvas(goocanvas.CanvasView):
                 else:
                     self.twoWayMenuItem.set_property("sensitive", True)
                 #Set if the item is ticked
-                self.twoWayMenuItem.set_active(self.selected_conduit.twoWaySync)
+                self.twoWayMenuItem.set_active(self.selected_conduit.twoWaySyncEnabled)
                 #Show the menu                
                 if not self.selected_conduit.is_busy():
                     self.conduitMenu.popup(

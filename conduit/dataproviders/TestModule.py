@@ -82,6 +82,7 @@ class TestBase:
         self.aInt = 0
         self.aBool = False
         self.aList = []
+        self.count = 0
         
     def initialize(self):
         return True
@@ -142,7 +143,6 @@ class TestSink(TestBase, DataProvider.DataSink):
     def __init__(self):
         TestBase.__init__(self)
         DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages", "emblem-system")
-        self.count = 0
         
     def put(self, data, dataOnTopOf=None):
         DataProvider.DataSink.put(self, data, dataOnTopOf)
@@ -153,12 +153,36 @@ class TestSink(TestBase, DataProvider.DataSink):
         self.count += 1
         logging.debug("TEST SINK: put(): %s" % data)
 
-class TestTwoWay(TestSink, TestSource):
+class TestTwoWay(DataProvider.TwoWay):
+    NUM_DATA = 10
     def __init__(self):
-        DataProvider.DataProviderBase.__init__(self, "Two Way", "Prints Debug Messages", "emblem-system")
+        DataProvider.TwoWay.__init__(self, "Two Way", "Prints Debug Messages")
+        self.data = []
 
     def initialize(self):
         return True
+    
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        self.data = []
+        #Assemble a random array of data
+        for i in range(0, random.randint(1, TestTwoWay.NUM_DATA)):
+            self.data.append(TestDataType(i))
+
+    def get_num_items(self):
+        DataProvider.TwoWay.get_num_items(self)
+        num = len(self.data)
+        logging.debug("TWO WAY: get_num_items() returned %s" % num)
+        return num
+
+    def get(self, index):
+        DataProvider.TwoWay.get(self, index)
+        data = self.data[index]
+        logging.debug("TWO WAY: get() returned %s" % data)
+        return data
+
+    def put(self, data, onTop=False):
+        DataProvider.TwoWay.put(self, data, onTop)
 
 class TestSinkFailRefresh(DataProvider.DataSink):
     def __init__(self):

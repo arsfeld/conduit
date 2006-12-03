@@ -123,9 +123,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         #Build the child widgets
         self._build_widget()
 
-        #EXPERIMENTAL: Set this to True to enable two-way sync
-        self.twoWayEnabled = False
-        
     def __emit_status_changed(self):
 		"""
 		Emits a 'status-changed' signal to the main loop.
@@ -318,13 +315,12 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
     def is_two_way(self):
         """
         If the derived dataprovider includes both get() and set() then
-        it is considered to support two way sync. We still need to
-        check that it is enabled, it might eat your children
+        it is considered to support two way sync. 
         
         A Default DataProvider does not support two-way sync. 
-        See L{conduit.DataProvider.DataSource.is_two_way}
         """
-        return False
+        twoWay = hasattr(self, "put") and hasattr(self, "get")
+        return twoWay
 
     def configure(self, window):
         """
@@ -369,9 +365,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
 class DataSource(DataProviderBase):
     """
     Base Class for DataSources.
-    
-    DataSources can become two way datasources if they also override
-    put() and set twoWayEnable to True
     """
     def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
         """
@@ -379,16 +372,6 @@ class DataSource(DataProviderBase):
         """
         DataProviderBase.__init__(self, name, description, iconName, widgetColorRGBA)
         
-    def is_two_way(self):
-        """
-        Checks if we implement get() and put()
-
-        DataSources can become two way datasources if they also override
-        put() and set twoWayEnable to True
-        """
-        twoWay = hasattr(self, "put") and hasattr(self, "get")
-        return twoWay
-
     def get(self, index):
         """
         Returns data at specified index. This function must be overridden by the 
@@ -454,6 +437,17 @@ class DataSink(DataProviderBase):
         """
         self.set_status(STATUS_SYNC)
 
+class TwoWay(DataSource, DataSink):
+    """
+    Abstract Base Class for TwoWay dataproviders
+    """
+    def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_BUTTER_MID):
+        """
+        Sets the DataProvider color
+        """
+        DataSource.__init__(self, name, description, iconName, widgetColorRGBA)
+        DataSink.__init__(self, name, description, iconName, widgetColorRGBA)
+        
 class DataProviderSimpleConfigurator:
     """
     Provides a simple modal configuration dialog for dataproviders.
