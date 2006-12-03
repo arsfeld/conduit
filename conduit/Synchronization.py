@@ -100,6 +100,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
     SYNC_STATE = 1
     DONE_STATE = 2
 
+    TWO_WAY_DELETE_A = 0
+    TWO_WAY_DELETE_B = 1
+    TWO_WAY_OVER_A = 2
+    TWO_WAY_OVER_B = 3
+    TWO_WAY_ASK = 4
+
     __gsignals__ =  { 
                     "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
@@ -144,6 +150,16 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
             raise Exceptions.StopSync
             
+    def _compare_data_with_policy(self, A, B, policy={}):
+        """
+        Compares A with B and returns what the sync thread should do.
+        """
+        #TWO_WAY_DELETE_A = 0
+        #TWO_WAY_DELETE_B = 1
+        #TWO_WAY_OVER_A = 2
+        #TWO_WAY_OVER_B = 3
+        return SyncWorker.TWO_WAY_ASK
+
     def _convert_data(self, sink, fromType, toType, data):
         """
         Converts and returns data from fromType to toType.
@@ -264,17 +280,34 @@ class SyncWorker(threading.Thread, gobject.GObject):
         missing += [(sourceItems[i][0],sink) for i in sourceItems.keys() if i not in sinkItems]
         for data,dest in missing:
             #FIXME: Apply user policy
-            dest.module.put(data)
+            #dest.module.put(data)
+            logging.debug("MISSING: %s FROM %s" % (data, dest))
 
         #Build a list of conflicts (Items in both) - from the perspective of the source
         for key in [i for i in sinkItems.keys() if i in sourceItems]:
-            fromData, fromIndex = sourceItems[key]
-            toData, toIndex = sinkItems[key]
+            #source is a
+            aData, aIndex = sourceItems[key]
+            #sink is b
+            bData, bIndex = sinkItems[key]
+            logging.debug("CONFLICT: %s" % key)
             #FIXME: Apply policy
-            #if self._compare_bla():
-            #    pass
-            #else:
-            #    self.emit("conflict",source.name, sink.name, fromData, fromIndex, toData, toIndex)
+            compare = self._compare_data_with_policy(A=aData,B=bData)
+            if compare == SyncWorker.TWO_WAY_DELETE_A:
+                #source.delete(aIndex)
+                pass
+            elif compare == SyncWorker.TWO_WAY_DELETE_B:
+                #sink.delete(bIndex)
+                pass
+            elif compare == SyncWorker.TWO_WAY_OVER_A:
+                #sink.put(source.get(bIndex),aIndex,onTop=True)
+                pass
+            elif compare == SyncWorker.TWO_WAY_OVER_B:
+                #source.put(sink.get(aIndex),bIndex,onTop=True)
+                pass
+            else:
+                #SyncWorker.TWO_WAY_ASK
+                #self.emit("conflict",source.name, sink.name, fromData, fromIndex, toData, toIndex)
+                logging.debug("CONFLICT: Asking user")
 
     def run(self):
         """
