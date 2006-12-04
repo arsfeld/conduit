@@ -679,6 +679,9 @@ class Connector(goocanvas.Group):
         @type color: C{string}
         """
         self.path.set_property("stroke_color",color)
+        self.left_end_arrow.set_property("stroke_color",color)
+        self.left_end_round.set_property("fill_color",color)
+        self.right_end.set_property("stroke_color",color)        
 
     def set_two_way(self, twoway):
         """

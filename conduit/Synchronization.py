@@ -107,7 +107,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
     TWO_WAY_ASK = 4
 
     __gsignals__ =  { 
-                    "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+                    "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
     def __init__(self, typeConverter, conduit, do_sync):
@@ -125,6 +126,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.sinks = conduit.datasinks
         self.do_sync = do_sync
 
+        #Keep track of any errors in the syn process. Class variable because these
+        #may occur in a data conversion. Needed so that the correct status
+        #is shown on the GUI at the end of the sync process
         self.sinkErrors = {}
 
         #Start at the beginning
@@ -332,9 +336,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
         """
         #Variable to exit the loop
         finished = False
-        #Because of how these loops are structured create a temp dict to
-        #keep track if an error has occured in a sync, or in refresh
-        sinkErrors = {}
         #Keep track of those sinks that didnt refresh ok
         sinkDidntRefreshOK = {}
         
@@ -377,14 +378,14 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     except Exceptions.RefreshError:
                         logging.warn("Error refreshing: %s" % sink)
                         sinkDidntRefreshOK[sink] = True
-                        sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
+                        self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                     except Exception, err:
                         logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
                         sinkDidntRefreshOK[sink] = True
-                        sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
+                        self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                             
                 #Need to have at least one successfully refreshed sink            
-                if len(sinkErrors) < len(self.sinks):
+                if len(sinkDidntRefreshOK) < len(self.sinks):
                     #If this thread is a sync thread do a sync
                     if self.do_sync:
                         self.state = SyncWorker.SYNC_STATE
@@ -393,6 +394,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         self.state = SyncWorker.DONE_STATE                        
                 else:
                     #We are finished
+                    print "NOT ENOUGHT REFRESHED OK"
                     self.state = SyncWorker.DONE_STATE                        
 
             #synchronize state
@@ -435,15 +437,15 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 #Now go back and check for errors, so that we can tell the GUI
                 #First update those sinks which had no errors
                 for sink in self.sinks:
-                    if sink not in sinkErrors:
+                    if sink not in self.sinkErrors:
                         #Tell the gui if things went OK.
                         if self.do_sync:
                             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
                         else:
                             sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                 #Then those sinks which had some error
-                for sink in sinkErrors:
-                    sink.module.set_status(sinkErrors[sink])
+                for sink in self.sinkErrors:
+                    sink.module.set_status(self.sinkErrors[sink])
                 
                 #It is safe to put this call here because all other source related
                 #Errors raise a StopSync exception and the thread exits
