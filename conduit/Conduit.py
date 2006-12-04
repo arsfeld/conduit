@@ -36,7 +36,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                     "conduit-resized": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
-    def __init__(self, y_from_origin, canvas_width):
+    def __init__(self, y_from_origin=0, canvas_width=0):
         """
         Makes and empty conduit ready to hold one datasource and many
         datasinks

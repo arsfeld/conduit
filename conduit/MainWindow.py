@@ -30,6 +30,7 @@ from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
+from conduit.DBus import dbus_service_available
 
 CONDUIT_DBUS_PATH = "/gui"
 CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
@@ -388,13 +389,25 @@ class GtkView(dbus.service.Object):
                                         self.canvas.get_sync_set()
                                         )
 
-    #dbus-send --session --dest=org.freedesktop.conduit --print-reply /gui org.freedesktop.conduit.Ping
+    #---------------------------------------------------------------------------
+    # DBUS METHODS (follow DBus naming conventions
+    #
+    # Example: dbus-send --session --dest=org.freedesktop.conduit \
+    #           --print-reply /gui org.freedesktop.conduit.Ping
+    #---------------------------------------------------------------------------
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Ping(self):
         """
         Test method to check the DBus interface is working
         """
         return "GtkView Pong"
+
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+    def Present(self):
+        """
+        Test method to check the DBus interface is working
+        """
+        self.mainWindow.present()
 
     
 class SplashScreen:
@@ -453,6 +466,13 @@ class SplashScreen:
             self.wSplash.destroy()
             self.destroyed = True
 
+#FIXME: Make this into a proper class used just for managing single instance
+#and command line usage.
+#0) Make into proper class. Most of whats below goes into __init__
+#1) Make it its own dbus iface at the /activate path
+#2) It should have single method - Activate()
+#3) Remeber the case where the user has started it via --console (or DBus activation)
+#   In that case GTkView will have to be constructed before being presented
 def conduit_main():
     """
     Conduit main initialization function
@@ -466,21 +486,36 @@ def conduit_main():
     import getopt, sys
     #Default command line values
     settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+    useGUI = True
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:", ["help", "settings="])
+        opts, args = getopt.getopt(sys.argv[1:], "hs:c", ["help", "settings=", "console"])
         #parse args
         for o, a in opts:
             if o in ("-h", "--help"):
-                pass
+                print "./%s [--help] [--settings=path_to_settings_file] [--console]" % sys.argv[0]
+                sys.exit(0)
             if o in ("-s", "--settings"):
                 settingsFile = os.path.join(os.getcwd(), a)
+            if o in ("-c", "--console"):
+                useGUI = False
     except getopt.GetoptError:
         # print help information and exit:
         logging.warn("Unknown command line option")
         pass
 
+    #Make conduit single instance. If it is already running then present it
+    #to the user
+    if dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
+        logging.info("Conduit is already running")
+        bus = dbus.SessionBus()
+        obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
+        iface = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
+        iface.Present()
+        sys.exit(0)
+        
     #Draw the GUI asap so that the user sees the splash screen
-    gtkView = GtkView()
+    if useGUI:
+        gtkView = GtkView()
 
     #Dynamically load all datasources, datasinks and converters
     dirs_to_search =    [
@@ -494,17 +529,19 @@ def conduit_main():
 
     #Set the view models
     #gtkView...
-    gtkView.set_model(model)
-    conduit.settings.set_settings_file(settingsFile)
-    conduit.settings.restore_sync_set(conduit.APPVERSION, gtkView)
+    if useGUI:
+        gtkView.set_model(model)
+        conduit.settings.set_settings_file(settingsFile)
+        conduit.settings.restore_sync_set(conduit.APPVERSION, gtkView)
     #Dbus view...
     if conduit.settings.get("enable_dbus_interface") == True:
         dbusView = DBusView()
         dbusView.set_model(model)
 
     #Start the application
-    gtkView.canvas.add_welcome_message()
-    gtkView.splash.destroy()
-    gtkView.mainWindow.show_all()
+    if useGUI:
+        gtkView.canvas.add_welcome_message()
+        gtkView.splash.destroy()
+        gtkView.mainWindow.show_all()
     memstats = conduit.memstats(memstats)
     gtk.main()
