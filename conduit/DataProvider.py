@@ -248,6 +248,13 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         """
         self.set_status(STATUS_REFRESH)
 
+    def finish(self):
+        """
+        Perform any post-sync cleanup. For example, free any structures created
+        in refresh that were used in the synchronization.
+        """
+        pass
+
     def set_status(self, newStatus):
         """
         Sets the dataprovider status. If the status has changed then emits

@@ -453,7 +453,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
                 else:
                     self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
+                
+                # allow dataproviders to do any post-sync cleanup
+                for s in [self.source] + self.sinks:
+                    s.module.finish()        
+                
                 #Exit thread
                 finished = True
                 
-        
