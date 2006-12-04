@@ -16,6 +16,11 @@ import os.path
 from gettext import gettext as _
 import elementtree.ElementTree as ET
 
+import dbus
+import dbus.service
+if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
+    import dbus.glib
+
 import logging
 import conduit
 from conduit.DBus import DBusView
@@ -26,7 +31,10 @@ from conduit.TypeConverter import TypeConverter
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 
-class GtkView:
+CONDUIT_DBUS_PATH = "/gui"
+CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
+
+class GtkView(dbus.service.Object):
     """
     The main conduit window.
     """
@@ -116,6 +124,12 @@ class GtkView:
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver()
         self.widgets.get_widget("conflictScrolledWindow").add(self.conflictResolver.view)
+
+        #Dbus can also be used to control the gui. Useful for 
+        #automated testing and activation
+        if conduit.settings.get("enable_dbus_interface") == True:
+            bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
+            dbus.service.Object.__init__(self, bus_name, CONDUIT_DBUS_PATH)
 
     def set_model(self, model):
         """
@@ -373,6 +387,14 @@ class GtkView:
         conduit.settings.save_sync_set( conduit.APPVERSION,
                                         self.canvas.get_sync_set()
                                         )
+
+    #dbus-send --session --dest=org.freedesktop.conduit --print-reply /gui org.freedesktop.conduit.Ping
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+    def Ping(self):
+        """
+        Test method to check the DBus interface is working
+        """
+        return "GtkView Pong"
 
     
 class SplashScreen:

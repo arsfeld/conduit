@@ -20,7 +20,7 @@ import conduit
 from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 
-CONDUIT_DBUS_PATH = "/org/freedesktop/conduit"
+CONDUIT_DBUS_PATH = "/"
 CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
 
 def dbus_service_available(bus,interface):
@@ -34,7 +34,7 @@ def dbus_service_available(bus,interface):
     return interface in avail
 
 #Example Message
-#dbus-send --session --dest=org.freedesktop.conduit --print-reply /org/freedesktop/conduit org.freedesktop.conduit.Ping
+#dbus-send --session --dest=org.freedesktop.conduit --print-reply / org.freedesktop.conduit.Ping
 class DBusView(dbus.service.Object):
     def __init__(self):
         bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
@@ -81,7 +81,7 @@ class DBusView(dbus.service.Object):
         Test method to check the DBus interface is working
         """
         self._print("Pong")
-        return "Pong"
+        return "DBusView Pong"
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSources(self):
