@@ -267,6 +267,7 @@ class Canvas(goocanvas.CanvasView):
         @type x: C{int}
         @param y: The y location on the canvas to place the module widget
         @type y: C{int}
+        @returns: The conduit that the dataprovider was added to
         """
         #delete the welcome message
         self.delete_welcome_message()
@@ -280,12 +281,12 @@ class Canvas(goocanvas.CanvasView):
 
         #check to see if the dataprovider was dropped on an existin conduit
         #or whether a new one shoud be created
-        existing_conduit = self.get_conduit_at_coordinate(y)
-        if existing_conduit is not None:
-            existing_conduit.add_dataprovider_to_conduit(module)
+        c = self.get_conduit_at_coordinate(y)
+        if c is not None:
+            c.add_dataprovider_to_conduit(module)
             #Update to connectors to see if they are valid
             if self.typeConverter is not None:
-                existing_conduit.update_connectors_connectedness(self.typeConverter)
+                c.update_connectors_connectedness(self.typeConverter)
         else:
             #create the new conduit
             c = Conduit.Conduit(offset,c_w)
@@ -299,6 +300,8 @@ class Canvas(goocanvas.CanvasView):
             #now add to root element
             self.root.add_child(c)
             self.conduits.append(c)
+
+        return c
             
     def update_conduit_connectedness(self):
         """

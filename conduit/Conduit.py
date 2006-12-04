@@ -4,6 +4,8 @@ Represents a conduit (The joining of one source to one or more sinks)
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import os.path
+import gtk, gtk.gdk
 import goocanvas
 import gtk
 import gobject
@@ -336,7 +338,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         if not self.can_do_two_way_sync():
             self.disable_two_way_sync()
             
-    def add_connector_to_canvas(self, source, sink, bidirectional=False):
+    def add_connector_to_canvas(self, source, sink):
         """
         Adds nice curved line which indicates a sync relationship to the canvas
         """
@@ -370,6 +372,12 @@ class Conduit(goocanvas.Group, gobject.GObject):
                     #FIXME: Dont draw invalid connections here, or draw a dotted line or something
                     if not typeConverter.conversion_exists(self.datasource.out_type, sink.in_type):
                         self.connectors[sink].set_color("red")
+
+        if self.is_two_way():
+            self.connectors[self.datasinks[0]].set_two_way(True)
+        else:
+            for sink in self.datasinks[1:]:
+                self.connectors[sink].set_two_way(False)
 
     def make_status_text(self, x, y, text=""):
         """
@@ -529,10 +537,14 @@ class Conduit(goocanvas.Group, gobject.GObject):
     def enable_two_way_sync(self):
         logging.debug("Enabling Two Way Sync")
         self.twoWaySyncEnabled = True
+        if self.can_do_two_way_sync():
+            self.connectors[self.datasinks[0]].set_two_way(True)
                     
     def disable_two_way_sync(self):
         logging.debug("Disabling Two Way Sync")
         self.twoWaySyncEnabled = False
+        if self.can_do_two_way_sync():
+            self.connectors[self.datasinks[0]].set_two_way(False)
 
     def is_two_way(self):
         return self.can_do_two_way_sync() and self.twoWaySyncEnabled
@@ -547,17 +559,72 @@ class Connector(goocanvas.Group):
 
     Contains a single goocanvas.Path element
     """
+
     def __init__(self, fromX, fromY, toX, toY):
         goocanvas.Group.__init__(self)
         self.fromX = fromX
         self.fromY = fromY
         self.toX = toX
         self.toY = toY
+        self.twoway = False
 
         #The path is a goocanvas.Path element. 
         self.path = goocanvas.Path(data="",stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
         self._draw_path()
         self.add_child(self.path)
+
+        self.left_end_round = goocanvas.Ellipse(
+                                    center_x=fromX, 
+                                    center_y=fromY, 
+                                    radius_x=6, 
+                                    radius_y=6, 
+                                    fill_color="black", 
+                                    line_width=0.0
+                                    )
+        points = goocanvas.Points([(fromX, fromY), (fromX-1, fromY)])
+        self.left_end_arrow = goocanvas.Polyline(
+                            points=points,
+                            stroke_color="black",
+                            line_width=5,
+                            end_arrow=True,
+                            arrow_tip_length=3,
+                            arrow_length=3,
+                            arrow_width=3
+                            )
+
+        
+
+        points = goocanvas.Points([(toX-1, toY), (toX, toY)])
+        self.right_end = goocanvas.Polyline(
+                            points=points,
+                            stroke_color="black",
+                            line_width=5,
+                            end_arrow=True,
+                            arrow_tip_length=3,
+                            arrow_length=3,
+                            arrow_width=3
+                            )
+        self._draw_arrow_ends()
+
+        self.add_child(self.right_end)
+
+    def _draw_arrow_ends(self):
+        #Always draw the right arrow end for the correct width
+        points = goocanvas.Points([(self.toX-1, self.toY), (self.toX, self.toY)])
+        self.right_end.set_property("points",points)
+        #selectively add or remove a rounded left or right arrow
+        #remove both
+        arrowidx = self.find_child(self.left_end_arrow)
+        if arrowidx != -1:
+            self.remove_child(arrowidx)
+        roundidx = self.find_child(self.left_end_round)
+        if roundidx != -1:
+            self.remove_child(roundidx)
+        
+        if self.twoway == True:
+            self.add_child(self.left_end_arrow)
+        else:
+            self.add_child(self.left_end_round)
 
     def _draw_path(self):
         """
@@ -604,6 +671,7 @@ class Connector(goocanvas.Group):
         #Only the X location changes
         self.toX += dw
         self._draw_path()
+        self._draw_arrow_ends()
 
     def set_color(self, color):
         """
@@ -611,3 +679,12 @@ class Connector(goocanvas.Group):
         @type color: C{string}
         """
         self.path.set_property("stroke_color",color)
+
+    def set_two_way(self, twoway):
+        """
+        @param color: The connectors new color
+        @type color: C{string}
+        """
+        self.twoway = twoway
+        self._draw_arrow_ends()
+

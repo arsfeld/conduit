@@ -259,6 +259,7 @@ class Settings(gobject.GObject):
             conduitxml.setAttribute("y",str(y))
             conduitxml.setAttribute("w",str(w))
             conduitxml.setAttribute("h",str(h))
+            conduitxml.setAttribute("twoway",str(conduit.is_two_way()))
             rootxml.appendChild(conduitxml)
             
             #Store the source
@@ -325,15 +326,18 @@ class Settings(gobject.GObject):
             """
             Adds the dataprovider back onto the canvas at the specifed
             location and configures it with the given settings
+            
+            @returns: The conduit the dataprovider was restored to
             """
             #logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
+            conduit = None
             dpWrapper = mainWindow.moduleManager.get_new_module_instance(dpClassname)
             if dpWrapper is not None:
                 dpWrapper.module.set_configuration(dpSettings)
-                mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)
+                conduit = mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)
             else:
                 logging.warn("Could not restore %s to (x=%s,y=%s)" % (dpClassname,x,y))
-            
+            return conduit
 
         #Check the file exists
         if not os.path.isfile(self.xmlSettingFilePath):
@@ -354,15 +358,19 @@ class Settings(gobject.GObject):
             for conds in doc.getElementsByTagName("conduit"):
                 x = conds.getAttribute("x")
                 y = conds.getAttribute("y")
+                twoway = Settings._string_to_bool(conds.getAttribute("twoway"))
                 #each conduit
                 for i in conds.childNodes:
+                    #keep a ref to the dataproider was added to so that we
+                    #can apply settings to it at the end
+                    conduit = None
                     #one datasource
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
                         classname = i.getAttribute("classname")
                         settings = get_settings(i)
                         #add to canvas
                         if len(classname) > 0:
-                            restore_dataprovider(classname,settings,x,y)
+                            conduit = restore_dataprovider(classname,settings,x,y)
                     #many datasinks
                     elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
                         #each datasink
@@ -372,7 +380,12 @@ class Settings(gobject.GObject):
                                 settings = get_settings(sink)
                                 #add to canvas
                                 if len(classname) > 0:
-                                    restore_dataprovider(classname,settings,x,y)                        
+                                    conduit = restore_dataprovider(classname,settings,x,y)
+
+                    #restore conduit specific settings
+                    if conduit != None:
+                        if twoway == True:
+                            conduit.enable_two_way_sync()
 
         #FIXME: Should i special case different exceptions here....?
         except:
