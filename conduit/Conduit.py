@@ -220,7 +220,11 @@ class Conduit(goocanvas.Group, gobject.GObject):
         w_w, w_h = dataprovider_wrapper.module.get_widget_dimensions()
         #if we are adding a new source we may need to resize the box
         resize_box = False
-        
+        #is the dataprovider going on the left of the right. This is needed
+        #because two way dps can go on either side so we cant rely on module
+        #type to position it
+        horizontal_position = None        
+
         if dataprovider_wrapper.module_type == "source":
             #only one source is allowed
             if self.datasource is not None:
@@ -229,8 +233,9 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 if dataprovider_wrapper.module.is_two_way() and len(self.datasinks) == 0:
                     logging.debug("Adding two way source into sink position")
                     self.datasinks.append(dataprovider_wrapper)
-                    #new sinks get added at the bottom
-                    x_pos = w - padding - w_w
+                    #in this case, despite being a source, the dp goes on the right
+                    horizontal_position = "right"
+                    #new sinks get added at the bottom                    
                     y_pos = y \
                         + (len(self.datasinks)*Conduit.HEIGHT) \
                         - (Conduit.HEIGHT/2) \
@@ -240,8 +245,9 @@ class Conduit(goocanvas.Group, gobject.GObject):
                     return
             else:
                 self.datasource = dataprovider_wrapper
-                #New sources go in top left of conduit
-                x_pos = padding
+                #DataSources go on the left
+                horizontal_position = "left"
+                #And always at the top
                 y_pos = y + (Conduit.HEIGHT/2) - (w_h/2)
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
@@ -251,8 +257,9 @@ class Conduit(goocanvas.Group, gobject.GObject):
             else:
                 #temp reference for drawing the connector line
                 self.datasinks.append(dataprovider_wrapper)
-                #new sinks get added at the bottom
-                x_pos = w - padding - w_w
+                #Datasinks go on the right
+                horizontal_position = "right"
+                #And always added at the bottom
                 y_pos = y \
                     + (len(self.datasinks)*Conduit.HEIGHT) \
                     - (Conduit.HEIGHT/2) \
@@ -277,6 +284,13 @@ class Conduit(goocanvas.Group, gobject.GObject):
                                         "h" : w_h
                                         }
         #move the widget to its new position
+        if horizontal_position == "left":
+            x_pos = padding
+        elif horizontal_position == "right":
+            x_pos = w - padding - w_w
+        else:
+            logging.warn("UNKNOWN HORIZONTAL POSITION")
+
         self.move_dataprovider_to(dataprovider_wrapper,x_pos,y_pos)
         #add to this group
         self.add_child(new_widget)
@@ -291,17 +305,20 @@ class Conduit(goocanvas.Group, gobject.GObject):
                     #Draw the connecting lines between the dataproviders
                     self.add_connector_to_canvas(self.datasource,sink)
 
-        #----- STEP FOUR -----------------------------------------------------                
-        if dataprovider_wrapper.module_type == "source":
+        #----- STEP FOUR -----------------------------------------------------
+        #Draw status text
+        if horizontal_position == "left":
             x_offset = w_w + Conduit.CONNECTOR_TEXT_XPADDING
             #Source text is above the line
             y_offset = w_h - Conduit.CONNECTOR_YOFFSET - Conduit.CONNECTOR_TEXT_YPADDING
             anchor = gtk.ANCHOR_WEST
-        else:
+        elif horizontal_position == "right":
             x_offset = - Conduit.CONNECTOR_TEXT_XPADDING
             #Sink text is below the line
             y_offset = w_h - Conduit.CONNECTOR_TEXT_YPADDING
-            anchor = gtk.ANCHOR_EAST            
+            anchor = gtk.ANCHOR_EAST         
+        else:
+            logging.warn("UNKNOWN HORIZONTAL POSITION")    
         msg = dataprovider_wrapper.module.get_status_text()             
         statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset, msg)
         statusText.set_property("anchor", anchor)
@@ -433,21 +450,20 @@ class Conduit(goocanvas.Group, gobject.GObject):
         del(self.positions[dataprovider])
         #Sources and sinks are stored seperately so must be deleted from different
         #places. Lucky there is only one source or this would be harder....
-        if dataprovider.module_type == "source":
+        if dataprovider == self.datasource:
             del(self.datasource)
             self.datasource = None
-        elif dataprovider.module_type == "sink":
-            try:
-                i = self.datasinks.index(dataprovider)
-                del(self.datasinks[i])
-            except ValueError:
-                logging.warn("Could not remove %s" % dataprovider)
+        elif dataprovider in self.datasinks:
+            i = self.datasinks.index(dataprovider)
+            del(self.datasinks[i])
+        else:
+            logging.warn("Could not remove %s" % dataprovider)
         
     def delete_dataprovider_from_conduit(self, dataprovider):
         """
         Removes the specified conduit from the canvas
         """
-        if dataprovider.module_type == "source":
+        if dataprovider == self.datasource:
             logging.debug("Deleting Source %s" % dataprovider)
             #remove ALL connectors
             for sink in self.datasinks:
@@ -456,7 +472,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
             self.delete_status_text(dataprovider)
             #remove the dataprovider widget and instance
             self.delete_dataprovider(dataprovider)
-        elif dataprovider.module_type == "sink":
+        elif dataprovider in self.datasinks:
             logging.debug("Deleting Sink %s" % dataprovider)  
             #remove the connector
             if self.datasource is not None:
@@ -492,6 +508,9 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 new_h = self.get_conduit_height() - Conduit.HEIGHT
                 if new_h > 0:
                     self.resize_conduit_height(new_h)
+
+        else:
+            logging.warn("Could not find dataprovider %s to delete" % dataprovider)
 
         #Can the conduit can now perform a two way sync if requested by the user?
         if not self.can_do_two_way_sync():
