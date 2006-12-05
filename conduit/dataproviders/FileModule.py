@@ -71,7 +71,7 @@ class FileSource(DataProvider.DataSource):
         self.folders = []
         #After refresh, all folders are expanded and the files inside them
         #are added to this along with self.files
-        self.allURIs = []
+        self.allURIs = None
 
     def initialize(self):
         return True
@@ -180,6 +180,9 @@ class FileSource(DataProvider.DataSource):
     def get_num_items(index):
         DataProvider.DataSource.get_num_items(self)
         return len(self.allURIs)
+
+    def finish(self):
+        self.allURIs = None
             
     def get_configuration(self):
         return {

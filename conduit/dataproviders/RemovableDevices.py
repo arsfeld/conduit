@@ -97,11 +97,13 @@ class IPodNoteSource(DataSource):
         DataSource.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
         
         self.mountPoint = mountPoint
-        self.notes = []
+        self.notes = None
 
     def refresh(self):
         DataSource.refresh(self)
         
+        self.notes = []
+
         mypath = os.path.join(self.mountPoint, 'Notes/')
         logging.info(mypath)
         for f in os.listdir(mypath):
@@ -123,6 +125,9 @@ class IPodNoteSource(DataSource):
     def get(self, index):
         DataSource.get(self, index)
         return self.notes[index]
+
+    def finish(self):
+        self.notes = None
 
 class IPodNoteSink(DataSink):
     def __init__(self, mountPoint):

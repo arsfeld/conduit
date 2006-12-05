@@ -33,7 +33,7 @@ class FspotSource(DataProvider.DataSource):
         #Settings
         self.enabledTags = [] #Just used to save and restore settings
         self.tags = []
-        self.photoURIs = []
+        self.photoURIs = None
 
     def initialize(self):
         if not os.path.exists(FspotSource.PHOTO_DB):
@@ -80,6 +80,9 @@ class FspotSource(DataProvider.DataSource):
         DataProvider.DataSource.get_num_items(self)
         return len(self.photoURIs)
     
+    def finish(self):
+        self.photoURIs = None
+
     def set_configuration(self, config):
         #We need to override set_configuration because we need to fold the
         #list of enabled tags into the datastore that is used for the

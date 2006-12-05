@@ -105,7 +105,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         self.getUnreadEmail = False
         self.getWithLabel = ""
         self.getInFolder = ""
-        self.mails = []
+        self.mails = None
         
     def configure(self, window):
         """
@@ -197,6 +197,8 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         DataProvider.DataSource.refresh(self)
         GmailBase.refresh(self)
 
+        self.mails = []
+
         if self.loggedIn:
             if self.getAllEmail:
                 logging.debug("Getting all Email")
@@ -250,6 +252,9 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
         return len(self.mails)
+
+    def finish(self):
+        self.mails = None
 
     def get_configuration(self):
         return {
@@ -381,7 +386,7 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
     def __init__(self):
         GmailBase.__init__(self)
         DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"), "contact-new")
-        self.contacts = []
+        self.contacts = None
         self.username = ""
         self.password = ""
 
@@ -392,9 +397,10 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
         DataProvider.DataSource.refresh(self)
         GmailBase.refresh(self)
 
+        self.contacts = []
+
         if self.loggedIn:
             result = self.ga.getContacts().getAllContacts()
-            self.contacts = []
             for c in result:
                 #FIXME: When Contact can load a vcard file, use that instead!
                contact = Contact.Contact()
@@ -410,6 +416,9 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
     def get(self, index):
         DataProvider.DataSource.get(self, index)
         return self.contacts[index]
+
+    def finish(self):
+        self.contacts = None
 
     def configure(self, window):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")

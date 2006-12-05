@@ -55,3 +55,6 @@ class LifereaSource(DataProvider.DataSource):
         feed = Feed.Feed()
         feed.title = index
         return feed
+
+    def finish(self):
+        self.feedlist = None

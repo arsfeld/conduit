@@ -161,7 +161,7 @@ class TestTwoWay(DataProvider.TwoWay):
     NUM_DATA = 10
     def __init__(self):
         DataProvider.TwoWay.__init__(self, "Two Way", "Prints Debug Messages")
-        self.data = []
+        self.data = None
 
     def initialize(self):
         return True
@@ -187,6 +187,9 @@ class TestTwoWay(DataProvider.TwoWay):
 
     def put(self, data, onTop=False):
         DataProvider.TwoWay.put(self, data, onTop)
+
+    def finish(self):
+        self.data = None
 
 class TestSinkFailRefresh(DataProvider.DataSink):
     def __init__(self):

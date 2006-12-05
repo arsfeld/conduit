@@ -40,7 +40,7 @@ class RSSSource(DataProvider.DataSource):
         #self.feedUrl = "http://www.flickr.com/services/feeds/photos_public.gne?id=44124362632@N01&format=rss_200_enc"
         #self.feedUrl = "http://www.lugradio.org/episodes.ogg.rss"
         self.feedUrl = ""
-        self.files = []
+        self.files = None
 
         self.allowedTypes = []
         self.limit = 0        
@@ -106,6 +106,8 @@ class RSSSource(DataProvider.DataSource):
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
+
+        self.files = []
         try:
             url_info = urllib2.urlopen(self.feedUrl)
             if (url_info):
@@ -154,6 +156,9 @@ class RSSSource(DataProvider.DataSource):
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)                            
         return len(self.files)
+
+    def finish(self):
+        self.files = None
 
     def get_configuration(self):
         return {

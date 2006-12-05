@@ -47,7 +47,7 @@ class TomboyNoteSource(DataProvider.DataSource):
     NOTE_DIR = os.path.join(os.path.expanduser("~"),".tomboy")
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("Tomboy Source"), _("Source for synchronizing Tomboy Notes"), "tomboy")
-        self.notes = []
+        self.notes = None
         
     def initialize(self):
         """
@@ -57,6 +57,9 @@ class TomboyNoteSource(DataProvider.DataSource):
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
+        
+        self.notes = []
+
         #FIXME: How can I do this namespace bit in ElementTree
         def remove_namespace(string):
             return string.split("}")[1]
@@ -93,13 +96,16 @@ class TomboyNoteSource(DataProvider.DataSource):
         DataProvider.DataSource.get_num_items(self)
         return len(self.notes)
 
+    def finish(self):
+        self.notes = None
+
 class StickyNoteSource(DataProvider.DataSource):
     NOTE_FILE = os.path.join(os.path.expanduser("~"),".gnome2","stickynotes_applet")
     def __init__(self):
         DataProvider.DataSource.__init__(self, _("StickyNote Source"), _("Source for synchronizing StickyNotes"), "sticky-notes")
         
         self.xml = None
-        self.notes = []
+        self.notes = None
         
     def initialize(self):
         """
@@ -112,6 +118,7 @@ class StickyNoteSource(DataProvider.DataSource):
         
     def refresh(self):
         DataProvider.DataSource.refresh()
+        self.notes = []
         try:
             if self.xml is None:
                 self.xml = ElementTree.parse(StickyNoteSource.NOTE_FILE).getroot()
@@ -143,6 +150,9 @@ class StickyNoteSource(DataProvider.DataSource):
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
         return len(self.notes)
+
+    def finish(self):
+        self.notes = None
 
 class NoteConverter:
     def __init__(self):
