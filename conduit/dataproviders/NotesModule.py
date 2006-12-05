@@ -20,7 +20,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "note",
-		"out_type": "note"
+		"out_type": "note",
+                "icon": "tomboy"
 	},
 	"StickyNoteSource" : {
 		"name": _("StickyNote Source"),
@@ -28,7 +29,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "note",
-		"out_type": "note"
+		"out_type": "note",
+                "icon": "sticky-notes"
 	},
 	"NoteConverter" : {
 		"name": _("Note Data Type"),
@@ -37,6 +39,7 @@ MODULES = {
 		"category": "",
 		"in_type": "",
 		"out_type": "",
+                "icon": ""
 	}
 }
 

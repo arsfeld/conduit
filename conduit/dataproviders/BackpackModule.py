@@ -25,7 +25,8 @@ MODULES = {
 		"category": DataProvider.CATEGORY_WEB,
 		"type": "sink",
 		"in_type": "note",
-		"out_type": "note"
+		"out_type": "note",
+                "icon": "backpack"
 	}          
 }
 

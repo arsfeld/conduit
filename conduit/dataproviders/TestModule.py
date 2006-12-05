@@ -15,7 +15,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
-		"out_type": "text"
+		"out_type": "text",
+                "icon": "emblem-system"
 	},
 	"TestSink" : {
 		"name": "Test Sink",
@@ -23,7 +24,8 @@ MODULES = {
 		"type": "sink",
 		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
-		"out_type": "text"
+		"out_type": "text",
+                "icon": "emblem-system"
 	},
 	"TestTwoWay" : {
 		"name": "Two Way",
@@ -31,7 +33,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
-		"out_type": "text"
+		"out_type": "text",
+                "icon": "emblem-system"
 	},
 	"TestSinkFailRefresh" : {
 		"name": "Test Refresh Sink",
@@ -39,7 +42,8 @@ MODULES = {
 		"type": "sink",
 		"category": DataProvider.CATEGORY_TEST,
 		"in_type": "text",
-		"out_type": "text"
+		"out_type": "text",
+                "icon": "emblem-system"
 	},
 
 }

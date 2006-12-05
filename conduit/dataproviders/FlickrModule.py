@@ -37,7 +37,8 @@ MODULES = {
 		"type": "sink",
 		"category": DataProvider.CATEGORY_WEB,
 		"in_type": "taggedfile",
-		"out_type": "taggedfile"
+		"out_type": "taggedfile",
+                "icon": "image-x-generic"
 	},
 	"TaggedFileConverter" : {
 		"name": "Tagged File Converter",
@@ -46,7 +47,8 @@ MODULES = {
 		"category": "",
 		"in_type": "",
 		"out_type": "",
-	}           
+                "icon": ""
+        }           
 }
 
 class FlickrSink(DataProvider.DataSink):

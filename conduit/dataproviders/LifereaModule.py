@@ -23,7 +23,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "feed",
-		"out_type": "feed"
+		"out_type": "feed",
+                "icon": "liferea"
 	}	
 }
 

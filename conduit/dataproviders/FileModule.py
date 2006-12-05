@@ -19,7 +19,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "file",
-		"out_type": "file"
+		"out_type": "file",
+                "icon": "text-x-generic"
 	},
 	"FileSink" : {
 		"name": _("File Sink"),
@@ -27,7 +28,8 @@ MODULES = {
 		"type": "sink",
 		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "file",
-		"out_type": "file"
+		"out_type": "file",
+                "icon": "text-x-generic"
 	},
 	"FileConverter" : {
 		"name": _("File Data Type"),
@@ -35,7 +37,8 @@ MODULES = {
 		"type": "converter",
 		"category": "",
 		"in_type": "",
-		"out_type": ""		
+		"out_type": "",
+                "icon": ""
 	}
 	
 }

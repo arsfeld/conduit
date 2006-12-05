@@ -31,7 +31,8 @@ MODULES = {
 		"category": DataProvider.CATEGORY_GOOGLE,
 		"type": "source",
 		"in_type": "email",
-		"out_type": "email"
+		"out_type": "email",
+                "icon": "internet-mail"
 	},
 	"GmailEmailSink" : {
 		"name": _("Gmail Email Sink"),
@@ -39,7 +40,8 @@ MODULES = {
 		"type": "sink",
 		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "email",
-		"out_type": "email"
+		"out_type": "email",
+                "icon": "internet-mail"
 	},
 	"GmailContactSource" : {
 		"name": _("Gmail Contacts Source"),
@@ -47,7 +49,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "contact",
-		"out_type": "contact"
+		"out_type": "contact",
+                "icon": "contact-new"
 	},
 	"GmailContactSink" : {
 		"name": _("Gmail Contacts Sink"),
@@ -55,7 +58,8 @@ MODULES = {
 		"type": "sink",
 		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "vCard",
-		"out_type": "vCard"
+		"out_type": "vCard",
+                "icon": "contact-new"
 	},
 	"EmailSinkConverter" : {
 		"name": _("Email Sink Converter"),
@@ -64,6 +68,7 @@ MODULES = {
 		"category": "",
 		"in_type": "",
 		"out_type": "",
+                "icon": ""
 	}           
 }
 

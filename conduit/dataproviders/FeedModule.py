@@ -24,7 +24,8 @@ MODULES = {
         "type": "source",
         "category": DataProvider.CATEGORY_WEB,
         "in_type": "file",
-        "out_type": "file"
+        "out_type": "file",
+        "icon": "feed-icon"
     }    
 }
 

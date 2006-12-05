@@ -21,7 +21,8 @@ MODULES = {
 		"type": "source",
 		"category": DataProvider.CATEGORY_LOCAL,
 		"in_type": "taggedfile",
-		"out_type": "taggedfile"
+		"out_type": "taggedfile",
+                "icon": "f-spot"
 	}
 }
 

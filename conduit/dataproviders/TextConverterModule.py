@@ -10,6 +10,7 @@ MODULES = {
 		"category": "",
 		"in_type": "",
 		"out_type": "",
+                "icon": ""
 	}
 }
 
