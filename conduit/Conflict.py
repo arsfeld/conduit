@@ -12,18 +12,22 @@ import gtk, gtk.gdk
 import conduit
 
 #ENUM of directions when resolving a conflict
-CONFLICT_SOURCE_TO_SINK = 0     #left drawn arrow
-CONFLICT_SINK_TO_SOURCE = 1     #right drawn arrow
-CONFLICT_SKIP = 2               #dont draw an arrow
-CONFLICT_BOTH = 3               #double headed arrow
+CONFLICT_COPY_SOURCE_TO_SINK = 0        #right drawn arrow
+CONFLICT_SKIP = 1                       #dont draw an arrow
+CONFLICT_COPY_SINK_TO_SOURCE = 2        #left drawn arrow
+CONFLICT_BOTH = 3                       #double headed arrow
 
-#Indexes into the conflict model in which conflict data is stored
-SOURCE_NAME_IDX = 0
-SOURCE_DATA_IDX_IDX = 1
-SINK_NAME_IDX = 2
-SOURCE_DATA_IDX_IDX = 3
-DIRECTION_IDX = 4
-AVAILABLE_DIRECTIONS_IDX= 5
+#Indexes into the conflict tree model in which 
+#conflict data is stored
+SOURCE_IDX = 0              #The datasource
+SOURCE_NAME_IDX = 1         #The datasource name
+SOURCE_DATA_IDX = 2         #The datasource data
+SINK_IDX = 3                #The datasink
+SINK_NAME_IDX = 4           #The datasink name
+SINK_DATA_IDX = 5           #The datasink data
+DIRECTION_IDX = 6           #The current user decision re: the conflict (-->, <-- or -x-)
+AVAILABLE_DIRECTIONS_IDX= 7 #Available user decisions, i.e. in the case of missing
+                            #the availabe choices are --> or -x- NOT <--
 
 class ConflictResolver:
     """
@@ -31,10 +35,12 @@ class ConflictResolver:
     wish to do in the case of a conflict, or when an item is missing
     """
     def __init__(self):
-        self.model = gtk.TreeStore( gobject.TYPE_STRING,    #Source Name
-                                    gobject.TYPE_INT,       #Source Data Index
+        self.model = gtk.TreeStore( gobject.TYPE_PYOBJECT,  #Datasource
+                                    gobject.TYPE_STRING,    #Source Name
+                                    gobject.TYPE_PYOBJECT,  #Source Data
+                                    gobject.TYPE_PYOBJECT,  #Datasink
                                     gobject.TYPE_STRING,    #Sink Name
-                                    gobject.TYPE_INT,       #Sink Data Index
+                                    gobject.TYPE_PYOBJECT,  #Sink Data
                                     gobject.TYPE_INT,       #Resolved direction
                                     gobject.TYPE_PYOBJECT   #Tuple of valid states for direction 
                                     )
@@ -49,7 +55,17 @@ class ConflictResolver:
     def _test_data(self):
         for i in range(0,3):
             s = str(i)
-            self.model.append(None, ("Source"+s,i,"Sink"+s,i,i,("C","D")))
+            self.model.append(  None,   (
+                                        None,
+                                        "Source"+s,
+                                        i,
+                                        None,
+                                        "Sink"+s,
+                                        i,
+                                        i,
+                                        (0,1,2,3)
+                                        )
+                                )
 
     def _build_view(self):
         #Visible column0 is the name of the datasource
@@ -76,9 +92,19 @@ class ConflictResolver:
         direction = tree_model.get_value(iter, user_data)
         cell_renderer.set_direction(direction)
 
-    #FIXME: More args - Callback from syncmanager
-    def on_conflict(self, thread):
-        self.model.append(None, (thread.source.name,0,thread.sinks[0].name,0,0,("A","B")))
+    def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
+        sourceName = source.name
+        sinkName = sink.name
+        self.model.append(  None, ( 
+                                    source,
+                                    sourceName,
+                                    sourceData,
+                                    sink,
+                                    sinkName,
+                                    sinkData,
+                                    validChoices[0],
+                                    validChoices)
+                            )
 
     #Connect to OK button
     def on_resolve_conflicts(self, sender):
@@ -122,9 +148,9 @@ class ArrowCellRenderer(gtk.GenericCellRenderer):
         return True
 
     def set_direction(self, direction):
-        if direction == CONFLICT_SOURCE_TO_SINK:
+        if direction == CONFLICT_COPY_SINK_TO_SOURCE:
             self.image = ArrowCellRenderer.LEFT_IMAGE
-        elif direction == CONFLICT_SINK_TO_SOURCE:
+        elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
             self.image = ArrowCellRenderer.RIGHT_IMAGE
         elif direction == CONFLICT_SKIP:
             self.image = ArrowCellRenderer.SKIP_IMAGE
@@ -140,9 +166,10 @@ class ConflictCellRenderer(ArrowCellRenderer):
 
     def on_activate(self, event, widget, path, background_area, cell_area, flags):
         model = widget.get_model()
-        #Click toggles between --> and <-- and -x-
-        if model[path][DIRECTION_IDX] == CONFLICT_SKIP:
-            model[path][DIRECTION_IDX] = CONFLICT_SOURCE_TO_SINK
+        #Click toggles between --> and <-- and -x- but only within the list
+        #of valid choices
+        if model[path][DIRECTION_IDX] == model[path][AVAILABLE_DIRECTIONS_IDX][-1]:
+            model[path][DIRECTION_IDX] = model[path][AVAILABLE_DIRECTIONS_IDX][0]
         else:
             model[path][DIRECTION_IDX] += 1
 

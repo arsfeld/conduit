@@ -82,7 +82,8 @@ class DBusView(dbus.service.Object):
                 self.SyncFinished(i)
 
     #FIXME: More args
-    def _on_sync_conflict(self, conduit):
+    def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
+        conduit = thread.conduit
         for i in self.UIDs:
             if self.UIDs[i] == conduit:
                 #Send the DBUS signal

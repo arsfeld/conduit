@@ -14,6 +14,7 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes as DataType
+from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 
 class SyncManager(object): 
     """
@@ -130,7 +131,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
     DONE_STATE = 2
 
     __gsignals__ =  { 
-                    "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+                    "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+                        gobject.TYPE_PYOBJECT,
+                        gobject.TYPE_PYOBJECT,
+                        gobject.TYPE_PYOBJECT,
+                        gobject.TYPE_PYOBJECT,
+                        gobject.TYPE_PYOBJECT]),
                     "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
@@ -214,8 +220,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             logging.debug("Missing Policy: Skipping")
         elif self.policy["missing"] == "ask":
             logging.debug("Missing Policy: Ask")
-            #FIXME: Different signal for missing?
-            #self.emit("sync-conflict")
+            self.emit("sync-conflict", sourceWrapper, None, sinkWrapper, missingData, (0,1))
         elif self.policy["missing"] == "replace":
             logging.debug("Missing Policy: Replace")
             try:
@@ -239,7 +244,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 logging.debug("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
                 logging.debug("Conflict Policy: Ask")
-                self.emit("sync-conflict")
+                self.emit("sync-conflict", sourceWrapper, fromData, sinkWrapper, toData, (0,1,2))
             elif self.policy["conflict"] == "replace":
                 logging.debug("Conflict Policy: Replace")
                 try:
