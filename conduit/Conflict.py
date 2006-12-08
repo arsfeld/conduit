@@ -23,15 +23,20 @@ SOURCE_DATA_IDX_IDX = 1
 SINK_NAME_IDX = 2
 SOURCE_DATA_IDX_IDX = 3
 DIRECTION_IDX = 4
+AVAILABLE_DIRECTIONS_IDX= 5
 
 class ConflictResolver:
-
+    """
+    Manages a gtk.TreeView which is used for asking the user what they  
+    wish to do in the case of a conflict, or when an item is missing
+    """
     def __init__(self):
         self.model = gtk.TreeStore( gobject.TYPE_STRING,    #Source Name
                                     gobject.TYPE_INT,       #Source Data Index
                                     gobject.TYPE_STRING,    #Sink Name
                                     gobject.TYPE_INT,       #Sink Data Index
-                                    gobject.TYPE_INT        #Resolved direction
+                                    gobject.TYPE_INT,       #Resolved direction
+                                    gobject.TYPE_PYOBJECT   #Tuple of valid states for direction 
                                     )
 
         #FIXME: Fill with test data. Can Remove at some stage...
@@ -44,7 +49,7 @@ class ConflictResolver:
     def _test_data(self):
         for i in range(0,3):
             s = str(i)
-            self.model.append(None, ("Source"+s,i,"Sink"+s,i,i))
+            self.model.append(None, ("Source"+s,i,"Sink"+s,i,i,("C","D")))
 
     def _build_view(self):
         #Visible column0 is the name of the datasource
@@ -71,9 +76,9 @@ class ConflictResolver:
         direction = tree_model.get_value(iter, user_data)
         cell_renderer.set_direction(direction)
 
-    #Callback from syncmanager
-    def on_conflict(self, sender):
-        pass
+    #FIXME: More args - Callback from syncmanager
+    def on_conflict(self, thread):
+        self.model.append(None, (thread.source.name,0,thread.sinks[0].name,0,0,("A","B")))
 
     #Connect to OK button
     def on_resolve_conflicts(self, sender):

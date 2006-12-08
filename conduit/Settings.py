@@ -42,7 +42,9 @@ class Settings(gobject.GObject):
         'enable_network'            :   True,   #Should conduit look for other conduits on the local network
         'enable_removable_devices'  :   True,   #Should conduit support iPods, USB keys, etc
         'enable_dbus_interface'     :   True,   #Should conduit present a full dbus interface to let remote apps use it
-        'disable_twoway_sync'       :   True    #If the user selects it, shoud two way sync be used
+        'disable_twoway_sync'       :   True,   #If the user selects it, shoud two way sync be used
+        'twoway_policy_conflict'    :   "ask",  #ask,replace,skip
+        'twoway_policy_missing'     :   "ask"   #ask,replace,skip
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names

@@ -24,6 +24,9 @@ from conduit.Conduit import Conduit
 CONDUIT_DBUS_PATH = "/"
 CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
 
+ERROR = -1
+SUCCESS = 0
+
 def dbus_service_available(bus,interface):
     try: 
         import dbus
@@ -45,9 +48,11 @@ class DBusView(dbus.service.Object):
 
         self.model = None
 
-        #Store all dataproviders and converters
+        #Store all loaded dataproviders and converters
         self.datasources = []
         self.datasinks = []
+
+        #Store user constructed conduits
         self.conduits = []
 
         #In order to communicate objects over the bus we instead send
@@ -67,15 +72,31 @@ class DBusView(dbus.service.Object):
     def _on_dataprovider_added(self, loader, dataprovider):
         self.NewDataprovider(dataprovider.classname)
 
+    def _on_sync_finished(self, conduit):
+        """
+        Signal received when a sync finishes
+        """
+        for i in self.UIDs:
+            if self.UIDs[i] == conduit:
+                #Send the DBUS signal
+                self.SyncFinished(i)
+
+    #FIXME: More args
+    def _on_sync_conflict(self, conduit):
+        for i in self.UIDs:
+            if self.UIDs[i] == conduit:
+                #Send the DBUS signal
+                self.Conflict(i)      
+
     def _add_dataprovider(self, classname, store):
         """
         Instantiates a new dataprovider (source or sink), storing it
         appropriately.
         @param classname: Class name of the DP to create
         @param store: self.datasinks or self.datasource
-        @returns: The UID of the DP or -1 on error
+        @returns: The UID of the DP or ERROR on error
         """
-        uid = -1
+        uid = ERROR
         for i in store:
             if i.classname == classname:
                 #Create new instance and add to hashmap etc
@@ -99,14 +120,16 @@ class DBusView(dbus.service.Object):
         self.type_converter = TypeConverter(converters)
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager(self.type_converter)
+        self.sync_manager.set_twoway_policy({"conflict":"skip","missing":"skip"})
+        self.sync_manager.set_sync_callbacks(self._on_sync_finished, self._on_sync_conflict)
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='i')
     def Ping(self):
         """
         Test method to check the DBus interface is working
         """
-        self._print("Pong")
-        return "DBusView Pong"
+        self._print("Ping")
+        return SUCCESS
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSources(self):
@@ -146,15 +169,35 @@ class DBusView(dbus.service.Object):
 
         return info
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE)
-    def GetAllCompatibleDataSinks(self, classname):
-        self._print("GetAllCompatibleDataSinks %s" % classname)
-        pass
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='i', out_signature='as')
+    def GetAllCompatibleDataSinks(self, sourceUID):
+        """
+        Gets all datasinks compatible with the supplied datasource. Compatible 
+        is defined as;
+        1) Enabled
+        2) sink.in_type == source.out_type OR
+        3) Conversion is available
+        """
+        self._print("GetAllCompatibleDataSinks %s" % sourceUID)
+        compat = []
+        if sourceUID not in self.UIDs:
+            return compat
+
+        #look for enabled datasinks
+        for s in self.datasinks:
+            if s.enabled == True:
+                out = self.UIDs[sourceUID].out_type
+                if s.in_type == out:
+                    compat.append(s.classname)
+                elif self.type_converter.conversion_exists(out, s.in_type):
+                    compat.append(s.classname)
+
+        return compat
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ii', out_signature='i')
     def BuildConduit(self, sourceUID, sinkUID):
         self._print("BuildConduit %s:%s" % (sourceUID, sinkUID))
-        uid = -1
+        uid = ERROR
         if sourceUID in self.UIDs and sinkUID in self.UIDs:
             #create new conduit, populate and add to hashmap
             uid = self._rand()
@@ -164,15 +207,30 @@ class DBusView(dbus.service.Object):
             self.UIDs[uid] = conduit
         return uid
 
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ss', out_signature='i')
+    def SetSyncPolicy(self, conflictPolicy, missingPolicy):
+        self._print("SetSyncPolicy (conflict:%s missing:%s)" % (conflictPolicy, missingPolicy))
+        allowedPolicy = ["ask", "replace", "skip"]
+        if conflictPolicy not in allowedPolicy:
+            return ERROR
+        if missingPolicy not in allowedPolicy:
+            return ERROR
+
+        self.sync_manager.set_twoway_policy({
+                "conflict"  :   conflictPolicy,
+                "missing"   :   missingPolicy}
+                )
+        return SUCCESS
+
+
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='i', out_signature='i')
     def Sync(self, conduitUID):
         self._print("Sync %s" % conduitUID)
         if conduitUID in self.UIDs:
-            #FIXME: Connect callback for sync finished, and for conflict, etc
             self.sync_manager.sync_conduit(self.UIDs[conduitUID])
-            return 0
+            return SUCCESS
         else:
-            return -1
+            return ERROR
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
     def NewDataprovider(self, classname):

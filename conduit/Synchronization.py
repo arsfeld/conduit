@@ -21,7 +21,7 @@ class SyncManager(object):
     the relevant sinks and sources. If there is a conflict then this is
     handled by the conflictResolver
     """
-    def __init__ (self, typeConverter, conflictResolver=None):
+    def __init__ (self, typeConverter):
         """
         Constructor. 
         
@@ -29,8 +29,36 @@ class SyncManager(object):
         """
         self.syncWorkers = {}
         self.typeConverter = typeConverter
-        self.conflictResolver = conflictResolver
-        
+
+        #Callback functions that syncworkers call
+        self.syncCompleteCallback = None
+        self.syncConflictCallback = None
+
+        #Two way sync policy
+        self.policy = {"conflict":"ask","missing":"ask"}
+
+    def _connect_sync_thread_callbacks(self, thread):
+        if self.syncCompleteCallback != None:
+            thread.connect("sync-completed", self.syncCompleteCallback)
+
+        if self.syncConflictCallback != None:
+            thread.connect("sync-conflict", self.syncConflictCallback)
+
+        return thread
+
+    def set_sync_callbacks(self, syncCompleteCallback, syncConflictCallback):
+        """
+        Sets the callbacks that are called by the SyncWorker threads
+        upon the specified conditions
+        """
+        self.syncCompleteCallback = syncCompleteCallback
+        self.syncConflictCallback = syncConflictCallback
+
+    def set_twoway_policy(self, policy):
+        logging.debug("Setting sync policy: %s" % policy)
+        self.policy = policy
+        #It is NOT threadsafe to apply to existing conduits
+
     def cancel_conduit(self, conduit):
         """
         Cancel a conduit. Does not block
@@ -65,7 +93,7 @@ class SyncManager(object):
             del(self.syncWorkers[conduit])
 
         #Create a new thread over top
-        newThread = SyncWorker(self.typeConverter, conduit, False)
+        newThread = SyncWorker(self.typeConverter, conduit, False, self.policy)
         self.syncWorkers[conduit] = newThread
         self.syncWorkers[conduit].start()
 
@@ -85,8 +113,9 @@ class SyncManager(object):
             del(self.syncWorkers[conduit])
 
         #Create a new thread over top.
-        newThread = SyncWorker(self.typeConverter, conduit, True)
-        self.syncWorkers[conduit] = newThread
+        newThread = SyncWorker(self.typeConverter, conduit, True, self.policy)
+        #Connect the callbacks
+        self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
         self.syncWorkers[conduit].start()
             
 
@@ -100,18 +129,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
     SYNC_STATE = 1
     DONE_STATE = 2
 
-    TWO_WAY_DELETE_A = 0
-    TWO_WAY_DELETE_B = 1
-    TWO_WAY_OVER_A = 2
-    TWO_WAY_OVER_B = 3
-    TWO_WAY_ASK = 4
-
     __gsignals__ =  { 
                     "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
                     "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
-    def __init__(self, typeConverter, conduit, do_sync):
+    def __init__(self, typeConverter, conduit, do_sync, policy):
         """
         @param conduit: The conduit to synchronize
         @type conduit: L{conduit.Conduit.Conduit}
@@ -125,8 +148,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.source = conduit.datasource
         self.sinks = conduit.datasinks
         self.do_sync = do_sync
+        self.policy = policy
 
-        #Keep track of any errors in the syn process. Class variable because these
+        #Keep track of any errors in the sync process. Class variable because these
         #may occur in a data conversion. Needed so that the correct status
         #is shown on the GUI at the end of the sync process
         self.sinkErrors = {}
@@ -154,16 +178,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
             raise Exceptions.StopSync
             
-    def _compare_data_with_policy(self, A, B, policy={}):
-        """
-        Compares A with B and returns what the sync thread should do.
-        """
-        #TWO_WAY_DELETE_A = 0
-        #TWO_WAY_DELETE_B = 1
-        #TWO_WAY_OVER_A = 2
-        #TWO_WAY_OVER_B = 3
-        return SyncWorker.TWO_WAY_ASK
-
     def _convert_data(self, sink, fromType, toType, data):
         """
         Converts and returns data from fromType to toType.
@@ -178,7 +192,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 else:
                     newdata = None
                     raise Exceptions.ConversionDoesntExistError
-                    
             else:
                 newdata = data
         #Catch exceptions if we abort the sync cause no conversion exists
@@ -192,31 +205,52 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         return newdata
 
+    def _resolve_missing(self, sourceWrapper, sinkWrapper, missingData):
+        """
+        Applies user policy when missingData is present in source but
+        missing from sink
+        """ 
+        if self.policy["missing"] == "skip":
+            logging.debug("Missing Policy: Skipping")
+        elif self.policy["missing"] == "ask":
+            logging.debug("Missing Policy: Ask")
+            #FIXME: Different signal for missing?
+            #self.emit("sync-conflict")
+        elif self.policy["missing"] == "replace":
+            logging.debug("Missing Policy: Replace")
+            try:
+                sinkWrapper.module.put(missingData, True)
+            except:
+                logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
 
-    def _put_data(self, dataproviderWrapper, data):
+    def _resolve_conflict(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
-        Puts data into dataproviderModule and handles 
-        non fatal exceptions gracefully.
+        Applies user policy when a put() has failed. This may mean emitting
+        the conflict up to the GUI or skipping altogether
         """
-        try:
-            #Puts the data, providing it is newer
-            dataproviderWrapper.module.put(data)
-        except Exceptions.SynchronizeConflictError, err:
-            #unpack args
-            #(comparison, fromData, toData, datasink) = err
-            if err.comparison == DataType.COMPARISON_OLDER:
-                logging.debug("Sync Conflict: Skipping OLD Data\n%s" % err)
-            #If the data could not be compared then the user must decide
-            elif err.comparison == DataType.COMPARISON_EQUAL or err.comparison == DataType.COMPARISON_UNKNOWN:
-                #FIXME. I imagine that implementing this is a bit of work!
-                #The data needs to get back to the main gui thread safely
-                #so that the user can decide... Perhaps a signal???
-                logging.warn("Sync Conflict: Putting EQUAL or UNKNOWN Data")
-                self.sinkErrors[dataproviderWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
-            #This should not happen...
-            else:
-                logging.critical("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
-                self.sinkErrors[dataproviderWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+        #Look at what the conflict error told us
+        if comparison == DataType.COMPARISON_OLDER:
+            logging.info("CONFLICT: Skipping OLD Data\n%s" % err)
+        #If the data could not be compared then the user must decide
+        elif comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN:
+            logging.info("CONFLICT: Putting EQUAL or UNKNOWN Data")
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+            if self.policy["conflict"] == "skip":
+                logging.debug("Conflict Policy: Skipping")
+            elif self.policy["conflict"] == "ask":
+                logging.debug("Conflict Policy: Ask")
+                self.emit("sync-conflict")
+            elif self.policy["conflict"] == "replace":
+                logging.debug("Conflict Policy: Replace")
+                try:
+                    sinkWrapper.module.put(toData, True)
+                except:
+                    logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
+        #This should not happen...
+        else:
+            logging.critical("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+
             
     def one_way_sync(self, source, sink, numItems):
         """
@@ -225,14 +259,16 @@ class SyncWorker(threading.Thread, gobject.GObject):
         logging.info("Synchronizing %s |--> %s " % (source, sink))
         for i in range(0, numItems):
             data = source.module.get(i)
-            #all non fatal errors are handled by _put_data and convert_data
-            #so all that we need to care about are fatal errors
             try:
                 #convert data type if necessary
                 newdata = self._convert_data(sink, source.out_type, sink.in_type, data)
                 #store it 
                 if newdata != None:
-                    self._put_data(sink, newdata)
+                    #Puts the data, providing it is newer
+                    try:
+                        sink.module.put(newdata, False)
+                    except Exceptions.SynchronizeConflictError, err:
+                        self._resolve_conflict(source, sink, err.comparison, err.fromData, err.toData)
             except Exceptions.SyncronizeError, err:
                 #non fatal, move along
                 logging.warn("Error synchronizing %s", err)                     
@@ -280,12 +316,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #Build a list of items missing from the other, List contains a tuple of
         #(the data, the place where its going)
         missing = []
-        missing += [(sinkItems[i][0],source) for i in sinkItems.keys() if i not in sourceItems]
-        missing += [(sourceItems[i][0],sink) for i in sourceItems.keys() if i not in sinkItems]
-        for data,dest in missing:
-            #FIXME: Apply user policy
-            #dest.module.put(data)
-            logging.debug("MISSING: %s FROM %s" % (data, dest))
+        missing += [(sinkItems[i][0],sink,source) for i in sinkItems.keys() if i not in sourceItems]
+        missing += [(sourceItems[i][0],source,sink) for i in sourceItems.keys() if i not in sinkItems]
+        for data,fromm,to in missing:
+            logging.debug("Missing: %s FROM %s" % (data, fromm))
+            self._resolve_missing(fromm, to, data) 
 
         #Build a list of conflicts (Items in both) - from the perspective of the source
         for key in [i for i in sinkItems.keys() if i in sourceItems]:
@@ -293,25 +328,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
             aData, aIndex = sourceItems[key]
             #sink is b
             bData, bIndex = sinkItems[key]
-            logging.debug("CONFLICT: %s" % key)
-            #FIXME: Apply policy
-            compare = self._compare_data_with_policy(A=aData,B=bData)
-            if compare == SyncWorker.TWO_WAY_DELETE_A:
-                #source.delete(aIndex)
-                pass
-            elif compare == SyncWorker.TWO_WAY_DELETE_B:
-                #sink.delete(bIndex)
-                pass
-            elif compare == SyncWorker.TWO_WAY_OVER_A:
-                #sink.put(source.get(bIndex),aIndex,onTop=True)
-                pass
-            elif compare == SyncWorker.TWO_WAY_OVER_B:
-                #source.put(sink.get(aIndex),bIndex,onTop=True)
-                pass
-            else:
-                #SyncWorker.TWO_WAY_ASK
-                #self.emit("conflict",source.name, sink.name, fromData, fromIndex, toData, toIndex)
-                logging.debug("CONFLICT: Asking user")
+            logging.debug("Conflict: %s" % key)
+            #Compare and apply policy
+            comparison = aData.compare(aData, bData)
+            self._resolve_conflict(source, sink, comparison, aData, bData)
 
     def run(self):
         """
@@ -460,4 +480,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 
                 #Exit thread
                 finished = True
+
+        self.emit("sync-completed")
                 

@@ -154,6 +154,11 @@ class GtkView(dbus.service.Object):
         self.canvas.set_type_converter(self.type_converter)
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager(self.type_converter)
+        self.sync_manager.set_twoway_policy({
+                "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
+                "missing"   :   conduit.settings.get("twoway_policy_missing")}
+                )
+        self.sync_manager.set_sync_callbacks(None, self.conflictResolver.on_conflict)
 
        
     def on_dataprovider_added(self, loader, dataprovider):
@@ -247,6 +252,25 @@ class GtkView(dbus.service.Object):
         Show the properties of the current sync set (status, conflicts, etc
         Edit the sync specific properties
         """
+        def restore_policy_state(policy, ask_rb, replace_rb, skip_rb):
+            pref = conduit.settings.get("twoway_policy_%s" % policy)
+            if pref == "skip":
+                skip_rb.set_active(True)
+            elif pref == "replace":
+                replace_rb.set_active(True)
+            else:
+                ask_rb.set_active(True)
+
+        def save_policy_state(policy, ask_rb, replace_rb, skip_rb):
+            if skip_rb.get_active() == True:
+                i = "skip"
+            elif replace_rb.get_active() == True:
+                i = "replace"
+            else:            
+                i = "ask"
+            conduit.settings.set("twoway_policy_%s" % policy, i)
+            return i
+
         #Build some liststores to display
         convertables = self.type_converter.get_convertables_descriptive_list()
         converterListStore = gtk.ListStore( str )
@@ -278,10 +302,23 @@ class GtkView(dbus.service.Object):
                                         )                                        
                                         
         #fill out the configuration tab
+        removable_devices_check = tree.get_widget("removable_devices_check")
+        removable_devices_check.set_active(conduit.settings.get("enable_removable_devices"))
         save_settings_check = tree.get_widget("save_settings_check")
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
         use_two_way_sync_check = tree.get_widget("use_two_way_sync_check")
-        use_two_way_sync_check.set_active(conduit.settings.get("disable_twoway_sync"))                            
+        use_two_way_sync_check.set_active(conduit.settings.get("disable_twoway_sync")) 
+
+        #get the radiobuttons where the user sets their policy
+        conflict_ask_rb = tree.get_widget("conflict_ask_rb")
+        conflict_replace_rb = tree.get_widget("conflict_replace_rb")
+        conflict_skip_rb = tree.get_widget("conflict_skip_rb")
+        missing_ask_rb = tree.get_widget("missing_ask_rb")
+        missing_replace_rb = tree.get_widget("missing_replace_rb")
+        missing_skip_rb = tree.get_widget("missing_skip_rb")
+        #set initial conditions        
+        restore_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
+        restore_policy_state("missing", missing_ask_rb, missing_replace_rb, missing_skip_rb)
                                         
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
@@ -294,6 +331,11 @@ class GtkView(dbus.service.Object):
             #FIXME: Once the 2way stuff is confirmed, this setting will be removed
             #From the prefs, and be managed entirely from the right click conduit menu
             self.canvas.disable_two_way_sync(disable)
+            #Save the users two way sync policy
+            policy = {}
+            policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
+            policy["missing"] = save_policy_state("missing", missing_ask_rb, missing_replace_rb, missing_skip_rb)
+            self.sync_manager.set_twoway_policy(policy)
         dialog.destroy()                
 
 

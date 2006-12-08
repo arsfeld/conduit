@@ -67,13 +67,13 @@ class TestDataType(DataType.DataType):
         a = int(A.UID)
         b = int(B.UID)
         if a < b:
-            return conduit.datatypes.OLDER
+            return conduit.datatypes.COMPARISON_OLDER
         elif a > b:
-            return conduit.datatypes.NEWER
+            return conduit.datatypes.COMPARISON_NEWER
         elif a == b:
-            return conduit.datatypes.EQUAL
+            return conduit.datatypes.COMPARISON_EQUAL
         else:
-            return conduit.datatypes.UNKNOWN
+            return conduit.datatypes.COMPARISON_UNKNOWN
             
 
 class TestBase:
@@ -187,6 +187,7 @@ class TestTwoWay(DataProvider.TwoWay):
 
     def put(self, data, onTop=False):
         DataProvider.TwoWay.put(self, data, onTop)
+        logging.debug("TWO WAY: put() %s" % data)
 
     def finish(self):
         self.data = None
