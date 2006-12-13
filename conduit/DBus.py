@@ -70,7 +70,7 @@ class DBusView(dbus.service.Object):
         logging.debug("DBus Message: %s" % message)
 
     def _on_dataprovider_added(self, loader, dataprovider):
-        self.NewDataprovider(dataprovider.classname)
+        self.NewDataprovider(dataprovider.get_key())
 
     def _on_sync_finished(self, conduit):
         """
@@ -89,19 +89,19 @@ class DBusView(dbus.service.Object):
                 #Send the DBUS signal
                 self.Conflict(i)      
 
-    def _add_dataprovider(self, classname, store):
+    def _add_dataprovider(self, key, store):
         """
         Instantiates a new dataprovider (source or sink), storing it
         appropriately.
-        @param classname: Class name of the DP to create
+        @param key: Class name of the DP to create
         @param store: self.datasinks or self.datasource
         @returns: The UID of the DP or ERROR on error
         """
         uid = ERROR
         for i in store:
-            if i.classname == classname:
+            if i.get_key() == key:
                 #Create new instance and add to hashmap etc
-                new = self.model.get_new_module_instance(classname)
+                new = self.model.get_new_module_instance(key)
                 if new != None:
                     uid = self._rand()
                     #store hash pointing to object instance
@@ -135,29 +135,29 @@ class DBusView(dbus.service.Object):
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSources(self):
         self._print("GetAllDataSources")
-        return [i.classname for i in self.datasources]
+        return [i.get_key() for i in self.datasources]
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSinks(self):
         self._print("GetAllDataSinks")
-        return [i.classname for i in self.datasinks]
+        return [i.get_key() for i in self.datasinks]
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='i')
-    def GetDataSource(self, classname):
-        self._print("GetDataSource %s" % classname)
-        return self._add_dataprovider(classname, self.datasources)
+    def GetDataSource(self, key):
+        self._print("GetDataSource %s" % key)
+        return self._add_dataprovider(key, self.datasources)
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='i')
-    def GetDataSink(self, classname):
-        self._print("GetDataSink %s" % classname)
-        return self._add_dataprovider(classname, self.datasinks)        
+    def GetDataSink(self, key):
+        self._print("GetDataSink %s" % key)
+        return self._add_dataprovider(key, self.datasinks)        
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='a{ss}')
-    def GetDataProviderInformation(self, classname):
-        self._print("GetDataProviderInformation %s" % classname)
+    def GetDataProviderInformation(self, key):
+        self._print("GetDataProviderInformation %s" % key)
         info = {}
         for i in self.datasinks + self.datasources:
-            if i.classname == classname:
+            if i.get_key() == key:
                 info["name"] = i.name
                 info["description"] = i.description
                 info["module_type"] = i.module_type
@@ -165,6 +165,7 @@ class DBusView(dbus.service.Object):
                 info["in_type"] = i.in_type
                 info["out_type"] = i.out_type
                 info["classname"] = i.classname
+                info["key"] = i.get_key()
                 info["enabled"] = str(i.enabled)
                 info["UID"] = str(i.get_unique_identifier())
 
@@ -189,9 +190,9 @@ class DBusView(dbus.service.Object):
             if s.enabled == True:
                 out = self.UIDs[sourceUID].out_type
                 if s.in_type == out:
-                    compat.append(s.classname)
+                    compat.append(s.get_key())
                 elif self.type_converter.conversion_exists(out, s.in_type):
-                    compat.append(s.classname)
+                    compat.append(s.get_key())
 
         return compat
 
@@ -234,8 +235,8 @@ class DBusView(dbus.service.Object):
             return ERROR
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
-    def NewDataprovider(self, classname):
-        self._print("Emmiting DBus signal NewDataprovider %s" % classname)
+    def NewDataprovider(self, key):
+        self._print("Emmiting DBus signal NewDataprovider %s" % key)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
     def SyncFinished(self, conduitUID):
