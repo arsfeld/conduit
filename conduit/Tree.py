@@ -15,46 +15,29 @@ from gettext import gettext as _
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
-import conduit.Module as Module
+from conduit.ModuleWrapper import ModuleWrapper
 
-class CategoryWrapper(Module.ModuleWrapper):
+class CategoryWrapper(ModuleWrapper):
     """
     Represents a category stored in the treemodel. Not generally intended 
     to be used outside of C{conduit.Tree.DataProviderTreeModel}
     """
     def __init__(self, category):
-        self.category = category
-        self.key = category.key
-        self.name = category.name
-        self.icon_name = category.icon
-
-        #Call base constructor
-        Module.ModuleWrapper.__init__(
+        ModuleWrapper.__init__(
                             self,
-                            self.name,      #name: shows in name column
+                            category.name,  #name: shows in name column
                             None,           #description: shows in description column
+                            category.icon,  #icon name
                             "category",     #module_type: used to cancel drag and drop
-                            self.category,  #category: untranslated version on Name 
+                            category,       #category: untranslated version on Name 
                             None,           #in_type: N/A
                             None,           #out_type: N/A
                             None,           #classname: N/A
-                            None,           #filename: N/A
-                            self.category,  #object instance: N/A
+                            None,           #initargs: N/A
+                            category,       #object instance: N/A
                             True)           #enabled: True but N/A
 
-    def get_icon(self):
-        """
-        @returns: The icon for the category or the default image-missing icon
-        @rtype: pixbuf
-        """
-        if self.icon == None:
-            try:
-                self.icon = gtk.icon_theme_get_default().load_icon(self.icon_name, 16, 0)
-            except gobject.GError:
-                #error loading fallback icon
-                logging.warn("Could not find category icon: %s" % self.icon_name)
-        return self.icon
-        
+       
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
     A treemodel for managing dynamically loaded modules. Manages an internal 
@@ -226,12 +209,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return rowref.name
         elif column is 2:
             return rowref.description
-        #Used internally from the TreeView to get the classname
+        #Used internally from the TreeView to get the key used by the canvas to 
+        #reinstantiate new dataproviders
         elif column is 3:
             if self._is_category_heading(rowref):
                 return "ImACategoryNotADataprovider"
             else:
-                return rowref.classname
+                return rowref.get_key()
         #Used internally from the TreeView to see if this is a category heading
         #and subsequently cancel the drag and drop
         elif column is 4:        

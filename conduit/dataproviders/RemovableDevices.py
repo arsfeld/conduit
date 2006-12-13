@@ -27,62 +27,58 @@ import conduit.datatypes.Note as Note
 class RemovableDeviceManager(gobject.GObject):
     __gsignals__ = {
         #Fired when the module detects a usb key or ipod added
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_PYOBJECT])
+        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,      #Wrapper
+            gobject.TYPE_PYOBJECT])     #Class
     }
     def __init__(self, hal):
         gobject.GObject.__init__(self)
-
-        #dict of detected volumes
-        self.UDIs = []
-        #Removable device classes
-        self.removable_devices = []
         self.hal = hal
-        
-        #Hal scans in __init__. Get all conected ipods/usb keys
-        for device_type, udi, mount, name in self.hal.get_all_ipods():
-            self._ipod_added(None,udi,mount,name)
-
+       
         self.hal.connect("ipod-added", self._ipod_added)
         self.hal.connect("usb-added", self._usb_added)
 
-    def _emit(self, signal, dpw):
-        logging.info("Removable Devices: Emitting %s for %s" % (signal, dpw.classname))
-        self.emit("dataprovider-added", dpw)
+    def _emit(self, signal, dpw, klass):
+        logging.info("Removable Devices: Emitting %s for %s" % (signal, dpw.get_key()))
+        self.emit("dataprovider-added", dpw, klass)
 
-    def _ipod_added(self, hal, udi, mount, name):
-        if udi in self.UDIs:
-            logging.warn("Removable Devices: UDI %s already used" % udi)
-            return
-        else:
-            #Mark UDI as used
-            self.UDIs.append(udi)
+    def _ipod_added(self, hal, udi, mount, name, emit=True):
+        category = conduit.DataProvider.DataProviderCategory(
+                        name,
+                        "ipod-icon",
+                        mount)
 
-            category = conduit.DataProvider.DataProviderCategory(
-                            name,
-                            "ipod-icon",
-                            mount)
+        for klass,type in [(IPodNoteSource,"source"), (IPodNoteSink,"sink")]:
+            #FIXME: There is no real need to instantiate this, really some 
+            #things should be moved out of MODULES into class properties
+            #instance = klass(mount)
+            dpw = ModuleWrapper(
+                        "Note %s" % type,
+                        "Your iPod notes",
+                        type, 
+                        category,
+                        "note",
+                        "note",
+                        klass.__name__,                             #classname has to be unique
+                        (mount,),                                   #init args
+                        None,
+                        True)
 
-            for klass,type in [(IPodNoteSource,"source"), (IPodNoteSink,"sink")]:
-                instance = klass(mount)
-                dpw = ModuleWrapper(
-                            instance.name,
-                            instance.description,
-                            type, 
-                            category,
-                            "note",
-                            "note",
-                            "%s:%s" % (klass.__name__, mount),       #classname has to be unique
-                            "",                                         #filename N/A
-                            instance,
-                            True)
-                self.removable_devices.append(dpw)
-                self._emit("dataprovider-added", dpw)
+            if emit == True:
+                self._emit("dataprovider-added", dpw, klass)
+            else:
+                return (dpw, klass)
 
     def _usb_added(self, hal, udi, mount, name):
         pass
 
     def get_all_modules(self):
-        return self.removable_devices
+        mods = []
+        #Hal scans in __init__. Get all conected ipods/usb keys
+        for device_type, udi, mount, name in self.hal.get_all_ipods():
+            #Dont emit signals, just return
+            mods.append(self._ipod_added(None,udi,mount,name,False))
+        return mods
 
 class USBKeySource(DataSource):
     """

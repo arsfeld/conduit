@@ -124,23 +124,20 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         self._build_widget()
 
     def __emit_status_changed(self):
-		"""
-		Emits a 'status-changed' signal to the main loop.
-		
-		You should connect to this signal if you wish to be notified when
-		the derived DataProvider goes through its stages (STATUS_* etc)
-		"""
-		self.emit ("status-changed")
-		return False        
+        """
+        Emits a 'status-changed' signal to the main loop.
+        
+        You should connect to this signal if you wish to be notified when
+        the derived DataProvider goes through its stages (STATUS_* etc)
+        """
+        self.emit ("status-changed")
+        return False        
         
     def _build_widget(self):
         """
         Drawing this widget by drawing all the items which represent a
         dataprovider, including the icon, text, etc
         """
-        #Create it the first time
-        #if self.widget is None:
-        #    self.widget = goocanvas.Group()
         box = goocanvas.Rect(   x=0, 
                                 y=0, 
                                 width=self.widget_width, 
@@ -158,18 +155,21 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 8"
                                 )
-        pb=self.get_icon()
-        image = goocanvas.Image(pixbuf=pb,
-                                x=int(  
-                                        (1*self.widget_width/5) - 
-                                        (pb.get_width()/2) 
-                                        ),
-                                y=int(  
-                                        (1*self.widget_height/3) - 
-                                        (pb.get_height()/2)
-                                        )
-                                            
-                                )
+        try:
+            pb=gtk.icon_theme_get_default().load_icon(self.iconName, 16, 0)
+            image = goocanvas.Image(pixbuf=pb,
+                                    x=int(  
+                                            (1*self.widget_width/5) - 
+                                            (pb.get_width()/2) 
+                                            ),
+                                    y=int(  
+                                            (1*self.widget_height/3) - 
+                                            (pb.get_height()/2)
+                                            )
+                                                
+                                    )
+        except Exception, err:
+            pass
         desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
                                 y=int(2*self.widget_height/3), 
                                 width=4*self.widget_width/5, 
@@ -186,25 +186,14 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         #Add all the visual elements which represent a dataprovider    
         self.add_child(box)
         self.add_child(name)
-        self.add_child(image)
+        #FIXME: This block of code does not work if in the above try-except
+        #block. why? Who knows!
+        try:
+            self.add_child(image)
+        except Exception, err:
+            pass
         self.add_child(desc) 
             
-    def get_icon(self):
-        """
-        Returns a GdkPixbuf hat represents this handler.
-        """
-        import traceback
-        if self.icon is None:
-            try:
-                self.icon = gtk.icon_theme_get_default().load_icon(self.iconName, 16, 0)
-            except gobject.GError:
-                self.icon = None
-                logging.error("Could not load icon %s" % self.iconName)
-                #Last resort: Try the non icon-naming-spec compliant icon
-                self.iconName = "gtk-missing-image"
-                self.icon = gtk.icon_theme_get_default().load_icon(self.iconName, 16, 0)
-        return self.icon
-        
     def get_widget_dimensions(self):
         """
         Returns the width of the DataProvider canvas widget.

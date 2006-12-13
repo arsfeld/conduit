@@ -125,7 +125,7 @@ class TestBase:
 
 class TestSource(TestBase, DataProvider.DataSource):
     NUM_DATA = 5    
-    def __init__(self):
+    def __init__(self, *args):
         TestBase.__init__(self)
         DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages", "emblem-system")
         
@@ -144,7 +144,7 @@ class TestSource(TestBase, DataProvider.DataSource):
         return data
 		
 class TestSink(TestBase, DataProvider.DataSink):
-    def __init__(self):
+    def __init__(self, *args):
         TestBase.__init__(self)
         DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages", "emblem-system")
         
@@ -159,7 +159,7 @@ class TestSink(TestBase, DataProvider.DataSink):
 
 class TestTwoWay(DataProvider.TwoWay):
     NUM_DATA = 10
-    def __init__(self):
+    def __init__(self, *args):
         DataProvider.TwoWay.__init__(self, "Two Way", "Prints Debug Messages")
         self.data = None
 
@@ -193,7 +193,7 @@ class TestTwoWay(DataProvider.TwoWay):
         self.data = None
 
 class TestSinkFailRefresh(DataProvider.DataSink):
-    def __init__(self):
+    def __init__(self, *args):
         DataProvider.DataSink.__init__(self, "Test Refresh Sink", "Fails Refresh")
         
     def initialize(self):

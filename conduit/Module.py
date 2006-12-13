@@ -31,9 +31,12 @@ class ModuleManager(gobject.GObject):
     runtime
     """
     __gsignals__ = {
-        # Fired when the passed module context is loaded, that is the module's __init__ method has been called
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_PYOBJECT]),
-        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_PYOBJECT]),
+        #Fired when a new instantiatable DP becomes available. It is described via 
+        #a wrapper because we do not actually instantiate it till later - to save memory
+        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT]),    #The DPW describing the new DP class
+        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT]),    #The DPW describing the DP class which is now unavailable
         # Fired when load_all has loaded every available modules
         "all-modules-loaded" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
         }
@@ -48,20 +51,24 @@ class ModuleManager(gobject.GObject):
         gobject.GObject.__init__(self)
 
         self.filelist = self._build_filelist_from_directories (dirs)
-        #Modules loaded from files in the dataprovider dir
-        self.fileModules = []
-        #Modules that are added at runtime from ipods
-        self.dynamicModules = []
 
+        #Dict of loaded classes, key is classname, value is class
+        self.classRegistry = {}
+        #Dict of loaded modulewrappers. key is wrapper.get_key()
+        #Stored seperate to the classes because removable devices may
+        #use the same class but with different initargs (diff keys)
+        self.moduleWrappers = {}
+
+        #FIXME: Disable per the classregistry rewrite working ok with removable devices
         #Advertise conduit on the network
-        if conduit.settings.get("enable_network") == True:
-            try:
-                self.networkManager = ConduitNetworkManager()
-                self.networkManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
-            except:
-                logging.warn("Unable to initiate network, disabling..")
-                # conduit.settings.set("enable_network", False)
-                self.networkManager = None
+        #if conduit.settings.get("enable_network") == True:
+        #    try:
+        #        self.networkManager = ConduitNetworkManager()
+        #        self.networkManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
+        #    except:
+        #        logging.warn("Unable to initiate network, disabling..")
+        #        # conduit.settings.set("enable_network", False)
+        #        self.networkManager = None
  
         #Support removable devices, ipods, etc
         if conduit.settings.get("enable_removable_devices") == True:
@@ -69,16 +76,13 @@ class ModuleManager(gobject.GObject):
             self.removableDeviceManager = RemovableDeviceManager(hal)
             self.removableDeviceManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
 
-    def _on_dynamic_dataprovider_added(self, monitor, dpw):
-        #Store the ipod so it can be retrieved later by the treeview/model
-        #emit a signal so it is added to the GUI
-        
+    def _on_dynamic_dataprovider_added(self, monitor, dpw, klass):
+        """
+        Store the ipod so it can be retrieved later by the treeview/model
+        emit a signal so it is added to the GUI
+        """
         logging.info("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
-        #FIXME: Should I be checking if its already in there. They cant be
-        #singleton objects incase the person has multiple ipods or USB keys.
-        #Hmmmmmm
-        self.dynamicModules.append(dpw)
-        self._emit_added(dpw)
+        self._append_module(dpw, klass)
 
     def _emit_added(self, dataproviderWrapper):
         if dataproviderWrapper.module_type == "source":
@@ -129,7 +133,7 @@ class ModuleManager(gobject.GObject):
                             ))
         return isModule
         
-    def _append_module(self, module):
+    def _append_module(self, wrapper, klass):
         """
         Checks if the given module (checks by classname) is already loaded
         into the modulelist array, if not it is added to that array
@@ -137,10 +141,20 @@ class ModuleManager(gobject.GObject):
         @param module: The module to append.
         @type module: L{conduit.ModuleManager.ModuleWrapper}
         """
-        if module.classname not in [i.classname for i in self.fileModules]:
-            self.fileModules.append(module)
+        #Check if the class is unique
+        classname = klass.__name__
+        if classname not in self.classRegistry:
+            self.classRegistry[classname] = klass
         else:
-            logging.warn("Module named %s allready loaded" % (module.classname))
+            logging.warn("Class named %s allready loaded" % (classname))
+        #Check if the wrapper is unique
+        key = wrapper.get_key()
+        if key not in self.moduleWrappers:
+            self.moduleWrappers[key] = wrapper
+            #Emit a signal because this wrapper is new
+            self._emit_added(wrapper)
+        else:
+            logging.info("Wrapper with key %s allready loaded" % key)
             
     def _import_file(self, filename):
         """
@@ -179,27 +193,19 @@ class ModuleManager(gobject.GObject):
 
         for modules, infos in mod.MODULES.items():
             try:
-                mod_instance = getattr (mod, modules) ()
-                #Initialize the module (only DataProviders have initialize() methods
-                enabled = True
-                if isinstance(mod_instance,DataProviderBase):
-                    if not mod_instance.initialize():
-                        logging.debug("%s Starting disabled" % infos["name"])
-                        enabled = False
-                
-                mod_wrapper = ModuleWrapper (  infos["name"], 
-            	                               infos["description"], 
-            	                               infos["type"], 
-            	                               infos["category"], 
-            	                               infos["in_type"],
-            	                               infos["out_type"],
-            	                               str(modules),    #classname
-            	                               filename,        #file holding me
-            	                               mod_instance,    #the actual module
-            	                               enabled)         #did initialize() return correctly
-                self._append_module(mod_wrapper)
-                #Emit a signal to say the module was successfully loaded
-                self._emit_added(mod_wrapper)
+                klass = getattr(mod, modules)
+                mod_wrapper = ModuleWrapper (   infos["name"], 
+            	                                infos["description"], 
+                                                infos["icon"],
+            	                                infos["type"], 
+            	                                infos["category"], 
+            	                                infos["in_type"],
+            	                                infos["out_type"],
+            	                                klass.__name__,     #classname
+            	                                (),                 #Init args
+            	                                )
+                #Save the module (signal is emitted _append_module
+                self._append_module(mod_wrapper, klass)
             except AttributeError:
                 logging.error("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
             
@@ -212,13 +218,14 @@ class ModuleManager(gobject.GObject):
         for f in self.filelist:
             self._load_modules_in_file (f)
 
-        if self.networkManager:
-            #self.networkManager.load_all_modules()
-            self.dynamicModules += self.networkManager.get_all_modules()
+        #if self.networkManager:
+        #    #self.networkManager.load_all_modules()
+        #    #self.dynamicModules += self.networkManager.get_all_modules()
              
         if conduit.settings.get("enable_removable_devices") == True:
-            #self.removableDeviceManager.load_all_modules()
-            self.dynamicModules += self.removableDeviceManager.get_all_modules()
+            mods = self.removableDeviceManager.get_all_modules()
+            for wrapper, klass in mods:
+                self._append_module(wrapper, klass)
             
         self.emit('all-modules-loaded')
         
@@ -227,7 +234,7 @@ class ModuleManager(gobject.GObject):
         @returns: All loaded modules
         @rtype: L{conduit.ModuleManager.ModuleWrapper}[]
         """
-        return self.fileModules + self.dynamicModules
+        return self.moduleWrappers.values()
         
     def get_modules_by_type(self, type_filter):
         """
@@ -238,16 +245,12 @@ class ModuleManager(gobject.GObject):
         @returns: A list of L{conduit.ModuleManager.ModuleWrapper}
         """
         if type_filter is None:
-            return self.fileModules + self.dynamicModules
+            return self.moduleWrappers.values()
         else:
-            mods = []
-            for i in self.fileModules + self.dynamicModules:
-                if i.module_type == type_filter:
-                    mods.append(i)
+            #sorry about the one-liner
+            return [i for i in self.moduleWrappers.values() if i.module_type == type_filter]
             
-            return mods
-            
-    def get_new_module_instance(self, classname):
+    def get_new_module_instance(self, wrapperKey):
         """
         Returns a new instance ModuleWrapper specified by name
         
@@ -256,42 +259,28 @@ class ModuleManager(gobject.GObject):
         @returns: An newly instanciated ModuleWrapper
         @rtype: a L{conduit.Module.ModuleWrapper}
         """    
-        if classname in [i.classname for i in self.dynamicModules]:
-            #FIXME: Shoud reinstanciate this or something.....
-            #HACKHACKHACK
-            for mod in self.dynamicModules:    
-                if mod.classname == classname:
-                    return mod
-        #check if its loaded from a file (i.e. been checked and is instanciatable)
-        elif classname in [i.classname for i in self.fileModules]:
-            for m in self.fileModules:
-                if classname == m.classname:
-                    #reimport the file that the module was in
-                    mods = self._import_file(m.filename)
-                    #re-instanciate it
-                    mod_instance = getattr (mods, m.classname) ()
-                    #Initialize the module (only DataProviders have initialize() methods
-                    enabled = True
-                    if isinstance(mod_instance,DataProviderBase):
-                        if not mod_instance.initialize():
-                            logging.warn("%s did not initialize correctly. Starting disabled" % m.classname)
-                            enabled = False                  
-                    #put it into a new wrapper
-                    mod_wrapper = ModuleWrapper(  
-                                               m.name, 
-            	                               m.description, 
-            	                               m.module_type, 
-            	                               m.category, 
-            	                               m.in_type,
-            	                               m.out_type,
-            	                               m.classname,
-            	                               m.filename,
-            	                               mod_instance,
-            	                               enabled)
-                    
-                    logging.info("Returning new instance of module with classname %s" % (m.classname))
-                    return mod_wrapper
+        if wrapperKey in self.moduleWrappers:
+            #Get the existing wrapper
+            m = self.moduleWrappers[wrapperKey]
+            #Get its construction args
+            classname = m.classname
+            initargs = m.initargs
+            mod_wrapper = ModuleWrapper(  
+                                        m.name, 
+    	                                m.description,
+                                        m.icon_name, 
+    	                                m.module_type, 
+    	                                m.category, 
+    	                                m.in_type,
+    	                                m.out_type,
+    	                                classname,
+    	                                initargs,
+    	                                self.classRegistry[classname](initargs),
+    	                                True)
+                
+            logging.info("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
+            return mod_wrapper
         else:
-            logging.warn("Could not find module with class name %s" % (classname))        
+            logging.warn("Could not find module wrapper: %s" % (wrapperKey))        
             return None
             
