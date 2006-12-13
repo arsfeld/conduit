@@ -36,7 +36,7 @@ MODULES = {
 
 class TomboyNoteSource(DataProvider.DataSource):
     NOTE_DIR = os.path.join(os.path.expanduser("~"),".tomboy")
-    def __init__(self):
+    def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("Tomboy Source"), _("Source for synchronizing Tomboy Notes"), "tomboy")
         self.notes = None
         
@@ -92,7 +92,7 @@ class TomboyNoteSource(DataProvider.DataSource):
 
 class StickyNoteSource(DataProvider.DataSource):
     NOTE_FILE = os.path.join(os.path.expanduser("~"),".gnome2","stickynotes_applet")
-    def __init__(self):
+    def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("StickyNote Source"), _("Source for synchronizing StickyNotes"), "sticky-notes")
         
         self.xml = None

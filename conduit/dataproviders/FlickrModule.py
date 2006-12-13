@@ -47,7 +47,7 @@ MODULES = {
 		"category": "",
 		"in_type": "",
 		"out_type": "",
-                "icon": ""
+                "icon": "image-x-generic"
         }           
 }
 
@@ -56,7 +56,7 @@ class FlickrSink(DataProvider.DataSink):
     SHARED_SECRET="03182987bf7fc4d1"
     ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
     
-    def __init__(self):
+    def __init__(self, *args):
         DataProvider.DataSink.__init__(self, "Flickr Sink", "Your Photos", "image-x-generic")
         
         self.fapi = None

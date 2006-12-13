@@ -76,7 +76,7 @@ class GmailBase(DataProvider.DataProviderBase):
     """
     Simple wrapper to share gmail login stuff
     """
-    def __init__(self):
+    def __init__(self, *args):
         self.username = ""
         self.password = ""
 
@@ -96,8 +96,8 @@ class GmailBase(DataProvider.DataProviderBase):
             raise Exceptions.RefreshError
             
 class GmailEmailSource(GmailBase, DataProvider.DataSource):
-    def __init__(self):
-        GmailBase.__init__(self)
+    def __init__(self, *args):
+        GmailBase.__init__(self, args)
         DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"), "internet-mail")
         
         #What emails should the source return??
@@ -268,7 +268,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
 
 
 class GmailEmailSink(GmailBase, DataProvider.DataSink):
-    def __init__(self):
+    def __init__(self, *args):
         GmailBase.__init__(self)
         DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"), "internet-mail")
         
@@ -383,7 +383,7 @@ class EmailSinkConverter:
         
 
 class GmailContactSource(GmailBase, DataProvider.DataSource):
-    def __init__(self):
+    def __init__(self, *args):
         GmailBase.__init__(self)
         DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"), "contact-new")
         self.contacts = None
@@ -449,7 +449,7 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
             }
 
 class GmailContactSink(GmailBase, DataProvider.DataSink):
-    def __init__(self):
+    def __init__(self, *args):
         GmailBase.__init__(self)
         DataProvider.DataSink.__init__(self, _("Gmail Contacts Sink"), _("Sync your Gmail Contacts"), "contact-new")
 

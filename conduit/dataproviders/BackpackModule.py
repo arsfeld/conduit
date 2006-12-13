@@ -34,7 +34,7 @@ class BackpackBase(DataProvider.DataProviderBase):
     """
     Simple wrapper to share gmail login stuff
     """
-    def __init__(self):
+    def __init__(self, *args):
         self.username = ""
         self.apikey = ""
 
@@ -54,8 +54,8 @@ class BackpackBase(DataProvider.DataProviderBase):
     
 
 class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
-    def __init__(self):
-        BackpackBase.__init__(self)
+    def __init__(self, *args):
+        BackpackBase.__init__(self, args)
         DataProvider.DataSink.__init__(self, _("Backpack Note Sink"), _("Store things in Backpack Notes"), "backpack")
         
         self.storeInPage = "Conduit"

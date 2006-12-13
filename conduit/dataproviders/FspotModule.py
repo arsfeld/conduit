@@ -28,7 +28,7 @@ MODULES = {
 
 class FspotSource(DataProvider.DataSource):
     PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
-    def __init__(self):
+    def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("Fspot Photos"), _("Source for Fspot Photos"), "f-spot")
         #Settings
         self.enabledTags = [] #Just used to save and restore settings
