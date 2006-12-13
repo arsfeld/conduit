@@ -33,7 +33,7 @@ class CategoryWrapper(ModuleWrapper):
                             None,           #in_type: N/A
                             None,           #out_type: N/A
                             None,           #classname: N/A
-                            None,           #initargs: N/A
+                            (),             #initargs: N/A
                             category,       #object instance: N/A
                             True)           #enabled: True but N/A
 

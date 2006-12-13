@@ -87,7 +87,12 @@ class ModuleWrapper:
         self.in_type = in_type
         self.out_type = out_type
         self.classname = classname
-        self.initargs = initargs
+        #Initargs must be a tuple or a list for get_key() to work
+        if type(initargs) == tuple:
+            self.initargs = initargs
+        else:
+            logging.warn("BAD PROGRAMMER ---- INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
+            self.initargs = ()
         self.module = module
         self.enabled = enabled
         

@@ -53,16 +53,16 @@ class RemovableDeviceManager(gobject.GObject):
             #things should be moved out of MODULES into class properties
             #instance = klass(mount)
             dpw = ModuleWrapper(
-                        "Note %s" % type,
-                        "Your iPod notes",
-                        type, 
-                        category,
-                        "note",
-                        "note",
-                        klass.__name__,                             #classname has to be unique
-                        (mount,),                                   #init args
-                        None,
-                        True)
+                        "Note %s" % type,           #name
+                        "Your iPod notes",          #description
+                        "tomboy",                   #icon
+                        type,                       #type
+                        category,                   #category
+                        "note",                     #in_type
+                        "note",                     #out_type
+                        klass.__name__,             #classname has to be unique
+                        (mount,),                   #init args
+                        )
 
             if emit == True:
                 self._emit("dataprovider-added", dpw, klass)
