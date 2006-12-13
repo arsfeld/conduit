@@ -111,7 +111,10 @@ class ModuleWrapper:
         I suppose I could have used the builtin __getinitargs__ call used with 
         pickle but requires less implementation detail on the part of the DP
         """
-        return self.classname + ":" + ":".join(self.initargs)
+        if len(self.initargs) > 0:
+            return self.classname + ":" + ":".join(self.initargs)
+        else:
+            return self.classname
        
     def get_unique_identifier(self):
         """

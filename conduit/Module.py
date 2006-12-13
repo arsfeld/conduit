@@ -281,6 +281,7 @@ class ModuleManager(gobject.GObject):
             logging.info("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
             return mod_wrapper
         else:
-            logging.warn("Could not find module wrapper: %s" % (wrapperKey))        
+            logging.warn("Could not find module wrapper: %s" % (wrapperKey))
+            print self.moduleWrappers.keys()
             return None
             

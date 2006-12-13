@@ -112,16 +112,12 @@ class GtkView(dbus.service.Object):
                                 self.item_popup_widgets
                                 )
         
-        # Populate the tree models
-        #self.datasink_tm = DataProviderTreeModel()
-        self.datasource_tm = DataProviderTreeModel() 
-        #sink_scrolled_window = self.widgets.get_widget("scrolledwindow3")
-        source_scrolled_window = self.widgets.get_widget("scrolledwindow2")
-        #sink_scrolled_window.add(DataProviderTreeView(self.datasink_tm))
-        self.datasource_tv = DataProviderTreeView(self.datasource_tm)
-        source_scrolled_window.add(self.datasource_tv)
-        #sink_scrolled_window.show_all()
-        source_scrolled_window.show_all()
+        # Populate the tree model
+        self.dataproviderTreeModel = DataProviderTreeModel() 
+        dataproviderScrolledWindow = self.widgets.get_widget("scrolledwindow2")
+        self.dataproviderTreeView = DataProviderTreeView(self.dataproviderTreeModel)
+        dataproviderScrolledWindow.add(self.dataproviderTreeView)
+        dataproviderScrolledWindow.show_all()
 
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver()
@@ -143,13 +139,11 @@ class GtkView(dbus.service.Object):
         self.moduleManager = model
 
         #add the dataproviders to the treemodel
-        self.datasource_tm.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
-        self.datasource_tm.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
-        #self.datasink_tm.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
+        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
+        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
         #furthur from this point all dataproviders are loaded in callback as 
         #its the easiest way modules which can be added and removed at runtime (like ipods)
         self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)
-        self.moduleManager.connect("all-modules-loaded", lambda x: self.datasource_tv.expand_all())
 
         #initialise the Type Converter
         converters = self.moduleManager.get_modules_by_type("converter")
@@ -162,7 +156,7 @@ class GtkView(dbus.service.Object):
                 "missing"   :   conduit.settings.get("twoway_policy_missing")}
                 )
         self.sync_manager.set_sync_callbacks(None, self.conflictResolver.on_conflict)
-        self.datasource_tv.expand_all()
+        self.dataproviderTreeView.expand_all()
 
        
     def on_dataprovider_added(self, loader, dataprovider):
@@ -173,10 +167,7 @@ class GtkView(dbus.service.Object):
         detected on the network
         """
         if dataprovider.enabled == True:
-            #if dataprovider.module_type == "source":
-            self.datasource_tm.add_dataprovider(dataprovider)
-            #elif dataprovider.module_type == "sink":
-            #    self.datasink_tm.add_dataprovider(dataprovider)
+            self.dataproviderTreeModel.add_dataprovider(dataprovider)
 
     def on_synchronize_all_clicked(self, widget):
         """
