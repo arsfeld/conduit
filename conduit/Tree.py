@@ -16,6 +16,7 @@ import logging
 import conduit
 import conduit.DataProvider as DataProvider
 from conduit.ModuleWrapper import ModuleWrapper
+from conduit.Conflict import ArrowCellRenderer, LEFT_ARROW, RIGHT_ARROW, DOUBLE_ARROW, NO_ARROW
 
 class CategoryWrapper(ModuleWrapper):
     """
@@ -46,8 +47,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     @ivar modules: The array of modules under this treeviews control.
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
     """
-    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool)
-    COLUMN_NAMES = ['Name', 'Description']
+    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool, str)
 
     def __init__(self, module_wrapper_list=[]):
         """
@@ -143,12 +143,6 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #self.row_deleted(path)
         #del (self.childrencache[parent])
 
-    def get_column_names(self):
-        """
-        get_column_names(
-        """
-        return self.COLUMN_NAMES[:]
-
     def on_get_flags(self):
         """
         on_get_flags(
@@ -220,6 +214,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #and subsequently cancel the drag and drop
         elif column is 4:        
             return self._is_category_heading(rowref)
+        elif column is 5:
+            return rowref.module_type
 
     def on_iter_next(self, rowref):
         """
@@ -309,19 +305,23 @@ class DataProviderTreeView(gtk.TreeView):
         """
         gtk.TreeView.__init__(self, model)
         
-        column_names = model.get_column_names()
-        tvcolumn = [None] * len(column_names)
         # First column is an image and the name...
-        cellpb = gtk.CellRendererPixbuf()
-        cell = gtk.CellRendererText()
-        tvcolumn[0] = gtk.TreeViewColumn(column_names[0],cellpb, pixbuf=0)
-        tvcolumn[0].pack_start(cell, False)
-        tvcolumn[0].add_attribute(cell, 'text', 1)
-        self.append_column(tvcolumn[0])
-        # Second cell is description
-        tvcolumn[1] = gtk.TreeViewColumn(column_names[1], gtk.CellRendererText(), text=2)
-        self.append_column(tvcolumn[1])
-        
+        pixbufRenderer = gtk.CellRendererPixbuf()
+        textRenderer = gtk.CellRendererText()
+        tvcolumn0 = gtk.TreeViewColumn("Name", pixbufRenderer, pixbuf=0)
+        tvcolumn0.pack_start(textRenderer, False)
+        tvcolumn0.add_attribute(textRenderer, 'text', 1)
+        self.append_column(tvcolumn0)
+
+        # Second cell is a gammy arrow indicating source or sink and a description
+        arrowRenderer = ArrowCellRenderer()
+        textRenderer = gtk.CellRendererText()
+        tvcolumn1 = gtk.TreeViewColumn("Description", arrowRenderer)
+        tvcolumn1.set_cell_data_func(arrowRenderer, self.set_direction_func)
+        tvcolumn1.pack_start(textRenderer, False)
+        tvcolumn1.add_attribute(textRenderer, 'text', 2)
+        self.append_column(tvcolumn1)
+
         # DND info:
         # drag
         self.enable_model_drag_source(  gtk.gdk.BUTTON1_MASK,
@@ -333,7 +333,8 @@ class DataProviderTreeView(gtk.TreeView):
         #self.connect('drag-begin', self.on_drag_begin)
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)
-        
+
+    def expand_all(self):
         #FIXME: This used to cause the GUI to hang. Now it doesnt... curious
         gtk.TreeView.expand_all(self)
         
@@ -345,7 +346,17 @@ class DataProviderTreeView(gtk.TreeView):
         #if categoryHeading:
         #    logging.debug("Aborting DND")
         #    context.drag_abort()
-        
+
+    def set_direction_func(self, column, cell_renderer, tree_model, iter):
+        module_type = tree_model.get_value(iter, 5)
+        if module_type == "source":
+            cell_renderer.set_direction(RIGHT_ARROW)
+        elif module_type == "sink":
+            cell_renderer.set_direction(LEFT_ARROW)
+        elif module_type == "twoway":
+            cell_renderer.set_direction(DOUBLE_ARROW)
+        else:
+            cell_renderer.set_direction(NO_ARROW)
 
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):
         """

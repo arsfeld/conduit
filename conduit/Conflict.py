@@ -11,11 +11,18 @@ import gtk, gtk.gdk
 
 import conduit
 
+#ENUM represeting the images drawn by ArrowCellRenderer
+RIGHT_ARROW = 0
+CROSS = 1
+LEFT_ARROW = 2
+DOUBLE_ARROW = 3
+NO_ARROW = 4
+
 #ENUM of directions when resolving a conflict
-CONFLICT_COPY_SOURCE_TO_SINK = 0        #right drawn arrow
-CONFLICT_SKIP = 1                       #dont draw an arrow
-CONFLICT_COPY_SINK_TO_SOURCE = 2        #left drawn arrow
-CONFLICT_BOTH = 3                       #double headed arrow
+CONFLICT_COPY_SOURCE_TO_SINK = RIGHT_ARROW  #right drawn arrow
+CONFLICT_SKIP = CROSS                       #dont draw an arrow - draw a -x-
+CONFLICT_COPY_SINK_TO_SOURCE = LEFT_ARROW   #left drawn arrow
+CONFLICT_BOTH = DOUBLE_ARROW                #double headed arrow
 
 #Indexes into the conflict tree model in which 
 #conflict data is stored
@@ -137,14 +144,15 @@ class ArrowCellRenderer(gtk.GenericCellRenderer):
                     )
 
     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-        self.image.render_to_drawable_alpha(window,
-                                        0, 0,                       #x, y in pixbuf
-                                        cell_area.x, cell_area.y,   # x, y in drawable
-                                        -1, -1,                     # use pixbuf width & height
-                                        0, 0,                       # alpha (deprecated params)
-                                        gtk.gdk.RGB_DITHER_NONE,
-                                        0, 0
-                                        )
+        if self.image != None:
+            self.image.render_to_drawable_alpha(window,
+                                            0, 0,                       #x, y in pixbuf
+                                            cell_area.x, cell_area.y,   # x, y in drawable
+                                            -1, -1,                     # use pixbuf width & height
+                                            0, 0,                       # alpha (deprecated params)
+                                            gtk.gdk.RGB_DITHER_NONE,
+                                            0, 0
+                                            )
         return True
 
     def set_direction(self, direction):
@@ -157,7 +165,7 @@ class ArrowCellRenderer(gtk.GenericCellRenderer):
         elif direction == CONFLICT_BOTH:
             self.image = ArrowCellRenderer.BOTH_IMAGE
         else:
-            print "UNKNOWN DIRECTION"
+            self.image = None
 
 class ConflictCellRenderer(ArrowCellRenderer):
     def __init__(self):
