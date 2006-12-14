@@ -44,7 +44,10 @@ class Settings(gobject.GObject):
         'enable_dbus_interface'     :   True,   #Should conduit present a full dbus interface to let remote apps use it
         'disable_twoway_sync'       :   True,   #If the user selects it, shoud two way sync be used
         'twoway_policy_conflict'    :   "ask",  #ask,replace,skip
-        'twoway_policy_missing'     :   "ask"   #ask,replace,skip
+        'twoway_policy_missing'     :   "ask",  #ask,replace,skip
+        'gui_expanded_columns'      :   [],     #list of expanded column paths in the treeview
+        'gui_hpane_postion'         :   250,    #The hpane seperating the canvas and treeview position
+        'gui_window_size'           :   []      #W,H   
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names
@@ -188,6 +191,8 @@ class Settings(gobject.GObject):
             return value.get_string()
         elif vtype is int:
             return value.get_int()
+        elif vtype is list:
+            return value.get_list()
 
     def set(self, key, value, vtype=None):
         """
@@ -204,6 +209,14 @@ class Settings(gobject.GObject):
             self.client.set_bool(key, value)
         elif vtype is str:
             self.client.set_string(key, value)
+        elif vtype is int:
+            self.client.set_int(key, value)
+        elif vtype is list:
+            #Save every value as a string
+            strvalues = [str(i) for i in value]
+            self.client.set_list(key, gconf.VALUE_STRING, strvalues)
+        else:
+            logging.warn("Unknown gconf type (k:%s v:%s)" % (key,value))
 
     def get_username_and_password(self, classname):
         """

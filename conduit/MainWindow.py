@@ -146,8 +146,7 @@ class GtkView(dbus.service.Object):
         self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)
 
         #initialise the Type Converter
-        converters = self.moduleManager.get_modules_by_type("converter")
-        self.type_converter = TypeConverter(converters)
+        self.type_converter = TypeConverter(self.moduleManager)
         self.canvas.set_type_converter(self.type_converter)
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager(self.type_converter)
@@ -379,7 +378,7 @@ class GtkView(dbus.service.Object):
         #OK, if we have decided to quit then perform any cleanup tasks
         if quit:
             if conduit.settings.get("save_on_exit") == True:
-                conduit.settings.save_sync_set(conduit.APPVERSION,self.canvas.get_sync_set())
+                self.save_settings(None)
             gtk.main_quit()
         
         
@@ -420,11 +419,26 @@ class GtkView(dbus.service.Object):
         
     def save_settings(self, widget):
         """
-        Saves the application settings to an XML document
+        Saves the application settings to an XML document.
+        Saves the GUI settings (window state, position, etc to gconf)
         """
         conduit.settings.save_sync_set( conduit.APPVERSION,
                                         self.canvas.get_sync_set()
                                         )
+        #GUI settings
+        #print "EXPANDED ROWS - ", self.dataproviderTreeView.get_expanded_rows()
+        conduit.settings.set("gui_hpane_postion", self.hpane.get_position())
+        conduit.settings.set("gui_window_size", self.mainWindow.get_size())
+
+    def restore_settings(self):
+        """
+        Restores the application and gui settings
+        """
+        conduit.settings.restore_sync_set(conduit.APPVERSION, self)
+        
+        #GUI settings
+        self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
+        #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
 
     #---------------------------------------------------------------------------
     # DBUS METHODS (follow DBus naming conventions
@@ -567,9 +581,9 @@ def conduit_main():
     #Set the view models
     #gtkView...
     if useGUI:
-        gtkView.set_model(model)
         conduit.settings.set_settings_file(settingsFile)
-        conduit.settings.restore_sync_set(conduit.APPVERSION, gtkView)
+        gtkView.set_model(model)
+        gtkView.restore_settings()
     #Dbus view...
     if conduit.settings.get("enable_dbus_interface") == True:
         dbusView = DBusView()
