@@ -202,6 +202,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 newdata = data
         #Catch exceptions if we abort the sync cause no conversion exists
         except Exceptions.ConversionDoesntExistError:
+            logging.debug("No Conversion Exists")
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
         #Catch errors from a failed convert
         except Exceptions.ConversionError, err:

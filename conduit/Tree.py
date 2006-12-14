@@ -376,3 +376,10 @@ class DataProviderTreeView(gtk.TreeView):
         self.emit_stop_by_name('drag-data-delete')      
         #context.finish(True, True, etime)        
         
+    def get_expanded_rows(self):
+        def map_expanded_rows_func(treeview, path):
+            expanded.append(path)
+
+        expanded = []
+        self.map_expanded_rows(map_expanded_rows_func)
+        return expanded

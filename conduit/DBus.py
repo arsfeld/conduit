@@ -117,8 +117,7 @@ class DBusView(dbus.service.Object):
         self.datasinks = self.model.get_modules_by_type("sink")
 
         #initialise the Type Converter
-        converters = self.model.get_modules_by_type("converter")
-        self.type_converter = TypeConverter(converters)
+        self.type_converter = TypeConverter(self.model)
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager(self.type_converter)
         self.sync_manager.set_twoway_policy({"conflict":"skip","missing":"skip"})

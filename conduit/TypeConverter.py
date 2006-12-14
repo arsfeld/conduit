@@ -42,14 +42,15 @@ class TypeConverter:
     in L{conduit.TypeConverter.TypeConverter}
     """
     	
-    def __init__ (self, dynamic_modules):
+    def __init__ (self, moduleManager):
         """
         Builds the conversion dictionary
 
         @param dynamic_modules: The dynamically loaded converters
         """
-        
-        self.dynamic_modules = dynamic_modules
+
+        moduleManager.make_modules_callable("converter")
+        self.dynamic_modules = moduleManager.get_modules_by_type("converter")
         #dict of dicts
         self.convertables = {}
         
@@ -62,16 +63,12 @@ class TypeConverter:
                         fromtype = c.split(',')[0]
                         totype = c.split(',')[1]
                     
-                        #I cant work out why in python i cant just go
-                        #bla[][] = bla to start the inner dict and 
-                        #instead have to do this 
-                        
                         #if the from source doesnt yet exist add an inner dict
                         #containing the FROM type and conversion function
-                    
                         if not self.convertables.has_key(fromtype):
                             new_conv = {totype:conv[c] }
                             self.convertables[fromtype] = new_conv
+
                         #Otherwise we already have an inner dict so can go
                         #ahead and insert a new TO type and conversion function
                         else:

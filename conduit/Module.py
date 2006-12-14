@@ -208,6 +208,30 @@ class ModuleManager(gobject.GObject):
                 self._append_module(mod_wrapper, klass)
             except AttributeError:
                 logging.error("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
+
+    def _instantiate_class(self, classname, initargs):
+        if type(initargs) != tuple:
+            logging.warn("Could not make class %s. Initargs must be a tuple" % classname)
+            return None
+        if classname in self.classRegistry:
+            logging.info("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
+            #FIXME: HACK HACK HACK. Saves me having to implement __new__ in 
+            #base dataprovider. I can back this out when I have full pyro support
+            #for remote networked conduit instances
+            #http://www.python.org/download/releases/2.2.3/descrintro/#__new__
+            if len(initargs) == 0:
+                return self.classRegistry[classname]()
+            if len(initargs) == 1:
+                return self.classRegistry[classname](initargs[0])
+            elif len(initargs) == 2:
+                return self.classRegistry[classname](initargs[0],initargs[1])
+            elif len(initargs) == 3:
+                return self.classRegistry[classname](initargs[0],initargs[1],initargs[2])
+            else:
+                logging.critical("BAD PROGRAMMER. NUMBER OF INIT ARGS EXCEEDS HACKISH WORKAROUND")
+        else:
+            logging.warn("Could not find class named %s" % classname)
+
             
     def load_static_modules(self):
         """
@@ -275,13 +299,21 @@ class ModuleManager(gobject.GObject):
     	                                m.out_type,
     	                                classname,
     	                                initargs,
-    	                                self.classRegistry[classname](initargs),
+    	                                self._instantiate_class(classname, initargs),
     	                                True)
                 
-            logging.info("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
             return mod_wrapper
         else:
             logging.warn("Could not find module wrapper: %s" % (wrapperKey))
             print self.moduleWrappers.keys()
             return None
-            
+
+    def make_modules_callable(self, type_filter):
+        """
+        In the typeconverter it is necesary to call the modules directly. This
+        function creates those instances in wrappers of the specified type
+        """
+        for i in self.moduleWrappers.values():
+            if i.module_type == type_filter:
+                i.module = self._instantiate_class(i.classname, i.initargs)
+
