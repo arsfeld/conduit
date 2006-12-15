@@ -18,6 +18,7 @@ import logging
 import conduit, conduit.dataproviders
 from conduit.DataProvider import DataSource
 from conduit.DataProvider import DataSink
+from conduit.DataProvider import TwoWay
 from conduit.ModuleWrapper import ModuleWrapper
 from Hal import UDI_IDX, MOUNT_IDX, NAME_IDX
 
@@ -48,12 +49,12 @@ class RemovableDeviceManager(gobject.GObject):
                         "ipod-icon",
                         mount)
 
-        for klass,type in [(IPodNoteSource,"source"), (IPodNoteSink,"sink")]:
+        for klass,type in [(IPodNoteTwoWay,"source")]:
             #FIXME: There is no real need to instantiate this, really some 
             #things should be moved out of MODULES into class properties
             #instance = klass(mount)
             dpw = ModuleWrapper(
-                        "Note %s" % type,           #name
+                        "Notes",                    #name
                         "Your iPod notes",          #description
                         "tomboy",                   #icon
                         type,                       #type
@@ -88,19 +89,19 @@ class USBKeySource(DataSource):
     pass
 
 
-class IPodNoteSource(DataSource):
-    def __init__(self, mountPoint):
-        DataSource.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
+class IPodNoteTwoWay(TwoWay):
+    def __init__(self, *args):
+        TwoWay.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
         
-        self.mountPoint = mountPoint
+        self.mountPoint = args[0]
         self.notes = None
 
     def refresh(self):
-        DataSource.refresh(self)
+        TwoWay.refresh(self)
         
         self.notes = []
 
-        mypath = os.path.join(self.mountPoint, 'Notes/')
+        mypath = os.path.join(self.mountPoint, 'Notes')
         logging.info(mypath)
         for f in os.listdir(mypath):
             fullpath = os.path.join(mypath, f)
@@ -114,28 +115,17 @@ class IPodNoteSource(DataSource):
                 self.notes.append(note)
 
     def get_num_items(self):
-        DataSource.get_num_items(self)
+        TwoWay.get_num_items(self)
         logging.info(len(self.notes))
         return len(self.notes)
 
     def get(self, index):
-        DataSource.get(self, index)
+        TwoWay.get(self, index)
         return self.notes[index]
 
-    def finish(self):
-        self.notes = None
-
-class IPodNoteSink(DataSink):
-    def __init__(self, mountPoint):
-        DataSink.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
-        
-        self.mountPoint = mountPoint
-        self.notesPoint = os.path.join(mountPoint, 'Notes/')
-
-    def refresh(self):
-        DataSink.refresh(self)
-        
     def put(self, note, noteOnTopOf=None):
         DataSink.put(self, note, noteOnTopOf)
 	open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
         
+    def finish(self):
+        self.notes = None
