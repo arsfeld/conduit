@@ -32,6 +32,8 @@ from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 from conduit.DBus import dbus_service_available
 
+import conduit.VolumeMonitor as gnomevfs
+
 CONDUIT_DBUS_PATH = "/gui"
 CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
 
@@ -553,6 +555,11 @@ def conduit_main():
         # print help information and exit:
         logging.warn("Unknown command line option")
         pass
+
+    # attempt workaround for gnomvefs bug...
+    # this shouldn't need to be here, but if we call it after touching the session bus
+    # then nothing will work
+    gnomevfs.VolumeMonitor()
 
     #Make conduit single instance. If it is already running then present it
     #to the user

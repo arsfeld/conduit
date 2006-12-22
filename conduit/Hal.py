@@ -15,7 +15,7 @@ import logging
 import conduit
 from DBus import dbus_service_available
 
-import gnomevfs
+import VolumeMonitor as gnomevfs
 import gobject
 
 import dbus
@@ -60,7 +60,7 @@ class HalMonitor(gobject.GObject):
     }
     def __init__(self):
         gobject.GObject.__init__(self)
-        self.vol_monitor =  gnomevfs.VolumeMonitor()
+        self.vol_monitor = gnomevfs.VolumeMonitor()
         
         self.registered_volumes = []
         self.bus = dbus.SystemBus()
