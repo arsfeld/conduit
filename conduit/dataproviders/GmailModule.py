@@ -25,8 +25,8 @@ except ImportError:
 
 
 MODULES = {
-	"GmailEmailSource" : {
-		"name": _("Gmail Email Source"),
+	"GmailEmailTwoWay" : {
+		"name": _("Email"),
 		"description": _("Sync your Gmail Emails"),
 		"category": DataProvider.CATEGORY_GOOGLE,
 		"type": "source",
@@ -34,31 +34,13 @@ MODULES = {
 		"out_type": "email",
                 "icon": "internet-mail"
 	},
-	"GmailEmailSink" : {
-		"name": _("Gmail Email Sink"),
-		"description": _("Sync your Gmail Emails"),
-		"type": "sink",
-		"category": DataProvider.CATEGORY_GOOGLE,
-		"in_type": "email",
-		"out_type": "email",
-                "icon": "internet-mail"
-	},
-	"GmailContactSource" : {
-		"name": _("Gmail Contacts Source"),
+	"GmailContactTwoWay" : {
+		"name": _("Contacts"),
 		"description": _("Sync your Gmail Contacts"),
 		"type": "source",
 		"category": DataProvider.CATEGORY_GOOGLE,
 		"in_type": "contact",
 		"out_type": "contact",
-                "icon": "contact-new"
-	},
-	"GmailContactSink" : {
-		"name": _("Gmail Contacts Sink"),
-		"description": _("Sync your Gmail Contacts"),
-		"type": "sink",
-		"category": DataProvider.CATEGORY_GOOGLE,
-		"in_type": "vCard",
-		"out_type": "vCard",
                 "icon": "contact-new"
 	},
 	"EmailSinkConverter" : {
@@ -95,10 +77,10 @@ class GmailBase(DataProvider.DataProviderBase):
             logging.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
             raise Exceptions.RefreshError
             
-class GmailEmailSource(GmailBase, DataProvider.DataSource):
+class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
     def __init__(self, *args):
         GmailBase.__init__(self, args)
-        DataProvider.DataSource.__init__(self, _("Gmail Email Source"), _("Sync your Gmail Emails"), "internet-mail")
+        DataProvider.TwoWay.__init__(self, _("Email"), _("Sync your Gmail Emails"), "internet-mail")
         
         #What emails should the source return??
         self.getAllEmail = False
@@ -194,7 +176,7 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
         dlg.destroy()    
 
     def refresh(self):
-        DataProvider.DataSource.refresh(self)
+        DataProvider.TwoWay.refresh(self)
         GmailBase.refresh(self)
 
         self.mails = []
@@ -246,69 +228,15 @@ class GmailEmailSource(GmailBase, DataProvider.DataSource):
             raise Exceptions.SyncronizeFatalError
                 
     def get(self, index):
-        DataProvider.DataSource.get(self, index)
+        DataProvider.TwoWay.get(self, index)
         return self.mails[index]
 
     def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
+        DataProvider.TwoWay.get_num_items(self)
         return len(self.mails)
 
-    def finish(self):
-        self.mails = None
-
-    def get_configuration(self):
-        return {
-            "username" : self.username,
-            "password" : self.password,
-            "getAllEmals" : self.getAllEmail,
-            "getUnreadEmail" : self.getUnreadEmail,
-            "getWithLabel" : self.getWithLabel,
-            "getInFolder" : self.getInFolder
-            }            
-
-
-class GmailEmailSink(GmailBase, DataProvider.DataSink):
-    def __init__(self, *args):
-        GmailBase.__init__(self)
-        DataProvider.DataSink.__init__(self, _("Gmail Email Sink"), _("Sync your Gmail Emails"), "internet-mail")
-        
-        self.label = "Conduit"
-        
-    def configure(self, window):
-        """
-        Configures the GmailSource for which emails it should return
-        
-        All the inner function foo is because the allEmail
-        option is mutually exclusive with all the others (which may be
-        mixed according to the users preferences
-        """
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")
-        
-        #get a whole bunch of widgets
-        labelEmailsCb = tree.get_widget("labelEmails")
-        labelEntry = tree.get_widget("labels")
-        usernameEntry = tree.get_widget("username")
-        passwordEntry = tree.get_widget("password")
-        
-        #preload the widgets
-        labelEmailsCb.set_active(len(self.label) > 0)
-        labelEntry.set_text(self.label)
-        usernameEntry.set_text(self.username)
-        
-        dlg = tree.get_widget("GmailSinkConfigDialog")
-        dlg.set_transient_for(window)
-        
-        response = dlg.run()
-        if response == gtk.RESPONSE_OK:
-            if labelEmailsCb.get_active():
-                self.label = labelEntry.get_text()
-            self.username = usernameEntry.get_text()
-            if passwordEntry.get_text() != self.password:
-                self.password = passwordEntry.get_text()
-        dlg.destroy()    
-        
     def put(self, email, emailOnTopOf=None):
-        DataProvider.DataSink.put(self, email, emailOnTopOf)
+        DataProvider.TwoWay.put(self, email, emailOnTopOf)
 
         if email.has_attachments():
             attach = email.attachments
@@ -329,12 +257,18 @@ class GmailEmailSink(GmailBase, DataProvider.DataSink):
             except Exception, err:
                 logging.warn("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
 
+    def finish(self):
+        self.mails = None
+
     def get_configuration(self):
         return {
             "username" : self.username,
             "password" : self.password,
-            "label" : self.label
-            } 
+            "getAllEmals" : self.getAllEmail,
+            "getUnreadEmail" : self.getUnreadEmail,
+            "getWithLabel" : self.getWithLabel,
+            "getInFolder" : self.getInFolder
+            }            
         
 class EmailSinkConverter:
     def __init__(self):
@@ -382,10 +316,10 @@ class EmailSinkConverter:
         return email
         
 
-class GmailContactSource(GmailBase, DataProvider.DataSource):
+class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
     def __init__(self, *args):
         GmailBase.__init__(self)
-        DataProvider.DataSource.__init__(self, _("Gmail Contacts Source"), _("Sync your Gmail Contacts"), "contact-new")
+        DataProvider.TwoWay.__init__(self, _("Contacts"), _("Sync your Gmail Contacts"), "contact-new")
         self.contacts = None
         self.username = ""
         self.password = ""
@@ -394,7 +328,7 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
         return True
 
     def refresh(self):
-        DataProvider.DataSource.refresh(self)
+        DataProvider.TwoWay.refresh(self)
         GmailBase.refresh(self)
 
         self.contacts = []
@@ -410,12 +344,15 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
             raise Exceptions.SyncronizeFatalError
 
     def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
+        DataProvider.TwoWay.get_num_items(self)
         return len(self.contacts)
 
     def get(self, index):
-        DataProvider.DataSource.get(self, index)
+        DataProvider.TwoWay.get(self, index)
         return self.contacts[index]
+
+    def put(self, contact, contactOnTopOf):
+        DataProvider.TwoWay.put(self, contact, contactOnTopOf)
 
     def finish(self):
         self.contacts = None
@@ -447,18 +384,3 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
             "username" : self.username,
             "password" : self.password,
             }
-
-class GmailContactSink(GmailBase, DataProvider.DataSink):
-    def __init__(self, *args):
-        GmailBase.__init__(self)
-        DataProvider.DataSink.__init__(self, _("Gmail Contacts Sink"), _("Sync your Gmail Contacts"), "contact-new")
-
-    def initialize(self):
-        return False
-
-    def refresh(self):
-        DataProvider.DataSink.refresh(self)
-        GmailBase.refresh(self)
-
-    def put(self, contact, contactOnTopOf):
-        DataProvider.DataSink.put(self, contact, contactOnTopOf)
