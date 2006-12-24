@@ -54,15 +54,16 @@ class SynceTwoWay(DataProvider.TwoWay):
         DataProvider.TwoWay.refresh(self)
         
         self.objects = []
-        
+
+        # get hold of dbus service        
         bus = dbus.SessionBus()
         proxy_obj = bus.get_object("org.synce.SyncEngine", "/org/synce/SyncEngine")
         self.synce = dbus.Interface(proxy_obj, "org.synce.SyncEngine")
 
-        name_to_id = {}
+        # get the id for the type of object we want to sync
         for id, name in self.synce.GetItemTypes().items():
-            name_to_id[name.lower()] = id
-        self.obj_type_id = name_to_id[self.obj_type]
+            if name.lower() = self.obj_type.lower():
+                self.obj_type_id = id
 
         # temporary workarounds
         self._temp_delete_partnership()
@@ -71,16 +72,14 @@ class SynceTwoWay(DataProvider.TwoWay):
         self.synce.StartSync()
         self.synce.connect_to_signal("Synchronized", self._synchronized_cb)
 
+        # fixme: this seems to block the signal arriving :-(
         self.synchronized_ev = threading.Event()
         self.synchronized_ev.wait(10)
 
-        items = []
-        items.append(name_to_id["contacts"])
-
-        chgs = self.synce.GetRemoteChanges(items)
-        for chg_type in chgs:
-            for luid,changetype,obj in chgs[chg_type]:
-                self.objects.append(str(obj))
+        # process changes from sync interface
+        chgs = self.synce.GetRemoteChanges([self.obj_type_id])
+        for luid,changetype,obj in chgs[self.obj_type_id]:
+            self.objects.append(str(obj))
 
     def _synchronized_cb(self):
         logging.info("event fired, my sweet children...")
@@ -110,7 +109,7 @@ class SynceTwoWay(DataProvider.TwoWay):
     def finish(self):
         # self.synce.AckChanges
         self._temp_delete_partnership()
-        self.contacts = None
+        self.objects = None
 
 class SynceContactTwoWay(SynceTwoWay):
     def __init__(self, *args):
