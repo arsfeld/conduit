@@ -62,7 +62,7 @@ class SynceTwoWay(DataProvider.TwoWay):
 
         # get the id for the type of object we want to sync
         for id, name in self.synce.GetItemTypes().items():
-            if name.lower() = self.obj_type.lower():
+            if name.lower() == self.obj_type.lower():
                 self.obj_type_id = id
 
         # temporary workarounds
@@ -85,16 +85,29 @@ class SynceTwoWay(DataProvider.TwoWay):
         logging.info("event fired, my sweet children...")
         self.synchronized_ev.set()
 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        return self.objects[index]
-                
     def get_num_items(self):
         DataProvider.TwoWay.get_num_items(self)
         return len(self.objects)
 
-    def put(self, contact, putContactOnTopOf):
-        DataProvider.TwoWay.put(contact, putContactOnTopOf)
+    def get(self, index):
+        DataProvider.TwoWay.get(self, index)
+        return self.objects[index]
+
+    def put(self, obj, objContactOnTopOf):
+        DataProvider.TwoWay.put(self, obj, objOnTopOf)
+
+        data = str(obj).decode("utf-8")
+        self.synce.AddLocalChanges(
+            {
+                self.obj_type_id : ((str(obj.get_UID()).decode("utf-8"),
+                                     obj.change_type,
+                                     str(obj)),),
+            })
+
+    def finish(self):
+        # self.synce.AckChanges
+        self._temp_delete_partnership()
+        self.objects = None
 
     def _temp_create_partnership(self):
         self.synce.CreatePartnership(".conduit", (self.obj_type_id,))
@@ -105,11 +118,6 @@ class SynceTwoWay(DataProvider.TwoWay):
         for id, name, host, items in self.synce.GetPartnerships():
             if name == ".conduit":
                 self.synce.DeletePartnership(id)
-
-    def finish(self):
-        # self.synce.AckChanges
-        self._temp_delete_partnership()
-        self.objects = None
 
 class SynceContactTwoWay(SynceTwoWay):
     def __init__(self, *args):
