@@ -49,7 +49,7 @@ class RemovableDeviceManager(gobject.GObject):
                         "ipod-icon",
                         mount)
 
-        for klass,type in [(IPodNoteTwoWay,"source")]:
+        for klass,type in [(IPodNoteTwoWay,"twoway")]:
             #FIXME: There is no real need to instantiate this, really some 
             #things should be moved out of MODULES into class properties
             #instance = klass(mount)
