@@ -13,8 +13,8 @@ import gnomevfs
 import os.path
 
 MODULES = {
-	"FileSource" : { "type": "source" },
-	"FileSink" : { "type": "sink" },
+	"FileSource" :    { "type": "source" },
+	"FileSink" :      { "type": "sink" },
 	"FileConverter" : { "type": "converter" }
 	
 }
@@ -47,7 +47,7 @@ class FileSource(DataProvider.DataSource):
     _icon_ = "text-x-generic"
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"), "text-x-generic")
+        DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"))
         
         #list of file URIs (from the "add file" button
         self.files = []
@@ -185,7 +185,7 @@ class FileSink(DataProvider.DataSink):
 
     DEFAULT_FOLDER_URI = os.path.expanduser("~")
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"), "text-x-generic")
+        DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"))
         self.folderURI = FileSink.DEFAULT_FOLDER_URI
 
     def initialize(self):

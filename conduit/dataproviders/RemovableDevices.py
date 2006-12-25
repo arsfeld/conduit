@@ -91,7 +91,7 @@ class USBKeySource(DataSource):
 
 class IPodNoteTwoWay(TwoWay):
     def __init__(self, *args):
-        TwoWay.__init__(self, _("Notes"), _("Sync you iPod notes"), "tomboy")
+        TwoWay.__init__(self, _("Notes"), _("Sync you iPod notes"))
         
         self.mountPoint = args[0]
         self.notes = None

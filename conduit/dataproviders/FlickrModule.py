@@ -49,7 +49,7 @@ class FlickrSink(DataProvider.DataSink):
     ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
     
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self, "Flickr Sink", "Your Photos", "image-x-generic")
+        DataProvider.DataSink.__init__(self, "Flickr Sink", "Your Photos")
         
         self.fapi = None
         self.token = None

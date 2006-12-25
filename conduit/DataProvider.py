@@ -94,7 +94,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                     "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
-    def __init__(self, name=None, description=None, iconName=None, widgetColorRGBA=0):
+    def __init__(self, name=None, description=None, widgetColorRGBA=0):
         """
         Handles a lot of the canvas and UI related aspects of a dataprovider
         All sync functionality should be provided by derived classes
@@ -110,7 +110,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         
         self.name = name
         self.description = description
-        self.iconName = iconName
         self.widgetColorRGBA = widgetColorRGBA
 
         self.icon = None
@@ -156,7 +155,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                 font="Sans 8"
                                 )
         try:
-            pb=gtk.icon_theme_get_default().load_icon(self.iconName, 16, 0)
+            pb=gtk.icon_theme_get_default().load_icon(self._icon_, 16, 0)
             image = goocanvas.Image(pixbuf=pb,
                                     x=int(  
                                             (1*self.widget_width/5) - 

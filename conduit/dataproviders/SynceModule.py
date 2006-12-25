@@ -19,8 +19,9 @@ import dbus.glib
 import threading
 
 MODULES = {
-	"SynceContactTwoWay" : { "type": "twoway" },
-    "SynceCalendarTwoWay" : { "type": "twoway" }
+    "SynceContactTwoWay" :  { "type": "twoway" },
+    "SynceCalendarTwoWay" : { "type": "twoway" },
+    "SynceEmailTwoWay"    : { "type": "twoway" },
 }
 
 phone_cat = conduit.DataProvider.DataProviderCategory("Phone","ipod-icon","Phone")
@@ -108,7 +109,7 @@ class SynceContactTwoWay(SynceTwoWay):
     _icon_ = "tomboy"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self, _("Contacts"), _("Sync your Windows Mobile Phones"), "tomboy")
+        DataProvider.TwoWay.__init__(self, _("Contacts"), _("Sync your Windows Mobile Phones"))
         SynceTwoWay.__init__(self,"contacts",args)
 
 class SynceCalendarTwoWay(SynceTwoWay):
@@ -117,8 +118,21 @@ class SynceCalendarTwoWay(SynceTwoWay):
     _category_ = phone_cat
     _in_type_ = "text"
     _out_type_ = "text"
-    _icon_ = "tomboy"
+    _icon_ = "contact-new"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self, _("Calendar"), _("Sync your Windows Mobile Phones"), "tomboy")
+        DataProvider.TwoWay.__init__(self, _("Calendar"), _("Sync your Windows Mobile Phones"))
         SynceTwoWay.__init__(self,"calendar",args)
+
+class SynceEmailTwoWay(SynceTwoWay):
+    _name_ = "E-mail"
+    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _category_ = phone_cat
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "internet-mail"
+
+    def __init__(self, *args):
+        DataProvider.TwoWay.__init__(self, _("E-mail"), _("Sync your Windows Mobile Phones"))
+        SynceTwoWay.__init__(self,"e-mail",args)
+

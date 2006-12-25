@@ -103,7 +103,7 @@ class TestSource(TestBase, DataProvider.DataSource):
     NUM_DATA = 5    
     def __init__(self, *args):
         TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages", "emblem-system")
+        DataProvider.DataSource.__init__(self, "Test Source", "Prints Debug Messages")
         
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
@@ -130,7 +130,7 @@ class TestSink(TestBase, DataProvider.DataSink):
 
     def __init__(self, *args):
         TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages", "emblem-system")
+        DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages")
         
     def put(self, data, dataOnTopOf=None):
         DataProvider.DataSink.put(self, data, dataOnTopOf)
