@@ -31,27 +31,19 @@ except ImportError:
 
 
 MODULES = {
-	"FlickrSink" : {
-		"name": "Flickr Sink",
-		"description": "Your Photos",
-		"type": "sink",
-		"category": DataProvider.CATEGORY_WEB,
-		"in_type": "taggedfile",
-		"out_type": "taggedfile",
-                "icon": "image-x-generic"
-	},
-	"TaggedFileConverter" : {
-		"name": "Tagged File Converter",
-		"description": "",
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-                "icon": "image-x-generic"
-        }           
+	"FlickrSink" : { "type": "sink"	},
+	"TaggedFileConverter" : { "type": "converter" }           
 }
 
 class FlickrSink(DataProvider.DataSink):
+
+    _name_ = "Flickr Sink"
+    _description_ = "Your Photos"
+    _category_ = DataProvider.CATEGORY_WEB
+    _in_type_ = "taggedfile"
+    _out_type_ = "taggedfile"
+    _icon_ = "image-x-generic"
+
     API_KEY="65552e8722b21d299388120c9fa33580"
     SHARED_SECRET="03182987bf7fc4d1"
     ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]

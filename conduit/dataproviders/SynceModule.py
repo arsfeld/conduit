@@ -18,32 +18,12 @@ import dbus.glib
 
 import threading
 
-# bit of a hack, will fix itself when SYNCE can be a dynamic provider..
-phone_category = conduit.DataProvider.DataProviderCategory(
-                        "Phone",
-                        "ipod-icon",
-                        "Phone")
-
 MODULES = {
-        "SynceContactTwoWay" : {
-                "name": _("Contacts"),
-                "description": _("Source for synchronizing Windows Mobile Phones"),
-                "type": "source",
-                "category": phone_category,
-                "in_type": "text",
-                "out_type": "text",
-                "icon": "tomboy"
-        },
-        "SynceCalendarTwoWay" : {
-                "name": _("Calendar"),
-                "description": _("Source for synchronizing Windows Mobile Phones"),
-                "type": "source",
-                "category": phone_category,
-                "in_type": "text",
-                "out_type": "text",
-                "icon": "tomboy"
-        },
+	"SynceContactTwoWay" : { "type": "twoway" },
+    "SynceCalendarTwoWay" : { "type": "twoway" }
 }
+
+phone_cat = conduit.DataProvider.DataProviderCategory("Phone","ipod-icon","Phone")
 
 class SynceTwoWay(DataProvider.TwoWay):
     def __init__(self, obj_type, *args):
@@ -120,11 +100,25 @@ class SynceTwoWay(DataProvider.TwoWay):
                 self.synce.DeletePartnership(id)
 
 class SynceContactTwoWay(SynceTwoWay):
+    _name_ = "Contacts"
+    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _category_ = phone_cat
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "tomboy"
+
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self, _("Contacts"), _("Sync your Windows Mobile Phones"), "tomboy")
         SynceTwoWay.__init__(self,"contacts",args)
 
 class SynceCalendarTwoWay(SynceTwoWay):
+    _name_ = "Calendar"
+    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _category_ = phone_cat
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "tomboy"
+
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self, _("Calendar"), _("Sync your Windows Mobile Phones"), "tomboy")
         SynceTwoWay.__init__(self,"calendar",args)

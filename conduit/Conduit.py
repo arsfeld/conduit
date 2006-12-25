@@ -229,28 +229,16 @@ class Conduit(goocanvas.Group, gobject.GObject):
 
         if dataprovider_wrapper.module_type == "source":
             #only one source is allowed
-            if self.datasource is not None:
-                #unles it is two-way, then it can go in the other position
-                #providing their are no other sinks
-                if dataprovider_wrapper.module.is_two_way() and len(self.datasinks) == 0:
-                    logging.debug("Adding two way source into sink position")
-                    self.datasinks.append(dataprovider_wrapper)
-                    #in this case, despite being a source, the dp goes on the right
-                    horizontal_position = "right"
-                    #new sinks get added at the bottom                    
-                    y_pos = y \
-                        + (len(self.datasinks)*Conduit.HEIGHT) \
-                        - (Conduit.HEIGHT/2) \
-                        - (w_h/2)
-                else:         
-                    logging.warn("Only one datasource allowed per conduit")
-                    return
-            else:
+            if self.datasource == None:
                 self.datasource = dataprovider_wrapper
                 #DataSources go on the left
                 horizontal_position = "left"
                 #And always at the top
                 y_pos = y + (Conduit.HEIGHT/2) - (w_h/2)
+            else:         
+                logging.warn("Only one datasource allowed per conduit")
+                return
+
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
             if dataprovider_wrapper in self.datasinks:
@@ -269,13 +257,36 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 #check if we also need to resize the bounding box
                 if len(self.datasinks) > 1:
                     resize_box = True
+
+        elif dataprovider_wrapper.module_type == "twoway":
+            if self.datasource == None:
+                logging.debug("Adding twoway dataprovider into source position")
+                self.datasource = dataprovider_wrapper
+                #DataSources go on the left
+                horizontal_position = "left"
+                #At the top
+                y_pos = y + (Conduit.HEIGHT/2) - (w_h/2)
+            else:
+                logging.debug("Adding twoway dataprovider into sink position")
+                self.datasinks.append(dataprovider_wrapper)
+                #Datasinks go on the right
+                horizontal_position = "right"
+                #And always added at the bottom
+                y_pos = y \
+                    + (len(self.datasinks)*Conduit.HEIGHT) \
+                    - (Conduit.HEIGHT/2) \
+                    - (w_h/2)
+                #check if we also need to resize the bounding box
+                if len(self.datasinks) > 1:
+                    resize_box = True
         else:
-                logging.warn("Only sinks or sources may be added to conduit")
+                logging.warn("Only sinks, sources or twoway dataproviders may be added")
                 return
 
         #Connect to the signal which is fired when dataproviders change
         #their status (initialized, synchronizing, etc
         dataprovider_wrapper.module.connect("status-changed", self.on_status_changed)
+
         #----- STEP TWO ------------------------------------------------------        
         #now store the widget size and add to the conduit 
         new_widget = dataprovider_wrapper.module
@@ -531,7 +542,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         any other case
         """
         if self.datasource != None and len(self.datasinks) == 1:
-            return self.datasource.module.is_two_way() and self.datasinks[0].module.is_two_way()
+            return self.datasource.module_type == "twoway" and self.datasinks[0].module_type == "twoway"
         return False
 
     def enable_two_way_sync(self):

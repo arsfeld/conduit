@@ -14,27 +14,19 @@ import os.path
 import traceback
 
 MODULES = {
-	"TomboyNoteSource" : {
-		"name": _("Tomboy Source"),
-		"description": _("Source for synchronizing Tomboy Notes"),
-		"type": "source",
-		"category": DataProvider.CATEGORY_LOCAL,
-		"in_type": "note",
-		"out_type": "note",
-        "icon": "tomboy"
-	},
-	"NoteConverter" : {
-		"name": _("Note Data Type"),
-		"description": _("Represents a users note"),
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-        "icon": ""
-	}
+	"TomboyNoteSource" :    { "type": "source" },
+	"NoteConverter" :       { "type": "converter"}
 }
 
 class TomboyNoteSource(DataProvider.DataSource):
+
+    _name_ = _("Tomboy Source")
+    _description = _("Source for synchronizing Tomboy Notes")
+    _category_ = DataProvider.CATEGORY_LOCAL
+    _in_type_ = "note"
+    _out_type_ = "note"
+    _icon_ = "tomboy"
+
     NOTE_DIR = os.path.join(os.path.expanduser("~"),".tomboy")
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("Tomboy Source"), _("Source for synchronizing Tomboy Notes"), "tomboy")
@@ -90,62 +82,10 @@ class TomboyNoteSource(DataProvider.DataSource):
     def finish(self):
         self.notes = None
 
-class StickyNoteSource(DataProvider.DataSource):
-    NOTE_FILE = os.path.join(os.path.expanduser("~"),".gnome2","stickynotes_applet")
-    def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, _("StickyNote Source"), _("Source for synchronizing StickyNotes"), "sticky-notes")
-        
-        self.xml = None
-        self.notes = None
-        
-    def initialize(self):
-        """
-        Loads the stickynotes source if the user has used stickynotes before
-        """
-        #FIXME: Remove when this dataprovider has been converted to the 
-        #new get_num_items method
-        return False
-        return os.path.exists(StickyNoteSource.NOTE_FILE)        
-        
-    def refresh(self):
-        DataProvider.DataSource.refresh()
-        self.notes = []
-        try:
-            if self.xml is None:
-                self.xml = ElementTree.parse(StickyNoteSource.NOTE_FILE).getroot()
-            
-            for n in self.xml:
-                #I think the following is always true... I am mediocre at XML
-                if n.tag == "note":
-                    newNote = Note.Note()
-                    newNote.contents = str(n.text)
-                    #this is not a typo, stickynotes puts the date the note was
-                    #created in the title attribute???
-                    newNote.modified = str(n.get("title"))
-                    newNote.createdUsing = "stickynotes"
-                    #Use the first line of the note as its title
-                    try:
-                        newNote.title = str(newNote.contents.split("\n")[0])
-                    except:
-                        newNote.title = ""
-                    #add to store
-                    self.notes.append(newNote)
-        except:
-            logging.warn("Error parsing note file\n%s" % traceback.format_exc())
-            raise Exceptions.RefreshError            
-            
-    def get(self, index):
-        DataProvider.DataSource.get(self, index)
-        return self.notes[index]
-
-    def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
-        return len(self.notes)
-
-    def finish(self):
-        self.notes = None
-
 class NoteConverter:
+
+    _name_ = "Note Data Type"
+
     def __init__(self):
         self.conversions =  {    
                             "text,note" : self.text_to_note,

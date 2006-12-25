@@ -115,6 +115,7 @@ class DBusView(dbus.service.Object):
         #get the dataproviders
         self.datasources = self.model.get_modules_by_type("source")
         self.datasinks = self.model.get_modules_by_type("sink")
+        self.datasources = self.model.get_modules_by_type("twoway")
 
         #initialise the Type Converter
         self.type_converter = TypeConverter(self.model)

@@ -42,13 +42,7 @@ class ModuleWrapper:
     
     NUM_UID_DIGITS = 5
     COMPULSORY_ATTRIBUTES = [
-                            "name",
-                            "description",
-                            "icon",
-                            "type",
-                            "category",
-                            "in_type",
-                            "out_type"
+                            "type"
                             ]
     	
     def __init__ (self, name, description, icon, module_type, category, in_type, out_type, classname, initargs, module=None, enabled=True):
@@ -134,7 +128,7 @@ class ModuleWrapper:
         Wrappers derived from this class (such as the CategoryWrapper)
         should override this function
         """
-        if self.module_type == "source" or self.module_type == "sink" or self.module_type == "category":
+        if self.module_type in ["source", "sink", "twoway", "category"]:
             if self.icon is None:
                 try:
                     info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, 16, 0)

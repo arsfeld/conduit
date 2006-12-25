@@ -76,6 +76,9 @@ class ModuleManager(gobject.GObject):
             self.removableDeviceManager = RemovableDeviceManager(hal)
             self.removableDeviceManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
 
+    def _get_klass_property(self, klass, prop):
+        return getattr(klass, prop, "")
+
     def _on_dynamic_dataprovider_added(self, monitor, dpw, klass):
         """
         Store the ipod so it can be retrieved later by the treeview/model
@@ -85,9 +88,7 @@ class ModuleManager(gobject.GObject):
         self._append_module(dpw, klass)
 
     def _emit_added(self, dataproviderWrapper):
-        if dataproviderWrapper.module_type == "source":
-            self.emit("dataprovider-added", dataproviderWrapper)
-        elif dataproviderWrapper.module_type == "sink":
+        if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
             self.emit("dataprovider-added", dataproviderWrapper)
         else:
             #Dont emit a signal when a datatype of converter is loaded as I dont
@@ -194,13 +195,13 @@ class ModuleManager(gobject.GObject):
         for modules, infos in mod.MODULES.items():
             try:
                 klass = getattr(mod, modules)
-                mod_wrapper = ModuleWrapper (   infos["name"], 
-            	                                infos["description"], 
-                                                infos["icon"],
-            	                                infos["type"], 
-            	                                infos["category"], 
-            	                                infos["in_type"],
-            	                                infos["out_type"],
+                mod_wrapper = ModuleWrapper (   self._get_klass_property(klass, "_name_"),
+            	                                self._get_klass_property(klass, "_description_"),
+                                                self._get_klass_property(klass, "_icon_"),
+                                                infos["type"],
+            	                                self._get_klass_property(klass, "_category_"), 
+            	                                self._get_klass_property(klass, "_in_type_"),
+            	                                self._get_klass_property(klass, "_out_type_"),
             	                                klass.__name__,     #classname
             	                                (),                 #Init args
             	                                )

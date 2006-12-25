@@ -18,18 +18,18 @@ from elementtree import ElementTree
 import mimetypes
 
 MODULES = {
-    "RSSSource" : {
-        "name": _("RSS Source"),
-        "description": _("Sync data from RSS enclosures"),
-        "type": "source",
-        "category": DataProvider.CATEGORY_WEB,
-        "in_type": "file",
-        "out_type": "file",
-        "icon": "feed-icon"
-    }    
+    "RSSSource" : { "type": "source" }    
 }
 
 class RSSSource(DataProvider.DataSource):
+
+    _name_ = _("RSS Source")
+    _description_ = _("Sync data from RSS enclosures")
+    _category_ = DataProvider.CATEGORY_WEB
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "feed-icon"
+
     PHOTO_TYPES = []
     AUDIO_TYPES = []
     VIDEO_TYPES = []

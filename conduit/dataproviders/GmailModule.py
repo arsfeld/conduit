@@ -25,33 +25,9 @@ except ImportError:
 
 
 MODULES = {
-	"GmailEmailTwoWay" : {
-		"name": _("Email"),
-		"description": _("Sync your Gmail Emails"),
-		"category": DataProvider.CATEGORY_GOOGLE,
-		"type": "source",
-		"in_type": "email",
-		"out_type": "email",
-                "icon": "internet-mail"
-	},
-	"GmailContactTwoWay" : {
-		"name": _("Contacts"),
-		"description": _("Sync your Gmail Contacts"),
-		"type": "source",
-		"category": DataProvider.CATEGORY_GOOGLE,
-		"in_type": "contact",
-		"out_type": "contact",
-                "icon": "contact-new"
-	},
-	"EmailSinkConverter" : {
-		"name": _("Email Sink Converter"),
-		"description": _("I Concur"),
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-                "icon": ""
-	}           
+	"GmailEmailTwoWay" :    { "type": "twoway" },
+	"GmailContactTwoWay" :  { "type": "twoway" },
+	"EmailSinkConverter" :  { "type": "converter" }
 }
 
 class GmailBase(DataProvider.DataProviderBase):
@@ -78,6 +54,14 @@ class GmailBase(DataProvider.DataProviderBase):
             raise Exceptions.RefreshError
             
 class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
+
+    _name_ = _("Email")
+    _description_ = _("Sync your Gmail Emails")
+    _category_ = DataProvider.CATEGORY_GOOGLE
+    _in_type = "email"
+    _out_type = "email"
+    _icon_ = "internet-mail"
+
     def __init__(self, *args):
         GmailBase.__init__(self, args)
         DataProvider.TwoWay.__init__(self, _("Email"), _("Sync your Gmail Emails"), "internet-mail")
@@ -271,6 +255,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             }            
         
 class EmailSinkConverter:
+
     def __init__(self):
         self.conversions =  {    
                             "file,email" : self.file_to_email,
@@ -317,6 +302,14 @@ class EmailSinkConverter:
         
 
 class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
+
+    _name_ = _("Contacts"),
+    _description_ = _("Sync your Gmail Contacts")
+    _category_ = DataProvider.CATEGORY_GOOGLE
+    _in_type_ = "contact"
+    _out_type_ = "contact"
+    _icon_ = "contact-new"
+
     def __init__(self, *args):
         GmailBase.__init__(self)
         DataProvider.TwoWay.__init__(self, _("Contacts"), _("Sync your Gmail Contacts"), "contact-new")

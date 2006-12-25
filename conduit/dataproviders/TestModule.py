@@ -9,43 +9,10 @@ from conduit.datatypes import DataType
 import time
 
 MODULES = {
-	"TestSource" : {
-		"name": "Test Source",
-		"description": "Prints Debug Messages",
-		"type": "source",
-		"category": DataProvider.CATEGORY_TEST,
-		"in_type": "text",
-		"out_type": "text",
-                "icon": "emblem-system"
-	},
-	"TestSink" : {
-		"name": "Test Sink",
-		"description": "Prints Debug Messages",
-		"type": "sink",
-		"category": DataProvider.CATEGORY_TEST,
-		"in_type": "text",
-		"out_type": "text",
-                "icon": "emblem-system"
-	},
-	"TestTwoWay" : {
-		"name": "Two Way",
-		"description": "Prints Debug Messages",
-		"type": "source",
-		"category": DataProvider.CATEGORY_TEST,
-		"in_type": "text",
-		"out_type": "text",
-                "icon": "emblem-system"
-	},
-	"TestSinkFailRefresh" : {
-		"name": "Test Refresh Sink",
-		"description": "Fails Refresh",
-		"type": "sink",
-		"category": DataProvider.CATEGORY_TEST,
-		"in_type": "text",
-		"out_type": "text",
-                "icon": "emblem-system"
-	},
-
+	"TestSource" :  { "type": "source" },
+	"TestSink" :    { "type": "sink" },
+	"TestTwoWay" :  { "type": "twoway" },
+	"TestSinkFailRefresh" : { "type": "sink" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
@@ -124,6 +91,15 @@ class TestBase:
             }
 
 class TestSource(TestBase, DataProvider.DataSource):
+
+    _name_ = "Test Source"
+    _description_ = "Prints Debug Messages"
+    _category_ = DataProvider.CATEGORY_TEST
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
+
     NUM_DATA = 5    
     def __init__(self, *args):
         TestBase.__init__(self)
@@ -144,6 +120,14 @@ class TestSource(TestBase, DataProvider.DataSource):
         return data
 		
 class TestSink(TestBase, DataProvider.DataSink):
+
+    _name_ = "Test Sink"
+    _description_ = "Prints Debug Messages"
+    _category_ = DataProvider.CATEGORY_TEST
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
     def __init__(self, *args):
         TestBase.__init__(self)
         DataProvider.DataSink.__init__(self, "Test Sink", "Prints Debug Messages", "emblem-system")
@@ -158,6 +142,14 @@ class TestSink(TestBase, DataProvider.DataSink):
         logging.debug("TEST SINK: put(): %s" % data)
 
 class TestTwoWay(DataProvider.TwoWay):
+
+    _name_ = "Test Two Way"
+    _description_ = "Prints Debug Messages"
+    _category_ = DataProvider.CATEGORY_TEST
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
     NUM_DATA = 10
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self, "Two Way", "Prints Debug Messages")
@@ -193,6 +185,14 @@ class TestTwoWay(DataProvider.TwoWay):
         self.data = None
 
 class TestSinkFailRefresh(DataProvider.DataSink):
+
+    _name_ = "Test Fail Refresh"
+    _description_ = "Test Sink Fails Refresh"
+    _category_ = DataProvider.CATEGORY_TEST
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self, "Test Refresh Sink", "Fails Refresh")
         

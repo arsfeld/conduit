@@ -55,22 +55,8 @@ import conduit.Exceptions as Exceptions
 import xmlrpclib
 
 MODULES = {
-	"MoinMoinDataSource" : {
-		"name": _("GNOME Wiki Source"),
-		"description": _("Get Pages from the GNOME Wiki"),
-		"type": "source",
-		"category": DataProviderCategory("MoinMoin", "applications-internet"),
-		"in_type": "wikipage",
-		"out_type": "wikipage"
-	},
-	"WikiPageConverter" : {
-		"name": _("Wiki Converter"),
-		"description": _("Bla"),
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-	}
+	"MoinMoinDataSource" : { "type": "source" },
+	"WikiPageConverter" : { "type": "converter" }
 }
 
 class MoinMoinDataSource(DataSource):
@@ -82,6 +68,14 @@ class MoinMoinDataSource(DataSource):
     @ivar self.pages: A array of page names
     @type self.pages: C{string}[]
     """
+
+    _name_ = _("GNOME Wiki Source")
+    _description_ = _("Get Pages from the GNOME Wiki")
+    _category_ = DataProviderCategory("MoinMoin", "applications-internet")
+    _in_type_ = "wikipage"
+    _out_type_ = "wikipage"
+    _icon_ = "applications-internet"
+
     def __init__(self):
         """
         A DataSource constructor should call the base constructor with 

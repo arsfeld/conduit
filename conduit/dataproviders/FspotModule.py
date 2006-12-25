@@ -15,18 +15,18 @@ import os.path
 
 
 MODULES = {
-	"FspotSource" : {
-		"name": _("Fspot Photos"),
-		"description": _("Source for Fspot Photos"),
-		"type": "source",
-		"category": DataProvider.CATEGORY_LOCAL,
-		"in_type": "taggedfile",
-		"out_type": "taggedfile",
-                "icon": "f-spot"
-	}
+	"FspotSource" : { "type": "source" }
 }
 
 class FspotSource(DataProvider.DataSource):
+
+    _name_ = _("Fspot Photos")
+    _description_ = _("Source for Fspot Photos")
+    _category_ = DataProvider.CATEGORY_LOCAL
+    _in_type_ = "taggedfile"
+    _out_type_ = "taggedfile"
+    _icon_ = "f-spot"
+
     PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("Fspot Photos"), _("Source for Fspot Photos"), "f-spot")

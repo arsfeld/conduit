@@ -143,6 +143,7 @@ class GtkView(dbus.service.Object):
         #add the dataproviders to the treemodel
         self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
         self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
+        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("twoway"))
         #furthur from this point all dataproviders are loaded in callback as 
         #its the easiest way modules which can be added and removed at runtime (like ipods)
         self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)
@@ -277,7 +278,9 @@ class GtkView(dbus.service.Object):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
         for i in self.moduleManager.get_modules_by_type("source"):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
-           
+        for i in self.moduleManager.get_modules_by_type("twoway"):
+            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.in_type, i.out_type), i.enabled))
+
         #construct the dialog
         tree = gtk.glade.XML(conduit.GLADE_FILE, "PreferencesDialog")
         converterTreeView = tree.get_widget("dataConversionsTreeView")

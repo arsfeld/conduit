@@ -17,18 +17,18 @@ except:
     import OPML
 
 MODULES = {
-	"LifereaSource" : {
-		"name": _("Liferea"),
-		"description": _("Sync your liferea feeds"),
-		"type": "source",
-		"category": DataProvider.CATEGORY_LOCAL,
-		"in_type": "feed",
-		"out_type": "feed",
-                "icon": "liferea"
-	}	
+	"LifereaSource" : { "type": "source" }	
 }
 
 class LifereaSource(DataProvider.DataSource):
+
+    _name_ = _("Liferea")
+    _description_ = _("Sync your liferea feeds")
+    _category_ = DataProvider.CATEGORY_LOCAL
+    _in_type_ = "feed"
+    _out_type_ = "feed"
+    _icon_ = "liferea"
+
     FEED_FILE = "~/.liferea/feedlist.opml"
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("Liferea"), _("Sync your liferea feeds"), "liferea")

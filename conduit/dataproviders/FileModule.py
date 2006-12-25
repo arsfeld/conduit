@@ -13,33 +13,9 @@ import gnomevfs
 import os.path
 
 MODULES = {
-	"FileSource" : {
-		"name": _("File Source"),
-		"description": _("Source for synchronizing files"),
-		"type": "source",
-		"category": DataProvider.CATEGORY_LOCAL,
-		"in_type": "file",
-		"out_type": "file",
-                "icon": "text-x-generic"
-	},
-	"FileSink" : {
-		"name": _("File Sink"),
-		"description": _("Sink for synchronizing files"),
-		"type": "sink",
-		"category": DataProvider.CATEGORY_LOCAL,
-		"in_type": "file",
-		"out_type": "file",
-                "icon": "text-x-generic"
-	},
-	"FileConverter" : {
-		"name": _("File Data Type"),
-		"description": _("Represents a file on disk"),
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-                "icon": ""
-	}
+	"FileSource" : { "type": "source" },
+	"FileSink" : { "type": "sink" },
+	"FileConverter" : { "type": "converter" }
 	
 }
 
@@ -62,6 +38,14 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
                                 mode)
     
 class FileSource(DataProvider.DataSource):
+
+    _name_ = _("File Source")
+    _description_ = _("Source for synchronizing files")
+    _category_ = DataProvider.CATEGORY_LOCAL
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self, _("File Source"), _("Source for synchronizing files"), "text-x-generic")
         
@@ -191,6 +175,14 @@ class FileSource(DataProvider.DataSource):
             }
 		
 class FileSink(DataProvider.DataSink):
+
+    _name_ = _("File Sink")
+    _description_ = _("Sink for synchronizing files")
+    _category_ = DataProvider.CATEGORY_LOCAL
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+
     DEFAULT_FOLDER_URI = os.path.expanduser("~")
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self, _("File Sink"), _("Sink for synchronizing files"), "text-x-generic")

@@ -308,16 +308,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         else:
             return False
             
-    def is_two_way(self):
-        """
-        If the derived dataprovider includes both get() and set() then
-        it is considered to support two way sync. 
-        
-        A Default DataProvider does not support two-way sync. 
-        """
-        twoWay = hasattr(self, "put") and hasattr(self, "get")
-        return twoWay
-
     def configure(self, window):
         """
         Show a configuration box for configuring the dataprovider instance.

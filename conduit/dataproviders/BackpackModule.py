@@ -19,15 +19,7 @@ except ImportError:
 
 
 MODULES = {
-	"BackpackNoteSink" : {
-		"name": _("Backpack Note Sink"),
-		"description": _("Store things in Backpack Notes"),
-		"category": DataProvider.CATEGORY_WEB,
-		"type": "sink",
-		"in_type": "note",
-		"out_type": "note",
-                "icon": "backpack"
-	}          
+	"BackpackNoteSink" : { "type": "sink" }
 }
 
 class BackpackBase(DataProvider.DataProviderBase):
@@ -54,6 +46,14 @@ class BackpackBase(DataProvider.DataProviderBase):
     
 
 class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
+
+    _name_ = _("Backpack Note Sink")
+    _description_ = _("Store things in Backpack Notes")
+    _category_ = DataProvider.CATEGORY_WEB
+    _in_type_ = "note"
+    _out_type_ = "note"
+    _icon_ = "backpack"
+
     def __init__(self, *args):
         BackpackBase.__init__(self, args)
         DataProvider.DataSink.__init__(self, _("Backpack Note Sink"), _("Store things in Backpack Notes"), "backpack")
