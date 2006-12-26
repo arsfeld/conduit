@@ -235,7 +235,7 @@ class TestFactory(Module.DataProviderFactory):
                 category=DataProvider.CATEGORY_TEST)
         self.emit_added(
                 klass=TestDynamicSource,
-                initargs=("Bar",), 
-                category=DataProvider.CATEGORY_LOCAL)
+                initargs=("Bar","Baz"), 
+                category=DataProvider.CATEGORY_TEST)
         #run once
         return False

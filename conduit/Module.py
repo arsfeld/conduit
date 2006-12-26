@@ -223,20 +223,7 @@ class ModuleManager(gobject.GObject):
             return None
         if classname in self.classRegistry:
             logging.info("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
-            #FIXME: HACK HACK HACK. Saves me having to implement __new__ in 
-            #base dataprovider. I can back this out when I have full pyro support
-            #for remote networked conduit instances
-            #http://www.python.org/download/releases/2.2.3/descrintro/#__new__
-            if len(initargs) == 0:
-                return self.classRegistry[classname]()
-            if len(initargs) == 1:
-                return self.classRegistry[classname](initargs[0])
-            elif len(initargs) == 2:
-                return self.classRegistry[classname](initargs[0],initargs[1])
-            elif len(initargs) == 3:
-                return self.classRegistry[classname](initargs[0],initargs[1],initargs[2])
-            else:
-                logging.critical("BAD PROGRAMMER. NUMBER OF INIT ARGS EXCEEDS HACKISH WORKAROUND")
+            return self.classRegistry[classname](*initargs)
         else:
             logging.warn("Could not find class named %s" % classname)
 
