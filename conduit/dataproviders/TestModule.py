@@ -1,18 +1,21 @@
 import gtk
+import gobject
 import random
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+import conduit.Module as Module
 from conduit.datatypes import DataType
 
 import time
 
 MODULES = {
-	"TestSource" :  { "type": "source" },
-	"TestSink" :    { "type": "sink" },
-	"TestTwoWay" :  { "type": "twoway" },
-	"TestSinkFailRefresh" : { "type": "sink" }
+	"TestSource" :          { "type": "dataprovider" },
+	"TestSink" :            { "type": "dataprovider" },
+	"TestTwoWay" :          { "type": "dataprovider" },
+	"TestSinkFailRefresh" : { "type": "dataprovider" },
+    "TestFactory" :         { "type": "dataprovider-factory" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
@@ -95,6 +98,7 @@ class TestSource(TestBase, DataProvider.DataSource):
     _name_ = "Test Source"
     _description_ = "Prints Debug Messages"
     _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "source"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "emblem-system"
@@ -124,6 +128,7 @@ class TestSink(TestBase, DataProvider.DataSink):
     _name_ = "Test Sink"
     _description_ = "Prints Debug Messages"
     _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "emblem-system"
@@ -146,6 +151,7 @@ class TestTwoWay(DataProvider.TwoWay):
     _name_ = "Test Two Way"
     _description_ = "Prints Debug Messages"
     _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "twoway"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "emblem-system"
@@ -189,6 +195,7 @@ class TestSinkFailRefresh(DataProvider.DataSink):
     _name_ = "Test Fail Refresh"
     _description_ = "Test Sink Fails Refresh"
     _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "emblem-system"
@@ -202,3 +209,36 @@ class TestSinkFailRefresh(DataProvider.DataSink):
     def refresh(self):
         DataProvider.DataSink.refresh(self)
         raise Exceptions.RefreshError
+
+class TestDynamicSource(DataProvider.DataSource):
+    _name_ = "Test Dynamic Source"
+    _description_ = "Prints Debug Messages"
+    _module_type_ = "source"
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        DataProvider.DataSource.__init__(self, "Test Source")
+
+class TestFactory(Module.DataProviderFactory):
+    def __init__(self):
+        Module.DataProviderFactory.__init__(self)
+
+        #callback the GUI in 5 seconds to add a new dataprovider
+        gobject.timeout_add(5000, self.make_one)
+        
+    def make_one(self, *args):
+        self.emit_added(
+                klass=TestDynamicSource,
+                initargs=("Foo",), 
+                category=DataProvider.CATEGORY_TEST)
+        self.emit_added(
+                klass=TestDynamicSource,
+                initargs=("Bar",), 
+                category=DataProvider.CATEGORY_LOCAL)
+        #run once
+        return False
+        
+
+

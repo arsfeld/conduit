@@ -14,7 +14,7 @@ import os.path
 import traceback
 
 MODULES = {
-	"TomboyNoteSource" :    { "type": "source" },
+	"TomboyNoteSource" :    { "type": "dataprovider" },
 	"NoteConverter" :       { "type": "converter"}
 }
 
@@ -23,6 +23,7 @@ class TomboyNoteSource(DataProvider.DataSource):
     _name_ = _("Tomboy Source")
     _description = _("Source for synchronizing Tomboy Notes")
     _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "source"
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "tomboy"

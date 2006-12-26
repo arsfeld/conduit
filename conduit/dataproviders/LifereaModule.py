@@ -17,7 +17,7 @@ except:
     import OPML
 
 MODULES = {
-	"LifereaSource" : { "type": "source" }	
+	"LifereaSource" : { "type": "dataprovider" }	
 }
 
 class LifereaSource(DataProvider.DataSource):
@@ -25,6 +25,7 @@ class LifereaSource(DataProvider.DataSource):
     _name_ = _("Liferea")
     _description_ = _("Sync your liferea feeds")
     _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "source"
     _in_type_ = "feed"
     _out_type_ = "feed"
     _icon_ = "liferea"

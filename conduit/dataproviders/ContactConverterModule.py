@@ -4,15 +4,7 @@ import conduit
 import conduit.datatypes.File as File
 
 MODULES = {
-	"ContactConverter" : {
-		"name": _("Contact Converter"),
-		"description": _("Contact Coverter Jedi Foo"),
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-                "icon": ""
-	}
+	"ContactConverter" : { "type": "converter" }
 }
 
 class ContactConverter:

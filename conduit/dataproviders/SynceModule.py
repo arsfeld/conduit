@@ -19,9 +19,9 @@ import dbus.glib
 import threading
 
 MODULES = {
-    "SynceContactTwoWay" :  { "type": "twoway" },
-    "SynceCalendarTwoWay" : { "type": "twoway" },
-    "SynceEmailTwoWay"    : { "type": "twoway" },
+    "SynceContactTwoWay" :  { "type": "dataprovider" },
+    "SynceCalendarTwoWay" : { "type": "dataprovider" },
+    "SynceEmailTwoWay"    : { "type": "dataprovider" },
 }
 
 phone_cat = conduit.DataProvider.DataProviderCategory("Phone","ipod-icon","Phone")
@@ -104,6 +104,7 @@ class SynceContactTwoWay(SynceTwoWay):
     _name_ = "Contacts"
     _description_ = "Source for synchronizing Windows Mobile Phones"
     _category_ = phone_cat
+    _module_type_ = "twoway"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "contact-new"
@@ -116,6 +117,7 @@ class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
     _description_ = "Source for synchronizing Windows Mobile Phones"
     _category_ = phone_cat
+    _module_type_ = "twoway"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "contact-new"
@@ -128,6 +130,7 @@ class SynceEmailTwoWay(SynceTwoWay):
     _name_ = "E-mail"
     _description_ = "Source for synchronizing Windows Mobile Phones"
     _category_ = phone_cat
+    _module_type_ = "twoway"
     _in_type_ = "text"
     _out_type_ = "text"
     _icon_ = "internet-mail"

@@ -19,7 +19,7 @@ except ImportError:
 
 
 MODULES = {
-	"BackpackNoteSink" : { "type": "sink" }
+	"BackpackNoteSink" : { "type": "dataprovider" }
 }
 
 class BackpackBase(DataProvider.DataProviderBase):
@@ -50,6 +50,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
     _name_ = _("Backpack Note Sink")
     _description_ = _("Store things in Backpack Notes")
     _category_ = DataProvider.CATEGORY_WEB
+    _module_type_ = "sink"
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "backpack"

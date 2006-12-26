@@ -16,7 +16,7 @@ from os.path import abspath, expanduser, join, basename
 import logging
 import conduit, conduit.dataproviders
 from conduit.ModuleWrapper import ModuleWrapper
-from conduit.DataProvider import DataProviderBase
+from conduit.DataProvider import DataProviderBase, CATEGORY_TEST
 from conduit.Network import ConduitNetworkManager
 from conduit.Hal import HalMonitor
 from conduit.dataproviders import RemovableDeviceManager
@@ -49,35 +49,35 @@ class ModuleManager(gobject.GObject):
 		@type dirs: C{string[]}
 		"""
         gobject.GObject.__init__(self)
-
-        self.filelist = self._build_filelist_from_directories (dirs)
+        self.hal = HalMonitor()
 
         #Dict of loaded classes, key is classname, value is class
         self.classRegistry = {}
         #Dict of loaded modulewrappers. key is wrapper.get_key()
-        #Stored seperate to the classes because removable devices may
+        #Stored seperate to the classes because dynamic dataproviders may
         #use the same class but with different initargs (diff keys)
         self.moduleWrappers = {}
+        #Keep a ref to dataprovider factories so they are not collected
+        self.dataproviderFactories = []
 
-        #FIXME: Disable per the classregistry rewrite working ok with removable devices
-        #Advertise conduit on the network
-        #if conduit.settings.get("enable_network") == True:
-        #    try:
-        #        self.networkManager = ConduitNetworkManager()
-        #        self.networkManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
-        #    except:
-        #        logging.warn("Unable to initiate network, disabling..")
-        #        # conduit.settings.set("enable_network", False)
-        #        self.networkManager = None
- 
-        #Support removable devices, ipods, etc
-        if conduit.settings.get("enable_removable_devices") == True:
-            hal = HalMonitor()
-            self.removableDeviceManager = RemovableDeviceManager(hal)
-            self.removableDeviceManager.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
+        #Now load all directories containing MODULES
+        #(includes dataproviders, converters and dynamic-dataproviders)
+        filelist = self._build_filelist_from_directories (dirs)
+        for f in filelist:
+            self._load_modules_in_file(f)
 
-    def _get_klass_property(self, klass, prop):
-        return getattr(klass, prop, "")
+        #--- JUST ONE SMALL PIECE OF HACKISHNESS LEFT
+        if conduit.settings.get("enable_removable_devices") == True:        
+            self.removableDeviceManager = RemovableDeviceManager(self.hal)
+            hack = [self.removableDeviceManager]
+        #--- END HACK
+        for i in self.dataproviderFactories + hack:
+            i.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
+            mods = i.get_all_modules()
+            for wrapper, klass in mods:
+                self._append_module(wrapper, klass)
+
+        self.emit('all-modules-loaded')
 
     def _on_dynamic_dataprovider_added(self, monitor, dpw, klass):
         """
@@ -194,19 +194,27 @@ class ModuleManager(gobject.GObject):
 
         for modules, infos in mod.MODULES.items():
             try:
-                klass = getattr(mod, modules)
-                mod_wrapper = ModuleWrapper (   self._get_klass_property(klass, "_name_"),
-            	                                self._get_klass_property(klass, "_description_"),
-                                                self._get_klass_property(klass, "_icon_"),
-                                                infos["type"],
-            	                                self._get_klass_property(klass, "_category_"), 
-            	                                self._get_klass_property(klass, "_in_type_"),
-            	                                self._get_klass_property(klass, "_out_type_"),
-            	                                klass.__name__,     #classname
-            	                                (),                 #Init args
-            	                                )
-                #Save the module (signal is emitted _append_module
-                self._append_module(mod_wrapper, klass)
+                if infos["type"] == "dataprovider" or infos["type"] == "converter":
+                    klass = getattr(mod, modules)
+                    mod_wrapper = ModuleWrapper (   
+                                        getattr(klass, "_name_", ""),
+    	                                getattr(klass, "_description_", ""),
+                                        getattr(klass, "_icon_", ""),
+                                        getattr(klass, "_module_type_", ""),
+    	                                getattr(klass, "_category_", CATEGORY_TEST),
+    	                                getattr(klass, "_in_type_", ""),
+    	                                getattr(klass, "_out_type_", ""),
+    	                                klass.__name__,     #classname
+    	                                (),                 #Init args
+    	                                )
+                    #Save the module (signal is emitted _append_module
+                    self._append_module(mod_wrapper, klass)
+                elif infos["type"] == "dataprovider-factory":
+                    #instantiate and store the factory
+                    instance = getattr(mod, modules)()
+                    self.dataproviderFactories.append(instance)
+                else:
+                    logging.error("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
             except AttributeError:
                 logging.error("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
 
@@ -234,26 +242,6 @@ class ModuleManager(gobject.GObject):
             logging.warn("Could not find class named %s" % classname)
 
             
-    def load_static_modules(self):
-        """
-        Loads all modules. Slow blocking call to be used at startup
-        Necessary because settings cannot be restored until all modules
-        are loaded, and hence we cant wait for signals
-        """
-        for f in self.filelist:
-            self._load_modules_in_file (f)
-
-        #if self.networkManager:
-        #    #self.networkManager.load_all_modules()
-        #    #self.dynamicModules += self.networkManager.get_all_modules()
-             
-        if conduit.settings.get("enable_removable_devices") == True:
-            mods = self.removableDeviceManager.get_all_modules()
-            for wrapper, klass in mods:
-                self._append_module(wrapper, klass)
-            
-        self.emit('all-modules-loaded')
-        
     def get_all_modules(self):
         """
         @returns: All loaded modules
@@ -311,10 +299,53 @@ class ModuleManager(gobject.GObject):
 
     def make_modules_callable(self, type_filter):
         """
-        In the typeconverter it is necesary to call the modules directly. This
+        If it is necesary to call the modules directly. This
         function creates those instances in wrappers of the specified type
         """
         for i in self.moduleWrappers.values():
             if i.module_type == type_filter:
                 i.module = self._instantiate_class(i.classname, i.initargs)
+
+class DataProviderFactory(gobject.GObject):
+    """
+    Abstract base class for a factory which emits Dataproviders. Users should 
+    inherit from this if they wish to provide a loadable module in which
+    dynamic dataproviders are added and removed at runtime.
+    """
+    __gsignals__ = {
+        #Fired when the module detects a usb key or ipod added
+        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,      #Wrapper
+            gobject.TYPE_PYOBJECT]),    #Class
+        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,      #Wrapper
+            gobject.TYPE_PYOBJECT])     #Class
+    }
+
+    def __init__(self):
+        gobject.GObject.__init__(self)
+
+    def emit_added(self, klass, initargs=(), category=None):
+        if category == None:
+            category = getattr(klass, "_category_", CATEGORY_TEST)
+        dpw = ModuleWrapper (   
+                    getattr(klass, "_name_", ""),
+                    getattr(klass, "_description_", ""),
+                    getattr(klass, "_icon_", ""),
+                    getattr(klass, "_module_type_", ""),
+                    category,
+                    getattr(klass, "_in_type_", ""),
+                    getattr(klass, "_out_type_", ""),
+                    klass.__name__,     #classname
+                    initargs,
+                    )
+        logging.info("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
+        self.emit("dataprovider-added", dpw, klass)
+
+    def emit_removed(self, klass, initargs, category=None):
+        logging.warn("DataProviderFactory.emit_removed() Not Implemented")
+
+    def get_all_modules(self):
+        return []
+
 

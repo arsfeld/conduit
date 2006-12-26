@@ -15,7 +15,7 @@ import os.path
 
 
 MODULES = {
-	"FspotSource" : { "type": "source" }
+	"FspotSource" : { "type": "dataprovider" }
 }
 
 class FspotSource(DataProvider.DataSource):
@@ -23,6 +23,7 @@ class FspotSource(DataProvider.DataSource):
     _name_ = _("Fspot Photos")
     _description_ = _("Source for Fspot Photos")
     _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "source"
     _in_type_ = "taggedfile"
     _out_type_ = "taggedfile"
     _icon_ = "f-spot"

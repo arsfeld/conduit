@@ -3,15 +3,7 @@ import logging
 import conduit
 
 MODULES = {
-	"TextConverter" : {
-		"name": _("Bla"),
-		"description": _("Bla"),
-		"type": "converter",
-		"category": "",
-		"in_type": "",
-		"out_type": "",
-                "icon": ""
-	}
+	"TextConverter" : { "type": "converter" }
 }
 
 class TextConverter:

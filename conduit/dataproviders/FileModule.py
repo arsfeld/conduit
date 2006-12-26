@@ -13,10 +13,9 @@ import gnomevfs
 import os.path
 
 MODULES = {
-	"FileSource" :    { "type": "source" },
-	"FileSink" :      { "type": "sink" },
+	"FileSource" :    { "type": "dataprovider" },
+	"FileSink" :      { "type": "dataprovider" },
 	"FileConverter" : { "type": "converter" }
-	
 }
 
 def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
@@ -42,6 +41,7 @@ class FileSource(DataProvider.DataSource):
     _name_ = _("File Source")
     _description_ = _("Source for synchronizing files")
     _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "source"
     _in_type_ = "file"
     _out_type_ = "file"
     _icon_ = "text-x-generic"
@@ -179,6 +179,7 @@ class FileSink(DataProvider.DataSink):
     _name_ = _("File Sink")
     _description_ = _("Sink for synchronizing files")
     _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "sink"
     _in_type_ = "file"
     _out_type_ = "file"
     _icon_ = "text-x-generic"

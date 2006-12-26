@@ -429,7 +429,10 @@ class TwoWay(DataSource, DataSink):
         """
         DataSource.__init__(self, name, widgetColorRGBA)
         DataSink.__init__(self, name, widgetColorRGBA)
+
+
         
+
 class DataProviderSimpleConfigurator:
     """
     Provides a simple modal configuration dialog for dataproviders.

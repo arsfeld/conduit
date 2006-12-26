@@ -31,7 +31,7 @@ except ImportError:
 
 
 MODULES = {
-	"FlickrSink" : { "type": "sink"	},
+	"FlickrSink" :          { "type": "dataprovider" },
 	"TaggedFileConverter" : { "type": "converter" }           
 }
 
@@ -40,6 +40,7 @@ class FlickrSink(DataProvider.DataSink):
     _name_ = "Flickr Sink"
     _description_ = "Your Photos"
     _category_ = DataProvider.CATEGORY_WEB
+    _module_type_ = "sink"
     _in_type_ = "taggedfile"
     _out_type_ = "taggedfile"
     _icon_ = "image-x-generic"
