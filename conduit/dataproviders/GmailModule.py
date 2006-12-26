@@ -64,7 +64,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
     def __init__(self, *args):
         GmailBase.__init__(self, args)
-        DataProvider.TwoWay.__init__(self, _("Email"), _("Sync your Gmail Emails"))
+        DataProvider.TwoWay.__init__(self, _("Email"))
         
         #What emails should the source return??
         self.getAllEmail = False
@@ -303,7 +303,7 @@ class EmailSinkConverter:
 
 class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
-    _name_ = _("Contacts"),
+    _name_ = _("Contacts")
     _description_ = _("Sync your Gmail Contacts")
     _category_ = DataProvider.CATEGORY_GOOGLE
     _in_type_ = "contact"
@@ -312,7 +312,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
     def __init__(self, *args):
         GmailBase.__init__(self)
-        DataProvider.TwoWay.__init__(self, _("Contacts"), _("Sync your Gmail Contacts"))
+        DataProvider.TwoWay.__init__(self, _("Contacts"))
         self.contacts = None
         self.username = ""
         self.password = ""

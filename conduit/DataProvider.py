@@ -94,13 +94,11 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                     "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
-    def __init__(self, name=None, description=None, widgetColorRGBA=0):
+    def __init__(self, name=None, widgetColorRGBA=0):
         """
         Handles a lot of the canvas and UI related aspects of a dataprovider
         All sync functionality should be provided by derived classes
         @param name: The name of the dataprovider to display on canvas
-        @param description: A SHORT descriptive string
-        @param iconName: An icon-naming-spec compliant icon name to display
         @param widgetColorRGBA: RGBA integer color of the box in which the name
         description, and icon are drawn
         @type widgerColorRGBA: C{int}
@@ -109,7 +107,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         gobject.GObject.__init__(self)
         
         self.name = name
-        self.description = description
         self.widgetColorRGBA = widgetColorRGBA
 
         self.icon = None
@@ -172,7 +169,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
                                 y=int(2*self.widget_height/3), 
                                 width=4*self.widget_width/5, 
-                                text=self.description, 
+                                text=self._description_, 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 7",
                                 fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
@@ -351,11 +348,11 @@ class DataSource(DataProviderBase):
     """
     Base Class for DataSources.
     """
-    def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
+    def __init__(self, name=None, widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
         """
         Sets the DataProvider color
         """
-        DataProviderBase.__init__(self, name, description, iconName, widgetColorRGBA)
+        DataProviderBase.__init__(self, name, widgetColorRGBA)
         
     def get(self, index):
         """
@@ -391,11 +388,11 @@ class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
     """
-    def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_SKYBLUE_LIGHT):
+    def __init__(self, name=None, widgetColorRGBA=TANGO_COLOR_SKYBLUE_LIGHT):
         """
         Sets the DataProvider color
         """    
-        DataProviderBase.__init__(self, name, description, iconName, widgetColorRGBA)
+        DataProviderBase.__init__(self, name, widgetColorRGBA)
 
     def put(self, putData, onTopOf=None):
         """
@@ -426,12 +423,12 @@ class TwoWay(DataSource, DataSink):
     """
     Abstract Base Class for TwoWay dataproviders
     """
-    def __init__(self, name=None, description=None, iconName="image-missing", widgetColorRGBA=TANGO_COLOR_BUTTER_MID):
+    def __init__(self, name=None, widgetColorRGBA=TANGO_COLOR_BUTTER_MID):
         """
         Sets the DataProvider color
         """
-        DataSource.__init__(self, name, description, iconName, widgetColorRGBA)
-        DataSink.__init__(self, name, description, iconName, widgetColorRGBA)
+        DataSource.__init__(self, name, widgetColorRGBA)
+        DataSink.__init__(self, name, widgetColorRGBA)
         
 class DataProviderSimpleConfigurator:
     """

@@ -30,7 +30,7 @@ class TomboyNoteSource(DataProvider.DataSource):
     NOTE_DIR = os.path.join(os.path.expanduser("~"),".tomboy")
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, _("Tomboy Source"), _("Source for synchronizing Tomboy Notes"))
+        DataProvider.DataSource.__init__(self, _("Tomboy Source"))
         self.notes = None
         
     def initialize(self):

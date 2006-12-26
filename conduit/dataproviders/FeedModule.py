@@ -35,7 +35,7 @@ class RSSSource(DataProvider.DataSource):
     VIDEO_TYPES = []
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, _("RSS Source"), _("Sync data from RSS enclosures"))
+        DataProvider.DataSource.__init__(self, _("RSS Source"))
         
         #self.feedUrl = "http://www.flickr.com/services/feeds/photos_public.gne?id=44124362632@N01&format=rss_200_enc"
         #self.feedUrl = "http://www.lugradio.org/episodes.ogg.rss"
