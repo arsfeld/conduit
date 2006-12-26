@@ -36,29 +36,30 @@ MODULES = {
 class RemovableDeviceManager(Module.DataProviderFactory):
     def __init__(self,**kwargs):
         Module.DataProviderFactory.__init__(self, **kwargs)
-        #self.hal = hal
-        #self.hal.connect("ipod-added", self._ipod_added)
-        #self.hal.connect("usb-added", self._usb_added)
+        self.hal.connect("ipod-added", self._ipod_added)
+        # self.hal.connect("usb-added", self._usb_added)
 
-    def _ipod_added(self, hal, udi, mount, name, emit=True):
-        cat = conduit.DataProvider.DataProviderCategory(
+    def _ipod_added(self, hal, udi, mount, name):
+        cat = DataProvider.DataProviderCategory(
                     name,
                     "ipod-icon",
                     mount)
 
-        for dp in [IPodNoteTwoWay]:
-            self.emit_added(dp, (mount,), cat)
+        for klass in [IPodNoteTwoWay]:
+            self.emit_added(
+                    klass,           # Dataprovider class
+                    (mount,),        # Init args
+                    cat)             # Category..
 
     def _usb_added(self, hal, udi, mount, name):
         pass
 
     def get_all_modules(self):
-        mods = []
-        #Hal scans in __init__. Get all conected ipods/usb keys
-        #for device_type, udi, mount, name in self.hal.get_all_ipods():
-        #    #Dont emit signals, just return
-        #    mods.append(self._ipod_added(None,udi,mount,name,False))
-        return mods
+        """ iterate through all the currently connected ipods and signal that one is added """
+        for device_type, udi, mount, name in self.hal.get_all_ipods():
+            self._ipod_added(None, udi, mount, name)
+
+        return []
 
 class USBKeySource(DataSource):
     """
@@ -71,7 +72,7 @@ class USBKeySource(DataSource):
 class IPodNoteTwoWay(TwoWay):
     _name_ = _("Notes")
     _description_ = _("Sync your iPod notes")
-    # _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "tomboy"
