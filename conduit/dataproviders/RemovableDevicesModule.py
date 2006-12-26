@@ -10,65 +10,44 @@ order to listen to HAL events
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import gobject
+import conduit
+import conduit.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
+import conduit.Module as Module
+from conduit.datatypes import DataType
+
+import time
 
 from gettext import gettext as _
-
 import logging
-import conduit, conduit.dataproviders
 from conduit.DataProvider import DataSource
 from conduit.DataProvider import DataSink
 from conduit.DataProvider import TwoWay
-from conduit.ModuleWrapper import ModuleWrapper
+
 from Hal import UDI_IDX, MOUNT_IDX, NAME_IDX
 
 import os
 import conduit.datatypes.Note as Note
 
-class RemovableDeviceManager(gobject.GObject):
-    __gsignals__ = {
-        #Fired when the module detects a usb key or ipod added
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_PYOBJECT,      #Wrapper
-            gobject.TYPE_PYOBJECT])     #Class
-    }
-    def __init__(self, hal):
-        gobject.GObject.__init__(self)
-        self.hal = hal
-       
-        self.hal.connect("ipod-added", self._ipod_added)
-        self.hal.connect("usb-added", self._usb_added)
+MODULES = {
+        "RemovableDeviceManager" :         { "type": "dataprovider-factory" }
+}
 
-    def _emit(self, signal, dpw, klass):
-        logging.info("Removable Devices: Emitting %s for %s" % (signal, dpw.get_key()))
-        self.emit("dataprovider-added", dpw, klass)
+class RemovableDeviceManager(Module.DataProviderFactory):
+    def __init__(self):
+        Module.DataProviderFactory.__init__(self)
+        #self.hal = hal
+        #self.hal.connect("ipod-added", self._ipod_added)
+        #self.hal.connect("usb-added", self._usb_added)
 
     def _ipod_added(self, hal, udi, mount, name, emit=True):
-        category = conduit.DataProvider.DataProviderCategory(
-                        name,
-                        "ipod-icon",
-                        mount)
+        cat = conduit.DataProvider.DataProviderCategory(
+                    name,
+                    "ipod-icon",
+                    mount)
 
-        for klass,type in [(IPodNoteTwoWay,"twoway")]:
-            #FIXME: There is no real need to instantiate this, really some 
-            #things should be moved out of MODULES into class properties
-            #instance = klass(mount)
-            dpw = ModuleWrapper(
-                        "Notes",                    #name
-                        "Your iPod notes",          #description
-                        "tomboy",                   #icon
-                        type,                       #type
-                        category,                   #category
-                        "note",                     #in_type
-                        "note",                     #out_type
-                        klass.__name__,             #classname has to be unique
-                        (mount,),                   #init args
-                        )
-
-            if emit == True:
-                self._emit("dataprovider-added", dpw, klass)
-            else:
-                return (dpw, klass)
+        for dp in [IPodNoteTwoWay]:
+            self.emit_added(dp, (mount,), cat)
 
     def _usb_added(self, hal, udi, mount, name):
         pass
@@ -76,9 +55,9 @@ class RemovableDeviceManager(gobject.GObject):
     def get_all_modules(self):
         mods = []
         #Hal scans in __init__. Get all conected ipods/usb keys
-        for device_type, udi, mount, name in self.hal.get_all_ipods():
-            #Dont emit signals, just return
-            mods.append(self._ipod_added(None,udi,mount,name,False))
+        #for device_type, udi, mount, name in self.hal.get_all_ipods():
+        #    #Dont emit signals, just return
+        #    mods.append(self._ipod_added(None,udi,mount,name,False))
         return mods
 
 class USBKeySource(DataSource):

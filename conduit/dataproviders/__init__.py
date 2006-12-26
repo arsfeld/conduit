@@ -7,4 +7,3 @@ implementation. For example all email programs should share the same common
 mail datatype. For this reason DataTypes, not DataProviders are exported
 """
 
-from RemovableDevices import RemovableDeviceManager

@@ -19,7 +19,6 @@ from conduit.ModuleWrapper import ModuleWrapper
 from conduit.DataProvider import DataProviderBase, CATEGORY_TEST
 from conduit.Network import ConduitNetworkManager
 from conduit.Hal import HalMonitor
-from conduit.dataproviders import RemovableDeviceManager
 
 class ModuleManager(gobject.GObject):
     """
@@ -66,12 +65,7 @@ class ModuleManager(gobject.GObject):
         for f in filelist:
             self._load_modules_in_file(f)
 
-        #--- JUST ONE SMALL PIECE OF HACKISHNESS LEFT
-        if conduit.settings.get("enable_removable_devices") == True:        
-            self.removableDeviceManager = RemovableDeviceManager(self.hal)
-            hack = [self.removableDeviceManager]
-        #--- END HACK
-        for i in self.dataproviderFactories + hack:
+        for i in self.dataproviderFactories:
             i.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
             mods = i.get_all_modules()
             for wrapper, klass in mods:

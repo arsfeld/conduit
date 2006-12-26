@@ -15,7 +15,7 @@ MODULES = {
 	"TestSink" :            { "type": "dataprovider" },
 	"TestTwoWay" :          { "type": "dataprovider" },
 	"TestSinkFailRefresh" : { "type": "dataprovider" },
-    "TestFactory" :         { "type": "dataprovider-factory" }
+        "TestFactory" :         { "type": "dataprovider-factory" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
