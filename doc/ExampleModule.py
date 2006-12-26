@@ -55,8 +55,8 @@ import conduit.Exceptions as Exceptions
 import xmlrpclib
 
 MODULES = {
-	"MoinMoinDataSource" : { "type": "source" },
-	"WikiPageConverter" : { "type": "converter" }
+	"MoinMoinDataSource" :  { "type": "dataprovider" },
+	"WikiPageConverter" :   { "type": "converter" }
 }
 
 class MoinMoinDataSource(DataSource):
@@ -72,6 +72,7 @@ class MoinMoinDataSource(DataSource):
     _name_ = _("GNOME Wiki Source")
     _description_ = _("Get Pages from the GNOME Wiki")
     _category_ = DataProviderCategory("MoinMoin", "applications-internet")
+    _module_type_ = "source"
     _in_type_ = "wikipage"
     _out_type_ = "wikipage"
     _icon_ = "applications-internet"
@@ -86,7 +87,7 @@ class MoinMoinDataSource(DataSource):
         The name and description are typically the same values as specified
         in the MODULES dict at the top of the file
         """
-        DataSource.__init__(self, _("GNOME Wiki Source"), _("Get Pages from the GNOME Wiki"), "applications-internet")
+        DataSource.__init__(self, _("GNOME Wiki Source"))
         
         #class specific
         self.srcwiki = None
