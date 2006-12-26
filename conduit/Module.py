@@ -186,11 +186,6 @@ class ModuleManager(gobject.GObject):
         if mod is None:
         	return
 
-        # build a dict of kwargs to pass to factories
-        kwargs = {
-            "hal":    self.hal
-        }
-
         for modules, infos in mod.MODULES.items():
             try:
                 klass = getattr(mod, modules)
@@ -210,6 +205,10 @@ class ModuleManager(gobject.GObject):
                     #Save the module (signal is emitted _append_module
                     self._append_module(mod_wrapper, klass)
                 elif infos["type"] == "dataprovider-factory":
+                    # build a dict of kwargs to pass to factories
+                    kwargs = {
+                        "hal":    self.hal
+                    }
                     #instantiate and store the factory
                     instance = klass(**kwargs)
                     self.dataproviderFactories.append(instance)
