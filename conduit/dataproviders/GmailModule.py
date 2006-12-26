@@ -65,7 +65,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
     def __init__(self, *args):
         GmailBase.__init__(self, args)
-        DataProvider.TwoWay.__init__(self, _("Email"))
+        DataProvider.TwoWay.__init__(self)
         
         #What emails should the source return??
         self.getAllEmail = False
@@ -314,7 +314,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
     def __init__(self, *args):
         GmailBase.__init__(self)
-        DataProvider.TwoWay.__init__(self, _("Contacts"))
+        DataProvider.TwoWay.__init__(self)
         self.contacts = None
         self.username = ""
         self.password = ""

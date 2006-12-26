@@ -87,7 +87,7 @@ class MoinMoinDataSource(DataSource):
         The name and description are typically the same values as specified
         in the MODULES dict at the top of the file
         """
-        DataSource.__init__(self, _("GNOME Wiki Source"))
+        DataSource.__init__(self)
         
         #class specific
         self.srcwiki = None

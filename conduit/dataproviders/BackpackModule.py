@@ -57,7 +57,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
 
     def __init__(self, *args):
         BackpackBase.__init__(self, args)
-        DataProvider.DataSink.__init__(self, _("Backpack Note Sink"))
+        DataProvider.DataSink.__init__(self)
         
         self.storeInPage = "Conduit"
         self.pageID = None

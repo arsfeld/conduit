@@ -98,7 +98,7 @@ class IPodNoteTwoWay(TwoWay):
     _icon_ = "tomboy"
 
     def __init__(self, *args):
-        TwoWay.__init__(self, _("Notes"))
+        TwoWay.__init__(self)
         
         self.mountPoint = args[0]
         self.notes = None

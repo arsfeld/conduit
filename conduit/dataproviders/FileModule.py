@@ -47,7 +47,7 @@ class FileSource(DataProvider.DataSource):
     _icon_ = "text-x-generic"
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, _("File Source"))
+        DataProvider.DataSource.__init__(self)
         
         #list of file URIs (from the "add file" button
         self.files = []
@@ -187,7 +187,7 @@ class FileSink(DataProvider.DataSink):
     DEFAULT_FOLDER_URI = os.path.expanduser("~")
 
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self, _("File Sink"))
+        DataProvider.DataSink.__init__(self)
         self.folderURI = FileSink.DEFAULT_FOLDER_URI
 
     def initialize(self):

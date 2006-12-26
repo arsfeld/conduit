@@ -80,7 +80,7 @@ class TestBase:
                     "InitialValue" : self.slow
                     }               
                 ]
-        dialog = DataProvider.DataProviderSimpleConfigurator(window, self.name, items)
+        dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
         dialog.run()
         
     def get_configuration(self):
@@ -107,7 +107,7 @@ class TestSource(TestBase, DataProvider.DataSource):
     NUM_DATA = 5    
     def __init__(self, *args):
         TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self, "Test Source")
+        DataProvider.DataSource.__init__(self)
         
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
@@ -135,7 +135,7 @@ class TestSink(TestBase, DataProvider.DataSink):
 
     def __init__(self, *args):
         TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self, "Test Sink")
+        DataProvider.DataSink.__init__(self)
         
     def put(self, data, dataOnTopOf=None):
         DataProvider.DataSink.put(self, data, dataOnTopOf)
@@ -158,7 +158,7 @@ class TestTwoWay(DataProvider.TwoWay):
 
     NUM_DATA = 10
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self, "Two Way")
+        DataProvider.TwoWay.__init__(self)
         self.data = None
 
     def initialize(self):
@@ -201,7 +201,7 @@ class TestSinkFailRefresh(DataProvider.DataSink):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self, "Test Refresh Sink")
+        DataProvider.DataSink.__init__(self)
         
     def initialize(self):
         return True
@@ -219,7 +219,7 @@ class TestDynamicSource(DataProvider.DataSource):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, "Test Source")
+        DataProvider.DataSource.__init__(self)
 
 class TestFactory(Module.DataProviderFactory):
     def __init__(self):
@@ -239,6 +239,3 @@ class TestFactory(Module.DataProviderFactory):
                 category=DataProvider.CATEGORY_LOCAL)
         #run once
         return False
-        
-
-

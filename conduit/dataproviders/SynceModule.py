@@ -110,7 +110,7 @@ class SynceContactTwoWay(SynceTwoWay):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self, _("Contacts"))
+        DataProvider.TwoWay.__init__(self)
         SynceTwoWay.__init__(self,"contacts",args)
 
 class SynceCalendarTwoWay(SynceTwoWay):
@@ -123,7 +123,7 @@ class SynceCalendarTwoWay(SynceTwoWay):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self, _("Calendar"))
+        DataProvider.TwoWay.__init__(self)
         SynceTwoWay.__init__(self,"calendar",args)
 
 class SynceEmailTwoWay(SynceTwoWay):
@@ -136,6 +136,6 @@ class SynceEmailTwoWay(SynceTwoWay):
     _icon_ = "internet-mail"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self, _("E-mail"))
+        DataProvider.TwoWay.__init__(self)
         SynceTwoWay.__init__(self,"e-mail",args)
 

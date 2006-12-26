@@ -33,7 +33,7 @@ class LifereaSource(DataProvider.DataSource):
     FEED_FILE = "~/.liferea/feedlist.opml"
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self, _("Liferea"))
+        DataProvider.DataSource.__init__(self)
         self.feedlist = None
         
     def initialize(self):

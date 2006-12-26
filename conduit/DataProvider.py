@@ -94,7 +94,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                     "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
-    def __init__(self, name=None, widgetColorRGBA=0):
+    def __init__(self, widgetColorRGBA=0):
         """
         Handles a lot of the canvas and UI related aspects of a dataprovider
         All sync functionality should be provided by derived classes
@@ -106,7 +106,6 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         goocanvas.Group.__init__(self)
         gobject.GObject.__init__(self)
         
-        self.name = name
         self.widgetColorRGBA = widgetColorRGBA
 
         self.icon = None
@@ -147,7 +146,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         name = goocanvas.Text(  x=int(2*self.widget_width/5), 
                                 y=int(1*self.widget_height/3), 
                                 width=3*self.widget_width/5, 
-                                text=self.name, 
+                                text=self._name_, 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 8"
                                 )
@@ -312,7 +311,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @param window: The parent window (to show a modal dialog)
         @type window: {gtk.Window}
         """
-        logging.info("configure() not overridden by derived class %s" % self.name)
+        logging.info("configure() not overridden by derived class %s" % self._name_)
         
     def get_configuration(self):
         """
@@ -322,7 +321,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
-        logging.info("get_configuration() not overridden by derived class %s" % self.name)
+        logging.info("get_configuration() not overridden by derived class %s" % self._name_)
         return {}
 
     def set_configuration(self, config):
@@ -330,7 +329,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        logging.info("set_configuration() not overridden by derived class %s" % self.name)
+        logging.info("set_configuration() not overridden by derived class %s" % self._name_)
         for c in config:
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods
@@ -348,11 +347,11 @@ class DataSource(DataProviderBase):
     """
     Base Class for DataSources.
     """
-    def __init__(self, name=None, widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
+    def __init__(self, widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
         """
         Sets the DataProvider color
         """
-        DataProviderBase.__init__(self, name, widgetColorRGBA)
+        DataProviderBase.__init__(self, widgetColorRGBA)
         
     def get(self, index):
         """
@@ -388,11 +387,11 @@ class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
     """
-    def __init__(self, name=None, widgetColorRGBA=TANGO_COLOR_SKYBLUE_LIGHT):
+    def __init__(self, widgetColorRGBA=TANGO_COLOR_SKYBLUE_LIGHT):
         """
         Sets the DataProvider color
         """    
-        DataProviderBase.__init__(self, name, widgetColorRGBA)
+        DataProviderBase.__init__(self, widgetColorRGBA)
 
     def put(self, putData, onTopOf=None):
         """
@@ -423,12 +422,12 @@ class TwoWay(DataSource, DataSink):
     """
     Abstract Base Class for TwoWay dataproviders
     """
-    def __init__(self, name=None, widgetColorRGBA=TANGO_COLOR_BUTTER_MID):
+    def __init__(self, widgetColorRGBA=TANGO_COLOR_BUTTER_MID):
         """
         Sets the DataProvider color
         """
-        DataSource.__init__(self, name, widgetColorRGBA)
-        DataSink.__init__(self, name, widgetColorRGBA)
+        DataSource.__init__(self, widgetColorRGBA)
+        DataSink.__init__(self, widgetColorRGBA)
 
 
         
