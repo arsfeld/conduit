@@ -30,14 +30,16 @@ import os
 import conduit.datatypes.Note as Note
 
 MODULES = {
-        "RemovableDeviceManager" :         { "type": "dataprovider-factory" }
+        "iPodFactory" :     { "type": "dataprovider-factory" }
 }
 
-class RemovableDeviceManager(Module.DataProviderFactory):
-    def __init__(self,**kwargs):
+class iPodFactory(Module.DataProviderFactory):
+    def __init__(self, **kwargs):
         Module.DataProviderFactory.__init__(self, **kwargs)
-        self.hal.connect("ipod-added", self._ipod_added)
-        # self.hal.connect("usb-added", self._usb_added)
+
+        if kwargs.has_key("hal"):
+            self.hal = kwargs["hal"]
+            self.hal.connect("ipod-added", self._ipod_added)
 
     def _ipod_added(self, hal, udi, mount, name):
         cat = DataProvider.DataProviderCategory(
@@ -51,25 +53,17 @@ class RemovableDeviceManager(Module.DataProviderFactory):
                     (mount,),        # Init args
                     cat)             # Category..
 
-    def _usb_added(self, hal, udi, mount, name):
-        pass
-
     def get_all_modules(self):
-        """ iterate through all the currently connected ipods and signal that one is added """
+        """
+        Iterate through all the currently connected ipods and signal that one is added
+        """
         for device_type, udi, mount, name in self.hal.get_all_ipods():
             self._ipod_added(None, udi, mount, name)
 
         return []
 
-class USBKeySource(DataSource):
-    """
-    Class will provide a simple way to share files on usb keys between 
-    different PCs   
-    """
-    pass
-
-
 class IPodNoteTwoWay(TwoWay):
+
     _name_ = _("Notes")
     _description_ = _("Sync your iPod notes")
     _module_type_ = "twoway"
@@ -112,7 +106,7 @@ class IPodNoteTwoWay(TwoWay):
 
     def put(self, note, noteOnTopOf=None):
         DataSink.put(self, note, noteOnTopOf)
-	open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
+        open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
         
     def finish(self):
         self.notes = None

@@ -325,8 +325,6 @@ class DataProviderFactory(gobject.GObject):
     def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
 
-        self.hal = kwargs['hal']
-
     def emit_added(self, klass, initargs=(), category=None):
         if category == None:
             category = getattr(klass, "_category_", CATEGORY_TEST)
