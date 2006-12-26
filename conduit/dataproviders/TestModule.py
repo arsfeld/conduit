@@ -222,8 +222,8 @@ class TestDynamicSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self)
 
 class TestFactory(Module.DataProviderFactory):
-    def __init__(self):
-        Module.DataProviderFactory.__init__(self)
+    def __init__(self, **kwargs):
+        Module.DataProviderFactory.__init__(self, **kwargs)
 
         #callback the GUI in 5 seconds to add a new dataprovider
         gobject.timeout_add(5000, self.make_one)

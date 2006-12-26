@@ -186,10 +186,16 @@ class ModuleManager(gobject.GObject):
         if mod is None:
         	return
 
+        # build a dict of kwargs to pass to factories
+        kwargs = {
+            "hal":    self.hal
+        }
+
         for modules, infos in mod.MODULES.items():
             try:
+                klass = getattr(mod, modules)
+
                 if infos["type"] == "dataprovider" or infos["type"] == "converter":
-                    klass = getattr(mod, modules)
                     mod_wrapper = ModuleWrapper (   
                                         getattr(klass, "_name_", ""),
     	                                getattr(klass, "_description_", ""),
@@ -205,7 +211,7 @@ class ModuleManager(gobject.GObject):
                     self._append_module(mod_wrapper, klass)
                 elif infos["type"] == "dataprovider-factory":
                     #instantiate and store the factory
-                    instance = getattr(mod, modules)()
+                    instance = klass(**kwargs)
                     self.dataproviderFactories.append(instance)
                 else:
                     logging.error("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
@@ -316,8 +322,10 @@ class DataProviderFactory(gobject.GObject):
             gobject.TYPE_PYOBJECT])     #Class
     }
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
+
+        self.hal = kwargs['hal']
 
     def emit_added(self, klass, initargs=(), category=None):
         if category == None:

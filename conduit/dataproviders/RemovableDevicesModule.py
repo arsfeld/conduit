@@ -34,8 +34,8 @@ MODULES = {
 }
 
 class RemovableDeviceManager(Module.DataProviderFactory):
-    def __init__(self):
-        Module.DataProviderFactory.__init__(self)
+    def __init__(self,**kwargs):
+        Module.DataProviderFactory.__init__(self, **kwargs)
         #self.hal = hal
         #self.hal.connect("ipod-added", self._ipod_added)
         #self.hal.connect("usb-added", self._usb_added)
