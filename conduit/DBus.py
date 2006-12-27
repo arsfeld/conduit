@@ -48,10 +48,6 @@ class DBusView(dbus.service.Object):
 
         self.model = None
 
-        #Store all loaded dataproviders and converters
-        self.datasources = []
-        self.datasinks = []
-
         #Store user constructed conduits
         self.conduits = []
 
@@ -108,14 +104,25 @@ class DBusView(dbus.service.Object):
                     self.UIDs[uid] = new
         return uid
 
+    def _get_sources(self):
+        datasources = self.model.get_modules_by_type("source")
+        twoways = self.model.get_modules_by_type("twoway")
+        return datasources + twoways
+
+    def _get_sinks(self):
+        datasinks = self.model.get_modules_by_type("sink")
+        twoways = self.model.get_modules_by_type("twoway")
+        return datasinks + twoways
+
+    def _get_all_dps(self):
+        datasources = self.model.get_modules_by_type("source")
+        datasinks = self.model.get_modules_by_type("sink")
+        twoways = self.model.get_modules_by_type("twoway")
+        return datasources + datasinks + twoways
+
     def set_model(self, model):
         self.model = model
         self.model.connect("dataprovider-added", self._on_dataprovider_added)
-
-        #get the dataproviders
-        self.datasources = self.model.get_modules_by_type("source")
-        self.datasinks = self.model.get_modules_by_type("sink")
-        self.datasources = self.model.get_modules_by_type("twoway")
 
         #initialise the Type Converter
         self.type_converter = TypeConverter(self.model)
@@ -135,28 +142,29 @@ class DBusView(dbus.service.Object):
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSources(self):
         self._print("GetAllDataSources")
-        return [i.get_key() for i in self.datasources]
+        #get the dataproviders
+        return [i.get_key() for i in self._get_sources()]
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSinks(self):
         self._print("GetAllDataSinks")
-        return [i.get_key() for i in self.datasinks]
+        return [i.get_key() for i in self._get_sinks()]
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='i')
     def GetDataSource(self, key):
         self._print("GetDataSource %s" % key)
-        return self._add_dataprovider(key, self.datasources)
+        return self._add_dataprovider(key, self._get_sources())
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='i')
     def GetDataSink(self, key):
         self._print("GetDataSink %s" % key)
-        return self._add_dataprovider(key, self.datasinks)        
+        return self._add_dataprovider(key, self._get_sinks())        
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='a{ss}')
     def GetDataProviderInformation(self, key):
         self._print("GetDataProviderInformation %s" % key)
         info = {}
-        for i in self.datasinks + self.datasources:
+        for i in self._get_all_dps():
             if i.get_key() == key:
                 info["name"] = i.name
                 info["description"] = i.description
@@ -186,7 +194,7 @@ class DBusView(dbus.service.Object):
             return compat
 
         #look for enabled datasinks
-        for s in self.datasinks:
+        for s in self._get_sinks():
             if s.enabled == True:
                 out = self.UIDs[sourceUID].out_type
                 if s.in_type == out:

@@ -208,10 +208,37 @@ class ModuleWrapper:
                                 )
                     self.descriptiveIcon = dest
                 except gobject.GError, err:
-                    print "PENIS", err
+                    pass
             
             elif self.module_type == "category":
-                return self.get_icon(isize)
+                try:
+                    #Composite the arrow to the right of the icon
+                    dest = gtk.gdk.Pixbuf(
+                                    colorspace=gtk.gdk.COLORSPACE_RGB,
+                                    has_alpha=True,
+                                    bits_per_sample=8,
+                                    width=bwidth,
+                                    height=bheight
+                                    )
+                    dest.fill(0)                
+                    #Composite the icon on the left
+                    icon = self.get_icon(isize)
+                    icon.composite(
+                                dest=dest,
+                                dest_x=0,           #right of icon
+                                dest_y=0,           #at the top
+                                dest_width=isize,   #use whole arrow 1:1
+                                dest_height=isize,  #ditto
+                                offset_x=0,
+                                offset_y=0,
+                                scale_x=1,
+                                scale_y=1,
+                                interp_type=gtk.gdk.INTERP_NEAREST,
+                                overall_alpha=255
+                                )
+                    self.descriptiveIcon = dest
+                except gobject.GError, err:
+                    pass
     
         return self.descriptiveIcon
         

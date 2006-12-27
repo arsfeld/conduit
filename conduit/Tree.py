@@ -303,19 +303,25 @@ class DataProviderTreeView(gtk.TreeView):
         Constructor
         """
         gtk.TreeView.__init__(self, model)
+        self.set_property("enable-search", False)
+        self.set_property("enable-tree-lines", True)
         
-        # First column is an image and the name...
-        pixbufRenderer = gtk.CellRendererPixbuf()
-        textRenderer = gtk.CellRendererText()
-        tvcolumn0 = gtk.TreeViewColumn("Name", pixbufRenderer, pixbuf=0)
-        tvcolumn0.pack_start(textRenderer, False)
-        tvcolumn0.add_attribute(textRenderer, 'text', 1)
+        #First column is an image
+        tvcolumn0 = gtk.TreeViewColumn("", gtk.CellRendererPixbuf(), pixbuf=0)
+        tvcolumn0.set_property("expand", False)
+        tvcolumn0.set_property("sizing", gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         self.append_column(tvcolumn0)
+
+        #Second column is name (show tooltips)
+        tvcolumn1 = gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=1)
+        tvcolumn1.set_property("expand", True)
+        tvcolumn1.set_property("sizing", gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        self.append_column(tvcolumn1)
 
         # Second column is a description
         if conduit.settings.get("show_dp_description") == True:
-            tvcolumn1 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
-            self.append_column(tvcolumn1)
+            tvcolumn2 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
+            self.append_column(tvcolumn2)
             self.set_headers_visible(True)
         else:
             self.set_headers_visible(False)
@@ -370,3 +376,4 @@ class DataProviderTreeView(gtk.TreeView):
         expanded = []
         self.map_expanded_rows(map_expanded_rows_func)
         return expanded
+
