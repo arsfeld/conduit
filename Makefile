@@ -56,8 +56,13 @@ install: make-install-dirs
 	install -m 644 conduit/*.py $(PYTHON_PATH)/conduit
 	install -m 644 conduit/datatypes/*.py $(PYTHON_PATH)/conduit/datatypes
 	install -m 755 conduit/start_conduit.py $(DESTDIR)$(PREFIX)/bin/conduit
-	@for i in `ls contrib`; do \
-		( install -m 644 contrib/$$i/*.py $(DESTDIR)$(PREFIX)/share/conduit/contrib/$$i ) \
+	@#Install Dirs
+	@for i in `find contrib -type d -and ! -path *.svn*`; do \
+		( install -d $$i $(DESTDIR)$(PREFIX)/share/conduit/$$i ) \
+	done
+	@#Install Files
+	@for i in `find contrib -name "*.py"`; do \
+		( install -m 644 $$i $(DESTDIR)$(PREFIX)/share/conduit/$$i ) \
 	done
 	ln -sf $(CWD)/doc/ExampleModule.py ~/.conduit/modules/MoinModule.py
 

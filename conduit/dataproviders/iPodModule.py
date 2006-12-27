@@ -10,21 +10,18 @@ order to listen to HAL events
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import logging
 import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
 from conduit.datatypes import DataType
 
-import time
-
 from gettext import gettext as _
-import logging
+
 from conduit.DataProvider import DataSource
 from conduit.DataProvider import DataSink
 from conduit.DataProvider import TwoWay
-
-from Hal import UDI_IDX, MOUNT_IDX, NAME_IDX
 
 import os
 import conduit.datatypes.Note as Note

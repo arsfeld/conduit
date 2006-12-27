@@ -14,7 +14,7 @@ import pydoc
 from os.path import abspath, expanduser, join, basename
 
 import logging
-import conduit, conduit.dataproviders
+import conduit
 from conduit.ModuleWrapper import ModuleWrapper
 from conduit.DataProvider import DataProviderBase, CATEGORY_TEST
 from conduit.Network import ConduitNetworkManager
