@@ -24,7 +24,7 @@ MODULES = {
     "SynceEmailTwoWay"    : { "type": "dataprovider" },
 }
 
-phone_cat = conduit.DataProvider.DataProviderCategory("Phone","ipod-icon","Phone")
+phone_cat = conduit.DataProvider.DataProviderCategory("Phone","multimedia-player-ipod-video-white","Phone")
 
 class SynceTwoWay(DataProvider.TwoWay):
     def __init__(self, obj_type, *args):

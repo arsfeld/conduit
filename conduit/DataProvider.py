@@ -72,7 +72,7 @@ CATEGORY_LOCAL = DataProviderCategory("Local", "computer")
 CATEGORY_REMOTE = DataProviderCategory("Remote", "network-server")
 CATEGORY_WEB = DataProviderCategory("Web", "applications-internet")
 CATEGORY_GOOGLE = DataProviderCategory("Google", "applications-internet")
-CATEGORY_IPOD = DataProviderCategory("iPod", "ipod-icon")
+CATEGORY_IPOD = DataProviderCategory("iPod", "multimedia-player-ipod-video-white")
 CATEGORY_USB = DataProviderCategory("USB", "drive-removable-media")
 CATEGORY_TEST = DataProviderCategory("Test")
 

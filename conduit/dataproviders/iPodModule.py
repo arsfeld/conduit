@@ -44,7 +44,7 @@ class iPodFactory(Module.DataProviderFactory):
     def _ipod_added(self, hal, udi, mount, name):
         cat = DataProvider.DataProviderCategory(
                     name,
-                    "ipod-icon",
+                    "multimedia-player-ipod-video-white",
                     mount)
 
         for klass in [IPodNoteTwoWay]:
