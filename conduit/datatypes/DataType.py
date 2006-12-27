@@ -1,5 +1,10 @@
 import conduit.datatypes
 
+CHANGE_UNMODIFIED = 0
+CHANGE_ADDED = 1
+CHANGE_MODIFIED = 2
+CHANGE_DELETED = 3
+
 class DataType:
     """
     Base DataType which represents any thing 
@@ -35,13 +40,16 @@ class DataType:
         """
         return conduit.datatypes.EQUAL
 
+    def get_hash(self):
+        return ""
+
     def set_UID(self, UID):
         """
         Sets the UID for the data
         """
         self.UID = UID
 
-    def get_UID(self, UID):
+    def get_UID(self):
         """
         Gets the UID for this data
         """
