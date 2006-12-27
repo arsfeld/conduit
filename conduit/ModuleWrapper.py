@@ -148,16 +148,16 @@ class ModuleWrapper:
 
     def get_descriptive_icon(self):
 
-        #  ___
-        # |   |___
-        # |___|___|
-        #
+        #  _____
+        # |     |___
+        # |  i  | a |
+        # |_____|___|
 
         #The descriptive icon is two icons composited side by side. On the left
         #is the dataprovider icon, on the right an arrow indicating its type
         #size of each icon
         isize = 24
-        asize = isize
+        asize = 16
         bwidth = isize + asize
         bheight = max(isize, asize)
 
@@ -196,11 +196,11 @@ class ModuleWrapper:
                     arrow.composite(
                                 dest=dest,
                                 dest_x=isize,       #right of icon
-                                dest_y=0,           #at the top
+                                dest_y=isize-asize, #at the bottom
                                 dest_width=asize,   #use whole arrow 1:1
                                 dest_height=asize,  #ditto
                                 offset_x=isize,     #move self over to the right
-                                offset_y=0,
+                                offset_y=isize-asize,#at the bottom
                                 scale_x=1,
                                 scale_y=1,
                                 interp_type=gtk.gdk.INTERP_NEAREST,
