@@ -25,6 +25,7 @@ from conduit.DataProvider import TwoWay
 
 import os
 import conduit.datatypes.Note as Note
+import conduit.datatypes.Contact as Contact
 
 MODULES = {
         "iPodFactory" :     { "type": "dataprovider-factory" }
@@ -44,7 +45,7 @@ class iPodFactory(Module.DataProviderFactory):
                     "multimedia-player-ipod-video-white",
                     mount)
 
-        for klass in [IPodNoteTwoWay]:
+        for klass in [IPodNoteTwoWay, IPodContactsTwoWay]:
             self.emit_added(
                     klass,           # Dataprovider class
                     (mount,),        # Init args
@@ -80,10 +81,8 @@ class IPodNoteTwoWay(TwoWay):
         self.notes = []
 
         mypath = os.path.join(self.mountPoint, 'Notes')
-        logging.info(mypath)
         for f in os.listdir(mypath):
             fullpath = os.path.join(mypath, f)
-            logging.info(fullpath)
             if os.path.isfile(fullpath):
                 title = f
                 modified = os.stat(fullpath).st_mtime
@@ -94,7 +93,6 @@ class IPodNoteTwoWay(TwoWay):
 
     def get_num_items(self):
         TwoWay.get_num_items(self)
-        logging.info(len(self.notes))
         return len(self.notes)
 
     def get(self, index):
@@ -104,6 +102,51 @@ class IPodNoteTwoWay(TwoWay):
     def put(self, note, noteOnTopOf=None):
         DataSink.put(self, note, noteOnTopOf)
         open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
+        
+    def finish(self):
+        self.notes = None
+
+class IPodContactsTwoWay(TwoWay):
+
+    _name_ = _("Contacts")
+    _description_ = _("Sync your iPod contacts")
+    _module_type_ = "twoway"
+    _in_type_ = "contact"
+    _out_type_ = "contact"
+    _icon_ = "contact-new"
+
+    def __init__(self, *args):
+        TwoWay.__init__(self)
+        
+        self.mountPoint = args[0]
+        self.contacts = None
+
+    def refresh(self):
+        TwoWay.refresh(self)
+        
+        self.contacts = []
+
+        mypath = os.path.join(self.mountPoint, 'Contacts')
+        for f in os.listdir(mypath):
+            fullpath = os.path.join(mypath, f)
+            if os.path.isfile(fullpath):
+                try:
+                    contact = Contact.Contact()
+                    contact.readVCard(open(fullpath,'r').read())
+                    self.contacts.append(contact)
+                except:
+                    pass
+
+    def get_num_items(self):
+        TwoWay.get_num_items(self)
+        return len(self.contacts)
+
+    def get(self, index):
+        TwoWay.get(self, index)
+        return self.contacts[index]
+
+    def put(self, contact, contactOnTopOf=None):
+        DataSink.put(self, contact, contactOnTopOf)
         
     def finish(self):
         self.notes = None
