@@ -111,7 +111,7 @@ class SynceContactTwoWay(SynceTwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-        SynceTwoWay.__init__(self,"contacts",args)
+        SynceTwoWay.__init__(self,"contacts",*args)
 
 class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
@@ -124,7 +124,7 @@ class SynceCalendarTwoWay(SynceTwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-        SynceTwoWay.__init__(self,"calendar",args)
+        SynceTwoWay.__init__(self,"calendar",*args)
 
 class SynceEmailTwoWay(SynceTwoWay):
     _name_ = "E-mail"
@@ -137,5 +137,5 @@ class SynceEmailTwoWay(SynceTwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-        SynceTwoWay.__init__(self,"e-mail",args)
+        SynceTwoWay.__init__(self,"e-mail",*args)
 

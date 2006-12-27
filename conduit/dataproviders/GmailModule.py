@@ -64,7 +64,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
     _icon_ = "internet-mail"
 
     def __init__(self, *args):
-        GmailBase.__init__(self, args)
+        GmailBase.__init__(self, *args)
         DataProvider.TwoWay.__init__(self)
         
         #What emails should the source return??
@@ -313,7 +313,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        GmailBase.__init__(self)
+        GmailBase.__init__(self, *args)
         DataProvider.TwoWay.__init__(self)
         self.contacts = None
         self.username = ""
