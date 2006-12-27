@@ -199,7 +199,10 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         if column is 0:
             return rowref.get_descriptive_icon()
         elif column is 1:
-            return rowref.name
+            if self._is_category_heading(rowref):
+                return "<b>"+rowref.name+"</b>"
+            else:
+                return rowref.name
         elif column is 2:
             return rowref.description
         #Used internally from the TreeView to get the key used by the canvas to 
@@ -306,22 +309,26 @@ class DataProviderTreeView(gtk.TreeView):
         self.set_property("enable-search", False)
         self.set_property("enable-tree-lines", True)
         
-        #First column is an image
-        tvcolumn0 = gtk.TreeViewColumn("", gtk.CellRendererPixbuf(), pixbuf=0)
-        tvcolumn0.set_property("expand", False)
-        tvcolumn0.set_property("sizing", gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        #First column is an image and name
+        pixbufRenderer = gtk.CellRendererPixbuf()
+        textRenderer = gtk.CellRendererText()
+        tvcolumn0 = gtk.TreeViewColumn("Name")
+        tvcolumn0.pack_start(pixbufRenderer, False)
+        tvcolumn0.add_attribute(pixbufRenderer, 'pixbuf', 0)
+        tvcolumn0.pack_start(textRenderer, True)
+        #FIXME: Changing this from text to markup 
+        #adds 3mb+ mem usage (1.5mb VM + 1.5mb RSS)
+        tvcolumn0.add_attribute(textRenderer, 'markup', 1)
+        #FIXME: How to clamp to a min width?? The following doesnt work
+        #tvcolumn0.set_min_width(200)
+        #tvcolumn0.set_resizable(False)
+        #tvcolumn0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         self.append_column(tvcolumn0)
-
-        #Second column is name (show tooltips)
-        tvcolumn1 = gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=1)
-        tvcolumn1.set_property("expand", True)
-        tvcolumn1.set_property("sizing", gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        self.append_column(tvcolumn1)
 
         # Second column is a description
         if conduit.settings.get("show_dp_description") == True:
-            tvcolumn2 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
-            self.append_column(tvcolumn2)
+            tvcolumn1 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
+            self.append_column(tvcolumn1)
             self.set_headers_visible(True)
         else:
             self.set_headers_visible(False)
