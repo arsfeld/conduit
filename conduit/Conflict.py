@@ -121,26 +121,27 @@ class ConflictResolver:
     def on_cancel_conflicts(self, sender):
         pass
 
-class ArrowCellRenderer(gtk.GenericCellRenderer):
+class ConflictCellRenderer(gtk.GenericCellRenderer):
 
     LEFT_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "one-way-left.png"))
+                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-left.png"))
     RIGHT_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "one-way-right.png"))
+                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-right.png"))
     BOTH_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "two-way.png"))
+                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-twoway.png"))
     SKIP_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "skip.png"))
+                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-skip.png"))
 
     def __init__(self):
         gtk.GenericCellRenderer.__init__(self)
         self.set_property('visible', True)
+        self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
         self.image = None
 
     def on_get_size(self, widget, cell_area):
         return  (   0,0, 
-                    ArrowCellRenderer.BOTH_IMAGE.get_property("width"), 
-                    ArrowCellRenderer.BOTH_IMAGE.get_property("height")
+                    ConflictCellRenderer.BOTH_IMAGE.get_property("width"), 
+                    ConflictCellRenderer.BOTH_IMAGE.get_property("height")
                     )
 
     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
@@ -157,20 +158,15 @@ class ArrowCellRenderer(gtk.GenericCellRenderer):
 
     def set_direction(self, direction):
         if direction == CONFLICT_COPY_SINK_TO_SOURCE:
-            self.image = ArrowCellRenderer.LEFT_IMAGE
+            self.image = ConflictCellRenderer.LEFT_IMAGE
         elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
-            self.image = ArrowCellRenderer.RIGHT_IMAGE
+            self.image = ConflictCellRenderer.RIGHT_IMAGE
         elif direction == CONFLICT_SKIP:
-            self.image = ArrowCellRenderer.SKIP_IMAGE
+            self.image = ConflictCellRenderer.SKIP_IMAGE
         elif direction == CONFLICT_BOTH:
-            self.image = ArrowCellRenderer.BOTH_IMAGE
+            self.image = ConflictCellRenderer.BOTH_IMAGE
         else:
             self.image = None
-
-class ConflictCellRenderer(ArrowCellRenderer):
-    def __init__(self):
-        ArrowCellRenderer.__init__(self)
-        self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
 
     def on_activate(self, event, widget, path, background_area, cell_area, flags):
         model = widget.get_model()

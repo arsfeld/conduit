@@ -16,7 +16,6 @@ import logging
 import conduit
 import conduit.DataProvider as DataProvider
 from conduit.ModuleWrapper import ModuleWrapper
-from conduit.Conflict import ArrowCellRenderer, LEFT_ARROW, RIGHT_ARROW, DOUBLE_ARROW, NO_ARROW
 
 class CategoryWrapper(ModuleWrapper):
     """
@@ -198,7 +197,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
         if column is 0:
-            return rowref.get_icon()
+            return rowref.get_descriptive_icon()
         elif column is 1:
             return rowref.name
         elif column is 2:
@@ -313,14 +312,13 @@ class DataProviderTreeView(gtk.TreeView):
         tvcolumn0.add_attribute(textRenderer, 'text', 1)
         self.append_column(tvcolumn0)
 
-        # Second cell is a gammy arrow indicating source or sink and a description
-        arrowRenderer = ArrowCellRenderer()
-        textRenderer = gtk.CellRendererText()
-        tvcolumn1 = gtk.TreeViewColumn("Description", arrowRenderer)
-        tvcolumn1.set_cell_data_func(arrowRenderer, self.set_direction_func)
-        tvcolumn1.pack_start(textRenderer, False)
-        tvcolumn1.add_attribute(textRenderer, 'text', 2)
-        self.append_column(tvcolumn1)
+        # Second column is a description
+        if conduit.settings.get("show_dp_description") == True:
+            tvcolumn1 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
+            self.append_column(tvcolumn1)
+            self.set_headers_visible(True)
+        else:
+            self.set_headers_visible(False)
 
         # DND info:
         # drag
@@ -346,17 +344,6 @@ class DataProviderTreeView(gtk.TreeView):
         #if categoryHeading:
         #    logging.debug("Aborting DND")
         #    context.drag_abort()
-
-    def set_direction_func(self, column, cell_renderer, tree_model, iter):
-        module_type = tree_model.get_value(iter, 5)
-        if module_type == "source":
-            cell_renderer.set_direction(RIGHT_ARROW)
-        elif module_type == "sink":
-            cell_renderer.set_direction(LEFT_ARROW)
-        elif module_type == "twoway":
-            cell_renderer.set_direction(DOUBLE_ARROW)
-        else:
-            cell_renderer.set_direction(NO_ARROW)
 
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):
         """

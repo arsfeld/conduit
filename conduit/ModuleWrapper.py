@@ -96,7 +96,8 @@ class ModuleWrapper:
             self._uid += str(random.randint(0,10))
 
         self.icon_path = ""
-        self.icon = None
+        self.icon = {}
+        self.descriptiveIcon = None
 
     def get_key(self):
         """
@@ -119,31 +120,100 @@ class ModuleWrapper:
         """
         return "%s-%s" % (self.get_key(), self._uid)
 
-    def get_icon(self):
+    def get_icon(self, size=16):
         """
         Returns the icon for the module contained in this wrapper.
         In the case of a sink or source this is easy as the module
         contains the icon.
 
         Wrappers derived from this class (such as the CategoryWrapper)
-        should override this function
+        may override this function
         """
-        if self.module_type in ["source", "sink", "twoway", "category"]:
-            if self.icon is None:
+        if not self.icon.has_key(size) or self.icon[size] is None:
+            if self.module_type in ["source", "sink", "twoway", "category"]:
                 try:
-                    info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, 16, 0)
-                    self.icon = info.load_icon()
+                    info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, size, 0)
+                    self.icon[size] = info.load_icon()
                     self.icon_path = info.get_filename()
                 except gobject.GError:
-                    self.icon = None
+                    self.icon[size] = None
                     logging.error("Could not load icon %s" % self.icon_name)
                     #Last resort: Try the non icon-naming-spec compliant icon
                     self.icon_name = "gtk-missing-image"
-                    info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, 16, 0)
-                    self.icon = info.load_icon()
+                    info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, size, 0)
+                    self.icon[size] = info.load_icon()
                     self.icon_path = info.get_filename()
 
-        return self.icon
+        return self.icon[size]
+
+    def get_descriptive_icon(self):
+
+        #  ___
+        # |   |___
+        # |___|___|
+        #
+
+        #The descriptive icon is two icons composited side by side. On the left
+        #is the dataprovider icon, on the right an arrow indicating its type
+        #size of each icon
+        isize = 24
+        asize = isize
+        bwidth = isize + asize
+        bheight = max(isize, asize)
+
+        if self.descriptiveIcon is None:
+            if self.module_type in ["source", "sink", "twoway"]:
+                try:
+                    icon = self.get_icon(isize)
+                    arrowName = self.module_type+"-icon"
+                    arrow = gtk.icon_theme_get_default().load_icon(arrowName, asize, 0)
+
+                    #Composite the arrow to the right of the icon
+                    dest = gtk.gdk.Pixbuf(
+                                    colorspace=gtk.gdk.COLORSPACE_RGB,
+                                    has_alpha=True,
+                                    bits_per_sample=8,
+                                    width=bwidth,
+                                    height=bheight
+                                    )
+                    dest.fill(0)
+
+                    #Composite the icon on the left
+                    icon.composite(
+                                dest=dest,
+                                dest_x=0,           #right of icon
+                                dest_y=0,           #at the top
+                                dest_width=isize,   #use whole arrow 1:1
+                                dest_height=isize,  #ditto
+                                offset_x=0,
+                                offset_y=0,
+                                scale_x=1,
+                                scale_y=1,
+                                interp_type=gtk.gdk.INTERP_NEAREST,
+                                overall_alpha=255
+                                )
+                    #Arrow on the right
+                    arrow.composite(
+                                dest=dest,
+                                dest_x=isize,       #right of icon
+                                dest_y=0,           #at the top
+                                dest_width=asize,   #use whole arrow 1:1
+                                dest_height=asize,  #ditto
+                                offset_x=isize,     #move self over to the right
+                                offset_y=0,
+                                scale_x=1,
+                                scale_y=1,
+                                interp_type=gtk.gdk.INTERP_NEAREST,
+                                overall_alpha=255
+                                )
+                    self.descriptiveIcon = dest
+                except gobject.GError, err:
+                    print "PENIS", err
+            
+            elif self.module_type == "category":
+                return self.get_icon(isize)
+    
+        return self.descriptiveIcon
         
     def __str__(self):
         return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_unique_identifier())

@@ -27,7 +27,7 @@ class Canvas(goocanvas.CanvasView):
     INITIAL_HEIGHT = 450
     CANVAS_WIDTH = 450
     CANVAS_HEIGHT = 600
-    WELCOME_MESSAGE = _("Drag a Source or Sink here to continue")
+    WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
 
     def __init__(self):
         """
