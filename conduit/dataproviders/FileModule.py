@@ -144,8 +144,8 @@ class FileSource(DataProvider.DataSource):
             logging.debug("Got URI %s" % i)
             
     def put(self, vfsFile, vfsFileOnTopOf=None):
-	DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)        
-	#This is a two way capable datasource, so it also implements the put
+    	DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)        
+    	#This is a two way capable datasource, so it also implements the put
         #method.
         if vfsFileOnTopOf:
             logging.debug("File Source: put %s -> %s" % (vfsFile.URI, vfsFileOnTopOf.URI))
@@ -161,7 +161,7 @@ class FileSource(DataProvider.DataSource):
         DataProvider.DataSource.get(self, index)
         return File.File(self.allURIs[index])
 
-    def get_num_items(index):
+    def get_num_items(self, index):
         DataProvider.DataSource.get_num_items(self)
         return len(self.allURIs)
 
