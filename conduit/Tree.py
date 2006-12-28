@@ -308,7 +308,9 @@ class DataProviderTreeView(gtk.TreeView):
         """
         gtk.TreeView.__init__(self, model)
         self.set_property("enable-search", False)
-        self.set_property("enable-tree-lines", True)
+        #FIXME: Work around a (py)gtk 2.8 bug
+        if gtk.pygtk_version >= (2,10,0):
+            self.set_property("enable-tree-lines", True)
         
         #First column is an image and name
         pixbufRenderer = gtk.CellRendererPixbuf()
@@ -347,8 +349,9 @@ class DataProviderTreeView(gtk.TreeView):
         self.connect('drag-data-delete', self.on_drag_data_delete)
 
     def expand_all(self):
-        #FIXME: This used to cause the GUI to hang. Now it doesnt... curious
-        gtk.TreeView.expand_all(self)
+        #FIXME: Work around a (py)gtk 2.8 bug
+        if gtk.pygtk_version >= (2,10,0):
+            gtk.TreeView.expand_all(self)
         
     def on_drag_begin(self, treeview, context):
         pass
