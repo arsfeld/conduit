@@ -39,7 +39,13 @@ class iPodFactory(Module.DataProviderFactory):
             self.hal = kwargs["hal"]
             self.hal.connect("ipod-added", self._ipod_added)
 
+    def probe(self):
+        """ Probe for iPod's that are already attached """
+        for device_type, udi, mount, name in self.hal.get_all_ipods():
+            self._ipod_added(None, udi, mount, name)
+
     def _ipod_added(self, hal, udi, mount, name):
+        """ New iPod has been discovered """
         cat = DataProvider.DataProviderCategory(
                     name,
                     "multimedia-player-ipod-video-white",
@@ -52,12 +58,7 @@ class iPodFactory(Module.DataProviderFactory):
                     cat)             # Category..
 
     def get_all_modules(self):
-        """
-        Iterate through all the currently connected ipods and signal that one is added
-        """
-        for device_type, udi, mount, name in self.hal.get_all_ipods():
-            self._ipod_added(None, udi, mount, name)
-
+        self.probe()
         return []
 
 class IPodNoteTwoWay(TwoWay):
