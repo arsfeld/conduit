@@ -171,10 +171,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                 fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
                                 )                                    
     
-        #We need some way to tell the canvas that we are a dataprovider
-        #and not a conduit
-        self.set_data("is_a_dataprovider",True)
-        
+       
         #Add all the visual elements which represent a dataprovider    
         self.add_child(box)
         self.add_child(name)

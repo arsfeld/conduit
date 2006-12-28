@@ -51,9 +51,6 @@ class Canvas(goocanvas.CanvasView):
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         
-        #set callback to catch new element creation so we can set events
-        self.connect("item_view_created", self.on_item_view_created)
-        
         self.typeConverter = None        
         #keeps a reference to the currently selected (most recently clicked)
         #canvas item
@@ -66,11 +63,6 @@ class Canvas(goocanvas.CanvasView):
         #canvas and so on
         self.conduits = []
         
-        #save so that the appropriate signals can be connected and so that
-        #other parts of the program can get a ref to the clicked item
-        self.newelement = None
-        self.newconduit = None
-        
         #Show a friendly welcome message on the canvas the first time the
         #application is launched
         self.welcomeMessage = None
@@ -82,7 +74,15 @@ class Canvas(goocanvas.CanvasView):
 
         #FIXME: When more testing is complete, this can be removed
         self.disableTwoWaySync = True
-        
+
+    def _connect_dataprovider_signals(self, dataproviderWrapper):
+        view = self.get_item_view(dataproviderWrapper.module)
+        view.connect("button_press_event",  self.on_dataprovider_button_press, dataproviderWrapper)
+
+    def _connect_conduit_signals(self, conduit):
+        view = self.get_item_view(conduit)
+        view.connect("button_press_event",  self.on_conduit_button_press, conduit)
+
     def set_type_converter(self, typeConverter):
         """
         Saves the typeconver as it is needed to determine whether a syncronisation
@@ -212,22 +212,23 @@ class Canvas(goocanvas.CanvasView):
         @param user_data_dataprovider_wrapper: The dpw that was clicked
         @type user_data_dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
-        
         if event.type == gtk.gdk.BUTTON_PRESS:
-            #tell the canvas we recieved the click (needed for configure and 
-            #delete operations
             self.selected_dataprovider_wrapper = user_data_dataprovider_wrapper
             if event.button == 1:
                 return True
             elif event.button == 3:
-                #Only show the menu if the dataprovider isnt already
-                #busy being sync'd
-                if not self.selected_dataprovider_wrapper.module.is_busy():
+                #Dont show menu if the dp is just a placeholder
+                if self.selected_dataprovider_wrapper.enabled == False:
+                    return True
+                #Dont show the menu if the dp is bust
+                elif self.selected_dataprovider_wrapper.module.is_busy():
+                    return True
+                else:
                     self.dataproviderMenu.popup(
                                                 None, None, 
                                                 None, event.button, event.time
                                                 )
-                return True
+                    return True
                 
             
     def on_conduit_button_press(self, view, target, event, user_data_conduit):
@@ -235,8 +236,6 @@ class Canvas(goocanvas.CanvasView):
         Handle button clicks on conduits
         """
         if event.type == gtk.gdk.BUTTON_PRESS:
-            #tell the canvas we recieved the click (needed for cut, 
-            #copy, past, configure operations
             self.selected_conduit = user_data_conduit
             if event.button == 1:
                 return True
@@ -276,15 +275,12 @@ class Canvas(goocanvas.CanvasView):
                 if c.has_dataprovider(pending):
                     #delete old one
                     c.delete_dataprovider_from_conduit(pending)
-                    #save so that the appropriate signals can be connected
-                    #FIXME: Stupid pygoocanvas and MV split. I cannot connect
-                    #the appropriate signals.... Dont know why
-                    #self.newconduit = wrapper
                     #add new one
-                    #c.add_dataprovider_to_conduit(wrapper)
+                    c.add_dataprovider_to_conduit(wrapper)
+                    self._connect_dataprovider_signals(wrapper)
             del self.pendingDataprovidersToAdd[key]
     
-    def add_dataprovider_to_canvas(self, key, module, x, y):
+    def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """
         Adds a new dataprovider to the Canvas
         
@@ -301,14 +297,11 @@ class Canvas(goocanvas.CanvasView):
         """
         #If module is None we instead add a placeholder dataprovider and
         #add the proper DP when it becomes available via callback
-        if module == None:
+        if dataproviderWrapper == None:
             logging.info("Dataprovider %s unavailable. Adding pending its availability" % key)
-            self.newelement = PendingDataproviderWrapper(key)
+            dataproviderWrapper = PendingDataproviderWrapper(key)
             #Store the pending element so it can be removed later            
-            self.pendingDataprovidersToAdd[key] = self.newelement
-        else:
-            #save so that the appropriate signals can be connected
-            self.newelement = module
+            self.pendingDataprovidersToAdd[key] = dataproviderWrapper
 
         #delete the welcome message
         self.delete_welcome_message()
@@ -321,7 +314,7 @@ class Canvas(goocanvas.CanvasView):
         #or whether a new one shoud be created
         c = self.get_conduit_at_coordinate(y)
         if c is not None:
-            c.add_dataprovider_to_conduit(self.newelement)
+            c.add_dataprovider_to_conduit(dataproviderWrapper)
             #Update to connectors to see if they are valid
             if self.typeConverter is not None:
                 c.update_connectors_connectedness(self.typeConverter)
@@ -332,12 +325,17 @@ class Canvas(goocanvas.CanvasView):
             #check and remove graphical overlap
             c.connect("conduit-resized", self.remove_conduit_overlap)
             #add the dataprovider to the conduit
-            c.add_dataprovider_to_conduit(self.newelement)
+            c.add_dataprovider_to_conduit(dataproviderWrapper)
             #save so that the appropriate signals can be connected
-            self.newconduit = c
+            #self.newconduit = c
             #now add to root element
             self.root.add_child(c)
+            #connect signals
+            self._connect_conduit_signals(c)
             self.conduits.append(c)
+
+        #connect signals
+        self._connect_dataprovider_signals(dataproviderWrapper)
 
         return c
             
@@ -368,16 +366,6 @@ class Canvas(goocanvas.CanvasView):
         #Add the welcome message if we have deleted the last conduit
         self.add_welcome_message()
         
-    def on_item_view_created(self, view, itemview, item):
-        """
-        on_item_view_created
-        """
-        if isinstance(item, goocanvas.Group):
-            if item.get_data("is_a_dataprovider") == True:
-                itemview.connect("button_press_event",  self.on_dataprovider_button_press, self.newelement)
-            elif item.get_data("is_a_conduit") == True:
-                itemview.connect("button_press_event",  self.on_conduit_button_press, self.newconduit)
-
     def add_welcome_message(self):
         """
         Adds a friendly welcome message to the canvas.
@@ -443,7 +431,6 @@ class PendingDataProvider(goocanvas.Group):
                     radius_x=DataProvider.RECTANGLE_RADIUS
                     )
         self.add_child(box)
-        self.set_data("is_a_dataprovider",True)
 
     def get_widget_dimensions(self):
         return DataProvider.WIDGET_WIDTH, DataProvider.WIDGET_HEIGHT

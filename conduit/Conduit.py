@@ -46,8 +46,6 @@ class Conduit(goocanvas.Group, gobject.GObject):
         #a conduit can hold one datasource and many datasinks (wrappers)
         self.datasource = None
         self.datasinks = []
-        #We need some way to tell the canvas that we are a conduit
-        self.set_data("is_a_conduit",True)
         #unfortunately we need to keep track of the current canvas 
         #position of all canvas items from this one
         self.positions = {}
