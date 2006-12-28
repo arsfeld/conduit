@@ -57,10 +57,6 @@ class iPodFactory(Module.DataProviderFactory):
                     (mount,),        # Init args
                     cat)             # Category..
 
-    def get_all_modules(self):
-        self.probe()
-        return []
-
 class IPodNoteTwoWay(TwoWay):
 
     _name_ = _("Notes")

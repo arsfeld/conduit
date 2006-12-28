@@ -67,9 +67,7 @@ class ModuleManager(gobject.GObject):
 
         for i in self.dataproviderFactories:
             i.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
-            mods = i.get_all_modules()
-            for wrapper, klass in mods:
-                self._append_module(wrapper, klass)
+            i.probe()
 
         self.emit('all-modules-loaded')
 
@@ -330,7 +328,7 @@ class DataProviderFactory(gobject.GObject):
     def emit_removed(self, klass, initargs, category=None):
         logging.warn("DataProviderFactory.emit_removed() Not Implemented")
 
-    def get_all_modules(self):
-        return []
+    def probe(self):
+        pass
 
 
