@@ -170,6 +170,8 @@ class GtkView(dbus.service.Object):
         """
         if dataprovider.enabled == True:
             self.dataproviderTreeModel.add_dataprovider(dataprovider)
+            new = self.moduleManager.get_new_module_instance(dataprovider.get_key())
+            self.canvas.check_pending_dataproviders(new)
 
     def on_synchronize_all_clicked(self, widget):
         """
@@ -408,16 +410,13 @@ class GtkView(dbus.service.Object):
         """
         DND
         """
-        moduleClassName = selection.data
+        dataproviderKey = selection.data
         #FIXME: DnD should be cancelled in the Treeview on the drag-begin 
         #signal and NOT here
-        if moduleClassName != "ImACategoryNotADataprovider":
-            #logging.info("DND RX = %s" % (module_name))        
-            #Add a new instance if the dataprovider to the canvas. It is up to the
-            #canvas to decide if multiple instances of the specific provider are allowed
-            new = self.moduleManager.get_new_module_instance(moduleClassName)
-            if new != None:
-                self.canvas.add_dataprovider_to_canvas(new, x, y)
+        if dataproviderKey != "":
+            #Add a new instance if the dataprovider to the canvas.
+            new = self.moduleManager.get_new_module_instance(dataproviderKey)
+            self.canvas.add_dataprovider_to_canvas(dataproviderKey, new, x, y)
         
         context.finish(True, True, etime)
         return

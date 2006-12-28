@@ -282,7 +282,7 @@ class Settings(gobject.GObject):
             source = conduit.datasource
             if source is not None:
                 sourcexml = doc.createElement("datasource")
-                sourcexml.setAttribute("classname", source.classname)
+                sourcexml.setAttribute("key", source.get_key())
                 conduitxml.appendChild(sourcexml)
                 #Store source settings
                 configurations = source.module.get_configuration()
@@ -293,7 +293,7 @@ class Settings(gobject.GObject):
             sinksxml = doc.createElement("datasinks")
             for sink in conduit.datasinks:
                 sinkxml = doc.createElement("datasink")
-                sinkxml.setAttribute("classname", sink.classname)
+                sinkxml.setAttribute("key", sink.get_key())
                 sinksxml.appendChild(sinkxml)
                 #Store sink settings
                 configurations = sink.module.get_configuration()
@@ -338,21 +338,21 @@ class Settings(gobject.GObject):
                     settings[s.localName] = data
             return settings
             
-        def restore_dataprovider(dpClassname, dpSettings, x, y):
+        def restore_dataprovider(wrapperKey, dpSettings, x, y):
             """
             Adds the dataprovider back onto the canvas at the specifed
             location and configures it with the given settings
             
             @returns: The conduit the dataprovider was restored to
             """
-            #logging.debug("Restoring %s to (x=%s,y=%s)" % (dpClassname,x,y))
+            #logging.debug("Restoring %s to (x=%s,y=%s)" % (wrapperKey,x,y))
             conduit = None
-            dpWrapper = mainWindow.moduleManager.get_new_module_instance(dpClassname)
-            if dpWrapper is not None:
-                dpWrapper.module.set_configuration(dpSettings)
-                conduit = mainWindow.canvas.add_dataprovider_to_canvas(dpWrapper, x, y)
-            else:
-                logging.warn("Could not restore %s to (x=%s,y=%s)" % (dpClassname,x,y))
+            wrapper = mainWindow.moduleManager.get_new_module_instance(wrapperKey)
+            if wrapper is not None:
+                wrapper.module.set_configuration(dpSettings)
+            conduit = mainWindow.canvas.add_dataprovider_to_canvas(wrapperKey, wrapper, x, y)
+            #else:
+            #    logging.warn("Could not restore %s to (x=%s,y=%s)" % (wrapperKey,x,y))
             return conduit
 
         #Check the file exists
@@ -382,21 +382,21 @@ class Settings(gobject.GObject):
                     conduit = None
                     #one datasource
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
-                        classname = i.getAttribute("classname")
+                        key = i.getAttribute("key")
                         settings = get_settings(i)
                         #add to canvas
-                        if len(classname) > 0:
-                            conduit = restore_dataprovider(classname,settings,x,y)
+                        if len(key) > 0:
+                            conduit = restore_dataprovider(key,settings,x,y)
                     #many datasinks
                     elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
                         #each datasink
                         for sink in i.childNodes:
                             if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
-                                classname = sink.getAttribute("classname")
+                                key = sink.getAttribute("key")
                                 settings = get_settings(sink)
                                 #add to canvas
-                                if len(classname) > 0:
-                                    conduit = restore_dataprovider(classname,settings,x,y)
+                                if len(key) > 0:
+                                    conduit = restore_dataprovider(key,settings,x,y)
 
                     #restore conduit specific settings
                     if conduit != None:

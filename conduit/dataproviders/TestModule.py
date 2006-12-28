@@ -226,13 +226,17 @@ class TestFactory(Module.DataProviderFactory):
         Module.DataProviderFactory.__init__(self, **kwargs)
 
         #callback the GUI in 5 seconds to add a new dataprovider
-        gobject.timeout_add(5000, self.make_one)
+        gobject.timeout_add(4000, self.make_one)
+        gobject.timeout_add(7000, self.make_two)
         
     def make_one(self, *args):
         self.emit_added(
                 klass=TestDynamicSource,
                 initargs=("Foo",), 
                 category=DataProvider.CATEGORY_TEST)
+        return False
+
+    def make_two(self, *args):
         self.emit_added(
                 klass=TestDynamicSource,
                 initargs=("Bar","Baz"), 

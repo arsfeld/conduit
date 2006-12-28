@@ -17,6 +17,10 @@ import conduit
 import conduit.DataProvider as DataProvider
 from conduit.ModuleWrapper import ModuleWrapper
 
+DND_TARGETS = [
+    ('conduit/element-name', 0, 0)
+    ]
+
 class CategoryWrapper(ModuleWrapper):
     """
     Represents a category stored in the treemodel. Not generally intended 
@@ -209,7 +213,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         #reinstantiate new dataproviders
         elif column is 3:
             if self._is_category_heading(rowref):
-                return "ImACategoryNotADataprovider"
+                return ""
             else:
                 return rowref.get_key()
         #Used internally from the TreeView to see if this is a category heading
@@ -298,9 +302,6 @@ class DataProviderTreeView(gtk.TreeView):
     """
     Handles DND of DataProviders onto canvas
     """
-    DND_TARGETS = [
-    ('conduit/element-name', 0, 0)
-    ]
     def __init__(self, model):
         """
         Constructor
@@ -336,10 +337,10 @@ class DataProviderTreeView(gtk.TreeView):
         # DND info:
         # drag
         self.enable_model_drag_source(  gtk.gdk.BUTTON1_MASK,
-                                        DataProviderTreeView.DND_TARGETS,
+                                        DND_TARGETS,
                                         gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
         self.drag_source_set(           gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                                        DataProviderTreeView.DND_TARGETS,
+                                        DND_TARGETS,
                                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         #self.connect('drag-begin', self.on_drag_begin)
         self.connect('drag-data-get', self.on_drag_data_get)

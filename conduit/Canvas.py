@@ -15,8 +15,10 @@ from gettext import gettext as _
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
-import conduit.Tree as Tree
-import conduit.Conduit as Conduit
+from conduit.Conduit import Conduit
+from conduit.Tree import DND_TARGETS
+from conduit.ModuleWrapper import ModuleWrapper
+
 
 class Canvas(goocanvas.CanvasView):
     """
@@ -45,7 +47,7 @@ class Canvas(goocanvas.CanvasView):
 
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                        Tree.DataProviderTreeView.DND_TARGETS,
+                        DND_TARGETS,
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         
@@ -72,6 +74,11 @@ class Canvas(goocanvas.CanvasView):
         #Show a friendly welcome message on the canvas the first time the
         #application is launched
         self.welcomeMessage = None
+
+        #Keep a list of dataproviders that could not be added because they
+        #were unavailable, and should instead be added when they become
+        #available (via callback)
+        self.pendingDataprovidersToAdd = {}
 
         #FIXME: When more testing is complete, this can be removed
         self.disableTwoWaySync = True
@@ -256,24 +263,55 @@ class Canvas(goocanvas.CanvasView):
         """
         for c in self.conduits:
             c.resize_conduit_width(new_w)
+
+    def check_pending_dataproviders(self, wrapper):
+        """
+        Foo
+        """
+        key = wrapper.get_key()
+        if key in self.pendingDataprovidersToAdd:
+            logging.debug("SWAPPING OUT")
+            for c in self.conduits:
+                pending = self.pendingDataprovidersToAdd[key]
+                if c.has_dataprovider(pending):
+                    #delete old one
+                    c.delete_dataprovider_from_conduit(pending)
+                    #save so that the appropriate signals can be connected
+                    #FIXME: Stupid pygoocanvas and MV split. I cannot connect
+                    #the appropriate signals.... Dont know why
+                    #self.newconduit = wrapper
+                    #add new one
+                    #c.add_dataprovider_to_conduit(wrapper)
+            del self.pendingDataprovidersToAdd[key]
     
-    def add_dataprovider_to_canvas(self, module, x, y):
+    def add_dataprovider_to_canvas(self, key, module, x, y):
         """
         Adds a new dataprovider to the Canvas
         
         @param module: The dataprovider wrapper to add to the canvas
-        @type module: L{conduit.Module.ModuleWrapper}
+        @type module: L{conduit.Module.ModuleWrapper}. If this is None then
+        a placeholder should be added (which will get replaced later if/when
+        the actual dataprovider becomes available. 
+        See self.pendingDataprovidersToAdd
         @param x: The x location on the canvas to place the module widget
         @type x: C{int}
         @param y: The y location on the canvas to place the module widget
         @type y: C{int}
         @returns: The conduit that the dataprovider was added to
         """
+        #If module is None we instead add a placeholder dataprovider and
+        #add the proper DP when it becomes available via callback
+        if module == None:
+            logging.info("Dataprovider %s unavailable. Adding pending its availability" % key)
+            self.newelement = PendingDataproviderWrapper(key)
+            #Store the pending element so it can be removed later            
+            self.pendingDataprovidersToAdd[key] = self.newelement
+        else:
+            #save so that the appropriate signals can be connected
+            self.newelement = module
+
         #delete the welcome message
         self.delete_welcome_message()
-        
-        #save so that the appropriate signals can be connected
-        self.newelement = module
         
         #determine the vertical location of the conduit to be created
         offset = self.get_bottom_of_conduits_coord()
@@ -283,18 +321,18 @@ class Canvas(goocanvas.CanvasView):
         #or whether a new one shoud be created
         c = self.get_conduit_at_coordinate(y)
         if c is not None:
-            c.add_dataprovider_to_conduit(module)
+            c.add_dataprovider_to_conduit(self.newelement)
             #Update to connectors to see if they are valid
             if self.typeConverter is not None:
                 c.update_connectors_connectedness(self.typeConverter)
         else:
             #create the new conduit
-            c = Conduit.Conduit(offset,c_w)
+            c = Conduit(offset,c_w)
             #connect to the conduit resized signal which signals us to 
             #check and remove graphical overlap
             c.connect("conduit-resized", self.remove_conduit_overlap)
             #add the dataprovider to the conduit
-            c.add_dataprovider_to_conduit(module)
+            c.add_dataprovider_to_conduit(self.newelement)
             #save so that the appropriate signals can be connected
             self.newconduit = c
             #now add to root element
@@ -389,3 +427,54 @@ class Canvas(goocanvas.CanvasView):
         if disable == True:
             for conduit in self.conduits:
                 conduit.disable_two_way_sync()
+
+class PendingDataProvider(goocanvas.Group):
+    def __init__(self):
+        goocanvas.Group.__init__(self)
+        box = goocanvas.Rect(   
+                    x=0, 
+                    y=0, 
+                    width=DataProvider.WIDGET_WIDTH, 
+                    height=DataProvider.WIDGET_HEIGHT,
+                    line_width=DataProvider.LINE_WIDTH, 
+                    stroke_color="black",
+                    fill_color_rgba=DataProvider.TANGO_COLOR_ALUMINIUM1_LIGHT, 
+                    radius_y=DataProvider.RECTANGLE_RADIUS, 
+                    radius_x=DataProvider.RECTANGLE_RADIUS
+                    )
+        self.add_child(box)
+        self.set_data("is_a_dataprovider",True)
+
+    def get_widget_dimensions(self):
+        return DataProvider.WIDGET_WIDTH, DataProvider.WIDGET_HEIGHT
+
+    def get_status_text(self):
+        return "Pending"
+
+    def is_busy(self):
+        return False
+
+    def get_configuration(self):
+        return {}
+
+class PendingDataproviderWrapper(ModuleWrapper):
+    def __init__(self, key):
+        ModuleWrapper.__init__(
+                    self,
+                    "name", 
+                    "description",
+                    "icon_name", 
+                    "twoway",               #twoway so can placehold as source or sink
+                    "category", 
+                    "in_type",
+                    "out_type",
+                    key.split(':')[0],
+                    (),
+                    PendingDataProvider(),
+                    False)                  #enabled = False so a sync is not performed
+        self.key = key
+
+    def get_key(self):
+        return self.key
+
+

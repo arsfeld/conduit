@@ -285,7 +285,11 @@ class Conduit(goocanvas.Group, gobject.GObject):
 
         #Connect to the signal which is fired when dataproviders change
         #their status (initialized, synchronizing, etc
-        dataprovider_wrapper.module.connect("status-changed", self.on_status_changed)
+        try:
+            dataprovider_wrapper.module.connect("status-changed", self.on_status_changed)
+        except TypeError:
+            #if the DP is a PendingDataProvider it doesnt have that signal
+            pass
 
         #----- STEP TWO ------------------------------------------------------        
         #now store the widget size and add to the conduit 
@@ -534,6 +538,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         #Can the conduit can now perform a two way sync if requested by the user?
         if not self.can_do_two_way_sync():
             self.disable_two_way_sync()
+
 
     def can_do_two_way_sync(self):
         """
