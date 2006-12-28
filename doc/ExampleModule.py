@@ -48,7 +48,7 @@ from gettext import gettext as _
 
 import logging
 import conduit
-from conduit.DataProvider import DataSource, DataProviderCategory, DataProviderSimpleConfigurator
+from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_WEB
 from conduit.datatypes import DataType
 import conduit.Exceptions as Exceptions
 
@@ -69,9 +69,9 @@ class MoinMoinDataSource(DataSource):
     @type self.pages: C{string}[]
     """
 
-    _name_ = _("GNOME Wiki Source")
+    _name_ = _("GNOME Wiki")
     _description_ = _("Get Pages from the GNOME Wiki")
-    _category_ = DataProviderCategory("MoinMoin", "applications-internet")
+    _category_ = CATEGORY_WEB
     _module_type_ = "source"
     _in_type_ = "wikipage"
     _out_type_ = "wikipage"
