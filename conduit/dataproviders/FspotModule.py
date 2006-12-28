@@ -20,8 +20,8 @@ MODULES = {
 
 class FspotSource(DataProvider.DataSource):
 
-    _name_ = _("Fspot Photos")
-    _description_ = _("Source for Fspot Photos")
+    _name_ = _("F-Spot Photos")
+    _description_ = _("Sync your F-Spot photos")
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
     _in_type_ = "taggedfile"

@@ -20,8 +20,8 @@ MODULES = {
 
 class TomboyNoteSource(DataProvider.DataSource):
 
-    _name_ = _("Tomboy Source")
-    _description_ = _("Source for synchronizing Tomboy Notes")
+    _name_ = _("Tomboy Notes")
+    _description_ = _("Sync your Tomboy notes")
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
     _in_type_ = "note"

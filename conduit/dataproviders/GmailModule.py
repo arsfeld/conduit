@@ -30,6 +30,8 @@ MODULES = {
 	"EmailSinkConverter" :  { "type": "converter" }
 }
 
+GOOGLE_CAT = DataProvider.DataProviderCategory("Google", "applications-internet")
+
 class GmailBase(DataProvider.DataProviderBase):
     """
     Simple wrapper to share gmail login stuff
@@ -57,7 +59,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
     _name_ = _("Email")
     _description_ = _("Sync your Gmail Emails")
-    _category_ = DataProvider.CATEGORY_GOOGLE
+    _category_ = GOOGLE_CAT
     _module_type_ = "twoway"
     _in_type = "email"
     _out_type = "email"
@@ -306,7 +308,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
     _name_ = _("Contacts")
     _description_ = _("Sync your Gmail Contacts")
-    _category_ = DataProvider.CATEGORY_GOOGLE
+    _category_ = GOOGLE_CAT
     _module_type_ = "twoway"
     _in_type_ = "contact"
     _out_type_ = "contact"

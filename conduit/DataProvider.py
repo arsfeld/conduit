@@ -68,12 +68,9 @@ class DataProviderCategory:
         self.icon = icon
         self.key = name + key
 
-CATEGORY_LOCAL = DataProviderCategory("Local", "computer")
+CATEGORY_LOCAL = DataProviderCategory("On This Computer", "computer")
 CATEGORY_REMOTE = DataProviderCategory("Remote", "network-server")
-CATEGORY_WEB = DataProviderCategory("Web", "applications-internet")
-CATEGORY_GOOGLE = DataProviderCategory("Google", "applications-internet")
-CATEGORY_IPOD = DataProviderCategory("iPod", "multimedia-player-ipod-video-white")
-CATEGORY_USB = DataProviderCategory("USB", "drive-removable-media")
+CATEGORY_WEB = DataProviderCategory("On The Web", "applications-internet")
 CATEGORY_TEST = DataProviderCategory("Test")
 
 class DataProviderBase(goocanvas.Group, gobject.GObject):

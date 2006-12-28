@@ -37,8 +37,8 @@ MODULES = {
 
 class FlickrSink(DataProvider.DataSink):
 
-    _name_ = "Flickr Sink"
-    _description_ = "Your Photos"
+    _name_ = "Flickr"
+    _description_ = "Sync Your Flickr.com Photos"
     _category_ = DataProvider.CATEGORY_WEB
     _module_type_ = "sink"
     _in_type_ = "taggedfile"

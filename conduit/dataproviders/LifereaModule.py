@@ -22,8 +22,8 @@ MODULES = {
 
 class LifereaSource(DataProvider.DataSource):
 
-    _name_ = _("Liferea")
-    _description_ = _("Sync your liferea feeds")
+    _name_ = _("Liferea Feeds")
+    _description_ = _("Sync your liferea RSS feeds")
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
     _in_type_ = "feed"
