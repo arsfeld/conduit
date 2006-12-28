@@ -161,7 +161,7 @@ class FileSource(DataProvider.DataSource):
         DataProvider.DataSource.get(self, index)
         return File.File(self.allURIs[index])
 
-    def get_num_items(self, index):
+    def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
         return len(self.allURIs)
 
