@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libleaftag
+Description: Generic URI tagging library
+Version: 0.0.1
+Libs: -L${libdir} -lleaftag -pthread -ledata-book-1.2 -lebook-1.2 -ledata-cal-1.2 -lecal-1.2 -lgnome-2 -lpopt -ledataserver-1.2 -lgnomevfs-2 -lgobject-2.0 -lxml2 -lgconf-2 -lbonobo-2 -lbonobo-activation -lORBit-2 -lm -lgmodule-2.0 -ldl -lgthread-2.0 -lglib-2.0  
+Cflags: -I${includedir} -DORBIT2=1 -pthread -I/usr/include/libgnome-2.0 -I/usr/include/libbonobo-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/orbit-2.0 -I/usr/include/gconf/2 -I/usr/include/gnome-vfs-2.0 -I/usr/lib/gnome-vfs-2.0/include -I/usr/include/bonobo-activation-2.0 -I/usr/include/evolution-data-server-1.8 -I/usr/include/libxml2  

@@ -1,0 +1,9 @@
+
+[Anjuta]
+Geometry=1014x689+0+25
+
+[File Loader]
+Files=file:///home/john/Projects/evo/src/evo-environment.h#21%%%file:///home/john/Projects/evo/src/evo-environment.c#83%%%file:///home/john/Projects/evo/src/main.c#63%%%file:///home/john/Projects/evo/src/evo-addressbook.c#110%%%file:///home/john/Projects/evo/src/evo-addressbook.h#5
+
+[Execution]
+Run in terminal=2

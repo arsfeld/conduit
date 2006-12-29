@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libleaftag
+Description: Generic URI tagging library
+Version: @VERSION@
+Libs: -L${libdir} -lleaftag @PACKAGE_LIBS@
+Cflags: -I${includedir} @PACKAGE_CFLAGS@
