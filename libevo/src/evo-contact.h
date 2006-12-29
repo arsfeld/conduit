@@ -14,40 +14,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef EVO_ENVIRONMENT_H
-#define EVO_ENVIRONMENT_H
+#ifndef EVO_CONTACT_H
+#define EVO_CONTACT_H
 
-#include <stdio.h>
-#include <string.h>
-
-#include <glib.h>
-#include <glib-object.h>
-
-#include <libecal/e-cal.h>
-#include <libebook/e-book.h>
-#include <libebook/e-vcard.h>
-
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#include <pango/pango.h>
+#include "evo-environment.h"
 
 G_BEGIN_DECLS
 
-typedef struct evo2_location {
-	char *name;
-	char *uri;
-} evo_location_t;
-
-typedef enum evo_contact_change_type {
-	CHANGE_ADDED,
-	CHANGE_MODIFIED,
-	CHANGE_DELETED
-} evo_change_t;
-
-GList *evo_environment_list_calendars();
-GList *evo_environment_list_tasks();
-GList *evo_environment_list_addressbooks();
-ESource *evo_environment_find_source(ESourceList *list, char *uri);
+char *evo_contact_get_vcard_string(EContact *obj);
+char *evo_contact_get_name(EContact *obj);
+char *evo_contact_get_uid(EContact *obj);
+GdkPixbuf *evo_contact_get_photo (EContact *contact, gint pixbuf_size);
 
 G_END_DECLS
 
-#endif /* EVO_ENVIRONMENT_H */
+#endif /* EVO_CONTACT_H */

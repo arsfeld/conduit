@@ -59,7 +59,8 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libevo_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_libevo_la_OBJECTS = evo-environment.lo evo-addressbook.lo
+am_libevo_la_OBJECTS = evo-environment.lo evo-addressbook.lo \
+	evo-contact.lo
 libevo_la_OBJECTS = $(am_libevo_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -187,11 +188,13 @@ evoincdir = $(includedir)/libevo
 lib_LTLIBRARIES = libevo.la
 evoinc_HEADERS = \
 	evo-environment.h \
-	evo-addressbook.h
+	evo-addressbook.h \
+	evo-contact.h 
 
 libevo_la_SOURCES = \
 	evo-environment.c \
-	evo-addressbook.c
+	evo-addressbook.c \
+	evo-contact.c 
 
 libevo_la_LIBADD = $(PACKAGE_LIBS)
 INCLUDES = \
@@ -268,6 +271,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evo-addressbook.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evo-contact.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/evo-environment.Plo@am__quote@
 
 .c.o:

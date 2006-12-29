@@ -21,10 +21,18 @@
 
 G_BEGIN_DECLS
 
+static EContactField search_fields[] = { E_CONTACT_FULL_NAME, E_CONTACT_EMAIL, E_CONTACT_NICKNAME, 0 };
+static int n_search_fields = G_N_ELEMENTS (search_fields) - 1;
+
+/* Private */
+static EBookQuery *create_query (const char* s);
+static GArray *split_query_string (const gchar *str);
+static gboolean commit_contact(EBook *book, EContact *contact, evo_change_t change);
+
+/* Public */
 EBook *evo_addressbook_open(evo_location_t *location);
-char *evo_addressbook_get_contact_vcard_string(EContact *contact);
 GList *evo_addressbook_get_all_contacts(EBook *addressbook);
-GList *evo_addressbook_get_all_contacts_vcards(EBook *addressbook);
+GList *evo_addressbook_free_text_search(EBook *book, const char *query);
 
 G_END_DECLS
 

@@ -222,7 +222,35 @@ evo-environment.lo evo-environment.o: evo-environment.c evo-environment.h \
   /usr/include/evolution-data-server-1.8/libebook/e-book-query.h \
   /usr/include/evolution-data-server-1.8/libebook/e-book-view.h \
   /usr/include/evolution-data-server-1.8/libebook/e-book-view-listener.h \
-  /usr/include/evolution-data-server-1.8/libebook/e-book-types.h
+  /usr/include/evolution-data-server-1.8/libebook/e-book-types.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-features.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-core.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-transform.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-animation.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-simple-anim.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-io.h \
+  /usr/include/glib-2.0/gmodule.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-loader.h \
+  /usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-enum-types.h \
+  /usr/include/pango-1.0/pango/pango.h \
+  /usr/include/pango-1.0/pango/pango-attributes.h \
+  /usr/include/pango-1.0/pango/pango-font.h \
+  /usr/include/pango-1.0/pango/pango-coverage.h \
+  /usr/include/pango-1.0/pango/pango-types.h \
+  /usr/include/pango-1.0/pango/pango-break.h \
+  /usr/include/pango-1.0/pango/pango-item.h \
+  /usr/include/pango-1.0/pango/pango-context.h \
+  /usr/include/pango-1.0/pango/pango-fontmap.h \
+  /usr/include/pango-1.0/pango/pango-fontset.h \
+  /usr/include/pango-1.0/pango/pango-engine.h \
+  /usr/include/pango-1.0/pango/pango-glyph.h \
+  /usr/include/pango-1.0/pango/pango-script.h \
+  /usr/include/pango-1.0/pango/pango-enum-types.h \
+  /usr/include/pango-1.0/pango/pango-layout.h \
+  /usr/include/pango-1.0/pango/pango-glyph-item.h \
+  /usr/include/pango-1.0/pango/pango-tabs.h \
+  /usr/include/pango-1.0/pango/pango-renderer.h
 
 evo-environment.h:
 
@@ -743,3 +771,59 @@ evo-environment.h:
 /usr/include/evolution-data-server-1.8/libebook/e-book-view-listener.h:
 
 /usr/include/evolution-data-server-1.8/libebook/e-book-types.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-features.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-core.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-transform.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-animation.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-simple-anim.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-io.h:
+
+/usr/include/glib-2.0/gmodule.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-loader.h:
+
+/usr/include/gtk-2.0/gdk-pixbuf/gdk-pixbuf-enum-types.h:
+
+/usr/include/pango-1.0/pango/pango.h:
+
+/usr/include/pango-1.0/pango/pango-attributes.h:
+
+/usr/include/pango-1.0/pango/pango-font.h:
+
+/usr/include/pango-1.0/pango/pango-coverage.h:
+
+/usr/include/pango-1.0/pango/pango-types.h:
+
+/usr/include/pango-1.0/pango/pango-break.h:
+
+/usr/include/pango-1.0/pango/pango-item.h:
+
+/usr/include/pango-1.0/pango/pango-context.h:
+
+/usr/include/pango-1.0/pango/pango-fontmap.h:
+
+/usr/include/pango-1.0/pango/pango-fontset.h:
+
+/usr/include/pango-1.0/pango/pango-engine.h:
+
+/usr/include/pango-1.0/pango/pango-glyph.h:
+
+/usr/include/pango-1.0/pango/pango-script.h:
+
+/usr/include/pango-1.0/pango/pango-enum-types.h:
+
+/usr/include/pango-1.0/pango/pango-layout.h:
+
+/usr/include/pango-1.0/pango/pango-glyph-item.h:
+
+/usr/include/pango-1.0/pango/pango-tabs.h:
+
+/usr/include/pango-1.0/pango/pango-renderer.h:

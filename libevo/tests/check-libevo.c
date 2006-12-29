@@ -26,6 +26,7 @@
 
 #include "evo-environment.h"
 #include "evo-addressbook.h"
+#include "evo-contact.h"
 
 int
 main (int argc, char *argv[])
@@ -62,10 +63,17 @@ main (int argc, char *argv[])
 	loc.uri = "default";
 	
 	EBook *addressbook = evo_addressbook_open(&loc);
-	GList *list = evo_addressbook_get_all_contacts_vcards(addressbook);
+	GList *list = evo_addressbook_get_all_contacts(addressbook);
 	while(list != NULL)
 	{
-		printf("%s",(char *)list->data);
+		printf("Name: %s (UID: %s)\n",evo_contact_get_name(list->data), evo_contact_get_uid(list->data));
+		list = list->next;
+	}
+	
+	list = evo_addressbook_free_text_search(addressbook, "Sue Wilkinson");
+	while(list != NULL)
+	{
+		printf("Search: %s\n",evo_contact_get_name(list->data));
 		list = list->next;
 	}
 	

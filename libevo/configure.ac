@@ -16,7 +16,7 @@ AC_C_CONST
 AC_EXEEXT
 AM_PROG_LIBTOOL
 
-PKG_CHECK_MODULES(PACKAGE, [evolution-data-server-1.2 libedataserver-1.2 libebook-1.2 libecal-1.2])
+PKG_CHECK_MODULES(PACKAGE, [evolution-data-server-1.2 libedataserver-1.2 libebook-1.2 libecal-1.2 gdk-pixbuf-2.0 pango])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
