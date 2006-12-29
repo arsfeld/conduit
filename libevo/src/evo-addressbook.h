@@ -32,6 +32,7 @@ static gboolean commit_contact(EBook *book, EContact *contact, evo_change_t chan
 /* Public */
 EBook *evo_addressbook_open(evo_location_t *location);
 GList *evo_addressbook_get_all_contacts(EBook *addressbook);
+gboolean evo_addressbook_get_changed_contacts(EBook *addressbook, GList *added, GList *modified, GList *deleted, char *change_id);
 GList *evo_addressbook_free_text_search(EBook *book, const char *query);
 
 G_END_DECLS

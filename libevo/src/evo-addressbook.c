@@ -194,19 +194,18 @@ evo_addressbook_get_all_contacts(EBook *addressbook)
 	return changes;
 }
 
-GList *
-evo_addressbook_get_changed_contacts(EBook *addressbook, char *change_id)
+gboolean 
+evo_addressbook_get_changed_contacts(EBook *addressbook, GList *added, GList *modified, GList *deleted, char *change_id)
 {
 
 	GList *changes = NULL;
 	EBookChange *ebc = NULL;
-	EVCard vcard;
 	GList *l = NULL;
 	char *uid = NULL;
 	
 	if (!e_book_get_changes(addressbook, change_id, &changes, NULL)) {
 			g_warning("Unable to open changed contacts");
-			return NULL;
+			return FALSE;
 	}
 	
 	g_debug("Found %i changes for change-ID %s", g_list_length(changes), change_id);
@@ -219,24 +218,18 @@ evo_addressbook_get_changed_contacts(EBook *addressbook, char *change_id)
 		switch (ebc->change_type) 
 		{
 			case E_BOOK_CHANGE_CARD_ADDED:
-					vcard = ebc->contact->parent;
-					//data = e_vcard_to_string(&vcard, EVC_FORMAT_VCARD_30);
-					//datasize = strlen(data) + 1;
-					//evo2_report_change(ctx, "contact", "vcard30", data, datasize, uid, CHANGE_ADDED);
+					added = g_list_prepend(added, ebc->contact);
 					break;
 				case E_BOOK_CHANGE_CARD_MODIFIED:
-					//vcard = ebc->contact->parent;
-					//data = e_vcard_to_string(&vcard, EVC_FORMAT_VCARD_30);
-					//datasize = strlen(data) + 1;
-					//evo2_report_change(ctx, "contact", "vcard30", data, datasize, uid, CHANGE_MODIFIED);
+					modified = g_list_prepend(modified, ebc->contact);
 					break;
 				case E_BOOK_CHANGE_CARD_DELETED:
-					//evo2_report_change(ctx, "contact", "vcard30", NULL, 0, uid, CHANGE_DELETED);
+					deleted = g_list_prepend(deleted, ebc->contact);
 					break;
 		}
 		g_free(uid);
 	}
-	return NULL;
+	return TRUE;
 }
 
 /*
