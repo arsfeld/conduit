@@ -3,8 +3,8 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
-Name: libleaftag
-Description: Generic URI tagging library
+Name: libevo
+Description: Easy to use binding to Evolution Data Server
 Version: @VERSION@
-Libs: -L${libdir} -lleaftag @PACKAGE_LIBS@
+Libs: -L${libdir} -llibevo @PACKAGE_LIBS@
 Cflags: -I${includedir} @PACKAGE_CFLAGS@
