@@ -135,7 +135,7 @@ class ModuleWrapper:
                     info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, size, 0)
                     self.icon[size] = info.load_icon()
                     self.icon_path = info.get_filename()
-                except gobject.GError:
+                except:
                     self.icon[size] = None
                     logging.error("Could not load icon %s" % self.icon_name)
                     #Last resort: Try the non icon-naming-spec compliant icon
@@ -207,7 +207,7 @@ class ModuleWrapper:
                                 overall_alpha=255
                                 )
                     self.descriptiveIcon = dest
-                except gobject.GError, err:
+                except:
                     pass
             
             elif self.module_type == "category":

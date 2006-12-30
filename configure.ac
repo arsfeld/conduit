@@ -47,7 +47,7 @@ AM_PATH_PYTHON(2.4)
 AM_CHECK_PYTHON_HEADERS(,[AC_MSG_ERROR(could not find Python headers)])
 
 dnl ****************************************************************************
-dnl * Write the values of various paths in defs.py
+dnl * Write the values of various paths for start_conduit.py
 dnl ****************************************************************************
 AC_SUBST(VERSION)
 AC_SUBST(PACKAGE)
@@ -82,23 +82,23 @@ AC_SUBST(CONDUIT_CFLAGS)
 AC_SUBST(CONDUIT_LIBS)
 
 dnl ****************************************************************************
-dnl * DISABLED Check for things in contrib
+dnl * Check for neccessary python modules (that dont install pc files)
 dnl ****************************************************************************
-dnl AC_MSG_CHECKING([for FIXME module])
-dnl if AC_RUN_LOG([$PYTHON -c '
-dnl try:
-dnl     import gnomeapplet
-dnl except ImportError, e:
-dnl     if str(e).find("FIXME") >= 0:
-dnl           raise
-dnl except:
-dnl     pass
-dnl ']); then
-dnl   AC_MSG_RESULT([yes])
-dnl else
-dnl   AC_MSG_RESULT([no])
-dnl   AC_MSG_ERROR([FIXME Python module required to build conduit])
-dnl fi
+AC_MSG_CHECKING([for vobject module])
+if AC_RUN_LOG([$PYTHON -c '
+try:
+    import vobject
+except ImportError, e:
+    if str(e).find("vobject") >= 0:
+          raise
+except:
+    pass
+']); then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([Python module vobject required to run conduit])
+fi
 
 dnl ****************************************************************************
 dnl * Check for evolution's libebook to build the evolution handler
@@ -173,7 +173,6 @@ dnl ****************************************************************************
 AC_OUTPUT([
 Makefile
 conduit/Makefile
-conduit/defs.py
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
 conduit/evolution/Makefile

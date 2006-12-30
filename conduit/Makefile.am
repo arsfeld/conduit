@@ -4,16 +4,18 @@ if ENABLE_EVOLUTION
 SUBDIRS += evolution
 endif
 	
-#start_conduit: start_conduit.py
-#	sed -e "s|\@PYTHONDIR\@|$(pythondir)/conduit|" $< > $@
-#conduitbindir = $(libdir)/conduit
+start_conduit: start_conduit.py
+	sed -e "s|\@PYTHONDIR\@|$(pythondir)/conduit|" \
+		-e "s|\@VERSION\@|$(VERSION)|" \
+		-e "s|\@PKGDATADIR\@|$(PKGDATADIR)|" \
+		-e "s|\@PKGLIBDIR\@|$(PKGLIBDIR)|" \
+	$< > $@
 
 conduitbindir = $(bindir)
-conduitbin_SCRIPTS = start_conduit.py
+conduitbin_SCRIPTS = start_conduit
 
 conduitdir = $(pythondir)/conduit
 conduit_PYTHON = \
-	defs.py \
 	__init__.py \
 	Canvas.py \
 	Conduit.py \
@@ -36,16 +38,14 @@ conduit_PYTHON = \
 	VolumeMonitor.py
 
 	
-#BUILT_SOURCES = \
-#	start_conduit
+BUILT_SOURCES = \
+	start_conduit
 	
-#CLEANFILES = \
-#	$(BUILT_SOURCES)
+CLEANFILES = \
+	$(BUILT_SOURCES)
 	
 DISTCLEANFILES = \
-	defs.py 
-#	$(CLEANFILES)
+	$(CLEANFILES)
 	
 EXTRA_DIST = \
-	defs.py.in \
 	start_conduit.py

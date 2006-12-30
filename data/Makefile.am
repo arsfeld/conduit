@@ -21,7 +21,22 @@ pkgconfig_DATA = $(pkgconfig_in_files:.pc.in=.pc)
 # ******************************************************************************
 resourcesdir = $(pkgdatadir)
 resources_DATA = \
-	foo.glade
+	conduit.glade \
+	backpack.png \
+	conduit-icon.png \
+	conduit-splash.png \
+	conflict-left.png \
+	conflict-right.png \
+	conflict-skip.png \
+	conflict-twoway.png \
+	feed-icon.png \
+	f-spot.png \
+	liferea.png \
+	sink-icon.png \
+	source-icon.png \
+	tomboy.png \
+	twoway-icon.png
+
 
 conduitbindir = $(libdir)/conduit
 

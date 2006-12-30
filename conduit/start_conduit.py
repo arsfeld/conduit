@@ -23,23 +23,25 @@ import os.path
 # Check if the given path looks like the conduit parent path
 # Add the parent dir of conduit to the python path if so
 name = os.path.join(os.path.dirname(__file__), '..')
-if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(os.path.join(name,"conduit","ChangeLog")):
+if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(os.path.join(name,"ChangeLog")):
     sys.path.insert(0, os.path.abspath(name))
     import conduit
-    conduit.IS_INSTALLED = False
-    conduit.SHARED_DATA_DIR =  os.path.join(os.path.abspath(name),"conduit","data")
-    conduit.GLADE_FILE =  os.path.join(os.path.abspath(name),"conduit","data","conduit.glade")
-    conduit.SHARED_MODULE_DIR =  os.path.join(os.path.abspath(name),"conduit")
-    conduit.EXTRA_LIB_DIR = os.path.join(os.path.abspath(name),"contrib")
+    conduit.IS_INSTALLED =          False
+    conduit.SHARED_DATA_DIR =       os.path.join(os.path.abspath(name),"data")
+    conduit.GLADE_FILE =            os.path.join(os.path.abspath(name),"data","conduit.glade")
+    conduit.SHARED_MODULE_DIR =     os.path.join(os.path.abspath(name),"conduit")
+    conduit.EXTRA_LIB_DIR =         os.path.join(os.path.abspath(name),"contrib")
 else:
+    #Support alternate install paths   
+    if not '@PYTHONDIR@' in sys.path:
+        sys.path.insert(0, '@PYTHONDIR@')
     import conduit
-    import conduit.defs
     conduit.IS_INSTALLED =          True
-    conduit.APPVERSION =            conduit.defs.VERSION
-    conduit.SHARED_DATA_DIR =       conduit.defs.PKGDATA_DIR
-    conduit.GLADE_FILE =            os.path.join(conduit.defs.PKGDATA_DIR, "conduit.glade")
-    conduit.SHARED_MODULE_DIR =     conduit.defs.PKGLIB_DIR
-    conduit.EXTRA_LIB_DIR =         os.path.join(conduit.defs.PKGLIB_DIR, "contrib")
+    conduit.APPVERSION =            '@VERSION@'
+    conduit.SHARED_DATA_DIR =       os.path.abspath('@PKGDATADIR@')
+    conduit.GLADE_FILE =            os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
+    conduit.SHARED_MODULE_DIR =     os.path.abspath('@PKGLIBDIR@')
+    conduit.EXTRA_LIB_DIR =         os.path.join(conduit.SHARED_MODULE_DIR, "contrib")
 
 conduit.log("Conduit Installed: %s" % conduit.IS_INSTALLED)
 conduit.log("Log Level: %s" % conduit.LOG_LEVEL)

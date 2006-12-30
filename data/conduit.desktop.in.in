@@ -7,6 +7,6 @@ _Name=Conduit
 _GenericName=Conduit Synchronizer
 _Comment=Synchronization for GNOME
 Icon=conduit-icon.png
-Exec=@BINDIR@/start_conduit.py
+Exec=@BINDIR@/start_conduit
 Categories=Application;System;GTK
 
