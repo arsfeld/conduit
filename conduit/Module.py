@@ -193,7 +193,7 @@ class ModuleManager(gobject.GObject):
                                         getattr(klass, "_name_", ""),
     	                                getattr(klass, "_description_", ""),
                                         getattr(klass, "_icon_", ""),
-                                        getattr(klass, "_module_type_", ""),
+                                        getattr(klass, "_module_type_", infos["type"]),
     	                                getattr(klass, "_category_", CATEGORY_TEST),
     	                                getattr(klass, "_in_type_", ""),
     	                                getattr(klass, "_out_type_", ""),
