@@ -5,14 +5,6 @@
 #include <string.h>
 #include "evolution.h"
 
-typedef struct _Handler_And_Data {
-	SearchAsyncHandler  handler;
-	gpointer            user_data;
-	GList              *hits;
-	int                 max_results_remaining;
-	int                 book_views_remaining;
-} Handler_And_Data;
-
 static GSList *books = NULL;
 static int pixbuf_size = 16;
 
@@ -24,6 +16,7 @@ free_hit (Hit *h, gpointer unused)
 {
     g_free (h->text);
     g_free (h->email);
+    g_free (h->uid);
     g_free (h);
 }
 
@@ -132,65 +125,6 @@ pixbuf_from_contact (EContact *contact)
 	return pixbuf;
 }
 
-static void
-view_finish (EBookView *book_view, Handler_And_Data *had)
-{
-	SearchAsyncHandler had_handler = had->handler;
-	GList *had_hits = had->hits;
-	gpointer had_user_data = had->user_data;
-	g_free (had);
-
-	g_return_if_fail (book_view != NULL);
-	g_object_unref (book_view);
-
-	had_handler (had_hits, had_user_data);
-}
-
-static void
-view_contacts_added_cb (EBookView *book_view, GList *contacts, gpointer user_data)
-{
-	Handler_And_Data *had = (Handler_And_Data *) user_data;
-	if (had->max_results_remaining <= 0) {
-		e_book_view_stop (book_view);
-		had->book_views_remaining--;
-		if (had->book_views_remaining == 0) {
-			view_finish (book_view, had);
-			return;
-		}
-	}
-	for (; contacts != NULL; contacts = g_list_next (contacts)) {
-		EContact *contact;
-		Hit *hit;
-
-		contact = E_CONTACT (contacts->data);
-		hit = g_new (Hit, 1);
-		hit->email = g_strdup ((char*) e_contact_get_const (contact, E_CONTACT_EMAIL_1));
-		hit->text = g_strdup_printf ("%s <%s>", (char*)e_contact_get_const (contact, E_CONTACT_NAME_OR_ORG), hit->email);
-		hit->pixbuf = pixbuf_from_contact (contact);
-
-		had->hits = g_list_append (had->hits, hit);
-		had->max_results_remaining--;
-		if (had->max_results_remaining <= 0) {
-			e_book_view_stop (book_view);
-			had->book_views_remaining--;
-			if (had->book_views_remaining == 0) {
-				view_finish (book_view, had);
-			}
-			break;
-		}
-	}
-}
-
-static void
-view_completed_cb (EBookView *book_view, EBookViewStatus status, gpointer user_data)
-{
-	Handler_And_Data *had = (Handler_And_Data *) user_data;
-	had->book_views_remaining--;
-	if (had->book_views_remaining == 0) {
-		view_finish (book_view, had);
-	}
-}
-
 void
 init (void)
 {
@@ -269,40 +203,6 @@ set_pixbuf_size (int size)
 	pixbuf_size = size;
 }
 
-void
-search_async (const char         *query,
-              int                 max_results,
-              SearchAsyncHandler  handler,
-              gpointer            user_data)
-{
-	GSList *iter;
-
-	EBookQuery* book_query = create_query (query);
-
-	Handler_And_Data *had = g_new (Handler_And_Data, 1);
-	had->handler = handler;
-	had->user_data = user_data;
-	had->hits = NULL;
-	had->max_results_remaining = max_results;
-	had->book_views_remaining = 0;
-	for (iter = books; iter != NULL; iter = iter->next) {
-		EBook *book = (EBook *) iter->data;
-		EBookView *book_view = NULL;
-		e_book_get_book_view (book, book_query, NULL, max_results, &book_view, NULL);
-		if (book_view != NULL) {
-			had->book_views_remaining++;
-			g_signal_connect (book_view, "contacts_added", (GCallback) view_contacts_added_cb, had);
-			g_signal_connect (book_view, "sequence_complete", (GCallback) view_completed_cb, had);
-			e_book_view_start (book_view);
-		}
-	}
-	if (had->book_views_remaining == 0) {
-		g_free (had);
-	}
-
-	e_book_query_unref (book_query);
-}
-
 /*
  * Note: you may get a message "WARNING **: FIXME: wait for completion unimplemented"
  * if you call search_sync but are not running the gobject main loop.
@@ -331,6 +231,7 @@ search_sync (const char *query,
 			hit = g_new (Hit, 1);
 			hit->email = g_strdup ((char*) e_contact_get_const (contact, E_CONTACT_EMAIL_1));
 			hit->text = g_strdup ((char*) e_contact_get_const (contact, E_CONTACT_NAME_OR_ORG));
+			hit->uid = g_strdup ((char*) e_contact_get_const (contact, E_CONTACT_UID));
 			hit->pixbuf = pixbuf_from_contact (contact);
 
 			hits = g_list_append (hits, hit);

@@ -32,17 +32,6 @@
   )
 )
 
-(define-function search_async
-  (c-name "search_async")
-  (return-type "none")
-  (parameters
-    '("const-char*" "query")
-    '("int" "max_results")
-    '("SearchAsyncHandler" "handler")
-    '("gpointer" "user_data")
-  )
-)
-
 (define-function search_sync
   (c-name "search_sync")
   (return-type "GList*")

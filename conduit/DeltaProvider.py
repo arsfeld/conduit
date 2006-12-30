@@ -48,7 +48,7 @@ class DeltaProvider(DataProvider.TwoWay):
                 self.changes.append(obj)
 
         # these are the UID's that are no longer in the dp - they must have been deleted!
-        for r in [r for r in self.db if r not in self.accessed]
+        for r in [r for r in self.db if r not in self.accessed]:
             obj = DataType.DataType()
             obj.set_UID(self.db[r]['LUID'])
             obj.change_type = CHANGE_DELETED
