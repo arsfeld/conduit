@@ -97,7 +97,7 @@ class IPodNoteTwoWay(TwoWay):
         return self.notes[index]
 
     def put(self, note, noteOnTopOf=None):
-        DataSink.put(self, note, noteOnTopOf)
+        TwoWay.put(self, note, noteOnTopOf)
         open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
         
     def finish(self):
@@ -143,7 +143,7 @@ class IPodContactsTwoWay(TwoWay):
         return self.contacts[index]
 
     def put(self, contact, contactOnTopOf=None):
-        DataSink.put(self, contact, contactOnTopOf)
+        TwoWay.put(self, contact, contactOnTopOf)
         
     def finish(self):
         self.notes = None
