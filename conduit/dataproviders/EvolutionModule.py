@@ -2,6 +2,8 @@ import conduit
 import conduit.evolution as evo
 import conduit.DataProvider as DataProvider
 
+import conduit.datatypes.Contact as Contact
+
 MODULES = {
 	"EvoContactSource" : { "type": "dataprovider" }	
 }
@@ -18,16 +20,29 @@ class EvoContactSource(DataProvider.DataSource):
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-              
+        self.contacts = None
+      
     def refresh(self):
         DataProvider.DataSource.refresh(self)
+        self.contacts = []
+
         #API USAGE EXAMPLE
-        books = evo.list_addressbooks()
-        print "AVAILABLE ADDRESSBOOKS: ",books
+        #books = evo.list_addressbooks()
+        #print "AVAILABLE ADDRESSBOOKS: ",books
+        
         book = evo.open_addressbook('default')
-        print "AVAILABLE CONTACTS"
         for i in book.get_all_contacts():
-            #PROPERTY ACCESS            
-            print i.get_property("name-or-org")
-            #PRINTS TO VCARD
-            #print i.get_vcard_string()
+            contact = Contact.Contact()
+            contact.readVCard(i.get_vcard_string())
+            self.contacts.append(contact)
+
+    def get_num_items(self):
+        DataProvider.DataSource.get_num_items(self)
+        return len(self.contacts)
+
+    def get(self, index):
+        DataProvider.DataSource.get(self, index)
+        return self.contacts[index]
+
+    def finish(self):
+        self.contacts = None
