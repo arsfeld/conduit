@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+dataprovidersdir=@libdir@/conduit/dataproviders
+artdir=@datadir@/conduit/art
+
+Name: Conduit DataProviders Location
+Description: Providing the location of Conduit system-wide DataProviders.
+Requires: pygtk-2.0
+Version: @VERSION@

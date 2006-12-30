@@ -1,0 +1,53 @@
+;; -*- scheme -*-
+; object definitions ...
+;; Enumerations and flags ...
+
+
+;; From evolution.h
+
+(define-function free_hit
+  (c-name "free_hit")
+  (return-type "none")
+  (parameters
+    '("Hit*" "hit")
+    '("gpointer" "unused")
+  )
+)
+
+(define-function init
+  (c-name "init")
+  (return-type "none")
+)
+
+(define-function num_address_books_with_completion
+  (c-name "num_address_books_with_completion")
+  (return-type "int")
+)
+
+(define-function set_pixbuf_size
+  (c-name "set_pixbuf_size")
+  (return-type "none")
+  (parameters
+    '("int" "size")
+  )
+)
+
+(define-function search_async
+  (c-name "search_async")
+  (return-type "none")
+  (parameters
+    '("const-char*" "query")
+    '("int" "max_results")
+    '("SearchAsyncHandler" "handler")
+    '("gpointer" "user_data")
+  )
+)
+
+(define-function search_sync
+  (c-name "search_sync")
+  (return-type "GList*")
+  (parameters
+    '("const-char*" "query")
+    '("int" "max_results")
+  )
+)

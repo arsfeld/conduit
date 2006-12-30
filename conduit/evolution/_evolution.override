@@ -1,0 +1,170 @@
+/* -*- Mode: C; c-basic-offset: 4 -*- */
+%%
+headers
+#include <Python.h>
+
+#define NO_IMPORT_PYGOBJECT
+#include "pygobject.h"
+
+#include <evolution.h>
+
+typedef struct _Search_Handler_User_Data {
+	PyObject *handler;
+	PyObject *args;
+} Search_Handler_User_Data;
+
+static PyObject *
+hits_as_python_object (GList *hits)
+{
+	PyObject *result;
+	int i;
+
+	if ((result = PyList_New (g_list_length (hits))) == NULL)
+		return NULL;
+
+	i = 0;
+	for (; hits != NULL; hits = hits->next) {
+		Hit *hit = (Hit *) hits->data;
+		PyObject *t = PyTuple_New (3);
+		if (hit->text == NULL) {
+			Py_INCREF (Py_None);
+			PyTuple_SET_ITEM (t, 0, Py_None);
+		} else {
+			PyTuple_SET_ITEM (t, 0, PyString_FromString(hit->text));
+		}
+		
+		if (hit->email == NULL) {
+			Py_INCREF (Py_None);
+			PyTuple_SET_ITEM (t, 1, Py_None);
+		} else {
+			PyTuple_SET_ITEM (t, 1, PyString_FromString(hit->email));
+		}
+		
+		if (hit->pixbuf == NULL) {
+			Py_INCREF (Py_None);
+			PyTuple_SET_ITEM (t, 2, Py_None);
+		} else {
+			PyTuple_SET_ITEM (t, 2, pygobject_new ((GObject*) hit->pixbuf));
+		}
+
+		PyList_SET_ITEM (result, i, t);
+		i++;
+	}
+	return result;
+}
+
+static void
+handler_c_func (GList *hits, gpointer user_data)
+{
+	int args_length;
+	PyObject *hits_and_args;
+	PyObject *hits_apo;
+	int i;
+	PyGILState_STATE gstate;
+	Search_Handler_User_Data *ud = (Search_Handler_User_Data *) user_data;
+
+	gstate = PyGILState_Ensure();
+
+	hits_apo = hits_as_python_object (hits);
+
+	args_length = PyTuple_Size (ud->args);
+	hits_and_args = PyTuple_New (1 + args_length);
+	PyTuple_SET_ITEM (hits_and_args, 0, hits_apo);
+	g_list_foreach (hits, (GFunc) free_hit, NULL);
+	g_list_free (hits);
+
+	for (i = 0; i < args_length; i++) {
+		PyObject *element = PyTuple_GET_ITEM (ud->args, i);
+		PyTuple_SET_ITEM (hits_and_args, 1 + i, element);
+	}
+	Py_XDECREF (ud->args);
+
+	PyObject *result = PyEval_CallObject (ud->handler, hits_and_args);
+	if (result == NULL) {
+		if (PyErr_Occurred ()) {
+			PyErr_Print ();
+		}
+	} else {
+		Py_DECREF (result);
+	}
+	Py_XDECREF (hits_apo);
+	Py_XDECREF (hits_and_args);
+	Py_XDECREF (ud->handler);
+	g_free (ud);
+	PyGILState_Release(gstate);
+}
+
+%%
+modulename _evolution
+%%
+%%
+ignore-glob
+	init
+	free_*
+	*_get_type
+%%
+override search_async kwargs 
+static PyObject*
+_wrap_search_async (PyGObject *self, PyObject *args, PyObject *kwargs) 
+{
+	guint len;
+	PyObject *first;
+	char *query = NULL;
+	int max_results;
+	PyObject *handler;
+	PyObject *extra_args;
+	Search_Handler_User_Data *user_data;
+
+	len = PyTuple_Size (args);
+	if (len < 3) {
+		PyErr_SetString (PyExc_TypeError, "search_async requires at least 3 arguments");
+		return NULL;
+	}
+	first = PySequence_GetSlice (args, 0, 3);
+	if (!PyArg_ParseTuple (first, "Osi:search_async", &handler, &query, &max_results)) {
+		Py_XDECREF (first);
+		return NULL;
+	}
+	Py_XDECREF(first);
+
+	if (!PyCallable_Check (handler)) {
+		PyErr_SetString (PyExc_TypeError, "search_async: 1st argument must be callable");
+		return NULL;
+	}
+
+	extra_args = PySequence_GetSlice (args, 1, len);
+	if (extra_args == NULL) {
+		return NULL;
+	}
+	
+	user_data = g_new (Search_Handler_User_Data, 1);
+	user_data->handler = handler;
+	user_data->args = extra_args;
+	Py_XINCREF (handler);
+	Py_XINCREF (extra_args);
+	search_async (query, max_results, &handler_c_func, user_data);
+
+	Py_INCREF (Py_None);
+	return Py_None;
+}
+%%
+override search_sync kwargs 
+static PyObject*
+_wrap_search_sync (PyGObject *self, PyObject *args, PyObject *kwargs) 
+{
+	char *query;
+	int max_results;
+	GList *hits;
+	PyObject *hits_apo;
+
+	if (!PyArg_ParseTuple (args, "si:search_sync", &query, &max_results)) {
+		return NULL;
+	}
+
+	hits = search_sync (query, max_results);
+	hits_apo = hits_as_python_object (hits);
+	g_list_foreach (hits, (GFunc) free_hit, NULL);
+	g_list_free (hits);
+
+	return hits_apo;
+}

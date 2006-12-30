@@ -33,12 +33,13 @@ if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(os.path.join(
     conduit.EXTRA_LIB_DIR = os.path.join(os.path.abspath(name),"contrib")
 else:
     import conduit
-    conduit.IS_INSTALLED = True
-    #FIXME: Autotools these paths.....
-    conduit.SHARED_DATA_DIR =  "/usr/share/conduit/data"
-    conduit.GLADE_FILE =  "/usr/share/conduit/data/conduit.glade"
-    conduit.SHARED_MODULE_DIR =  "/usr/share/conduit"
-    conduit.EXTRA_LIB_DIR = "/usr/share/conduit/contrib"
+    import conduit.defs
+    conduit.IS_INSTALLED =          True
+    conduit.APPVERSION =            conduit.defs.VERSION
+    conduit.SHARED_DATA_DIR =       conduit.defs.PKGDATA_DIR
+    conduit.GLADE_FILE =            os.path.join(conduit.defs.PKGDATA_DIR, "conduit.glade")
+    conduit.SHARED_MODULE_DIR =     conduit.defs.PKGLIB_DIR
+    conduit.EXTRA_LIB_DIR =         os.path.join(conduit.defs.PKGLIB_DIR, "contrib")
 
 conduit.log("Conduit Installed: %s" % conduit.IS_INSTALLED)
 conduit.log("Log Level: %s" % conduit.LOG_LEVEL)
