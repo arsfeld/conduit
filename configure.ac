@@ -69,6 +69,9 @@ AC_SUBST(PKGLIBDIR)
 
 AS_AC_EXPAND(PYTHONDIR, $pythondir)
 AC_SUBST(PYTHONDIR)
+
+AS_AC_EXPAND(BINDIR, $bindir)
+AC_SUBST(BINDIR)
 		
 dnl ****************************************************************************
 dnl * PyGTK & co for Gnome Streamer
