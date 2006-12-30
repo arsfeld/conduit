@@ -1,5 +1,5 @@
 import conduit
-import conduit.evolution
+import conduit.evolution as evo
 import conduit.DataProvider as DataProvider
 
 MODULES = {
@@ -21,4 +21,13 @@ class EvoContactSource(DataProvider.DataSource):
               
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-        print conduit.evolution.search_sync("John", 10)
+        #API USAGE EXAMPLE
+        books = evo.list_addressbooks()
+        print "AVAILABLE ADDRESSBOOKS: ",books
+        book = evo.open_addressbook('default')
+        print "AVAILABLE CONTACTS"
+        for i in book.get_all_contacts():
+            #PROPERTY ACCESS            
+            print i.get_property("name-or-org")
+            #PRINTS TO VCARD
+            #print i.get_vcard_string()

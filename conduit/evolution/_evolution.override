@@ -2,51 +2,39 @@
 %%
 headers
 #include <Python.h>
-
-#define NO_IMPORT_PYGOBJECT
 #include "pygobject.h"
 
-#include <evolution.h>
+#include "override_common.h"
+
+#include <evo-environment.h>
+#include <evo-contact.h>
+#include <evo-addressbook.h>
 
 static PyObject *
-hits_as_python_object (GList *hits)
+wrap_glist_of_evo_locations(GList *locations)
 {
 	PyObject *result;
 	int i;
 
-	if ((result = PyList_New (g_list_length (hits))) == NULL)
+	if ((result = PyList_New (g_list_length (locations))) == NULL)
 		return NULL;
 
 	i = 0;
-	for (; hits != NULL; hits = hits->next) {
-		Hit *hit = (Hit *) hits->data;
-		PyObject *t = PyTuple_New (4);
-		if (hit->text == NULL) {
+	for (; locations != NULL; locations = locations->next) {
+		evo_location_t *path = (evo_location_t *) locations->data;
+		PyObject *t = PyTuple_New (2);
+		if (path->name == NULL) {
 			Py_INCREF (Py_None);
 			PyTuple_SET_ITEM (t, 0, Py_None);
 		} else {
-			PyTuple_SET_ITEM (t, 0, PyString_FromString(hit->text));
+			PyTuple_SET_ITEM (t, 0, PyString_FromString(path->name));
 		}
 		
-		if (hit->email == NULL) {
+		if (path->uri == NULL) {
 			Py_INCREF (Py_None);
 			PyTuple_SET_ITEM (t, 1, Py_None);
 		} else {
-			PyTuple_SET_ITEM (t, 1, PyString_FromString(hit->email));
-		}
-
-		if (hit->uid == NULL) {
-			Py_INCREF (Py_None);
-			PyTuple_SET_ITEM (t, 2, Py_None);
-		} else {
-			PyTuple_SET_ITEM (t, 2, PyString_FromString(hit->uid));
-		}
-
-		if (hit->pixbuf == NULL) {
-			Py_INCREF (Py_None);
-			PyTuple_SET_ITEM (t, 3, Py_None);
-		} else {
-			PyTuple_SET_ITEM (t, 3, pygobject_new ((GObject*) hit->pixbuf));
+			PyTuple_SET_ITEM (t, 1, PyString_FromString(path->uri));
 		}
 
 		PyList_SET_ITEM (result, i, t);
@@ -58,30 +46,54 @@ hits_as_python_object (GList *hits)
 %%
 modulename _evolution
 %%
+import gobject.GObject as PyGObject_Type  
 %%
 ignore-glob
 	init
 	free_*
 	*_get_type
 %%
-%%
-override search_sync kwargs 
+override evo_environment_list_calendars kwargs 
 static PyObject*
-_wrap_search_sync (PyGObject *self, PyObject *args, PyObject *kwargs) 
+_wrap_evo_environment_list_calendars(PyGObject *self, PyObject *args, PyObject *kwargs) 
 {
-	char *query;
-	int max_results;
-	GList *hits;
-	PyObject *hits_apo;
-
-	if (!PyArg_ParseTuple (args, "si:search_sync", &query, &max_results)) {
+    return wrap_glist_of_evo_locations(evo_environment_list_calendars());
+}
+%%
+override evo_environment_list_addressbooks kwargs 
+static PyObject*
+_wrap_evo_environment_list_addressbooks(PyGObject *self, PyObject *args, PyObject *kwargs) 
+{
+    return wrap_glist_of_evo_locations(evo_environment_list_addressbooks());
+}
+%%
+override evo_environment_list_tasks kwargs 
+static PyObject*
+_wrap_evo_environment_list_tasks(PyGObject *self, PyObject *args, PyObject *kwargs) 
+{
+    return wrap_glist_of_evo_locations(evo_environment_list_tasks());
+}
+%%
+override evo_addressbook_open kwargs 
+static PyObject*
+_wrap_evo_addressbook_open(PyGObject *self, PyObject *args, PyObject *kwargs) 
+{
+    char *uri;
+    EBook *book;
+    evo_location_t loc;
+    if (!PyArg_ParseTuple(args, "s",&uri))
+	{
 		return NULL;
 	}
-
-	hits = search_sync (query, max_results);
-	hits_apo = hits_as_python_object (hits);
-	g_list_foreach (hits, (GFunc) free_hit, NULL);
-	g_list_free (hits);
-
-	return hits_apo;
+    loc.uri = uri;
+    book = evo_addressbook_open(&loc);
+    return pygobject_new(G_OBJECT(book));
+}
+%%
+override evo_addressbook_get_all_contacts kwargs
+static PyObject*
+_wrap_evo_addressbook_get_all_contacts(PyGObject *self, PyObject *args, PyObject *kwargs) 
+{
+    GList *list = evo_addressbook_get_all_contacts(E_BOOK(self->obj));
+    return _helper_wrap_gobject_glist(list);
 }

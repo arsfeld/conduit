@@ -1,42 +1,92 @@
 ;; -*- scheme -*-
 ; object definitions ...
 ;; Enumerations and flags ...
+;;------------------------------------------------------------------------------
+;; Object Definitions
+;;------------------------------------------------------------------------------
+(define-object EContact
+  (in-module "_evolution")
+  (parent "EVCard")
+  (c-name "EContact")
+  (gtype-id "E_TYPE_CONTACT")
+)
+
+(define-object EVCard
+  (in-module "_evolution")
+  (parent "GObject")
+  (c-name "EVCard")
+  (gtype-id "E_TYPE_VCARD")
+)
+
+(define-object EBook
+  (in-module "_evolution")
+  (parent "GObject")
+  (c-name "EBook")
+  (gtype-id "E_TYPE_BOOK")
+)
 
 
-;; From evolution.h
-
-(define-function free_hit
-  (c-name "free_hit")
-  (return-type "none")
+;;------------------------------------------------------------------------------
+;; EVContact
+;;------------------------------------------------------------------------------
+(define-method get_vcard_string
+  (of-object "EContact")
+  (c-name "evo_contact_get_vcard_string")
+  (return-type "char*")
   (parameters
-    '("Hit*" "hit")
-    '("gpointer" "unused")
   )
 )
 
-(define-function init
-  (c-name "init")
-  (return-type "none")
-)
-
-(define-function num_address_books_with_completion
-  (c-name "num_address_books_with_completion")
-  (return-type "int")
-)
-
-(define-function set_pixbuf_size
-  (c-name "set_pixbuf_size")
-  (return-type "none")
+;;------------------------------------------------------------------------------
+;; EBook
+;;------------------------------------------------------------------------------
+(define-function e_book_new
+  (c-name "e_book_new")
+  (is-constructor-of "EBook")
+  (return-type "EBook*")
   (parameters
-    '("int" "size")
+    '("ESource*" "source")
+    '("GError**" "error")
   )
 )
 
-(define-function search_sync
-  (c-name "search_sync")
+(define-method get_all_contacts
+  (of-object "EBook")
+  (c-name "evo_addressbook_get_all_contacts")
   (return-type "GList*")
   (parameters
-    '("const-char*" "query")
-    '("int" "max_results")
   )
 )
+
+;;------------------------------------------------------------------------------
+;; evo-environment
+;;------------------------------------------------------------------------------
+(define-function list_calendars
+  (c-name "evo_environment_list_calendars")
+  (return-type "GList*")
+  (parameters
+  )
+)
+
+(define-function list_tasks
+  (c-name "evo_environment_list_tasks")
+  (return-type "GList*")
+  (parameters
+  )
+)
+
+(define-function list_addressbooks
+  (c-name "evo_environment_list_addressbooks")
+  (return-type "GList*")
+  (parameters
+  )
+)
+
+(define-function open_addressbook
+  (c-name "evo_addressbook_open")
+  (return-type "EBook*")
+  (parameters
+    '("evo_location_t*" "location")
+  )
+)
+

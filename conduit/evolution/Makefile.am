@@ -6,8 +6,14 @@ _evolution_la_LDFLAGS = -module -avoid-version -export-symbols-regex init_evolut
 _evolution_la_LIBADD = $(EVOLUTION_LIBS)
 _evolution_la_SOURCES = \
 	_evolutionmodule.c \
-	evolution.c \
-	evolution.h
+	override_common.c \
+	evo-environment.c \
+	evo-contact.c \
+	evo-addressbook.c \
+	override_common.h \
+	evo-environment.h \
+	evo-contact.h \
+	evo-addressbook.h
 
 nodist__evolution_la_SOURCES = _evolution.c
 

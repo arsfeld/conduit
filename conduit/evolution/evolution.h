@@ -1,9 +1,16 @@
 
-#ifndef __DESKBAR_EVOLUTION_H__
-#define __DESKBAR_EVOLUTION_H__
+#ifndef __CONDUIT_EVOLUTION_H__
+#define __CONDUIT_EVOLUTION_H__
 
+#include <glib.h>
+#include <glib/gstring.h>
 #include <glib/gtypes.h>
+#include <libebook/e-book.h>
+#include <libebook/e-vcard.h>
+#include <libebook/e-contact.h>
+#include <pango/pango.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <string.h>
 
 G_BEGIN_DECLS
 
@@ -25,5 +32,5 @@ GList * search_sync (const char *query,
 
 G_END_DECLS
 
-#endif /* __DESKBAR_EVOLUTION_H__ */
+#endif /* __CONDUIT_EVOLUTION_H__ */
 

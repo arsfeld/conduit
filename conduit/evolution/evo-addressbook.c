@@ -162,7 +162,6 @@ evo_addressbook_open(evo_location_t *location)
 			return NULL;
 		}
 	} else {
-		g_debug("Opening default addressbook\n");
 		if (!(addressbook = e_book_new_default_addressbook(&gerror))) {
 			g_warning("Failed to alloc new default addressbook: %s", gerror ? gerror->message : "None");
 			g_clear_error(&gerror);
@@ -176,8 +175,17 @@ evo_addressbook_open(evo_location_t *location)
 		g_object_unref(addressbook);
 		return NULL;
 	}
-	
-	return addressbook;
+
+    /*
+    GList *list = evo_addressbook_get_all_contacts(addressbook);
+	while(list != NULL)
+	{
+		printf("Name: %s (UID: %s)\n",evo_contact_get_name(list->data), evo_contact_get_uid(list->data));
+		list = list->next;
+	}
+    */
+    return addressbook;
+
 }
 
 GList *
