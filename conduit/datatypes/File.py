@@ -9,41 +9,22 @@ import tempfile
 import datetime
 import traceback
 
-def new_from_tempfile(contents, contentsAreText=True):
-    """
-    Returns a new File onject, which has been created in the 
-    system temporary directory, and that has been filled with
-    contents
-    
-    The file is closed when it is returned
-    
-    @param contents: The data to write into the file
-    @param contentsAreText: Indicates to the OS if the file is text (as opposed
-    to a binary type file
-    @param contentsAreText: C{bool}
-    """
-    fd, name = tempfile.mkstemp(text=contentsAreText)
-    os.write(fd, contents)
-    os.close(fd)
-    vfsFile = File(name)
-    return vfsFile
-    
 class File(DataType.DataType):
-    def __init__(self, uriString=None):
+    def __init__(self, **kwargs):
         DataType.DataType.__init__(self,"file")
-
-        self.URI = uriString            
+        self.URI = ""
+        self.basePath = ""
         self.vfsHandle = None
         self.fileInfo = None
         self.forceNewFilename = ""
         self.triedOpen = False
         self.fileExists = False
-        
-        #Ensure that the full URI is always stored in the URI
-        #cariable, i.e. including the schema
-        if uriString != None:
-            self.URI = gnomevfs.make_uri_canonical(uriString)
-        
+
+        if kwargs.has_key("uri"):
+            self.URI = gnomevfs.make_uri_canonical(kwargs["uri"])
+        if kwargs.has_key("basepath"):
+            self.basePath = kwargs["basepath"]
+
     def _open_file(self):
         """
         Opens the file. 
@@ -94,7 +75,7 @@ class File(DataType.DataType):
         expected that the caller will call get_local_uri, which will
         copy the file to that location, and return the new path
         """
-        if self.URI is None:
+        if self.URI == "":
             return False
         
         return gnomevfs.URI(self.URI).is_local
@@ -106,7 +87,7 @@ class File(DataType.DataType):
         if self.triedOpen:
             return self.fileExists
         else:
-            return gnomevfs.exists(self.get_uri_string())
+            return gnomevfs.exists(self.URI)
             
     def force_new_filename(self, filename):
         """
@@ -127,9 +108,6 @@ class File(DataType.DataType):
             #Why is gnomevfs so stupid and must I do this for
             #non local URIs??
             return gnomevfs.get_mime_type(self.URI)
-        
-    def get_uri_string(self):
-        return self.URI
         
     def get_modification_time(self):
         """
@@ -202,7 +180,7 @@ class File(DataType.DataType):
         Compare A with B based upon their modification times
         """
         #If B doesnt exist then A is clearly newer
-        if not gnomevfs.exists(B.get_uri_string()):
+        if not gnomevfs.exists(B.URI):
             return conduit.datatypes.COMPARISON_NEWER
 
         #Else look at the modification times
@@ -240,6 +218,12 @@ class File(DataType.DataType):
         else:
             logging.error("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
+
+    def get_UID(self):
+        """
+        For a file the URI is a correct representation of the LUID
+        """
+        return self.URI
             
 def TaggedFile(File):
     """

@@ -387,14 +387,14 @@ class DataSink(DataProviderBase):
         """    
         DataProviderBase.__init__(self, widgetColorRGBA)
 
-    def put(self, putData, onTopOf=None):
+    def put(self, putData, overwrite):
         """
         Stores data. The derived class is responsible for checking if putData
         conflicts. 
         
         In the case of a two-way datasource, the derived type should
-        consider the onTopOf parameter, which if present, should provide the
-        necesary information such that putData can replace (overwrite) it.
+        consider the overwrite parameter, which if True, should allow the dp
+        to replace a datatype instance if one is found at the existing location
 
         Derived classes should call this function to ensure the dataprovider
         status is updated.
@@ -402,9 +402,10 @@ class DataSink(DataProviderBase):
         @param putData: Data which to save
         @type putData: A L{conduit.DataType.DataType} derived type that this 
         dataprovider is capable of handling
-        @param onTopOf: If this argument is not none, the dataprovider should
-        ensure that putData replaces onTopOf (overwrites it). 
-        @type onTopOf: A L{conduit.DataType.DataType} derived type that this 
+        @param overwrite: If this argument is True, the DP should overwrite
+        an existing datatype instace (if one exists). Generally used in conflict
+        resolution. 
+        @type overwrite: C{bool}
         dataprovider is capable of handling        
         @raise conduit.Exceptions.SynchronizeConflictError: if there is a 
         conflict between the data being put, and that which it is overwriting 

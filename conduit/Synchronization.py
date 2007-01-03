@@ -270,9 +270,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 newdata = self._convert_data(sink, source.out_type, sink.in_type, data)
                 #store it 
                 if newdata != None:
-                    #Puts the data, providing it is newer
+                    #Attempts to put the data
                     try:
-                        sink.module.put(newdata, False)
+                        LUID = sink.module.put(newdata, False)
                     except Exceptions.SynchronizeConflictError, err:
                         self._resolve_conflict(source, sink, err.comparison, err.fromData, err.toData)
             except Exceptions.SyncronizeError, err:

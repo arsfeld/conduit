@@ -8,9 +8,11 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import os
+import tempfile
 import gnomevfs
 
 import logging
+from conduit.datatypes import File
 
 
 #Filename Manipulation
@@ -60,4 +62,52 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
                                 gnomevfs.XFER_DEFAULT,
                                 gnomevfs.XFER_ERROR_MODE_ABORT,
                                 mode)
+
+def new_tempfile(contents, contentsAreText=True):
+    """
+    Returns a new File onject, which has been created in the 
+    system temporary directory, and that has been filled with
+    contents
+    
+    The file is closed when it is returned
+    
+    @param contents: The data to write into the file
+    @param contentsAreText: Indicates to the OS if the file is text (as opposed
+    to a binary type file
+    @param contentsAreText: C{bool}
+    @returns: a L{conduit.datatypes.File}
+    """
+    fd, name = tempfile.mkstemp(text=contentsAreText)
+    os.write(fd, contents)
+    os.close(fd)
+    vfsFile = File.File(uri=name)
+    return vfsFile
+
+def flatten_list(x):
+    """flatten(sequence) -> list
+
+    Returns a single, flat list which contains all elements retrieved
+    from the sequence and all recursively contained sub-sequences
+    (iterables).
+
+    Examples:
+    >>> [1, 2, [3,4], (5,6)]
+    [1, 2, [3, 4], (5, 6)]
+    >>> flatten([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
+    [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""
+    result = []
+    for el in x:
+        if hasattr(el, "__iter__"):
+            result.extend(flatten_list(el))
+        else:
+            result.append(el)
+    return result
+
+def distinct_list(l):
+    """
+    Makes sure the items in l only appear once. l must be a 1D list of
+    hashable items (i.e. not contain other lists)
+    """
+    return dict.fromkeys(l).keys()
+
 

@@ -15,7 +15,7 @@ MODULES = {
 	"TestSink" :            { "type": "dataprovider" },
 	"TestTwoWay" :          { "type": "dataprovider" },
 	"TestSinkFailRefresh" : { "type": "dataprovider" },
-        "TestFactory" :         { "type": "dataprovider-factory" }
+    "TestFactory" :         { "type": "dataprovider-factory" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
@@ -137,8 +137,8 @@ class TestSink(TestBase, DataProvider.DataSink):
         TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
         
-    def put(self, data, dataOnTopOf=None):
-        DataProvider.DataSink.put(self, data, dataOnTopOf)
+    def put(self, data, overwrite):
+        DataProvider.DataSink.put(self, data, overwrite)
         if self.slow:
             time.sleep(1)    
         if self.count == self.errorAfter:
@@ -183,8 +183,8 @@ class TestTwoWay(DataProvider.TwoWay):
         logging.debug("TWO WAY: get() returned %s" % data)
         return data
 
-    def put(self, data, onTop=False):
-        DataProvider.TwoWay.put(self, data, onTop)
+    def put(self, data, overwrite):
+        DataProvider.TwoWay.put(self, data, overwrite)
         logging.debug("TWO WAY: put() %s" % data)
 
     def finish(self):

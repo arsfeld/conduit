@@ -67,12 +67,12 @@ class FlickrSink(DataProvider.DataSink):
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
         self.token = self.fapi.getToken(browser="gnome-www-browser -p", perms="write")
         
-    def put(self, photo, photoOnTop=None):
+    def put(self, photo, overwrite):
         """
         Accepts a vfs file. Must be made local.
         I also store a md5 of the photos uri to check for duplicates
         """
-        DataProvider.DataSink.put(self, photo, photoOnTop)
+        DataProvider.DataSink.put(self, photo, overwrite)
         
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
@@ -172,5 +172,5 @@ class TaggedFileConverter:
         return thefile
 
     def file_to_taggedfile(self, thefile):
-        return File.File(thefile.URI)
+        return File.File(uri=thefile.URI)
         

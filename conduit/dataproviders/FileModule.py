@@ -163,7 +163,6 @@ class _ScannerThreadManager:
             for thread in self.scanThreads.values():
                 try:
                     thread.join()
-                    self.allURIs += thread.URIs
                     joinedThreads += 1
                 except AssertionError: 
                     #deal with not started threads
@@ -379,9 +378,9 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                         gobject.TYPE_INT,       #Number of contained items
                         gobject.TYPE_BOOLEAN    #Has the folder been scanned (i.e. is the item count accurate)
                         )
-        #After refresh, all folders are expanded and the files inside them
-        #are added to this along with self.files
-        self.allURIs = []
+        #A dict of lists. First index is the URI, second array is metadata
+        #self.URI[uri] = (type, base_path, descriptive_group_name)
+        self.URIs = {}
         #When acting as a sink, place all unmatched items in here
         self.unmatchedURI = "file://"+os.path.expanduser("~")
 
@@ -400,7 +399,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             #Make sure we rescan
             item[SCAN_COMPLETE_IDX] = False
             if item[TYPE_IDX] == TYPE_FILE:
-                self.allURIs.append(item[URI_IDX])
+                fileUri = item[URI_IDX]
+                self.URIs[fileUri] = (TYPE_FILE, "", "")
             elif item[TYPE_IDX] == TYPE_FOLDER:
                 folderURI = item[URI_IDX]
                 rowref = item.iter
@@ -411,31 +411,55 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #All threads must complete before refresh can exit - otherwise we might
         #miss some items
         self.join_all_threads()
-            
-    def put(self, vfsFile, vfsFileOnTopOf=None):
-    	DataProvider.DataSink.put(self, vfsFile, vfsFileOnTopOf)        
+
+        #Now save the URIs that each thread got
+        for thread in self.scanThreads.values():
+            for i in thread.URIs:
+                self.URIs[i] = (TYPE_FOLDER, thread.baseURI, "")
+
+    def put(self, vfsFile, overwrite):
+        """
+        General approach involves
+        """
+        DataProvider.TwoWay.put(self, vfsFile, overwrite)
+        if vfsFile.basePath == "":
+            #The file came from a DP in which the concept of a basepath doesnt
+            #make sense (like when being converted from a note etc)
+            newURI = os.path.join(self.unmatchedURI, vfsFile.get_filename())
+            Utils.do_gnomevfs_transfer(
+                                gnomevfs.URI(vfsFile.URI), 
+                                gnomevfs.URI(newURI), 
+                                overwrite
+                                )
+        else:
+            print vfsFile.URI, vfsFile.basePath
     	#This is a two way capable datasource, so it also implements the put
         #method.
-        if vfsFileOnTopOf:
-            logging.debug("File Source: put %s -> %s" % (vfsFile.URI, vfsFileOnTopOf.URI))
-            if vfsFile.URI != None and vfsFileOnTopOf.URI != None:
-                #its newer so overwrite the old file
-                Utils.do_gnomevfs_transfer(
-                    gnomevfs.URI(vfsFile.URI), 
-                    gnomevfs.URI(vfsFileOnTopOf.URI), 
-                    True
-                    )
+        #if vfsFileOnTopOf:
+        #    logging.debug("File Source: put %s -> %s" % (vfsFile.URI, vfsFileOnTopOf.URI))
+        #    if vfsFile.URI != None and vfsFileOnTopOf.URI != None:
+        #        #its newer so overwrite the old file
+        #        Utils.do_gnomevfs_transfer(
+        #            gnomevfs.URI(vfsFile.URI), 
+        #            gnomevfs.URI(vfsFileOnTopOf.URI), 
+        #            True
+        #            )
                 
     def get(self, index):
-        DataProvider.DataSource.get(self, index)
-        return File.File(self.allURIs[index])
+        DataProvider.TwoWay.get(self, index)
+        uri = self.URIs.keys()[index]
+        typ,base,group = self.URIs[uri]
+        return File.File(
+                    uri=uri,
+                    basepath=base
+                    )
 
     def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
-        return len(self.allURIs)
+        DataProvider.TwoWay.get_num_items(self)
+        return len(self.URIs.keys())
 
     def finish(self):
-        self.allURIs = []
+        self.URIs = {}
 
     def set_configuration(self, config):
         try:
@@ -487,7 +511,7 @@ class FileConverter:
                             }
         
     def text_to_file(self, theText):
-        return File.new_from_tempfile(theText)
+        return Utils.new_tempfile(str(theText))
 
     def file_to_text(self, thefile):
         #FIXME: Check if its a text mimetype?

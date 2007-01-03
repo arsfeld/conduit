@@ -18,7 +18,7 @@ class DataType:
     neccessary on types that are used in two-way sync.
     @type UID: C{string}
     """
-    def __init__(self,type_name):
+    def __init__(self,type_name, **kwargs):
         self.type_name = type_name
         self.URI = None
         self.UID = None

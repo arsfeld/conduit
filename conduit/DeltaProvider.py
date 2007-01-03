@@ -62,14 +62,14 @@ class DeltaProvider(DataProvider.TwoWay):
         DataProvider.TwoWay.get(self,index)
         return self.changes[index]
 
-    def put(self, change, changeOnTopOf):
-        DataProvider.TwoWay.put(self,change,changeOnTopOf)
+    def put(self, change, overwrite):
+        DataProvider.TwoWay.put(self, change, overwrite)
 
         # get UID of change...
         current_uid = change.get_UID()
 
         # actually "commit" the change to the real dp
-        self.provider.put(change, changeOnTopOf)
+        self.provider.put(change, overwrite)
 
         # record the hash of the object..
         self.db[change.get_UID()]['hash'] = change.get_hash()

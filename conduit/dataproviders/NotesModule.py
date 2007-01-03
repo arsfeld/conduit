@@ -8,6 +8,7 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
+import conduit.Utils as Utils
 
 import os
 import os.path
@@ -106,7 +107,7 @@ class NoteConverter:
         return note.contents
 
     def note_to_file(self, note):
-        f = File.new_from_tempfile(note.contents)
+        f = Utils.new_tempfile(note.contents)
         if len(note.title) > 0:
             f.force_new_filename("%s.%s_note" % (note.title, note.createdUsing))
         else:
