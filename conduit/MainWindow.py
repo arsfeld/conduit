@@ -231,11 +231,13 @@ class GtkView(dbus.service.Object):
         Calls the initialize method on the selected dataprovider
         @todo: Delete this is it does not operate async
         """
+        from conduit.DataProvider import STATUS_DONE_REFRESH_OK
         logging.info(
                     "Refreshing %s (FIXME: this blocks and will be deleted)" % \
                     self.canvas.selected_dataprovider_wrapper.get_unique_identifier()
                     )
         self.canvas.selected_dataprovider_wrapper.module.refresh()
+        self.canvas.selected_dataprovider_wrapper.module.set_status(STATUS_DONE_REFRESH_OK)
 
     def on_clear_canvas(self, widget):
         """
