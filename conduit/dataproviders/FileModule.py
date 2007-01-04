@@ -24,10 +24,32 @@ MODULES = {
 
 TYPE_FILE = 1
 TYPE_FOLDER = 2
-URI_IDX = 0
-TYPE_IDX = 1
-CONTAINS_NUM_IDX = 2
-SCAN_COMPLETE_IDX = 3
+
+#Indexes of data in the list store
+URI_IDX = 0                     #URI of the file/folder
+TYPE_IDX = 1                    #TYPE_FILE/FOLDER
+CONTAINS_NUM_ITEMS_IDX = 2      #(folder only) How many items in the folder
+SCAN_COMPLETE_IDX = 3           #(folder only) HAs the folder been recursively scanned
+GROUP_NAME_IDX = 4              #(folder only) The visible identifier for the folder
+CONTAINS_ITEMS_IDX = 5          #(folder only) All the items contained within the folder
+
+CONFIG_FILE_NAME = ".conduit.conf"
+
+def _save_config_file_for_dir(uri, groupName):
+    temp = Utils.new_tempfile(groupName)
+    config = os.path.join(uri,CONFIG_FILE_NAME)
+    Utils.do_gnomevfs_transfer(
+                        gnomevfs.URI(temp.URI), 
+                        gnomevfs.URI(config), 
+                        True
+                        )
+
+def _get_config_file_for_dir(uri):
+    try:
+        config = os.path.join(uri,CONFIG_FILE_NAME)
+        return gnomevfs.read_entire_file(config)
+    except gnomevfs.NotFoundError:
+        return ""
 
 class _FolderScanner(threading.Thread, gobject.GObject):
     """
@@ -107,6 +129,9 @@ class _FolderScanner(threading.Thread, gobject.GObject):
         Cancels the thread as soon as possible.
         """
         self.cancelled = True
+
+    def get_uris(self):
+        return self.URIs
 
 class _ScannerThreadManager:
     """
@@ -224,6 +249,8 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         self.view.append_column(column1)
         #Second column is the File/Folder name
         nameRenderer = gtk.CellRendererText()
+        nameRenderer.connect('edited', self._item_name_edited_callback)
+        nameRenderer.set_property('editable', True)
         column2 = gtk.TreeViewColumn("Name", nameRenderer)
         column2.set_property("expand", True)
         column2.set_cell_data_func(nameRenderer, self._item_name_data_func)
@@ -264,18 +291,34 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             contains = ""
         elif self.model[path][TYPE_IDX] == TYPE_FOLDER:
-            contains = "<i>Contains %s Files</i>" % self.model[path][CONTAINS_NUM_IDX]
+            contains = "<i>Contains %s Files</i>" % self.model[path][CONTAINS_NUM_ITEMS_IDX]
         else:
             contains = "<b>ERROR</b>"
         cell_renderer.set_property("markup",contains)
         
     def _item_name_data_func(self, column, cell_renderer, tree_model, rowref):
         """
-        Strips the filename from the URI and displays is
+        If the user has set a descriptive name for the folder the display that,
+        otherwise display the filename
         """
         path = self.model.get_path(rowref)
         uri = self.model[path][URI_IDX]
-        cell_renderer.set_property("text",Utils.get_filename(uri))
+        if self.model[path][GROUP_NAME_IDX] != "":
+            displayName = self.model[path][GROUP_NAME_IDX]
+        else:
+            #displayName = gnomevfs.format_uri_for_display(uri)
+            displayName = Utils.get_filename(uri)
+        cell_renderer.set_property("text", displayName)
+
+    def _item_name_edited_callback(self, cellrenderertext, path, new_text):
+        """
+        Called when the user edits the descriptive name of the folder
+        """
+        #Fixme: File cells should not be editable
+        #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.010.htp
+        if self.model[path][TYPE_IDX] == TYPE_FILE:
+            return
+        self.model[path][GROUP_NAME_IDX] = new_text
 
     def _on_scan_folder_progress(self, folderScanner, numItems, rowref):
         """
@@ -283,7 +326,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         the estimate of the number of items in the directory
         """
         path = self.model.get_path(rowref)
-        self.model[path][CONTAINS_NUM_IDX] = numItems
+        self.model[path][CONTAINS_NUM_ITEMS_IDX] = numItems
 
     def _on_scan_folder_completed(self, folderScanner, rowref):
         """
@@ -292,7 +335,15 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         logging.debug("Folder scan complete")
         path = self.model.get_path(rowref)
         self.model[path][SCAN_COMPLETE_IDX] = True
+        self.model[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()
         self.register_thread_completed()
+        #If the user has not yet given the folder a descriptive name then
+        #check of the folder contains a .conduit file in which that name is 
+        #stored
+        try:
+            configString = _get_config_file_for_dir(folderScanner.baseURI)
+            self.model[path][GROUP_NAME_IDX] = configString
+        except gnomevfs.NotFoundError: pass
 
     def show_dialog(self):
         response = self.dlg.run()
@@ -324,7 +375,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             fileURI = dialog.get_uri()
-            self.model.append((fileURI,TYPE_FILE,0,False))
+            self.model.append((fileURI,TYPE_FILE,0,False,"",[]))
         elif response == gtk.RESPONSE_CANCEL:
             pass
         dialog.destroy()
@@ -346,7 +397,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
             folderURI = dialog.get_uri()
             #Scan a thread to scan the folder
             if folderURI not in self.scanThreads:
-                rowref = self.model.append((folderURI,TYPE_FOLDER,0,False)) 
+                rowref = self.model.append((folderURI,TYPE_FOLDER,0,False,"",[])) 
                 self.make_thread(folderURI, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
         elif response == gtk.RESPONSE_CANCEL:
             pass
@@ -376,7 +427,9 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                         gobject.TYPE_STRING,    #URI
                         gobject.TYPE_INT,       #Type (file or folder)
                         gobject.TYPE_INT,       #Number of contained items
-                        gobject.TYPE_BOOLEAN    #Has the folder been scanned (i.e. is the item count accurate)
+                        gobject.TYPE_BOOLEAN,   #Has the folder been scanned (i.e. is the item count accurate)
+                        gobject.TYPE_STRING,    #Descriptive name
+                        gobject.TYPE_PYOBJECT   #Array of contained files
                         )
         #A dict of lists. First index is the URI, second array is metadata
         #self.URI[uri] = (type, base_path, descriptive_group_name)
@@ -413,9 +466,10 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         self.join_all_threads()
 
         #Now save the URIs that each thread got
-        for thread in self.scanThreads.values():
-            for i in thread.URIs:
-                self.URIs[i] = (TYPE_FOLDER, thread.baseURI, "")
+        for item in self.items:
+            if item[TYPE_IDX] == TYPE_FOLDER:
+                for i in item[CONTAINS_ITEMS_IDX]:
+                    self.URIs[i] = (TYPE_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
 
     def put(self, vfsFile, overwrite):
         """
@@ -471,10 +525,10 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 #see http://mail.python.org/pipermail/xml-sig/2004-September/010563.html
                 #the solution is to ????
                 if Utils.get_protocol(f) != "":
-                    self.items.append((f,TYPE_FILE,0,False))
+                    self.items.append((f,TYPE_FILE,0,False,"",[]))
             for f in folders:
                 if Utils.get_protocol(f) != "":
-                    self.items.append((f,TYPE_FOLDER,0,False))
+                    self.items.append((f,TYPE_FOLDER,0,False,"",[]))
         except: pass
 
     def get_configuration(self):
@@ -485,6 +539,9 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 files.append(item[URI_IDX])
             else:
                 folders.append(item[URI_IDX])
+                #If the user named the group then save this
+                if item[GROUP_NAME_IDX] != "":
+                    _save_config_file_for_dir(item[URI_IDX], item[GROUP_NAME_IDX])
         return {"unmatchedURI" : self.unmatchedURI,
                 "files" : files,
                 "folders" : folders}
@@ -495,13 +552,21 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         the estimate of the number of items in the directory
         """
         path = self.items.get_path(rowref)
-        self.items[path][CONTAINS_NUM_IDX] = numItems
+        self.items[path][CONTAINS_NUM_ITEMS_IDX] = numItems
 
     def _on_scan_folder_completed(self, folderScanner, rowref):
         logging.debug("Folder scan complete %s" % folderScanner)
         path = self.items.get_path(rowref)
         self.items[path][SCAN_COMPLETE_IDX] = True
+        self.items[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()
         self.register_thread_completed()
+        #If the user has not yet given the folder a descriptive name then
+        #check of the folder contains a .conduit file in which that name is 
+        #stored
+        try:
+            configString = _get_config_file_for_dir(folderScanner.baseURI)
+            self.items[path][GROUP_NAME_IDX] = configString
+        except gnomevfs.NotFoundError: pass
 
 class FileConverter:
     def __init__(self):

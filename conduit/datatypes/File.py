@@ -14,6 +14,7 @@ class File(DataType.DataType):
         DataType.DataType.__init__(self,"file")
         self.URI = ""
         self.basePath = ""
+        self.group = ""
         self.vfsHandle = None
         self.fileInfo = None
         self.forceNewFilename = ""
@@ -24,6 +25,8 @@ class File(DataType.DataType):
             self.URI = gnomevfs.make_uri_canonical(kwargs["uri"])
         if kwargs.has_key("basepath"):
             self.basePath = kwargs["basepath"]
+        if kwargs.has_key("group"):
+            self.group = kwargs["group"]
 
     def _open_file(self):
         """
