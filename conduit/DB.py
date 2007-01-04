@@ -26,6 +26,7 @@ class MappingDB:
         Saves a relationship between LUIDA and LUIDB on 
         behalf of dpw
         """
+        print "UID %s<-%s->%s" % (LUIDA, dpwUID, LUIDB)
         self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
         
     def get_relationships(self, dpwUID):

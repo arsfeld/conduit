@@ -14,6 +14,7 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes as DataType
+import conduit.DB as DB
 from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 
 class SyncManager(object): 
@@ -30,6 +31,7 @@ class SyncManager(object):
         """
         self.syncWorkers = {}
         self.typeConverter = typeConverter
+        self.mappingDB = DB.MappingDB()
 
         #Callback functions that syncworkers call
         self.syncCompleteCallback = None
@@ -94,7 +96,7 @@ class SyncManager(object):
             del(self.syncWorkers[conduit])
 
         #Create a new thread over top
-        newThread = SyncWorker(self.typeConverter, conduit, False, self.policy)
+        newThread = SyncWorker(self.typeConverter, self.mappingDB, conduit, False, self.policy)
         self.syncWorkers[conduit] = newThread
         self.syncWorkers[conduit].start()
 
@@ -114,7 +116,7 @@ class SyncManager(object):
             del(self.syncWorkers[conduit])
 
         #Create a new thread over top.
-        newThread = SyncWorker(self.typeConverter, conduit, True, self.policy)
+        newThread = SyncWorker(self.typeConverter, self.mappingDB, conduit, True, self.policy)
         #Connect the callbacks
         self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
         self.syncWorkers[conduit].start()
@@ -140,7 +142,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
-    def __init__(self, typeConverter, conduit, do_sync, policy):
+    def __init__(self, typeConverter, mappingDB, conduit, do_sync, policy):
         """
         @param conduit: The conduit to synchronize
         @type conduit: L{conduit.Conduit.Conduit}
@@ -150,6 +152,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         self.typeConverter = typeConverter
+        self.mappingDB = mappingDB
         self.conduit = conduit
         self.source = conduit.datasource
         self.sinks = conduit.datasinks
@@ -225,7 +228,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
         elif self.policy["missing"] == "replace":
             logging.debug("Missing Policy: Replace")
             try:
-                sinkWrapper.module.put(missingData, True)
+                LUID = sinkWrapper.module.put(missingData, True)
+                self.mappingDB.save_relationship(
+                                    sinkWrapper.get_UID(), 
+                                    missingData.get_UID(),
+                                    LUID
+                                    )
             except:
                 logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
 
@@ -249,7 +257,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
             elif self.policy["conflict"] == "replace":
                 logging.debug("Conflict Policy: Replace")
                 try:
-                    sinkWrapper.module.put(toData, True)
+                    LUID = sinkWrapper.module.put(toData, True)
+                    self.mappingDB.save_relationship(
+                                            sinkWrapper.get_UID(), 
+                                            toData.get_UID(), 
+                                            LUID
+                                            )
                 except:
                     logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
@@ -273,6 +286,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     #Attempts to put the data
                     try:
                         LUID = sink.module.put(newdata, False)
+                        #Now store the mapping of the original URI to the new one
+                        self.mappingDB.save_relationship(
+                                                sink.get_UID(), 
+                                                data.get_UID(), #FIXME: Im using the original data URI. Does this make sense?
+                                                LUID
+                                                )
                     except Exceptions.SynchronizeConflictError, err:
                         self._resolve_conflict(source, sink, err.comparison, err.fromData, err.toData)
             except Exceptions.SyncronizeError, err:

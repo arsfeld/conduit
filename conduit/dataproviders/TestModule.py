@@ -145,6 +145,7 @@ class TestSink(TestBase, DataProvider.DataSink):
             raise Exceptions.SyncronizeError
         self.count += 1
         logging.debug("TEST SINK: put(): %s" % data)
+        return "/dev/null"
 
 class TestTwoWay(DataProvider.TwoWay):
 
