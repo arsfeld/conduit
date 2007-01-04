@@ -14,43 +14,54 @@ class MappingDB:
     The mapping from A<->B is bidirectional.
     """
     def __init__(self):
-        os.path.join(conduit.USER_DIR, "mapping.db")
-        self._db = SimpleDb("foo")
+        f = os.path.join(conduit.USER_DIR, "mapping.db")
+        #f = "bar"
+        self._db = SimpleDb(f)
         self._db.create("dpw","LUIDA", "LUIDB", mode="open")
         #We access the DB via all fields so all need indices
         self._db.create_index(*self._db.fields)
 
-    def save_relationship(self, dpw, LUIDA, LUIDB):
+    def save_relationship(self, dpwUID, LUIDA, LUIDB):
         """
         Saves a relationship between LUIDA and LUIDB on 
         behalf of dpw
         """
-        self._db.insert(dpw=dpw.get_UID(),LUIDA=LUIDA,LUIDB=LUIDB)
+        self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
         
-    def get_relationships(self, dpw):
+    def get_relationships(self, dpwUID):
         """
         Gets all relationships for a dataproviderwrapper
         """
         maps = {}
-        for i in self._db._dpw[dpw.get_UID()]:
+        for i in self._db._dpw[dpwUID]:
             if maps.has_key(i["LUIDA"]):
                 maps[i["LUIDA"]].append(i["LUIDB"])
             else:
                 maps[i["LUIDA"]] = [i["LUIDB"]]
         return maps
 
-    def get_matching_uids(self, dpw, LUID, bidirecional=False):
+    def get_matching_uids(self, dpwUID, LUID, bidirectional=False):
         """
         Gets all matching UIDs for dpw and LUID
         """
-        atob = [r["LUIDB"] for r in self._db._dpw[dpw.get_UID()] if r["LUIDA"]==LUID]
+        atob = [r["LUIDB"] for r in self._db._dpw[dpwUID] if r["LUIDA"]==LUID]
         btoa = []
         if bidirectional:
-            btoa = [r["LUIDA"] for r in self._db._dpw[dpw.get_UID()] if r["LUIDB"]==LUID]
+            btoa = [r["LUIDA"] for r in self._db._dpw[dpwUID] if r["LUIDB"]==LUID]
         return atob+btoa
 
     def save(self):
         self._db.commit()
+
+    def debug(self):
+        dpws = [i["dpw"] for i in self._db]
+        for i in dpws:
+            print "\t%s" % i
+            rels = self.get_relationships(i)
+            for j in rels.keys():
+                print "\t\t%s" % j
+                for k in rels[j]:
+                    print "\t\t\t%s" % k
         
         
 class SimpleDb:
@@ -276,21 +287,16 @@ class _PyDbIndex:
 
 if __name__ == '__main__':
     import random
-    class foo:
-        def __init__(self, j):
-            self.j = j
-        def get_UID(self):
-            return "dpw-"+self.j
-
 
     m = MappingDB()
     for i in range(10):
-        m.save_relationship(foo("a"),random.randint(1,2),random.randint(0,10))
-        m.save_relationship(foo("b"),random.randint(1,2),random.randint(0,10))
-        m.save_relationship(foo("c"),random.randint(1,2),random.randint(0,10))
+        m.save_relationship("a",random.randint(1,2),random.randint(0,10))
+        m.save_relationship("b",random.randint(1,2),random.randint(0,10))
+        m.save_relationship("c",random.randint(1,2),random.randint(0,10))
 
-    print m.get_relationships(foo("b"))
-    print m.get_matching_uids(foo("a"),1)
+    print m.get_relationships("b")
+    print m.get_matching_uids("a",1)
+    m.debug()
     m.save()
 
 
