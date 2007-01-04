@@ -175,7 +175,7 @@ class DBusView(dbus.service.Object):
                 info["classname"] = i.classname
                 info["key"] = i.get_key()
                 info["enabled"] = str(i.enabled)
-                info["UID"] = str(i.get_unique_identifier())
+                info["UID"] = i.get_UID()
 
         return info
 

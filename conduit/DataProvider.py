@@ -13,6 +13,7 @@ from gettext import gettext as _
 
 import logging
 import conduit
+import conduit.Utils as Utils
 
 #Constants used in the sync state machine
 STATUS_NONE = 1
@@ -336,6 +337,18 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                     getattr(self, c, False),
                     callable(getattr(self, c, None)))
                     )
+
+    def get_UID(self):
+        """
+        Returns a UID that represents this dataproviders (locally) unique state
+        and configuration. For example the LUID for a gmail dp may be your 
+        username and password.
+
+        Derived types MUST overwride this function
+        """
+        #raise NotImplementedError
+        return Utils.random_string()
+
 
 class DataSource(DataProviderBase):
     """

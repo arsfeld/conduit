@@ -10,6 +10,7 @@ License: GPLv2
 import os
 import tempfile
 import gnomevfs
+import random
 
 import logging
 from conduit.datatypes import File
@@ -109,5 +110,14 @@ def distinct_list(l):
     hashable items (i.e. not contain other lists)
     """
     return dict.fromkeys(l).keys()
+
+def random_string(length=5):
+    """
+    returns a random string of length
+    """
+    s = ""
+    for i in range(1,length):
+        s += str(random.randint(0,10))
+    return s
 
 

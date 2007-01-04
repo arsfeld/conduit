@@ -234,7 +234,7 @@ class GtkView(dbus.service.Object):
         from conduit.DataProvider import STATUS_DONE_REFRESH_OK
         logging.info(
                     "Refreshing %s (FIXME: this blocks and will be deleted)" % \
-                    self.canvas.selected_dataprovider_wrapper.get_unique_identifier()
+                    self.canvas.selected_dataprovider_wrapper.get_UID()
                     )
         self.canvas.selected_dataprovider_wrapper.module.refresh()
         self.canvas.selected_dataprovider_wrapper.module.set_status(STATUS_DONE_REFRESH_OK)

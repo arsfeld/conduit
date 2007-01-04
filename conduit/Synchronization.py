@@ -164,7 +164,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #Start at the beginning
         self.state = SyncWorker.REFRESH_STATE
         self.cancelled = False
-        self.setName("Synchronization Thread: %s" % conduit.datasource.get_unique_identifier())
+        self.setName("Synchronization Thread: %s" % conduit.datasource.get_UID())
         
     def cancel(self):
         """

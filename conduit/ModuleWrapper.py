@@ -34,8 +34,6 @@ class ModuleWrapper:
     @ivar enabled: Whether the call to the modules initialize() method was
     successful or not. 
     @type enabled: C{bool}    
-    @ivar uid: A Unique identifier for the module
-    @type uid: C{string}
     @ivar icon: An icon representing this wrapper or the module it holds
     @type icon: C{pixbuf}
     """
@@ -90,11 +88,6 @@ class ModuleWrapper:
         self.module = module
         self.enabled = enabled
         
-        self._uid = ""
-        #Generate a unique identifier for this instance
-        for i in range(1,ModuleWrapper.NUM_UID_DIGITS):
-            self._uid += str(random.randint(0,10))
-
         self.icon_path = ""
         self.icon = {}
         self.descriptiveIcon = None
@@ -111,14 +104,17 @@ class ModuleWrapper:
         else:
             return self.classname
        
-    def get_unique_identifier(self):
+    def get_UID(self):
         """
-        Returs a unique identifier for the module.
-        
-        @returns: A unuque string in the form name-somerandomdigits
+        Returs a unique identifier for the module and its contained
+        dataprovider.
         @rtype: C{string}
         """
-        return "%s-%s" % (self.get_key(), self._uid)
+        if self.module == None:
+            muid = "None"
+        else:
+            muid = self.module.get_UID()
+        return "%s-%s" % (self.get_key(), muid)
 
     def get_icon(self, size=16):
         """
@@ -216,4 +212,4 @@ class ModuleWrapper:
         return self.descriptiveIcon
         
     def __str__(self):
-        return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_unique_identifier())
+        return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_UID())
