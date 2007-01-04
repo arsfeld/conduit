@@ -275,10 +275,8 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         path = self.model.get_path(rowref)
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             icon = _FileSourceConfigurator.FILE_ICON
-        elif self.model[path][TYPE_IDX] == TYPE_FOLDER:
-            icon = _FileSourceConfigurator.FOLDER_ICON
         else:
-            icon = None
+            icon = _FileSourceConfigurator.FOLDER_ICON
         cell_renderer.set_property("pixbuf",icon)
 
     def _item_contains_num_data_func(self, column, cell_renderer, tree_model, rowref):
@@ -289,10 +287,8 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         path = self.model.get_path(rowref)
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             contains = ""
-        elif self.model[path][TYPE_IDX] == TYPE_FOLDER:
-            contains = "<i>Contains %s Files</i>" % self.model[path][CONTAINS_NUM_ITEMS_IDX]
         else:
-            contains = "<b>ERROR</b>"
+            contains = "<i>Contains %s Files</i>" % self.model[path][CONTAINS_NUM_ITEMS_IDX]
         cell_renderer.set_property("markup",contains)
         
     def _item_name_data_func(self, column, cell_renderer, tree_model, rowref):
@@ -305,8 +301,8 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         if self.model[path][GROUP_NAME_IDX] != "":
             displayName = self.model[path][GROUP_NAME_IDX]
         else:
-            #displayName = gnomevfs.format_uri_for_display(uri)
-            displayName = Utils.get_filename(uri)
+            displayName = gnomevfs.format_uri_for_display(uri)
+            #displayName = Utils.get_filename(uri)
         cell_renderer.set_property("text", displayName)
 
     def _item_name_edited_callback(self, cellrenderertext, path, new_text):
@@ -419,12 +415,12 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         
         #list of file and folder URIs
         self.items = gtk.ListStore(
-                        gobject.TYPE_STRING,    #URI
-                        gobject.TYPE_BOOLEAN,   #Type (file or folder)
-                        gobject.TYPE_INT,       #Number of contained items
-                        gobject.TYPE_BOOLEAN,   #Has the folder been scanned (i.e. is the item count accurate)
-                        gobject.TYPE_STRING,    #Descriptive name
-                        gobject.TYPE_PYOBJECT   #Array of contained files
+                        gobject.TYPE_STRING,    #URI_IDX
+                        gobject.TYPE_BOOLEAN,   #TYPE_IDX
+                        gobject.TYPE_INT,       #CONTAINS_NUM_ITEMS_IDX
+                        gobject.TYPE_BOOLEAN,   #SCAN_COMPLETE_IDX
+                        gobject.TYPE_STRING,    #GROUP_NAME_IDX
+                        gobject.TYPE_PYOBJECT   #CONTAINS_ITEMS_IDX
                         )
         #A dict of lists. First index is the URI, second array is metadata
         #self.URI[uri] = (type, base_path, descriptive_group_name)
@@ -449,12 +445,10 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             if item[TYPE_IDX] == TYPE_FILE:
                 fileUri = item[URI_IDX]
                 self.URIs[fileUri] = (TYPE_FILE, "", "")
-            elif item[TYPE_IDX] == TYPE_FOLDER:
+            else:
                 folderURI = item[URI_IDX]
                 rowref = item.iter
                 self.make_thread(folderURI, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
-            else:
-                pass
         
         #All threads must complete before refresh can exit - otherwise we might
         #miss some items
