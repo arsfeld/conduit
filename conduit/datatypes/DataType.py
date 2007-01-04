@@ -22,6 +22,7 @@ class DataType:
         self.type_name = type_name
         self.URI = None
         self.UID = None
+        self.change_type = CHANGE_UNMODIFIED
 
     def compare(self, A, B):
         """

@@ -12,6 +12,7 @@ import gobject
 import logging
 import conduit
 import conduit.DataProvider as DataProvider
+import conduit.DeltaProvider as DeltaProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes as DataType
 import conduit.DB as DB

@@ -11,12 +11,21 @@ License: GPLv2
 """
 
 import os, md5, cPickle
-import conduit.DataProivder
+import conduit.DataProvider as DataProvider
+import conduit.datatypes.DataType as DataType
+
+#fixme - conduit will try and create a widget for any dataprovider...
+#fixme - for CHANGE_DELETED, new DataType is created.. but wrong 
+#         type is passed to __init__ (hardcoded to "note")
 
 class DeltaProvider(DataProvider.TwoWay):
-    def __init__(self, dp):
-        self.provider = dp
+    _name_ = ""
+    _description_ = ""
 
+    def __init__(self, dp):
+        DataProvider.TwoWay.__init__(self)
+
+        self.provider = dp
         self._delta_file = "hashtable.db"
 
         self.db = {}
@@ -30,8 +39,11 @@ class DeltaProvider(DataProvider.TwoWay):
         """ Call refresh on target dp and filter the output so we only return
             changes to sync code
         """
-        self.provider.refresh
-        
+        DataProvider.TwoWay.refresh(self)
+
+        self.changes = []
+
+        self.provider.refresh()
         for i in range(0, self.provider.get_num_items()):
             obj = self.provider.get(i)
             key = obj.get_UID()
@@ -39,19 +51,19 @@ class DeltaProvider(DataProvider.TwoWay):
             self.accessed[key] = key
 
             if not key in self.db:
-                obj.change_type = CHANGE_ADDED
+                obj.change_type = DataType.CHANGE_ADDED
             elif self.db[key]['hash'] != obj.get_hash():
-                obj.change_type = CHANGE_MODIFIED
+                obj.change_type = DataType.CHANGE_MODIFIED
 
             # if the change_type has been set, add it to list of things to return to Conduit
-            if obj.change_type != CHANGE_UNMODIFIED:
+            if obj.change_type != DataType.CHANGE_UNMODIFIED:
                 self.changes.append(obj)
 
         # these are the UID's that are no longer in the dp - they must have been deleted!
         for r in [r for r in self.db if r not in self.accessed]:
-            obj = DataType.DataType()
+            obj = DataType.DataType("note")
             obj.set_UID(self.db[r]['LUID'])
-            obj.change_type = CHANGE_DELETED
+            obj.change_type = DataType.CHANGE_DELETED
             self.changes.append(obj)
 
     def get_num_items(self):
@@ -79,6 +91,14 @@ class DeltaProvider(DataProvider.TwoWay):
             self._delete(self, current_uid)
 
     def finish(self):
+        for c in self.changes:
+            if c.change_type == DataType.CHANGE_DELETED:
+                self._delete(c.get_UID())
+            else:
+                self.db[c.get_UID()] = {}
+                self.db[c.get_UID()]['hash'] = c.get_hash()
+                self.db[c.get_UID()]['LUID'] = c.get_UID()
+
         f = open(self._delta_file, 'w+')
         f.write(cPickle.dumps(self.db))
         f.close()
@@ -87,3 +107,4 @@ class DeltaProvider(DataProvider.TwoWay):
     def _delete(self, UID):
         """ Remove an item from self.db """
         del self.db[UID]
+
