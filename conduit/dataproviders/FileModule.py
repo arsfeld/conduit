@@ -22,8 +22,8 @@ MODULES = {
 	"FileConverter" : { "type": "converter" }
 }
 
-TYPE_FILE = 1
-TYPE_FOLDER = 2
+TYPE_FILE = False
+TYPE_FOLDER = True
 
 #Indexes of data in the list store
 URI_IDX = 0                     #URI of the file/folder
@@ -250,8 +250,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         #Second column is the File/Folder name
         nameRenderer = gtk.CellRendererText()
         nameRenderer.connect('edited', self._item_name_edited_callback)
-        nameRenderer.set_property('editable', True)
-        column2 = gtk.TreeViewColumn("Name", nameRenderer)
+        column2 = gtk.TreeViewColumn("Name", nameRenderer, editable=TYPE_IDX)
         column2.set_property("expand", True)
         column2.set_cell_data_func(nameRenderer, self._item_name_data_func)
         self.view.append_column(column2)
@@ -314,10 +313,6 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         """
         Called when the user edits the descriptive name of the folder
         """
-        #Fixme: File cells should not be editable
-        #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.010.htp
-        if self.model[path][TYPE_IDX] == TYPE_FILE:
-            return
         self.model[path][GROUP_NAME_IDX] = new_text
 
     def _on_scan_folder_progress(self, folderScanner, numItems, rowref):
@@ -425,7 +420,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #list of file and folder URIs
         self.items = gtk.ListStore(
                         gobject.TYPE_STRING,    #URI
-                        gobject.TYPE_INT,       #Type (file or folder)
+                        gobject.TYPE_BOOLEAN,   #Type (file or folder)
                         gobject.TYPE_INT,       #Number of contained items
                         gobject.TYPE_BOOLEAN,   #Has the folder been scanned (i.e. is the item count accurate)
                         gobject.TYPE_STRING,    #Descriptive name
