@@ -74,8 +74,8 @@ class SynceTwoWay(DataProvider.TwoWay):
         DataProvider.TwoWay.get(self, index)
         return self.objects[index]
 
-    def put(self, obj, overwrite):
-        DataProvider.TwoWay.put(self, obj, overwrite)
+    def put(self, obj, overwrite, LUIDs=[]):
+        DataProvider.TwoWay.put(self, obj, overwrite, LUIDs)
 
         data = str(obj).decode("utf-8")
         self.synce.AddLocalChanges(

@@ -3,6 +3,7 @@ import gobject
 import random
 import logging
 import conduit
+import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
@@ -24,9 +25,7 @@ MODULES = {
 class TestDataType(DataType.DataType):
     def __init__(self, integerData):
         DataType.DataType.__init__(self,"text")
-        #In this case the UID is the data but that is not the case
-        #for more complex datatypes
-        self.UID = 10*integerData + random.randint(1,4)
+        self.UID = integerData
         
     def __str__(self):
         return "testData %s" % self.UID
@@ -44,6 +43,9 @@ class TestDataType(DataType.DataType):
             return conduit.datatypes.COMPARISON_EQUAL
         else:
             return conduit.datatypes.COMPARISON_UNKNOWN
+
+    def get_UID(self):
+        return str(self.UID)
             
 
 class TestBase:
@@ -51,6 +53,7 @@ class TestBase:
         #Through an error on the nth time through
         self.errorAfter = 999
         self.slow = False
+        self.UID = Utils.random_string()
         #Variables to test the config fuctions
         self.aString = ""
         self.aInt = 0
@@ -65,7 +68,9 @@ class TestBase:
         def setError(param):
             self.errorAfter = int(param)
         def setSlow(param):
-            self.slow = bool(param)            
+            self.slow = bool(param)
+        def setUID(param):
+            self.UID = str(param)        
         items = [
                     {
                     "Name" : "Error At:",
@@ -78,15 +83,25 @@ class TestBase:
                     "Widget" : gtk.CheckButton,
                     "Callback" : setSlow,
                     "InitialValue" : self.slow
-                    }               
+                    },
+                    {
+                    "Name" : "UID",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setUID,
+                    "InitialValue" : self.UID
+                    }  
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
         dialog.run()
+
+    def get_UID(self):
+        return self.UID
         
     def get_configuration(self):
         return {
             "errorAfter" : self.errorAfter,
             "slow" : self.slow,
+            "UID" : self.UID,
             "aString" : "im a string",
             "aInt" : 5,
             "aBool" : True,
@@ -137,15 +152,18 @@ class TestSink(TestBase, DataProvider.DataSink):
         TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
         
-    def put(self, data, overwrite):
+    def put(self, data, overwrite, LUIDs=[]):
         DataProvider.DataSink.put(self, data, overwrite)
         if self.slow:
             time.sleep(1)    
         if self.count == self.errorAfter:
             raise Exceptions.SyncronizeError
         self.count += 1
-        logging.debug("TEST SINK: put(): %s" % data)
-        return "/dev/null"
+        #the LUID of any test data passed in is the original 
+        #data + the dp name
+        if len(LUIDs) > 0:
+            logging.debug("TEST SINK: put(): %s (known UID:%s)" % (data,len(LUIDs)>0))
+        return data.get_UID()+self._name_
 
 class TestTwoWay(DataProvider.TwoWay):
 
@@ -184,8 +202,8 @@ class TestTwoWay(DataProvider.TwoWay):
         logging.debug("TWO WAY: get() returned %s" % data)
         return data
 
-    def put(self, data, overwrite):
-        DataProvider.TwoWay.put(self, data, overwrite)
+    def put(self, data, overwrite, LUIDs=[]):
+        DataProvider.TwoWay.put(self, data, overwrite, LUIDs)
         logging.debug("TWO WAY: put() %s" % data)
 
     def finish(self):

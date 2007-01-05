@@ -139,4 +139,10 @@ def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
     path = os.path.abspath(path)
     return gtk.glade.XML(path, widget)
 
+def md5_string(string):
+    """
+    Returns the md5 of the supplied string in readable hexdigest string format
+    """
+    return md5.new(string).hexdigest()
+
 

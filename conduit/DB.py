@@ -2,6 +2,7 @@ import os, os.path
 import cPickle
 import bisect
 
+import logging
 import conduit
 
 class MappingDB:
@@ -12,6 +13,10 @@ class MappingDB:
         2. LUIDA
         3. LUIDB
     The mapping from A<->B is bidirectional.
+
+    This class is a mapping around a simple python dict based DB. This wrapper
+    will make it easier to swap out database layers at a later date. 
+    @todo: Add thread locks around all DB calls
     """
     def __init__(self):
         f = os.path.join(conduit.USER_DIR, "mapping.db")
@@ -26,7 +31,10 @@ class MappingDB:
         Saves a relationship between LUIDA and LUIDB on 
         behalf of dpw
         """
-        print "UID %s<-%s->%s" % (LUIDA, dpwUID, LUIDB)
+        for i in self._db._dpw[dpwUID]:
+            if i["LUIDA"] == LUIDA and i["LUIDB"] == LUIDB:
+                return
+        logging.debug("Saving relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
         self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
         
     def get_relationships(self, dpwUID):
@@ -39,6 +47,7 @@ class MappingDB:
                 maps[i["LUIDA"]].append(i["LUIDB"])
             else:
                 maps[i["LUIDA"]] = [i["LUIDB"]]
+        logging.debug("Found %s relationships for %s" % (len(maps), dpwUID))
         return maps
 
     def get_matching_uids(self, dpwUID, LUID, bidirectional=False):
@@ -49,9 +58,12 @@ class MappingDB:
         btoa = []
         if bidirectional:
             btoa = [r["LUIDA"] for r in self._db._dpw[dpwUID] if r["LUIDB"]==LUID]
-        return atob+btoa
+        tot = atob+btoa
+        logging.debug("Found %s matching UIDs for %s %s" % (len(tot), dpwUID, LUID))
+        return tot
 
     def save(self):
+        logging.debug("Saving mapping DB to %s" % self._db.name)
         self._db.commit()
 
     def debug(self):

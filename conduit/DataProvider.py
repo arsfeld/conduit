@@ -346,9 +346,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
 
         Derived types MUST overwride this function
         """
-        #raise NotImplementedError
-        return Utils.random_string()
-
+        raise NotImplementedError
 
 class DataSource(DataProviderBase):
     """
@@ -400,7 +398,7 @@ class DataSink(DataProviderBase):
         """    
         DataProviderBase.__init__(self, widgetColorRGBA)
 
-    def put(self, putData, overwrite):
+    def put(self, putData, overwrite, LUIDs):
         """
         Stores data. The derived class is responsible for checking if putData
         conflicts. 

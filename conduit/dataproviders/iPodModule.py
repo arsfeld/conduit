@@ -96,8 +96,8 @@ class IPodNoteTwoWay(TwoWay):
         TwoWay.get(self, index)
         return self.notes[index]
 
-    def put(self, note, overwrite):
-        TwoWay.put(self, note, overwrite)
+    def put(self, note, overwrite, LUIDs=[]):
+        TwoWay.put(self, note, overwrite, LUIDs)
         open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
         
     def finish(self):
@@ -142,8 +142,8 @@ class IPodContactsTwoWay(TwoWay):
         TwoWay.get(self, index)
         return self.contacts[index]
 
-    def put(self, contact, overwrite):
-        TwoWay.put(self, contact, overwrite)
+    def put(self, contact, overwrite, LUIDs=[]):
+        TwoWay.put(self, contact, overwrite, LUIDs)
         
     def finish(self):
         self.notes = None

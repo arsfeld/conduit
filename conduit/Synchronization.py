@@ -286,7 +286,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 if newdata != None:
                     #Attempts to put the data
                     try:
-                        LUID = sink.module.put(newdata, False)
+                        matchingUIDs = self.mappingDB.get_matching_uids(
+                                                sink.get_UID(), 
+                                                data.get_UID()
+                                                )
+                        LUID = sink.module.put(newdata, False, matchingUIDs)
                         #Now store the mapping of the original URI to the new one
                         self.mappingDB.save_relationship(
                                                 sink.get_UID(), 
@@ -507,5 +511,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 #Exit thread
                 finished = True
 
+        self.mappingDB.save()
         self.emit("sync-completed")
                 

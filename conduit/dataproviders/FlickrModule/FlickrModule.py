@@ -55,12 +55,12 @@ class FlickrSink(DataProvider.DataSink):
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
         self.token = self.fapi.getToken(browser="gnome-www-browser -p", perms="write")
         
-    def put(self, photo, overwrite):
+    def put(self, photo, overwrite, LUIDs=[]):
         """
         Accepts a vfs file. Must be made local.
         I also store a md5 of the photos uri to check for duplicates
         """
-        DataProvider.DataSink.put(self, photo, overwrite)
+        DataProvider.DataSink.put(self, photo, overwrite, LUIDs)
         
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
