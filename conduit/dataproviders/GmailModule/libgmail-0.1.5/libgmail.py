@@ -82,6 +82,11 @@ class GmailError(Exception):
     '''
     pass
 
+class GmailSendError(Exception):
+    '''
+    Exception to throw if we're unable to send a message
+    '''
+    pass
 
 def _parsePage(pageContent):
     """
@@ -600,6 +605,8 @@ class GmailAccount:
         if resultInfo[SM_SUCCESS]:
             result = GmailMessageStub(id = resultInfo[SM_NEWTHREADID],
                                       _account = self)
+        else:
+            raise GmailSendError, resultInfo[SM_MSG]
             
         return result
 
