@@ -535,6 +535,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 "files" : files,
                 "folders" : folders}
 
+    def get_UID(self):
+        #FIXME: I think this makes sense. a LUID for a file is actually a 
+        #GUID so the UID of this dp matters little
+        return "FolderTwoWay"
+
     def _on_scan_folder_progress(self, folderScanner, numItems, rowref):
         """
         Called by the folder scanner thread and used to update

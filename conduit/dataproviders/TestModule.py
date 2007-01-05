@@ -48,7 +48,7 @@ class TestDataType(DataType.DataType):
         return str(self.UID)
             
 
-class TestBase:
+class _TestBase:
     def __init__(self):
         #Through an error on the nth time through
         self.errorAfter = 999
@@ -108,7 +108,7 @@ class TestBase:
             "aList" : ["ListItem1", "ListItem2"]
             }
 
-class TestSource(TestBase, DataProvider.DataSource):
+class TestSource(_TestBase, DataProvider.DataSource):
 
     _name_ = "Test Source"
     _description_ = "Prints Debug Messages"
@@ -121,7 +121,7 @@ class TestSource(TestBase, DataProvider.DataSource):
 
     NUM_DATA = 5    
     def __init__(self, *args):
-        TestBase.__init__(self)
+        _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
         
     def get_num_items(self):
@@ -138,7 +138,7 @@ class TestSource(TestBase, DataProvider.DataSource):
             raise Exceptions.SyncronizeError
         return data
 		
-class TestSink(TestBase, DataProvider.DataSink):
+class TestSink(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Sink"
     _description_ = "Prints Debug Messages"
@@ -149,7 +149,7 @@ class TestSink(TestBase, DataProvider.DataSink):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
-        TestBase.__init__(self)
+        _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
         
     def put(self, data, overwrite, LUIDs=[]):
@@ -165,7 +165,7 @@ class TestSink(TestBase, DataProvider.DataSink):
             logging.debug("TEST SINK: put(): %s (known UID:%s)" % (data,len(LUIDs)>0))
         return data.get_UID()+self._name_
 
-class TestTwoWay(DataProvider.TwoWay):
+class TestTwoWay(_TestBase, DataProvider.TwoWay):
 
     _name_ = "Test Two Way"
     _description_ = "Prints Debug Messages"
@@ -177,12 +177,10 @@ class TestTwoWay(DataProvider.TwoWay):
 
     NUM_DATA = 10
     def __init__(self, *args):
+        _TestBase.__init__(self)
         DataProvider.TwoWay.__init__(self)
         self.data = None
 
-    def initialize(self):
-        return True
-    
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.data = []
@@ -209,7 +207,7 @@ class TestTwoWay(DataProvider.TwoWay):
     def finish(self):
         self.data = None
 
-class TestSinkFailRefresh(DataProvider.DataSink):
+class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Fail Refresh"
     _description_ = "Test Sink Fails Refresh"
@@ -220,16 +218,14 @@ class TestSinkFailRefresh(DataProvider.DataSink):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
+        _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
         
-    def initialize(self):
-        return True
-
     def refresh(self):
         DataProvider.DataSink.refresh(self)
         raise Exceptions.RefreshError
 
-class TestDynamicSource(DataProvider.DataSource):
+class TestDynamicSource(_TestBase, DataProvider.DataSource):
     _name_ = "Test Dynamic Source"
     _description_ = "Prints Debug Messages"
     _module_type_ = "source"
@@ -238,6 +234,7 @@ class TestDynamicSource(DataProvider.DataSource):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
+        _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
 
 class TestFactory(Module.DataProviderFactory):
