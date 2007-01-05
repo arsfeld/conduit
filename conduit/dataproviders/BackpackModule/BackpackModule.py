@@ -6,22 +6,17 @@ from gettext import gettext as _
 
 import logging
 import conduit
+import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
 
-try:
-    import backpack
-except ImportError:
-    logging.warn("Note: Using built in backpack")
-    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"backpack-1.1"))
-    import backpack
-
+Utils.dataprovider_add_dir_to_path(__file__, "backpack-1.1")
+import backpack
 
 MODULES = {
 	"BackpackNoteSink" : { "type": "dataprovider" }
 }
-
 
 BACKPACK_CAT = DataProvider.DataProviderCategory("Backpackit.com","backpack")
 
@@ -67,7 +62,10 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         self.existingNotes = {}
         
     def configure(self, window):
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "BackpackNotesSinkConfigDialog")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade",
+                        "BackpackNotesSinkConfigDialog")
         
         #get a whole bunch of widgets
         usernameEntry = tree.get_widget("username")

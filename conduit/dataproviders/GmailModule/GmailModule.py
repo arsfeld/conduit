@@ -6,23 +6,14 @@ import traceback
 
 import logging
 import conduit
+import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Email as Email
 import conduit.datatypes.Contact as Contact
 
-try:
-    import libgmail
-    if libgmail.Version < "0.1.5.1":
-        del(libgmail)
-        logging.warn("Note: Using built in libgmail")
-        sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.5"))
-        import libgmail
-except ImportError:
-    logging.warn("Note: Using built in libgmail")
-    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"libgmail-0.1.5"))
-    import libgmail
-
+Utils.dataprovider_add_dir_to_path(__file__, "libgmail-0.1.5")
+import libgmail
 
 MODULES = {
 	"GmailEmailTwoWay" :    { "type": "dataprovider" },
@@ -98,7 +89,11 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                 allEmailsCb.set_active(False)
                 invalidate_options()
             
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSourceConfigDialog")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade",
+                        "GmailSourceConfigDialog")
+
         dic = { "on_allEmails_toggled" : all_emails_toggled,
                 "on_unreadEmails_toggled" : other_option_toggled,
                 "on_labelEmails_toggled" : other_option_toggled,

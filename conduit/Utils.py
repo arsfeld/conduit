@@ -7,7 +7,8 @@ Part of this code copied from from Listen (c) 2006 Mehdi Abaakouk
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import os
+import sys
+import os, os.path
 import tempfile
 import gnomevfs
 import random
@@ -119,5 +120,23 @@ def random_string(length=5):
     for i in range(1,length):
         s += str(random.randint(0,10))
     return s
+
+def dataprovider_add_dir_to_path(dataproviderfile, directory):
+    """
+    Adds directory to the python search path.
+
+    From within a dataprovider (FooModule.py) 
+    call with Utils.dataprovider_add_dir_to_path(__file__, some_dir):
+    """
+    path = os.path.join(dataproviderfile, "..", directory)
+    path = os.path.abspath(path)
+    logging.info("Adding %s to search path" % path)
+    sys.path.insert(0,path)
+
+def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
+    import gtk, gtk.glade
+    path = os.path.join(dataproviderfile, "..", gladefilename)
+    path = os.path.abspath(path)
+    return gtk.glade.XML(path, widget)
 
 

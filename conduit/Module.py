@@ -7,11 +7,10 @@ License: GPLv2
 
 import gtk
 import gobject
-import os
+import os, os.path
 import sys
 import traceback
 import pydoc
-from os.path import abspath, expanduser, join, basename
 
 import logging
 import conduit
@@ -42,11 +41,11 @@ class ModuleManager(gobject.GObject):
        
     def __init__(self, dirs=None):
         """
-		@param dirs: A list of directories to search. Relative pathnames and paths
-		containing ~ will be expanded. If dirs is None the 
-		ModuleLoader will not search for modules.
-		@type dirs: C{string[]}
-		"""
+        @param dirs: A list of directories to search. Relative pathnames and paths
+        containing ~ will be expanded. If dirs is None the 
+        ModuleLoader will not search for modules.
+        @type dirs: C{string[]}
+        """
         gobject.GObject.__init__(self)
         self.hal = HalMonitor()
 
@@ -61,7 +60,7 @@ class ModuleManager(gobject.GObject):
 
         #Now load all directories containing MODULES
         #(includes dataproviders, converters and dynamic-dataproviders)
-        filelist = self._build_filelist_from_directories (dirs)
+        filelist = self._build_filelist_from_directories(dirs)
         for f in filelist:
             self._load_modules_in_file(f)
 
@@ -90,7 +89,9 @@ class ModuleManager(gobject.GObject):
     def _build_filelist_from_directories(self, directories=None):
         """
         Converts a given array of directories into a list 
-        containing the filenames of all qualified modules.
+        containing the filenames of all qualified modules. Recurses into
+        directories and adds files if they have the same name as the
+        directory in which they reside.
         This method is automatically invoked by the constructor.
         """
         res = []
@@ -98,33 +99,37 @@ class ModuleManager(gobject.GObject):
             return res
             
         #convert to abs path    
-        directories = [abspath(expanduser(s)) for s in directories]
-            
-        for d in directories:
-        	logging.info("Reading directory %s" % d)
-        	try:
-        		if not os.path.exists(d):
-        			continue
+        directories = [os.path.abspath(os.path.expanduser(s)) for s in directories]
 
-        		for i in [join(d, m) for m in os.listdir (d) if self._is_module(m)]:
-        			if basename(i) not in [basename(j) for j in res]:
-        				res.append(i)
-        	except OSError, err:
-        		logging.warn("Error reading directory %s, skipping." % (d))
-        return res			
+        while len(directories) > 0:
+            d = directories.pop(0)
+            logging.info("Reading directory %s" % d)
+            try:
+                if not os.path.exists(d):
+                    continue
+                for i in os.listdir(d):
+                    f = os.path.join(d,i)
+                    if os.path.isfile(f) and self._is_module(f):
+                        if os.path.basename(f) not in [os.path.basename(j) for j in res]:
+                            res.append(f)
+                    elif os.path.isdir(f) and self._is_module_dir(f):
+                        directories.append(f)
+            except OSError, err:
+                logging.warn("Error reading directory %s, skipping." % (d))
+        return res            
        
     def _is_module(self, filename):
         """
         Tests whether the filename has the appropriate extension.
         """
         endswith = "Module.py"
-        isModule = (filename[-len(endswith):] == endswith)
-        if not isModule:
-            logging.debug(  "Ignoring %s, (must end with %s)" % (
-                            filename,
-                            endswith
-                            ))
+        isModule = filename[-len(endswith):] == endswith
         return isModule
+
+    def _is_module_dir(self, dirname):
+        endswith = "Module"
+        isModuleDir = dirname[-len(endswith):] == endswith
+        return isModuleDir
         
     def _append_module(self, wrapper, klass):
         """
@@ -182,7 +187,7 @@ class ModuleManager(gobject.GObject):
         """
         mod = self._import_file(filename)
         if mod is None:
-        	return
+            return
 
         for modules, infos in mod.MODULES.items():
             try:
@@ -191,15 +196,15 @@ class ModuleManager(gobject.GObject):
                 if infos["type"] == "dataprovider" or infos["type"] == "converter":
                     mod_wrapper = ModuleWrapper (   
                                         getattr(klass, "_name_", ""),
-    	                                getattr(klass, "_description_", ""),
+                                        getattr(klass, "_description_", ""),
                                         getattr(klass, "_icon_", ""),
                                         getattr(klass, "_module_type_", infos["type"]),
-    	                                getattr(klass, "_category_", CATEGORY_TEST),
-    	                                getattr(klass, "_in_type_", ""),
-    	                                getattr(klass, "_out_type_", ""),
-    	                                klass.__name__,     #classname
-    	                                (),                 #Init args
-    	                                )
+                                        getattr(klass, "_category_", CATEGORY_TEST),
+                                        getattr(klass, "_in_type_", ""),
+                                        getattr(klass, "_out_type_", ""),
+                                        klass.__name__,     #classname
+                                        (),                 #Init args
+                                        )
                     #Save the module (signal is emitted _append_module
                     self._append_module(mod_wrapper, klass)
                 elif infos["type"] == "dataprovider-factory":
@@ -264,16 +269,16 @@ class ModuleManager(gobject.GObject):
             initargs = m.initargs
             mod_wrapper = ModuleWrapper(  
                                         m.name, 
-    	                                m.description,
+                                        m.description,
                                         m.icon_name, 
-    	                                m.module_type, 
-    	                                m.category, 
-    	                                m.in_type,
-    	                                m.out_type,
-    	                                classname,
-    	                                initargs,
-    	                                self._instantiate_class(classname, initargs),
-    	                                True)
+                                        m.module_type, 
+                                        m.category, 
+                                        m.in_type,
+                                        m.out_type,
+                                        classname,
+                                        initargs,
+                                        self._instantiate_class(classname, initargs),
+                                        True)
                 
             return mod_wrapper
         else:

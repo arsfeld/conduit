@@ -10,25 +10,13 @@ import md5
 
 import logging
 import conduit
+import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+import conduit.datatypes.File as File
 
-from conduit.datatypes import File
-
-try:
-    from flickrapi import FlickrAPI
-except ImportError:
-    logging.warn("Note: Using built in flickrapi")
-    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"FlickrAPI-8"))
-    from flickrapi import FlickrAPI
-
-#try:
-#    import EXIF
-#except ImportError:
-#    logging.warn("Note: Using built in EXIF")
-#    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"EXIF-15-FEB-04"))
-#    import EXIF
-
+Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI-8")
+from flickrapi import FlickrAPI
 
 MODULES = {
 	"FlickrSink" :          { "type": "dataprovider" },
@@ -124,7 +112,10 @@ class FlickrSink(DataProvider.DataSink):
         option is mutually exclusive with all the others (which may be
         mixed according to the users preferences
         """
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "FlickrSinkConfigDialog")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade", 
+                        "FlickrSinkConfigDialog")
         
         #get a whole bunch of widgets
         attachTagCb = tree.get_widget("attach_tag_check")
