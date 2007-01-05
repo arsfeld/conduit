@@ -545,7 +545,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkCheckButton" id="allEmails">
+	    <widget class="GtkCheckButton" id="searchAllEmails">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">All Emails</property>
@@ -555,7 +555,7 @@
 	      <property name="active">False</property>
 	      <property name="inconsistent">False</property>
 	      <property name="draw_indicator">True</property>
-	      <signal name="toggled" handler="on_allEmails_toggled" last_modification_time="Wed, 26 Jul 2006 05:51:52 GMT"/>
+	      <signal name="toggled" handler="on_searchAllEmails_toggled" last_modification_time="Fri, 05 Jan 2007 12:16:29 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -565,7 +565,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkCheckButton" id="unreadEmails">
+	    <widget class="GtkCheckButton" id="searchUnreadEmails">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">Unread Emails</property>
@@ -575,7 +575,7 @@
 	      <property name="active">False</property>
 	      <property name="inconsistent">False</property>
 	      <property name="draw_indicator">True</property>
-	      <signal name="toggled" handler="on_unreadEmails_toggled" last_modification_time="Wed, 26 Jul 2006 05:52:09 GMT"/>
+	      <signal name="toggled" handler="on_searchUnreadEmails_toggled" last_modification_time="Fri, 05 Jan 2007 12:16:38 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -585,7 +585,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkCheckButton" id="labelEmails">
+	    <widget class="GtkCheckButton" id="searchLabelEmails">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">Emails With Label</property>
@@ -595,7 +595,7 @@
 	      <property name="active">False</property>
 	      <property name="inconsistent">False</property>
 	      <property name="draw_indicator">True</property>
-	      <signal name="toggled" handler="on_labelEmails_toggled" last_modification_time="Wed, 26 Jul 2006 05:52:16 GMT"/>
+	      <signal name="toggled" handler="on_searchLabelEmails_toggled" last_modification_time="Fri, 05 Jan 2007 12:16:48 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -624,7 +624,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkCheckButton" id="folderEmails">
+	    <widget class="GtkCheckButton" id="searchFolderEmails">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">Emails in Folder</property>
@@ -634,7 +634,7 @@
 	      <property name="active">False</property>
 	      <property name="inconsistent">False</property>
 	      <property name="draw_indicator">True</property>
-	      <signal name="toggled" handler="on_folderEmails_toggled" last_modification_time="Wed, 26 Jul 2006 05:52:23 GMT"/>
+	      <signal name="toggled" handler="on_searchFolderEmails_toggled" last_modification_time="Fri, 05 Jan 2007 12:17:00 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -644,7 +644,95 @@
 	  </child>
 
 	  <child>
-	    <placeholder/>
+	    <widget class="GtkHBox" id="folderBox">
+	      <property name="visible">True</property>
+	      <property name="homogeneous">False</property>
+	      <property name="spacing">0</property>
+
+	      <child>
+		<placeholder/>
+	      </child>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkHSeparator" id="hseparator3">
+	      <property name="visible">True</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">True</property>
+	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label50">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">&lt;b&gt;When Saving Emails&lt;/b&gt;</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">True</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkCheckButton" id="saveLabelEmails">
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label" translatable="yes">Save With Label</property>
+	      <property name="use_underline">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="active">False</property>
+	      <property name="inconsistent">False</property>
+	      <property name="draw_indicator">True</property>
+	      <signal name="toggled" handler="on_searchLabelEmails_toggled" last_modification_time="Fri, 05 Jan 2007 12:16:48 GMT"/>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="saveLabels">
+	      <property name="visible">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes"></property>
+	      <property name="has_frame">True</property>
+	      <property name="invisible_char">●</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
 	  </child>
 	</widget>
 	<packing>

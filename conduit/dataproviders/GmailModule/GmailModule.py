@@ -38,13 +38,37 @@ class GmailBase(DataProvider.DataProviderBase):
         return True
 
     def refresh(self):
+        if self.loggedIn == False:
+            try:
+                self.ga = libgmail.GmailAccount(self.username, self.password)
+                self.ga.login()
+                self.loggedIn = True
+            except:
+                logging.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
+                raise Exceptions.RefreshError
+
+    def get_UID(self):
+        return self.username
+
+    def _message_exists(self, msgid):
+        """
+        Utility function to check if a message exists. Does so by searching
+        the raw message contents for certain seemingly compulsory strings;
+        (taken from RFC 822)
+            1)  Received
+            2)  Date
+            4)  Subject
+        I do it this way because if the message is not found then gmail returns
+        a help message that may change in future. RFC822 wont change.
+        """
+        raw = self.ga.getRawMessage(msgid)
         try:
-            self.ga = libgmail.GmailAccount(self.username, self.password)
-            self.ga.login()
-            self.loggedIn = True
-        except:
-            logging.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
-            raise Exceptions.RefreshError
+            raw.index("Received")
+            raw.index("Date")
+            raw.index("Subject")
+            return True
+        except ValueError:
+            return False
             
 class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
@@ -76,55 +100,39 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         mixed according to the users preferences
         """
         def invalidate_options():
-            if allEmailsCb.get_active():
-                unreadEmailsCb.set_active(False)
-                labelEmailsCb.set_active(False)
-                folderEmailsCb.set_active(False)
+            if searchAllEmailsCb.get_active():
+                searchUnreadEmailsCb.set_active(False)
+                searchLabelEmailsCb.set_active(False)
+                searchFolderEmailsCb.set_active(False)
+                labelEntry.set_sensitive(False)
+                folderComboBox.set_sensitive(False)
                             
         def all_emails_toggled(foo):
             invalidate_options()
         
         def other_option_toggled(button):
+            if button == searchLabelEmailsCb:
+                labelEntry.set_sensitive(button.get_active())
+            if button == searchFolderEmailsCb:
+                folderComboBox.set_sensitive(button.get_active())
             if button.get_active():
-                allEmailsCb.set_active(False)
+                searchAllEmailsCb.set_active(False)
                 invalidate_options()
+            
             
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
                         "GmailSourceConfigDialog")
 
-        dic = { "on_allEmails_toggled" : all_emails_toggled,
-                "on_unreadEmails_toggled" : other_option_toggled,
-                "on_labelEmails_toggled" : other_option_toggled,
-                "on_folderEmails_toggled" : other_option_toggled,
+        dic = { "on_searchAllEmails_toggled" : all_emails_toggled,
+                "on_searchUnreadEmails_toggled" : other_option_toggled,
+                "on_searchLabelEmails_toggled" : other_option_toggled,
+                "on_searchFolderEmails_toggled" : other_option_toggled,
                 None : None
                 }
         tree.signal_autoconnect(dic)
-        
-        #get a whole bunch of widgets
-        allEmailsCb = tree.get_widget("allEmails")
-        unreadEmailsCb = tree.get_widget("unreadEmails")
-        labelEmailsCb = tree.get_widget("labelEmails")
-        folderEmailsCb = tree.get_widget("folderEmails")
-        labelEntry = tree.get_widget("labels")
-        usernameEntry = tree.get_widget("username")
-        passwordEntry = tree.get_widget("password")
-        
-        #preload the widgets
-        allEmailsCb.set_active(self.getAllEmail)
-        unreadEmailsCb.set_active(self.getUnreadEmail)
-        if (self.getWithLabel is not None) and (len(self.getWithLabel) > 0):
-            labelEmailsCb.set_active(True)
-            labelEntry.set_text(self.getWithLabel)
-        else:
-            labelEmailsCb.set_active(False)
-        if (self.getInFolder is not None) and (len(self.getInFolder) > 0):
-            folderEmailsCb.set_active(True)
-        else:        
-            folderEmailsCb.set_active(False)
-        usernameEntry.set_text(self.username)
-        
+
         #Add and fill a combo box with the Gmail Folders
         index = 0
         folderComboBox = gtk.combo_box_new_text()
@@ -135,27 +143,56 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                 folderComboBox.set_active(index)    
             index += 1
         folderComboBox.show()
-        tree.get_widget("propbox").pack_end(folderComboBox)
+        tree.get_widget("folderBox").pack_end(folderComboBox)
+        
+        #get a whole bunch of widgets
+        searchAllEmailsCb = tree.get_widget("searchAllEmails")
+        searchUnreadEmailsCb = tree.get_widget("searchUnreadEmails")
+        searchLabelEmailsCb = tree.get_widget("searchLabelEmails")
+        searchFolderEmailsCb = tree.get_widget("searchFolderEmails")
+        labelEntry = tree.get_widget("labels")
+        usernameEntry = tree.get_widget("username")
+        passwordEntry = tree.get_widget("password")
+        
+        #preload the widgets
+        searchAllEmailsCb.set_active(self.getAllEmail)
+        searchUnreadEmailsCb.set_active(self.getUnreadEmail)
+        if (self.getWithLabel is not None) and (len(self.getWithLabel) > 0):
+            searchLabelEmailsCb.set_active(True)
+            labelEntry.set_text(self.getWithLabel)
+            labelEntry.set_sensitive(True)
+        else:
+            searchLabelEmailsCb.set_active(False)
+            labelEntry.set_sensitive(False)
+        if (self.getInFolder is not None) and (len(self.getInFolder) > 0):
+            searchFolderEmailsCb.set_active(True)
+        else:        
+            searchFolderEmailsCb.set_active(False)
+            folderComboBox.set_sensitive(False)
+        usernameEntry.set_text(self.username)
         
         dlg = tree.get_widget("GmailSourceConfigDialog")
         dlg.set_transient_for(window)
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            if allEmailsCb.get_active():
+            if searchAllEmailsCb.get_active():
                 self.getAllEmail = True
                 self.getUnreadEmail = False
                 self.getWithLabel = ""
                 self.getInFolder = ""
             else:
                 self.getAllEmail = False
-                self.getUnreadEmail = unreadEmailsCb.get_active()
-                self.getWithLabel = labelEntry.get_text()
+                self.getUnreadEmail = searchUnreadEmailsCb.get_active()
+                if searchLabelEmailsCb.get_active():
+                    self.getWithLabel = labelEntry.get_text()
+                else:
+                    self.getWithLabel = ""
                 self.getInFolder = folderComboBox.get_active_text()
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
-        dlg.destroy()    
+        dlg.destroy()
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -217,8 +254,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.get_num_items(self)
         return len(self.mails)
 
-    def put(self, email, overwrite):
-        DataProvider.TwoWay.put(self, email, overwrite)
+    def put(self, email, overwrite, LUIDs=[]):
+        DataProvider.TwoWay.put(self, email, overwrite, LUIDs)
 
         if email.has_attachments():
             attach = email.attachments
@@ -231,13 +268,18 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                                 body=email.content,
                                 filenames=attach)
 
-        draftMsg = self.ga.sendMessage(msg, asDraft = True)
+        try:
+            draftMsg = self.ga.sendMessage(msg, asDraft = True)
+        except libgmail.GmailSendError:
+            raise Exceptions.SyncronizeError("Error saving message")
 
         if draftMsg and self.label:
             try:
                 draftMsg.addLabel(self.label)
             except Exception, err:
                 logging.warn("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
+
+        return draftMsg.id
 
     def finish(self):
         self.mails = None
@@ -343,8 +385,8 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.get(self, index)
         return self.contacts[index]
 
-    def put(self, contact, overwrite):
-        DataProvider.TwoWay.put(self, contact, overwrite)
+    def put(self, contact, overwrite, LUIDs=[]):
+        DataProvider.TwoWay.put(self, contact, overwrite, LUIDs)
 
     def finish(self):
         self.contacts = None
@@ -353,7 +395,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")
         
         #get a whole bunch of widgets
-        labelEmailsCb = tree.get_widget("labelEmails")
+        searchLabelEmailsCb = tree.get_widget("searchLabelEmails")
         labelEntry = tree.get_widget("labels")
         usernameEntry = tree.get_widget("username")
         passwordEntry = tree.get_widget("password")
