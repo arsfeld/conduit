@@ -432,6 +432,9 @@ class PendingDataProvider(goocanvas.Group):
                     )
         self.add_child(box)
 
+    def get_UID(self):
+        return ""
+
     def get_widget_dimensions(self):
         return DataProvider.WIDGET_WIDTH, DataProvider.WIDGET_HEIGHT
 
