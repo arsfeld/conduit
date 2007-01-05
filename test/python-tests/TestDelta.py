@@ -1,19 +1,5 @@
-import sys
-import os
-
-# make sure we have conduit folder in path!
-script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, script_path)
-
-# import main conduit module
-import conduit
-
-# set up expected paths & variables 
-conduit.IS_INSTALLED =          False
-conduit.SHARED_DATA_DIR =       os.path.join(script_path,"data")
-conduit.GLADE_FILE =            os.path.join(script_path,"data","conduit.glade")
-conduit.SHARED_MODULE_DIR =     os.path.join(script_path,"conduit")
-conduit.EXTRA_LIB_DIR =         os.path.join(script_path,"contrib")
+#common sets up the conduit environment
+from common import *
 
 # here comes the actual DeltaProvider testing!
 import conduit.DeltaProvider as DeltaProvider
@@ -53,14 +39,17 @@ class DeltaTest1(DataProvider.TwoWay):
     def finish(self):
         self.data = None
 
-p = DeltaTest1([1,2,3,4,6])
-dp = DeltaProvider.DeltaProvider(p)
+if __name__ == '__main__':
+    p = DeltaTest1([1,2,3,4,6])
+    dp = DeltaProvider.DeltaProvider(p)
+    dp.refresh()
 
-dp.refresh()
-for i in range(0, dp.get_num_items()):
-    d = dp.get(i)
-    print "%s (%s)" % (d.get_UID(), d.change_type)
+    #check some functions
+    num_items = dp.get_num_items()
+    ok("get_num_items() returns a number = %s" % num_items, type(num_items) == int)
+    for i in range(0, dp.get_num_items()):
+        d = dp.get(i)
+        ok("get() returns != None %s (%s)" % (d.get_UID(), d.change_type), d != None)        
 
-dp.finish()
+    dp.finish()
 
-print "Done"
