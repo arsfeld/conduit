@@ -39,7 +39,7 @@ def _save_config_file_for_dir(uri, groupName):
     temp = Utils.new_tempfile(groupName)
     config = os.path.join(uri,CONFIG_FILE_NAME)
     Utils.do_gnomevfs_transfer(
-                        gnomevfs.URI(temp.URI), 
+                        temp.URI, 
                         gnomevfs.URI(config), 
                         True
                         )
@@ -470,7 +470,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             #make sense (like when being converted from a note etc)
             newURI = os.path.join(self.unmatchedURI, vfsFile.get_filename())
             Utils.do_gnomevfs_transfer(
-                                gnomevfs.URI(vfsFile.URI), 
+                                vfsFile.URI, 
                                 gnomevfs.URI(newURI), 
                                 overwrite
                                 )
@@ -483,8 +483,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #    if vfsFile.URI != None and vfsFileOnTopOf.URI != None:
         #        #its newer so overwrite the old file
         #        Utils.do_gnomevfs_transfer(
-        #            gnomevfs.URI(vfsFile.URI), 
-        #            gnomevfs.URI(vfsFileOnTopOf.URI), 
+        #            vfsFile.URI, 
+        #            vfsFileOnTopOf.URI, 
         #            True
         #            )
                 
