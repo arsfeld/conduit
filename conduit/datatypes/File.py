@@ -10,23 +10,15 @@ import datetime
 import traceback
 
 class File(DataType.DataType):
-    def __init__(self, **kwargs):
+    def __init__(self, uri, **kwargs):
         DataType.DataType.__init__(self,"file")
-        self.URI = ""
-        self.basePath = ""
-        self.group = ""
-        self.vfsHandle = None
-        self.fileInfo = None
-        self.forceNewFilename = ""
-        self.triedOpen = False
-        self.fileExists = False
 
-        if kwargs.has_key("uri"):
-            self.URI = gnomevfs.make_uri_canonical(kwargs["uri"])
-        if kwargs.has_key("basepath"):
-            self.basePath = kwargs["basepath"]
-        if kwargs.has_key("group"):
-            self.group = kwargs["group"]
+        self._close_file()
+
+        self.URI = gnomevfs.URI(uri)
+        #optional args
+        self.basePath = kwargs.get("basepath","")
+        self.group = kwargs.get("group","")
 
     def _open_file(self):
         """
@@ -35,13 +27,6 @@ class File(DataType.DataType):
         Only tries to do this once for performance reasons
         """
         if self.triedOpen == False:
-            #Catches the case of a file which is used only as a temp
-            #file, like in some dataproviders
-            if self.URI == None:
-                self.fileExists = False
-                self.triedOpen = True
-                return
-                
             #Otherwise try and get the file info
             try:
                 self.vfsFile = gnomevfs.Handle(self.URI)
@@ -55,6 +40,20 @@ class File(DataType.DataType):
                 logging.debug("Could not open file %s. Exception:\n%s" % (self.URI, traceback.format_exc()))
                 self.fileExists = False
                 self.triedOpen = True
+
+    def _close_file(self):
+        self.vfsHandle = None
+        self.fileInfo = None
+        self.forceNewFilename = ""
+        self.triedOpen = False
+        self.fileExists = False
+
+    def _get_text_uri(self):
+        """
+        The mixing of text_uri and gnomevfs.URI in the gnomevfs api is very
+        annoying. This function returns the full text uri for the file
+        """
+        return str(self.URI)        
             
     def _get_file_info(self):
         """
@@ -68,9 +67,12 @@ class File(DataType.DataType):
         #The get_file_info works more reliably on remote vfs shares
         if self.fileInfo == None:
             if self.fileExists == True:
-                self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
+                self.fileInfo = self.vfsFile.get_file_info()#gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
                 logging.warn("Cannot get info on non-existant file %s" % self.URI)
+
+    def exists(self):
+        return gnomevfs.exists(self.URI)
 
     def is_local(self):
         """
@@ -78,20 +80,8 @@ class File(DataType.DataType):
         expected that the caller will call get_local_uri, which will
         copy the file to that location, and return the new path
         """
-        if self.URI == "":
-            return False
-        
-        return gnomevfs.URI(self.URI).is_local
+        return self.URI.is_local
 
-    def file_exists(self):
-        """
-        Checks if this file exists or not.
-        """
-        if self.triedOpen:
-            return self.fileExists
-        else:
-            return gnomevfs.exists(self.URI)
-            
     def force_new_filename(self, filename):
         """
         In the xfer process calling this method will cause the file to be
@@ -108,9 +98,8 @@ class File(DataType.DataType):
         try:
             return self.fileInfo.mime_type
         except ValueError:
-            #Why is gnomevfs so stupid and must I do this for
-            #non local URIs??
-            return gnomevfs.get_mime_type(self.URI)
+            #Why is gnomevfs so stupid and must I do this for local URIs??
+            return gnomevfs.get_mime_type(self._get_text_uri())
         
     def get_modification_time(self):
         """
@@ -144,7 +133,7 @@ class File(DataType.DataType):
         return self.fileInfo.name
         
     def get_contents_as_text(self):
-        return gnomevfs.read_entire_file(self.URI)
+        return gnomevfs.read_entire_file(self._get_text_uri())
         
     def get_local_uri(self):
         """
@@ -162,20 +151,22 @@ class File(DataType.DataType):
         if self.is_local():
             #FIXME: The following call produces a runtime error if the URI
             #is malformed. Reason number 37 gnomevfs should die
-            u = gnomevfs.get_local_path_from_uri(self.URI)
+            u = gnomevfs.get_local_path_from_uri(self._get_text_uri())
             #Backup approach...
             #u = self.URI[len("file://"):]
-            return gnomevfs.get_local_path_from_uri(self.URI)
+            return u
         else: 
             #Get a temporary file name
             tempname = tempfile.mkstemp()[1]
             toURI = gnomevfs.URI(tempname)
-            fromURI = gnomevfs.URI(self.URI)
             #Xfer to the temp file. 
-            gnomevfs.xfer_uri( fromURI, toURI,
+            gnomevfs.xfer_uri( self.URI, toURI,
                                gnomevfs.XFER_DEFAULT,
                                gnomevfs.XFER_ERROR_MODE_ABORT,
                                gnomevfs.XFER_OVERWRITE_MODE_REPLACE)
+            #now overwrite ourselves with the new local copy
+            self._close_file()
+            self.URI = toURI
             return tempname
 
     def compare(self, A, B):
@@ -224,9 +215,17 @@ class File(DataType.DataType):
 
     def get_UID(self):
         """
-        For a file the URI is a correct representation of the LUID
+        For a file the URI is a correct representation of the LUID, unless
+        the file is been given a descriptive group name, in which case
+        use a combination of that and parts of the URI which describe where
+        the group is.
         """
-        return self.URI
+        if self.group == "":
+            return self._get_text_uri()
+        else:
+            #Return the relative path to the uri from the group (remember that
+            #a group is really just a descriptive basepath)
+            return self.group + self._get_text_uri().replace(self.basePath,"")
             
 def TaggedFile(File):
     """
