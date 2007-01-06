@@ -6,6 +6,7 @@ from gettext import gettext as _
 
 import logging
 import conduit
+import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
@@ -66,7 +67,11 @@ class RSSSource(DataProvider.DataSource):
         return True
 
     def configure(self, window):
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "RSSSourceConfigDialog")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade",
+						"RSSSourceConfigDialog"
+						)
         
         #get a whole bunch of widgets
         url = tree.get_widget("url")

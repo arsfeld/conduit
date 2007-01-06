@@ -5,6 +5,7 @@ from pysqlite2 import dbapi2 as sqlite
 
 import logging
 import conduit
+import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
@@ -113,7 +114,11 @@ class FspotSource(DataProvider.DataSource):
             self.tags[ model[path][2] ][1] = model[path][1]
             return
 
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "FspotConfigDialog")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade",
+						"FspotConfigDialog"
+						)
         tagtreeview = tree.get_widget("tagtreeview")
         #Build a list of all the tags
         list_store = gtk.ListStore( gobject.TYPE_STRING,

@@ -210,9 +210,13 @@ class _FileSourceConfigurator(_ScannerThreadManager):
     """
     FILE_ICON = gtk.icon_theme_get_default().load_icon("text-x-generic", 16, 0)
     FOLDER_ICON = gtk.icon_theme_get_default().load_icon("folder", 16, 0)
-    def __init__(self, gladefile, mainWindow, items, unmatchedURI):
+    def __init__(self, mainWindow, items, unmatchedURI):
         _ScannerThreadManager.__init__(self)
-        self.tree = gtk.glade.XML(conduit.GLADE_FILE, "FileTwowayConfigDialog")
+        self.tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade",
+						"FileTwowayConfigDialog"
+						)
         dic = { "on_addfile_clicked" : self.on_addfile_clicked,
                 "on_adddir_clicked" : self.on_adddir_clicked,
                 "on_remove_clicked" : self.on_remove_clicked,                
@@ -432,7 +436,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         return True
 
     def configure(self, window):
-        f = _FileSourceConfigurator(conduit.GLADE_FILE, window, self.items, self.unmatchedURI)
+        f = _FileSourceConfigurator(window, self.items, self.unmatchedURI)
         #FIXME: I dont do anything if the confiure operation is cancelled        
         f.show_dialog()
        
