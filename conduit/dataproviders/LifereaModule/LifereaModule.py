@@ -10,11 +10,8 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Feed as Feed
 
-try:
-    import OPML
-except:
-    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"python-opml-0.5"))
-    import OPML
+Utils.dataprovider_add_dir_to_path(__file__, "python-opml-0.5")
+import OPML
 
 MODULES = {
 	"LifereaSource" : { "type": "dataprovider" }	
