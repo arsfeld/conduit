@@ -104,40 +104,32 @@ else
 fi
 
 dnl ****************************************************************************
-dnl * Check for evolution's libebook to build the evolution handler
+dnl * Check evolution-python to build the evolution dataprovider
 dnl ****************************************************************************
-AC_ARG_ENABLE(evolution,
-	AC_HELP_STRING([--disable-evolution], [Disable evolution's libebook support (default auto)]),
-	enable_libebook=$enableval,
-	enable_libebook=auto)
-
-PKG_CHECK_MODULES(EVOLUTION,
-	libebook-1.2			>= 1.7.92
-	libecal-1.2
-	gtk+-2.0				>= 2.6
-	gdk-pixbuf-2.0
-	pango
-	pygtk-2.0				>= 2.6
-	pygobject-2.0			>= 2.6,
-	have_libebook_dependencies=yes,
-	have_libebook_dependencies=no)
-
-if test "x$have_libebook_dependencies" = "xno"; then
-	dnl error out if user has explicitly requested libebook
-	if test "x$enable_libebook" = "xyes"; then
-		AC_MSG_ERROR([Could not find evolution's libebook])
-	fi
-	enable_libebook="no (missing dependencies)"
+EVOLUTION_PYTHON_REQUIRED=0.0.0
+AC_ARG_ENABLE(evolution, AC_HELP_STRING([--disable-evolution],[Disable evolution support]),,[enable_evolution=yes])
+if test "x$enable_evolution" = "xyes"; then
+	PKG_CHECK_MODULES(EVOLUTION, [
+		evolution-python >= $EVOLUTION_PYTHON_REQUIRED],
+		[have_evolution=yes] , [have_evolution=no])
 else
-	if test "x$enable_libebook" != "xno"; then
-		enable_libebook="yes"
-	else
-		enable_libebook="no (disabled)"
-	fi
+	have_evolution="no (disabled)"
 fi
-AM_CONDITIONAL(ENABLE_EVOLUTION, test "x$enable_libebook" = "xyes")
-AC_SUBST(EVOLUTION_LIBS)
-AC_SUBST(EVOLUTION_CFLAGS)
+AM_CONDITIONAL(ENABLE_EVOLUTION, test "$have_evolution" = "yes")
+
+dnl ****************************************************************************
+dnl * Check sync-python to build the opensync dataprovider
+dnl ****************************************************************************
+SYNC_PYTHON_REQUIRED=0.0.0
+AC_ARG_ENABLE(opensync, AC_HELP_STRING([--disable-opensync],[Disable opensync support]),,[enable_opensync=yes])
+if test "x$enable_opensync" = "xyes"; then
+	PKG_CHECK_MODULES(OPENSYNC, [
+		sync-python >= $SYNC_PYTHON_REQUIRED],
+		[have_opensync=yes] , [have_opensync=no])
+else
+	have_opensync="no (disabled)"
+fi
+AM_CONDITIONAL(ENABLE_OPENSYNC, test "$have_opensync" = "yes")
 
 dnl ****************************************************************************
 dnl * PyGTK Codegen and defs files
@@ -151,17 +143,6 @@ AC_MSG_CHECKING(for pygtk defs)
 PYGTK_DEFSDIR=`$PKG_CONFIG --variable=defsdir pygtk-2.0`
 AC_SUBST(PYGTK_DEFSDIR)
 AC_MSG_RESULT($PYGTK_DEFSDIR)
-
-dnl ****************************************************************************
-dnl * DISABLED Check for prctl()
-dnl ****************************************************************************
-dnl AC_CHECK_FUNC(prctl, HAVE_PRCTL="yes", HAVE_PRCTL="yes")
-dnl if test "x$HAVE_PRCTL" = "xyes"; then
-dnl 	AC_CHECK_DECL(PR_SET_NAME, STILL_HAVE_PRCTL="yes", STILL_HAVE_PRCTL="no", [#include <sys/prctl.h>])
-dnl 	if test "x$STILL_HAVE_PRCTL" = "xyes"; then
-dnl 		AC_DEFINE(HAVE_PRCTL, 1, [Defined as 1 if prctl and PR_SET_NAME are available])
-dnl 	fi
-dnl fi
 
 dnl ****************************************************************************
 dnl * Check for DBUS Services directory
@@ -178,7 +159,6 @@ Makefile
 conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
-conduit/evolution/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit.pc
@@ -188,11 +168,11 @@ po/Makefile.in
 echo
 echo $PACKAGE v$VERSION
 echo
-
 echo Prefix............... : $prefix
-echo Evolution Support.... : $enable_libebook
+echo Evolution Support.... : $have_evolution
+echo Opensync Support..... : $have_opensync
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
-
+echo
 echo "Now type make to compile"
 echo "Then su to root and type: make install"
 echo

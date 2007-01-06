@@ -1,9 +1,5 @@
 SUBDIRS = datatypes dataproviders
 
-if ENABLE_EVOLUTION
-SUBDIRS += evolution
-endif
-	
 start_conduit: start_conduit.py
 	sed -e "s|\@PYTHONDIR\@|$(pythondir)/conduit|" \
 		-e "s|\@VERSION\@|$(VERSION)|" \
@@ -21,6 +17,7 @@ conduit_PYTHON = \
 	Conduit.py \
 	Conflict.py \
 	DataProvider.py \
+	DB.py \
 	DBus.py \
 	DeltaProvider.py \
 	Exceptions.py \
