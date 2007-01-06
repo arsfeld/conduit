@@ -9,6 +9,7 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Feed as Feed
+import conduit.Utils as Utils
 
 Utils.dataprovider_add_dir_to_path(__file__, "python-opml-0.5")
 import OPML
