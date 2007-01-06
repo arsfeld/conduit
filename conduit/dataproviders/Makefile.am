@@ -1,3 +1,5 @@
+SUBDIRS = FeedModule FileModule
+
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
 	ContactConverterModule.py \
