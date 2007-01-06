@@ -3,12 +3,7 @@ import logging
 import conduit
 from conduit.datatypes import DataType
 
-try:
-    import vobject
-except ImportError:
-    logging.warn("Note: Using built in vobject")
-    sys.path.append(os.path.join(conduit.EXTRA_LIB_DIR,"vobject-0.4.4"))
-    import vobject
+import vobject
 
 class Contact(DataType.DataType):
     """
