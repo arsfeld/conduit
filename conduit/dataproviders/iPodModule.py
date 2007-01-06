@@ -15,6 +15,7 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
+import conduit.Utils as Utils
 from conduit.datatypes import DataType
 
 from gettext import gettext as _
@@ -27,9 +28,24 @@ import os
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 
+import gnomevfs
+
 MODULES = {
         "iPodFactory" :     { "type": "dataprovider-factory" }
 }
+
+def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
+    # fixme: gnomevfs is a pain :-(, this function sucks, someone make it nicer? :(
+    if gnomevfs.exists(str(os.path.join(uri, prefix + postfix))):
+        for i in range(1, 100):
+            if False == gnomevfs.exists(str(os.path.join(uri, prefix + str(i) + postfix))):
+                break
+        uri = str(os.path.join(uri, prefix + str(i) + postfix))
+    else:
+        uri = str(os.path.join(uri, prefix + postfix))
+
+    temp = Utils.new_tempfile(txt)
+    Utils.do_gnomevfs_transfer(temp.URI, gnomevfs.URI(uri), True)
 
 class iPodFactory(Module.DataProviderFactory):
     def __init__(self, **kwargs):
@@ -51,13 +67,22 @@ class iPodFactory(Module.DataProviderFactory):
                     "multimedia-player-ipod-video-white",
                     mount)
 
-        for klass in [IPodNoteTwoWay, IPodContactsTwoWay]:
+        for klass in [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]:
             self.emit_added(
                     klass,           # Dataprovider class
-                    (mount,),        # Init args
+                    (mount,udi,),        # Init args
                     cat)             # Category..
 
-class IPodNoteTwoWay(TwoWay):
+class IPodBase(TwoWay):
+    def __init__(self, *args):
+        TwoWay.__init__(self)
+        self.mountPoint = args[0]
+        self.uid = args[1]
+
+    def get_UID(self):
+        return self.uid
+
+class IPodNoteTwoWay(IPodBase):
 
     _name_ = _("Notes")
     _description_ = _("Sync your iPod notes")
@@ -67,9 +92,7 @@ class IPodNoteTwoWay(TwoWay):
     _icon_ = "tomboy"
 
     def __init__(self, *args):
-        TwoWay.__init__(self)
-        
-        self.mountPoint = args[0]
+        IPodBase.__init__(self, *args)
         self.notes = None
 
     def refresh(self):
@@ -98,12 +121,12 @@ class IPodNoteTwoWay(TwoWay):
 
     def put(self, note, overwrite, LUIDs=[]):
         TwoWay.put(self, note, overwrite, LUIDs)
-        open(os.path.join(self.notesPoint, note.title + ".txt"),'w+').write(note.contents)
+        _string_to_unqiue_file(note.contents, self.notesPoint, note.tile, '.txt')
         
     def finish(self):
         self.notes = None
 
-class IPodContactsTwoWay(TwoWay):
+class IPodContactsTwoWay(IPodBase):
 
     _name_ = _("Contacts")
     _description_ = _("Sync your iPod contacts")
@@ -113,9 +136,9 @@ class IPodContactsTwoWay(TwoWay):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        TwoWay.__init__(self)
+        IPodBase.__init__(self, *args)
         
-        self.mountPoint = args[0]
+        self.dataDir = os.path.join(self.mountPoint, 'Contacts')
         self.contacts = None
 
     def refresh(self):
@@ -123,9 +146,8 @@ class IPodContactsTwoWay(TwoWay):
         
         self.contacts = []
 
-        mypath = os.path.join(self.mountPoint, 'Contacts')
-        for f in os.listdir(mypath):
-            fullpath = os.path.join(mypath, f)
+        for f in os.listdir(self.dataDir):
+            fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 try:
                     contact = Contact.Contact()
@@ -144,6 +166,53 @@ class IPodContactsTwoWay(TwoWay):
 
     def put(self, contact, overwrite, LUIDs=[]):
         TwoWay.put(self, contact, overwrite, LUIDs)
-        
+        _string_to_unqiue_file(str(contact), self.dataDir, 'contact')
+
     def finish(self):
         self.notes = None
+
+class IPodCalendarTwoWay(IPodBase):
+
+    _name_ = _("Calendar")
+    _description_ = _("Sync your iPod calendar")
+    _module_type_ = "twoway"
+    _in_type_ = "event"
+    _out_type_ = "event"
+    _icon_ = "contact-new"
+
+    def __init__(self, *args):
+        IPodBase.__init__(self, *args)
+        
+        self.dataDir = os.path.join(self.mountPoint, 'Calendars')
+        self.events = None
+
+    def refresh(self):
+        TwoWay.refresh(self)
+        
+        self.events = []
+
+        for f in os.listdir(self.dataDir):
+            fullpath = os.path.join(self.dataDir, f)
+            if os.path.isfile(fullpath):
+                try:
+                    event = Event.Event()
+                    event.read_string(open(fullpath,'r').read())
+                    self.events.append(event)
+                except:
+                    pass
+
+    def get_num_items(self):
+        TwoWay.get_num_items(self)
+        return len(self.events)
+
+    def get(self, index):
+        TwoWay.get(self, index)
+        return self.events[index]
+
+    def put(self, event, overwrite, LUIDs=[]):
+        TwoWay.put(self, event, overwrite, LUIDs)
+        _string_to_unqiue_file(str(event), self.dataDir, 'event')
+
+    def finish(self):
+        self.notes = None
+

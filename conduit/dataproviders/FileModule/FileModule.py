@@ -464,11 +464,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 for i in item[CONTAINS_ITEMS_IDX]:
                     self.URIs[i] = (TYPE_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
 
-    def put(self, vfsFile, overwrite):
+    def put(self, vfsFile, overwrite, LUIDs=[]):
         """
         General approach involves
         """
-        DataProvider.TwoWay.put(self, vfsFile, overwrite)
+        DataProvider.TwoWay.put(self, vfsFile, overwrite, LUIDs)
         if vfsFile.basePath == "":
             #The file came from a DP in which the concept of a basepath doesnt
             #make sense (like when being converted from a note etc)
