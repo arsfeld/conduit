@@ -132,16 +132,21 @@ AC_SUBST(BINDIR)
 ################################################################################
 #-------------------------------------------------------------------------------
 ################################################################################
-AC_OUTPUT([
+AC_OUTPUT(
 Makefile
 conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
+conduit/dataproviders/FileModule/Makefile
+conduit/dataproviders/FeedModule/Makefile
+conduit/dataproviders/FlickrModule/Makefile
+conduit/dataproviders/FlickrModule/FlickrAPI-8/Makefile
+conduit/dataproviders/FspotModule/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit.pc
 po/Makefile.in
-])
+)
 
 echo
 echo $PACKAGE v$VERSION

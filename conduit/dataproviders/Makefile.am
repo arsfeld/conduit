@@ -1,4 +1,8 @@
-SUBDIRS = FeedModule FileModule
+SUBDIRS = \
+	FileModule \
+	FeedModule \
+	FlickrModule \
+	FspotModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
@@ -14,5 +18,5 @@ if ENABLE_EVOLUTION
 	conduit_handlers_PYTHON += EvolutionModule.py
 endif
 
-EXTRA_DIST = 
-
+clean-local:
+	rm -rf *.pyc *.pyo

@@ -46,3 +46,6 @@ DISTCLEANFILES = \
 	
 EXTRA_DIST = \
 	start_conduit.py
+
+clean-local:
+	rm -rf *.pyc *.pyo

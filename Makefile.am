@@ -1,7 +1,5 @@
 SUBDIRS = conduit data
 
-#DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper
-
 DISTCLEANFILES = \
 	intltool-extract \
 	intltool-merge \
@@ -19,3 +17,8 @@ doap.rdf: doap.rdf.in Makefile.am
 	    -e s/\@MAJMIN\@/`echo $(VERSION) | sed "s|\([[:digit:]]\+\.[[:digit:]]\+\).*|\1|"`/g \
 	    -e s/\@DATE\@/`date +%F`/g \
 	< $< > $@
+
+WEBROOT := root@www.greenbirdsystems.com:/var/www/conduit-project.org/files/releases
+release: dist doap.rdf
+	svn cp ../trunk/ ../tags/$(VERSION)	
+	scp $(PACKAGE)-$(VERSION).tar.gz $(WEBROOT)
