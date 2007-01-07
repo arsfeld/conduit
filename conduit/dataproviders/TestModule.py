@@ -153,7 +153,7 @@ class TestSink(_TestBase, DataProvider.DataSink):
         DataProvider.DataSink.__init__(self)
         
     def put(self, data, overwrite, LUIDs=[]):
-        DataProvider.DataSink.put(self, data, overwrite)
+        DataProvider.DataSink.put(self, data, overwrite, LUIDs)
         if self.slow:
             time.sleep(1)    
         if self.count == self.errorAfter:

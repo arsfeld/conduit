@@ -109,9 +109,9 @@ class TypeConverter:
             try:
                 intermediate = self.convertables[from_type]["text"](data)
                 return self.convertables["text"][to_type](intermediate)
-            except:
+            except Exception, err:
                 #This is the normal case where the conversion just doesnt exist
-                raise Exceptions.ConversionError(from_type, to_type)
+                raise Exceptions.ConversionError(from_type, to_type, err)
         except Exception, err:
             extra="Unknown error calling conversion function\n%s" % traceback.format_exc()
             raise Exceptions.ConversionError(from_type, to_type, extra)

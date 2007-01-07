@@ -85,6 +85,9 @@ class TomboyNoteSource(DataProvider.DataSource):
     def finish(self):
         self.notes = None
 
+    def get_UID(self):
+        return ""
+
 class NoteConverter:
 
     _name_ = "Note Data Type"

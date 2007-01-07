@@ -174,3 +174,7 @@ class RSSSource(DataProvider.DataSource):
             "downloadPhotos" : self.downloadPhotos,
             "downloadAudio" : self.downloadAudio
             }
+
+    def get_UID(self):
+        return self.feedUrl
+

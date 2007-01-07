@@ -10,9 +10,11 @@ import conduit
 import conduit.DataProvider as DataProvider
 import conduit.datatypes as DataType
 import conduit.datatypes.File as File
+import conduit.datatypes.Text as Text
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 import conduit.Settings as Settings
+import conduit.DB as DB
 
 import gnomevfs
 import os.path
@@ -102,6 +104,7 @@ class _FolderScanner(threading.Thread, gobject.GObject):
                 else:
                     try:
                         uri = gnomevfs.make_uri_canonical(dir+"/"+gnomevfs.escape_string(fileinfo.name))
+                        #Ignores hidden files                        
                         if fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
                             self.URIs.append(uri)
                     except UnicodeDecodeError:
@@ -426,11 +429,18 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                         gobject.TYPE_STRING,    #GROUP_NAME_IDX
                         gobject.TYPE_PYOBJECT   #CONTAINS_ITEMS_IDX
                         )
-        #A dict of lists. First index is the URI, second array is metadata
-        #self.URI[uri] = (type, base_path, descriptive_group_name)
-        self.URIs = {}
+        #A DB of files with meta information
+        self.db = None
+        self._create_empty_db()
+        #FIXME: Bit of an ugly way to take care of empty dirs
+        self.emptyDirGroups = {}
         #When acting as a sink, place all unmatched items in here
         self.unmatchedURI = "file://"+os.path.expanduser("~")
+
+    def _create_empty_db(self):
+        self.db = DB.SimpleDb("uris")
+        self.db.create("uri", "type", "basepath", "group", mode="overwrite")
+        self.db.create_index("group")
 
     def initialize(self):
         return True
@@ -442,13 +452,16 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
        
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
+        #Empty the DB to ensure we alwawys have a continous list of 
+        #db record IDs that we can use as the index   
+        self._create_empty_db()
         #Make a whole bunch of threads to go and scan the directories
         for item in self.items:
             #Make sure we rescan
             item[SCAN_COMPLETE_IDX] = False
             if item[TYPE_IDX] == TYPE_FILE:
                 fileUri = item[URI_IDX]
-                self.URIs[fileUri] = (TYPE_FILE, "", "")
+                self.db.insert(fileUri,TYPE_FILE,"","")
             else:
                 folderURI = item[URI_IDX]
                 rowref = item.iter
@@ -461,52 +474,69 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #Now save the URIs that each thread got
         for item in self.items:
             if item[TYPE_IDX] == TYPE_FOLDER:
+                if item[CONTAINS_NUM_ITEMS_IDX] == 0 and item[GROUP_NAME_IDX] != "":
+                    self.emptyDirGroups[item[GROUP_NAME_IDX]] = item[URI_IDX]
+                    print "FOOBAR"
                 for i in item[CONTAINS_ITEMS_IDX]:
-                    self.URIs[i] = (TYPE_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
+                    self.db.insert(i,TYPE_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
+
+        for i in self.db:
+            print i
 
     def put(self, vfsFile, overwrite, LUIDs=[]):
         """
-        General approach involves
+        General approach involves - see code
+        FIXME: Fold emptyGroupDirs into DB with new a new type
         """
         DataProvider.TwoWay.put(self, vfsFile, overwrite, LUIDs)
-        if vfsFile.basePath == "":
-            #The file came from a DP in which the concept of a basepath doesnt
-            #make sense (like when being converted from a note etc)
-            newURI = os.path.join(self.unmatchedURI, vfsFile.get_filename())
-            Utils.do_gnomevfs_transfer(
-                                vfsFile.URI, 
-                                gnomevfs.URI(newURI), 
-                                overwrite
-                                )
+        newURI = ""
+        if vfsFile.group == "" and vfsFile.basePath == "":
+            #group and basepath are only used by other file dataproviders, 
+            #if not present then place in orphan dir
+            newURI = self.unmatchedURI+vfsFile.get_filename()
         else:
-            print vfsFile.URI, vfsFile.basePath
-    	#This is a two way capable datasource, so it also implements the put
-        #method.
-        #if vfsFileOnTopOf:
-        #    logging.debug("File Source: put %s -> %s" % (vfsFile.URI, vfsFileOnTopOf.URI))
-        #    if vfsFile.URI != None and vfsFileOnTopOf.URI != None:
-        #        #its newer so overwrite the old file
-        #        Utils.do_gnomevfs_transfer(
-        #            vfsFile.URI, 
-        #            vfsFileOnTopOf.URI, 
-        #            True
-        #            )
+            print "orphan %s group %s" % (self.emptyDirGroups, vfsFile.group)
+            pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
+            #Look for corresponding groups
+            if vfsFile.group in self.emptyDirGroups:
+                print "GOING TO EMPTY DIR"
+                #defined group containing no files
+                #work out where it goes
+                destPath = self.emptyDirGroups[vfsFile.group]
+                newURI = destPath+pathFromBase
+            elif len(self.db._group[vfsFile.group]) != 0:
+                print "GOING TO DIR WITH FILES"
+                #defined group containing some files
+                destPath = self.db._group[vfsFile.group][0]['basepath']
+                newURI = destPath+pathFromBase
+            else:
+                print "GOING TO ORPHAN DIR"
+                #unknown. Store in orphan dir
+                newURI = os.path.join(self.unmatchedURI, pathFromBase)
+
+        #Utils.do_gnomevfs_transfer(
+        #                    vfsFile.URI, 
+        #                    gnomevfs.URI(newURI), 
+        #                    overwrite
+        #                    )
+        print "-------- %s" % newURI
                 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
-        uri = self.URIs.keys()[index]
-        typ,base,group = self.URIs[uri]
+        item = self.db[index]
         return File.File(
-                    uri=uri,
-                    basepath=base
+                    item['uri'],
+                    basepath=item['basepath'],
+                    group=item['group']
                     )
 
     def get_num_items(self):
         DataProvider.TwoWay.get_num_items(self)
-        return len(self.URIs.keys())
+        return len(self.db)
 
     def finish(self):
-        self.URIs = {}
+        self.db = None
+        self.emptyDirGroups = {}
 
     def set_configuration(self, config):
         try:
@@ -540,9 +570,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 "folders" : folders}
 
     def get_UID(self):
-        #FIXME: I think this makes sense. a LUID for a file is actually a 
-        #GUID so the UID of this dp matters little
-        return "FolderTwoWay"
+        return ""
 
     def _on_scan_folder_progress(self, folderScanner, numItems, rowref):
         """
@@ -576,7 +604,17 @@ class FileConverter:
     def text_to_file(self, theText):
         return Utils.new_tempfile(str(theText))
 
-    def file_to_text(self, thefile):
-        #FIXME: Check if its a text mimetype?
-        return "Text -> File"
+    def file_to_text(self, theFile):
+        mime = theFile.get_mimetype()
+        try:
+            #check its a text type
+            mime.index("text")
+            t = Text.Text(None)
+            t.set_text(theFile.get_contents_as_text())
+            return t            
+        except ValueError:
+            raise Exception(
+                    "Could not convert %s to text. Binary file" % 
+                    theFile._get_text_uri()
+                    )
        

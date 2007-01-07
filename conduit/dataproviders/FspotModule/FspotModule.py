@@ -155,3 +155,7 @@ class FspotSource(DataProvider.DataSource):
             pass
         dlg.destroy()
 
+    def get_UID(self):
+        return ""
+
+

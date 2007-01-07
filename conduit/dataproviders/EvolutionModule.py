@@ -47,3 +47,7 @@ class EvoContactSource(DataProvider.DataSource):
 
     def finish(self):
         self.contacts = None
+
+    def get_UID(self):
+        #return the uri of the evo addressbook in use
+        return ""

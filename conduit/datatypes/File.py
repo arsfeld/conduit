@@ -215,17 +215,9 @@ class File(DataType.DataType):
 
     def get_UID(self):
         """
-        For a file the URI is a correct representation of the LUID, unless
-        the file is been given a descriptive group name, in which case
-        use a combination of that and parts of the URI which describe where
-        the group is.
+        For a file the URI is a correct representation of the UID
         """
-        if self.group == "":
-            return self._get_text_uri()
-        else:
-            #Return the relative path to the uri from the group (remember that
-            #a group is really just a descriptive basepath)
-            return self.group + self._get_text_uri().replace(self.basePath,"")
+        return self._get_text_uri()
             
 def TaggedFile(File):
     """
