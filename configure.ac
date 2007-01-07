@@ -96,11 +96,21 @@ fi
 AM_CONDITIONAL(ENABLE_OPENSYNC, test "$have_opensync" = "yes")
 
 ################################################################################
-# Check for DBUS Services directory
+# DBus
 ################################################################################
-DBUS_SERVICES_DIR="$DATADIR/dbus-1/services"
-AC_SUBST(DBUS_SERVICES_DIR)
-AC_DEFINE_UNQUOTED(DBUS_SERVICES_DIR, "$DBUS_SERVICES_DIR", [DBus services directory])
+DBUS_REQUIRED=0.93
+AC_ARG_ENABLE(dbus, AC_HELP_STRING([--disable-dbus],[Disable dbus service]),,[enable_dbus=yes])
+if test "x$enable_dbus" = "xyes"; then
+	PKG_CHECK_MODULES(DBUS, [
+		dbus-1 >= $DBUS_REQUIRED],
+		[have_dbus=yes] , [have_dbus=no])
+	DBUS_SERVICES_DIR=`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`
+	AC_SUBST(DBUS_SERVICES_DIR)
+else
+	have_dbus="no (disabled)"
+fi
+AM_CONDITIONAL(ENABLE_DBUS, test "$have_dbus" = "yes")
+
 
 ################################################################################
 # Write the values of various paths for start_conduit.py
@@ -154,5 +164,6 @@ echo
 echo Prefix............... : $prefix
 echo Evolution Support.... : $have_evolution
 echo Opensync Support..... : $have_opensync
+echo Dbus Service......... : $have_dbus
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo

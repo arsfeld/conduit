@@ -9,5 +9,5 @@ conduit_PYTHON = \
 	Note.py \
 	Text.py
 
-
-		
+clean-local:
+	rm -rf *.pyc *.pyo
