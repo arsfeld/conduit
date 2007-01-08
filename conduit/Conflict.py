@@ -78,19 +78,20 @@ class ConflictResolver:
         #Visible column0 is the name of the datasource
         column0 = gtk.TreeViewColumn("Source Name", gtk.CellRendererText(), text=SOURCE_NAME_IDX)
         column0.set_property("expand", True)
-        column0.set_property("sizing", gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        column0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
         #Visible column1 is the arrow to decide the direction
         confRenderer = ConflictCellRenderer()
-        column1 = gtk.TreeViewColumn("Conflict", confRenderer)
+        column1 = gtk.TreeViewColumn("Resolution", confRenderer)
         column1.set_cell_data_func(confRenderer, self.set_direction_func, DIRECTION_IDX)
         column1.set_property("expand", False)
-        column1.set_property("sizing", gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        column1.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        column1.set_min_width(40)
 
         #Visible column2 is the name of the datasource
         column2 = gtk.TreeViewColumn("Sink Name", gtk.CellRendererText(), text=SINK_NAME_IDX)
         column2.set_property("expand", True)
-        column2.set_property("sizing", gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        column2.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 
         for c in [column0,column1,column2]:
             self.view.append_column( c )
