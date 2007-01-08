@@ -490,12 +490,16 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         """
         DataProvider.TwoWay.put(self, vfsFile, overwrite, LUIDs)
         newURI = ""
-        if vfsFile.group == "" and vfsFile.basePath == "":
-            #group and basepath are only used by other file dataproviders, 
-            #if not present then place in orphan dir
-            newURI = self.unmatchedURI+vfsFile.get_filename()
+        if vfsFile.basePath == "":
+            #came from another type of dp or from a DP where the user has added a single file
+            print "NO BASEPATH. GOING TO EMPTY DIR"
+            newURI = self.unmatchedURI+"/"+vfsFile.get_filename()
+        elif vfsFile.group == "" and vfsFile.basePath != "":
+            #came from a file DP where the user has not given the folder a name
+            print "NO GROUPNAME. GOING TO EMPTY DIR WITH REL PATH"
+            pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
+            newURI = self.unmatchedURI+pathFromBase
         else:
-            print "orphan %s group %s" % (self.emptyDirGroups, vfsFile.group)
             pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
             if vfsFile.group in self.emptyDirGroups:
@@ -514,12 +518,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 #unknown. Store in orphan dir
                 newURI = os.path.join(self.unmatchedURI, pathFromBase)
 
-        #Utils.do_gnomevfs_transfer(
-        #                    vfsFile.URI, 
-        #                    gnomevfs.URI(newURI), 
-        #                    overwrite
-        #                    )
-        print "-------- %s" % newURI
+        Utils.do_gnomevfs_transfer(
+                            vfsFile.URI, 
+                            gnomevfs.URI(newURI), 
+                            overwrite
+                            )
                 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
