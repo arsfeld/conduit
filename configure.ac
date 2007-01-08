@@ -40,13 +40,14 @@ AM_GLIB_GNU_GETTEXT
 ################################################################################
 # Requirements
 ################################################################################
-PKG_CHECK_MODULES(CONDUIT,
-	gtk+-2.0				>= 2.10
-	pygtk-2.0				>= 2.10
-	pygobject-2.0			>= 2.6
-)
-AC_SUBST(CONDUIT_CFLAGS)
-AC_SUBST(CONDUIT_LIBS)
+#Dont actually need any devel modules at the moment - bindings are out of tree
+#PKG_CHECK_MODULES(CONDUIT,
+#	gtk+-2.0				>= 2.10
+#	pygtk-2.0				>= 2.10
+#	pygobject-2.0			>= 2.6
+#)
+#AC_SUBST(CONDUIT_CFLAGS)
+#AC_SUBST(CONDUIT_LIBS)
 
 ################################################################################
 # Check for neccessary python modules (that dont install pc files)

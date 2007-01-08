@@ -29,7 +29,6 @@ conduit_PYTHON = \
 	Settings.py \
 	Synchronization.py \
 	Tree.py \
-	TreeViewTooltips.py \
 	TypeConverter.py \
 	Utils.py \
 	VolumeMonitor.py

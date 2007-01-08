@@ -11,7 +11,6 @@ conduit_handlers_PYTHON = \
 	iPodModule.py \
 	NotesModule.py \
 	SynceModule.py \
-	TestModule.py \
 	TextConverterModule.py
 
 if ENABLE_EVOLUTION
