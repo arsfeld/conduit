@@ -476,12 +476,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             if item[TYPE_IDX] == TYPE_FOLDER:
                 if item[CONTAINS_NUM_ITEMS_IDX] == 0 and item[GROUP_NAME_IDX] != "":
                     self.emptyDirGroups[item[GROUP_NAME_IDX]] = item[URI_IDX]
-                    print "FOOBAR"
                 for i in item[CONTAINS_ITEMS_IDX]:
                     self.db.insert(i,TYPE_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
-
-        for i in self.db:
-            print i
 
     def put(self, vfsFile, overwrite, LUIDs=[]):
         """

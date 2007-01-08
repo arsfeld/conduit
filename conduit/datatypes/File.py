@@ -224,8 +224,9 @@ def TaggedFile(File):
     A simple class to allow tags to be applied to files for those
     dataproviders that need this information (e.g. f-spot)
     """
-    def __init__(self):
-        File.__init__(self)
+    def __init__(self, uri, **kwargs):
+        File.__init__(self, uri, **kwargs)
+        DataType.DataType.__init__(self,"taggedfile")
         self.tags = []
     
     def set_tags(self, tags):
