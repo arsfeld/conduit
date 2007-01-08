@@ -13,9 +13,10 @@ import Note
 import Text
 import Email
 import Contact
+import Event
 import DataType
 
-__all__ = ["Feed", "File", "Note", "Text", "Email", "Contact", "DataType"]
+__all__ = ["Feed", "File", "Note", "Text", "Email", "Contact", "Event", "DataType"]
 
 #Constants used for comparison
 COMPARISON_EQUAL = 0

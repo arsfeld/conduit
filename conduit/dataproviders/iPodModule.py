@@ -27,6 +27,7 @@ from conduit.DataProvider import TwoWay
 import os
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
+import conduit.datatypes.Event as Event
 
 import gnomevfs
 
@@ -211,7 +212,7 @@ class IPodCalendarTwoWay(IPodBase):
 
     def put(self, event, overwrite, LUIDs=[]):
         TwoWay.put(self, event, overwrite, LUIDs)
-        _string_to_unqiue_file(str(event), self.dataDir, 'event')
+        _string_to_unqiue_file(event.to_string(), self.dataDir, 'event')
 
     def finish(self):
         self.notes = None
