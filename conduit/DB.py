@@ -31,6 +31,8 @@ class MappingDB:
         Saves a relationship between LUIDA and LUIDB on 
         behalf of dpw
         """
+        if None in [LUIDA, LUIDB]:
+            return
         for i in self._db._dpw[dpwUID]:
             if i["LUIDA"] == LUIDA and i["LUIDB"] == LUIDB:
                 return
