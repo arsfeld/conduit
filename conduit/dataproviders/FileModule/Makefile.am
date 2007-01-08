@@ -1,6 +1,6 @@
 conduit_handlersdir = $(libdir)/conduit/dataproviders/FileModule
 conduit_handlers_PYTHON = FileModule.py
-EXTRA_DIST = config.glade
+conduit_handlers_DATA = config.glade
 
 clean-local:
 	rm -rf *.pyc *.pyo
