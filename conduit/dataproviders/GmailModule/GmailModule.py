@@ -83,6 +83,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
     def __init__(self, *args):
         GmailBase.__init__(self, *args)
         DataProvider.TwoWay.__init__(self)
+        self.need_configuration(True)
         
         #What emails should the source return??
         self.getAllEmail = False
@@ -176,6 +177,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
+            self.set_configured(True)
             if searchAllEmailsCb.get_active():
                 self.getAllEmail = True
                 self.getUnreadEmail = False
@@ -354,6 +356,8 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
     def __init__(self, *args):
         GmailBase.__init__(self, *args)
         DataProvider.TwoWay.__init__(self)
+        self.need_configuration(True)
+
         self.contacts = None
         self.username = ""
         self.password = ""
@@ -411,6 +415,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
+                self.set_configured(True)
         dlg.destroy()
 
     def get_configuration(self):

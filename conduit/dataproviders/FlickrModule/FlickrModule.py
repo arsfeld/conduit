@@ -39,6 +39,7 @@ class FlickrSink(DataProvider.DataSink):
     
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
+        self.need_configuration(True)
         
         self.fapi = None
         self.token = None
@@ -137,6 +138,7 @@ class FlickrSink(DataProvider.DataSink):
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
+            self.set_configured(True)
             if attachTagCb.get_active():
                 self.tagWith = tagEntry.get_text()
             self.showPublic = publicCb.get_active()

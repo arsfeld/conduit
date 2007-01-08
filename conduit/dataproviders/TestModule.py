@@ -220,10 +220,14 @@ class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
+        self.need_configuration(True)
         
     def refresh(self):
         DataProvider.DataSink.refresh(self)
         raise Exceptions.RefreshError
+
+    def configure(self, window):
+        self.set_configured(True)
 
 class TestDynamicSource(_TestBase, DataProvider.DataSource):
     _name_ = "Test Dynamic Source"

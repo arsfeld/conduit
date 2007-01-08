@@ -129,9 +129,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
     synchronization operation. Inherits from GObject because it uses 
     signals to communcate with the main GUI.
     """
-    REFRESH_STATE = 0
-    SYNC_STATE = 1
-    DONE_STATE = 2
+    CONFIGURE_STATE = 0
+    REFRESH_STATE = 1
+    SYNC_STATE = 2
+    DONE_STATE = 3
 
     __gsignals__ =  { 
                     "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
@@ -166,7 +167,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.sinkErrors = {}
 
         #Start at the beginning
-        self.state = SyncWorker.REFRESH_STATE
+        self.state = SyncWorker.CONFIGURE_STATE
         self.cancelled = False
         self.setName("Synchronization Thread: %s" % conduit.datasource.get_UID())
         
@@ -388,6 +389,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         finished = False
         #Keep track of those sinks that didnt refresh ok
         sinkDidntRefreshOK = {}
+        sinkDidntConfigureOK = {}
         
         #Error handling is a bit complex because we need to send
         #signals back to the gui for display, and because some errors
@@ -401,8 +403,29 @@ class SyncWorker(threading.Thread, gobject.GObject):
         while not finished:
             self.check_thread_not_cancelled([self.source] + self.sinks)
             logging.debug("Syncworker state %s" % self.state)
-            #Refresh state
-            if self.state is SyncWorker.REFRESH_STATE:
+
+            #Check dps have been configured
+            if self.state is SyncWorker.CONFIGURE_STATE:
+                if not self.source.module.is_configured():
+                    self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
+                    #Cannot continue if source not configured
+                    raise Exceptions.StopSync
+    
+                for sink in self.sinks:
+                    if not sink.module.is_configured():
+                        sinkDidntConfigureOK[sink] = True
+                        self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED
+                #Need to have at least one successfully configured sink
+                if len(sinkDidntConfigureOK) < len(self.sinks):
+                    #If this thread is a sync thread do a sync
+                    self.state = SyncWorker.REFRESH_STATE
+                else:
+                    #We are finished
+                    print "NOT ENOUGHT CONFIGURED OK"
+                    self.state = SyncWorker.DONE_STATE                  
+
+            #refresh state
+            elif self.state is SyncWorker.REFRESH_STATE:
                 logging.debug("Source Status = %s" % self.source.module.get_status_text())
                 #Refresh the source
                 try:
@@ -422,17 +445,18 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 #Refresh all the sinks. At least one must refresh successfully
                 for sink in self.sinks:
                     self.check_thread_not_cancelled([self.source, sink])
-                    try:
-                        sink.module.refresh()
-                        sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
-                    except Exceptions.RefreshError:
-                        logging.warn("Error refreshing: %s" % sink)
-                        sinkDidntRefreshOK[sink] = True
-                        self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
-                    except Exception, err:
-                        logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
-                        sinkDidntRefreshOK[sink] = True
-                        self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
+                    if sink not in sinkDidntConfigureOK:
+                        try:
+                            sink.module.refresh()
+                            sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
+                        except Exceptions.RefreshError:
+                            logging.warn("Error refreshing: %s" % sink)
+                            sinkDidntRefreshOK[sink] = True
+                            self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
+                        except Exception, err:
+                            logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
+                            sinkDidntRefreshOK[sink] = True
+                            self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                             
                 #Need to have at least one successfully refreshed sink            
                 if len(sinkDidntRefreshOK) < len(self.sinks):

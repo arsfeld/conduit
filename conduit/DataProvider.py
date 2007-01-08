@@ -26,6 +26,7 @@ STATUS_DONE_SYNC_ERROR = 7
 STATUS_DONE_SYNC_SKIPPED = 8
 STATUS_DONE_SYNC_CANCELLED = 9
 STATUS_DONE_SYNC_CONFLICT = 10
+STATUS_DONE_SYNC_NOT_CONFIGURED = 11
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -112,6 +113,10 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         #of the basic dataproviders
         self.widget_width = WIDGET_WIDTH
         self.widget_height = WIDGET_HEIGHT
+
+        #track the state of widget configuration
+        self.need_configuration(False)
+        self.set_configured(False)
         
         #Build the child widgets
         self._build_widget()
@@ -279,6 +284,8 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
             return _("Synchronization Cancelled")
         elif s == STATUS_DONE_SYNC_CONFLICT:
             return _("Synchronization Conflict")
+        elif s == STATUS_DONE_SYNC_NOT_CONFIGURED:
+            return _("Not Configured Correctly")
         else:
             return "BAD PROGRAMMER"
             
@@ -297,6 +304,20 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
             return True
         else:
             return False
+
+    def need_configuration(self, need):
+        """
+        Derived classes should call this function in their constructor if they
+        require configuration before they can operate
+        """
+        self.needConfiguration = need
+
+    def set_configured(self, configured):
+        """
+        Sets if the widget has been configured or not. Derived classes may call 
+        this for example, to ensure the user enters the configure menu
+        """
+        self.isConfigured = configured
             
     def configure(self, window):
         """
@@ -307,6 +328,13 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @type window: {gtk.Window}
         """
         logging.info("configure() not overridden by derived class %s" % self._name_)
+        self.set_configured(True)
+
+    def is_configured(self):
+        """
+        Checks if the dp has been configured or not (and if it needs to be)
+        """
+        return (not self.needConfiguration) or self.isConfigured
         
     def get_configuration(self):
         """
