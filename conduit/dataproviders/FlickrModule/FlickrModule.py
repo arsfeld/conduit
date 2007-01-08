@@ -19,8 +19,7 @@ Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI-8")
 from flickrapi import FlickrAPI
 
 MODULES = {
-	"FlickrSink" :          { "type": "dataprovider" },
-	"TaggedFileConverter" : { "type": "converter" }           
+	"FlickrSink" :          { "type": "dataprovider" }        
 }
 
 class FlickrSink(DataProvider.DataSink):
@@ -29,8 +28,8 @@ class FlickrSink(DataProvider.DataSink):
     _description_ = "Sync Your Flickr.com Photos"
     _category_ = DataProvider.CATEGORY_WEB
     _module_type_ = "sink"
-    _in_type_ = "taggedfile"
-    _out_type_ = "taggedfile"
+    _in_type_ = "file"
+    _out_type_ = "file"
     _icon_ = "image-x-generic"
 
     API_KEY="65552e8722b21d299388120c9fa33580"
@@ -39,7 +38,6 @@ class FlickrSink(DataProvider.DataSink):
     
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
-        self.need_configuration(True)
         
         self.fapi = None
         self.token = None
@@ -62,7 +60,9 @@ class FlickrSink(DataProvider.DataSink):
         I also store a md5 of the photos uri to check for duplicates
         """
         DataProvider.DataSink.put(self, photo, overwrite, LUIDs)
-        
+
+        originalURI = photo._get_text_uri()
+        originalName = photo.get_filename()
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
         photoURI = photo.get_local_uri()
@@ -71,39 +71,22 @@ class FlickrSink(DataProvider.DataSink):
         if mimeType not in FlickrSink.ALLOWED_MIMETYPES:
             raise Exceptions.SyncronizeError("Flickr does not allow uploading %s Files" % mimeType)
         
-        #Check if the file already exists (using the URI md5)
-        uriHash = md5.new(photoURI.encode("ascii")).hexdigest()
-        ret = self.fapi.photos_search(  api_key=FlickrSink.API_KEY, 
-                                        auth_token=self.token,
-                                        user_id="me",
-                                        text=uriHash
-                                        )
-           
-        if self.fapi.getRspErrorCode(ret) != 0:
-            logging.warn("Search Error: %s" % fapi.getPrintableError(ret))
-        
-        #did we get one result?
-        try:                                       
-            dupe = ret.photos[0].photo[0]
-            logging.info("Photo %s allready exists. Not Uploading. (URI Hash:%s)" % (dupe['title'], uriHash))
-            return
-        except Exception:
-            pass
-            #logging.warn("Search Error:\n%s" % traceback.format_exc())
-            
+        #Check if we have already uploaded the photo
+        if len(LUIDs) > 0:
+            logging.debug("Photo already uploaded, skipping")
+            return None
+
+        #Upload            
         logging.debug("Uploading Photo URI = %s, Mimetype = %s" % (photoURI, mimeType))
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
                                 filename=photoURI,
-                                title=photo.get_filename(),
-                                description=uriHash,
-                                tags=self.tagWith,
-                                is_public=str(int(self.showPublic)),
-                                is_friend=str(int(self.showFriends)),
-                                is_family=str(int(self.showFamily))
+                                title=originalName,
                                 )
         if self.fapi.getRspErrorCode(ret) != 0:
-            raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % fapi.getPrintableError(ret))
+            raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % self.fapi.getPrintableError(ret))
+        else:
+            return ret.photoid[0].elementText
 
     def configure(self, window):
         """
@@ -138,7 +121,6 @@ class FlickrSink(DataProvider.DataSink):
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            self.set_configured(True)
             if attachTagCb.get_active():
                 self.tagWith = tagEntry.get_text()
             self.showPublic = publicCb.get_active()
@@ -157,16 +139,3 @@ class FlickrSink(DataProvider.DataSink):
     def get_UID(self):
         return self.token
             
-class TaggedFileConverter:
-    def __init__(self):
-        self.conversions =  {    
-                            "taggedfile,file" : self.taggedfile_to_file,
-                            "file,taggedfile" : self.file_to_taggedfile
-                            }            
-    def taggedfile_to_file(self, thefile):
-        #taggedfile is parent class of file so no conversion neccessary
-        return thefile
-
-    def file_to_taggedfile(self, thefile):
-        return File.File(uri=thefile.URI)
-        
