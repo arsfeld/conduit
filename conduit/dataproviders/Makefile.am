@@ -1,8 +1,10 @@
 SUBDIRS = \
+	BackpackModule \
 	FileModule \
 	FeedModule \
 	FlickrModule \
-	FspotModule
+	FspotModule \
+	GmailModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
