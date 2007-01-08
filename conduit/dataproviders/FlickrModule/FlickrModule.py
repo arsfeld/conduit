@@ -152,7 +152,7 @@ class FlickrSink(DataProvider.DataSink):
             "showFamily" : self.showFamily
             }
 
-    def get_URI(self):
+    def get_UID(self):
         return self.token
             
 class TaggedFileConverter:
