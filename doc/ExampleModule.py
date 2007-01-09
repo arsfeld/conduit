@@ -179,6 +179,9 @@ class MoinMoinDataSource(DataSource):
         their settings. 
         """
         return {"pages" : self.pages}
+
+    def get_UID(self):
+        return False
 		
 class WikiPageDataType(DataType.DataType):
     """
