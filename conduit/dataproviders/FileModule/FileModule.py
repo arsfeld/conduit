@@ -519,6 +519,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                             gnomevfs.URI(newURI), 
                             overwrite
                             )
+        return newURI
                 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)

@@ -53,7 +53,7 @@ class ConflictResolver:
                                     )
 
         #FIXME: Fill with test data. Can Remove at some stage...
-        self._test_data()
+        #self._test_data()
 
         self.view = gtk.TreeView( self.model )
         self.view.set_property("enable-search", False)
