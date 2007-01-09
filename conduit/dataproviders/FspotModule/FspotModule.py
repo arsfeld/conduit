@@ -28,14 +28,15 @@ class FspotSource(DataProvider.DataSource):
     _description_ = _("Sync your F-Spot photos")
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
-    _in_type_ = "taggedfile"
-    _out_type_ = "taggedfile"
+    _in_type_ = "file"
+    _out_type_ = "file"
     _icon_ = "f-spot"
 
     PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
+        self.need_configuration(True)
         #Settings
         self.enabledTags = []
         self.photoURIs = None
@@ -68,8 +69,8 @@ class FspotSource(DataProvider.DataSource):
         con = sqlite.connect(FspotSource.PHOTO_DB)
         tagCur = con.cursor()
         photoCur = con.cursor()
-        for tag in self.enabledTags:
-            tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tag[ID_IDX]))
+        for tagID in self.enabledTags:
+            tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tagID))
             for photoID in tagCur:
                 photoCur.execute("SELECT directory_path, name FROM photos WHERE id=?", (photoID))
                 for (directory_path, name) in photoCur:
@@ -81,7 +82,7 @@ class FspotSource(DataProvider.DataSource):
         
     def get(self, index):
         DataProvider.DataSource.get(self, index)
-        return self.photoURIs[index]
+        return File.File(self.photoURIs[index])
 
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
@@ -89,24 +90,6 @@ class FspotSource(DataProvider.DataSource):
     
     def finish(self):
         self.photoURIs = None
-
-    def set_configuration(self, config):
-        #We need to override set_configuration because we need to fold the
-        #list of enabled tags into the datastore that is used for the
-        #config dialog
-        if not config.has_key("enabledTags"):
-            return
-        #This is a bit of a hack (i.e. inefficient - looped in statement) way 
-        #to set the default enabled tags
-        for t in self.tags:
-            if t[0]["Name"] in config["enabledTags"]:
-                logging.debug("Renabling %s tag" % t[0]["Name"])
-                t[1] = True
-            
-
-    def get_configuration(self):
-        #Save enabled tags
-        return {"enabledTags" : self.enabledTags}
 
     def configure(self, window):
         """
@@ -132,7 +115,7 @@ class FspotSource(DataProvider.DataSource):
 						)
         tagtreeview = tree.get_widget("tagtreeview")
         #Build a list of all the tags
-        list_store = gtk.ListStore( gobject.TYPE_STRING,    #ID_IDX
+        list_store = gtk.ListStore( gobject.TYPE_INT,       #ID_IDX
                                     gobject.TYPE_STRING,    #NAME_IDX
                                     gobject.TYPE_BOOLEAN,   #active
                                     )
@@ -163,8 +146,7 @@ class FspotSource(DataProvider.DataSource):
 
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            #print self.tags
-            pass
+            self.set_configured(True)
         dlg.destroy()
 
     def get_UID(self):
