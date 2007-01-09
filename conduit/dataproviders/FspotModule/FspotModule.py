@@ -19,6 +19,9 @@ MODULES = {
 	"FspotSource" : { "type": "dataprovider" }
 }
 
+ID_IDX = 0
+NAME_IDX = 1
+
 class FspotSource(DataProvider.DataSource):
 
     _name_ = _("F-Spot Photos")
@@ -30,32 +33,34 @@ class FspotSource(DataProvider.DataSource):
     _icon_ = "f-spot"
 
     PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
+
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
         #Settings
-        self.enabledTags = [] #Just used to save and restore settings
-        self.tags = []
+        self.enabledTags = []
         self.photoURIs = None
 
-    def initialize(self):
-        if not os.path.exists(FspotSource.PHOTO_DB):
-            return False
-        else:
+        self.tags = []
+        self._get_all_tags()
+
+    def _get_all_tags(self):
+        self.tags = []
+        if os.path.exists(FspotSource.PHOTO_DB):
             #Create a connection to the database
             con = sqlite.connect(FspotSource.PHOTO_DB)
             cur = con.cursor()
-
             #Get a list of all tags for the config dialog
             cur.execute("SELECT id, name FROM tags")
             for (tagid, tagname) in cur:
-                self.tags.append([{"Id" : tagid, "Name" : tagname}, False])
-            
+                self.tags.append([tagid,tagname])
             con.close()  
-            return True
+
+    def initialize(self):
+        return True
         
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-
+        self._get_all_tags()
         #Stupid pysqlite thread stuff. Connection must be made in the same thread
         #as any execute statements
         self.photoURIs = []
@@ -63,8 +68,8 @@ class FspotSource(DataProvider.DataSource):
         con = sqlite.connect(FspotSource.PHOTO_DB)
         tagCur = con.cursor()
         photoCur = con.cursor()
-        for tag in [t for t in self.tags if t[1]]:
-            tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tag[0]["Id"]))
+        for tag in self.enabledTags:
+            tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tag[ID_IDX]))
             for photoID in tagCur:
                 photoCur.execute("SELECT directory_path, name FROM photos WHERE id=?", (photoID))
                 for (directory_path, name) in photoCur:
@@ -101,17 +106,23 @@ class FspotSource(DataProvider.DataSource):
 
     def get_configuration(self):
         #Save enabled tags
-        return {"enabledTags" : [ t[0]["Name"] for t in self.tags if t[1] ]}        
+        return {"enabledTags" : self.enabledTags}
 
     def configure(self, window):
         """
         Indeed
         """
         def col1_toggled_cb(cell, path, model ):
-            model[path][1] = not model[path][1]
-            logging.debug("Toggle '%s' to: %s (%s)" % (model[path][0], model[path][1], model[path][2]))
-            #This is why we stored the tag index...
-            self.tags[ model[path][2] ][1] = model[path][1]
+            #not because we get this cb before change state
+            checked = not cell.get_active()
+            model[path][2] = checked
+            val = model[path][ID_IDX]
+            if checked and val not in self.enabledTags:
+                self.enabledTags.append(val)
+            elif not checked and val in self.enabledTags:
+                self.enabledTags.remove(val)
+
+            logging.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
             return
 
         tree = Utils.dataprovider_glade_get_widget(
@@ -121,21 +132,22 @@ class FspotSource(DataProvider.DataSource):
 						)
         tagtreeview = tree.get_widget("tagtreeview")
         #Build a list of all the tags
-        list_store = gtk.ListStore( gobject.TYPE_STRING,
-                                    gobject.TYPE_BOOLEAN,
-                                    gobject.TYPE_INT #Also store the tag index
+        list_store = gtk.ListStore( gobject.TYPE_STRING,    #ID_IDX
+                                    gobject.TYPE_STRING,    #NAME_IDX
+                                    gobject.TYPE_BOOLEAN,   #active
                                     )
         #Fill the list store
+        self._get_all_tags()
         i = 0
         for t in self.tags:
-            list_store.append((t[0]["Name"],t[1],i))
+            list_store.append((t[ID_IDX],t[NAME_IDX],t[ID_IDX] in self.enabledTags))
             i += 1
         #Set up the treeview
         tagtreeview.set_model(list_store)
         #column 1 is the tag name
         tagtreeview.append_column(  gtk.TreeViewColumn('Tag Name', 
                                     gtk.CellRendererText(), 
-                                    text=0)
+                                    text=NAME_IDX)
                                     )
         #column 2 is a checkbox for selecting the tag to sync
         renderer1 = gtk.CellRendererToggle()
@@ -143,7 +155,7 @@ class FspotSource(DataProvider.DataSource):
         renderer1.connect( 'toggled', col1_toggled_cb, list_store )
         tagtreeview.append_column(  gtk.TreeViewColumn('Enabled', 
                                     renderer1, 
-                                    active=1)
+                                    active=2)
                                     )
 
         dlg = tree.get_widget("FspotConfigDialog")
