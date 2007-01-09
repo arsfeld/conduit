@@ -122,7 +122,7 @@ class IPodNoteTwoWay(IPodBase):
 
     def put(self, note, overwrite, LUIDs=[]):
         TwoWay.put(self, note, overwrite, LUIDs)
-        _string_to_unqiue_file(note.contents, self.notesPoint, note.tile, '.txt')
+        _string_to_unqiue_file(note.contents, self.notePoint, note.tile, '.txt')
         
     def finish(self):
         self.notes = None
