@@ -333,52 +333,54 @@ class SyncWorker(threading.Thread, gobject.GObject):
         logging.info("Synchronizing %s <--> %s " % (source, sink))
         
         #Holds Data items indexed by UID
-        sourceItems = {}
-        sinkItems = {}
+        sourceData = {}
+        sinkData = {}
 
         #Get all the data
         #FIXME: Next version should just get the URIs
         for i in range(0, source.module.get_num_items()):
             data = source.module.get(i)
-            sourceItems[data.get_UID()] = (data, i)
+            sourceData[data.get_UID()] = (data, i)
         for i in range(0, sink.module.get_num_items()):
             data = sink.module.get(i)
-            sinkItems[data.get_UID()] = (data, i)
+            sinkData[data.get_UID()] = (data, i)
         
         #FIXME: Store these as possible missing and possible hits. Actually check
         #that the file is missing before being certain
         missing = []
         hits = []
-        for uid in sourceItems.keys():
-            matchingUIDs = self.mappingDB.get_matching_uids(source.get_UID(),uid)
+        for dataUID in sourceData.keys():
+            matchingUIDs = self.mappingDB.get_matching_uids(source.get_UID(),dataUID)
             if len(matchingUIDs) == 0:
-                missing.append([sourceItems[uid][0],sink,source])
+                #compare incase the case where the mapping db has been deleted
+                missing.append([sourceData[dataUID][0],source,sink])
             else:
-                #print "Source item %s -> %s (in? %s)" % (uid,matchingUIDs, matchingUIDs[0] in sinkItems)
-                for hit in [i for i in matchingUIDs if i in sinkItems]:
+                #print "Source item %s -> %s (in? %s)" % (dataUID,matchingUIDs, matchingUIDs[0] in sinkData)
+                for hit in [i for i in matchingUIDs if i in sinkData]:
                     print "POSSBILE CONFLICT: %s"
 
-        for uid in sinkItems.keys():
-            matchingUIDs = self.mappingDB.get_matching_uids(sink.get_UID(),uid)
+        for dataUID in sinkData.keys():
+            matchingUIDs = self.mappingDB.get_matching_uids(sink.get_UID(),dataUID)
             if len(matchingUIDs) == 0:
-                missing.append([sinkItems[uid][0],sink,source])
+                #compare incase the case where the mapping db has been deleted
+                missing.append([sinkData[dataUID][0],sink,source])
             else:
-                #print "Sink item %s -> %s (in? %s)" % (uid,matchingUIDs, matchingUIDs[0] in sourceItems)
-                for hit in [i for i in matchingUIDs if i in sourceItems]:
+                #print "Sink item %s -> %s (in? %s)" % (dataUID,matchingUIDs, matchingUIDs[0] in sourceData)
+                for hit in [i for i in matchingUIDs if i in sourceData]:
                     print "POSSBILE CONFLICT: %s"
 
         self.mappingDB.debug()
 
         for data,fromm,to in missing:
             logging.debug("Missing: %s FROM %s" % (data, fromm))
-            #self._resolve_missing(fromm, to, data) 
+            self._resolve_missing(fromm, to, data) 
 
         #Build a list of conflicts (Items in both) - from the perspective of the source
-        #for key in [i for i in sinkItems.keys() if i in sourceItems]:
+        #for key in [i for i in sinkData.keys() if i in sourceData]:
             #source is a
-         #   aData, aIndex = sourceItems[key]
+         #   aData, aIndex = sourceData[key]
             #sink is b
-          #  bData, bIndex = sinkItems[key]
+          #  bData, bIndex = sinkData[key]
           #  logging.debug("Conflict: %s" % key)
             #Compare and apply policy
            # comparison = aData.compare(aData, bData)
