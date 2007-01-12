@@ -23,6 +23,7 @@ if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
 
 import logging
 import conduit
+import conduit.Utils as Utils
 from conduit.DBus import DBusView
 from conduit.Module import ModuleManager
 from conduit.Canvas import Canvas
@@ -30,7 +31,6 @@ from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
-from conduit.DBus import dbus_service_available
 
 import conduit.VolumeMonitor as gnomevfs
 
@@ -567,7 +567,7 @@ def conduit_main():
 
     #Make conduit single instance. If it is already running then present it
     #to the user
-    if dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
+    if Utils.dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
         logging.info("Conduit is already running")
         bus = dbus.SessionBus()
         obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)

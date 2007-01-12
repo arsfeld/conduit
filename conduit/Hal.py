@@ -13,7 +13,7 @@ License: GPLv2
 
 import logging
 import conduit
-from DBus import dbus_service_available
+import conduit.Utils as Utils
 
 import VolumeMonitor as gnomevfs
 import gobject
@@ -65,7 +65,7 @@ class HalMonitor(gobject.GObject):
         self.registered_volumes = []
         self.bus = dbus.SystemBus()
 
-        if dbus_service_available(self.bus,'org.freedesktop.Hal'):
+        if Utils.dbus_service_available(self.bus,'org.freedesktop.Hal'):
             logging.info("HAL Initialized")
             #Scan hardware first.
             self._scan_hardware()

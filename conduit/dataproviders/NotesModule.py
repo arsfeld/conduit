@@ -1,6 +1,7 @@
 import gtk
 from gettext import gettext as _
 from elementtree import ElementTree
+import dbus
 
 import logging
 import conduit
@@ -13,6 +14,9 @@ import conduit.Utils as Utils
 import os
 import os.path
 import traceback
+
+TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
+TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
 
 MODULES = {
 	"TomboyNoteSource" :    { "type": "dataprovider" },
@@ -29,54 +33,33 @@ class TomboyNoteSource(DataProvider.DataSource):
     _out_type_ = "note"
     _icon_ = "tomboy"
 
-    NOTE_DIR = os.path.join(os.path.expanduser("~"),".tomboy")
-
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-        self.notes = None
+        self.notes = []
+        self.bus = dbus.SessionBus()
         
     def initialize(self):
         """
         Loads the tomboy source if the user has used tomboy before
         """
-        return os.path.exists(TomboyNoteSource.NOTE_DIR)
+        return True
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-        
         self.notes = []
-
-        #FIXME: How can I do this namespace bit in ElementTree
-        def remove_namespace(string):
-            return string.split("}")[1]
-        
-        #Parse the files into notes
-        files = [i for i in os.listdir(TomboyNoteSource.NOTE_DIR) if i[-5:] == ".note"]    
-        for f in files:
-            try:
-                doc = ElementTree.parse(os.path.join(TomboyNoteSource.NOTE_DIR,f)).getroot()
-                for i in doc:
-                    tag = remove_namespace(i.tag)
-                    if tag == "text":
-                        for j in i.getchildren():
-                            if remove_namespace(j.tag) == "note-content":
-                                content = j.text
-                    if tag == "last-change-date":
-                        modified = i.text
-                    if tag == "title":
-                        title = i.text            
-                            
-                #logging.debug("Title: %s, Modified: %s \nContent:\n%s" % (title, modified, content))
-                note = Note.Note(str(title), str(modified), str(content))
-                note.createdUsing = "tomboy"
-                self.notes.append(note)
-            except:
-                logging.warn("Error parsing note file\n%s" % traceback.format_exc())
-                raise Exceptions.RefreshError
+        if Utils.dbus_service_available(self.bus,TOMBOY_DBUS_IFACE):
+            obj = self.bus.get_object(TOMBOY_DBUS_IFACE, TOMBOY_DBUS_PATH)
+            self.remoteTomboy = dbus.Interface(obj, TOMBOY_DBUS_IFACE)
+            self.notes = self.remoteTomboy.ListAllNotes()
+            print self.notes
+        else:
+            raise Exceptions.RefreshError
                 
     def get(self, index):
         DataProvider.DataSource.get(self, index)
-        return self.notes[index]
+        noteURI = self.notes[index]
+        noteData = self.remoteTomboy.GetNoteContents(noteURI)
+        return noteData
                 
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)

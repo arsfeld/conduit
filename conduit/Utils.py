@@ -145,4 +145,13 @@ def md5_string(string):
     """
     return md5.new(string).hexdigest()
 
+def dbus_service_available(bus,interface):
+    try: 
+        import dbus
+    except: 
+        return False
+    obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
+    dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus') 
+    avail = dbus_iface.ListNames()
+    return interface in avail
 

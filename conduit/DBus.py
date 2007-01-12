@@ -27,16 +27,6 @@ CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
 ERROR = -1
 SUCCESS = 0
 
-def dbus_service_available(bus,interface):
-    try: 
-        import dbus
-    except: 
-        return False
-    obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
-    dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus') 
-    avail = dbus_iface.ListNames()
-    return interface in avail
-
 #Example Message
 #   dbus-send --session --dest=org.freedesktop.conduit \
 #       --print-reply / org.freedesktop.conduit.Ping
