@@ -10,12 +10,12 @@ import datetime
 import traceback
 
 class File(DataType.DataType):
-    def __init__(self, uri, **kwargs):
+    def __init__(self, URI, **kwargs):
         DataType.DataType.__init__(self,"file")
 
         self._close_file()
 
-        self.URI = gnomevfs.URI(uri)
+        self.URI = gnomevfs.URI(URI)
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
@@ -217,14 +217,17 @@ class File(DataType.DataType):
         For a file the URI is a correct representation of the UID
         """
         return self._get_text_uri()
+
+    def get_URI(self):
+        return self._get_text_uri()
             
 def TaggedFile(File):
     """
     A simple class to allow tags to be applied to files for those
     dataproviders that need this information (e.g. f-spot)
     """
-    def __init__(self, uri, **kwargs):
-        File.__init__(self, uri, **kwargs)
+    def __init__(self, URI, **kwargs):
+        File.__init__(self, URI, **kwargs)
         DataType.DataType.__init__(self,"taggedfile")
         self.tags = []
     

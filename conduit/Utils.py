@@ -82,7 +82,7 @@ def new_tempfile(contents, contentsAreText=True):
     fd, name = tempfile.mkstemp(text=contentsAreText)
     os.write(fd, contents)
     os.close(fd)
-    vfsFile = File.File(uri=name)
+    vfsFile = File.File(name)
     return vfsFile
 
 def flatten_list(x):

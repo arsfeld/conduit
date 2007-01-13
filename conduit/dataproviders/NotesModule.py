@@ -9,6 +9,7 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
+import conduit.datatypes.Text as Text
 import conduit.Utils as Utils
 
 import os
@@ -51,15 +52,19 @@ class TomboyNoteSource(DataProvider.DataSource):
             obj = self.bus.get_object(TOMBOY_DBUS_IFACE, TOMBOY_DBUS_PATH)
             self.remoteTomboy = dbus.Interface(obj, TOMBOY_DBUS_IFACE)
             self.notes = self.remoteTomboy.ListAllNotes()
-            print self.notes
         else:
             raise Exceptions.RefreshError
                 
     def get(self, index):
         DataProvider.DataSource.get(self, index)
         noteURI = self.notes[index]
-        noteData = self.remoteTomboy.GetNoteContents(noteURI)
-        return noteData
+        n = Note.Note(
+                    noteURI,
+                    title=self.remoteTomboy.GetNoteTitle(noteURI),
+                    modified=self.remoteTomboy.GetNoteChangeDate(noteURI),
+                    contents=self.remoteTomboy.GetNoteContents(noteURI)
+                    )
+        return n
                 
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
@@ -83,20 +88,20 @@ class NoteConverter:
                             }
                             
                             
-    def text_to_note(self, measure):
-        n = Note.Note()
-        n.title = "Note Title"
-        n.contents = measure
+    def text_to_note(self, text):
+        n = Note.Note(
+                    None,   #no uri
+                    title="Note-"+Utils.random_string(),
+                    contents=text
+                    )
         return n
 
     def note_to_text(self, note):
-        return note.contents
+        t = Text.Text(None,text=note.contents)
+        return t
 
     def note_to_file(self, note):
         f = Utils.new_tempfile(note.contents)
         if len(note.title) > 0:
-            f.force_new_filename("%s.%s_note" % (note.title, note.createdUsing))
-        else:
-            #This is for stickynotes cause the title field is seldom used
-            f.force_new_filename("%s.%s_note" % (f.get_filename(), note.createdUsing))
+            f.force_new_filename("%s_note" % note.title)
         return f

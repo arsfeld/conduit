@@ -55,3 +55,7 @@ class DataType:
         Gets the UID for this data
         """
         return self.UID
+
+    def get_URI(self):
+        return self.URI
+

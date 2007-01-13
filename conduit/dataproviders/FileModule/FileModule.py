@@ -516,7 +516,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
         destFile = File.File(newURI)
         comp = vfsFile.compare(destFile)
-        if overwrite or comp == DataType.COMPARISON_NEWER:
+        #FIXME: We should probbably raise on MISSING also
+        if overwrite or comp == DataType.COMPARISON_NEWER or comp == DataType.COMPARISON_MISSING:
             Utils.do_gnomevfs_transfer(
                                 vfsFile.URI, 
                                 destFile.URI, 
@@ -612,8 +613,9 @@ class FileConverter:
         try:
             #check its a text type
             mime.index("text")
-            t = Text.Text(None)
-            t.set_text(theFile.get_contents_as_text())
+            rawtext = theFile.get_contents_as_text()
+            uri = theFile._get_text_uri()
+            t = Text.Text(uri,text=rawtext)
             return t            
         except ValueError:
             raise Exception(

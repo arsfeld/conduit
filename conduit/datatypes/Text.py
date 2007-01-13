@@ -4,13 +4,10 @@ import conduit
 from conduit.datatypes import DataType
 
 class Text(DataType.DataType):
-    def __init__(self, uri, **kwargs):
+    def __init__(self, URI, **kwargs):
         DataType.DataType.__init__(self,"text")
-        self.text = ""
+        self.text = kwargs.get("text","")
     
-    def set_text(self, text):
-        self.text = text
-
     def __str__(self):
         #only show first 20 characters
         if len(self.text) > 20:
