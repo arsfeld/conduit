@@ -514,11 +514,14 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 #unknown. Store in orphan dir
                 newURI = os.path.join(self.unmatchedURI, pathFromBase)
 
-        Utils.do_gnomevfs_transfer(
-                            vfsFile.URI, 
-                            gnomevfs.URI(newURI), 
-                            overwrite
-                            )
+        destFile = File.File(newURI)
+        comp = vfsFile.compare(destFile)
+        if overwrite or comp == DataType.COMPARISON_NEWER:
+            Utils.do_gnomevfs_transfer(
+                                vfsFile.URI, 
+                                destFile.URI, 
+                                overwrite
+                                )
         return newURI
                 
     def get(self, index):

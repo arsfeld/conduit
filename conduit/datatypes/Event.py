@@ -19,7 +19,7 @@ class Event(DataType.DataType):
     def to_string(self):
         return self.iCal.serialize()
 
-    def compare(self, A, B):
+    def compare(self, B):
         return conduit.datatypes.UNKNOWN
 
 

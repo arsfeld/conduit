@@ -23,7 +23,7 @@ class Contact(DataType.DataType):
     def readVCard(self, string):
         self.vCard = vobject.readOne(string)
 
-    def compare(self, A, B):
+    def compare(self, B):
         return conduit.datatypes.UNKNOWN
 
     def __str__(self):

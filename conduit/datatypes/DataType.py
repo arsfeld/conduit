@@ -24,17 +24,17 @@ class DataType:
         self.UID = None
         self.change_type = CHANGE_UNMODIFIED
 
-    def compare(self, A, B):
+    def compare(self, B):
         """
         Comparison function to be overridden by datatypes who support two
         way synchronisation. 
         
-        This funcion should compare A with B. All answers 
-        are from the perspective of A. The function should return
+        This funcion should compare self with B. All answers 
+        are from the perspective of the me (the instance)
         
-         - C{conduit.datatypes.NEWER} This means the A is newer than B
-         - C{conduit.datatypes.EQUAL} This means the items are equal
-         - L{conduit.datatypes.OLDER} This means the A is older than B
+         - C{conduit.datatypes.NEWER} This means the I am newer than B
+         - C{conduit.datatypes.EQUAL} This means the we are equal
+         - L{conduit.datatypes.OLDER} This means the I am older than B
          - L{conduit.datatypes.UNKNOWN} This means we were unable to determine
            which was newer than the other so its up to the user to decide
         

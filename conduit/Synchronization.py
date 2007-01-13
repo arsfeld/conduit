@@ -196,27 +196,33 @@ class SyncWorker(threading.Thread, gobject.GObject):
         """
         newdata = None
 
-        try:
-            if fromType != toType:
-                if self.typeConverter.conversion_exists(fromType, toType):
-                    newdata = self.typeConverter.convert(fromType, toType, data)
-                else:
-                    newdata = None
-                    raise Exceptions.ConversionDoesntExistError
+        if fromType != toType:
+            if self.typeConverter.conversion_exists(fromType, toType):
+                newdata = self.typeConverter.convert(fromType, toType, data)
             else:
-                newdata = data
-        #Catch exceptions if we abort the sync cause no conversion exists
-        except Exceptions.ConversionDoesntExistError:
-            logging.debug("No Conversion Exists")
-            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
-        #Catch errors from a failed convert
-        except Exceptions.ConversionError, err:
-            #Not fatal, move along
-            logging.warn("Error converting %s" % err)
-            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
+                newdata = None
+                raise Exceptions.ConversionDoesntExistError
+        else:
+            newdata = data
 
         return newdata
 
+    def _put_data(self, data, sink, overwrite):
+        """
+        Puts data into sink, overwrites if overwrite is True
+        """            
+        matchingUIDs = self.mappingDB.get_matching_uids(
+                                sink.get_UID(), 
+                                data.get_UID()
+                                )
+        LUID = sink.module.put(data, overwrite, matchingUIDs)
+        #Now store the mapping of the original URI to the new one
+        self.mappingDB.save_relationship(
+                                sink.get_UID(), 
+                                data.get_UID(),
+                                LUID
+                                )
+         
     def _resolve_missing(self, sourceWrapper, sinkWrapper, missingData):
         """
         Applies user policy when missingData is present in source but
@@ -230,25 +236,16 @@ class SyncWorker(threading.Thread, gobject.GObject):
         elif self.policy["missing"] == "replace":
             logging.debug("Missing Policy: Replace")
             try:
-                LUID = sinkWrapper.module.put(missingData, True)
-                self.mappingDB.save_relationship(
-                                    sinkWrapper.get_UID(), 
-                                    missingData.get_UID(),
-                                    LUID
-                                    )
+                self._put_data(missingData, sinkWrapper, True)
             except:
-                logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
+                logging.critical("Forced Put Failed\n%s" % traceback.format_exc()) 
 
     def _resolve_conflict(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
         Applies user policy when a put() has failed. This may mean emitting
         the conflict up to the GUI or skipping altogether
         """
-        #Look at what the conflict error told us
-        if comparison == DataType.COMPARISON_OLDER:
-            logging.info("CONFLICT: Skipping OLD Data\n%s" % err)
-        #If the data could not be compared then the user must decide
-        elif comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN:
+        if comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN:
             logging.info("CONFLICT: Putting EQUAL or UNKNOWN Data")
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             if self.policy["conflict"] == "skip":
@@ -259,12 +256,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             elif self.policy["conflict"] == "replace":
                 logging.debug("Conflict Policy: Replace")
                 try:
-                    LUID = sinkWrapper.module.put(toData, True)
-                    self.mappingDB.save_relationship(
-                                            sinkWrapper.get_UID(), 
-                                            toData.get_UID(), 
-                                            LUID
-                                            )
+                    self._put_data(toData, sinkWrapper, True)
                 except:
                     logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
@@ -273,52 +265,54 @@ class SyncWorker(threading.Thread, gobject.GObject):
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
             
-    def one_way_sync(self, source, sink, numItems):
+    def one_way_sync(self, source, sink, skipOlder=False):
         """
         Transfers numItems of data from source to sink
         """
         logging.info("Synchronizing %s |--> %s " % (source, sink))
+        numItems = source.module.get_num_items()
         for i in range(0, numItems):
             data = source.module.get(i)
             try:
                 #convert data type if necessary
                 newdata = self._convert_data(sink, source.out_type, sink.in_type, data)
-                #store it 
-                if newdata != None:
-                    #Attempts to put the data
-                    try:
-                        matchingUIDs = self.mappingDB.get_matching_uids(
-                                                sink.get_UID(), 
-                                                data.get_UID()
-                                                )
-                        LUID = sink.module.put(newdata, False, matchingUIDs)
-                        #Now store the mapping of the original URI to the new one
-                        self.mappingDB.save_relationship(
-                                                sink.get_UID(), 
-                                                data.get_UID(), #FIXME: Im using the original data URI. Does this make sense?
-                                                LUID
-                                                )
-                    except Exceptions.SynchronizeConflictError, err:
+                try:
+                    self._put_data(newdata, sink, False)
+                except Exceptions.SynchronizeConflictError, err:
+                    if comp == DataType.COMPARISON_MISSING:
+                        self._resolve_missing(source, sink, newdata)
+                    elif comp == DataType.COMPARISON_OLDER and skipOlder:
+                        logging.debug("Skipping %s", newdata)
+                        pass
+                    elif comp == DataType.COMPARISON_EQUAL:
+                        logging.debug("Skipping %s", newdata)
+                        pass
+                    else:
                         self._resolve_conflict(source, sink, err.comparison, err.fromData, err.toData)
+
+            except Exceptions.ConversionDoesntExistError:
+                logging.debug("No Conversion Exists")
+                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
+            except Exceptions.ConversionError, err:
+                logging.warn("Error converting %s" % err)
+                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SyncronizeError, err:
-                #non fatal, move along
                 logging.warn("Error synchronizing %s", err)                     
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SyncronizeFatalError, err:
-                #Fatal, go home       
                 logging.warn("Error synchronizing %s", err)
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
                 source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
+                #Cannot continue
                 raise Exceptions.StopSync                  
             except Exception, err:                        
-                #Fatal, go home       
+                #Cannot continue
                 logging.critical("Unknown synchronisation error (BAD PROGRAMMER)\n%s" % traceback.format_exc())
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                 source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                 raise Exceptions.StopSync
-
         
-    def two_way_sync(self, source, sink, numItems):
+    def two_way_sync(self, source, sink):
         """
         Performs a two way sync from source to sink and back
 
@@ -331,61 +325,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
             c. If data is in both and comparison is unknown then ask user
         """
         logging.info("Synchronizing %s <--> %s " % (source, sink))
-        
-        #Holds Data items indexed by UID
-        sourceData = {}
-        sinkData = {}
-
-        #Get all the data
-        #FIXME: Next version should just get the URIs
-        for i in range(0, source.module.get_num_items()):
-            data = source.module.get(i)
-            sourceData[data.get_UID()] = (data, i)
-        for i in range(0, sink.module.get_num_items()):
-            data = sink.module.get(i)
-            sinkData[data.get_UID()] = (data, i)
-        
-        #FIXME: Store these as possible missing and possible hits. Actually check
-        #that the file is missing before being certain
-        missing = []
-        hits = []
-        for dataUID in sourceData.keys():
-            matchingUIDs = self.mappingDB.get_matching_uids(source.get_UID(),dataUID)
-            if len(matchingUIDs) == 0:
-                #compare incase the case where the mapping db has been deleted
-                missing.append([sourceData[dataUID][0],source,sink])
-            else:
-                #print "Source item %s -> %s (in? %s)" % (dataUID,matchingUIDs, matchingUIDs[0] in sinkData)
-                for hit in [i for i in matchingUIDs if i in sinkData]:
-                    print "POSSBILE CONFLICT: %s"
-
-        for dataUID in sinkData.keys():
-            matchingUIDs = self.mappingDB.get_matching_uids(sink.get_UID(),dataUID)
-            if len(matchingUIDs) == 0:
-                #compare incase the case where the mapping db has been deleted
-                missing.append([sinkData[dataUID][0],sink,source])
-            else:
-                #print "Sink item %s -> %s (in? %s)" % (dataUID,matchingUIDs, matchingUIDs[0] in sourceData)
-                for hit in [i for i in matchingUIDs if i in sourceData]:
-                    print "POSSBILE CONFLICT: %s"
-
-        self.mappingDB.debug()
-
-        for data,fromm,to in missing:
-            logging.debug("Missing: %s FROM %s" % (data, fromm))
-            self._resolve_missing(fromm, to, data) 
-
-        #Build a list of conflicts (Items in both) - from the perspective of the source
-        #for key in [i for i in sinkData.keys() if i in sourceData]:
-            #source is a
-         #   aData, aIndex = sourceData[key]
-            #sink is b
-          #  bData, bIndex = sinkData[key]
-          #  logging.debug("Conflict: %s" % key)
-            #Compare and apply policy
-           # comparison = aData.compare(aData, bData)
-            #self._resolve_conflict(source, sink, comparison, aData, bData)
-        raise Exception("TWO WAY SUPPORT NOT FINISHED")
+        self.one_way_sync(source, sink, True)
+        self.one_way_sync(sink, source, True)
 
     def run(self):
         """
@@ -496,23 +437,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
             #synchronize state
             elif self.state is SyncWorker.SYNC_STATE:
-                try:
-                    #Depending on the dp, this call make take a while as it may need
-                    #to get all the data to tell how many items there are...
-                    numItems = self.source.module.get_num_items()
-                #if the source errors then its not worth doing anything to the sink
-                except Exceptions.SyncronizeFatalError:
-                    self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                    logging.warn("Could not Get Source Data")                    
-                    #Cannot continue with no source data                    
-                    raise Exceptions.StopSync
-                #if we dont know what happened then thats also bad programming
-                except Exception, err:                        
-                    self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                    logging.critical("Unknown error getting source iterator: %s\n%s" % (err,traceback.format_exc()))
-                    #Cannot continue with no source data
-                    raise Exceptions.StopSync           
-                
                 for sink in self.sinks:
                     self.check_thread_not_cancelled([self.source, sink])
                     #only sync with those sinks that refresh'd OK
@@ -521,10 +445,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         #and the capabilities of the dataprovider
                         if  self.conduit.is_two_way():
                             #two way
-                            self.two_way_sync(self.source, sink, numItems)
+                            self.two_way_sync(self.source, sink)
                         else:
                             #one way
-                            self.one_way_sync(self.source, sink, numItems)
+                            self.one_way_sync(self.source, sink)
  
                 #Done go clean up
                 self.state = SyncWorker.DONE_STATE

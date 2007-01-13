@@ -169,40 +169,39 @@ class File(DataType.DataType):
             self.URI = toURI
             return tempname
 
-    def compare(self, A, B):
+    def compare(self, B):
         """
-        Compare A with B based upon their modification times
+        Compare me with B based upon their modification times
         """
-        #If B doesnt exist then A is clearly newer
         if not gnomevfs.exists(B.URI):
-            return conduit.datatypes.COMPARISON_NEWER
+            return conduit.datatypes.COMPARISON_MISSING
 
         #Else look at the modification times
-        aTime = A.get_modification_time()
+        meTime = self.get_modification_time()
         bTime = B.get_modification_time()
-        #logging.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, aTime, B.URI, bTime))
-        if aTime is None:
+        #logging.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, meTime, B.URI, bTime))
+        if meTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            
             return conduit.datatypes.COMPARISON_UNKNOWN
         
-        #Is A less (older) than B?
-        if aTime < bTime:
-            return conduit.datatypes.COMPARISON_OLDER
-        #Is A greater (newer) than B
-        elif aTime > bTime:
+        #Am I newer than B
+        if meTime > bTime:
             return conduit.datatypes.COMPARISON_NEWER
-        elif aTime == bTime:
-            aSize = A.get_size()
+        #Am I older than B?
+        elif meTime < bTime:
+            return conduit.datatypes.COMPARISON_OLDER
+
+        elif meTime == bTime:
+            meSize = self.get_size()
             bSize = B.get_size()
-            #logging.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, aSize, B.URI, bSize))
+            #logging.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, meSize, B.URI, bSize))
             #If the times are equal, and the sizes are equal then assume
             #that they are the same.
-            #FIXME: Shoud i check md5 instead?
-            if aSize == None or bSize == None:
+            if meSize == None or bSize == None:
                 #In case of error
                 return conduit.datatypes.COMPARISON_UNKNOWN
-            elif aSize == bSize:
+            elif meSize == bSize:
                 return conduit.datatypes.COMPARISON_EQUAL
             else:
                 #shouldnt get here
