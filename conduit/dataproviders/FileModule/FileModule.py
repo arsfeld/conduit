@@ -521,7 +521,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             Utils.do_gnomevfs_transfer(
                                 vfsFile.URI, 
                                 destFile.URI, 
-                                overwrite
+                                True
                                 )
         return newURI
                 
