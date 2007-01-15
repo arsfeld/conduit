@@ -50,6 +50,7 @@ import logging
 import conduit
 from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_WEB
 from conduit.datatypes import DataType
+from conduit.datatypes import Text
 import conduit.Exceptions as Exceptions
 
 import xmlrpclib
@@ -118,7 +119,7 @@ class MoinMoinDataSource(DataSource):
                     }                    
                 ]
         #We just use a simple configuration dialog
-        dialog = DataProviderSimpleConfigurator(window, self.name, items)
+        dialog = DataProviderSimpleConfigurator(window, self._name_, items)
         #This call blocks
         dialog.run()
         
@@ -160,13 +161,18 @@ class MoinMoinDataSource(DataSource):
         """
         DataSource.get(self, index)
         #Make a new page data type
-        page = WikiPageDataType()
-        #Get some meta-information atbout the page like date modified
-        pageinfo = self.srcwiki.getPageInfo(self.pages[index])
-        page.name = pageinfo["name"]
-        page.modified = pageinfo["lastModified"]
-        #Get the HTML page contents
-        page.contents = self.srcwiki.getPage(self.pages[index])
+        pagename = self.pages[index]
+        uri = "http://live.gnome.org/"+pagename
+
+        #get the page
+        pageinfo = self.srcwiki.getPageInfo(pagename)
+
+        page = WikiPageDataType(uri,
+                            name=pageinfo["name"],
+                            modified=pageinfo["lastModified"],
+                            contents=self.srcwiki.getPage(pagename)
+                            )
+
         return page
             
     def get_configuration(self):
@@ -198,7 +204,7 @@ class WikiPageDataType(DataType.DataType):
     @ivar self.modified: The date the page was modified
     @type self.modified: C{string}
     """
-    def __init__(self):
+    def __init__(self, uri, **kwargs):
         """
         Derived DataTypes should always call the base constructor 
         with a string represting the name of the new datatype.
@@ -208,9 +214,9 @@ class WikiPageDataType(DataType.DataType):
         DataType.DataType.__init__(self, "wikipage")
                             
         #Instance variables
-        self.contents = ""
-        self.name = "" 
-        self.modified = ""
+        self.contents = kwargs.get("contents","")
+        self.name = kwargs.get("name", "")
+        self.modified = kwargs.get("modified",None)
         
 class WikiPageConverter:
     """
@@ -251,4 +257,7 @@ class WikiPageConverter:
         The conversion function for converting wikipages to raw text. Does
         not do anythong particuarly smart
         """
-        return ("Wiki Page Name: %s\n\n%s" % (page.name,page.contents))
+        text = Text.Text(page.get_URI(),
+                            text=page.contents
+                            )
+        return text
