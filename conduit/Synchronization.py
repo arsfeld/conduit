@@ -279,8 +279,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 try:
                     self._put_data(newdata, sink, False)
                 except Exceptions.SynchronizeConflictError, err:
+                    print "Conflict: %s" % err
+                    comp = err.comparison
                     if comp == DataType.COMPARISON_MISSING:
-                        self._resolve_missing(source, sink, newdata)
+                        self._resolve_missing(source, sink, err.toData)
                     elif comp == DataType.COMPARISON_OLDER and skipOlder:
                         logging.debug("Skipping %s", newdata)
                         pass

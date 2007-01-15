@@ -60,10 +60,13 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
         
     #FIXME: I should probbably do something with the result returned
     #from xfer_uri
-    result = gnomevfs.xfer_uri( sourceURI, destURI,
-                                gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                                gnomevfs.XFER_ERROR_MODE_ABORT,
-                                mode)
+    try:
+        result = gnomevfs.xfer_uri( sourceURI, destURI,
+                                    gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                                    gnomevfs.XFER_ERROR_MODE_ABORT,
+                                    mode)
+    except gnomevfs.BadParametersError:
+        logging.error("Invalid filename %s |--> %s" % (sourceURI, destURI))
 
 def new_tempfile(contents, contentsAreText=True):
     """
