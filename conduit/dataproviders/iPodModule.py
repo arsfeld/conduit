@@ -47,6 +47,7 @@ def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
 
     temp = Utils.new_tempfile(txt)
     Utils.do_gnomevfs_transfer(temp.URI, gnomevfs.URI(uri), True)
+    return uri
 
 class iPodFactory(Module.DataProviderFactory):
     def __init__(self, **kwargs):
@@ -94,6 +95,8 @@ class IPodNoteTwoWay(IPodBase):
 
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
+
+        self.dataDir = os.path.join(self.mountPoint, 'Notes')        
         self.notes = None
 
     def refresh(self):
@@ -101,15 +104,18 @@ class IPodNoteTwoWay(IPodBase):
         
         self.notes = []
 
-        mypath = os.path.join(self.mountPoint, 'Notes')
-        for f in os.listdir(mypath):
-            fullpath = os.path.join(mypath, f)
+
+        for f in os.listdir(self.dataDir):
+            fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 title = f
                 modified = os.stat(fullpath).st_mtime
                 contents = open(fullpath, 'r').read()
 
-                note = Note.Note(title,modified,contents)
+                note = Note.Note(fullpath, 
+                            title=title, 
+                            modified=modified, 
+                            contents=contents)
                 self.notes.append(note)
 
     def get_num_items(self):
@@ -122,7 +128,7 @@ class IPodNoteTwoWay(IPodBase):
 
     def put(self, note, overwrite, LUIDs=[]):
         TwoWay.put(self, note, overwrite, LUIDs)
-        _string_to_unqiue_file(note.contents, self.notePoint, note.tile, '.txt')
+        _string_to_unqiue_file(str(note.contents), self.dataDir, note.title, '.txt')
         
     def finish(self):
         self.notes = None
