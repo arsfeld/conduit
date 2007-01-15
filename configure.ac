@@ -148,11 +148,15 @@ Makefile
 conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
+conduit/dataproviders/BackpackModule/Makefile
+conduit/dataproviders/BackpackModule/backpack-1.1/Makefile
 conduit/dataproviders/FileModule/Makefile
 conduit/dataproviders/FeedModule/Makefile
 conduit/dataproviders/FlickrModule/Makefile
 conduit/dataproviders/FlickrModule/FlickrAPI-8/Makefile
 conduit/dataproviders/FspotModule/Makefile
+conduit/dataproviders/GmailModule/Makefile
+conduit/dataproviders/GmailModule/libgmail-0.1.5/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit.pc
