@@ -223,16 +223,27 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                 LUID
                                 )
          
-    def _resolve_missing(self, sourceWrapper, sinkWrapper, missingData):
+    def _resolve_missing(self, sourceWrapper, sinkWrapper, missingData, leftToRight):
         """
         Applies user policy when missingData is present in source but
-        missing from sink
+        missing from sink. Assumes that source is on the left (visually) unless
+        leftToRight is False
         """ 
         if self.policy["missing"] == "skip":
             logging.debug("Missing Policy: Skipping")
         elif self.policy["missing"] == "ask":
             logging.debug("Missing Policy: Ask")
-            self.emit("sync-conflict", sourceWrapper, None, sinkWrapper, missingData, (0,1))
+            if leftToRight == True:
+                validResolveChoices = (CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP)
+            else:
+                validResolveChoices = (CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
+            self.emit("sync-conflict", 
+                        sourceWrapper, 
+                        None, 
+                        sinkWrapper, 
+                        missingData, 
+                        validResolveChoices
+                        )
         elif self.policy["missing"] == "replace":
             logging.debug("Missing Policy: Replace")
             try:
@@ -265,11 +276,14 @@ class SyncWorker(threading.Thread, gobject.GObject):
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
             
-    def one_way_sync(self, source, sink, skipOlder=False):
+    def one_way_sync(self, source, sink, skipOlder, leftToRight):
         """
         Transfers numItems of data from source to sink
         """
-        logging.info("Synchronizing %s |--> %s " % (source, sink))
+        if leftToRight == True:
+            logging.info("Synchronizing %s |--> %s " % (source, sink))
+        else:
+            logging.info("Synchronizing %s <--| %s " % (source, sink))
         numItems = source.module.get_num_items()
         for i in range(0, numItems):
             data = source.module.get(i)
@@ -282,7 +296,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     print "Conflict: %s" % err
                     comp = err.comparison
                     if comp == DataType.COMPARISON_MISSING:
-                        self._resolve_missing(source, sink, err.toData)
+                        self._resolve_missing(source, sink, err.toData, leftToRight)
                     elif comp == DataType.COMPARISON_OLDER and skipOlder:
                         logging.debug("Skipping %s", newdata)
                         pass
@@ -325,10 +339,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
             a. If data is in one and not the other then transfer
             b. If data is in both then compare, applying the users policy
             c. If data is in both and comparison is unknown then ask user
+
         """
         logging.info("Synchronizing %s <--> %s " % (source, sink))
-        self.one_way_sync(source, sink, True)
-        self.one_way_sync(sink, source, True)
+        self.one_way_sync(source, sink, True, True)
+        self.one_way_sync(sink, source, True, False)
 
     def run(self):
         """
@@ -450,7 +465,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                             self.two_way_sync(self.source, sink)
                         else:
                             #one way
-                            self.one_way_sync(self.source, sink)
+                            self.one_way_sync(self.source, sink, False, True)
  
                 #Done go clean up
                 self.state = SyncWorker.DONE_STATE

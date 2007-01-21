@@ -53,13 +53,19 @@ class ConflictResolver:
                                     )
 
         #FIXME: Fill with test data. Can Remove at some stage...
-        #self._test_data()
+        self._test_data()
 
         self.view = gtk.TreeView( self.model )
         self.view.set_property("enable-search", False)
         self._build_view()
 
     def _test_data(self):
+        import random
+        foo = {
+            0 : [0,1],
+            1 : [0,1,2],
+            2 : [1,2]
+        }
         for i in range(0,3):
             s = str(i)
             self.model.append(  None,   (
@@ -70,7 +76,7 @@ class ConflictResolver:
                                         "Sink"+s,
                                         i,
                                         i,
-                                        (0,1,2,3)
+                                        foo[random.randint(0,2)]
                                         )
                                 )
 
@@ -128,8 +134,6 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
                     os.path.join(conduit.SHARED_DATA_DIR, "conflict-left.png"))
     RIGHT_IMAGE = gtk.gdk.pixbuf_new_from_file(
                     os.path.join(conduit.SHARED_DATA_DIR, "conflict-right.png"))
-    BOTH_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-twoway.png"))
     SKIP_IMAGE = gtk.gdk.pixbuf_new_from_file(
                     os.path.join(conduit.SHARED_DATA_DIR, "conflict-skip.png"))
 
@@ -141,8 +145,8 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
     def on_get_size(self, widget, cell_area):
         return  (   0,0, 
-                    ConflictCellRenderer.BOTH_IMAGE.get_property("width"), 
-                    ConflictCellRenderer.BOTH_IMAGE.get_property("height")
+                    ConflictCellRenderer.SKIP_IMAGE.get_property("width"), 
+                    ConflictCellRenderer.SKIP_IMAGE.get_property("height")
                     )
 
     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
@@ -164,8 +168,6 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
             self.image = ConflictCellRenderer.RIGHT_IMAGE
         elif direction == CONFLICT_SKIP:
             self.image = ConflictCellRenderer.SKIP_IMAGE
-        elif direction == CONFLICT_BOTH:
-            self.image = ConflictCellRenderer.BOTH_IMAGE
         else:
             self.image = None
 
