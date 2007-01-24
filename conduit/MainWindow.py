@@ -122,9 +122,8 @@ class GtkView(dbus.service.Object):
         dataproviderScrolledWindow.show_all()
 
         #Set up the expander used for resolving sync conflicts
-        self.conflictResolver = ConflictResolver()
-        self.widgets.get_widget("conflictScrolledWindow").add(self.conflictResolver.view)
-
+        self.conflictResolver = ConflictResolver(self.widgets)
+        
         #Dbus can also be used to control the gui. Useful for 
         #automated testing and activation
         if conduit.settings.get("enable_dbus_interface") == True:

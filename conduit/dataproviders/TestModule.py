@@ -14,6 +14,7 @@ import time
 MODULES = {
 	"TestSource" :          { "type": "dataprovider" },
 	"TestSink" :            { "type": "dataprovider" },
+    "TestConflict" :        { "type": "dataprovider" },
 	"TestTwoWay" :          { "type": "dataprovider" },
 	"TestSinkFailRefresh" : { "type": "dataprovider" },
     "TestFactory" :         { "type": "dataprovider-factory" }
@@ -228,6 +229,29 @@ class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
 
     def configure(self, window):
         self.set_configured(True)
+
+class TestConflict(DataProvider.DataSink):
+
+    _name_ = "Test Conflict"
+    _description_ = "Test Sink Conflict"
+    _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+
+    def refresh(self):
+        DataProvider.DataSink.refresh(self)
+
+    def put(self, data, overwrite, LUIDs=[]):
+        DataProvider.DataSink.put(self, data, overwrite, LUIDs)
+        raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_OLDER, "foo", "bar")
+
+    def get_UID(self):
+        return Utils.random_string()
 
 class TestDynamicSource(_TestBase, DataProvider.DataSource):
     _name_ = "Test Dynamic Source"

@@ -41,7 +41,7 @@ class ConflictResolver:
     Manages a gtk.TreeView which is used for asking the user what they  
     wish to do in the case of a conflict, or when an item is missing
     """
-    def __init__(self):
+    def __init__(self, widgets):
         self.model = gtk.TreeStore( gobject.TYPE_PYOBJECT,  #Datasource
                                     gobject.TYPE_STRING,    #Source Name
                                     gobject.TYPE_PYOBJECT,  #Source Data
@@ -51,13 +51,29 @@ class ConflictResolver:
                                     gobject.TYPE_INT,       #Resolved direction
                                     gobject.TYPE_PYOBJECT   #Tuple of valid states for direction 
                                     )
-
-        #FIXME: Fill with test data. Can Remove at some stage...
-        self._test_data()
+        #In the conflict treeview, group byt sink <-> source partnership 
+        self.partnerships = {}
 
         self.view = gtk.TreeView( self.model )
         self.view.set_property("enable-search", False)
         self._build_view()
+
+        #connect up the GUI
+        widgets.get_widget("conflictScrolledWindow").add(self.view)        
+        self.expander = widgets.get_widget("conflictExpander")
+        self.expander.connect("activate", self.on_expand)
+        self.fullscreenButton = widgets.get_widget("conflictFullscreenButton")
+        self.fullscreenButton.connect("toggled", self.on_fullscreen_toggled)
+        self.conflictScrolledWindow = widgets.get_widget("conflictExpanderVBox")
+        self.standalone = gtk.Window()
+        self.standalone.set_title("Conflicts")
+        self.standalone.set_transient_for(widgets.get_widget("MainWindow"))
+        self.standalone.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+        self.standalone.set_destroy_with_parent(True)
+        self.standalone.set_default_size(-1, 200)
+        self.standalone.add(self.conflictScrolledWindow)
+        self.standalone.connect("delete-event", self.on_standalone_closed)
+        
 
     def _test_data(self):
         import random
@@ -107,18 +123,34 @@ class ConflictResolver:
         cell_renderer.set_direction(direction)
 
     def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
-        sourceName = source.name
-        sinkName = sink.name
-        self.model.append(  None, ( 
-                                    source,
-                                    sourceName,
-                                    sourceData,
-                                    sink,
-                                    sinkName,
-                                    sinkData,
-                                    validChoices[0],
-                                    validChoices)
-                            )
+        rowdata = ( source, source.name, sourceData, sink, sink.name, sinkData, CONFLICT_SKIP, validChoices)
+        if (source,sink) in self.partnerships:
+            self.model.append(self.partnerships[(source,sink)], rowdata)  
+        else:
+            self.partnerships[(source,sink)] = self.model.append(None, rowdata)
+
+    def on_expand(self, sender):
+        pass
+
+    def on_fullscreen_toggled(self, sender):
+        #switches between showing the conflicts in a standalone window.
+        #uses fullscreenButton.get_active() as a state variable
+        if self.fullscreenButton.get_active():
+            self.expander.set_expanded(False)
+            self.fullscreenButton.set_image(gtk.image_new_from_icon_name("gtk-leave-fullscreen", gtk.ICON_SIZE_MENU))
+            self.conflictScrolledWindow.reparent(self.standalone)
+            self.standalone.show()
+            self.expander.set_sensitive(False)
+        else:
+            self.fullscreenButton.set_image(gtk.image_new_from_icon_name("gtk-fullscreen", gtk.ICON_SIZE_MENU))
+            self.conflictScrolledWindow.reparent(self.expander)
+            self.standalone.hide()
+            self.expander.set_sensitive(True)
+
+    def on_standalone_closed(self, sender, event):
+        self.fullscreenButton.set_active(False)
+        self.on_fullscreen_toggled(sender)
+        return True
 
     #Connect to OK button
     def on_resolve_conflicts(self, sender):

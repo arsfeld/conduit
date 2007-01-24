@@ -256,8 +256,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
         Applies user policy when a put() has failed. This may mean emitting
         the conflict up to the GUI or skipping altogether
         """
-        if comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN:
-            logging.info("CONFLICT: Putting EQUAL or UNKNOWN Data")
+        if comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN or comparison == DataType.COMPARISON_OLDER:
+            logging.info("CONFLICT: Putting EQUAL or UNKNOWN or OLDER Data")
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             if self.policy["conflict"] == "skip":
                 logging.debug("Conflict Policy: Skipping")
@@ -293,7 +293,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 try:
                     self._put_data(newdata, sink, False)
                 except Exceptions.SynchronizeConflictError, err:
-                    print "Conflict: %s" % err
                     comp = err.comparison
                     if comp == DataType.COMPARISON_MISSING:
                         self._resolve_missing(source, sink, err.toData, leftToRight)
