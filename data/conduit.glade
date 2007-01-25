@@ -699,19 +699,6 @@
   </child>
 </widget>
 
-<widget class="GtkAboutDialog" id="AboutDialog">
-  <property name="visible">True</property>
-  <property name="destroy_with_parent">False</property>
-  <property name="name" translatable="yes">Conduit</property>
-  <property name="comments" translatable="yes">Synchronization for GNOME</property>
-  <property name="wrap_license">False</property>
-  <property name="website">http://www.conduit-project.org</property>
-  <property name="website_label" translatable="yes">Conduit Website</property>
-  <property name="authors">John Stowers &lt;john.stowers@gmail.com&gt;</property>
-  <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">translator-credits</property>
-  <property name="logo">conduit-icon.png</property>
-</widget>
-
 <widget class="GtkDialog" id="DataProviderConfigDialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">dialog1</property>
@@ -927,6 +914,25 @@
 			      <property name="visible">True</property>
 			      <property name="can_focus">True</property>
 			      <property name="label" translatable="yes">Enable iPod and USB Key Support</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">True</property>
+			      <property name="active">False</property>
+			      <property name="inconsistent">False</property>
+			      <property name="draw_indicator">True</property>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">False</property>
+			      <property name="fill">False</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkCheckButton" id="status_icon_check">
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="label" translatable="yes">Show Status Icon</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>

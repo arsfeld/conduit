@@ -39,6 +39,7 @@ class Settings(gobject.GObject):
     DEFAULTS = {
         'show_splashscreen'         :   True,   #The splashscreen can be quite useful on slow computers
         'show_dp_description'       :   False,  #Should the treeview show the dataprovider description
+        'show_status_icon'          :   True,   #Show an icon in the notification area indicating if a sync is running
         'save_on_exit'              :   False,  #Is the sync set saved on exit automatically?
         'enable_network'            :   True,   #Should conduit look for other conduits on the local network
         'enable_removable_devices'  :   True,   #Should conduit support iPods, USB keys, etc

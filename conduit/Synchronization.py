@@ -18,7 +18,7 @@ import conduit.datatypes as DataType
 import conduit.DB as DB
 from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 
-class SyncManager(object): 
+class SyncManager: 
     """
     Given a dictionary of relationships this class synchronizes
     the relevant sinks and sources. If there is a conflict then this is

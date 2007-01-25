@@ -88,6 +88,11 @@ class GtkView(dbus.service.Object):
         self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_from_file(os.path.join(conduit.SHARED_DATA_DIR, "conduit-icon.png"))
+        #Show the status icon 
+        self.statusIcon = None       
+        if conduit.settings.get("show_status_icon") == True:
+            self.statusIcon = ConduitStatusIcon()
+            #self.statusIcon.set_about_dialog_cb(self.on_about_
         
         #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
@@ -134,8 +139,6 @@ class GtkView(dbus.service.Object):
         """
         In conduit the model manages all available dataproviders. It is shared
         between the dbus and the Gtk interface.
-
-        This function
         """
         self.moduleManager = model
 
@@ -158,6 +161,13 @@ class GtkView(dbus.service.Object):
                 )
         self.sync_manager.set_sync_callbacks(None, self.conflictResolver.on_conflict)
         self.dataproviderTreeView.expand_all()
+
+        if self.statusIcon != None:
+            #self.sync_manager.connect("sync-started", self.statusIcon.on_sync_started)
+            #self.sync_manager.connect("sync-completed", self.statusIcon.on_sync_completed)
+            #self.sync_manager.connect("sync-coflict", self.statusIcon.on_sync_conflict)
+            #self.sync_manager.connect("sync-progress", self.statusIcon.on_sync_progress)
+            pass                                           
 
        
     def on_dataprovider_added(self, loader, dataprovider):
@@ -205,7 +215,7 @@ class GtkView(dbus.service.Object):
             self.sync_manager.sync_conduit(self.canvas.selected_conduit)
         else:
             logging.info("Conduit must have a datasource and a datasink")
-    	
+        
     def on_delete_item_clicked(self, widget):
         """
         delete item
@@ -310,6 +320,8 @@ class GtkView(dbus.service.Object):
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
         use_two_way_sync_check = tree.get_widget("use_two_way_sync_check")
         use_two_way_sync_check.set_active(conduit.settings.get("disable_twoway_sync")) 
+        status_icon_check = tree.get_widget("status_icon_check")
+        status_icon_check.set_active(conduit.settings.get("show_status_icon")) 
 
         #get the radiobuttons where the user sets their policy
         conflict_ask_rb = tree.get_widget("conflict_ask_rb")
@@ -327,8 +339,9 @@ class GtkView(dbus.service.Object):
         dialog.set_transient_for(self.mainWindow)
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
-            disable = use_two_way_sync_check.get_active()
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
+            conduit.settings.set("show_status_icon", status_icon_check.get_active())
+            disable = use_two_way_sync_check.get_active()
             conduit.settings.set("disable_twoway_sync", disable)
             #FIXME: Once the 2way stuff is confirmed, this setting will be removed
             #From the prefs, and be managed entirely from the right click conduit menu
@@ -345,13 +358,10 @@ class GtkView(dbus.service.Object):
         """
         Display about dialog
         """
-        aboutTree = gtk.glade.XML(conduit.GLADE_FILE, "AboutDialog")
-        dlg = aboutTree.get_widget("AboutDialog")
-        dlg.set_name(conduit.APPNAME)
-        dlg.set_version(conduit.APPVERSION)
-        dlg.set_transient_for(self.mainWindow)
-        dlg.connect('response', lambda widget, response: widget.destroy())
-        #dlg.set_icon(self.icon)        
+        dialog = ConduitAboutDialog()
+        dialog.set_transient_for(self.mainWindow)
+        dialog.run()
+        dialog.destroy()
 
     def on_window_closed(self, widget, event=None):
         """
@@ -521,6 +531,66 @@ class SplashScreen:
         if not self.destroyed:
             self.wSplash.destroy()
             self.destroyed = True
+
+class ConduitAboutDialog(gtk.AboutDialog):
+    def __init__(self):
+        gtk.AboutDialog.__init__(self)
+        self.set_name(conduit.APPNAME)
+        self.set_version(conduit.APPVERSION)
+        self.set_comments("Synchronisation for GNOME")
+        self.set_website("http://www.conduit-project.org")
+        self.set_authors(["John Stowers", "John Carr"])
+        self.set_logo_icon_name("conduit-icon")
+
+class ConduitStatusIcon(gtk.StatusIcon):
+    def __init__(self):
+        gtk.StatusIcon.__init__(self)
+        menu = '''
+            <ui>
+             <menubar name="Menubar">
+              <menu action="Menu">
+               <menuitem action="Search"/>
+               <menuitem action="Preferences"/>
+               <separator/>
+               <menuitem action="About"/>
+              </menu>
+             </menubar>
+            </ui>
+        '''
+        actions = [
+            ('Menu',  None, 'Menu'),
+            ('Search', None, '_Search...', None, 'Search files with MetaTracker', self.on_activate),
+            ('Preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, 'Change MetaTracker preferences', self.on_preferences),
+            ('About', gtk.STOCK_ABOUT, '_About...', None, 'About MetaTracker', self.on_about)]
+        ag = gtk.ActionGroup('Actions')
+        ag.add_actions(actions)
+        self.manager = gtk.UIManager()
+        self.manager.insert_action_group(ag, 0)
+        self.manager.add_ui_from_string(menu)
+        self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent
+        search = self.manager.get_widget('/Menubar/Menu/Search')
+        search.get_children()[0].set_markup('<b>_Search...</b>')
+        search.get_children()[0].set_use_underline(True)
+        search.get_children()[0].set_use_markup(True)
+        search.get_children()[1].set_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU)
+        self.set_from_icon_name("conduit-icon")
+        self.set_visible(True)
+        self.connect('activate', self.on_activate)
+        self.connect('popup-menu', self.on_popup_menu)
+
+    def on_activate(self, data):
+        print "activate"
+
+    def on_popup_menu(self, status, button, time):
+        self.menu.popup(None, None, None, button, time)
+
+    def on_preferences(self, data):
+        print 'preferences'
+
+    def on_about(self, data):
+        dialog = ConduitAboutDialog()
+        dialog.run()
+        dialog.destroy()
 
 #FIXME: Make this into a proper class used just for managing single instance
 #and command line usage.
