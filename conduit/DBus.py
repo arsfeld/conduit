@@ -58,14 +58,17 @@ class DBusView(dbus.service.Object):
     def _on_dataprovider_added(self, loader, dataprovider):
         self.NewDataprovider(dataprovider.get_key())
 
-    def _on_sync_finished(self, conduit):
+    def _on_sync_started(self, thread):
+        pass
+
+    def _on_sync_completed(self, thread):
         """
         Signal received when a sync finishes
         """
         for i in self.UIDs:
-            if self.UIDs[i] == conduit:
+            if self.UIDs[i] == thread.conduit:
                 #Send the DBUS signal
-                self.SyncFinished(i)
+                self.SyncCompleted(i)
 
     #FIXME: More args
     def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
@@ -119,7 +122,11 @@ class DBusView(dbus.service.Object):
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager(self.type_converter)
         self.sync_manager.set_twoway_policy({"conflict":"skip","missing":"skip"})
-        self.sync_manager.set_sync_callbacks(self._on_sync_finished, self._on_sync_conflict)
+        self.sync_manager.add_syncworker_callbacks(
+                                self._on_sync_started, 
+                                self._on_sync_completed, 
+                                self._on_sync_conflict
+                                )
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='i')
     def Ping(self):
@@ -237,8 +244,8 @@ class DBusView(dbus.service.Object):
         self._print("Emmiting DBus signal NewDataprovider %s" % key)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
-    def SyncFinished(self, conduitUID):
-        self._print("Emmiting DBus signal SyncFinished %s" % conduitUID)
+    def SyncCompleted(self, conduitUID):
+        self._print("Emmiting DBus signal SyncCompleted %s" % conduitUID)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
     def Conflict(self):

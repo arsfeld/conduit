@@ -34,29 +34,36 @@ class SyncManager:
         self.typeConverter = typeConverter
         self.mappingDB = DB.MappingDB()
 
-        #Callback functions that syncworkers call
-        self.syncCompleteCallback = None
-        self.syncConflictCallback = None
+        #Callback functions that syncworkers call. Saves having to make this
+        #inherit from gobject and re-pass all the signals
+        self.syncStartedCbs = []
+        self.syncCompleteCbs = []
+        self.syncConflictCbs = []
 
         #Two way sync policy
         self.policy = {"conflict":"ask","missing":"ask"}
 
     def _connect_sync_thread_callbacks(self, thread):
-        if self.syncCompleteCallback != None:
-            thread.connect("sync-completed", self.syncCompleteCallback)
-
-        if self.syncConflictCallback != None:
-            thread.connect("sync-conflict", self.syncConflictCallback)
+        for cb in self.syncStartedCbs:
+            thread.connect("sync-started", cb)
+        for cb in self.syncCompleteCbs:
+            thread.connect("sync-completed", cb)
+        for cb in self.syncConflictCbs:
+            thread.connect("sync-conflict", cb)
 
         return thread
 
-    def set_sync_callbacks(self, syncCompleteCallback, syncConflictCallback):
+    def add_syncworker_callbacks(self, syncStartedCb, syncCompleteCb, syncConflictCb):
         """
         Sets the callbacks that are called by the SyncWorker threads
         upon the specified conditions
         """
-        self.syncCompleteCallback = syncCompleteCallback
-        self.syncConflictCallback = syncConflictCallback
+        if syncStartedCb != None and syncStartedCb not in self.syncStartedCbs:
+            self.syncStartedCbs.append(syncStartedCb)
+        if syncCompleteCb != None and syncCompleteCb not in self.syncCompleteCbs:
+            self.syncCompleteCbs.append(syncCompleteCb)
+        if syncConflictCb != None and syncConflictCb not in self.syncConflictCbs:
+            self.syncConflictCbs.append(syncConflictCb)
 
     def set_twoway_policy(self, policy):
         logging.debug("Setting sync policy: %s" % policy)
@@ -128,6 +135,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
     Class designed to be operated within a thread used to perform the
     synchronization operation. Inherits from GObject because it uses 
     signals to communcate with the main GUI.
+
+    Operates on a per Conduit basis, so a single SyncWorker may synchronize
+    one source with many sinks within a single conduit
     """
     CONFIGURE_STATE = 0
     REFRESH_STATE = 1
@@ -136,12 +146,13 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
     __gsignals__ =  { 
                     "sync-conflict": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_PYOBJECT,
-                        gobject.TYPE_PYOBJECT,
-                        gobject.TYPE_PYOBJECT,
-                        gobject.TYPE_PYOBJECT,
-                        gobject.TYPE_PYOBJECT]),
-                    "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                        gobject.TYPE_PYOBJECT,      #datasource wrapper
+                        gobject.TYPE_PYOBJECT,      #from data
+                        gobject.TYPE_PYOBJECT,      #datasink wrapper
+                        gobject.TYPE_PYOBJECT,      #to data
+                        gobject.TYPE_PYOBJECT]),    #valid resolve choices
+                    "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+                    "sync-started": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
     def __init__(self, typeConverter, mappingDB, conduit, do_sync, policy):
@@ -379,7 +390,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #on the GUI and the user can see them.
         #UNLESS the error is Fatal (causes us to throw a stopsync exceptiion)
         #in which case set the error status immediately.
-
+        self.emit("sync-started")
         while not finished:
             self.check_thread_not_cancelled([self.source] + self.sinks)
             logging.debug("Syncworker state %s" % self.state)

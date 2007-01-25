@@ -159,16 +159,25 @@ class GtkView(dbus.service.Object):
                 "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
                 "missing"   :   conduit.settings.get("twoway_policy_missing")}
                 )
-        self.sync_manager.set_sync_callbacks(None, self.conflictResolver.on_conflict)
+        self.sync_manager.add_syncworker_callbacks(
+                                self.on_sync_started, 
+                                self.on_sync_completed, 
+                                self.conflictResolver.on_conflict
+                                )
         self.dataproviderTreeView.expand_all()
 
         if self.statusIcon != None:
-            #self.sync_manager.connect("sync-started", self.statusIcon.on_sync_started)
-            #self.sync_manager.connect("sync-completed", self.statusIcon.on_sync_completed)
-            #self.sync_manager.connect("sync-coflict", self.statusIcon.on_sync_conflict)
-            #self.sync_manager.connect("sync-progress", self.statusIcon.on_sync_progress)
-            pass                                           
+            self.sync_manager.add_syncworker_callbacks(
+                                    self.statusIcon.on_sync_started,
+                                    self.statusIcon.on_sync_completed,
+                                    self.statusIcon.on_sync_conflict
+                                    )
 
+    def on_sync_started(self, thread):
+        logging.debug("GUI got sync started")
+
+    def on_sync_completed(self, thread):
+        logging.debug("GUI got sync completed")
        
     def on_dataprovider_added(self, loader, dataprovider):
         """
@@ -573,10 +582,60 @@ class ConduitStatusIcon(gtk.StatusIcon):
         search.get_children()[0].set_use_underline(True)
         search.get_children()[0].set_use_markup(True)
         search.get_children()[1].set_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU)
-        self.set_from_icon_name("conduit-icon")
-        self.set_visible(True)
         self.connect('activate', self.on_activate)
         self.connect('popup-menu', self.on_popup_menu)
+
+        #start with the application icon
+        self._reset_states()
+        self._go_to_idle_state()
+        self.set_tooltip("Conduit")
+        self.set_visible(True)
+
+    def _reset_states(self):
+        self.running = 0
+        self.conflict = False
+        self.animated_idx = 0
+        self.animated_icons = range(1,8)
+
+    def _go_to_idle_state(self):
+        self.set_from_icon_name("conduit-icon")
+        self.set_tooltip("Synchronization Complete")
+
+    def _go_to_conflict_state(self):
+        self.set_from_icon_name("dialog-error")
+        self.set_tooltip("Synchronization Error")
+
+    def _go_to_running_state(self):
+        self.set_tooltip("Synchronizing")
+        if self.animated_idx == self.animated_icons[-1]:
+            self.animated_idx = 1
+        else:
+            self.animated_idx += 1
+        self.set_from_icon_name("conduit-progress-%d" % self.animated_idx)
+        if self.running == 0:
+            if self.conflict:
+                self._go_to_conflict_state()
+                self._reset_states()
+            else:
+                self._go_to_idle_state()
+                self._reset_states()
+
+            return False
+        else:
+            return True
+
+    def on_sync_started(self, thread):
+        self.running += 1
+        gobject.timeout_add(100, self._go_to_running_state)
+        logging.debug("Icon got sync started")
+
+    def on_sync_completed(self, thread):
+        self.running -= 1
+        logging.debug("Icon got sync completed %s" % self.running)
+
+    def on_sync_conflict(self, thread, *args):
+        self.conflict = True
+        logging.debug("Icon got sync conflict")
 
     def on_activate(self, data):
         print "activate"
