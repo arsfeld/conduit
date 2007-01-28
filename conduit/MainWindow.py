@@ -14,7 +14,11 @@ import gnome.ui
 import copy
 import os.path
 from gettext import gettext as _
-import elementtree.ElementTree as ET
+
+try:
+    import elementtree.ElementTree as ET
+except:
+    import xml.etree.ElementTree as ET
 
 import dbus
 import dbus.service

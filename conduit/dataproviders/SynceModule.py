@@ -1,6 +1,10 @@
 import gtk
 from gettext import gettext as _
-from elementtree import ElementTree
+
+try:
+    import elementtree.ElementTree as ET
+except:
+    import xml.etree.ElementTree as ET
 
 import logging
 import conduit
