@@ -11,14 +11,15 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import logging
-import conduit
-from conduit.ModuleWrapper import ModuleWrapper
-
+import gobject
 import avahi
 import dbus
-import dbus.glib
-import gobject
+if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
+    import dbus.glib
+
+import conduit
+from conduit import log,logd,logw
+from conduit.ModuleWrapper import ModuleWrapper
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
@@ -85,14 +86,14 @@ class ConduitNetworkManager(gobject.GObject):
                 break
         
         if port != None:
-            logging.debug("Advertising %s on port %s" % (dataproviderWrapper, port))
+            logd("Advertising %s on port %s" % (dataproviderWrapper, port))
             ok = self.dataproviderAdvertiser.advertise_dataprovider(dataproviderWrapper, port)
             if ok:
                 self.usedPorts[port] = True
             else:
-                logging.warn("Could not advertise dataprovider")
+                logw("Could not advertise dataprovider")
         else:
-            logging.warn("Could not find free a free port to advertise %s" % dataproviderWrapper)
+            logw("Could not find free a free port to advertise %s" % dataproviderWrapper)
 
     def unadvertise_dataprovider(self, dataproviderWrapper):
         """
@@ -111,7 +112,7 @@ class ConduitNetworkManager(gobject.GObject):
         a remote conduit instance
         """
         #FIXME: Do protocol negotionation and then emit "dataprovider-added"
-        logging.debug("Remote Dataprovider detected")
+        logd("Remote Dataprovider detected")
 
     def dataprovider_removed(self):
         """
@@ -119,7 +120,7 @@ class ConduitNetworkManager(gobject.GObject):
         from a remote conduit instance
         """
         #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
-        logging.debug("Remote Dataprovider removed")
+        logd("Remote Dataprovider removed")
 
     def get_all_modules(self):
         #May take some time. Do whatever needs to be done to get all modules
@@ -314,17 +315,17 @@ class AvahiMonitor:
         Dbus callback
         """
         extra_info = avahi.txt_array_to_string_array(txt)
-        logging.debug("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
+        logd("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
         #Check if the service is local and then check the 
         #conduit versions are identical
         if name.split(":")[0] == self.hostname: #FIXME: Avahi 0.6.15 has a built in check function for this
-            logging.debug("Ignoring %s because it is on the local machine" % name)
+            logd("Ignoring %s because it is on the local machine" % name)
         else:
             extra = decode_avahi_text_array_to_dict(extra_info)
             if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
                 self.detected_cb()
             else:
-                logging.debug("Ignoring %s because remote conduit is different version" % name)
+                logd("Ignoring %s because remote conduit is different version" % name)
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
@@ -336,7 +337,7 @@ class AvahiMonitor:
         """
         Dbus callback when a service details cannot be resolved
         """
-        logging.warn("Avahi/D-Bus error: %s" % repr(error))
+        logw("Avahi/D-Bus error: %s" % repr(error))
 
 
 ################################################################################

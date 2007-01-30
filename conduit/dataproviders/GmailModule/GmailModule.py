@@ -4,8 +4,9 @@ import gtk
 from gettext import gettext as _
 import traceback
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -44,7 +45,7 @@ class GmailBase(DataProvider.DataProviderBase):
                 self.ga.login()
                 self.loggedIn = True
             except:
-                logging.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
+                logw("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
                 raise Exceptions.RefreshError
 
     def get_UID(self):
@@ -204,11 +205,11 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
         if self.loggedIn:
             if self.getAllEmail:
-                logging.debug("Getting all Email")
+                logd("Getting all Email")
                 pass
             else:
                 if self.getUnreadEmail:
-                    logging.debug("Getting Unread Email")                
+                    logd("Getting Unread Email")                
                     #FIXME: These TODO notes taken from libgmail examples
                     #Check if these TODOs have been answered at a future
                     #date
@@ -228,7 +229,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                                 mail.create_from_raw_source(message.source)
                                 self.mails.append(mail)                    
                 elif len(self.getWithLabel) > 0:
-                    logging.debug("Getting Email Labelled: %s" % self.getWithLabel)                
+                    logd("Getting Email Labelled: %s" % self.getWithLabel)                
                     result = self.ga.getMessagesByLabel(self.getWithLabel)
                     if len(result):
                         for thread in result:
@@ -237,7 +238,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                                 mail.create_from_raw_source(message.source)
                                 self.mails.append(mail)
                 elif len(self.getInFolder) > 0:
-                    logging.debug("Getting Email in Folder: %s" % self.getInFolder)                
+                    logd("Getting Email in Folder: %s" % self.getInFolder)                
                     result = self.ga.getMessagesByFolder(self.getInFolder)
                     if len(result):
                         for thread in result:
@@ -279,7 +280,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             try:
                 draftMsg.addLabel(self.label)
             except Exception, err:
-                logging.warn("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
+                logw("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
 
         return draftMsg.id
 
@@ -313,7 +314,7 @@ class EmailSinkConverter:
         mimeCategory = thefile.get_mimetype().split('/')[0]
         if mimeCategory == "text":
             #insert the contents into the email
-            logging.debug("Inserting file contents into email")
+            logd("Inserting file contents into email")
             email = Email.Email()
             email.create(   "",                             #to
                             "",                             #from
@@ -323,7 +324,7 @@ class EmailSinkConverter:
             return email
         else:
             #binary file so send as attachment
-            logging.debug("Binary file, attaching to email")
+            logd("Binary file, attaching to email")
             email = Email.Email()
             email.create(   "",                             #to
                             "",                             #from

@@ -15,8 +15,7 @@ import dbus.service
 if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
     import dbus.glib
 
-import logging
-import conduit
+from conduit import log,logd,logw
 from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 from conduit.Conduit import Conduit
@@ -34,7 +33,7 @@ class DBusView(dbus.service.Object):
     def __init__(self):
         bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, CONDUIT_DBUS_PATH)
-        logging.info("DBus interface initialized")
+        log("DBus interface initialized")
 
         self.model = None
 
@@ -53,7 +52,7 @@ class DBusView(dbus.service.Object):
         return rand
 
     def _print(self, message):
-        logging.debug("DBus Message: %s" % message)
+        logd("DBus Message: %s" % message)
 
     def _on_dataprovider_added(self, loader, dataprovider):
         self.NewDataprovider(dataprovider.get_key())

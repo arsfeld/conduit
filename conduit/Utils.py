@@ -10,12 +10,13 @@ License: GPLv2
 import sys
 import os, os.path
 import tempfile
-import gnomevfs
 import random
+import md5
+import gtk, gtk.glade
+import gnomevfs
 
-import logging
+from conduit import log,logd,logw
 from conduit.datatypes import File
-
 
 #Filename Manipulation
 def get_protocol(uri):
@@ -52,7 +53,7 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
     Xfers a file from fromURI to destURI. Overwrites if commanded.
     @raise Exception: if anything goes wrong in xfer
     """
-    logging.debug("Transfering file from %s -> %s (Overwrite: %s)" % (sourceURI, destURI, overwrite))
+    logd("Transfering file from %s -> %s (Overwrite: %s)" % (sourceURI, destURI, overwrite))
     if overwrite:
         mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
     else:
@@ -66,7 +67,7 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
                                     gnomevfs.XFER_ERROR_MODE_ABORT,
                                     mode)
     except gnomevfs.BadParametersError:
-        logging.error("Invalid filename %s |--> %s" % (sourceURI, destURI))
+        logw("Invalid filename %s |--> %s" % (sourceURI, destURI))
 
 def new_tempfile(contents, contentsAreText=True):
     """
@@ -133,11 +134,10 @@ def dataprovider_add_dir_to_path(dataproviderfile, directory):
     """
     path = os.path.join(dataproviderfile, "..", directory)
     path = os.path.abspath(path)
-    logging.info("Adding %s to search path" % path)
+    log("Adding %s to search path" % path)
     sys.path.insert(0,path)
 
 def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
-    import gtk, gtk.glade
     path = os.path.join(dataproviderfile, "..", gladefilename)
     path = os.path.abspath(path)
     return gtk.glade.XML(path, widget)

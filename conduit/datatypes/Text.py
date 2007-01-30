@@ -1,6 +1,7 @@
 import md5
 
 import conduit
+from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 class Text(DataType.DataType):

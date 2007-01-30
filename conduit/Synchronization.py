@@ -9,10 +9,8 @@ import traceback
 import threading
 import gobject
 
-import logging
-import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
-import conduit.DeltaProvider as DeltaProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes as DataType
 import conduit.DB as DB
@@ -66,7 +64,7 @@ class SyncManager:
             self.syncConflictCbs.append(syncConflictCb)
 
     def set_twoway_policy(self, policy):
-        logging.debug("Setting sync policy: %s" % policy)
+        logd("Setting sync policy: %s" % policy)
         self.policy = policy
         #It is NOT threadsafe to apply to existing conduits
 
@@ -114,10 +112,10 @@ class SyncManager:
         on the conduit
         """
         if conduit in self.syncWorkers:
-            logging.warn("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
+            logw("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
             #If the thread is alive then cancel it
             if self.syncWorkers[conduit].isAlive():
-                logging.warn("Cancelling thread")
+                logw("Cancelling thread")
                 self.syncWorkers[conduit].cancel()
                 self.syncWorkers[conduit].join() #Will block
             #Thanks mr garbage collector    
@@ -241,9 +239,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         leftToRight is False
         """ 
         if self.policy["missing"] == "skip":
-            logging.debug("Missing Policy: Skipping")
+            logd("Missing Policy: Skipping")
         elif self.policy["missing"] == "ask":
-            logging.debug("Missing Policy: Ask")
+            logd("Missing Policy: Ask")
             if leftToRight == True:
                 validResolveChoices = (CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP)
             else:
@@ -256,11 +254,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         validResolveChoices
                         )
         elif self.policy["missing"] == "replace":
-            logging.debug("Missing Policy: Replace")
+            logd("Missing Policy: Replace")
             try:
                 self._put_data(missingData, sinkWrapper, True)
             except:
-                logging.critical("Forced Put Failed\n%s" % traceback.format_exc()) 
+                logw("Forced Put Failed\n%s" % traceback.format_exc()) 
 
     def _resolve_conflict(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
@@ -268,22 +266,22 @@ class SyncWorker(threading.Thread, gobject.GObject):
         the conflict up to the GUI or skipping altogether
         """
         if comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN or comparison == DataType.COMPARISON_OLDER:
-            logging.info("CONFLICT: Putting EQUAL or UNKNOWN or OLDER Data")
+            log("CONFLICT: Putting EQUAL or UNKNOWN or OLDER Data")
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             if self.policy["conflict"] == "skip":
-                logging.debug("Conflict Policy: Skipping")
+                logd("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
-                logging.debug("Conflict Policy: Ask")
+                logd("Conflict Policy: Ask")
                 self.emit("sync-conflict", sourceWrapper, fromData, sinkWrapper, toData, (0,1,2))
             elif self.policy["conflict"] == "replace":
-                logging.debug("Conflict Policy: Replace")
+                logd("Conflict Policy: Replace")
                 try:
                     self._put_data(toData, sinkWrapper, True)
                 except:
-                    logging.critical("Forced Put Failed\n%s" % traceback.format_exc())        
+                    logw("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
         else:
-            logging.critical("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+            logw("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
             
@@ -292,9 +290,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         Transfers numItems of data from source to sink
         """
         if leftToRight == True:
-            logging.info("Synchronizing %s |--> %s " % (source, sink))
+            log("Synchronizing %s |--> %s " % (source, sink))
         else:
-            logging.info("Synchronizing %s <--| %s " % (source, sink))
+            log("Synchronizing %s <--| %s " % (source, sink))
         numItems = source.module.get_num_items()
         for i in range(0, numItems):
             data = source.module.get(i)
@@ -308,32 +306,32 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     if comp == DataType.COMPARISON_MISSING:
                         self._resolve_missing(source, sink, err.toData, leftToRight)
                     elif comp == DataType.COMPARISON_OLDER and skipOlder:
-                        logging.debug("Skipping %s", newdata)
+                        logd("Skipping %s", newdata)
                         pass
                     elif comp == DataType.COMPARISON_EQUAL:
-                        logging.debug("Skipping %s", newdata)
+                        logd("Skipping %s", newdata)
                         pass
                     else:
                         self._resolve_conflict(source, sink, err.comparison, err.fromData, err.toData)
 
             except Exceptions.ConversionDoesntExistError:
-                logging.debug("No Conversion Exists")
+                logd("No Conversion Exists")
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
             except Exceptions.ConversionError, err:
-                logging.warn("Error converting %s" % err)
+                logw("Error converting %s" % err)
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SyncronizeError, err:
-                logging.warn("Error synchronizing %s", err)                     
+                logw("Error synchronizing %s", err)                     
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SyncronizeFatalError, err:
-                logging.warn("Error synchronizing %s", err)
+                logw("Error synchronizing %s", err)
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
                 source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
                 #Cannot continue
                 raise Exceptions.StopSync                  
             except Exception, err:                        
                 #Cannot continue
-                logging.critical("Unknown synchronisation error (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+                logw("Unknown synchronisation error (BAD PROGRAMMER)\n%s" % traceback.format_exc())
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                 source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                 raise Exceptions.StopSync
@@ -351,7 +349,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             c. If data is in both and comparison is unknown then ask user
 
         """
-        logging.info("Synchronizing %s <--> %s " % (source, sink))
+        log("Synchronizing %s <--> %s " % (source, sink))
         self.one_way_sync(source, sink, True, True)
         self.one_way_sync(sink, source, True, False)
 
@@ -393,7 +391,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.emit("sync-started")
         while not finished:
             self.check_thread_not_cancelled([self.source] + self.sinks)
-            logging.debug("Syncworker state %s" % self.state)
+            logd("Syncworker state %s" % self.state)
 
             #Check dps have been configured
             if self.state is SyncWorker.CONFIGURE_STATE:
@@ -417,19 +415,19 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
             #refresh state
             elif self.state is SyncWorker.REFRESH_STATE:
-                logging.debug("Source Status = %s" % self.source.module.get_status_text())
+                logd("Source Status = %s" % self.source.module.get_status_text())
                 #Refresh the source
                 try:
                     self.source.module.refresh()
                     self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                 except Exceptions.RefreshError:
                     self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                    logging.critical("Error Refreshing: %s" % self.source)
+                    logw("Error Refreshing: %s" % self.source)
                     #Cannot continue with no source data
                     raise Exceptions.StopSync
                 except Exception, err:
                     self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                    logging.critical("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
+                    logw("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
                     #Cannot continue with no source data
                     raise Exceptions.StopSync           
 
@@ -441,11 +439,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
                             sink.module.refresh()
                             sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                         except Exceptions.RefreshError:
-                            logging.warn("Error refreshing: %s" % sink)
+                            logw("Error refreshing: %s" % sink)
                             sinkDidntRefreshOK[sink] = True
                             self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                         except Exception, err:
-                            logging.critical("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
+                            logw("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
                             sinkDidntRefreshOK[sink] = True
                             self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                             

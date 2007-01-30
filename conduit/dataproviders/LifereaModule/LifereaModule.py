@@ -4,8 +4,9 @@ import sys
 import gtk
 from gettext import gettext as _
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Feed as Feed

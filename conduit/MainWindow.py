@@ -6,27 +6,19 @@ Also manages the callbacks from menu and GUI items
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import gnomevfs
 import gobject
-import gtk
-import gtk.glade
+import gtk, gtk.glade
 import gnome.ui
-import copy
 import os.path
 from gettext import gettext as _
 
-try:
-    import elementtree.ElementTree as ET
-except:
-    import xml.etree.ElementTree as ET
-
-import dbus
-import dbus.service
+import dbus, dbus.service
 if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
     import dbus.glib
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 from conduit.DBus import DBusView
 from conduit.Module import ModuleManager
@@ -69,7 +61,7 @@ class GtkView(dbus.service.Object):
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
-            logging.info("Adding %s to icon them search path" % (i))
+            log("Adding %s to icon them search path" % (i))
 
         self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "MainWindow")
         
@@ -178,10 +170,10 @@ class GtkView(dbus.service.Object):
                                     )
 
     def on_sync_started(self, thread):
-        logging.debug("GUI got sync started")
+        logd("GUI got sync started")
 
     def on_sync_completed(self, thread):
-        logging.debug("GUI got sync completed")
+        logd("GUI got sync completed")
        
     def on_dataprovider_added(self, loader, dataprovider):
         """
@@ -203,7 +195,7 @@ class GtkView(dbus.service.Object):
             if conduit.datasource is not None and len(conduit.datasinks) > 0:
                 self.sync_manager.sync_conduit(conduit)
             else:
-                logging.info("Conduit must have a datasource and a datasink")        
+                log("Conduit must have a datasource and a datasink")        
 
     def on_delete_group_clicked(self, widget):
         """
@@ -218,7 +210,7 @@ class GtkView(dbus.service.Object):
         if self.canvas.selected_conduit.datasource is not None and len(self.canvas.selected_conduit.datasinks) > 0:
             self.sync_manager.refresh_conduit(self.canvas.selected_conduit)
         else:
-            logging.info("Conduit must have a datasource and a datasink")
+            log("Conduit must have a datasource and a datasink")
     
     def on_synchronize_group_clicked(self, widget):
         """
@@ -227,7 +219,7 @@ class GtkView(dbus.service.Object):
         if self.canvas.selected_conduit.datasource is not None and len(self.canvas.selected_conduit.datasinks) > 0:
             self.sync_manager.sync_conduit(self.canvas.selected_conduit)
         else:
-            logging.info("Conduit must have a datasource and a datasink")
+            log("Conduit must have a datasource and a datasink")
         
     def on_delete_item_clicked(self, widget):
         """
@@ -244,7 +236,7 @@ class GtkView(dbus.service.Object):
         """
         
         dp = self.canvas.selected_dataprovider_wrapper.module
-        logging.info("Configuring %s" % dp)
+        log("Configuring %s" % dp)
         #May block
         dp.configure(self.mainWindow)
 
@@ -254,7 +246,7 @@ class GtkView(dbus.service.Object):
         @todo: Delete this is it does not operate async
         """
         from conduit.DataProvider import STATUS_DONE_REFRESH_OK
-        logging.info(
+        log(
                     "Refreshing %s (FIXME: this blocks and will be deleted)" % \
                     self.canvas.selected_dataprovider_wrapper.get_UID()
                     )
@@ -396,7 +388,7 @@ class GtkView(dbus.service.Object):
                             )
             response = dialog.run()
             if response == gtk.RESPONSE_YES:
-                logging.info("Stopping all synchronization threads")
+                log("Stopping all synchronization threads")
                 self.sync_manager.cancel_all()
                 quit = True
             else:
@@ -631,15 +623,15 @@ class ConduitStatusIcon(gtk.StatusIcon):
     def on_sync_started(self, thread):
         self.running += 1
         gobject.timeout_add(100, self._go_to_running_state)
-        logging.debug("Icon got sync started")
+        logd("Icon got sync started")
 
     def on_sync_completed(self, thread):
         self.running -= 1
-        logging.debug("Icon got sync completed %s" % self.running)
+        logd("Icon got sync completed %s" % self.running)
 
     def on_sync_conflict(self, thread, *args):
         self.conflict = True
-        logging.debug("Icon got sync conflict")
+        logd("Icon got sync conflict")
 
     def on_activate(self, data):
         print "activate"
@@ -689,7 +681,7 @@ def conduit_main():
                 useGUI = False
     except getopt.GetoptError:
         # print help information and exit:
-        logging.warn("Unknown command line option")
+        logw("Unknown command line option")
         pass
 
     # attempt workaround for gnomvefs bug...
@@ -700,7 +692,7 @@ def conduit_main():
     #Make conduit single instance. If it is already running then present it
     #to the user
     if Utils.dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
-        logging.info("Conduit is already running")
+        log("Conduit is already running")
         bus = dbus.SessionBus()
         obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
         iface = dbus.Interface(obj, CONDUIT_DBUS_IFACE)

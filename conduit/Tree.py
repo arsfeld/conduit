@@ -7,14 +7,9 @@ License: GPLv2
 """
 
 import gtk
-import gtk.glade
-import gobject
-import goocanvas
-from gettext import gettext as _
 
-import logging
 import conduit
-import conduit.DataProvider as DataProvider
+from conduit import log,logd,logw
 from conduit.ModuleWrapper import ModuleWrapper
 
 DND_TARGETS = [
@@ -106,11 +101,11 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         built (in the constructor)
         @type signal: C{bool}
         """
-        logging.debug("Adding DataProvider %s to TreeModel" % dpw)
+        logd("Adding DataProvider %s to TreeModel" % dpw)
         #Do we need to create a category first?
         i = self._get_category_index_by_name(dpw.category)
         if i == None:
-            logging.debug("Creating Category %s" % dpw.category)
+            logd("Creating Category %s" % dpw.category)
             new_cat = CategoryWrapper(dpw.category)
             self.cats.append(new_cat)
             i = self.cats.index(new_cat)
@@ -359,7 +354,7 @@ class DataProviderTreeView(gtk.TreeView):
         #model, iter = treeselection.get_selected()
         #categoryHeading = model.get_value(iter, 4)
         #if categoryHeading:
-        #    logging.debug("Aborting DND")
+        #    logd("Aborting DND")
         #    context.drag_abort()
 
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):

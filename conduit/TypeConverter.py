@@ -8,8 +8,7 @@ License: GPLv2
 import traceback
 from gettext import gettext as _
 
-import logging
-import conduit
+from conduit import log,logd,logw
 import conduit.Exceptions as Exceptions
 
 class TypeConverter: 
@@ -74,14 +73,14 @@ class TypeConverter:
                         else:
                             self.convertables[fromtype][totype] = conv[c]
                     except IndexError:
-                        logging.error(  "Conversion dict (%s) wrong format. "\
+                        logw(  "Conversion dict (%s) wrong format. "\
                                         "Should be fromtype,totype" % c)
                     except KeyError, err:
-                        logging.error(  "Could not add conversion function " \
+                        logw(  "Could not add conversion function " \
                                         "from %s to %s" % (fromtype,totype))
-                        logging.error("KeyError was %s" % err)
+                        logw("KeyError was %s" % err)
                     except Exception:
-                        logging.error("Error #341")
+                        logw("Error #341")
                     
     def convert(self, from_type, to_type, data):
         """
@@ -98,14 +97,14 @@ class TypeConverter:
         @todo: Make this use conversion_exists first.
         """
         try:
-            logging.debug("Converting %s -> %s" % (from_type, to_type))
+            logd("Converting %s -> %s" % (from_type, to_type))
             return self.convertables[from_type][to_type](data)
         except TypeError, err:
             extra="Could not call conversion function\n%s" % traceback.format_exc()
             raise Exceptions.ConversionError(from_type, to_type, extra)
         except KeyError:
-            logging.warn("Conversion from %s -> %s does not exist " % (from_type, to_type))
-            logging.warn("Trying conversion from %s -> text & text -> %s" % (from_type, to_type))
+            logw("Conversion from %s -> %s does not exist " % (from_type, to_type))
+            logw("Trying conversion from %s -> text & text -> %s" % (from_type, to_type))
             try:
                 intermediate = self.convertables[from_type]["text"](data)
                 return self.convertables["text"][to_type](intermediate)
@@ -150,7 +149,7 @@ class TypeConverter:
         for froms in self.convertables:
             for tos in self.convertables[froms]:
                 method = self.convertables[froms][tos]
-                logging.info("Convert from %s to %s using %s" % (froms, tos, method))
+                log("Convert from %s to %s using %s" % (froms, tos, method))
                 
     def conversion_exists(self, from_type, to_type, throughTextAllowed=True):
         """

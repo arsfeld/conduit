@@ -2,8 +2,8 @@ import os, os.path
 import cPickle
 import bisect
 
-import logging
 import conduit
+from conduit import log,logd,logw
 
 class MappingDB:
     """
@@ -36,7 +36,7 @@ class MappingDB:
         for i in self._db._dpw[dpwUID]:
             if i["LUIDA"] == LUIDA and i["LUIDB"] == LUIDB:
                 return
-        #logging.debug("Saving relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
+        #logd("Saving relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
         self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
         
     def get_relationships(self, dpwUID):
@@ -49,7 +49,7 @@ class MappingDB:
                 maps[i["LUIDA"]].append(i["LUIDB"])
             else:
                 maps[i["LUIDA"]] = [i["LUIDB"]]
-        #logging.debug("Found %s relationships for %s" % (len(maps), dpwUID))
+        #logd("Found %s relationships for %s" % (len(maps), dpwUID))
         return maps
 
     def get_matching_uids(self, dpwUID, LUID, bidirectional=False):
@@ -61,11 +61,11 @@ class MappingDB:
         if bidirectional:
             btoa = [r["LUIDA"] for r in self._db._dpw[dpwUID] if r["LUIDB"]==LUID]
         tot = atob+btoa
-        #logging.debug("Found %s matching UIDs for %s %s" % (len(tot), dpwUID, LUID))
+        #logd("Found %s matching UIDs for %s %s" % (len(tot), dpwUID, LUID))
         return tot
 
     def save(self):
-        logging.debug("Saving mapping DB to %s" % self._db.name)
+        logd("Saving mapping DB to %s" % self._db.name)
         self._db.commit()
 
     def debug(self):

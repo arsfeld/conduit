@@ -1,6 +1,7 @@
 import evolution as evo
 
 import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 
 import conduit.datatypes.Contact as Contact

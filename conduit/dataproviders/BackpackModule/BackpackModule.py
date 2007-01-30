@@ -4,8 +4,9 @@ import traceback
 import gtk
 from gettext import gettext as _
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -39,7 +40,7 @@ class BackpackBase(DataProvider.DataProviderBase):
             self.ba = backpack.Backpack(username,self.apikey)
             self.loggedIn = True
         except backpack.BackpackError:
-            logging.warn("Error logging into backpack (username %s)" % self.username)
+            logw("Error logging into backpack (username %s)" % self.username)
             raise Exceptions.RefreshError
     
 
@@ -96,14 +97,14 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             for uid,scope,title in pages:
                 if title == self.storeInPage:
                     self.pageID = uid
-                    logging.debug("Found Page %s:%s:%s" % (uid,scope,title))
+                    logd("Found Page %s:%s:%s" % (uid,scope,title))
             #Didnt find the page so create
             if self.pageID is None:
                 try:
                     self.pageID, foo = self.ba.page.create(self.storeInPage,"Automatically Synchronized Notes")
-                    logging.info("Created page")
+                    log("Created page")
                 except backpack.BackpackError, err:
-                    logging.info("Could not create page to store notes in (%s)" % err)
+                    log("Could not create page to store notes in (%s)" % err)
                     #cannot continue
                     raise SyncronizeFatalError
                     
@@ -113,18 +114,18 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             notes = self.ba.notes.list(self.pageID)
             for uid, title, timestamp, text in notes:
                 self.existingNotes[title] = uid
-            logging.debug("Found existing notes: %s" % self.existingNotes)
+            logd("Found existing notes: %s" % self.existingNotes)
         
         #If all that went well then actually store some notes.
         try:
             if note.title in self.existingNotes:
-                logging.debug("Updating Existing")
+                logd("Updating Existing")
                 self.ba.notes.update(self.pageID,self.existingNotes[note.title],note.title,note.contents)
             else:
-                logging.debug("Creating New")
+                logd("Creating New")
                 self.ba.notes.create(self.pageID,note.title,note.contents)
         except backpack.BackpackError, err:
-            logging.info("Could not sync note (%s)" % err)
+            log("Could not sync note (%s)" % err)
             raise SyncronizeError
                 
     def get_configuration(self):

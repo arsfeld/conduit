@@ -17,8 +17,7 @@ License: GPLv2
 #
 
 import sys
-import os
-import os.path
+import os, os.path
 
 # Check if the given path looks like the conduit parent path
 # Add the parent dir of conduit to the python path if so

@@ -5,15 +5,14 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import gtk
-import gtk.glade
+import gtk, gtk.glade
 import gobject
 import goocanvas
 from gettext import gettext as _
 
-import logging
+
 import conduit
-import conduit.Utils as Utils
+from conduit import log,logd,logw
 
 #Constants used in the sync state machine
 STATUS_NONE = 1
@@ -327,7 +326,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @param window: The parent window (to show a modal dialog)
         @type window: {gtk.Window}
         """
-        logging.info("configure() not overridden by derived class %s" % self._name_)
+        log("configure() not overridden by derived class %s" % self._name_)
         self.set_configured(True)
 
     def is_configured(self):
@@ -344,7 +343,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
-        logging.info("get_configuration() not overridden by derived class %s" % self._name_)
+        log("get_configuration() not overridden by derived class %s" % self._name_)
         return {}
 
     def set_configuration(self, config):
@@ -352,15 +351,15 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        logging.info("set_configuration() not overridden by derived class %s" % self._name_)
+        log("set_configuration() not overridden by derived class %s" % self._name_)
         for c in config:
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods
             if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
-                logging.debug("Setting %s to %s" % (c, config[c]))
+                logd("Setting %s to %s" % (c, config[c]))
                 setattr(self,c,config[c])
             else:
-                logging.warn("Not restoring %s setting: Exists=%s Callable=%s" % (
+                logw("Not restoring %s setting: Exists=%s Callable=%s" % (
                     c,
                     getattr(self, c, False),
                     callable(getattr(self, c, None)))
@@ -538,7 +537,7 @@ class DataProviderSimpleConfigurator:
         """
         on_ok_clicked
         """
-        logging.debug("OK Clicked")
+        logd("OK Clicked")
         for w in self.widgetInstances:
             #FIXME: This seems hackish
             if isinstance(w["Widget"], gtk.Entry):
@@ -546,7 +545,7 @@ class DataProviderSimpleConfigurator:
             elif isinstance(w["Widget"], gtk.CheckButton):
                 w["Callback"](w["Widget"].get_active())
             else:
-                logging.warn("Dont know how to retrieve value from a %s" % w["Widget"])
+                logw("Dont know how to retrieve value from a %s" % w["Widget"])
 
         self.dialog.destroy()
         
@@ -554,20 +553,20 @@ class DataProviderSimpleConfigurator:
         """
         on_cancel_clicked
         """
-        logging.debug("Cancel Clicked")
+        logd("Cancel Clicked")
         self.dialog.destroy()
         
     def on_help_clicked(self, widget):
         """
         on_help_clicked
         """
-        logging.debug("Help Clicked")
+        logd("Help Clicked")
         
     def on_dialog_close(self, widget):
         """
         on_dialog_close
         """
-        logging.debug("Dialog Closed")
+        logd("Dialog Closed")
         self.dialog.destroy()                       
 
     def run(self):

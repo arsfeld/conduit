@@ -5,18 +5,14 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import gtk
 import gobject
 import os, os.path
-import sys
 import traceback
 import pydoc
 
-import logging
-import conduit
+from conduit import log,logd,logw
 from conduit.ModuleWrapper import ModuleWrapper
-from conduit.DataProvider import DataProviderBase, CATEGORY_TEST
-from conduit.Network import ConduitNetworkManager
+from conduit.DataProvider import CATEGORY_TEST
 from conduit.Hal import HalMonitor
 
 class ModuleManager(gobject.GObject):
@@ -75,7 +71,7 @@ class ModuleManager(gobject.GObject):
         Store the ipod so it can be retrieved later by the treeview/model
         emit a signal so it is added to the GUI
         """
-        logging.info("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
+        log("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
         self._append_module(dpw, klass)
 
     def _emit_added(self, dataproviderWrapper):
@@ -103,7 +99,7 @@ class ModuleManager(gobject.GObject):
 
         while len(directories) > 0:
             d = directories.pop(0)
-            logging.info("Reading directory %s" % d)
+            log("Reading directory %s" % d)
             try:
                 if not os.path.exists(d):
                     continue
@@ -115,7 +111,7 @@ class ModuleManager(gobject.GObject):
                     elif os.path.isdir(f) and self._is_module_dir(f):
                         directories.append(f)
             except OSError, err:
-                logging.warn("Error reading directory %s, skipping." % (d))
+                logw("Error reading directory %s, skipping." % (d))
         return res            
        
     def _is_module(self, filename):
@@ -144,7 +140,7 @@ class ModuleManager(gobject.GObject):
         if classname not in self.classRegistry:
             self.classRegistry[classname] = klass
         else:
-            logging.warn("Class named %s allready loaded" % (classname))
+            logw("Class named %s allready loaded" % (classname))
         #Check if the wrapper is unique
         key = wrapper.get_key()
         if key not in self.moduleWrappers:
@@ -152,7 +148,7 @@ class ModuleManager(gobject.GObject):
             #Emit a signal because this wrapper is new
             self._emit_added(wrapper)
         else:
-            logging.info("Wrapper with key %s allready loaded" % key)
+            log("Wrapper with key %s allready loaded" % key)
             
     def _import_file(self, filename):
         """
@@ -163,20 +159,20 @@ class ModuleManager(gobject.GObject):
         try:
             mods = pydoc.importfile (filename)
         except Exception:
-            logging.error("Error loading the file: %s.\n%s" % (filename, traceback.format_exc()))
+            logw("Error loading the file: %s.\n%s" % (filename, traceback.format_exc()))
             return
 
         try:
             if (mods.MODULES): pass
         except AttributeError:
-            logging.error("The file %s is not a valid module. Skipping." % (filename))
-            logging.error("A module must have the variable MODULES defined as a dictionary.")
+            logw("The file %s is not a valid module. Skipping." % (filename))
+            logw("A module must have the variable MODULES defined as a dictionary.")
             return
 
         for modules, infos in mods.MODULES.items():
             for i in ModuleWrapper.COMPULSORY_ATTRIBUTES:
                 if i not in infos:
-                    logging.error("Class %s in file %s does define a %s attribute. Skipping." % (modules, filename, i))
+                    logw("Class %s in file %s does define a %s attribute. Skipping." % (modules, filename, i))
                     return
 
         return mods
@@ -216,19 +212,19 @@ class ModuleManager(gobject.GObject):
                     instance = klass(**kwargs)
                     self.dataproviderFactories.append(instance)
                 else:
-                    logging.error("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
+                    logw("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
             except AttributeError:
-                logging.error("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
+                logw("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
 
     def _instantiate_class(self, classname, initargs):
         if type(initargs) != tuple:
-            logging.warn("Could not make class %s. Initargs must be a tuple" % classname)
+            logw("Could not make class %s. Initargs must be a tuple" % classname)
             return None
         if classname in self.classRegistry:
-            logging.info("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
+            log("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
             return self.classRegistry[classname](*initargs)
         else:
-            logging.warn("Could not find class named %s" % classname)
+            logw("Could not find class named %s" % classname)
 
             
     def get_all_modules(self):
@@ -282,7 +278,7 @@ class ModuleManager(gobject.GObject):
                 
             return mod_wrapper
         else:
-            logging.warn("Could not find module wrapper: %s" % (wrapperKey))
+            logw("Could not find module wrapper: %s" % (wrapperKey))
             return None
 
     def make_modules_callable(self, type_filter):
@@ -327,11 +323,11 @@ class DataProviderFactory(gobject.GObject):
                     klass.__name__,     #classname
                     initargs,
                     )
-        logging.info("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
+        log("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
         self.emit("dataprovider-added", dpw, klass)
 
     def emit_removed(self, klass, initargs, category=None):
-        logging.warn("DataProviderFactory.emit_removed() Not Implemented")
+        logw("DataProviderFactory.emit_removed() Not Implemented")
 
     def probe(self):
         pass

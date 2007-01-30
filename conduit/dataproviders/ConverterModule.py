@@ -1,5 +1,6 @@
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 
 import conduit.datatypes.Contact as Contact
@@ -26,7 +27,7 @@ class TextConverter:
         """
         if hasattr(measure, "__str__"):
             return str(measure)
-        logging.warn("%s does not define __str__()" % measure)
+        logw("%s does not define __str__()" % measure)
         return ""
 
 class ContactConverter:

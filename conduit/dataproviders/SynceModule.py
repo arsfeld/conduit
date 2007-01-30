@@ -6,8 +6,9 @@ try:
 except:
     import xml.etree.ElementTree as ET
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
@@ -67,7 +68,7 @@ class SynceTwoWay(DataProvider.TwoWay):
             self.objects.append(str(obj))
 
     def _synchronized_cb(self):
-        logging.info("event fired, my sweet children...")
+        log("event fired, my sweet children...")
         self.synchronized_ev.set()
 
     def get_num_items(self):

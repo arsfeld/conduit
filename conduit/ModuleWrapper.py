@@ -1,9 +1,7 @@
 import gtk
-import gobject
-import random
 
-import logging
-import conduit
+
+from conduit import log,logd,logw
 
 class ModuleWrapper: 
     """
@@ -83,7 +81,7 @@ class ModuleWrapper:
         if type(initargs) == tuple:
             self.initargs = initargs
         else:
-            logging.warn("BAD PROGRAMMER ---- INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
+            logw("BAD PROGRAMMER ---- INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
             self.initargs = ()
         self.module = module
         self.enabled = enabled
@@ -154,7 +152,7 @@ class ModuleWrapper:
                     self.icon_path = info.get_filename()
                 except:
                     self.icon[size] = None
-                    logging.error("Could not load icon %s" % self.icon_name)
+                    logw("Could not load icon %s" % self.icon_name)
                     #Last resort: Try the non icon-naming-spec compliant icon
                     self.icon_name = "gtk-missing-image"
                     info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, size, 0)

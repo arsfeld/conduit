@@ -10,13 +10,11 @@ http://listengnome.free.fr
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import logging
-import conduit
-import conduit.Utils as Utils
-
-import VolumeMonitor as gnomevfs
 import gobject
+
+from conduit import log,logd,logw
+import conduit.Utils as Utils
+import conduit.VolumeMonitor as gnomevfs
 
 import dbus
 if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
@@ -66,7 +64,7 @@ class HalMonitor(gobject.GObject):
         self.bus = dbus.SystemBus()
 
         if Utils.dbus_service_available(self.bus,'org.freedesktop.Hal'):
-            logging.info("HAL Initialized")
+            log("HAL Initialized")
             #Scan hardware first.
             self._scan_hardware()
             #Subsequent detected volumes are added via signals
@@ -74,10 +72,10 @@ class HalMonitor(gobject.GObject):
             self.vol_monitor.connect("volume-pre-unmount",self._volume_pre_unmounted_cb)
             self.vol_monitor.connect("volume-unmounted",self._volume_unmounted_cb)
         else:
-            logging.warn("HAL Could not be Initialized")
+            logw("HAL Could not be Initialized")
 
     def _emit(self, signal, device_udi, mount, name):
-        logging.info("Hal: Emitting %s for Volume %s at %s )" % (signal, name, mount))
+        log("Hal: Emitting %s for Volume %s at %s )" % (signal, name, mount))
         self.emit(signal, device_udi, mount, name)
 
     def _add_volume(self, volume_type, device_udi, mount, name):
@@ -89,13 +87,13 @@ class HalMonitor(gobject.GObject):
             elif volume_type == USB_KEY:
                 signal = "usb-added"
             else:
-                logging.warn("Hal: Unknown volume type")
+                logw("Hal: Unknown volume type")
                 return
             
             #emit the signal
             self._emit(signal, device_udi, mount, name)
         else:
-            logging.warn("Hal: Volume allready present. Not adding")
+            logw("Hal: Volume allready present. Not adding")
 
     def _remove_volume(self, volume_type, device_udi, mount, name):
         signature = (volume_type, device_udi, mount, name)
@@ -106,13 +104,13 @@ class HalMonitor(gobject.GObject):
             elif volume_type == USB_KEY:
                 signal = "usb-removed"
             else:
-                logging.warn("Hal: Unknown volume type")
+                logw("Hal: Unknown volume type")
                 return
             
             #emit the signal
             self._emit(signal, device_udi, mount, name)
         else:
-            logging.warn("Hal: Volume doesnt exist. Cannot remove")
+            logw("Hal: Volume doesnt exist. Cannot remove")
 
     def _volume_mounted_cb(self,monitor,volume):
         device_udi = volume.get_hal_udi()
@@ -126,14 +124,14 @@ class HalMonitor(gobject.GObject):
         return True
                 
     def _volume_pre_unmounted_cb(self,monitor,volume):
-        logging.debug("Pre umount")
+        logd("Pre umount")
         device_udi = volume.get_hal_udi()
         if device_udi :
             pass
         return False
                 
     def _volume_unmounted_cb(self,monitor,volume):
-        logging.debug("Umount")
+        logd("Umount")
         device_udi = volume.get_hal_udi()
         if device_udi :
             properties = self._get_properties(device_udi)
@@ -175,7 +173,7 @@ class HalMonitor(gobject.GObject):
                     #FIXME: How do I determine if a volume is removable
                     #(i.e. a USB key) instead of a normal hard disk
                     #self._add_volume(USB_KEY, device_udi, mount, name)
-                    logging.debug("Hal: Skipping non ipod UDI %s" % device_udi)
+                    logd("Hal: Skipping non ipod UDI %s" % device_udi)
                     pass
         #Only run once if run in the idle handler
         return False

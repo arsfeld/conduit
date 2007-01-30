@@ -1,8 +1,9 @@
 import gtk
 import gobject
 import random
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -136,7 +137,7 @@ class TestSource(_TestBase, DataProvider.DataSource):
         if self.slow:
             time.sleep(2)
         data = TestDataType(index)
-        logging.debug("TEST SOURCE: get() returned %s" % data)
+        logd("TEST SOURCE: get() returned %s" % data)
         if index == self.errorAfter:
             raise Exceptions.SyncronizeError
         return data
@@ -165,7 +166,7 @@ class TestSink(_TestBase, DataProvider.DataSink):
         #the LUID of any test data passed in is the original 
         #data + the dp name
         if len(LUIDs) > 0:
-            logging.debug("TEST SINK: put(): %s (known UID:%s)" % (data,len(LUIDs)>0))
+            logd("TEST SINK: put(): %s (known UID:%s)" % (data,len(LUIDs)>0))
         return data.get_UID()+self._name_
 
 class TestTwoWay(_TestBase, DataProvider.TwoWay):
@@ -194,18 +195,18 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
     def get_num_items(self):
         DataProvider.TwoWay.get_num_items(self)
         num = len(self.data)
-        logging.debug("TWO WAY: get_num_items() returned %s" % num)
+        logd("TWO WAY: get_num_items() returned %s" % num)
         return num
 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
         data = self.data[index]
-        logging.debug("TWO WAY: get() returned %s" % data)
+        logd("TWO WAY: get() returned %s" % data)
         return data
 
     def put(self, data, overwrite, LUIDs=[]):
         DataProvider.TwoWay.put(self, data, overwrite, LUIDs)
-        logging.debug("TWO WAY: put() %s" % data)
+        logd("TWO WAY: put() %s" % data)
 
     def finish(self):
         self.data = None

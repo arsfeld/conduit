@@ -5,8 +5,9 @@ import threading
 import gobject
 import time
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 import conduit.datatypes as DataType
 import conduit.datatypes.File as File
@@ -91,7 +92,7 @@ class _FolderScanner(threading.Thread, gobject.GObject):
             dir = self.dirs.pop(0)
             try:hdir = gnomevfs.DirectoryHandle(dir)
             except: 
-                logging.warn("Folder %s Not found" % dir)
+                logw("Folder %s Not found" % dir)
                 continue
             try: fileinfo = hdir.next()
             except StopIteration: continue;
@@ -116,7 +117,7 @@ class _FolderScanner(threading.Thread, gobject.GObject):
             estimated *= 100
             #Enly emit progress signals every 10% (+/- 1%) change to save CPU
             if delta+10 - estimated <= 1:
-                logging.debug("Folder scan %s%% complete" % estimated)
+                logd("Folder scan %s%% complete" % estimated)
                 self.emit("scan-progress",len(self.URIs))
                 delta += 10
             last_estimated = estimated
@@ -124,7 +125,7 @@ class _FolderScanner(threading.Thread, gobject.GObject):
         i = 0
         total = len(self.URIs)
         endTime = time.time()
-        #logging.debug("%s files loaded in %s seconds" % (total, (endTime - startTime)))
+        #logd("%s files loaded in %s seconds" % (total, (endTime - startTime)))
         self.emit("scan-completed")
 
     def cancel(self):
@@ -158,7 +159,7 @@ class _ScannerThreadManager:
             thread.connect("scan-completed",completedCb, rowref)
             self.scanThreads[folderURI] = thread
             if self.concurrentThreads < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
-                logging.debug("Starting thread %s" % folderURI)
+                logd("Starting thread %s" % folderURI)
                 self.scanThreads[folderURI].start()
                 self.concurrentThreads += 1
             else:
@@ -173,7 +174,7 @@ class _ScannerThreadManager:
         if self.concurrentThreads < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
             try:
                 uri = self.pendingScanThreadsURIs.pop()
-                logging.debug("Starting pending thread %s" % uri)
+                logd("Starting pending thread %s" % uri)
                 self.scanThreads[uri].start()
                 self.concurrentThreads -= 1
             except IndexError: pass
@@ -203,7 +204,7 @@ class _ScannerThreadManager:
         """
         for thread in self.scanThreads.values():
             if thread.isAlive():
-                logging.debug("Cancelling thread %s" % thread)
+                logd("Cancelling thread %s" % thread)
                 thread.cancel()
             thread.join() #May block
 
@@ -330,7 +331,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         """
         Called when the folder scanner thread completes
         """
-        logging.debug("Folder scan complete")
+        logd("Folder scan complete")
         path = self.model.get_path(rowref)
         self.model[path][SCAN_COMPLETE_IDX] = True
         self.model[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()
@@ -352,7 +353,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         if response == gtk.RESPONSE_OK:
             self.unmatchedURI = self.folderChooserButton.get_uri()
         else:
-            logging.warn("Cancel Not Implemented")
+            logw("Cancel Not Implemented")
         
         
     def on_addfile_clicked(self, *args):
@@ -585,7 +586,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         self.items[path][CONTAINS_NUM_ITEMS_IDX] = numItems
 
     def _on_scan_folder_completed(self, folderScanner, rowref):
-        logging.debug("Folder scan complete %s" % folderScanner)
+        logd("Folder scan complete %s" % folderScanner)
         path = self.items.get_path(rowref)
         self.items[path][SCAN_COMPLETE_IDX] = True
         self.items[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()

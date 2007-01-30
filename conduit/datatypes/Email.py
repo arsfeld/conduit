@@ -1,5 +1,6 @@
-import logging
+
 import conduit
+from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 import email
@@ -54,7 +55,7 @@ class Email(DataType.DataType):
                 self.emailFrom = self.email['from']
                 self.subject = self.email['subject']                
             except:
-                logging.warn("Error parsing email message")
+                logw("Error parsing email message")
 
     def __str__(self):
         return ("To: %s\nFrom: %s\nSubject: %s\nMsg:\n%s" % (self.to,self.emailFrom,self.subject,self.content))

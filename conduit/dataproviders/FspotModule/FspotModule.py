@@ -3,8 +3,9 @@ import gobject
 from gettext import gettext as _
 from pysqlite2 import dbapi2 as sqlite
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -75,7 +76,7 @@ class FspotSource(DataProvider.DataSource):
                 photoCur.execute("SELECT directory_path, name FROM photos WHERE id=?", (photoID))
                 for (directory_path, name) in photoCur:
                     #Return the file, loaded from a (local only??) URI
-                    logging.debug("Found photo with name=%s" % name)
+                    logd("Found photo with name=%s" % name)
                     self.photoURIs.append(os.path.join(directory_path, name))
 
         con.close()
@@ -105,7 +106,7 @@ class FspotSource(DataProvider.DataSource):
             elif not checked and val in self.enabledTags:
                 self.enabledTags.remove(val)
 
-            logging.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
+            logd("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
             return
 
         tree = Utils.dataprovider_glade_get_widget(

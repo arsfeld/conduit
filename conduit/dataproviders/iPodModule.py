@@ -10,8 +10,9 @@ order to listen to HAL events
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module

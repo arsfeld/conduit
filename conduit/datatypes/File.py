@@ -1,7 +1,8 @@
 import gtk
 import gnomevfs
 import conduit
-import logging
+from conduit import log,logd,logw
+
 from conduit.datatypes import DataType
 
 import os
@@ -33,11 +34,11 @@ class File(DataType.DataType):
                 self.fileExists = True
                 self.triedOpen = True
             except gnomevfs.NotFoundError:
-                logging.debug("Could not open file %s. Does not exist" % self.URI)
+                logd("Could not open file %s. Does not exist" % self.URI)
                 self.fileExists = False
                 self.triedOpen = True
             except:
-                logging.debug("Could not open file %s. Exception:\n%s" % (self.URI, traceback.format_exc()))
+                logd("Could not open file %s. Exception:\n%s" % (self.URI, traceback.format_exc()))
                 self.fileExists = False
                 self.triedOpen = True
 
@@ -69,7 +70,7 @@ class File(DataType.DataType):
             if self.fileExists == True:
                 self.fileInfo = self.vfsFile.get_file_info()#gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
-                logging.warn("Cannot get info on non-existant file %s" % self.URI)
+                logw("Cannot get info on non-existant file %s" % self.URI)
 
     def exists(self):
         return gnomevfs.exists(self.URI)
@@ -179,7 +180,7 @@ class File(DataType.DataType):
         #Else look at the modification times
         meTime = self.get_modification_time()
         bTime = B.get_modification_time()
-        #logging.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, meTime, B.URI, bTime))
+        #logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, meTime, B.URI, bTime))
         if meTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            
@@ -195,7 +196,7 @@ class File(DataType.DataType):
         elif meTime == bTime:
             meSize = self.get_size()
             bSize = B.get_size()
-            #logging.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, meSize, B.URI, bSize))
+            #logd("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, meSize, B.URI, bSize))
             #If the times are equal, and the sizes are equal then assume
             #that they are the same.
             if meSize == None or bSize == None:
@@ -205,11 +206,11 @@ class File(DataType.DataType):
                 return conduit.datatypes.COMPARISON_EQUAL
             else:
                 #shouldnt get here
-                logging.error("Error comparing file sizes")
+                logw("Error comparing file sizes")
                 return conduit.datatypes.COMPARISON_UNKNOWN
                 
         else:
-            logging.error("Error comparing file modification times")
+            logw("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
 
     def get_UID(self):

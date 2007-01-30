@@ -46,8 +46,8 @@ The dictionary is in the following format:::
 import gtk
 from gettext import gettext as _
 
-import logging
 import conduit
+from conduit import log,logd,logw
 from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_WEB
 from conduit.datatypes import DataType
 from conduit.datatypes import Text
@@ -89,6 +89,8 @@ class MoinMoinDataSource(DataSource):
         in the MODULES dict at the top of the file
         """
         DataSource.__init__(self)
+
+        log("Hello World!")
         
         #class specific
         self.srcwiki = None

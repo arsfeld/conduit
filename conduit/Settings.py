@@ -7,8 +7,7 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import os
-import os.path
+import os, os.path
 import gobject
 import gconf
 import traceback
@@ -17,8 +16,7 @@ from xml.dom import minidom
 from xml.dom.minidom import Document
 #import gnomekeyring
 
-import logging
-import conduit
+from conduit import log,logd,logw
 
 class Settings(gobject.GObject):
     """
@@ -88,6 +86,10 @@ class Settings(gobject.GObject):
 
         # Init the keyring
         self.classUsernamesAndPasswords = {}
+
+        #FIXME: BROKEN
+        #http://bugzilla.gnome.org/show_bug.cgi?id=376183
+        #http://bugzilla.gnome.org/show_bug.cgi?id=363019
         #self._init_keyring()
 
     @staticmethod
@@ -123,14 +125,14 @@ class Settings(gobject.GObject):
         This function gets all the usernames and passwords and puts them in a
         dict organised by class name
         """
-
-        self.keyring = gnomekeyring.get_default_keyring_sync()
-        token = self.get("%s_token" % conduit.APPNAME, int, 0)
-        if token > 0:
-            secrets = gnomekeyring.item_get_info_sync(self.keyring, token).get_secret()
-            for i in secrets.split(';'):
-                j = i.split(':')
-                self.classUsernamesAndPasswords[j[0]] = (j[0], j[1])
+        pass
+        #self.keyring = gnomekeyring.get_default_keyring_sync()
+        #token = self.get("%s_token" % conduit.APPNAME, int, 0)
+        #if token > 0:
+        #    secrets = gnomekeyring.item_get_info_sync(self.keyring, token).get_secret()
+        #    for i in secrets.split(';'):
+        #        j = i.split(':')
+        #        self.classUsernamesAndPasswords[j[0]] = (j[0], j[1])
 
     def _fix_key(self, key):
         """
@@ -160,7 +162,7 @@ class Settings(gobject.GObject):
         and save_sync_set methods
         @param xmlSettingFilePath: Full locl path to the settings.xml file
         """
-        logging.debug("Settings stored in %s" % xmlSettingFilePath)
+        logd("Settings stored in %s" % xmlSettingFilePath)
         self.xmlSettingFilePath = xmlSettingFilePath
         
     def get(self, key, vtype=None, default=None):
@@ -218,7 +220,7 @@ class Settings(gobject.GObject):
             strvalues = [str(i) for i in value]
             self.client.set_list(key, gconf.VALUE_STRING, strvalues)
         else:
-            logging.warn("Unknown gconf type (k:%s v:%s)" % (key,value))
+            logw("Unknown gconf type (k:%s v:%s)" % (key,value))
 
     def get_username_and_password(self, classname):
         """
@@ -253,14 +255,14 @@ class Settings(gobject.GObject):
                         vtype = Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
                         value = Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
                     except KeyError:
-                        logging.warn("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
+                        logw("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
                         vtype = Settings.TYPE_TO_TYPE_NAME[str]
                         value = Settings.TYPE_TO_STRING[str](configDict[config])
                     configxml.setAttribute("type", vtype)
                     configxml.appendChild(doc.createTextNode(value))
                     parentNode.appendChild(configxml)    
             
-        logging.info("Saving Sync Set")
+        log("Saving Sync Set")
         #Build the application settings xml document
         doc = Document()
         rootxml = doc.createElement("conduit-application")
@@ -287,7 +289,7 @@ class Settings(gobject.GObject):
                 conduitxml.appendChild(sourcexml)
                 #Store source settings
                 configurations = source.module.get_configuration()
-                #logging.debug("Source Settings %s" % configurations)
+                #logd("Source Settings %s" % configurations)
                 make_xml_configuration(sourcexml, configurations)
             
             #Store all sinks
@@ -298,7 +300,7 @@ class Settings(gobject.GObject):
                 sinksxml.appendChild(sinkxml)
                 #Store sink settings
                 configurations = sink.module.get_configuration()
-                #logging.debug("Sink Settings %s" % configurations)
+                #logd("Sink Settings %s" % configurations)
                 make_xml_configuration(sinkxml, configurations)
             conduitxml.appendChild(sinksxml)        
 
@@ -308,7 +310,7 @@ class Settings(gobject.GObject):
             xml.dom.ext.PrettyPrint(doc, file_object)
             file_object.close()        
         except IOError, err:
-            logging.critical("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
+            logw("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
         
     def restore_sync_set(self, expectedVersion, mainWindow):
         """
@@ -316,7 +318,7 @@ class Settings(gobject.GObject):
         
         SORRY ABOUT THE UGLYNESS AND COMPLETE LACK OF ROBUSTNESS
         """
-        logging.info("Restoring Sync Set")
+        log("Restoring Sync Set")
         def get_settings(xml):
             """
             Makes a dict of dataprovider settings (settings are child nodes
@@ -332,10 +334,10 @@ class Settings(gobject.GObject):
                         data = Settings.STRING_TO_TYPE[vtype](raw)
                     except KeyError:
                         #fallback to string type
-                        logging.warn("Cannot convert string (%s) to native type %s" % (raw, vtype))
+                        logw("Cannot convert string (%s) to native type %s" % (raw, vtype))
                         traceback.print_exc()
                         data = str(raw)
-                    logging.debug("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                    logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
                     settings[s.localName] = data
             return settings
             
@@ -346,19 +348,19 @@ class Settings(gobject.GObject):
             
             @returns: The conduit the dataprovider was restored to
             """
-            #logging.debug("Restoring %s to (x=%s,y=%s)" % (wrapperKey,x,y))
+            #logd("Restoring %s to (x=%s,y=%s)" % (wrapperKey,x,y))
             conduit = None
             wrapper = mainWindow.moduleManager.get_new_module_instance(wrapperKey)
             if wrapper is not None:
                 wrapper.module.set_configuration(dpSettings)
             conduit = mainWindow.canvas.add_dataprovider_to_canvas(wrapperKey, wrapper, x, y)
             #else:
-            #    logging.warn("Could not restore %s to (x=%s,y=%s)" % (wrapperKey,x,y))
+            #    logw("Could not restore %s to (x=%s,y=%s)" % (wrapperKey,x,y))
             return conduit
 
         #Check the file exists
         if not os.path.isfile(self.xmlSettingFilePath):
-            logging.info("%s not present" % self.xmlSettingFilePath)
+            log("%s not present" % self.xmlSettingFilePath)
             return
             
         try:
@@ -367,7 +369,7 @@ class Settings(gobject.GObject):
             xmlVersion = doc.getElementsByTagName("conduit-application")[0].getAttribute("version")
             #And check it is the correct version        
             if expectedVersion != xmlVersion:
-                logging.info("%s xml file is incorrect version" % self.xmlSettingFilePath)
+                log("%s xml file is incorrect version" % self.xmlSettingFilePath)
                 os.remove(self.xmlSettingFilePath)
                 return
             
@@ -406,5 +408,5 @@ class Settings(gobject.GObject):
 
         #FIXME: Should i special case different exceptions here....?
         except:
-            logging.warn("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
+            logw("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
             os.remove(self.xmlSettingFilePath)

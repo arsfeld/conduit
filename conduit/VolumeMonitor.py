@@ -10,19 +10,14 @@ http://listengnome.free.fr
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import logging
-import conduit
-
 import gnomevfs
-import gobject
-
 import dbus
 if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
     import dbus.glib
 
+from conduit import log,logd,logw
+
 def __init__():
-    logging.info("Volume Monitor Started")
     MonitorInstance = None
 
 def VolumeMonitor():
@@ -38,10 +33,10 @@ class VolumeMonitor:
 
     def __init__(self):
         """ Create singleton instance """
-        logging.info("VolumeMonitor.__init__")
+        log("VolumeMonitor.__init__")
         # Check whether we already have an instance
         if VolumeMonitor.__instance is None:
-            logging.info("VolumeMonitor.__init__.instancing")
+            log("VolumeMonitor.__init__.instancing")
             # Create and remember instance
             VolumeMonitor.__instance = gnomevfs.VolumeMonitor()
 

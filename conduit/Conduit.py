@@ -4,14 +4,11 @@ Represents a conduit (The joining of one source to one or more sinks)
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import os.path
 import gtk, gtk.gdk
 import goocanvas
-import gtk
 import gobject
 
-import logging
-import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 
 class Conduit(goocanvas.Group, gobject.GObject):
@@ -234,13 +231,13 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 #And always at the top
                 y_pos = y + (Conduit.HEIGHT/2) - (w_h/2)
             else:         
-                logging.warn("Only one datasource allowed per conduit")
+                logw("Only one datasource allowed per conduit")
                 return
 
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
             if dataprovider_wrapper in self.datasinks:
-                logging.warn("This datasink already present in this conduit")
+                logw("This datasink already present in this conduit")
                 return
             else:
                 #temp reference for drawing the connector line
@@ -258,14 +255,14 @@ class Conduit(goocanvas.Group, gobject.GObject):
 
         elif dataprovider_wrapper.module_type == "twoway":
             if self.datasource == None:
-                logging.debug("Adding twoway dataprovider into source position")
+                logd("Adding twoway dataprovider into source position")
                 self.datasource = dataprovider_wrapper
                 #DataSources go on the left
                 horizontal_position = "left"
                 #At the top
                 y_pos = y + (Conduit.HEIGHT/2) - (w_h/2)
             else:
-                logging.debug("Adding twoway dataprovider into sink position")
+                logd("Adding twoway dataprovider into sink position")
                 self.datasinks.append(dataprovider_wrapper)
                 #Datasinks go on the right
                 horizontal_position = "right"
@@ -278,7 +275,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 if len(self.datasinks) > 1:
                     resize_box = True
         else:
-                logging.warn("Only sinks, sources or twoway dataproviders may be added")
+                logw("Only sinks, sources or twoway dataproviders may be added")
                 return
 
         #Connect to the signal which is fired when dataproviders change
@@ -304,7 +301,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         elif horizontal_position == "right":
             x_pos = w - padding - w_w
         else:
-            logging.warn("UNKNOWN HORIZONTAL POSITION")
+            logw("UNKNOWN HORIZONTAL POSITION")
 
         self.move_dataprovider_to(dataprovider_wrapper,x_pos,y_pos)
         #add to this group
@@ -333,7 +330,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
             y_offset = w_h - Conduit.CONNECTOR_TEXT_YPADDING
             anchor = gtk.ANCHOR_EAST         
         else:
-            logging.warn("UNKNOWN HORIZONTAL POSITION")    
+            logw("UNKNOWN HORIZONTAL POSITION")    
         msg = dataprovider_wrapper.module.get_status_text()             
         statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset, msg)
         statusText.set_property("anchor", anchor)
@@ -478,14 +475,14 @@ class Conduit(goocanvas.Group, gobject.GObject):
             i = self.datasinks.index(dataprovider)
             del(self.datasinks[i])
         else:
-            logging.warn("Could not remove %s" % dataprovider)
+            logw("Could not remove %s" % dataprovider)
         
     def delete_dataprovider_from_conduit(self, dataprovider):
         """
         Removes the specified conduit from the canvas
         """
         if dataprovider == self.datasource:
-            logging.debug("Deleting Source %s" % dataprovider)
+            logd("Deleting Source %s" % dataprovider)
             #remove ALL connectors
             for sink in self.datasinks:
                 self.delete_connector(sink)
@@ -494,7 +491,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
             #remove the dataprovider widget and instance
             self.delete_dataprovider(dataprovider)
         elif dataprovider in self.datasinks:
-            logging.debug("Deleting Sink %s" % dataprovider)  
+            logd("Deleting Sink %s" % dataprovider)  
             #remove the connector
             if self.datasource is not None:
                 self.delete_connector(dataprovider)
@@ -513,7 +510,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                 #Move the datasinks, and status text below the deleted one 
                 #upwards and fix all their connectors
                 for j in range(i, len(self.datasinks)):
-                    #logging.debug("Del Conduit at Index %s, Checking %s of %s" % (i,j,len(self.datasinks)))
+                    #logd("Del Conduit at Index %s, Checking %s of %s" % (i,j,len(self.datasinks)))
                     #Delete the old connectors
                     if self.datasource is not None:
                         self.delete_connector(self.datasinks[j])
@@ -531,7 +528,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                     self.resize_conduit_height(new_h)
 
         else:
-            logging.warn("Could not find dataprovider %s to delete" % dataprovider)
+            logw("Could not find dataprovider %s to delete" % dataprovider)
 
         #Can the conduit can now perform a two way sync if requested by the user?
         if not self.can_do_two_way_sync():
@@ -549,13 +546,13 @@ class Conduit(goocanvas.Group, gobject.GObject):
         return False
 
     def enable_two_way_sync(self):
-        logging.debug("Enabling Two Way Sync")
+        logd("Enabling Two Way Sync")
         self.twoWaySyncEnabled = True
         if self.can_do_two_way_sync():
             self.connectors[self.datasinks[0]].set_two_way(True)
                     
     def disable_two_way_sync(self):
-        logging.debug("Disabling Two Way Sync")
+        logd("Disabling Two Way Sync")
         self.twoWaySyncEnabled = False
         if self.can_do_two_way_sync():
             self.connectors[self.datasinks[0]].set_two_way(False)

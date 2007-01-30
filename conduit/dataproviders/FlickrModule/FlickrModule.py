@@ -8,8 +8,9 @@ import gtk
 import traceback
 import md5
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -73,11 +74,11 @@ class FlickrSink(DataProvider.DataSink):
         
         #Check if we have already uploaded the photo
         if len(LUIDs) > 0:
-            logging.debug("Photo already uploaded, skipping")
+            logd("Photo already uploaded, skipping")
             return None
 
         #Upload            
-        logging.debug("Uploading Photo URI = %s, Mimetype = %s" % (photoURI, mimeType))
+        logd("Uploading Photo URI = %s, Mimetype = %s" % (photoURI, mimeType))
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
                                 filename=photoURI,

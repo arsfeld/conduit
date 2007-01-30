@@ -1,6 +1,7 @@
 import sys, os
-import logging
+
 import conduit
+from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 import vobject

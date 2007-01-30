@@ -12,8 +12,7 @@ import goocanvas
 import gtk
 from gettext import gettext as _
 
-import logging
-import conduit
+from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 from conduit.Conduit import Conduit
 from conduit.Tree import DND_TARGETS
@@ -126,7 +125,7 @@ class Canvas(goocanvas.CanvasView):
                 n_x, n_y, n_w, n_h = n_c.get_conduit_dimensions()
                 #check if the current conduit overlaps onto the conduit below it
                 diff = (y + h) - n_y 
-                #logging.debug("C(y,h) = %s,%s\tNC(y,h) = %s,%s\t Diff = %s" % (y,h,n_y,n_h,diff))
+                #logd("C(y,h) = %s,%s\tNC(y,h) = %s,%s\t Diff = %s" % (y,h,n_y,n_h,diff))
                 n_c.move_conduit_by(0, diff)
             
     def get_canvas_size(self):
@@ -269,7 +268,7 @@ class Canvas(goocanvas.CanvasView):
         """
         key = wrapper.get_key()
         if key in self.pendingDataprovidersToAdd:
-            logging.debug("SWAPPING OUT")
+            logd("SWAPPING OUT")
             for c in self.conduits:
                 pending = self.pendingDataprovidersToAdd[key]
                 if c.has_dataprovider(pending):
@@ -298,7 +297,7 @@ class Canvas(goocanvas.CanvasView):
         #If module is None we instead add a placeholder dataprovider and
         #add the proper DP when it becomes available via callback
         if dataproviderWrapper == None:
-            logging.info("Dataprovider %s unavailable. Adding pending its availability" % key)
+            log("Dataprovider %s unavailable. Adding pending its availability" % key)
             dataproviderWrapper = PendingDataproviderWrapper(key)
             #Store the pending element so it can be removed later            
             self.pendingDataprovidersToAdd[key] = dataproviderWrapper
@@ -410,7 +409,7 @@ class Canvas(goocanvas.CanvasView):
         True for disable
         @type disable: C{bool}
         """
-        logging.debug("Disable two-way sync? %s" % disable)
+        logd("Disable two-way sync? %s" % disable)
         self.disableTwoWaySync = disable
         if disable == True:
             for conduit in self.conduits:

@@ -10,6 +10,7 @@ import gobject
 import gtk, gtk.gdk
 
 import conduit
+from conduit import log,logd,logw
 
 #ENUM represeting the images drawn by ArrowCellRenderer
 RIGHT_ARROW = 0

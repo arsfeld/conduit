@@ -4,8 +4,9 @@ import sys
 import gtk
 from gettext import gettext as _
 
-import logging
+
 import conduit
+from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -108,7 +109,7 @@ class RSSSource(DataProvider.DataSource):
             self.downloadPhotos = photosCb.get_active()
             
         dlg.destroy()            
-        logging.debug(self.allowedTypes)
+        logd(self.allowedTypes)
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -150,9 +151,9 @@ class RSSSource(DataProvider.DataSource):
                                     f.force_new_filename(title+ext)
                                     self.files.append(f)
                             else:
-                                logging.debug("Enclosure %s is on non-allowed type (%s)" % (title,t))
+                                logd("Enclosure %s is on non-allowed type (%s)" % (title,t))
         except:
-            logging.info("Error getting/parsing feed \n%s" % traceback.format_exc())
+            log("Error getting/parsing feed \n%s" % traceback.format_exc())
             raise Exceptions.RefreshError
                             
     def get(self, index):

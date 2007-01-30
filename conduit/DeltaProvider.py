@@ -10,7 +10,7 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import os, md5, cPickle
+import os, cPickle
 import conduit.DataProvider as DataProvider
 import conduit.datatypes.DataType as DataType
 
