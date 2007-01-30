@@ -6,18 +6,6 @@ Conduit) may require the use of DataTypes other than their own in their
 implementation. For example all email programs should share the same common
 mail datatype. For this reason DataTypes, not DataProviders are exported
 """
-
-import Feed
-import File
-import Note
-import Text
-import Email
-import Contact
-import Event
-import DataType
-
-__all__ = ["Feed", "File", "Note", "Text", "Email", "Contact", "Event", "DataType"]
-
 #Constants used for comparison
 COMPARISON_EQUAL = 0
 COMPARISON_NEWER = 1

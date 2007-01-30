@@ -1,5 +1,3 @@
-import sys, os
-
 import conduit
 from conduit import log,logd,logw
 from conduit.datatypes import DataType

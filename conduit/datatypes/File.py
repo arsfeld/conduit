@@ -1,14 +1,12 @@
-import gtk
-import gnomevfs
-import conduit
-from conduit import log,logd,logw
-
-from conduit.datatypes import DataType
-
 import os
 import tempfile
 import datetime
 import traceback
+import gnomevfs
+
+import conduit
+from conduit import log,logd,logw
+from conduit.datatypes import DataType
 
 class File(DataType.DataType):
     def __init__(self, URI, **kwargs):
