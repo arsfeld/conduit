@@ -378,12 +378,12 @@ class Conduit(goocanvas.Group, gobject.GObject):
         for sink in self.datasinks:
             #need to check if there is actually a datasource
             if self.datasource is not None:
-                if self.datasource.out_type == sink.in_type:
+                if self.datasource.get_out_type() == sink.get_in_type():
                     self.connectors[sink].set_color("black")
                 else:
                     #Conversion through text allowed
                     #FIXME: Dont draw invalid connections here, or draw a dotted line or something
-                    if not typeConverter.conversion_exists(self.datasource.out_type, sink.in_type):
+                    if not typeConverter.conversion_exists(self.datasource.get_out_type(), sink.get_in_type()):
                         self.connectors[sink].set_color("red")
 
         if self.is_two_way():

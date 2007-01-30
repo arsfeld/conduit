@@ -167,8 +167,8 @@ class DBusView(dbus.service.Object):
                 info["description"] = i.description
                 info["module_type"] = i.module_type
                 info["category"] = i.category
-                info["in_type"] = i.in_type
-                info["out_type"] = i.out_type
+                info["in_type"] = i.get_in_type()
+                info["out_type"] = i.get_out_type()
                 info["classname"] = i.classname
                 info["key"] = i.get_key()
                 info["enabled"] = str(i.enabled)
@@ -182,7 +182,7 @@ class DBusView(dbus.service.Object):
         Gets all datasinks compatible with the supplied datasource. Compatible 
         is defined as;
         1) Enabled
-        2) sink.in_type == source.out_type OR
+        2) sink.get_in_type() == source.get_out_type() OR
         3) Conversion is available
         """
         self._print("GetAllCompatibleDataSinks %s" % sourceUID)
@@ -193,10 +193,10 @@ class DBusView(dbus.service.Object):
         #look for enabled datasinks
         for s in self._get_sinks():
             if s.enabled == True:
-                out = self.UIDs[sourceUID].out_type
-                if s.in_type == out:
+                out = self.UIDs[sourceUID].get_out_type()
+                if s.get_in_type() == out:
                     compat.append(s.get_key())
-                elif self.type_converter.conversion_exists(out, s.in_type):
+                elif self.type_converter.conversion_exists(out, s.get_in_type()):
                     compat.append(s.get_key())
 
         return compat

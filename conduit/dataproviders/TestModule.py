@@ -15,9 +15,11 @@ MODULES = {
 	"TestSource" :          { "type": "dataprovider" },
 	"TestSink" :            { "type": "dataprovider" },
     "TestConflict" :        { "type": "dataprovider" },
+    "TestChangeType" :      { "type": "dataprovider" },
 	"TestTwoWay" :          { "type": "dataprovider" },
 	"TestSinkFailRefresh" : { "type": "dataprovider" },
-    "TestFactory" :         { "type": "dataprovider-factory" }
+    "TestFactory" :         { "type": "dataprovider-factory" },
+    "CheeseConverter" :     { "type": "converter" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
@@ -252,6 +254,58 @@ class TestConflict(DataProvider.DataSink):
 
     def get_UID(self):
         return Utils.random_string()
+
+class TestChangeType(DataProvider.DataSink):
+
+    _name_ = "Test Change Type"
+    _description_ = "Test Sink ChangeType"
+    _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "text"
+    _out_type_ = ""
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+        self.use_cheese = False
+
+    def configure(self, window):
+        def setCheese(param):
+            self.use_cheese = bool(param)
+        items = [
+                    {
+                    "Name" : "Convert Test Data to Cheese?",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : setCheese,
+                    "InitialValue" : self.use_cheese
+                    }
+                ]
+        dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
+        dialog.run()
+
+    def refresh(self):
+        DataProvider.DataSink.refresh(self)
+
+    def put(self, data, overwrite, LUIDs=[]):
+        DataProvider.DataSink.put(self, data, overwrite, LUIDs)
+        return None
+
+    def get_UID(self):
+        return Utils.random_string()
+
+    def get_in_type(self):
+        if self.use_cheese:
+            return "cheese"
+        else:
+            return self._in_type_
+
+class CheeseConverter:
+    def __init__(self):
+        self.conversions =  {"text,cheese"   : self.convert}
+                            
+    def convert(self, text):
+        return TestDataType(0)
+
 
 class TestDynamicSource(_TestBase, DataProvider.DataSource):
     _name_ = "Test Dynamic Source"

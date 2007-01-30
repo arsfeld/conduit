@@ -300,7 +300,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             data = source.module.get(i)
             try:
                 #convert data type if necessary
-                newdata = self._convert_data(sink, source.out_type, sink.in_type, data)
+                newdata = self._convert_data(sink, source.get_out_type(), sink.get_in_type(), data)
                 try:
                     self._put_data(newdata, sink, False)
                 except Exceptions.SynchronizeConflictError, err:

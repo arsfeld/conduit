@@ -116,6 +116,27 @@ class ModuleWrapper:
             muid = self.module.get_UID()
         return "%s-%s" % (self.get_key(), muid)
 
+    def get_in_type(self):
+        """
+        Returns the in_type for the module. If the module has not yet been 
+        initialised then its in_type is derived from its class attributes. 
+        If it has been initialised then it can supply its own in_type
+        """
+        if self.module == None:
+            return self.in_type
+        else:
+            return self.module.get_in_type()
+
+    def get_out_type(self):
+        """
+        Returns the out_type for the module. See get_in_type()
+        """
+        if self.module == None:
+            return self.out_type
+        else:
+            return self.module.get_out_type()
+
+
     def get_icon(self, size=16):
         """
         Returns the icon for the module contained in this wrapper.

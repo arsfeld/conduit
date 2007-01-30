@@ -376,6 +376,21 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         """
         raise NotImplementedError
 
+    def get_in_type(self):
+        """
+        Provides a way for dataproviders to configure what format they want 
+        at runtime.
+        """
+        return self._in_type_
+
+    def get_out_type(self):
+        """
+        Provides a way for dataproviders to configure what format they want 
+        at runtime.
+        """
+        return self._out_type_
+
+
 class DataSource(DataProviderBase):
     """
     Base Class for DataSources.
