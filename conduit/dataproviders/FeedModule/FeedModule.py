@@ -15,7 +15,11 @@ import conduit.datatypes.File as File
 import traceback
 import gnomevfs
 import urllib2
-from elementtree import ElementTree
+
+try:
+    from elementtree import ElementTree
+except:
+    from xml.etree import ElementTree
 
 import mimetypes
 
