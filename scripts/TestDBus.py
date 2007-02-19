@@ -47,5 +47,11 @@ ok ("checking TestSink is a compatible datasink", "TestSink" in remoteConduit.Ge
 conduit =   ok( "adding to conduit", remoteConduit.BuildConduit(source, sink) )
 #synchronize
 ok( "synchronizing", remoteConduit.Sync(conduit) )
+#now add a conflicting sink to the fray
+conflictsink = ok( "creating conflict datasink", remoteConduit.GetDataSink("TestConflict") )
+#add them to a conduit
+ok( "adding 2nd sink to conduit", remoteConduit.AddSinkToConduit(conduit, conflictsink) )
+#synchronize
+ok( "synchronizing", remoteConduit.Sync(conduit) )
 
 

@@ -213,6 +213,16 @@ class DBusView(dbus.service.Object):
             self.UIDs[uid] = conduit
         return uid
 
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ii', out_signature='i')
+    def AddSinkToConduit(self, conduitUID, sinkUID):
+        self._print("AddSinkToConduit %s:%s" % (conduitUID, sinkUID))
+        uid = ERROR
+        if conduitUID in self.UIDs and sinkUID in self.UIDs:
+            conduit = self.UIDs[conduitUID]
+            conduit.add_dataprovider_to_conduit(self.UIDs[sinkUID])
+            uid = conduitUID
+        return uid
+
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ss', out_signature='i')
     def SetSyncPolicy(self, conflictPolicy, missingPolicy):
         self._print("SetSyncPolicy (conflict:%s missing:%s)" % (conflictPolicy, missingPolicy))
@@ -247,5 +257,5 @@ class DBusView(dbus.service.Object):
         self._print("Emmiting DBus signal SyncCompleted %s" % conduitUID)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
-    def Conflict(self):
+    def Conflict(self, UID):
         self._print("Emmiting DBus signal Conflict")

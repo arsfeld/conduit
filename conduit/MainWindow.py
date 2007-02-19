@@ -84,11 +84,6 @@ class GtkView(dbus.service.Object):
         self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_from_file(os.path.join(conduit.SHARED_DATA_DIR, "conduit-icon.png"))
-        #Show the status icon 
-        self.statusIcon = None       
-        if conduit.settings.get("show_status_icon") == True:
-            self.statusIcon = ConduitStatusIcon()
-            #self.statusIcon.set_about_dialog_cb(self.on_about_
         
         #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
@@ -161,13 +156,6 @@ class GtkView(dbus.service.Object):
                                 self.conflictResolver.on_conflict
                                 )
         self.dataproviderTreeView.expand_all()
-
-        if self.statusIcon != None:
-            self.sync_manager.add_syncworker_callbacks(
-                                    self.statusIcon.on_sync_started,
-                                    self.statusIcon.on_sync_completed,
-                                    self.statusIcon.on_sync_conflict
-                                    )
 
     def on_sync_started(self, thread):
         logd("GUI got sync started")
@@ -654,6 +642,8 @@ class ConduitStatusIcon(gtk.StatusIcon):
 #2) It should have single method - Activate()
 #3) Remeber the case where the user has started it via --console (or DBus activation)
 #   In that case GTkView will have to be constructed before being presented
+#4) Remember that the DBus view and the gui view are not mutually exclusive
+#   and things like the conflict icon get might confusing in these situations
 def conduit_main():
     """
     Conduit main initialization function
@@ -684,9 +674,9 @@ def conduit_main():
         logw("Unknown command line option")
         pass
 
-    # attempt workaround for gnomvefs bug...
-    # this shouldn't need to be here, but if we call it after touching the session bus
-    # then nothing will work
+    #FIXME: attempt workaround for gnomvefs bug...
+    #this shouldn't need to be here, but if we call it after touching the session bus
+    #then nothing will work
     gnomevfs.VolumeMonitor()
 
     #Make conduit single instance. If it is already running then present it
@@ -710,21 +700,40 @@ def conduit_main():
                         ]
     model = ModuleManager(dirs_to_search)
 
+    #The status icon is shared between the GUI and the Dbus iface
+    if conduit.settings.get("show_status_icon") == True:
+        statusIcon = ConduitStatusIcon()
+    else:
+        statusIcon = None
+
     #Set the view models
     #gtkView...
     if useGUI:
         conduit.settings.set_settings_file(settingsFile)
         gtkView.set_model(model)
+        gtkView.canvas.add_welcome_message()
         gtkView.restore_settings()
+        gtkView.mainWindow.show_all()
+        gtkView.splash.destroy()
+
+        if statusIcon:
+            gtkView.sync_manager.add_syncworker_callbacks(
+                                    statusIcon.on_sync_started,
+                                    statusIcon.on_sync_completed,
+                                    statusIcon.on_sync_conflict
+                                    )
+
     #Dbus view...
     if conduit.settings.get("enable_dbus_interface") == True:
         dbusView = DBusView()
         dbusView.set_model(model)
 
-    #Start the application
-    if useGUI:
-        gtkView.canvas.add_welcome_message()
-        gtkView.splash.destroy()
-        gtkView.mainWindow.show_all()
-    memstats = conduit.memstats(memstats)
+        if statusIcon:
+            dbusView.sync_manager.add_syncworker_callbacks(
+                                    statusIcon.on_sync_started,
+                                    statusIcon.on_sync_completed,
+                                    statusIcon.on_sync_conflict
+                                    )
+
+    conduit.memstats(memstats)
     gtk.main()
