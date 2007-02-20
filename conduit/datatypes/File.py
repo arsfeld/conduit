@@ -91,6 +91,20 @@ class File(DataType.DataType):
         want to retain the name of
         """
         self.forceNewFilename = filename
+
+    def force_new_mtime(self, mtime):
+        """
+        In the xfer process this will cause the new file to have the specified
+        mtime
+        """
+        self.forceNewMtime = mtime
+
+    def transfer(self, newURI):
+        """
+        Transfers the file to newURI. Thin wrapper around go_gnomevfs_transfer
+        because it also sets the mtime of the file.
+        """
+        pass
             
     def get_mimetype(self):
         self._get_file_info()

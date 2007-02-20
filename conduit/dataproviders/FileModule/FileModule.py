@@ -233,6 +233,10 @@ class _FileSourceConfigurator(_ScannerThreadManager):
 
         self._make_view()
 
+        #now connect to dialog response signal because we want to validate that
+        #the user has named all the groups before we let them quit
+        self.dlg.connect("response",self.on_response)
+
         #Now go an background scan some folders to populate the UI estimates. Do 
         #in two steps otherwise the model gets updated via cb and breaks the iter
         i = []
@@ -310,7 +314,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
             displayName = self.model[path][GROUP_NAME_IDX]
         else:
             displayName = gnomevfs.format_uri_for_display(uri)
-            #displayName = Utils.get_filename(uri)
+
         cell_renderer.set_property("text", displayName)
 
     def _item_name_edited_callback(self, cellrenderertext, path, new_text):
@@ -407,6 +411,18 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         if store and rowref:
             store.remove(rowref)
 
+    def on_response(self, dialog, response_id):
+        """
+        Called when the user clicks OK.
+        """
+        print "FOO"
+        if response_id == gtk.RESPONSE_OK:
+            #check the user has specified a named group for all folders
+            for item in self.model:
+                print "----------------", item[GROUP_NAME_IDX]
+                if item[TYPE_IDX] == TYPE_FOLDER and item[GROUP_NAME_IDX] == "":
+                    dialog.emit_stop_by_name("response") 
+
 class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
     _name_ = _("Files")
@@ -448,7 +464,6 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
     def configure(self, window):
         f = _FileSourceConfigurator(window, self.items, self.unmatchedURI)
-        #FIXME: I dont do anything if the confiure operation is cancelled        
         f.show_dialog()
        
     def refresh(self):
@@ -472,7 +487,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #miss some items
         self.join_all_threads()
 
-        #Now save the URIs that each thread got
+        #Now save the URIs that each thread returned
         for item in self.items:
             if item[TYPE_IDX] == TYPE_FOLDER:
                 if item[CONTAINS_NUM_ITEMS_IDX] == 0 and item[GROUP_NAME_IDX] != "":
@@ -488,7 +503,9 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         DataProvider.TwoWay.put(self, vfsFile, overwrite, LUIDs)
         newURI = ""
         if vfsFile.basePath == "":
-            #came from another type of dp or from a DP where the user has added a single file
+            #came from another type of dataprovider such as tomboy
+            #where relative path makes no sense. Could also come from
+            #the File dp when the user has selected a single file
             print "NO BASEPATH. GOING TO EMPTY DIR"
             newURI = self.unmatchedURI+"/"+vfsFile.get_filename()
         elif vfsFile.group == "" and vfsFile.basePath != "":
