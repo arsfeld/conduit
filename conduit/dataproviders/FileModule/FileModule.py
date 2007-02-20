@@ -25,8 +25,9 @@ MODULES = {
 	"FileConverter" : { "type": "converter" }
 }
 
-TYPE_FILE = False
-TYPE_FOLDER = True
+TYPE_FILE = 0
+TYPE_FOLDER = 1
+TYPE_EMPTY_FOLDER = 2
 
 #Indexes of data in the list store
 URI_IDX = 0                     #URI of the file/folder
@@ -262,7 +263,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         #Second column is the File/Folder name
         nameRenderer = gtk.CellRendererText()
         nameRenderer.connect('edited', self._item_name_edited_callback)
-        column2 = gtk.TreeViewColumn("Name", nameRenderer, editable=TYPE_IDX)
+        column2 = gtk.TreeViewColumn("Name", nameRenderer)
         column2.set_property("expand", True)
         column2.set_cell_data_func(nameRenderer, self._item_name_data_func)
         self.view.append_column(column2)
@@ -306,7 +307,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
     def _item_name_data_func(self, column, cell_renderer, tree_model, rowref):
         """
         If the user has set a descriptive name for the folder the display that,
-        otherwise display the filename
+        otherwise display the filename. 
         """
         path = self.model.get_path(rowref)
         uri = self.model[path][URI_IDX]
@@ -316,6 +317,12 @@ class _FileSourceConfigurator(_ScannerThreadManager):
             displayName = gnomevfs.format_uri_for_display(uri)
 
         cell_renderer.set_property("text", displayName)
+
+        #Can not edit the group name of a file
+        if self.model[path][TYPE_IDX] == TYPE_FILE:
+            cell_renderer.set_property("editable", False)
+        else:
+            cell_renderer.set_property("editable", True)
 
     def _item_name_edited_callback(self, cellrenderertext, path, new_text):
         """
