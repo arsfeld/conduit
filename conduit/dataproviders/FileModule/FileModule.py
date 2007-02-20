@@ -28,10 +28,11 @@ MODULES = {
 TYPE_FILE = 0
 TYPE_FOLDER = 1
 TYPE_EMPTY_FOLDER = 2
+TYPE_SINGLE_FILE = 3
 
 #Indexes of data in the list store
 URI_IDX = 0                     #URI of the file/folder
-TYPE_IDX = 1                    #TYPE_FILE/FOLDER
+TYPE_IDX = 1                    #TYPE_FILE/FOLDER/etc
 CONTAINS_NUM_ITEMS_IDX = 2      #(folder only) How many items in the folder
 SCAN_COMPLETE_IDX = 3           #(folder only) HAs the folder been recursively scanned
 GROUP_NAME_IDX = 4              #(folder only) The visible identifier for the folder
@@ -283,10 +284,12 @@ class _FileSourceConfigurator(_ScannerThreadManager):
     def _item_icon_data_func(self, column, cell_renderer, tree_model, rowref):
         """
         Draw the appropriate icon depending if the URI is a 
-        folder or a file
+        folder or a file. We only show single files in the GUI anyway
         """
         path = self.model.get_path(rowref)
         if self.model[path][TYPE_IDX] == TYPE_FILE:
+            icon = _FileSourceConfigurator.FILE_ICON
+        elif self.model[path][TYPE_IDX] == TYPE_SINGLE_FILE:
             icon = _FileSourceConfigurator.FILE_ICON
         else:
             icon = _FileSourceConfigurator.FOLDER_ICON
@@ -300,6 +303,8 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         path = self.model.get_path(rowref)
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             contains = ""
+        elif self.model[path][TYPE_IDX] == TYPE_SINGLE_FILE:
+            contains = ""
         else:
             contains = "<i>Contains %s Files</i>" % self.model[path][CONTAINS_NUM_ITEMS_IDX]
         cell_renderer.set_property("markup",contains)
@@ -311,15 +316,19 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         """
         path = self.model.get_path(rowref)
         uri = self.model[path][URI_IDX]
+
         if self.model[path][GROUP_NAME_IDX] != "":
             displayName = self.model[path][GROUP_NAME_IDX]
         else:
             displayName = gnomevfs.format_uri_for_display(uri)
 
         cell_renderer.set_property("text", displayName)
+        cell_renderer.set_property("ellipsize", True)
 
         #Can not edit the group name of a file
         if self.model[path][TYPE_IDX] == TYPE_FILE:
+            cell_renderer.set_property("editable", False)
+        elif self.model[path][TYPE_IDX] == TYPE_SINGLE_FILE:
             cell_renderer.set_property("editable", False)
         else:
             cell_renderer.set_property("editable", True)
@@ -385,7 +394,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             fileURI = dialog.get_uri()
-            self.model.append((fileURI,TYPE_FILE,0,False,"",[]))
+            self.model.append((fileURI,TYPE_SINGLE_FILE,0,False,"",[]))
         elif response == gtk.RESPONSE_CANCEL:
             pass
         dialog.destroy()
@@ -422,13 +431,23 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         """
         Called when the user clicks OK.
         """
-        print "FOO"
         if response_id == gtk.RESPONSE_OK:
             #check the user has specified a named group for all folders
             for item in self.model:
-                print "----------------", item[GROUP_NAME_IDX]
-                if item[TYPE_IDX] == TYPE_FOLDER and item[GROUP_NAME_IDX] == "":
-                    dialog.emit_stop_by_name("response") 
+                if item[TYPE_IDX] == TYPE_FOLDER or item[TYPE_IDX] == TYPE_FOLDER:
+                    if item[GROUP_NAME_IDX] == "":
+                        #stop this dialog from closing, and show a warning to the
+                        #user indicating that all folders must be named
+                        warning = gtk.MessageDialog(
+                                        parent=dialog,
+                                        flags=gtk.DIALOG_MODAL, 
+                                        type=gtk.MESSAGE_WARNING, 
+                                        buttons=gtk.BUTTONS_OK, 
+                                        message_format="Please Name All Folders")
+                        warning.format_secondary_text("All folders require a descriptive name. To name a folder simply click on it")
+                        warning.run()
+                        print "Closed"
+                        dialog.emit_stop_by_name("response")
 
 class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
@@ -447,7 +466,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #list of file and folder URIs
         self.items = gtk.ListStore(
                         gobject.TYPE_STRING,    #URI_IDX
-                        gobject.TYPE_BOOLEAN,   #TYPE_IDX
+                        gobject.TYPE_INT,       #TYPE_IDX
                         gobject.TYPE_INT,       #CONTAINS_NUM_ITEMS_IDX
                         gobject.TYPE_BOOLEAN,   #SCAN_COMPLETE_IDX
                         gobject.TYPE_STRING,    #GROUP_NAME_IDX
@@ -456,8 +475,6 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #A DB of files with meta information
         self.db = None
         self._create_empty_db()
-        #FIXME: Bit of an ugly way to take care of empty dirs
-        self.emptyDirGroups = {}
         #When acting as a sink, place all unmatched items in here
         self.unmatchedURI = "file://"+os.path.expanduser("~")
 
@@ -465,6 +482,14 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         self.db = DB.SimpleDb("uris")
         self.db.create("uri", "type", "basepath", "group", mode="overwrite")
         self.db.create_index("group")
+        self.db.create_index("type")
+
+    def _get_files_from_db(self):
+        """
+        Returns just those items that are files (not folders or empty folders
+        from the DB
+        """
+        return self.db._type[TYPE_FILE]+self.db._type[TYPE_SINGLE_FILE]
 
     def initialize(self):
         return True
@@ -482,9 +507,9 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         for item in self.items:
             #Make sure we rescan
             item[SCAN_COMPLETE_IDX] = False
-            if item[TYPE_IDX] == TYPE_FILE:
+            if item[TYPE_IDX] == TYPE_SINGLE_FILE:
                 fileUri = item[URI_IDX]
-                self.db.insert(fileUri,TYPE_FILE,"","")
+                self.db.insert(fileUri,TYPE_SINGLE_FILE,"","")
             else:
                 folderURI = item[URI_IDX]
                 rowref = item.iter
@@ -497,15 +522,28 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         #Now save the URIs that each thread returned
         for item in self.items:
             if item[TYPE_IDX] == TYPE_FOLDER:
-                if item[CONTAINS_NUM_ITEMS_IDX] == 0 and item[GROUP_NAME_IDX] != "":
-                    self.emptyDirGroups[item[GROUP_NAME_IDX]] = item[URI_IDX]
-                for i in item[CONTAINS_ITEMS_IDX]:
-                    self.db.insert(i,TYPE_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
+                if item[CONTAINS_NUM_ITEMS_IDX] == 0:
+                    self.db.insert(item[URI_IDX],TYPE_EMPTY_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
+                else:
+                    for i in item[CONTAINS_ITEMS_IDX]:
+                        self.db.insert(i,TYPE_FILE, item[URI_IDX], item[GROUP_NAME_IDX])
 
     def put(self, vfsFile, overwrite, LUIDs=[]):
         """
-        General approach involves - see code
-        FIXME: Fold emptyGroupDirs into DB with new a new type
+        Puts vfsFile at the correct location. There are two scenarios
+        1) File came from a foreign DP like tomboy
+        2) File came from another file dp
+
+        Behaviour:
+        1) The foreign DP should have encoded enough information (such as
+        the filename) so that we can go ahead and put the file in the orphan dir
+        2) First we see if the file has a group attribute. If so we try and find
+        a correspnding group here. If one exists then we put the files into the 
+        directory with that group name
+        
+        If not we put the file in the orphan dir. We try and retain the relative
+        path for the files in the specifed group and recreate that in the
+        orphan dir
         """
         DataProvider.TwoWay.put(self, vfsFile, overwrite, LUIDs)
         newURI = ""
@@ -515,22 +553,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             #the File dp when the user has selected a single file
             print "NO BASEPATH. GOING TO EMPTY DIR"
             newURI = self.unmatchedURI+"/"+vfsFile.get_filename()
-        elif vfsFile.group == "" and vfsFile.basePath != "":
-            #came from a file DP where the user has not given the folder a name
-            print "NO GROUPNAME. GOING TO EMPTY DIR WITH REL PATH"
-            pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
-            newURI = self.unmatchedURI+pathFromBase
         else:
             pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
-            if vfsFile.group in self.emptyDirGroups:
-                print "GOING TO EMPTY DIR"
-                #defined group containing no files
-                #work out where it goes
-                destPath = self.emptyDirGroups[vfsFile.group]
-                newURI = destPath+pathFromBase
-            elif len(self.db._group[vfsFile.group]) != 0:
-                print "GOING TO DIR WITH FILES"
+            if len(self.db._group[vfsFile.group]) != 0:
+                print "FOUND CORRESPONDING GROUP"
                 #defined group containing some files
                 destPath = self.db._group[vfsFile.group][0]['basepath']
                 newURI = destPath+pathFromBase
@@ -552,7 +579,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
-        item = self.db[index]
+        item = self._get_files_from_db()[index]
         return File.File(
                     item['uri'],
                     basepath=item['basepath'],
@@ -561,11 +588,12 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
     def get_num_items(self):
         DataProvider.TwoWay.get_num_items(self)
-        return len(self.db)
+        #When functioning as a datasource we are only interested in the 
+        #files because that is all that will be get()
+        return len(self._get_files_from_db())
 
     def finish(self):
         self.db = None
-        self.emptyDirGroups = {}
 
     def set_configuration(self, config):
         try:
@@ -577,7 +605,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 #see http://mail.python.org/pipermail/xml-sig/2004-September/010563.html
                 #the solution is to ????
                 if Utils.get_protocol(f) != "":
-                    self.items.append((f,TYPE_FILE,0,False,"",[]))
+                    self.items.append((f,TYPE_SINGLE_FILE,0,False,"",[]))
             for f in folders:
                 if Utils.get_protocol(f) != "":
                     self.items.append((f,TYPE_FOLDER,0,False,"",[]))
@@ -587,7 +615,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         files = []
         folders = []
         for item in self.items:
-            if item[TYPE_IDX] == TYPE_FILE:
+            if item[TYPE_IDX] == TYPE_SINGLE_FILE:
                 files.append(item[URI_IDX])
             else:
                 folders.append(item[URI_IDX])
@@ -617,11 +645,13 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         self.register_thread_completed()
         #If the user has not yet given the folder a descriptive name then
         #check of the folder contains a .conduit file in which that name is 
-        #stored
-        try:
-            configString = _get_config_file_for_dir(folderScanner.baseURI)
-            self.items[path][GROUP_NAME_IDX] = configString
-        except gnomevfs.NotFoundError: pass
+        #stored (i.e. the case when the user starts the sync from a
+        #saved configuration)
+        if self.items[path][GROUP_NAME_IDX] == "":
+            try:
+                configString = _get_config_file_for_dir(folderScanner.baseURI)
+                self.items[path][GROUP_NAME_IDX] = configString
+            except gnomevfs.NotFoundError: pass
 
 class FileConverter:
     def __init__(self):
