@@ -125,7 +125,7 @@ def random_string(length=5):
         s += str(random.randint(0,10))
     return s
 
-def dataprovider_add_dir_to_path(dataproviderfile, directory):
+def dataprovider_add_dir_to_path(dataproviderfile, directory=""):
     """
     Adds directory to the python search path.
 
