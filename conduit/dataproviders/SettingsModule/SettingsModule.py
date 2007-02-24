@@ -24,7 +24,7 @@ MODULES = {
 }
 
 #The directory the backup .cfg files reside in
-CONFIG_DIR = "backups"
+CONFIG_DIR = "settings"
 #ENUM of model indexes
 ENABLED_IDX = 0
 FILENAME_IDX = 1
@@ -54,18 +54,18 @@ class Settings(DataProvider.DataSource):
         confdir = os.path.join(os.path.dirname(__file__), CONFIG_DIR)
         if os.path.exists (confdir):
             for f in [os.path.join(confdir,i) for i in os.listdir(confdir)]:
-                if os.path.isfile(f) and self._is_backup_config_file(f):
+                if os.path.isfile(f) and self._is_settings_config_file(f):
                     try:
-                        filename,name,backup = self._parse_backup_config_file(f)
+                        filename,name,backup = self._parse_settings_config_file(f)
                         self.model.append((True,filename,name,backup))
                     except:
                         pass
 
-    def _is_backup_config_file(self, filename):
+    def _is_settings_config_file(self, filename):
         endswith = ".cfg"
         return filename[-len(endswith):] == endswith
 
-    def _parse_backup_config_file(self, filename):
+    def _parse_settings_config_file(self, filename):
         parser = ConfigParser.RawConfigParser()
         parser.read([filename])
         if not parser.has_section("Backup"):

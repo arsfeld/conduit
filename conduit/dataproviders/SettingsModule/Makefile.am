@@ -1,6 +1,6 @@
-conduit_handlersdir = $(libdir)/conduit/dataproviders/GNOMESettingsModule
+conduit_handlersdir = $(libdir)/conduit/dataproviders/SettingsModule
 conduit_handlers_PYTHON = \
-	GNOMESettingsModule.py \
+	SettingsModule.py \
 	GConfUtils.py
 conduit_handlers_DATA = config.glade
 
