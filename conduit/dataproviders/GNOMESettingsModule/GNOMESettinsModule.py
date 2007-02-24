@@ -2,6 +2,8 @@ import os
 import gtk
 import gconf
 import gobject
+import tarfile
+import tempfile
 import ConfigParser
 
 import logging
@@ -11,6 +13,7 @@ import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 from conduit.datatypes import DataType
 import conduit.datatypes.Text as Text
+import conduit.datatypes.File as File
 
 Utils.dataprovider_add_dir_to_path(__file__)
 from GConfUtils import GConfImport, GConfExport
@@ -75,7 +78,7 @@ class GNOMESettings(DataProvider.DataSource):
             name = parser.get("Display", "Name")
 
         backups={}
-        for opt in ["GConfKey", "GConfDir"]:
+        for opt in ["GConfKey", "GConfDir", "File", "Directory"]:
             if parser.has_option("Backup", opt):
                 backups[opt] = parser.get("Backup", opt)
 
@@ -158,12 +161,20 @@ class Setting(DataType.DataType):
         self.name = name
         self.GConfKeys = []
         self.GConfDirs = []
+        self.Files = []
+        self.Directories = []
 
         if backup.has_key("GConfKey"):
             self.GConfKeys = backup["GConfKey"].split(";")
 
         if backup.has_key("GConfDir"):
             self.GConfDirs = backup["GConfDir"].split(";")
+
+        if backup.has_key("File"):
+            self.Files = [os.path.expanduser(i) for i in backup["File"].split(";")]
+
+        if backup.has_key("Directory"):
+            self.Directories = [os.path.expanduser(i) for i in backup["Directory"].split(";")]
 
     def __str__(self):
         return "Settings for %s" % self.name
@@ -195,5 +206,34 @@ class SettingConverter:
 
     def to_file(self, setting):
         gconfText = self._get_gconf_data_as_text(setting)
-        return Utils.new_tempfile(gconfText)
+        tmpDir = tempfile.mkdtemp()
+
+        #create the tar file
+        uniqueName = "%s-%s-GNOMESettings-%s.tar.gz" % (
+                                        conduit.APPNAME, 
+                                        conduit.APPVERSION, 
+                                        setting.name
+                                        )
+        tarFileName = os.path.join(tmpDir, uniqueName)
+        tarFile = tarfile.open(tarFileName,'w:gz')
+
+        #the gconf info is always stored in the archive as gconf.xml
+        gconfFileName = os.path.join(tmpDir, "gconf.xml")
+        f = open(gconfFileName, 'w') 
+        f.write(gconfText)
+        f.close()
+        tarFile.add(gconfFileName, os.path.basename(gconfFileName))
+
+        #add all files/folders. if they are in the users home dir then add
+        #the relative path. If they are in / then add full path
+        for i in setting.Files + setting.Directories:
+            home = os.path.expanduser("~")
+            if i.find(home) == -1:
+                tarFile.add(i)
+            else:
+                tarFile.add(i, i.replace(home,""))
+                
+        tarFile.close()
+            
+        return File.File(tarFileName)
 
