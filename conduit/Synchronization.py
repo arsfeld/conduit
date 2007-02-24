@@ -91,8 +91,7 @@ class SyncManager:
             
     def refresh_conduit(self, conduit):
         """
-        Just calls the initialize method on all dp's in a conduit
-        """
+            """
         if conduit in self.syncWorkers:
             #If the thread is alive then cancel it
             if self.syncWorkers[conduit].isAlive():

@@ -5,6 +5,7 @@ import conduit.Utils as Utils
 
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
+import conduit.datatypes.Text as Text
 
 MODULES = {
         "TextConverter" :       { "type": "converter" },
@@ -25,10 +26,10 @@ class TextConverter:
         """
         Cheat and hope that modules define __str__()
         """
-        if hasattr(measure, "__str__"):
-            return str(measure)
-        logw("%s does not define __str__()" % measure)
-        return ""
+        return Text.Text(
+                        measure.get_URI(),  #retain the URI
+                        text=str(measure)   #hope __str__ exists
+                        )
 
 class ContactConverter:
     def __init__(self):
@@ -43,7 +44,10 @@ class ContactConverter:
         return Utils.new_tempfile(str(contact))
 
     def contact_to_text(self, contact):
-        return str(contact)
+        return Text.Text(
+                        contact.get_URI(),  #retain the URI
+                        text=str(contact)   #hope __str__ exists
+                        )
 
     def file_to_contact(self, f):
         c = Contact.Contact()
@@ -63,7 +67,10 @@ class EventConverter:
         return Utils.new_tempfile(event.to_string())
 
     def event_to_text(self, event):
-        return event.to_string()
+        return Text.Text(
+                        event.get_URI(),        #retain the URI
+                        text=event.to_string()  #hope __str__ exists
+                        )
 
     def file_to_event(self, f):
         e = Event.Event()
