@@ -187,17 +187,22 @@ class SettingConverter:
                             }
                             
     def _get_gconf_data_as_text (self, settings):
-        client = gconf.client_get_default()
-        gconfExporter = GConfExport(client)
-
-        return gconfExporter.export(
+        text = None
+        if len(settings.GConfDirs + settings.GConfKeys) > 0:
+            client = gconf.client_get_default()
+            gconfExporter = GConfExport(client)
+            text = gconfExporter.export(
                             settings.GConfDirs,
                             settings.GConfKeys
                             )
 
+        return text
+
                             
     def to_text(self, setting):
         gconfText = self._get_gconf_data_as_text(setting)
+        if gconfText == None:
+            raise Exception("Settings %s has no settings to convert" % setting.name)
         
         return Text.Text(
                         None,               #URI
@@ -205,7 +210,6 @@ class SettingConverter:
                         )
 
     def to_file(self, setting):
-        gconfText = self._get_gconf_data_as_text(setting)
         tmpDir = tempfile.mkdtemp()
 
         #create the tar file
@@ -218,11 +222,13 @@ class SettingConverter:
         tarFile = tarfile.open(tarFileName,'w:gz')
 
         #the gconf info is always stored in the archive as gconf.xml
-        gconfFileName = os.path.join(tmpDir, "gconf.xml")
-        f = open(gconfFileName, 'w') 
-        f.write(gconfText)
-        f.close()
-        tarFile.add(gconfFileName, os.path.basename(gconfFileName))
+        gconfText = self._get_gconf_data_as_text(setting)
+        if gconfText != None:
+            gconfFileName = os.path.join(tmpDir, "gconf.xml")
+            f = open(gconfFileName, 'w') 
+            f.write(gconfText)
+            f.close()
+            tarFile.add(gconfFileName, os.path.basename(gconfFileName))
 
         #add all files/folders. if they are in the users home dir then add
         #the relative path. If they are in / then add full path
