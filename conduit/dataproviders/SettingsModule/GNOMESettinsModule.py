@@ -19,7 +19,7 @@ Utils.dataprovider_add_dir_to_path(__file__)
 from GConfUtils import GConfImport, GConfExport
 
 MODULES = {
-	"GNOMESettings"     : { "type": "dataprovider"  },
+	"Settings"     : { "type": "dataprovider"  },
     "SettingConverter"  : { "type": "converter"     }
 }
 
@@ -31,14 +31,14 @@ FILENAME_IDX = 1
 NAME_IDX = 2
 BACKUP_IDX = 3
 
-class GNOMESettings(DataProvider.DataSource):
+class Settings(DataProvider.DataSource):
 
-    _name_ = "GNOME Settings"
+    _name_ = "System Settings"
     _description_ = "Sync your desktop preferences"
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
-    _in_type_ = "gnome-setting"
-    _out_type_ = "gnome-setting"
+    _in_type_ = "setting"
+    _out_type_ = "setting"
     _icon_ = "preferences-desktop"
 
     def __init__(self, *args):
@@ -156,7 +156,7 @@ class GNOMESettings(DataProvider.DataSource):
 
 class Setting(DataType.DataType):
     def __init__(self, name, backup):
-        DataType.DataType.__init__(self,"gnome-setting")
+        DataType.DataType.__init__(self,"setting")
 
         self.name = name
         self.GConfKeys = []
@@ -182,8 +182,8 @@ class Setting(DataType.DataType):
 class SettingConverter:
     def __init__(self):
         self.conversions =  {    
-                            "gnome-setting,text"    : self.to_text,
-                            "gnome-setting,file"    : self.to_file
+                            "setting,text"    : self.to_text,
+                            "setting,file"    : self.to_file
                             }
                             
     def _get_gconf_data_as_text (self, settings):
@@ -209,7 +209,7 @@ class SettingConverter:
         tmpDir = tempfile.mkdtemp()
 
         #create the tar file
-        uniqueName = "%s-%s-GNOMESettings-%s.tar.gz" % (
+        uniqueName = "%s-%s-Settings-%s.tar.gz" % (
                                         conduit.APPNAME, 
                                         conduit.APPVERSION, 
                                         setting.name

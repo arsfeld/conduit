@@ -5,7 +5,7 @@ SUBDIRS = \
 	FlickrModule \
 	FspotModule \
 	GmailModule \
-	GNOMESettingsModule
+	SettingsModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
