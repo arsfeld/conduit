@@ -50,18 +50,22 @@ class ConflictResolver:
                                     )
         #In the conflict treeview, group by sink <-> source partnership 
         self.partnerships = {}
+        self.numConflicts = 0
 
         self.view = gtk.TreeView( self.model )
         self.view.set_property("enable-search", False)
         self._build_view()
 
-        #connect up the GUI
-        widgets.get_widget("conflictScrolledWindow").add(self.view)        
+        #Connect up the GUI
+        #this is the scrolled window in the bottom of the main gui
         self.expander = widgets.get_widget("conflictExpander")
         self.expander.connect("activate", self.on_expand)
+        self.expander.set_sensitive(False)
         self.fullscreenButton = widgets.get_widget("conflictFullscreenButton")
         self.fullscreenButton.connect("toggled", self.on_fullscreen_toggled)
         self.conflictScrolledWindow = widgets.get_widget("conflictExpanderVBox")
+        widgets.get_widget("conflictScrolledWindow").add(self.view)
+        #this is a stand alone window for showing conflicts in an easier manner
         self.standalone = gtk.Window()
         self.standalone.set_title("Conflicts")
         self.standalone.set_transient_for(widgets.get_widget("MainWindow"))
@@ -70,6 +74,8 @@ class ConflictResolver:
         self.standalone.set_default_size(-1, 200)
         self.standalone.add(self.conflictScrolledWindow)
         self.standalone.connect("delete-event", self.on_standalone_closed)
+        #the button callbacks are shared
+        widgets.get_widget("conflictCancelButton").connect("clicked", self.on_cancel_conflicts)
         
 
     def _build_view(self):
@@ -125,12 +131,24 @@ class ConflictResolver:
         direction = tree_model.get_value(iter, user_data)
         cell_renderer.set_direction(direction)
 
+    def _set_conflict_titles(self):
+        self.expander.set_label("Conflicts (%s)" % self.numConflicts)
+        self.standalone.set_title("Conflicts (%s)" % self.numConflicts)
+
     def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
+        #We start with the expander disabled. Make sure we only enable it once
+        if len(self.model) == 0:
+            self.expander.set_sensitive(True)
+
+        self.numConflicts += 1
         rowdata = ( source, sourceData, sink, sinkData, CONFLICT_SKIP, validChoices)
         if (source,sink) in self.partnerships:
             self.model.append(self.partnerships[(source,sink)], rowdata)  
         else:
             self.partnerships[(source,sink)] = self.model.append(None, rowdata)
+
+        #update the expander label and the standalone window title
+        self._set_conflict_titles()
 
     def on_expand(self, sender):
         pass
@@ -161,6 +179,10 @@ class ConflictResolver:
     
     #Connect to cancel button
     def on_cancel_conflicts(self, sender):
+        self.model.clear()
+        self.partnerships = {}
+        self.numConflicts = 0
+        self._set_conflict_titles()
         pass
 
 class ConflictCellRenderer(gtk.GenericCellRenderer):

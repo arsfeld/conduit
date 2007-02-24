@@ -342,7 +342,7 @@
 				  <property name="spacing">0</property>
 
 				  <child>
-				    <widget class="GtkButton" id="button34">
+				    <widget class="GtkButton" id="conflictCancelButton">
 				      <property name="visible">True</property>
 				      <property name="can_default">True</property>
 				      <property name="can_focus">True</property>
@@ -354,7 +354,7 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkButton" id="button35">
+				    <widget class="GtkButton" id="conflictResolveButton">
 				      <property name="visible">True</property>
 				      <property name="can_default">True</property>
 				      <property name="can_focus">True</property>
