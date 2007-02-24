@@ -4,7 +4,8 @@ SUBDIRS = \
 	FeedModule \
 	FlickrModule \
 	FspotModule \
-	GmailModule
+	GmailModule \
+	GNOMESettingsModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
@@ -12,8 +13,7 @@ conduit_handlers_PYTHON = \
 	__init__.py \
 	iPodModule.py \
 	NotesModule.py \
-	SynceModule.py \
-	TextConverterModule.py
+	ConverterModule.py
 
 if ENABLE_EVOLUTION
 	conduit_handlers_PYTHON += EvolutionModule.py
