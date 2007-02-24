@@ -28,13 +28,11 @@ CONFLICT_BOTH = DOUBLE_ARROW                #double headed arrow
 #Indexes into the conflict tree model in which 
 #conflict data is stored
 SOURCE_IDX = 0              #The datasource
-SOURCE_NAME_IDX = 1         #The datasource name
-SOURCE_DATA_IDX = 2         #The datasource data
-SINK_IDX = 3                #The datasink
-SINK_NAME_IDX = 4           #The datasink name
-SINK_DATA_IDX = 5           #The datasink data
-DIRECTION_IDX = 6           #The current user decision re: the conflict (-->, <-- or -x-)
-AVAILABLE_DIRECTIONS_IDX= 7 #Available user decisions, i.e. in the case of missing
+SOURCE_DATA_IDX = 1         #The datasource data
+SINK_IDX = 2                #The datasink
+SINK_DATA_IDX = 3           #The datasink data
+DIRECTION_IDX = 4           #The current user decision re: the conflict (-->, <-- or -x-)
+AVAILABLE_DIRECTIONS_IDX= 5 #Available user decisions, i.e. in the case of missing
                             #the availabe choices are --> or -x- NOT <--
 
 class ConflictResolver:
@@ -44,15 +42,13 @@ class ConflictResolver:
     """
     def __init__(self, widgets):
         self.model = gtk.TreeStore( gobject.TYPE_PYOBJECT,  #Datasource
-                                    gobject.TYPE_STRING,    #Source Name
                                     gobject.TYPE_PYOBJECT,  #Source Data
                                     gobject.TYPE_PYOBJECT,  #Datasink
-                                    gobject.TYPE_STRING,    #Sink Name
                                     gobject.TYPE_PYOBJECT,  #Sink Data
                                     gobject.TYPE_INT,       #Resolved direction
                                     gobject.TYPE_PYOBJECT   #Tuple of valid states for direction 
                                     )
-        #In the conflict treeview, group byt sink <-> source partnership 
+        #In the conflict treeview, group by sink <-> source partnership 
         self.partnerships = {}
 
         self.view = gtk.TreeView( self.model )
@@ -76,55 +72,61 @@ class ConflictResolver:
         self.standalone.connect("delete-event", self.on_standalone_closed)
         
 
-    def _test_data(self):
-        import random
-        foo = {
-            0 : [0,1],
-            1 : [0,1,2],
-            2 : [1,2]
-        }
-        for i in range(0,3):
-            s = str(i)
-            self.model.append(  None,   (
-                                        None,
-                                        "Source"+s,
-                                        i,
-                                        None,
-                                        "Sink"+s,
-                                        i,
-                                        i,
-                                        foo[random.randint(0,2)]
-                                        )
-                                )
-
     def _build_view(self):
-        #Visible column0 is the name of the datasource
-        column0 = gtk.TreeViewColumn("Source Name", gtk.CellRendererText(), text=SOURCE_NAME_IDX)
+        #Visible column0 is the display name of source and source data
+        sourceNameRenderer = gtk.CellRendererText()
+        column0 = gtk.TreeViewColumn("Source Name", sourceNameRenderer)
         column0.set_property("expand", True)
         column0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        column0.set_cell_data_func(sourceNameRenderer, self._data_name_data_func, True)
 
         #Visible column1 is the arrow to decide the direction
         confRenderer = ConflictCellRenderer()
         column1 = gtk.TreeViewColumn("Resolution", confRenderer)
-        column1.set_cell_data_func(confRenderer, self.set_direction_func, DIRECTION_IDX)
+        column1.set_cell_data_func(confRenderer, self._direction_data_func, DIRECTION_IDX)
         column1.set_property("expand", False)
         column1.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         column1.set_min_width(40)
 
-        #Visible column2 is the name of the datasource
-        column2 = gtk.TreeViewColumn("Sink Name", gtk.CellRendererText(), text=SINK_NAME_IDX)
+        #Visible column0 is the display name of source and source data
+        sinkNameRenderer = gtk.CellRendererText()
+        column2 = gtk.TreeViewColumn("Sink Name", sinkNameRenderer)
         column2.set_property("expand", True)
         column2.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        column2.set_cell_data_func(sinkNameRenderer, self._data_name_data_func, False)
 
         for c in [column0,column1,column2]:
             self.view.append_column( c )
 
-    def set_direction_func(self, column, cell_renderer, tree_model, iter, user_data):
+    def _data_name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
+        """
+        The format for displaying the data is
+        uri (modified)
+        snippet
+        """
+        path = tree_model.get_path(rowref)
+
+        #render the headers different to the data
+        if len(path) == 1:
+            if is_source:
+                text = tree_model[path][SOURCE_IDX].name
+            else:
+                text = tree_model[path][SINK_IDX].name
+        else:
+            if is_source:
+                text = "Source Data"#tree_model[path][SOURCE_DATA_IDX].get_URI()
+            else:
+                text = "Sink Data"#tree_model[path][SINK_DATA_IDX].get_URI()
+
+        cell_renderer.set_property("text", text)
+
+
+    def _direction_data_func(self, column, cell_renderer, tree_model, iter, user_data):
         direction = tree_model.get_value(iter, user_data)
         cell_renderer.set_direction(direction)
 
     def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
-        rowdata = ( source, source.name, sourceData, sink, sink.name, sinkData, CONFLICT_SKIP, validChoices)
+        rowdata = ( source, sourceData, sink, sinkData, CONFLICT_SKIP, validChoices)
         if (source,sink) in self.partnerships:
             self.model.append(self.partnerships[(source,sink)], rowdata)  
         else:
