@@ -1,2 +1,2 @@
 #!/bin/bash
-scp -r doc root@greenbirdsystems.com:/var/www/conduit-project.org/
+rsync -Ptz doc/*.{html,gif,png,py,js,css} root@greenbirdsystems.com:/var/www/conduit-project.org/doc
