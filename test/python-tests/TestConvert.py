@@ -17,7 +17,8 @@ TYPES = {
     "file"      :   conduit.datatypes.File.File,
     "note"      :   conduit.datatypes.Note.Note,
     "event"     :   conduit.datatypes.Event.Event,
-    "contact"   :   conduit.datatypes.Contact.Contact
+    "contact"   :   conduit.datatypes.Contact.Contact,
+    "email"     :   conduit.datatypes.Email.Email
     }
 
 WIDTH=9
@@ -51,4 +52,10 @@ for i in TYPES:
             else:
                 conversions.append("N")
     print row(conversions,TYPES.keys())
+
+print "Key"
+print "%s: Direct conversion possible" % pad("Y")
+print "%s: Conversion goes via text (some info may be lost)" % pad("Y*")
+print "%s: No conversion possible" % pad("N")
+
 

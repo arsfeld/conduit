@@ -6,6 +6,7 @@ import conduit.Utils as Utils
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Text as Text
+import conduit.datatypes.Email as Email
 
 MODULES = {
         "EmailConverter" :      { "type": "converter" },
@@ -41,6 +42,7 @@ class EmailConverter:
             #insert the contents into the email
             logd("Inserting file contents into email")
             email = Email.Email(
+                            None,
                             subject=thefile.get_filename(),
                             content=thefile.get_contents_as_text()
                             )
@@ -48,15 +50,17 @@ class EmailConverter:
             #binary file so send as attachment
             logd("Binary file, attaching to email")
             email = Email.Email(
+                            None,
                             subject=thefile.get_filename(),
                             content="Attached"
                             )
             email.add_attachment(thefile.get_local_uri())
 
-        return Utils.retain_info_in_conversion(theFile, email)
+        return Utils.retain_info_in_conversion(thefile, email)
             
     def text_to_email(self, text):
         email = Email.Email(
+                        None,
                         content=text.get_string()
                         )
         return Utils.retain_info_in_conversion(text, email)
