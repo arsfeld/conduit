@@ -158,3 +158,15 @@ def dbus_service_available(bus,interface):
     avail = dbus_iface.ListNames()
     return interface in avail
 
+def retain_info_in_conversion(fromdata, todata):
+    """
+    Retains the original datatype properties through a type conversion.
+    Properties retained include;
+      - gnome-open'able URI
+      - modification time
+    Call this function from a typeconverter
+    """
+    todata.set_open_URI(fromdata.get_open_URI())
+    todata.set_mtime(fromdata.get_mtime())
+    return todata
+

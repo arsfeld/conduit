@@ -5,10 +5,18 @@ from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 class Text(DataType.DataType):
-    def __init__(self, URI, **kwargs):
+    """
+    Wrapper around a text string. Use this as a datatype instead of the
+    plain string object
+    """
+    def __init__(self, **kwargs):
         DataType.DataType.__init__(self,"text")
+        
         self.text = kwargs.get("text","")
-    
+
+    def get_string(self):
+        return self.text    
+
     def __str__(self):
         #only show first 20 characters
         if len(self.text) > 20:

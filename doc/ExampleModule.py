@@ -52,6 +52,7 @@ from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CAT
 from conduit.datatypes import DataType
 from conduit.datatypes import Text
 import conduit.Exceptions as Exceptions
+import conduit.Utils as Utils
 
 import xmlrpclib
 
@@ -219,6 +220,26 @@ class WikiPageDataType(DataType.DataType):
         self.contents = kwargs.get("contents","")
         self.name = kwargs.get("name", "")
         self.modified = kwargs.get("modified",None)
+
+        #In the constructor of datatypes remember to call the following
+        #base constructor functions. This allows certain information to be
+        #preserved through conversions and comparison
+        self.set_open_URI(uri)
+        self.set_mtime(self.modified)
+
+    def get_wikipage_string(self):
+        """
+        Returns the raw HTML for the page
+        """
+        return self.contents
+
+    def __str__(self):
+        """
+        The result of str may be shown to the user. It should represent a
+        small descriptive snippet of the Datatype. It does not necessarily need
+        to be the entire raw textual representation of the data
+        """
+        return self.name
         
 class WikiPageConverter:
     """
@@ -259,7 +280,7 @@ class WikiPageConverter:
         The conversion function for converting wikipages to raw text. Does
         not do anythong particuarly smart
         """
-        text = Text.Text(page.get_URI(),
-                            text=page.contents
-                            )
-        return text
+        text = Text.Text(
+                    text=page.get_wikipage_string()
+                    )
+        return Utils.retain_info_in_conversion(page, text)

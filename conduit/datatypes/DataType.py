@@ -18,11 +18,12 @@ class DataType:
     neccessary on types that are used in two-way sync.
     @type UID: C{string}
     """
-    def __init__(self,type_name, **kwargs):
+    def __init__(self,type_name):
         self.type_name = type_name
-        self.URI = None
-        self.UID = None
         self.change_type = CHANGE_UNMODIFIED
+
+        self._original_URI = None
+        self._mtime = None
 
     def compare(self, B):
         """
@@ -46,16 +47,60 @@ class DataType:
 
     def set_UID(self, UID):
         """
-        Sets the UID for the data
+        Derived types MUST overwride this function
         """
-        self.UID = UID
+        raise NotImplementedError
 
     def get_UID(self):
         """
-        Gets the UID for this data
+        Derived types MUST overwride this function
         """
-        return self.UID
+        raise NotImplementedError
 
-    def get_URI(self):
-        return self.URI
+    def set_mtime(self, mtime):
+        """
+        Derived types MUST overwride this function
+        """
+        self._mtime = mtime
+
+    def get_mtime(self):
+        """
+        @returns: The file modification time (or None)
+        @rtype: C{int}
+        """
+        return self._mtime
+
+    def get_open_URI(self):
+        """
+        @returns: The URI that can be opened through gnome-open (or None)
+        """
+        return self._original_URI
+
+    def set_open_URI(self, URI):
+        """
+        Saves the URI that can be opened through gnome-open
+        """
+        self._original_URI = URI
+
+    def get_snippet(self):
+        """
+        Returns a small representation of the data that may be shown to the
+        user. Derived types may override this function.
+        """
+        s = ""
+        uri = self.get_open_URI()
+        mtime = self.get_mtime()
+
+        if uri != None:
+            s += "%s" % uri
+        if mtime != None:
+            s += " (%s)" % mtime
+
+        if s == "":
+            s += "%s" % str(self)
+        else:
+            s += "\n%s" % str(self)
+
+        return s
+
 

@@ -18,8 +18,7 @@ import libgmail
 
 MODULES = {
 	"GmailEmailTwoWay" :    { "type": "dataprovider" },
-	"GmailContactTwoWay" :  { "type": "dataprovider" },
-	"EmailSinkConverter" :  { "type": "converter" }
+	"GmailContactTwoWay" :  { "type": "dataprovider" }
 }
 
 GOOGLE_CAT = DataProvider.DataProviderCategory("Google", "applications-internet")
@@ -225,8 +224,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                     if len(result):                    
                         for thread in result:
                             for message in thread:
-                                mail = Email.Email()
-                                mail.create_from_raw_source(message.source)
+                                mail = Email.Email(None)
+                                mail.set_from_email_string(message.source)
                                 self.mails.append(mail)                    
                 elif len(self.getWithLabel) > 0:
                     logd("Getting Email Labelled: %s" % self.getWithLabel)                
@@ -234,8 +233,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                     if len(result):
                         for thread in result:
                             for message in thread:
-                                mail = Email.Email()
-                                mail.create_from_raw_source(message.source)
+                                mail = Email.Email(None)
+                                mail.set_from_email_string(message.source)
                                 self.mails.append(mail)
                 elif len(self.getInFolder) > 0:
                     logd("Getting Email in Folder: %s" % self.getInFolder)                
@@ -243,8 +242,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                     if len(result):
                         for thread in result:
                             for message in thread:
-                                mail = Email.Email()
-                                mail.create_from_raw_source(message.source)
+                                mail = Email.Email(None)
+                                mail.set_from_email_string(message.source)
                                 self.mails.append(mail)
         else:
             raise Exceptions.SyncronizeFatalError
@@ -297,53 +296,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             "getInFolder" : self.getInFolder
             }            
         
-class EmailSinkConverter:
-
-    def __init__(self):
-        self.conversions =  {    
-                            "file,email" : self.file_to_email,
-                            "text,email" : self.text_to_email
-                            }
-                            
-                            
-    def file_to_email(self, thefile):
-        """
-        If the file is non binary then include it as the
-        Subject of the message. Otherwise include it as an attachment
-        """
-        mimeCategory = thefile.get_mimetype().split('/')[0]
-        if mimeCategory == "text":
-            #insert the contents into the email
-            logd("Inserting file contents into email")
-            email = Email.Email()
-            email.create(   "",                             #to
-                            "",                             #from
-                            thefile.get_filename(),         #subject
-                            thefile.get_contents_as_text()  #contents
-                            )
-            return email
-        else:
-            #binary file so send as attachment
-            logd("Binary file, attaching to email")
-            email = Email.Email()
-            email.create(   "",                             #to
-                            "",                             #from
-                            thefile.get_filename(),         #subject
-                            "Attached"                      #contents
-                            )
-            email.add_attachment(thefile.get_local_uri())
-            return email
-            
-    def text_to_email(self, text):
-        email = Email.Email()
-        email.create(   "",                             #to
-                        "",                             #from
-                        "",                             #subject
-                        text                            #contents
-                        )
-        return email
-        
-
+     
 class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
     _name_ = _("Contacts")
@@ -377,7 +330,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
             for c in result:
                 #FIXME: When Contact can load a vcard file, use that instead!
                contact = Contact.Contact()
-               contact.readVCard(c.getVCard())
+               contact.set_from_vcard_string(c.getVCard())
                self.contacts.append(contact)
         else:
             raise Exceptions.SyncronizeFatalError

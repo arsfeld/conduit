@@ -8,23 +8,21 @@ class Contact(DataType.DataType):
     """
     Very basic contact representation
     """
-    def __init__(self, friendlyName="", name=""):
+    def __init__(self, URI, **kwargs):
         DataType.DataType.__init__(self, "contact")
-        
         self.vCard = vobject.vCard()
 
-        self.vCard.add('fn')
-        self.vCard.fn.value = friendlyName
+        self.set_open_URI(URI)
 
-        self.vCard.add('n')
-        self.vCard.n.value = vobject.vcard.Name( family='Harris', given='Jeffrey' )
-
-    def readVCard(self, string):
+    def set_from_vcard_string(self, string):
         self.vCard = vobject.readOne(string)
+
+    def get_vcard_string(self, version=2.1):
+        return self.vCard.serialize()
 
     def compare(self, B):
         return conduit.datatypes.UNKNOWN
 
     def __str__(self):
-        return self.vCard.serialize()
+        return self.get_vcard_string()
 

@@ -11,13 +11,14 @@ from conduit.datatypes import DataType
 class File(DataType.DataType):
     def __init__(self, URI, **kwargs):
         DataType.DataType.__init__(self,"file")
-
         self._close_file()
 
-        self.URI = gnomevfs.URI(URI)
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
+
+        self.URI = gnomevfs.URI(URI)
+        self.set_open_URI(URI)
 
     def _open_file(self):
         """
@@ -231,9 +232,7 @@ class File(DataType.DataType):
         """
         return self._get_text_uri()
 
-    def get_URI(self):
-        return self._get_text_uri()
-            
+        
 def TaggedFile(File):
     """
     A simple class to allow tags to be applied to files for those

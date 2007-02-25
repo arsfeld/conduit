@@ -251,7 +251,7 @@ class TestConflict(DataProvider.DataSink):
 
     def put(self, data, overwrite, LUIDs=[]):
         DataProvider.DataSink.put(self, data, overwrite, LUIDs)
-        raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_OLDER, "foo", "bar")
+        raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_OLDER, data, TestDataType(0))
 
     def get_UID(self):
         return Utils.random_string()

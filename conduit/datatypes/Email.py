@@ -9,21 +9,18 @@ class Email(DataType.DataType):
     """
     Basic email representation
     """
-    def __init__(self):
+    def __init__(self, URI, **kwargs):
         DataType.DataType.__init__(self,"email")
 
         self.email = None
-        self.to = ""
-        self.emailFrom = ""
-        self.subject = ""
-        self.content = ""   
-        self.attachments = []          
-        
-    def create(self, to, emailFrom, subject, content):
-        self.to = to
-        self.emailFrom = emailFrom
-        self.subject = subject
-        self.content = content                 
+        self.attachments = []
+
+        self.to = kwargs.get("to", "")
+        self.emailFrom = kwargs.get("from", "")
+        self.subject = kwargs.get("subject", "")
+        self.content = kwargs.get("content", "")
+
+        self.set_open_URI(URI)
         
     def has_attachments(self):
         if len(self.attachments) > 0:
@@ -33,7 +30,7 @@ class Email(DataType.DataType):
     def add_attachment(self, attachmentLocalPath):
         self.attachments.append(attachmentLocalPath)
 
-    def create_from_raw_source(self, text_source):
+    def set_from_email_string(self, text_source):
         """
         Uses pythons built in email parsing thingamajig to parse
         the email emailFrom the raw string representation following
@@ -57,5 +54,9 @@ class Email(DataType.DataType):
             except:
                 logw("Error parsing email message")
 
+    def get_email_string(self):
+        #FIXME: make a self.email and use pythons methods to get the raw string
+        raise NotImplementedError
+
     def __str__(self):
-        return ("To: %s\nFrom: %s\nSubject: %s\nMsg:\n%s" % (self.to,self.emailFrom,self.subject,self.content))
+        return ("To: %s\nFrom: %s\nSubject: %s\n" % (self.to,self.emailFrom,self.subject))

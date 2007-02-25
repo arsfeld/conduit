@@ -33,7 +33,7 @@ class RSSSource(DataProvider.DataSource):
     _description_ = _("Sync data from RSS enclosures")
     _category_ = DataProvider.CATEGORY_WEB
     _module_type_ = "source"
-    _in_type_ = "file"
+    _in_type_ = ""
     _out_type_ = "file"
     _icon_ = "feed-icon"
 
@@ -144,7 +144,7 @@ class RSSSource(DataProvider.DataSource):
                                 if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
                                     allreadyInserted.append(url)
                                     #Make a file
-                                    f = File.File(uri=url)
+                                    f = File.File(url)
                                     #create the correct extension
                                     # use python built in mimetypes (utilises /etc/mime.types)
                                     #  fix to use pygtk when they are out of api freeze and can fix 349619?

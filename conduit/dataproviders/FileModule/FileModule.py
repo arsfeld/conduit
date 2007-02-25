@@ -21,8 +21,7 @@ import gnomevfs
 import os.path
 
 MODULES = {
-	"FileTwoWay" :    { "type": "dataprovider" },
-	"FileConverter" : { "type": "converter" }
+	"FileTwoWay" :    { "type": "dataprovider" }
 }
 
 TYPE_FILE = 0
@@ -653,28 +652,3 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 self.items[path][GROUP_NAME_IDX] = configString
             except gnomevfs.NotFoundError: pass
 
-class FileConverter:
-    def __init__(self):
-        self.conversions =  {    
-                            "text,file" : self.text_to_file,
-                            "file,text" : self.file_to_text
-                            }
-        
-    def text_to_file(self, theText):
-        return Utils.new_tempfile(str(theText))
-
-    def file_to_text(self, theFile):
-        mime = theFile.get_mimetype()
-        try:
-            #check its a text type
-            mime.index("text")
-            rawtext = theFile.get_contents_as_text()
-            uri = theFile._get_text_uri()
-            t = Text.Text(uri,text=rawtext)
-            return t            
-        except ValueError:
-            raise Exception(
-                    "Could not convert %s to text. Binary file" % 
-                    theFile._get_text_uri()
-                    )
-       

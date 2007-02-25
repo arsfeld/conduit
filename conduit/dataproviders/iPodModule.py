@@ -158,8 +158,8 @@ class IPodContactsTwoWay(IPodBase):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 try:
-                    contact = Contact.Contact()
-                    contact.readVCard(open(fullpath,'r').read())
+                    contact = Contact.Contact(None)
+                    contact.set_from_vcard_string(open(fullpath,'r').read())
                     self.contacts.append(contact)
                 except:
                     pass
@@ -203,8 +203,8 @@ class IPodCalendarTwoWay(IPodBase):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 try:
-                    event = Event.Event()
-                    event.read_string(open(fullpath,'r').read())
+                    event = Event.Event(None)
+                    event.set_from_ical_string(open(fullpath,'r').read())
                     self.events.append(event)
                 except:
                     pass
@@ -219,7 +219,7 @@ class IPodCalendarTwoWay(IPodBase):
 
     def put(self, event, overwrite, LUIDs=[]):
         TwoWay.put(self, event, overwrite, LUIDs)
-        _string_to_unqiue_file(event.to_string(), self.dataDir, 'event')
+        _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
     def finish(self):
         self.notes = None

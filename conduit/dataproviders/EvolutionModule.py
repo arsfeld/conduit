@@ -34,8 +34,8 @@ class EvoContactSource(DataProvider.DataSource):
         
         book = evo.open_addressbook('default')
         for i in book.get_all_contacts():
-            contact = Contact.Contact()
-            contact.readVCard(i.get_vcard_string())
+            contact = Contact.Contact(None) #FIXME: Get the evolution URI
+            contact.set_from_vcard_string(i.get_vcard_string())
             self.contacts.append(contact)
 
     def get_num_items(self):

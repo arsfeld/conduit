@@ -120,9 +120,9 @@ class ConflictResolver:
                 text = tree_model[path][SINK_IDX].name
         else:
             if is_source:
-                text = "Source Data"#tree_model[path][SOURCE_DATA_IDX].get_URI()
+                text = tree_model[path][SOURCE_DATA_IDX].get_snippet()
             else:
-                text = "Sink Data"#tree_model[path][SINK_DATA_IDX].get_URI()
+                text = tree_model[path][SINK_DATA_IDX].get_snippet()
 
         cell_renderer.set_property("text", text)
 

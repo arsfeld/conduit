@@ -26,8 +26,7 @@ TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
 TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
 
 MODULES = {
-	"TomboyNoteSource" :    { "type": "dataprovider" },
-	"NoteConverter" :       { "type": "converter"}
+	"TomboyNoteSource" :    { "type": "dataprovider" }
 }
 
 class TomboyNoteSource(DataProvider.DataSource):
@@ -82,32 +81,4 @@ class TomboyNoteSource(DataProvider.DataSource):
     def get_UID(self):
         return ""
 
-class NoteConverter:
 
-    _name_ = "Note Data Type"
-
-    def __init__(self):
-        self.conversions =  {    
-                            "text,note" : self.text_to_note,
-                            "note,text" : self.note_to_text,
-                            "note,file" : self.note_to_file
-                            }
-                            
-                            
-    def text_to_note(self, text):
-        n = Note.Note(
-                    None,   #no uri
-                    title="Note-"+Utils.random_string(),
-                    contents=text
-                    )
-        return n
-
-    def note_to_text(self, note):
-        t = Text.Text(None,text=note.contents)
-        return t
-
-    def note_to_file(self, note):
-        f = Utils.new_tempfile(note.contents)
-        if len(note.title) > 0:
-            f.force_new_filename("%s_note" % note.title)
-        return f
