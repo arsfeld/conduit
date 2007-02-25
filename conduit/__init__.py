@@ -51,10 +51,22 @@ except KeyError:
     LOG_LEVEL = DEFAULT_LOG_LEVEL
     level = LOG_DICT[LOG_LEVEL]
 
+try:
+    filename = os.environ['CONDUIT_LOGFILE']
+except KeyError:
+    filename = os.path.join(USER_DIR, "conduit.log")
+
 logging.basicConfig(level=level,
-                    format='[%(levelname)7s] %(message)s')
-#                    filename=os.path.join(USER_DIR, "conduit.log"),
-#                    filemode='w')
+                    format='[%(levelname)7s] %(asctime)s %(message)s',
+                    filename=filename,
+                    filemode='w')
+
+# define another handler which writes messages sys.stderr
+console = logging.StreamHandler()
+console.setLevel(level)
+formatter = logging.Formatter('[%(levelname)7s] %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
 #Shorthand log functions to save typing
 def log(message):

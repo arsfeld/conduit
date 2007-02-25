@@ -18,15 +18,15 @@ if __name__ == '__main__':
                     "ssh://root@www.greenbirdsystems.com/root/sync/Tgz.tar.gz",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Text.txt",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Text",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/old/file1",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/old/file2",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/new/file1",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/new/file2"
+                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/old/oldest",
+                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/old/older",
+                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/new/newer",
+                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/new/newest"
                     ]
-    localURIs = [   os.path.abspath(os.path.join(my_path,"tests","old","file1")),
-                    os.path.abspath(os.path.join(my_path,"tests","old","file2")),
-                    os.path.abspath(os.path.join(my_path,"tests","new","file1")),
-                    os.path.abspath(os.path.join(my_path,"tests","new","file2"))
+    localURIs = [   os.path.abspath(os.path.join(my_path,"tests","old","oldest")),
+                    os.path.abspath(os.path.join(my_path,"tests","old","older")),
+                    os.path.abspath(os.path.join(my_path,"tests","new","newer")),
+                    os.path.abspath(os.path.join(my_path,"tests","new","newest"))
                 ]
 
     #listed from oldest to newest in two blocks
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         ok("Remote: is remote = %s" % remote,remote)
         mime = f.get_mimetype()
         ok("Remote: file mimetype = %s" % mime,type(mime) == str and len(mime) > 0)
-        mtime = f.get_modification_time()        
+        mtime = f.get_mtime()        
         ok("Remote: file mtime = %s" % mtime,mtime != None)
         size = f.get_size()
         ok("Remote: file size = %s" % size,size != None)
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         ok("Local: is local = %s" % remote,remote)
         mime = f.get_mimetype()
         ok("Local: file mimetype = %s" % mime,type(mime) == str and len(mime) > 0)
-        mtime = f.get_modification_time()        
+        mtime = f.get_mtime()        
         ok("Local: file mtime = %s" % mtime,mtime != None)
         size = f.get_size()
         ok("Local: file size = %s" % size,size != None)
@@ -80,29 +80,29 @@ if __name__ == '__main__':
         #Not a strict test because my get_filename() is a bit of a hack
         ok("Local: file name = %s" % fname,fname == Utils.get_filename(i))
 
-    comp = oldest.compare(oldest, older)
+    comp = oldest.compare(older)
     ok("Local Compare: checking oldest < older = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
-    comp = oldest.compare(newest, newer)
+    comp = newest.compare(newer)
     ok("Local Compare: checking newest > newer = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
-    comp = oldest.compare(newest, newest)
+    comp = newest.compare(newest)
     ok("Local Compare: checking newest == newest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
-    comp = oldest.compare(oldest, null)
-    ok("Local Compare: checking oldest > null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
+    comp = oldest.compare(null)
+    ok("Local Compare: checking oldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_MISSING)
 
-    comp = oldest.compare(roldest, rolder)
+    comp = roldest.compare(rolder)
     ok("Remote Compare: checking roldest < rolder = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
-    comp = oldest.compare(rnewest, rnewer)
+    comp = rnewest.compare(rnewer)
     ok("Remote Compare: checking rnewest > rnewer = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
-    comp = oldest.compare(rnewest, rnewest)
+    comp = rnewest.compare(rnewest)
     ok("Remote Compare: checking rnewest == rnewest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
-    comp = oldest.compare(roldest, null)
-    ok("Local Compare: checking roldest > null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
+    comp = roldest.compare(null)
+    ok("Remote Compare: checking roldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_MISSING)
 
-    comp = oldest.compare(oldest, rolder)
+    comp = oldest.compare(rolder)
     ok("Remote & Local Compare: checking oldest < rolder = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
-    comp = oldest.compare(rnewest, newer)
+    comp = rnewest.compare(newer)
     ok("Remote & Local Compare: checking rnewest > newer = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
-    comp = oldest.compare(rnewest, newest)
+    comp = rnewest.compare(newest)
     ok("Remote & Local Compare: checking rnewest == newest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
 
 

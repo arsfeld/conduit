@@ -193,7 +193,7 @@ class File(DataType.DataType):
         #Else look at the modification times
         meTime = self.get_mtime()
         bTime = B.get_mtime()
-        #logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, meTime, B.URI, bTime))
+        #logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.URI, meTime, B.URI, bTime))
         if meTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            

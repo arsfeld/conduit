@@ -16,17 +16,23 @@ conduit.GLADE_FILE =            os.path.join(base_path,"data","conduit.glade")
 conduit.SHARED_MODULE_DIR =     os.path.join(base_path,"conduit")
 conduit.EXTRA_LIB_DIR =         os.path.join(base_path,"contrib")
 
-def ok(message, code):
+def ok(message, code, die=True):
     if type(code) == int:
         if code == -1:
             print "[FAIL] %s" % message
-            sys.exit()
+            if die:
+                sys.exit()
+            return False
         else:
             print "[PASS] %s" % message
-            return code
+            return True
     elif type(code) == bool:
-        if code == True:
-            print "[PASS] %s" % message
-        else:
+        if code == False:
             print "[FAIL] %s" % message
-            sys.exit()
+            if die:
+                sys.exit()
+            return False
+        else:
+            print "[PASS] %s" % message
+            return True
+

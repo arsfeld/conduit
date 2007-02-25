@@ -91,8 +91,8 @@ class ConflictResolver:
 
         column0.set_property("expand", True)
         column0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        column0.set_cell_data_func(sourceNameRenderer, self.name_data_func, True)
-        column0.set_cell_data_func(sourceIconRenderer, self.icon_data_func, True)
+        column0.set_cell_data_func(sourceNameRenderer, self._name_data_func, True)
+        column0.set_cell_data_func(sourceIconRenderer, self._icon_data_func, True)
 
         #Visible column1 is the arrow to decide the direction
         confRenderer = ConflictCellRenderer()
@@ -112,13 +112,13 @@ class ConflictResolver:
 
         column2.set_property("expand", True)
         column2.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        column2.set_cell_data_func(sinkNameRenderer, self.name_data_func, False)
-        column2.set_cell_data_func(sinkIconRenderer, self.icon_data_func, False)
+        column2.set_cell_data_func(sinkNameRenderer, self._name_data_func, False)
+        column2.set_cell_data_func(sinkIconRenderer, self._icon_data_func, False)
 
         for c in [column0,column1,column2]:
             self.view.append_column( c )
 
-    def name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
+    def _name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
         """
         The format for displaying the data is
         uri (modified)
@@ -138,7 +138,7 @@ class ConflictResolver:
 
         cell_renderer.set_property("text", text)
 
-    def icon_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
+    def _icon_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
         #Only the headers have icons
         if tree_model.iter_depth(rowref) == 0:
             if is_source:
