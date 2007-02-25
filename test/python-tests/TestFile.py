@@ -9,7 +9,7 @@ if __name__ == '__main__':
     try:
         f = File.File()
     except:
-        ok("Base: empty constructor", True)
+        ok("Base: Must specify URI", True)
     null = File.File("/foo/bar")
     ok("Base: non-existant file", null.exists() == False)
 

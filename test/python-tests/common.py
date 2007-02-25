@@ -1,5 +1,6 @@
 import sys
 import os
+import glob
 
 # make sure we have conduit folder in path!
 my_path = os.path.dirname(__file__)
@@ -35,4 +36,10 @@ def ok(message, code, die=True):
         else:
             print "[PASS] %s" % message
             return True
+
+def get_files_from_data_dir(glob_str):
+    files = []
+    for i in glob.glob(os.path.join(os.path.dirname(__file__),"data",glob_str)):
+        files.append(os.path.abspath(i))
+    return files
 
