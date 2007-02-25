@@ -79,12 +79,20 @@ class ConflictResolver:
         
 
     def _build_view(self):
-        #Visible column0 is the display name of source and source data
+        #Visible column0 is 
+        #[pixbuf + source display name] or 
+        #[source_data.get_snippet()]
+        column0 = gtk.TreeViewColumn("Source")
+
+        sourceIconRenderer = gtk.CellRendererPixbuf()
         sourceNameRenderer = gtk.CellRendererText()
-        column0 = gtk.TreeViewColumn("Source Name", sourceNameRenderer)
+        column0.pack_start(sourceIconRenderer, False)
+        column0.pack_start(sourceNameRenderer, True)
+
         column0.set_property("expand", True)
         column0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        column0.set_cell_data_func(sourceNameRenderer, self._data_name_data_func, True)
+        column0.set_cell_data_func(sourceNameRenderer, self.name_data_func, True)
+        column0.set_cell_data_func(sourceIconRenderer, self.icon_data_func, True)
 
         #Visible column1 is the arrow to decide the direction
         confRenderer = ConflictCellRenderer()
@@ -94,38 +102,53 @@ class ConflictResolver:
         column1.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         column1.set_min_width(40)
 
-        #Visible column0 is the display name of source and source data
+        #Visible column2 is the display name of source and source data
+        column2 = gtk.TreeViewColumn("Sink")
+
+        sinkIconRenderer = gtk.CellRendererPixbuf()
         sinkNameRenderer = gtk.CellRendererText()
-        column2 = gtk.TreeViewColumn("Sink Name", sinkNameRenderer)
+        column2.pack_start(sinkIconRenderer, False)
+        column2.pack_start(sinkNameRenderer, True)
+
         column2.set_property("expand", True)
         column2.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        column2.set_cell_data_func(sinkNameRenderer, self._data_name_data_func, False)
+        column2.set_cell_data_func(sinkNameRenderer, self.name_data_func, False)
+        column2.set_cell_data_func(sinkIconRenderer, self.icon_data_func, False)
 
         for c in [column0,column1,column2]:
             self.view.append_column( c )
 
-    def _data_name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
+    def name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
         """
         The format for displaying the data is
         uri (modified)
         snippet
         """
-        path = tree_model.get_path(rowref)
-
         #render the headers different to the data
-        if len(path) == 1:
+        if tree_model.iter_depth(rowref) == 0:
             if is_source:
-                text = tree_model[path][SOURCE_IDX].name
+                text = tree_model.get_value(rowref, SOURCE_IDX).name
             else:
-                text = tree_model[path][SINK_IDX].name
+                text = tree_model.get_value(rowref, SINK_IDX).name
         else:
             if is_source:
-                text = tree_model[path][SOURCE_DATA_IDX].get_snippet()
+                text = tree_model.get_value(rowref, SOURCE_DATA_IDX).get_snippet()
             else:
-                text = tree_model[path][SINK_DATA_IDX].get_snippet()
+                text = tree_model.get_value(rowref, SOURCE_DATA_IDX).get_snippet()
 
         cell_renderer.set_property("text", text)
 
+    def icon_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
+        #Only the headers have icons
+        if tree_model.iter_depth(rowref) == 0:
+            if is_source:
+                icon = tree_model.get_value(rowref, SOURCE_IDX).get_icon()
+            else:
+                icon = tree_model.get_value(rowref, SINK_IDX).get_icon()
+        else:
+            icon = None
+
+        cell_renderer.set_property("pixbuf", icon)
 
     def _direction_data_func(self, column, cell_renderer, tree_model, iter, user_data):
         direction = tree_model.get_value(iter, user_data)
