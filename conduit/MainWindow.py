@@ -452,15 +452,8 @@ class GtkView(dbus.service.Object):
     # DBUS METHODS (follow DBus naming conventions
     #
     # Example: dbus-send --session --dest=org.freedesktop.conduit \
-    #           --print-reply /gui org.freedesktop.conduit.Ping
+    #           --print-reply /gui org.freedesktop.conduit.Present
     #---------------------------------------------------------------------------
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
-    def Ping(self):
-        """
-        Test method to check the DBus interface is working
-        """
-        return "GtkView Pong"
-
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Present(self):
         """

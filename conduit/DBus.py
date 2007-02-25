@@ -10,6 +10,7 @@ License: GPLv2
 """
 import sys
 import random
+import gtk
 import dbus
 import dbus.service
 if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
@@ -128,11 +129,8 @@ class DBusView(dbus.service.Object):
                                 )
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='i')
-    def Ping(self):
-        """
-        Test method to check the DBus interface is working
-        """
-        self._print("Ping")
+    def Quit(self):
+        gtk.main_quit()
         return SUCCESS
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
