@@ -115,7 +115,7 @@ class File(DataType.DataType):
             #Why is gnomevfs so stupid and must I do this for local URIs??
             return gnomevfs.get_mime_type(self._get_text_uri())
         
-    def get_modification_time(self):
+    def get_mtime(self):
         """
         Returns the modification time for the file
         
@@ -191,8 +191,8 @@ class File(DataType.DataType):
             return conduit.datatypes.COMPARISON_MISSING
 
         #Else look at the modification times
-        meTime = self.get_modification_time()
-        bTime = B.get_modification_time()
+        meTime = self.get_mtime()
+        bTime = B.get_mtime()
         #logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (A.URI, meTime, B.URI, bTime))
         if meTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN

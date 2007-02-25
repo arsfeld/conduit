@@ -40,7 +40,7 @@ class DataType:
            which was newer than the other so its up to the user to decide
         
         """
-        return conduit.datatypes.EQUAL
+        return conduit.datatypes.UNKNOWN
 
     def get_hash(self):
         return ""
@@ -59,14 +59,15 @@ class DataType:
 
     def set_mtime(self, mtime):
         """
-        Derived types MUST overwride this function
+        Sets the modification time of the datatype.
+        @type: C{datetime.datetime}
         """
         self._mtime = mtime
 
     def get_mtime(self):
         """
-        @returns: The file modification time (or None)
-        @rtype: C{int}
+        @returns: The file modification time (or None) as a python datetime object
+        @rtype: C{datetime.datetime}
         """
         return self._mtime
 
@@ -94,7 +95,7 @@ class DataType:
         if uri != None:
             s += "%s" % uri
         if mtime != None:
-            s += " (%s)" % mtime
+            s += " (%s)" % mtime.strftime("%c")
 
         if s == "":
             s += "%s" % str(self)

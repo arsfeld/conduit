@@ -31,6 +31,7 @@ import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
 import gnomevfs
+import datetime
 
 MODULES = {
         "iPodFactory" :     { "type": "dataprovider-factory" }
@@ -102,20 +103,24 @@ class IPodNoteTwoWay(IPodBase):
 
     def refresh(self):
         TwoWay.refresh(self)
-        
         self.notes = []
-
 
         for f in os.listdir(self.dataDir):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 title = f
-                modified = os.stat(fullpath).st_mtime
                 contents = open(fullpath, 'r').read()
+
+                try:
+                    mtime = os.stat(fullpath).st_mtime
+                    datetime.datetime.fromtimestamp(mtime)
+                except:
+                    logw("Error getting modification time for ipod note")
+                    mtime = None
 
                 note = Note.Note(fullpath, 
                             title=title, 
-                            modified=modified, 
+                            mtime=mtime, 
                             contents=contents)
                 self.notes.append(note)
 

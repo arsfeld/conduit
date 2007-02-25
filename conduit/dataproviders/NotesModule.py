@@ -21,6 +21,7 @@ import conduit.Utils as Utils
 import os
 import os.path
 import traceback
+import datetime
 
 TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
 TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
@@ -63,10 +64,17 @@ class TomboyNoteSource(DataProvider.DataSource):
     def get(self, index):
         DataProvider.DataSource.get(self, index)
         noteURI = self.notes[index]
+        try:
+            timestr = self.remoteTomboy.GetNoteChangeDate(noteURI)
+            mtime = datetime.datetime.fromtimestamp(int(timestr))
+        except:
+            logw("Error parsing tomboy note modification time")
+            mtime = None
+
         n = Note.Note(
                     noteURI,
                     title=self.remoteTomboy.GetNoteTitle(noteURI),
-                    modified=self.remoteTomboy.GetNoteChangeDate(noteURI),
+                    mtime=mtime,
                     contents=self.remoteTomboy.GetNoteContents(noteURI)
                     )
         return n
