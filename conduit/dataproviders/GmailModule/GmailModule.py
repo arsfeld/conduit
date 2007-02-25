@@ -91,6 +91,9 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         self.getWithLabel = ""
         self.getInFolder = ""
         self.mails = None
+
+        #For bookkeeping 
+        self._label = "%s-%s" % (conduit.APPNAME,conduit.APPVERSION)
         
     def configure(self, window):
         """
@@ -272,14 +275,11 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
         try:
             draftMsg = self.ga.sendMessage(msg, asDraft = True)
+            draftMsg.addLabel(self._label)
         except libgmail.GmailSendError:
             raise Exceptions.SyncronizeError("Error saving message")
-
-        if draftMsg and self.label:
-            try:
-                draftMsg.addLabel(self.label)
-            except Exception, err:
-                logw("Error adding label to message: %s\n%s" % (err,traceback.format_exc()))
+        except Exception, err:
+            raise Exceptions.SyncronizeError("Error adding label %s to message" % self._label)
 
         return draftMsg.id
 
