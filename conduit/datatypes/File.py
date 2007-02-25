@@ -20,6 +20,10 @@ class File(DataType.DataType):
         self.URI = gnomevfs.URI(URI)
         self.set_open_URI(URI)
 
+        #We can also override some parameters
+        self._newInfo = gnomevfs.FileInfo()
+        self._newInfoFlags = gnomevfs.SET_FILE_INFO_NONE
+
     def _open_file(self):
         """
         Opens the file. 
@@ -44,7 +48,6 @@ class File(DataType.DataType):
     def _close_file(self):
         self.vfsHandle = None
         self.fileInfo = None
-        self.forceNewFilename = ""
         self.triedOpen = False
         self.fileExists = False
 
@@ -85,28 +88,44 @@ class File(DataType.DataType):
     def force_new_filename(self, filename):
         """
         In the xfer process calling this method will cause the file to be
-        copied with the newFilename and not just to the new location but
-        retaining the old filename
+        copied with the newFilename.
        
         Useful if for some conversions a temp file is created that you dont
         want to retain the name of
         """
-        self.forceNewFilename = filename
+        self._newInfoFlags |= gnomevfs.SET_FILE_INFO_NAME
+        self._newInfo.name = filename
 
     def force_new_mtime(self, mtime):
         """
         In the xfer process this will cause the new file to have the specified
         mtime
         """
-        self.forceNewMtime = mtime
+        self._newInfoFlags |= gnomevfs.SET_FILE_INFO_TIME
+        self._newInfo.mtime = mtime
 
-    def transfer(self, newURI):
+    def transfer(self, newURI, overwrite=False):
         """
         Transfers the file to newURI. Thin wrapper around go_gnomevfs_transfer
-        because it also sets the mtime of the file.
+        because it also sets the new info of the file.
+
+        @type newURI: L{gnomevfs.URI}
         """
-        pass
-            
+        if overwrite:
+            mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
+        else:
+            mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
+        
+        #FIXME: I should probbably do something with the result
+        result = gnomevfs.xfer_uri( self.URI, newURI,
+                                    gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                                    gnomevfs.XFER_ERROR_MODE_ABORT,
+                                    mode)
+
+        #Now update file info
+        if self._newInfoFlags != gnomevfs.SET_FILE_INFO_NONE:
+            gnomevfs.set_file_info(newURI,self._newInfo,self._newInfoFlags)
+
     def get_mimetype(self):
         self._get_file_info()
         try:

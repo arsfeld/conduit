@@ -51,7 +51,9 @@ def get_filename(path):
 def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
     """
     Xfers a file from fromURI to destURI. Overwrites if commanded.
-    @raise Exception: if anything goes wrong in xfer
+
+    @type sourceURI: L{gnomevfs.URI}
+    @type destURI: L{gnomevfs.URI}
     """
     logd("Transfering file from %s -> %s (Overwrite: %s)" % (sourceURI, destURI, overwrite))
     if overwrite:
@@ -60,14 +62,10 @@ def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
         mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
     #FIXME: I should probbably do something with the result returned
-    #from xfer_uri
-    try:
-        result = gnomevfs.xfer_uri( sourceURI, destURI,
-                                    gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                                    gnomevfs.XFER_ERROR_MODE_ABORT,
-                                    mode)
-    except gnomevfs.BadParametersError:
-        logw("Invalid filename %s |--> %s" % (sourceURI, destURI))
+    result = gnomevfs.xfer_uri( sourceURI, destURI,
+                                gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                                gnomevfs.XFER_ERROR_MODE_ABORT,
+                                mode)
 
 def new_tempfile(contents, contentsAreText=True):
     """
