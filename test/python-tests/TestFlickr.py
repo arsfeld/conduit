@@ -34,7 +34,6 @@ try:
     uid = flickr.put(f, True)
     ok("Upload a photo (UID:%s) " % uid, True)
 except Exception, err:
-    traceback.print_exc()
     ok("Upload a photo (%s)" % err, False)
     
 

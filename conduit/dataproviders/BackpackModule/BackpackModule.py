@@ -60,8 +60,11 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         
         self.storeInPage = "Conduit"
         self.pageID = None
-        self.existingNotes = {}
-        
+
+        #there is no way to pragmatically see if a note exists so we list them
+        #and cache the results. key = note uid
+        self._notes = {}
+
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -108,26 +111,31 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                     #cannot continue
                     raise SyncronizeFatalError
                     
-        #Now check if any notes we want to store are already there and need 
-        #updating
-        if len(self.existingNotes) == 0:
-            notes = self.ba.notes.list(self.pageID)
-            for uid, title, timestamp, text in notes:
-                self.existingNotes[title] = uid
-            logd("Found existing notes: %s" % self.existingNotes)
+        #First put needs to cache the existing note titles and uris
+        if len(self._notes) == 0:
+            for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
+                self._notes[title] = uid
+            logd("Found existing notes: %s" % self._notes)
         
+        #FIXME: implement overwrite and LUID behaviour
+
         #If all that went well then actually store some notes.
+        uid = None
         try:
-            if note.title in self.existingNotes:
+            if note.title in self._notes:
                 logd("Updating Existing")
-                self.ba.notes.update(self.pageID,self.existingNotes[note.title],note.title,note.contents)
+                uid = self._notes[note.title]
+                self.ba.notes.update(self.pageID,uid,note.title,note.contents)
             else:
                 logd("Creating New")
-                self.ba.notes.create(self.pageID,note.title,note.contents)
+                uid,title,mtime,content = self.ba.notes.create(self.pageID,note.title,note.contents)
+                self._notes[note.title] = uid
         except backpack.BackpackError, err:
             log("Could not sync note (%s)" % err)
             raise SyncronizeError
                 
+        return uid
+
     def get_configuration(self):
         return {
             "storeInPage" : self.storeInPage,
