@@ -19,6 +19,7 @@
 # Release 8: change API endpoint to "api.flickr.com"
 # Release 9: change to MIT license
 # Release 10: fix horrid \r\n bug on final boundary
+# Release 11: break out validateFrob() for subclassing
 #
 # Work by (or inspired by) Manish Rai Jain <manishrjain@gmail.com>:
 #
@@ -26,7 +27,7 @@
 #    use of urllib2 to allow uploads through a proxy, upload accepts
 #    raw data as well as a filename
 #
-# Copyright (c) 2006 Brian "Beej Jorgensen" Hall
+# Copyright (c) 2007 Brian "Beej Jorgensen" Hall
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -50,7 +51,7 @@
 # Certain previous versions of this API were granted to the public
 # domain.  You're free to use those as you please.
 #
-# Beej Jorgensen, Maintainer, November 2006
+# Beej Jorgensen, Maintainer, 19-Jan-2007
 # beej@beej.us
 #
 
@@ -442,6 +443,10 @@ class FlickrAPI:
 
 
 	#-----------------------------------------------------------------------
+	def validateFrob(self, frob, perms, browser):
+		os.system("%s '%s'" % (browser, self.__getAuthURL(perms, frob)))
+
+	#-----------------------------------------------------------------------
 	def getToken(self, perms="read", browser="lynx"):
 		"""Get a token either from the cache, or make a new one from the
 		frob.
@@ -484,7 +489,7 @@ class FlickrAPI:
 			frob = rsp.frob[0].elementText
 
 			# validate online
-			os.system("%s '%s'" % (browser, self.__getAuthURL(perms, frob)))
+			self.validateFrob(frob, perms, browser)
 
 			# get a token
 			rsp = self.auth_getToken(api_key=self.apiKey, frob=frob)
