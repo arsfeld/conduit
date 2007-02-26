@@ -150,9 +150,15 @@ class ConflictResolver:
 
         cell_renderer.set_property("pixbuf", icon)
 
-    def _direction_data_func(self, column, cell_renderer, tree_model, iter, user_data):
-        direction = tree_model.get_value(iter, user_data)
-        cell_renderer.set_direction(direction)
+    def _direction_data_func(self, column, cell_renderer, tree_model, rowref, user_data):
+        direction = tree_model.get_value(rowref, user_data)
+        if tree_model.iter_depth(rowref) == 0:
+            cell_renderer.set_property('visible', False)
+            cell_renderer.set_property('mode', gtk.CELL_RENDERER_MODE_INERT)
+        else:
+            cell_renderer.set_property('visible', True)
+            cell_renderer.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
+            cell_renderer.set_direction(direction)
 
     def _set_conflict_titles(self):
         self.expander.set_label("Conflicts (%s)" % self.numConflicts)
@@ -219,8 +225,6 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
     def __init__(self):
         gtk.GenericCellRenderer.__init__(self)
-        self.set_property('visible', True)
-        self.set_property('mode', gtk.CELL_RENDERER_MODE_ACTIVATABLE)
         self.image = None
 
     def on_get_size(self, widget, cell_area):
@@ -260,6 +264,6 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
         else:
             model[path][DIRECTION_IDX] += 1
 
-        return False
+        return True
 
 

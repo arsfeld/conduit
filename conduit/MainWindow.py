@@ -535,8 +535,8 @@ class ConduitStatusIcon(gtk.StatusIcon):
             <ui>
              <menubar name="Menubar">
               <menu action="Menu">
-               <menuitem action="Search"/>
-               <menuitem action="Preferences"/>
+               <menuitem action="Sync"/>
+               <menuitem action="Quit"/>
                <separator/>
                <menuitem action="About"/>
               </menu>
@@ -545,21 +545,15 @@ class ConduitStatusIcon(gtk.StatusIcon):
         '''
         actions = [
             ('Menu',  None, 'Menu'),
-            ('Search', None, '_Search...', None, 'Search files with MetaTracker', self.on_activate),
-            ('Preferences', gtk.STOCK_PREFERENCES, '_Preferences...', None, 'Change MetaTracker preferences', self.on_preferences),
-            ('About', gtk.STOCK_ABOUT, '_About...', None, 'About MetaTracker', self.on_about)]
+            ('Sync', gtk.STOCK_EXECUTE, '_Synchronize', None, 'Synchronize all dataproviders', self.on_synchronize),
+            ('Quit', gtk.STOCK_QUIT, '_Quit', None, 'Close Conduit', self.on_quit),
+            ('About', gtk.STOCK_ABOUT, '_About', None, 'About Conduit', self.on_about)]
         ag = gtk.ActionGroup('Actions')
         ag.add_actions(actions)
         self.manager = gtk.UIManager()
         self.manager.insert_action_group(ag, 0)
         self.manager.add_ui_from_string(menu)
         self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent
-        search = self.manager.get_widget('/Menubar/Menu/Search')
-        search.get_children()[0].set_markup('<b>_Search...</b>')
-        search.get_children()[0].set_use_underline(True)
-        search.get_children()[0].set_use_markup(True)
-        search.get_children()[1].set_from_stock(gtk.STOCK_FIND, gtk.ICON_SIZE_MENU)
-        self.connect('activate', self.on_activate)
         self.connect('popup-menu', self.on_popup_menu)
 
         #start with the application icon
@@ -614,14 +608,14 @@ class ConduitStatusIcon(gtk.StatusIcon):
         self.conflict = True
         logd("Icon got sync conflict")
 
-    def on_activate(self, data):
-        print "activate"
+    def on_synchronize(self, data):
+        print "SYNCHRONIZE"
 
     def on_popup_menu(self, status, button, time):
         self.menu.popup(None, None, None, button, time)
 
-    def on_preferences(self, data):
-        print 'preferences'
+    def on_quit(self, data):
+        print "QUIT"
 
     def on_about(self, data):
         dialog = ConduitAboutDialog()
