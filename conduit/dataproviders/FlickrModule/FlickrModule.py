@@ -16,7 +16,7 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
-Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI-8")
+Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI")
 from flickrapi import FlickrAPI
 
 MODULES = {

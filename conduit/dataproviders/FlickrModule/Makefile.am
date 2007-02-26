@@ -1,4 +1,4 @@
-SUBDIRS = FlickrAPI-8
+SUBDIRS = FlickrAPI
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders/FlickrModule
 conduit_handlers_PYTHON = FlickrModule.py
