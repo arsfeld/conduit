@@ -399,12 +399,12 @@ class FlickrAPI:
 			self.apiKey]))
 
 	#-----------------------------------------------------------------------
-	def __getCachedTokenFilename(self):
+	def __getCachedTokenFilename(self, username):
 		"""Return the full pathname of the cached token file."""
-		return os.path.sep.join([self.__getCachedTokenPath(), "auth.xml"])
+		return os.path.sep.join([self.__getCachedTokenPath(), "auth-%s.xml" % username])
 
 	#-----------------------------------------------------------------------
-	def __getCachedToken(self):
+	def __getCachedToken(self, username):
 		"""Read and return a cached token, or None if not found.
 
 		The token is read from the cached token file, which is basically the
@@ -412,7 +412,7 @@ class FlickrAPI:
 		"""
 
 		try:
-			f = file(self.__getCachedTokenFilename(), "r")
+			f = file(self.__getCachedTokenFilename(username), "r")
 			
 			data = f.read()
 			f.close()
@@ -425,7 +425,7 @@ class FlickrAPI:
 			return None
 
 	#-----------------------------------------------------------------------
-	def __setCachedToken(self, xml):
+	def __setCachedToken(self, username, xml):
 		"""Cache a token for later use.
 
 		The cached tag is stored by simply saving the entire RSP response
@@ -437,7 +437,7 @@ class FlickrAPI:
 		if not os.path.exists(path):
 			os.makedirs(path)
 
-		f = file(self.__getCachedTokenFilename(), "w")
+		f = file(self.__getCachedTokenFilename(username), "w")
 		f.write(xml)
 		f.close()
 
@@ -447,7 +447,7 @@ class FlickrAPI:
 		os.system("%s '%s'" % (browser, self.__getAuthURL(perms, frob)))
 
 	#-----------------------------------------------------------------------
-	def getToken(self, perms="read", browser="lynx"):
+	def getToken(self, username, perms="read", browser="lynx"):
 		"""Get a token either from the cache, or make a new one from the
 		frob.
 
@@ -467,7 +467,7 @@ class FlickrAPI:
 		"""
 		
 		# see if we have a saved token
-		token = self.__getCachedToken()
+		token = self.__getCachedToken(username)
 
 		# see if it's valid
 		if token != None:
@@ -498,7 +498,7 @@ class FlickrAPI:
 			token = rsp.auth[0].token[0].elementText
 
 			# store the auth info for next time
-			self.__setCachedToken(rsp.xml)
+			self.__setCachedToken(username, rsp.xml)
 
 		return token
 
@@ -515,7 +515,7 @@ def main(argv):
 	fapi = FlickrAPI(flickrAPIKey, flickrSecret)
 
 	# do the whole whatever-it-takes to get a valid token:
-	token = fapi.getToken(browser="firefox")
+	token = fapi.getToken("",browser="firefox")
 
 	# get my favorites
 	rsp = fapi.favorites_getList(api_key=flickrAPIKey,auth_token=token)

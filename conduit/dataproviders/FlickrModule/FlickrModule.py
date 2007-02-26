@@ -40,6 +40,7 @@ class FlickrSink(DataProvider.DataSink):
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
         
+        self.username = ""
         self.fapi = None
         self.token = None
         self.tagWith = "Conduit"
@@ -53,7 +54,7 @@ class FlickrSink(DataProvider.DataSink):
     def refresh(self):
         DataProvider.DataSink.refresh(self)
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
-        self.token = self.fapi.getToken(browser="gnome-www-browser -p", perms="write")
+        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="write")
         
     def put(self, photo, overwrite, LUIDs=[]):
         """
@@ -108,6 +109,7 @@ class FlickrSink(DataProvider.DataSink):
         publicCb = tree.get_widget("public_check")
         friendsCb = tree.get_widget("friends_check")
         familyCb = tree.get_widget("family_check")
+        username = tree.get_widget("username")
         
         #preload the widgets
         attachTagCb.set_active(len(self.tagWith) > 0)
@@ -115,7 +117,7 @@ class FlickrSink(DataProvider.DataSink):
         publicCb.set_active(self.showPublic)
         friendsCb.set_active(self.showFriends)
         familyCb.set_active(self.showFamily)
-        
+        username.set_text(self.username)
         
         dlg = tree.get_widget("FlickrSinkConfigDialog")
         dlg.set_transient_for(window)
@@ -127,10 +129,12 @@ class FlickrSink(DataProvider.DataSink):
             self.showPublic = publicCb.get_active()
             self.showFamily = familyCb.get_active()
             self.showFriends = friendsCb.get_active()                        
+            self.username = username.get_text()
         dlg.destroy()    
         
     def get_configuration(self):
         return {
+            "username" : self.username,
             "tagWith" : self.tagWith,
             "showPublic" : self.showPublic,
             "showFriends" : self.showFriends,
