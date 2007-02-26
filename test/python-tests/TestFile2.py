@@ -5,7 +5,7 @@ import conduit
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
-f = File.File("ssh://root@www.greenbirdsystems.com/root/sync/Image.png")
+f = File.File("http://files.conduit-project.org/Conduit-0.1.0-screenshot.png")
 ok("Remote file exists", f.exists() == True)
 
 local = f.get_local_uri()

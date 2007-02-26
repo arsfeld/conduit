@@ -15,12 +15,9 @@ dirs_to_search =    [
 model = ModuleManager(dirs_to_search)
 type_converter = TypeConverter(model)
 
-USERNAME="%s@gmail.com" % os.environ['TEST_USERNAME']
-PASSWORD="%s" % os.environ['TEST_PASSWORD']
-
 gmail = model.get_new_module_instance("GmailEmailTwoWay").module
-gmail.username = USERNAME
-gmail.password = PASSWORD
+gmail.username = "%s@gmail.com" % os.environ['TEST_USERNAME']
+gmail.password = "%s" % os.environ['TEST_PASSWORD']
 
 #Log in
 try:

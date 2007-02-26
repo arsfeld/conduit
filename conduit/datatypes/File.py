@@ -70,7 +70,9 @@ class File(DataType.DataType):
         #The get_file_info works more reliably on remote vfs shares
         if self.fileInfo == None:
             if self.fileExists == True:
-                self.fileInfo = self.vfsFile.get_file_info()#gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
+                #self.fileInfo = self.vfsFile.get_file_info()
+                #FIXME: HACK HACK Why does the following perform better on http?
+                self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
                 logw("Cannot get info on non-existant file %s" % self.URI)
 

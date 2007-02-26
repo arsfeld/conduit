@@ -63,7 +63,6 @@ class FlickrSink(DataProvider.DataSink):
         """
         DataProvider.DataSink.put(self, photo, overwrite, LUIDs)
 
-        originalURI = photo._get_text_uri()
         originalName = photo.get_filename()
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
@@ -79,7 +78,7 @@ class FlickrSink(DataProvider.DataSink):
             return None
 
         #Upload            
-        logd("Uploading Photo URI = %s, Mimetype = %s" % (photoURI, mimeType))
+        logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
                                 filename=photoURI,

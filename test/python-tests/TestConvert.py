@@ -26,7 +26,11 @@ def pad(s):
     return s+" "*(WIDTH-len(s))
 
 def header(items):
-    return " "*WIDTH+"|"+"|".join([pad(i) for i in items])+"|"
+    s = " "*WIDTH+"|"+"|".join([pad(i) for i in items])+"|"
+    s += "\n"
+    for i in items:
+        s += "%s|" % ("-"*WIDTH)
+    return s
 
 def row(entries, header):
     s = ""
