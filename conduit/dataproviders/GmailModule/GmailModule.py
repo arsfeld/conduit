@@ -259,8 +259,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.get_num_items(self)
         return len(self.mails)
 
-    def put(self, email, overwrite, LUIDs=[]):
-        DataProvider.TwoWay.put(self, email, overwrite, LUIDs)
+    def put(self, email, overwrite, LUID=None):
+        DataProvider.TwoWay.put(self, email, overwrite, LUID)
 
         if email.has_attachments():
             attach = email.attachments
@@ -343,8 +343,8 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.get(self, index)
         return self.contacts[index]
 
-    def put(self, contact, overwrite, LUIDs=[]):
-        DataProvider.TwoWay.put(self, contact, overwrite, LUIDs)
+    def put(self, contact, overwrite, LUID=None):
+        DataProvider.TwoWay.put(self, contact, overwrite, LUID)
 
     def finish(self):
         self.contacts = None

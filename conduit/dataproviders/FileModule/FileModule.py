@@ -527,7 +527,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                     for i in item[CONTAINS_ITEMS_IDX]:
                         self.db.insert(i,TYPE_FILE, item[URI_IDX], item[GROUP_NAME_IDX])
 
-    def put(self, vfsFile, overwrite, LUIDs=[]):
+    def put(self, vfsFile, overwrite, LUID=None):
         """
         Puts vfsFile at the correct location. There are two scenarios
         1) File came from a foreign DP like tomboy
@@ -544,7 +544,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         path for the files in the specifed group and recreate that in the
         orphan dir
         """
-        DataProvider.TwoWay.put(self, vfsFile, overwrite, LUIDs)
+        DataProvider.TwoWay.put(self, vfsFile, overwrite, LUID)
         newURI = ""
         if vfsFile.basePath == "":
             #came from another type of dataprovider such as tomboy

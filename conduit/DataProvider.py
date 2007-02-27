@@ -441,7 +441,7 @@ class DataSink(DataProviderBase):
         """    
         DataProviderBase.__init__(self, widgetColorRGBA)
 
-    def put(self, putData, overwrite, LUIDs):
+    def put(self, putData, overwrite, LUID):
         """
         Stores data. The derived class is responsible for checking if putData
         conflicts. 

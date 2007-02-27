@@ -136,8 +136,8 @@ class IPodNoteTwoWay(IPodBase):
         TwoWay.get(self, index)
         return self.notes[index]
 
-    def put(self, note, overwrite, LUIDs=[]):
-        TwoWay.put(self, note, overwrite, LUIDs)
+    def put(self, note, overwrite, LUID=None):
+        TwoWay.put(self, note, overwrite, LUID)
         _string_to_unqiue_file(str(note.contents), self.dataDir, note.title, '.txt')
         
     def finish(self):
@@ -181,8 +181,8 @@ class IPodContactsTwoWay(IPodBase):
         TwoWay.get(self, index)
         return self.contacts[index]
 
-    def put(self, contact, overwrite, LUIDs=[]):
-        TwoWay.put(self, contact, overwrite, LUIDs)
+    def put(self, contact, overwrite, LUID=None):
+        TwoWay.put(self, contact, overwrite, LUID)
         _string_to_unqiue_file(str(contact), self.dataDir, 'contact')
 
     def finish(self):
@@ -226,8 +226,8 @@ class IPodCalendarTwoWay(IPodBase):
         TwoWay.get(self, index)
         return self.events[index]
 
-    def put(self, event, overwrite, LUIDs=[]):
-        TwoWay.put(self, event, overwrite, LUIDs)
+    def put(self, event, overwrite, LUID=None):
+        TwoWay.put(self, event, overwrite, LUID)
         _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
     def finish(self):

@@ -56,12 +56,12 @@ class FlickrSink(DataProvider.DataSink):
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
         self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="write")
         
-    def put(self, photo, overwrite, LUIDs=[]):
+    def put(self, photo, overwrite, LUID=None):
         """
         Accepts a vfs file. Must be made local.
         I also store a md5 of the photos uri to check for duplicates
         """
-        DataProvider.DataSink.put(self, photo, overwrite, LUIDs)
+        DataProvider.DataSink.put(self, photo, overwrite, LUID)
 
         originalName = photo.get_filename()
         #Gets the local URI (/foo/bar). If this is a remote file then
@@ -73,7 +73,7 @@ class FlickrSink(DataProvider.DataSink):
             raise Exceptions.SyncronizeError("Flickr does not allow uploading %s Files" % mimeType)
         
         #Check if we have already uploaded the photo
-        if len(LUIDs) > 0:
+        if LUID != None:
             logd("Photo already uploaded, skipping")
             return None
 

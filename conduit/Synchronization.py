@@ -219,11 +219,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
         """
         Puts data into sink, overwrites if overwrite is True
         """            
-        matchingUIDs = self.mappingDB.get_matching_uids(
+        matchingUID = self.mappingDB.get_matching_uid(
                                 sink.get_UID(), 
                                 data.get_UID()
                                 )
-        LUID = sink.module.put(data, overwrite, matchingUIDs)
+        LUID = sink.module.put(data, overwrite, matchingUID)
         #Now store the mapping of the original URI to the new one
         self.mappingDB.save_relationship(
                                 sink.get_UID(), 

@@ -156,17 +156,14 @@ class TestSink(_TestBase, DataProvider.DataSink):
         _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
         
-    def put(self, data, overwrite, LUIDs=[]):
-        DataProvider.DataSink.put(self, data, overwrite, LUIDs)
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
         if self.slow:
             time.sleep(1)    
         if self.count == self.errorAfter:
             raise Exceptions.SyncronizeError
         self.count += 1
-        #the LUID of any test data passed in is the original 
-        #data + the dp name
-        if len(LUIDs) > 0:
-            logd("TEST SINK: put(): %s (known UID:%s)" % (data,len(LUIDs)>0))
+        logd("TEST SINK: put(): %s (known UID:%s)" % (data,LUID))
         return data.get_UID()+self._name_
 
 class TestTwoWay(_TestBase, DataProvider.TwoWay):
@@ -204,8 +201,8 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         logd("TWO WAY: get() returned %s" % data)
         return data
 
-    def put(self, data, overwrite, LUIDs=[]):
-        DataProvider.TwoWay.put(self, data, overwrite, LUIDs)
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.TwoWay.put(self, data, overwrite, LUID)
         logd("TWO WAY: put() %s" % data)
 
     def finish(self):
@@ -249,8 +246,8 @@ class TestConflict(DataProvider.DataSink):
     def refresh(self):
         DataProvider.DataSink.refresh(self)
 
-    def put(self, data, overwrite, LUIDs=[]):
-        DataProvider.DataSink.put(self, data, overwrite, LUIDs)
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
         raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_OLDER, data, TestDataType(0))
 
     def get_UID(self):
@@ -287,8 +284,8 @@ class TestChangeType(DataProvider.DataSink):
     def refresh(self):
         DataProvider.DataSink.refresh(self)
 
-    def put(self, data, overwrite, LUIDs=[]):
-        DataProvider.DataSink.put(self, data, overwrite, LUIDs)
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
         return None
 
     def get_UID(self):
