@@ -3,6 +3,7 @@ import cPickle
 import bisect
 
 import conduit
+import conduit.Utils as Utils
 from conduit import log,logd,logw
 
 class MappingDB:
@@ -18,66 +19,74 @@ class MappingDB:
     will make it easier to swap out database layers at a later date. 
     @todo: Add thread locks around all DB calls
     """
-    def __init__(self):
-        f = os.path.join(conduit.USER_DIR, "mapping.db")
+    def __init__(self, filename=None):
+        if filename:
+            f = os.path.abspath(filename)
+        else:
+            f = os.path.join(conduit.USER_DIR, "mapping.db")
         #f = "bar"
         self._db = SimpleDb(f)
         self._db.create("dpw","LUIDA", "LUIDB", mode="open")
         #We access the DB via all fields so all need indices
         self._db.create_index(*self._db.fields)
 
-    def save_relationship(self, dpwUID, LUIDA, LUIDB):
-        """
-        Saves a relationship between LUIDA and LUIDB on 
-        behalf of dpw
-        """
-        if None in [LUIDA, LUIDB]:
-            return
-        for i in self._db._dpw[dpwUID]:
-            if i["LUIDA"] == LUIDA and i["LUIDB"] == LUIDB:
-                return
-        #logd("Saving relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
-        self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
-        
-    def get_relationships(self, dpwUID):
+    def _get_relationships(self, dpwUID):
         """
         Gets all relationships for a dataproviderwrapper
         """
         maps = {}
         for i in self._db._dpw[dpwUID]:
-            if maps.has_key(i["LUIDA"]):
-                maps[i["LUIDA"]].append(i["LUIDB"])
-            else:
-                maps[i["LUIDA"]] = [i["LUIDB"]]
+            maps[i["LUIDA"]] = [i["LUIDB"]]
         #logd("Found %s relationships for %s" % (len(maps), dpwUID))
         return maps
 
-    def get_matching_uids(self, dpwUID, LUID, bidirectional=False):
+    def save_relationship(self, dpwUID, LUIDA, LUIDB):
         """
-        Gets all matching UIDs for dpw and LUID
+        Saves a relationship between LUIDA and LUIDB on 
+        behalf of dpw
         """
-        atob = [r["LUIDB"] for r in self._db._dpw[dpwUID] if r["LUIDA"]==LUID]
-        btoa = []
-        if bidirectional:
-            btoa = [r["LUIDA"] for r in self._db._dpw[dpwUID] if r["LUIDB"]==LUID]
-        tot = atob+btoa
-        #logd("Found %s matching UIDs for %s %s" % (len(tot), dpwUID, LUID))
-        return tot
+        if None in [dpwUID, LUIDA, LUIDB]:
+            return
+        for i in self._db._dpw[dpwUID]:
+            if i["LUIDA"] == LUIDA:
+                if i["LUIDB"] == LUIDB:
+                    #already saved
+                    #logd("Skipping relationship: %s<-%s->%s (already exists)" % (LUIDA, dpwUID, LUIDB))
+                    return
+                else:
+                    #update existing relationship
+                    #logd("Updating relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
+                    self._db.update(i, LUIDB=LUIDB)
+                    return
+        #create new
+        #logd("Saving relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
+        self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
+        
+    def get_matching_uid(self, dpwUID, LUID):
+        """
+        Gets the matching UID for dpw and LUID
+        """
+        match=None
+        for r in self._db._dpw[dpwUID]:
+            if r["LUIDA"]==LUID:
+                match=r["LUIDB"]
+        #logd("Found matching UID %s for %s (%s)" % (match, LUID, dpwUID))
+        return match
 
     def save(self):
         logd("Saving mapping DB to %s" % self._db.name)
         self._db.commit()
 
     def debug(self):
+        print "Contents of MappingDB: %s" % self._db.name
         dpws = [i["dpw"] for i in self._db]
+        dpws = Utils.distinct_list(dpws)
         for i in dpws:
             print "\t%s" % i
-            rels = self.get_relationships(i)
+            rels = self._get_relationships(i)
             for j in rels.keys():
-                print "\t\t%s" % j
-                for k in rels[j]:
-                    print "\t\t\t%s" % k
-        
+                print "\t\t%s --> %s" % (j, self.get_matching_uid(i,j))
+       
         
 class SimpleDb:
     """
@@ -299,19 +308,4 @@ class _PyDbIndex:
         field value is equal to this key, or an empty list"""
         ids = self.db.indices[self.field].get(key,[])
         return [ self.db.records[_id] for _id in ids ]
-
-if __name__ == '__main__':
-    import random
-
-    m = MappingDB()
-    for i in range(10):
-        m.save_relationship("a",random.randint(1,2),random.randint(0,10))
-        m.save_relationship("b",random.randint(1,2),random.randint(0,10))
-        m.save_relationship("c",random.randint(1,2),random.randint(0,10))
-
-    print m.get_relationships("b")
-    print m.get_matching_uids("a",1)
-    m.debug()
-    m.save()
-
 

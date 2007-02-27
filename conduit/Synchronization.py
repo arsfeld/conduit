@@ -338,15 +338,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
     def two_way_sync(self, source, sink):
         """
         Performs a two way sync from source to sink and back
-
-        General approach
-         1. Get items from source, store them in a dict indexed by data UID
-         2. Get all items from B, store them in a dict indexed by data UID
-         3. Classify data, two sub cases
-            a. If data is in one and not the other then transfer
-            b. If data is in both then compare, applying the users policy
-            c. If data is in both and comparison is unknown then ask user
-
         """
         log("Synchronizing %s <--> %s " % (source, sink))
         self.one_way_sync(source, sink, True, True)

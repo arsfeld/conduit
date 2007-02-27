@@ -372,6 +372,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         username and password.
 
         Derived types MUST overwride this function
+        @rtype: C{string}
         """
         raise NotImplementedError
 

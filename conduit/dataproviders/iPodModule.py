@@ -99,12 +99,16 @@ class IPodNoteTwoWay(IPodBase):
         IPodBase.__init__(self, *args)
 
         self.dataDir = os.path.join(self.mountPoint, 'Notes')        
-        self.notes = None
+        self.notes = []
 
     def refresh(self):
         TwoWay.refresh(self)
         self.notes = []
 
+        #Also checks directory exists
+        if not os.path.isdir(self.dataDir):
+            return
+        
         for f in os.listdir(self.dataDir):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
@@ -137,7 +141,7 @@ class IPodNoteTwoWay(IPodBase):
         _string_to_unqiue_file(str(note.contents), self.dataDir, note.title, '.txt')
         
     def finish(self):
-        self.notes = None
+        self.notes = []
 
 class IPodContactsTwoWay(IPodBase):
 
