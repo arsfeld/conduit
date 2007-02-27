@@ -204,12 +204,25 @@ class File(DataType.DataType):
             self.URI = toURI
             return tempname
 
-    def compare(self, B):
+    def compare(self, B, sizeOnly=False):
         """
-        Compare me with B based upon their modification times
+        Compare me with B based upon their modification times, or optionally
+        based on size only
         """
         if not gnomevfs.exists(B.URI):
             return conduit.datatypes.COMPARISON_MISSING
+
+        #Compare based on size only?
+        if sizeOnly:
+            meSize = self.get_size()
+            bSize = B.get_size()
+            logd("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (self.URI, meSize, B.URI, bSize))
+            if meSize == None or bSize == None:
+                return conduit.datatypes.COMPARISON_UNKNOWN
+            elif meSize == bSize:
+                return conduit.datatypes.COMPARISON_EQUAL
+            else:
+                return conduit.datatypes.COMPARISON_UNKNOWN
 
         #Else look at the modification times
         meTime = self.get_mtime()

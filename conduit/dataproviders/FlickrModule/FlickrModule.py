@@ -48,6 +48,40 @@ class FlickrSink(DataProvider.DataSink):
         self.showFriends = True
         self.showFamily = True
 
+    def _get_user_quota(self):
+        """
+        Returs used,total or -1,-1 on error
+        """
+        rsp = self.fapi.people_getUploadStatus(
+                                api_key=FlickrSink.API_KEY, 
+                                auth_token=self.token
+                                )
+        if self.fapi.getRspErrorCode(rsp) != 0:
+            logd("Flickr people_getUploadStatus Error: %s" % self.fapi.getPrintableError(rsp))
+            return -1,-1
+        else:
+            totalkb = rsp.user[0].bandwidth[0]["maxkb"]
+            usedkb = rsp.user[0].bandwidth[0]["usedkb"]
+            return int(usedkb),int(totalkb)
+
+    def _get_photo_info(self, photoID):
+        info = self.fapi.photos_getInfo(
+                                    api_key=FlickrSink.API_KEY,
+                                    photo_id=photoID
+                                    )
+        if self.fapi.getRspErrorCode(info) != 0:
+            logd("Flickr photos_getInfo Error: %s" % self.fapi.getPrintableError(info))
+            return None
+        else:
+            return info
+
+    def _get_raw_photo_url(self, photoInfo):
+        photo = photoInfo.photo[0]
+        #photo is a dict so we can use pythons string formatting natively with
+        #the correct keys
+        url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(originalsecret)s_o.%(originalformat)s" % photo
+        return url
+        
     def initialize(self):
         return True
         
@@ -74,11 +108,30 @@ class FlickrSink(DataProvider.DataSink):
         
         #Check if we have already uploaded the photo
         if LUID != None:
-            logd("Photo already uploaded, skipping")
-            return None
+            info = self._get_photo_info(LUID)
+            #check if a photo exists at that UID
+            if info != None:
+                if overwrite == True:
+                    #replace the photo
+                    logw("REPLACE NOT IMPLEMENTED")
+                    return LUID
+                else:
+                    #Only upload the photo if it is newer than the Flickr one
+                    url = self._get_raw_photo_url(info)
+                    flickrFile = File.File(url)
+                    #Flickr doesnt store the photo modification time anywhere, 
+                    #so this is a limited test for equality type comparison
+                    comp = photo.compare(flickrFile,True)
+                    logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
+                            (photo.get_filename(),flickrFile.get_filename(),comp))
+                    if comp != conduit.datatypes.COMPARISON_EQUAL:
+                        raise Exceptions.SyncronizeConflictError(comp, photo, flickrFile)
+                    else:
+                        return LUID
 
-        #Upload            
-        logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
+        #We havent, or its been deleted so upload it
+        logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % 
+            (photoURI, mimeType, originalName))
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
                                 filename=photoURI,
@@ -87,6 +140,7 @@ class FlickrSink(DataProvider.DataSink):
         if self.fapi.getRspErrorCode(ret) != 0:
             raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % self.fapi.getPrintableError(ret))
         else:
+            #return the photoID
             return ret.photoid[0].elementText
 
     def configure(self, window):
