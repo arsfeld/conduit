@@ -86,7 +86,32 @@ class IPodBase(TwoWay):
     def get_UID(self):
         return self.uid
 
+    def _get_unique_filename(self, directory):
+        """
+        Returns the name of a non-existant file on the 
+        ipod within directory
+        
+        @param directory: Name of the directory within the device root to make 
+        the random file in
+        """
+        done = False
+        while not done:
+            f = os.path.join(self.mountPoint,directory,Utils.random_string())
+            if not os.path.exists(f):
+                done = True
+        return f
+
 class IPodNoteTwoWay(IPodBase):
+    """
+    Stores Notes on the iPod. 
+    Rather than requiring a perfect transform to and from notes to the
+    ipod note format I also store the original note data in a 
+    .conduit directory in the root of the iPod.
+
+    Because the iPod parses all files in Notes the actual filename matters
+    little becuase providing a <TITLE> attribute is present in the note 
+    this is showed to the user
+    """
 
     _name_ = _("Notes")
     _description_ = _("Sync your iPod notes")
@@ -112,21 +137,7 @@ class IPodNoteTwoWay(IPodBase):
         for f in os.listdir(self.dataDir):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
-                title = f
-                contents = open(fullpath, 'r').read()
-
-                try:
-                    mtime = os.stat(fullpath).st_mtime
-                    datetime.datetime.fromtimestamp(mtime)
-                except:
-                    logw("Error getting modification time for ipod note")
-                    mtime = None
-
-                note = Note.Note(fullpath, 
-                            title=title, 
-                            mtime=mtime, 
-                            contents=contents)
-                self.notes.append(note)
+                self.notes.append(f)
 
     def get_num_items(self):
         TwoWay.get_num_items(self)
@@ -138,7 +149,27 @@ class IPodNoteTwoWay(IPodBase):
 
     def put(self, note, overwrite, LUID=None):
         TwoWay.put(self, note, overwrite, LUID)
-        _string_to_unqiue_file(str(note.contents), self.dataDir, note.title, '.txt')
+
+        #shadow all notes in .conduit
+        shadowDir = os.path.join(self.mountPoint, '.conduit')
+        if not os.path.exists(shadowDir):
+            os.mkdir(shadowDir)
+
+        if LUID != None:
+            #Check if both the shadow copy and the ipodified version exists
+            if os.path.exists(os.path.join(shadowDir,LUID)) and os.path.exists(os.path.join(self.dataDir,LUID)):
+                if overwrite == True:
+                    #replace the note
+                    logw("REPLACE NOT IMPLEMENTED")
+                    return LUID
+                else:
+                    #only overwrite if newer
+                    logw("OVERWRITE IF NEWER NOT IMPLEMENTED")
+                    return LUID
+    
+        #make a new note
+        uid = self._get_unique_filename("Notes")
+        return uid
         
     def finish(self):
         self.notes = []

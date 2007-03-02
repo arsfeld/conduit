@@ -12,7 +12,8 @@ avail = dbus_iface.ListNames()
 #print ""
 
 inspect={
-    "org.freedesktop.conduit":["/","/gui"]
+    "org.freedesktop.conduit":["/","/gui"],
+    "org.gnome.Tomboy":["/org/gnome/Tomboy/RemoteControl"]
     }
       
 
@@ -27,6 +28,9 @@ def enumerate_interface(service, interface):
 
 for service in inspect:
     if service in avail:
+        print "################################################################"
+        print "# ENUMERATING %s " % service
+        print "################################################################"
         for interface in inspect[service]:
             enumerate_interface(service, interface)
 

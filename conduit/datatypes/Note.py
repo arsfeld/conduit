@@ -19,6 +19,7 @@ class Note(DataType.DataType):
 
         self.title = kwargs.get("title", "")
         self.contents = kwargs.get("contents","")
+        self.raw = kwargs.get("raw", "")
         self.modified = kwargs.get("modified", None)
 
         self.set_open_URI(URI)

@@ -14,6 +14,7 @@ import random
 import md5
 import gtk, gtk.glade
 import gnomevfs
+import socket
 
 from conduit import log,logd,logw
 from conduit.datatypes import File
@@ -167,4 +168,15 @@ def retain_info_in_conversion(fromdata, todata):
     todata.set_open_URI(fromdata.get_open_URI())
     todata.set_mtime(fromdata.get_mtime())
     return todata
+
+def get_user_string():
+    """
+    Makes a user and machine dependant string in the form
+    username@hostname
+    """
+    hostname = socket.gethostname()
+    username = os.environ.get("USER","")
+    return "%s@%s" % (username, hostname)
+
+
 

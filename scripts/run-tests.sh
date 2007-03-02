@@ -80,10 +80,10 @@ do
     echo "RUNNING UNIT TEST: $fname"
 
     #html
-    echo "<p><h1>RUNNING UNIT TEST: <a href=$fname.log>$fname</a></h1><pre>" >> $indexfile
+    echo "<p><h1>RUNNING UNIT TEST: <a href=$fname.txt>$fname</a></h1><pre>" >> $indexfile
 
     #conduit debug output goes to individual log files
-    logfile=$LOGDIR/$fname.log
+    logfile=$LOGDIR/$fname.txt
 
     #code coverage analysis?
     if [ $do_coverage -ne 0 ] ; then
