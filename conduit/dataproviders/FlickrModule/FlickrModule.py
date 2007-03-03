@@ -125,7 +125,7 @@ class FlickrSink(DataProvider.DataSink):
                     logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
                             (photo.get_filename(),flickrFile.get_filename(),comp))
                     if comp != conduit.datatypes.COMPARISON_EQUAL:
-                        raise Exceptions.SyncronizeConflictError(comp, photo, flickrFile)
+                        raise Exceptions.SynchronizeConflictError(comp, photo, flickrFile)
                     else:
                         return LUID
 
