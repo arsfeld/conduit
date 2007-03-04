@@ -15,7 +15,10 @@ Usage:\n\
 Options:\n\
     -c      Code coverage analysis\n\
     -u      Upload results\n\
-    -p      Prepare some files on remote servers\n\
+    -p      Prepare some files on remote servers\n\n\
+The operation of the script is affected by two environment\n\
+variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
+login information in the relevant dataproviders\n\
 "
 
 if [ ! -f "conduit/start_conduit.py" ] ; then

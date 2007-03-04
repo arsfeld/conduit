@@ -32,6 +32,9 @@ MODULES = {
 }
 
 class TomboyNoteTwoWay(DataProvider.TwoWay):
+    """
+    LUID is the tomboy uid string
+    """
 
     _name_ = _("Tomboy Notes")
     _description_ = _("Sync your Tomboy notes")

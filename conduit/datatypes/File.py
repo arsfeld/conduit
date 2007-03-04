@@ -1,6 +1,7 @@
 import os
 import tempfile
 import datetime
+import time
 import traceback
 import gnomevfs
 
@@ -19,10 +20,6 @@ class File(DataType.DataType):
 
         self.URI = gnomevfs.URI(URI)
         self.set_open_URI(URI)
-
-        #We can also override some parameters
-        self._newInfo = gnomevfs.FileInfo()
-        self._newInfoFlags = gnomevfs.SET_FILE_INFO_NONE
 
     def _open_file(self):
         """
@@ -50,6 +47,7 @@ class File(DataType.DataType):
         self.fileInfo = None
         self.triedOpen = False
         self.fileExists = False
+
 
     def _get_text_uri(self):
         """
@@ -89,30 +87,47 @@ class File(DataType.DataType):
 
     def force_new_filename(self, filename):
         """
-        In the xfer process calling this method will cause the file to be
-        copied with the newFilename.
-       
-        Useful if for some conversions a temp file is created that you dont
-        want to retain the name of
+        Renames the file
         """
-        self._newInfoFlags |= gnomevfs.SET_FILE_INFO_NAME
-        self._newInfo.name = filename
+        newInfo = gnomevfs.FileInfo()
+        newInfo.name = filename
+
+        oldname = self.get_filename()
+        olduri = self._get_text_uri()
+        newuri = olduri.replace(oldname, filename)
+
+        logd("Renaming File %s -> %s" % (olduri, newuri))
+        gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
+
+        #close so the file info is re-read
+        self.URI = gnomevfs.URI(newuri)
+        self._close_file()
 
     def force_new_mtime(self, mtime):
         """
-        In the xfer process this will cause the new file to have the specified
-        mtime
+        Changes the mtime of the file
         """
-        self._newInfoFlags |= gnomevfs.SET_FILE_INFO_TIME
-        self._newInfo.mtime = mtime
 
-    def transfer(self, newURI, overwrite=False):
+        #FIXME: Does this lose precision?
+        #see http://mail.python.org/pipermail/python-list/2005-December/355679.html
+        newInfo = gnomevfs.FileInfo()
+        newInfo.mtime = long(time.mktime(mtime.timetuple()))
+
+        logd("Updating file mtime to %s" % mtime)
+        gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
+
+        #close so the file info is re-read
+        self._close_file()
+
+    def transfer(self, newURIString, overwrite=False):
         """
         Transfers the file to newURI. Thin wrapper around go_gnomevfs_transfer
         because it also sets the new info of the file.
 
-        @type newURI: L{gnomevfs.URI}
+        @type newURIString: C{string}
         """
+        newURI = gnomevfs.URI(newURIString)
+
         if overwrite:
             mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
         else:
@@ -124,9 +139,9 @@ class File(DataType.DataType):
                                     gnomevfs.XFER_ERROR_MODE_ABORT,
                                     mode)
 
-        #Now update file info
-        if self._newInfoFlags != gnomevfs.SET_FILE_INFO_NONE:
-            gnomevfs.set_file_info(newURI,self._newInfo,self._newInfoFlags)
+        #close the file and the handle so that the file info is refreshed
+        self.URI = newURI
+        self._close_file()
 
     def get_mimetype(self):
         self._get_file_info()

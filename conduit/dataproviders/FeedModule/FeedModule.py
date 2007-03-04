@@ -152,7 +152,6 @@ class RSSSource(DataProvider.DataSource):
                                         ext = mimetypes.guess_extension(t)
                                     except:
                                         ext = ""
-                                    f.force_new_filename(title+ext)
                                     self.files.append(f)
                             else:
                                 logd("Enclosure %s is on non-allowed type (%s)" % (title,t))

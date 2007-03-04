@@ -108,9 +108,10 @@ class IPodNoteTwoWay(IPodBase):
     ipod note format I also store the original note data in a 
     .conduit directory in the root of the iPod.
 
-    Because the iPod parses all files in Notes the actual filename matters
-    little becuase providing a <TITLE> attribute is present in the note 
-    this is showed to the user
+    Notes are saved as title.txt and a copy of the raw note is saved as 
+    title.note
+
+    LUID is the note title
     """
 
     _name_ = _("Notes")
@@ -126,6 +127,19 @@ class IPodNoteTwoWay(IPodBase):
         self.dataDir = os.path.join(self.mountPoint, 'Notes')        
         self.notes = []
 
+    def _get_shadow_dir(self):
+        shadowDir = os.path.join(self.mountPoint, '.conduit')
+        if not os.path.exists(shadowDir):
+            os.mkdir(shadowDir)
+        return shadowDir
+
+    def _get_note_from_ipod(self, uid):
+        pass
+    
+    def _save_note_to_ipod(self, uid):
+        pass
+
+
     def refresh(self):
         TwoWay.refresh(self)
         self.notes = []
@@ -134,6 +148,8 @@ class IPodNoteTwoWay(IPodBase):
         if not os.path.isdir(self.dataDir):
             return
         
+        #When acting as a source, only notes in the Notes dir are
+        #considered
         for f in os.listdir(self.dataDir):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
@@ -148,12 +164,13 @@ class IPodNoteTwoWay(IPodBase):
         return self.notes[index]
 
     def put(self, note, overwrite, LUID=None):
+        """
+        The LUID for a note in the iPod is the note title
+        """
         TwoWay.put(self, note, overwrite, LUID)
 
         #shadow all notes in .conduit
-        shadowDir = os.path.join(self.mountPoint, '.conduit')
-        if not os.path.exists(shadowDir):
-            os.mkdir(shadowDir)
+        shadowDir = self._get_shadow_dir()
 
         if LUID != None:
             #Check if both the shadow copy and the ipodified version exists
@@ -168,8 +185,8 @@ class IPodNoteTwoWay(IPodBase):
                     return LUID
     
         #make a new note
-        uid = self._get_unique_filename("Notes")
-        return uid
+        logw("CHECK IF EXISTS, COMPARE, SAVE")
+        return None
         
     def finish(self):
         self.notes = []
