@@ -39,7 +39,6 @@ ok("Got note raw xml", len(note.raw) > 0)
 
 #make a new note
 newnote = Note.Note(
-                    None,
                     title="Conduit-"+Utils.random_string(),
                     mtime=datetime.datetime.today(),
                     contents="Conduit Test Note"

@@ -29,6 +29,7 @@ import os
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
+import conduit.datatypes.File as File
 
 import gnomevfs
 import datetime
@@ -134,19 +135,62 @@ class IPodNoteTwoWay(IPodBase):
         return shadowDir
 
     def _get_note_from_ipod(self, uid):
-        pass
+        """
+        Gets a note from the ipod, considering both the shadowed copy
+        and the plain text copy. If the mtimes of the two are different
+        then always use the plain copy. and ignore the shadow copy
+        """
+        noteURI = os.path.join(self.dataDir, uid)
+        noteFile = File.File(noteURI)
+        rawNoteURI = os.path.join(self._get_shadow_dir(),uid)
+
+        raw = ""
+        mtime = noteFile.get_mtime()
+        if os.path.exists(rawNoteURI):
+            rawNoteFile = File.File(rawNoteURI)
+            if mtime == rawNoteFile.get_mtime():
+                raw = rawNoteFile.get_contents_as_text()
+
+        #get the contents from the note, get the raw from the raw copy
+        n = Note.Note(
+                    title=uid,
+                    mtime=mtime,
+                    contents=noteFile.get_contents_as_text(),
+                    raw=raw
+                    )
+        n.set_open_URI(noteURI)
+        return n
     
-    def _save_note_to_ipod(self, uid):
-        pass
+    def _save_note_to_ipod(self, uid, note):
+        """
+        Save a simple iPod note in /Notes
+        If the note has raw then also save that in shadowdir
+        uid is the note title
+        """
+        ipodnote = Utils.new_tempfile(note.contents)
+        ipodnote.transfer(os.path.join(self.dataDir,uid))
+        if note.get_mtime() != None:
+            ipodnote.force_new_mtime(note.get_mtime())
 
+        if note.raw != "":
+            shadowDir = self._get_shadow_dir()
+            rawnote = Utils.new_tempfile(note.raw)
+            rawnote.transfer(os.path.join(shadowDir,uid))
+            if note.get_mtime() != None:
+                rawnote.force_new_mtime(note.get_mtime())
 
+    def _note_exists(self, uid):
+        #Check if both the shadow copy and the ipodified version exists
+        shadowDir = self._get_shadow_dir()
+        return os.path.exists(os.path.join(shadowDir,uid)) and os.path.exists(os.path.join(self.dataDir,uid))
+                
     def refresh(self):
         TwoWay.refresh(self)
         self.notes = []
 
         #Also checks directory exists
-        if not os.path.isdir(self.dataDir):
-            return
+        if not os.path.exists(self.dataDir):
+            os.mkdir(self.dataDir)
         
         #When acting as a source, only notes in the Notes dir are
         #considered
@@ -161,7 +205,8 @@ class IPodNoteTwoWay(IPodBase):
 
     def get(self, index):
         TwoWay.get(self, index)
-        return self.notes[index]
+        uid = self.notes[index]
+        return self._get_note_from_ipod(uid)
 
     def put(self, note, overwrite, LUID=None):
         """
@@ -169,15 +214,13 @@ class IPodNoteTwoWay(IPodBase):
         """
         TwoWay.put(self, note, overwrite, LUID)
 
-        #shadow all notes in .conduit
-        shadowDir = self._get_shadow_dir()
-
         if LUID != None:
             #Check if both the shadow copy and the ipodified version exists
-            if os.path.exists(os.path.join(shadowDir,LUID)) and os.path.exists(os.path.join(self.dataDir,LUID)):
+            if self._note_exists(LUID):
                 if overwrite == True:
                     #replace the note
-                    logw("REPLACE NOT IMPLEMENTED")
+                    logd("Replacing Note %s" % LUID)
+                    self._save_note_to_ipod(LUID, note)
                     return LUID
                 else:
                     #only overwrite if newer
@@ -186,7 +229,8 @@ class IPodNoteTwoWay(IPodBase):
     
         #make a new note
         logw("CHECK IF EXISTS, COMPARE, SAVE")
-        return None
+        self._save_note_to_ipod(note.title, note)
+        return note.title
         
     def finish(self):
         self.notes = []

@@ -35,7 +35,6 @@ except Exception, err:
 title = Utils.random_string()
 mtime = datetime.datetime.today()
 n = Note.Note(
-            None,
             title=title,
             modified=mtime,
             contents="This is a test note \n* list\n*list"
@@ -51,7 +50,6 @@ except Exception, err:
 title = Utils.random_string()
 mtime = datetime.datetime.today()
 n = Note.Note(
-            None,
             title=title,
             modified=mtime,
             contents="Test Note\n* list\n* list"

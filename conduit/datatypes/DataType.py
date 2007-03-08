@@ -45,12 +45,6 @@ class DataType:
     def get_hash(self):
         return ""
 
-    def set_UID(self, UID):
-        """
-        Derived types MUST overwride this function
-        """
-        raise NotImplementedError
-
     def get_UID(self):
         """
         Derived types MUST overwride this function

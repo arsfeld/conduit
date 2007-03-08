@@ -1,9 +1,9 @@
 #!/bin/bash
 #define a whole heap of directories
-BASEDIR="test"
+BASEDIR=`pwd`"/test"
 LOGDIR="$BASEDIR/results"
 PY_TEST_DIR="$BASEDIR/python-tests"
-FILE_TEST_DIR="$PY_TEST_DIR/tests"
+TEST_DATA_DIR="$BASEDIR/test-data"
 
 #coverage  definitions
 COVERAGE_APP="scripts/coverage.py"
@@ -45,10 +45,11 @@ done
 
 #prepare output folders, etc
 rm -r $LOGDIR 2> /dev/null
-rm -r $FILE_TEST_DIR 2> /dev/null
+rm -r $TEST_DATA_DIR 2> /dev/null
 #Prepare some folders
 mkdir -p $LOGDIR
 mkdir -p $COVERAGE_RESULTS
+mkdir -p $TEST_DATA_DIR
 
 #Disable save on exit (the test sets are read only)
 gconftool-2 --type bool --set /apps/conduit/save_on_exit false
@@ -56,17 +57,17 @@ gconftool-2 --type bool --set /apps/conduit/save_on_exit false
 #prepare stuff for the folder and file tests
 if [ $do_prepare -ne 0 ] ; then
     echo "PREPARING"
-    mkdir -p $FILE_TEST_DIR/old
-    mkdir -p $FILE_TEST_DIR/new
-    echo "oldest" > $FILE_TEST_DIR/old/oldest
+    mkdir -p $TEST_DATA_DIR/old
+    mkdir -p $TEST_DATA_DIR/new
+    echo "oldest" > $TEST_DATA_DIR/old/oldest
     sleep 2
-    echo "older" > $FILE_TEST_DIR/old/older
+    echo "older" > $TEST_DATA_DIR/old/older
     sleep 2
-    echo "newer" > $FILE_TEST_DIR/new/newer
+    echo "newer" > $TEST_DATA_DIR/new/newer
     sleep 2
-    echo "newest" > $FILE_TEST_DIR/new/newest
+    echo "newest" > $TEST_DATA_DIR/new/newest
     #put them on a remote server (with same mtimes)
-    scp -rpq $FILE_TEST_DIR root@www.greenbirdsystems.com:/root/sync/
+    scp -rpq $TEST_DATA_DIR root@www.greenbirdsystems.com:/root/sync/
 fi
 
 #-------------------------------------------------------------------------------
@@ -96,6 +97,7 @@ do
     fi
 
     #run the test
+    TEST_DIRECTORY=$TEST_DATA_DIR \
     COVERAGE_FILE="$LOGDIR/.coverage" \
     CONDUIT_LOGFILE=$logfile \
     python $EXEC 2> /dev/null | \

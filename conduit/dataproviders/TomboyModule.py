@@ -86,12 +86,12 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
             mtime = None
 
         n = Note.Note(
-                    uid,
                     title=self.remoteTomboy.GetNoteTitle(uid),
                     mtime=mtime,
                     contents=self.remoteTomboy.GetNoteContents(uid),
                     raw=self.remoteTomboy.GetNoteContentsXml(uid)
                     )
+        n.set_open_URI(uid)
         return n
 
 

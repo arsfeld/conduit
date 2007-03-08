@@ -76,7 +76,6 @@ class NoteConverter:
 
     def text_to_note(self, text):
         n = Note.Note(
-                    None,
                     title="Note-"+Utils.random_string(),
                     contents=text
                     )

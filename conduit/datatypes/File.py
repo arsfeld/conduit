@@ -107,7 +107,6 @@ class File(DataType.DataType):
         """
         Changes the mtime of the file
         """
-
         #FIXME: Does this lose precision?
         #see http://mail.python.org/pipermail/python-list/2005-December/355679.html
         newInfo = gnomevfs.FileInfo()
@@ -134,6 +133,7 @@ class File(DataType.DataType):
             mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
         #FIXME: I should probbably do something with the result
+        logd("Transfering File %s -> %s" % (self._get_text_uri(), newURIString))
         result = gnomevfs.xfer_uri( self.URI, newURI,
                                     gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
                                     gnomevfs.XFER_ERROR_MODE_ABORT,

@@ -6,25 +6,27 @@ class Note(DataType.DataType):
     """
     Represents a Note
     """
-    def __init__(self, URI, **kwargs):
+    def __init__(self, **kwargs):
         """
         Note constructor.
-
-        kwargs understands a number of different keys:
+        Compulsory kwargs
           - title: The title of the note
+
+        Optional kwargs
           - contents: The raw note contents
           - modified: Unix timestamp modified time
           - raw: Raw note XML. This should probbably be removed and put into
           - a dedicated TomboyNote datatype at some point.
         """
         DataType.DataType.__init__(self,"note")
-
-        self.title = kwargs.get("title", "")
+        self.title = kwargs["title"]
         self.contents = kwargs.get("contents","")
         self.raw = kwargs.get("raw", "")
 
-        self.set_open_URI(URI)
         self.set_mtime(kwargs.get("mtime", None))
+
+    def get_UID(self):
+        return self.title
 
     def compare(self, B):
         """

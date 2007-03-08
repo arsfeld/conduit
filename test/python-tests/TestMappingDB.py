@@ -4,10 +4,7 @@ from common import *
 import conduit.DB as DB
 import conduit.Utils as Utils
 
-FILE="test-%s-.db" % Utils.random_string()
-
-if os.path.isfile(FILE):
-    os.remove(FILE)
+FILE=os.path.join(os.environ['TEST_DIRECTORY'], "test-%s.db" % Utils.random_string())
 
 m = DB.MappingDB(FILE)
 ok("Create mapping DB", m != None)
@@ -55,6 +52,5 @@ ok("Saved DB relationships restored", len(n._get_relationships("dp")) == 3)
 ok("Saved DB relationships restored", len(n._get_relationships("dp2")) == 2)
 
 n.debug()
-
 n.save()
-os.remove(FILE)
+
