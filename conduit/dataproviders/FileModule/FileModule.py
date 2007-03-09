@@ -230,13 +230,19 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         self.tree.signal_autoconnect(dic)
         self.mainWindow = mainWindow
         self.model = items
-        self.unmatchedURI = unmatchedURI
-
+        
         self._make_view()
 
-        #now connect to dialog response signal because we want to validate that
+        #Config the folderchoose button when we are used as a sink
+        self.folderChooserButton = self.tree.get_widget("filechooserbutton1")
+        self.folderChooserButton.set_current_folder_uri(unmatchedURI)
+
+        self.dlg = self.tree.get_widget("FileTwowayConfigDialog")
+        #connect to dialog response signal because we want to validate that
         #the user has named all the groups before we let them quit
         self.dlg.connect("response",self.on_response)
+        self.dlg.set_transient_for(self.mainWindow)
+        self.dlg.show_all()
 
         #Now go an background scan some folders to populate the UI estimates. Do 
         #in two steps otherwise the model gets updated via cb and breaks the iter
@@ -272,13 +278,6 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         column3 = gtk.TreeViewColumn("Items", containsNumRenderer)
         column3.set_cell_data_func(containsNumRenderer, self._item_contains_num_data_func)
         self.view.append_column(column3)
-
-        #Config the folderchoose button when we are used as a sink
-        self.folderChooserButton = self.tree.get_widget("filechooserbutton1")
-        self.folderChooserButton.set_current_folder_uri(self.unmatchedURI)
-
-        self.dlg = self.tree.get_widget("FileTwowayConfigDialog")
-        self.dlg.set_transient_for(self.mainWindow)
 
     def _item_icon_data_func(self, column, cell_renderer, tree_model, rowref):
         """
@@ -365,15 +364,13 @@ class _FileSourceConfigurator(_ScannerThreadManager):
 
     def show_dialog(self):
         response = self.dlg.run()
-        self.dlg.destroy()
         #We can actually go ahead and cancel all the threads. The items count
         #is only used as GUI bling and is recalculated in refresh() anyway
         self.cancel_all_threads()
-        if response == gtk.RESPONSE_OK:
-            self.unmatchedURI = self.folderChooserButton.get_uri()
-        else:
-            logw("Cancel Not Implemented")
-        
+        unmatchedURI = self.folderChooserButton.get_uri()
+
+        self.dlg.destroy()
+        return response, unmatchedURI
         
     def on_addfile_clicked(self, *args):
         dialog = gtk.FileChooserDialog( _("Include file ..."),  
@@ -475,7 +472,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         self.db = None
         self._create_empty_db()
         #When acting as a sink, place all unmatched items in here
-        self.unmatchedURI = "file://"+os.path.expanduser("~")
+        self.unmatchedURI = os.path.expanduser("~")
 
     def _create_empty_db(self):
         self.db = DB.SimpleDb("uris")
@@ -495,7 +492,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
     def configure(self, window):
         f = _FileSourceConfigurator(window, self.items, self.unmatchedURI)
-        f.show_dialog()
+        response, unmatchedURI = f.show_dialog()
+
+        if response == gtk.RESPONSE_OK:
+            logd("Unmatched Folder URI: %s" % unmatchedURI)
+            self.unmatchedURI = unmatchedURI
        
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
