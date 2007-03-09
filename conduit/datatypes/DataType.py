@@ -24,6 +24,7 @@ class DataType:
 
         self._original_URI = None
         self._mtime = None
+        self._UID = None
 
     def compare(self, B):
         """
@@ -47,14 +48,21 @@ class DataType:
 
     def get_UID(self):
         """
-        Derived types MUST overwride this function
+        Returns the UID of the datatype
         """
-        raise NotImplementedError
+        return self._UID
+
+    def set_UID(self, UID):
+        """
+        Sets the UID of the datatype
+        @type UID: C{string}
+        """
+        self._UID = UID
 
     def set_mtime(self, mtime):
         """
         Sets the modification time of the datatype.
-        @type: C{datetime.datetime}
+        @type mtime: C{datetime.datetime}
         """
         self._mtime = mtime
 

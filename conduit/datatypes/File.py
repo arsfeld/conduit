@@ -20,6 +20,7 @@ class File(DataType.DataType):
 
         self.URI = gnomevfs.URI(URI)
         self.set_open_URI(URI)
+        self.set_UID(URI)
 
     def _open_file(self):
         """
@@ -28,7 +29,8 @@ class File(DataType.DataType):
         Only tries to do this once for performance reasons
         """
         if self.triedOpen == False:
-            #Otherwise try and get the file info
+            self.set_open_URI(self._get_text_uri())
+            self.set_UID(self._get_text_uri())
             try:
                 self.vfsFile = gnomevfs.Handle(self.URI)
                 self.fileExists = True
@@ -164,6 +166,15 @@ class File(DataType.DataType):
             return datetime.datetime.fromtimestamp(self.fileInfo.mtime)
         except:
             return None
+
+    def set_mtime(self, mtime):
+        """
+        Sets the modification time of the file
+        """
+        try:
+            self.force_new_mtime(mtime)
+        except:
+            logw("Error setting mtime of %s to %s" % (self.URI, mtime))
     
     def get_size(self):
         """
@@ -207,7 +218,7 @@ class File(DataType.DataType):
             return u
         else: 
             #Get a temporary file name
-            tempname = tempfile.mkstemp()[1]
+            tempname = tempfile.mkstemp(prefix="conduit")[1]
             toURI = gnomevfs.URI(tempname)
             #Xfer to the temp file. 
             gnomevfs.xfer_uri( self.URI, toURI,
@@ -275,13 +286,6 @@ class File(DataType.DataType):
             logw("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
 
-    def get_UID(self):
-        """
-        For a file the URI is a correct representation of the UID
-        """
-        return self._get_text_uri()
-
-        
 def TaggedFile(File):
     """
     A simple class to allow tags to be applied to files for those

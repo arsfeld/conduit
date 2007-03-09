@@ -49,25 +49,6 @@ def get_filename(path):
     """
     return path.split(os.sep)[-1]
 
-def do_gnomevfs_transfer(sourceURI, destURI, overwrite=False):
-    """
-    Xfers a file from fromURI to destURI. Overwrites if commanded.
-
-    @type sourceURI: L{gnomevfs.URI}
-    @type destURI: L{gnomevfs.URI}
-    """
-    logd("Transfering file from %s -> %s (Overwrite: %s)" % (sourceURI, destURI, overwrite))
-    if overwrite:
-        mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
-    else:
-        mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
-        
-    #FIXME: I should probbably do something with the result returned
-    result = gnomevfs.xfer_uri( sourceURI, destURI,
-                                gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                                gnomevfs.XFER_ERROR_MODE_ABORT,
-                                mode)
-
 def new_tempfile(contents, contentsAreText=True):
     """
     Returns a new File onject, which has been created in the 
@@ -82,6 +63,9 @@ def new_tempfile(contents, contentsAreText=True):
     @param contentsAreText: C{bool}
     @returns: a L{conduit.datatypes.File}
     """
+    #FIXME: Create in a temp directory because the file might be renamed.
+    #this is disgusting! and a way needs to be decided to pass information
+    #to the convert process so as conversions can be lumped together
     fd, name = tempfile.mkstemp(text=contentsAreText)
     os.write(fd, contents)
     os.close(fd)
@@ -163,10 +147,12 @@ def retain_info_in_conversion(fromdata, todata):
     Properties retained include;
       - gnome-open'able URI
       - modification time
+      - original UID
     Call this function from a typeconverter
     """
     todata.set_open_URI(fromdata.get_open_URI())
     todata.set_mtime(fromdata.get_mtime())
+    todata.set_UID(fromdata.get_UID())
     return todata
 
 def get_user_string():

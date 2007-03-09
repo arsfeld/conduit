@@ -24,9 +24,7 @@ class Note(DataType.DataType):
         self.raw = kwargs.get("raw", "")
 
         self.set_mtime(kwargs.get("mtime", None))
-
-    def get_UID(self):
-        return self.title
+        self.set_UID(self.title)
 
     def compare(self, B):
         """

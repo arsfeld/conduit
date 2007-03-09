@@ -14,6 +14,8 @@ class Text(DataType.DataType):
         
         self.text = kwargs.get("text","")
 
+        self.set_UID(md5.new(self.text).hexdigest())
+
     def get_string(self):
         return self.text    
 
@@ -24,5 +26,3 @@ class Text(DataType.DataType):
         else:
             return self.text
 
-    def get_UID(self):
-        return md5.new(self.text).hexdigest()

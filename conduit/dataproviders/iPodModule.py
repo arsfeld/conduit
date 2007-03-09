@@ -49,7 +49,7 @@ def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
         uri = str(os.path.join(uri, prefix + postfix))
 
     temp = Utils.new_tempfile(txt)
-    Utils.do_gnomevfs_transfer(temp.URI, gnomevfs.URI(uri), True)
+    temp.transfer(uri, True)
     return uri
 
 class iPodFactory(Module.DataProviderFactory):

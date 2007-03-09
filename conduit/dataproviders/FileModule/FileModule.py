@@ -40,13 +40,9 @@ CONTAINS_ITEMS_IDX = 5          #(folder only) All the items contained within th
 CONFIG_FILE_NAME = ".conduit.conf"
 
 def _save_config_file_for_dir(uri, groupName):
-    temp = Utils.new_tempfile(groupName)
+    tempFile = Utils.new_tempfile(groupName)
     config = os.path.join(uri,CONFIG_FILE_NAME)
-    Utils.do_gnomevfs_transfer(
-                        temp.URI, 
-                        gnomevfs.URI(config), 
-                        True
-                        )
+    tempFile.transfer(config, True)
 
 def _get_config_file_for_dir(uri):
     try:
@@ -570,11 +566,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         comp = vfsFile.compare(destFile)
         #FIXME: We should probbably raise on MISSING also
         if overwrite or comp == DataType.COMPARISON_NEWER or comp == DataType.COMPARISON_MISSING:
-            Utils.do_gnomevfs_transfer(
-                                vfsFile.URI, 
-                                destFile.URI, 
-                                True
-                                )
+            vfsFile.transfer(newURI, True)
+
         return newURI
                 
     def get(self, index):
