@@ -30,9 +30,14 @@ class TestDataType(DataType.DataType):
     def __init__(self, integerData):
         DataType.DataType.__init__(self,"text")
         self.UID = integerData
+
+        self.set_open_URI("file:///home/")
         
     def __str__(self):
         return "testData %s" % self.UID
+
+    def get_snippet(self):
+        return str(self)
     
     #The strings are numerically compared. If A < B then it is older
     #If A is larger than B then it is newer.

@@ -11,6 +11,7 @@ import gtk, gtk.gdk
 
 import conduit
 from conduit import log,logd,logw
+import conduit.Utils as Utils
 
 #ENUM represeting the images drawn by ArrowCellRenderer
 RIGHT_ARROW = 0
@@ -53,7 +54,6 @@ class ConflictResolver:
         self.numConflicts = 0
 
         self.view = gtk.TreeView( self.model )
-        self.view.set_property("enable-search", False)
         self._build_view()
 
         #Connect up the GUI
@@ -76,7 +76,11 @@ class ConflictResolver:
         self.standalone.connect("delete-event", self.on_standalone_closed)
         #the button callbacks are shared
         widgets.get_widget("conflictCancelButton").connect("clicked", self.on_cancel_conflicts)
-        
+        widgets.get_widget("conflictResolveButton").connect("clicked", self.on_resolve_conflicts)
+        #the state of the compare button is managed by the selection changed callback
+        self.compareButton = widgets.get_widget("conflictCompareButton")
+        self.compareButton.connect("clicked", self.on_compare_conflicts)
+        self.compareButton.set_sensitive(False)
 
     def _build_view(self):
         #Visible column0 is 
@@ -117,6 +121,10 @@ class ConflictResolver:
 
         for c in [column0,column1,column2]:
             self.view.append_column( c )
+
+        #set view properties
+        self.view.set_property("enable-search", False)
+        self.view.get_selection().connect("changed", self.on_selection_changed)
 
     def _name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
         """
@@ -202,9 +210,9 @@ class ConflictResolver:
         self.on_fullscreen_toggled(sender)
         return True
 
-    #Connect to OK button
+    #Connect to resolve button
     def on_resolve_conflicts(self, sender):
-        pass
+        print "conflict"
     
     #Connect to cancel button
     def on_cancel_conflicts(self, sender):
@@ -212,7 +220,32 @@ class ConflictResolver:
         self.partnerships = {}
         self.numConflicts = 0
         self._set_conflict_titles()
-        pass
+
+    #Connect to cancel button
+    def on_compare_conflicts(self, sender):
+        model, rowref = self.view.get_selection().get_selected()
+        sourceURI = model.get_value(rowref, SOURCE_DATA_IDX).get_open_URI()
+        sinkURI = model.get_value(rowref, SINK_DATA_IDX).get_open_URI()
+        Utils.open_URI(sourceURI)
+        Utils.open_URI(sinkURI)
+
+    #selection related callbacks
+    def on_selection_changed(self, treeSelection):
+        """
+        Makes the compare button active only if an open_URI for the data
+        has been set and its not a header row.
+        FIXME: In future could convert to text to allow user to compare that way
+        """
+        model, rowref = treeSelection.get_selected()
+        sourceData = model.get_value(rowref, SOURCE_DATA_IDX)
+        sinkData = model.get_value(rowref, SINK_DATA_IDX)
+        if model.iter_depth(rowref) == 0:
+            self.compareButton.set_sensitive(False)
+        #both must have an open_URI set to work
+        elif sourceData.get_open_URI() != None and sinkData.get_open_URI() != None:
+            self.compareButton.set_sensitive(True)
+        else:
+            self.compareButton.set_sensitive(False)
 
 class ConflictCellRenderer(gtk.GenericCellRenderer):
 

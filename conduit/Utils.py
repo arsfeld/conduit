@@ -178,5 +178,18 @@ def get_user_string():
     username = os.environ.get("USER","")
     return "%s@%s" % (username, hostname)
 
+def open_URI(uri):
+    """
+    Opens a gnomevfs or xdg compatible uri.
+    FIXME: Use xdg-open?
+    """
+    if uri == None:
+        logw("Cannot open non-existant URI")
+
+    APP = "gnome-open"
+    os.spawnlp(os.P_NOWAIT, APP, APP, uri)
+
+    
+
 
 
