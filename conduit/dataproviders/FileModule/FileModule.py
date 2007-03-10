@@ -547,18 +547,18 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             #came from another type of dataprovider such as tomboy
             #where relative path makes no sense. Could also come from
             #the File dp when the user has selected a single file
-            print "NO BASEPATH. GOING TO EMPTY DIR"
+            logd("NO BASEPATH. GOING TO EMPTY DIR")
             newURI = self.unmatchedURI+"/"+vfsFile.get_filename()
         else:
             pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
             if len(self.db._group[vfsFile.group]) != 0:
-                print "FOUND CORRESPONDING GROUP"
+                logd("FOUND CORRESPONDING GROUP")
                 #defined group containing some files
                 destPath = self.db._group[vfsFile.group][0]['basepath']
                 newURI = destPath+pathFromBase
             else:
-                print "GOING TO ORPHAN DIR"
+                logd("GOING TO ORPHAN DIR")
                 #unknown. Store in orphan dir
                 newURI = os.path.join(self.unmatchedURI, pathFromBase)
 

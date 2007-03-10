@@ -7,14 +7,14 @@ import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Text as Text
 import conduit.datatypes.Email as Email
+import conduit.datatypes.File as File
 
 MODULES = {
         "EmailConverter" :      { "type": "converter" },
         "NoteConverter" :       { "type": "converter" },
         "ContactConverter" :    { "type": "converter" },
         "EventConverter" :      { "type": "converter" },
-        "FileConverter" :       { "type": "converter" },
-        "TaggedFileConverter" : { "type": "converter" }
+        "FileConverter" :       { "type": "converter" }
 }
 
 class EmailConverter:
@@ -88,7 +88,7 @@ class NoteConverter:
         return Utils.retain_info_in_conversion(note, t)
 
     def note_to_file(self, note):
-        f = Utils.new_tempfile(note.contents)
+        f = File.TempFile(note.contents)
         f.force_new_filename(note.title)
         return Utils.retain_info_in_conversion(note, f)
 
@@ -190,17 +190,3 @@ class FileConverter:
                     theFile._get_text_uri()
                     )
        
-
-class TaggedFileConverter:
-    def __init__(self):
-        self.conversions =  {    
-                            "taggedfile,file" : self.taggedfile_to_file,
-                            "file,taggedfile" : self.file_to_taggedfile
-                            }            
-    def taggedfile_to_file(self, thefile):
-        return thefile
-
-    def file_to_taggedfile(self, thefile):
-        #FIXME: implent this
-        return thefile
-

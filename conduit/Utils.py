@@ -17,7 +17,7 @@ import gnomevfs
 import socket
 
 from conduit import log,logd,logw
-from conduit.datatypes import File
+import conduit.datatypes.File as File
 
 #Filename Manipulation
 def get_protocol(uri):
@@ -63,14 +63,7 @@ def new_tempfile(contents, contentsAreText=True):
     @param contentsAreText: C{bool}
     @returns: a L{conduit.datatypes.File}
     """
-    #FIXME: Create in a temp directory because the file might be renamed.
-    #this is disgusting! and a way needs to be decided to pass information
-    #to the convert process so as conversions can be lumped together
-    fd, name = tempfile.mkstemp(text=contentsAreText)
-    os.write(fd, contents)
-    os.close(fd)
-    vfsFile = File.File(name)
-    return vfsFile
+    return File.TempFile(contents)
 
 def flatten_list(x):
     """flatten(sequence) -> list

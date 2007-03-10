@@ -5,6 +5,7 @@ import conduit
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
+import os
 import time
 import datetime
 import gnomevfs

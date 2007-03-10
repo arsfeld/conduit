@@ -135,7 +135,7 @@ class File(DataType.DataType):
             mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
         #FIXME: I should probbably do something with the result
-        logd("Transfering File %s -> %s" % (self._get_text_uri(), newURIString))
+        logd("Transfering File %s -> %s" % (self.URI, newURI))
         result = gnomevfs.xfer_uri( self.URI, newURI,
                                     gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
                                     gnomevfs.XFER_ERROR_MODE_ABORT,
@@ -216,7 +216,7 @@ class File(DataType.DataType):
             #Backup approach...
             #u = self.URI[len("file://"):]
             return u
-        else: 
+        else:
             #Get a temporary file name
             tempname = tempfile.mkstemp(prefix="conduit")[1]
             toURI = gnomevfs.URI(tempname)
@@ -286,25 +286,48 @@ class File(DataType.DataType):
             logw("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
 
-def TaggedFile(File):
+class TempFile(File):
     """
-    A simple class to allow tags to be applied to files for those
-    dataproviders that need this information (e.g. f-spot)
+    A Small extension to a File. This allows new filenames (force_new_filename)
+    to be processed in the transfer method, and not immediately, which may
+    cause name conflicts in the temp directory. 
+
+    USE VERY CAREFULLY
     """
-    def __init__(self, URI, **kwargs):
-        File.__init__(self, URI, **kwargs)
-        DataType.DataType.__init__(self,"taggedfile")
-        self.tags = []
+    def __init__(self, contents):
+        #create the file containing contents
+        fd, name = tempfile.mkstemp(prefix="conduit")
+        os.write(fd, contents)
+        os.close(fd)
     
-    def set_tags(self, tags):
-        self.tags = tags
+        self._newFilename = None
 
-    def get_tags(self):
-        return self.tags
-        
-    def get_tag_string(self):
-        return ",".join(self.tags)
+        File.__init__(self, name)
 
-    def add_tag(self, tag):
-        if tag not in self.tags:
-            self.tags.append(tag)
+        logd("New tempfile created at %s" % name)
+            
+    def force_new_filename(self, filename):
+        self._newFilename = filename
+
+    def get_filename(self):
+        if self._newFilename == None:
+            return File.get_filename(self)
+        else:
+            return self._newFilename
+
+    def transfer(self, newURIString, overwrite=False):
+        if self._newFilename == None:
+            File.transfer(self, newURIString, overwrite)
+        else:
+            URI = gnomevfs.URI(newURIString)
+            #if it exists and its a directory then transfer into that dir
+            #with the new filename
+            if gnomevfs.exists(URI):
+                info = gnomevfs.get_file_info(URI, gnomevfs.FILE_INFO_DEFAULT)
+                if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
+                    #append the new filename
+                    URI = URI.append_file_name(self._newFilename)
+
+            logd("TempFile transferred to %s. filename %s" % (URI, self._newFilename))
+            File.transfer(self, str(URI), overwrite)
+           
