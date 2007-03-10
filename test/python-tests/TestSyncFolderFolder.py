@@ -8,6 +8,8 @@ import conduit.Conduit as Conduit
 import conduit.TypeConverter as TypeConverter
 import conduit.Synchronization as Synchronization
 
+from conduit.datatypes import COMPARISON_EQUAL
+
 #Dynamically load all datasources, datasinks and converters
 dirs_to_search =    [
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
@@ -51,7 +53,7 @@ for i in range(0, NUM_FILES):
     else:
         dest = sinkDir
     f.transfer(dest, True)
-    FILES.append((dest,name,contents))
+    FILES.append((name,contents))
 
 #create the special files that signify the folders should be synced together
 for i in (sourceDir, sinkDir):
@@ -87,5 +89,14 @@ conduit.add_dataprovider_to_conduit(sinkW)
 
 conduit.enable_two_way_sync()
 sync_manager.sync_conduit(conduit)
+
+#now wait for sync to finish (block)
+sync_manager.join_all()
+
+for name,contents in FILES:
+    f1 = File.File(os.path.join(sourceDir, name))
+    f2 = File.File(os.path.join(sinkDir, name))
+    comp = f1.compare(f2)
+    ok("checking source/%s == sink/%s" % (name, name),comp == COMPARISON_EQUAL)
 
 
