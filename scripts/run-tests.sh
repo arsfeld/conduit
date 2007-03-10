@@ -15,7 +15,8 @@ Usage:\n\
 Options:\n\
     -c      Code coverage analysis\n\
     -u      Upload results\n\
-    -p      Prepare some files on remote servers\n\n\
+    -p      Prepare some files on remote servers\n\
+    -s NAME Perform only the test called NAME\n\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
 login information in the relevant dataproviders\n\
@@ -30,12 +31,14 @@ fi
 do_coverage=0
 do_upload=0
 do_prepare=0
-while getopts "cup" options
+do_single_test=""
+while getopts "cups:" options
 do
     case $options in
         c )     do_coverage=1;;
         u )     do_upload=1;;
         p )     do_prepare=1;;
+        s )     do_single_test=$OPTARG;;
         \? )    echo -e $USAGE
                 exit 1;;
         * )     echo -e $USAGE
@@ -81,30 +84,32 @@ echo $HEADER > $indexfile
 for t in `ls $PY_TEST_DIR/Test*.py`
 do
     fname=`basename $t`
-    echo "RUNNING UNIT TEST: $fname"
+    if [ $do_single_test == "" -o $fname == $do_single_test ] ; then
+        echo "RUNNING UNIT TEST: $fname"
 
-    #html
-    echo "<p><h1>RUNNING UNIT TEST: <a href=$fname.txt>$fname</a></h1><pre>" >> $indexfile
+        #html
+        echo "<p><h1>RUNNING UNIT TEST: <a href=$fname.txt>$fname</a></h1><pre>" >> $indexfile
 
-    #conduit debug output goes to individual log files
-    logfile=$LOGDIR/$fname.txt
+        #conduit debug output goes to individual log files
+        logfile=$LOGDIR/$fname.txt
 
-    #code coverage analysis?
-    if [ $do_coverage -ne 0 ] ; then
-        EXEC="$COVERAGE_APP -x $t"
-    else
-        EXEC="$t"
+        #code coverage analysis?
+        if [ $do_coverage -ne 0 ] ; then
+            EXEC="$COVERAGE_APP -x $t"
+        else
+            EXEC="$t"
+        fi
+
+        #run the test
+        TEST_DIRECTORY=$TEST_DATA_DIR \
+        COVERAGE_FILE="$LOGDIR/.coverage" \
+        CONDUIT_LOGFILE=$logfile \
+        python $EXEC 2> /dev/null | \
+        tee --append $indexfile
+
+        #html
+        echo "</pre></p>" >> $indexfile
     fi
-
-    #run the test
-    TEST_DIRECTORY=$TEST_DATA_DIR \
-    COVERAGE_FILE="$LOGDIR/.coverage" \
-    CONDUIT_LOGFILE=$logfile \
-    python $EXEC 2> /dev/null | \
-    tee --append $indexfile
-
-    #html
-    echo "</pre></p>" >> $indexfile
 done
 
 #include code coverage results in output

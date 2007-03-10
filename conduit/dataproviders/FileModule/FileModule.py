@@ -41,8 +41,8 @@ CONFIG_FILE_NAME = ".conduit.conf"
 
 def _save_config_file_for_dir(uri, groupName):
     tempFile = Utils.new_tempfile(groupName)
-    config = os.path.join(uri,CONFIG_FILE_NAME)
-    tempFile.transfer(config, True)
+    tempFile.force_new_filename(CONFIG_FILE_NAME)
+    tempFile.transfer(uri, True)
 
 def _get_config_file_for_dir(uri):
     try:
@@ -602,7 +602,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
             for f in folders:
                 if Utils.get_protocol(f) != "":
                     self.items.append((f,TYPE_FOLDER,0,False,"",[]))
-        except: pass
+        except: 
+            logw("Error restoring FileTwoWay configuration")
 
     def get_configuration(self):
         files = []
