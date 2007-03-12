@@ -6,7 +6,8 @@ import conduit.Utils as Utils
 
 FILE=os.path.join(os.environ['TEST_DIRECTORY'], "test-%s.db" % Utils.random_string())
 
-m = DB.MappingDB(FILE)
+m = DB.MappingDB()
+m.open_db(FILE)
 ok("Create mapping DB", m != None)
 
 #save some relationships
@@ -46,7 +47,8 @@ ok("Different dataproviders data1 --> data2 for dp2", m.get_matching_uid("dp2","
 
 #save db to file and restore
 m.save()
-n = DB.MappingDB(FILE)
+n = DB.MappingDB()
+n.open_db(FILE)
 ok("Saved DB loaded", n != None)
 ok("Saved DB relationships restored", len(n._get_relationships("dp")) == 3)
 ok("Saved DB relationships restored", len(n._get_relationships("dp2")) == 2)

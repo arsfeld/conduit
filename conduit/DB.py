@@ -19,16 +19,8 @@ class MappingDB:
     will make it easier to swap out database layers at a later date. 
     @todo: Add thread locks around all DB calls
     """
-    def __init__(self, filename=None):
-        if filename:
-            f = os.path.abspath(filename)
-        else:
-            f = os.path.join(conduit.USER_DIR, "mapping.db")
-        #f = "bar"
-        self._db = SimpleDb(f)
-        self._db.create("dpw","LUIDA", "LUIDB", mode="open")
-        #We access the DB via all fields so all need indices
-        self._db.create_index(*self._db.fields)
+    def __init__(self):
+        self._db = None
 
     def _get_relationships(self, dpwUID):
         """
@@ -39,6 +31,15 @@ class MappingDB:
             maps[i["LUIDA"]] = [i["LUIDB"]]
         #logd("Found %s relationships for %s" % (len(maps), dpwUID))
         return maps
+
+    def open_db(self, filename):
+        """
+        Opens the mapping DB at the location @ filename
+        """
+        self._db = SimpleDb(os.path.abspath(filename))
+        self._db.create("dpw","LUIDA", "LUIDB", mode="open")
+        #We access the DB via all fields so all need indices
+        self._db.create_index(*self._db.fields)
 
     def save_relationship(self, dpwUID, LUIDA, LUIDB):
         """

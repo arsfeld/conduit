@@ -9,6 +9,7 @@ import traceback
 import threading
 import gobject
 
+import conduit
 from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -30,7 +31,9 @@ class SyncManager:
         """
         self.syncWorkers = {}
         self.typeConverter = typeConverter
-        self.mappingDB = DB.MappingDB()
+
+        #The mapping DB is shared conduit wide
+        self.mappingDB = conduit.mappingDB
 
         #Callback functions that syncworkers call. Saves having to make this
         #inherit from gobject and re-pass all the signals

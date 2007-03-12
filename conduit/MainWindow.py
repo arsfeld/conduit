@@ -693,10 +693,13 @@ def conduit_main():
     else:
         statusIcon = None
 
+    #Set up the application wide defaults
+    conduit.settings.set_settings_file(settingsFile)
+    conduit.mappingDB.open_db(os.path.join(conduit.USER_DIR, "mapping.db"))
+
     #Set the view models
     #gtkView...
     if useGUI:
-        conduit.settings.set_settings_file(settingsFile)
         gtkView.set_model(model)
         gtkView.canvas.add_welcome_message()
         gtkView.restore_settings()

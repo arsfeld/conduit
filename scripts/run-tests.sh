@@ -31,7 +31,7 @@ fi
 do_coverage=0
 do_upload=0
 do_prepare=0
-do_single_test=""
+do_single_test="x"
 while getopts "cups:" options
 do
     case $options in
@@ -84,7 +84,7 @@ echo $HEADER > $indexfile
 for t in `ls $PY_TEST_DIR/Test*.py`
 do
     fname=`basename $t`
-    if [ $do_single_test == "" -o $fname == $do_single_test ] ; then
+    if [ $do_single_test == "x" -o $fname == $do_single_test ] ; then
         echo "RUNNING UNIT TEST: $fname"
 
         #html

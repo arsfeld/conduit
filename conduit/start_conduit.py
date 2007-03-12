@@ -19,17 +19,12 @@ License: GPLv2
 import sys
 import os, os.path
 
-# Check if the given path looks like the conduit parent path
-# Add the parent dir of conduit to the python path if so
-name = os.path.join(os.path.dirname(__file__), '..')
-if os.path.exists(name) and os.path.isdir(name) and os.path.isfile(os.path.join(name,"ChangeLog")):
-    sys.path.insert(0, os.path.abspath(name))
+# Look for ChangeLog to see if we are installed
+directory = os.path.join(os.path.dirname(__file__), '..')
+changelog = os.path.join(directory,"ChangeLog")
+if os.path.exists(changelog):
+    sys.path.insert(0, os.path.abspath(directory))
     import conduit
-    conduit.IS_INSTALLED =          False
-    conduit.SHARED_DATA_DIR =       os.path.join(os.path.abspath(name),"data")
-    conduit.GLADE_FILE =            os.path.join(os.path.abspath(name),"data","conduit.glade")
-    conduit.SHARED_MODULE_DIR =     os.path.join(os.path.abspath(name),"conduit")
-    conduit.EXTRA_LIB_DIR =         os.path.join(os.path.abspath(name),"contrib")
 else:
     #Support alternate install paths   
     if not '@PYTHONDIR@' in sys.path:
@@ -46,6 +41,6 @@ conduit.log("Conduit Installed: %s" % conduit.IS_INSTALLED)
 conduit.log("Log Level: %s" % conduit.LOG_LEVEL)
 
 # Start the application
-from conduit.MainWindow import conduit_main
-conduit_main()
+import conduit.MainWindow
+conduit.MainWindow.conduit_main()
  

@@ -10,6 +10,10 @@ import conduit.Synchronization as Synchronization
 
 from conduit.datatypes import COMPARISON_EQUAL
 
+#Set up our own mapping DB so we dont pollute the global one
+tempdb = os.path.join
+conduit.mappingDB.open_db(os.path.join(os.environ['TEST_DIRECTORY'],Utils.random_string()+".db"))
+
 #Dynamically load all datasources, datasinks and converters
 dirs_to_search =    [
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),

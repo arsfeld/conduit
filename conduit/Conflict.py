@@ -4,12 +4,16 @@ Holds classes used for resolving conflicts.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
+import traceback
+import threading
+import time
+import random
 import os.path
 import gobject
 import gtk, gtk.gdk
 
 import conduit
+import conduit.DataProvider as DataProvider
 from conduit import log,logd,logw
 import conduit.Utils as Utils
 
@@ -52,6 +56,9 @@ class ConflictResolver:
         #In the conflict treeview, group by sink <-> source partnership 
         self.partnerships = {}
         self.numConflicts = 0
+
+        #resolve conflicts in a background thread
+        self.resolveThreadManager = FooThreadManager(3)
 
         self.view = gtk.TreeView( self.model )
         self._build_view()
@@ -210,10 +217,48 @@ class ConflictResolver:
         self.on_fullscreen_toggled(sender)
         return True
 
+    def _conflict_resolved(self, resolvethread, path):
+        rowref = self.model.get_iter(path)
+        self.model.remove(rowref)
+
+        #now look for any sync partnerships with no children
+        empty = False
+        for source,sink in self.partnerships:
+            rowref = self.partnerships[(source,sink)]
+            numChildren = self.model.iter_n_children(rowref)
+            if numChildren == 0:
+                empty = True
+
+        #do in two loops so as to not change the dict while iterating
+        if empty:
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+            del(self.partnerships[(source,sink)])
+            self.model.remove(rowref)
+        else:
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+    
     #Connect to resolve button
     def on_resolve_conflicts(self, sender):
-        print "conflict"
-    
+        def _resolve_func(model, path, rowref):
+            if model[path][DIRECTION_IDX] == CONFLICT_SKIP:
+                logd("Not resolving")
+                return
+            elif model[path][DIRECTION_IDX] == CONFLICT_COPY_SOURCE_TO_SINK:
+                logd("Resolving source data --> sink")
+                data = model[path][SOURCE_DATA_IDX]
+                sink = model[path][SINK_IDX]
+            else:
+                logd("Resolving source <-- sink data")
+                data = model[path][SINK_DATA_IDX]
+                sink = model[path][SOURCE_IDX]
+
+            #add to resolve thread
+            #FIXME: Think of a way to make rowrefs persist through signals so I
+            #dont have to use paths, which is broken
+            self.resolveThreadManager.make_thread(self._conflict_resolved,path,data,sink)
+
+        self.model.foreach(_resolve_func)
+
     #Connect to cancel button
     def on_cancel_conflicts(self, sender):
         self.model.clear()
@@ -237,15 +282,19 @@ class ConflictResolver:
         FIXME: In future could convert to text to allow user to compare that way
         """
         model, rowref = treeSelection.get_selected()
-        sourceData = model.get_value(rowref, SOURCE_DATA_IDX)
-        sinkData = model.get_value(rowref, SINK_DATA_IDX)
-        if model.iter_depth(rowref) == 0:
+        #when the rowref under the selected row is removed by resolve thread
+        if rowref == None:
             self.compareButton.set_sensitive(False)
-        #both must have an open_URI set to work
-        elif sourceData.get_open_URI() != None and sinkData.get_open_URI() != None:
-            self.compareButton.set_sensitive(True)
         else:
-            self.compareButton.set_sensitive(False)
+            sourceData = model.get_value(rowref, SOURCE_DATA_IDX)
+            sinkData = model.get_value(rowref, SINK_DATA_IDX)
+            if model.iter_depth(rowref) == 0:
+                self.compareButton.set_sensitive(False)
+            #both must have an open_URI set to work
+            elif sourceData.get_open_URI() != None and sinkData.get_open_URI() != None:
+                self.compareButton.set_sensitive(True)
+            else:
+                self.compareButton.set_sensitive(False)
 
 class ConflictCellRenderer(gtk.GenericCellRenderer):
 
@@ -299,4 +348,118 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
         return True
 
+class _FooThread(threading.Thread, gobject.GObject):
+    """
+    Resolves a conflict by putting the data into sink
+    """
+    __gsignals__ =  { 
+                    "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    }
 
+    def __init__(self, *args):
+        """
+        Args
+         - arg[0]: data
+         - arg[1]: sink
+        """
+        threading.Thread.__init__(self)
+        gobject.GObject.__init__(self)
+        
+        self.data = args[0]
+        self.sink = args[1]
+
+        self.setName("ResolveThread for sink: %s" % self.sink)
+
+    def run(self):
+        try:
+            logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
+            matchingUID = conduit.mappingDB.get_matching_uid(
+                                self.sink.get_UID(), 
+                                self.data.get_UID()
+                                )
+            LUID = self.sink.module.put(self.data, True, matchingUID)
+            #Now store the mapping of the original URI to the new one
+            conduit.mappingDB.save_relationship(
+                                self.sink.get_UID(), 
+                                self.data.get_UID(),
+                                LUID
+                                )
+            #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+        except Exception, err:                        
+            logw("Could not resolve conflict\n%s" % traceback.format_exc())
+            #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+
+        gobject.idle_add(self.emit, "scan-completed")
+
+class FooThreadManager:
+    """
+    Manages many resolve threads. This involves joining and cancelling
+    said threads, and respecting a maximum num of concurrent threads limit
+    """
+    def __init__(self, maxConcurrentThreads):
+        self.maxConcurrentThreads = maxConcurrentThreads
+        #stores all threads, running or stopped
+        self.fooThreads = {}
+        #the pending thread args are used as an index for the stopped threads
+        self.pendingFooThreadArgs = []
+
+    def _register_thread_completed(self, thread, *args):
+        """
+        Decrements the count of concurrent threads and starts any 
+        pending threads if there is space
+        """
+        del(self.fooThreads[args])
+        running = len(self.fooThreads) - len(self.pendingFooThreadArgs)
+
+        print "%s completed. %s running, %s pending" % (
+                            thread, running, len(self.pendingFooThreadArgs))
+
+        if running < self.maxConcurrentThreads:
+            try:
+                args = self.pendingFooThreadArgs.pop()
+                print "Starting pending %s" % self.fooThreads[args]
+                self.fooThreads[args].start()
+            except IndexError: pass
+
+    def make_thread(self, completedCb, completedCbUserData,  *args):
+        """
+        Makes a thread with args. The thread will be started when there is
+        a free slot
+        """
+        running = len(self.fooThreads) - len(self.pendingFooThreadArgs)
+
+        if args not in self.fooThreads:
+            thread = _FooThread(*args)
+            #signals run in the order connected. Connect the user one first 
+            #incase they wish to do something before we delete the thread
+            thread.connect("scan-completed", completedCb, completedCbUserData)
+            thread.connect("scan-completed", self._register_thread_completed, *args)
+            #This is why we use args, not kwargs, because args are hashable
+            self.fooThreads[args] = thread
+
+            if running < self.maxConcurrentThreads:
+                print "Starting %s" % thread
+                self.fooThreads[args].start()
+            else:
+                print "Queing %s" % thread
+                self.pendingFooThreadArgs.append(args)
+        else:
+            logd("Already resolving conflict")
+
+    def join_all_threads(self):
+        """
+        Joins all threads (blocks)
+
+        Unfortunately we join all the threads do it in a loop to account
+        for join() a non started thread failing. To compensate I time.sleep()
+        to not smoke CPU
+        """
+        joinedThreads = 0
+        while(joinedThreads < len(self.fooThreads)):
+            for thread in self.fooThreads.values():
+                try:
+                    thread.join()
+                    joinedThreads += 1
+                except AssertionError: 
+                    #deal with not started threads
+                    time.sleep(1)

@@ -26,9 +26,6 @@ import os
 import gobject
 gobject.threads_init()
 
-APPNAME="Conduit"
-APPVERSION="0.3.0"
-
 # Check the profile directory to prevent crashes when saving settings, etc
 USER_DIR = os.path.join(os.environ['HOME'],".conduit")
 if not os.path.exists(USER_DIR):
@@ -112,7 +109,22 @@ def memstats(prev=(0.0,0.0,0.0)):
                                     ))
     return VmSize,VmRSS,VmStack 
 
-#Globale settings object to be used by all
+################################################################################
+# Globals
+################################################################################
+name = os.path.join(os.path.dirname(__file__), '..')
+
+APPNAME =           "Conduit"
+APPVERSION =        "0.3.0"
+IS_INSTALLED =      False
+SHARED_DATA_DIR =   os.path.join(os.path.abspath(name),"data")
+GLADE_FILE =        os.path.join(os.path.abspath(name),"data","conduit.glade")
+SHARED_MODULE_DIR = os.path.join(os.path.abspath(name),"conduit")
+EXTRA_LIB_DIR =     os.path.join(os.path.abspath(name),"contrib")
+
 import Settings
+import DB
+
 settings = Settings.Settings()
+mappingDB = DB.MappingDB()
 

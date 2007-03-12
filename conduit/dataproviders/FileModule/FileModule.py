@@ -115,15 +115,15 @@ class _FolderScanner(threading.Thread, gobject.GObject):
             #Enly emit progress signals every 10% (+/- 1%) change to save CPU
             if delta+10 - estimated <= 1:
                 logd("Folder scan %s%% complete" % estimated)
-                gobject.idle_add(self.emit,"scan-progress", len(self.URIs))
+                self.emit("scan-progress", len(self.URIs))
                 delta += 10
             last_estimated = estimated
 
         i = 0
         total = len(self.URIs)
         endTime = time.time()
-        #logd("%s files loaded in %s seconds" % (total, (endTime - startTime)))
-        gobject.idle_add(self.emit, "scan-completed")
+        logd("%s files loaded in %s seconds" % (total, (endTime - startTime)))
+        self.emit("scan-completed")
 
     def cancel(self):
         """
