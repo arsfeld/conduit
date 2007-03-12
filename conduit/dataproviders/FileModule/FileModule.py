@@ -115,7 +115,7 @@ class _FolderScanner(threading.Thread, gobject.GObject):
             #Enly emit progress signals every 10% (+/- 1%) change to save CPU
             if delta+10 - estimated <= 1:
                 logd("Folder scan %s%% complete" % estimated)
-                self.emit("scan-progress",len(self.URIs))
+                gobject.idle_add(self.emit,"scan-progress", len(self.URIs))
                 delta += 10
             last_estimated = estimated
 
@@ -123,7 +123,7 @@ class _FolderScanner(threading.Thread, gobject.GObject):
         total = len(self.URIs)
         endTime = time.time()
         #logd("%s files loaded in %s seconds" % (total, (endTime - startTime)))
-        self.emit("scan-completed")
+        gobject.idle_add(self.emit, "scan-completed")
 
     def cancel(self):
         """
@@ -143,37 +143,42 @@ class _ScannerThreadManager:
     def __init__(self):
         self.scanThreads = {}
         self.pendingScanThreadsURIs = []
-        self.concurrentThreads = 0
 
     def make_thread(self, folderURI, progressCb, completedCb, rowref):
         """
         Makes a thread for scanning folderURI. The thread callsback the model
         at regular intervals and updates rowref within that model
         """
+        running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
+
         if folderURI not in self.scanThreads:
             thread = _FolderScanner(folderURI)
             thread.connect("scan-progress",progressCb, rowref)
             thread.connect("scan-completed",completedCb, rowref)
+            thread.connect("scan-completed", self._register_thread_completed, folderURI)
             self.scanThreads[folderURI] = thread
-            if self.concurrentThreads < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
+            if running < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
                 logd("Starting thread %s" % folderURI)
                 self.scanThreads[folderURI].start()
-                self.concurrentThreads += 1
             else:
                 self.pendingScanThreadsURIs.append(folderURI)
 
-    def register_thread_completed(self):
+    def _register_thread_completed(self, sender, folderURI):
         """
         Decrements the count of concurrent threads and starts any 
         pending threads if there is space
         """
-        self.concurrentThreads -= 1
-        if self.concurrentThreads < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
+        #delete the old thread
+        del(self.scanThreads[folderURI])
+        running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
+
+        logd("Thread %s completed. %s running, %s pending" % (folderURI, running, len(self.pendingScanThreadsURIs)))
+
+        if running < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
             try:
                 uri = self.pendingScanThreadsURIs.pop()
                 logd("Starting pending thread %s" % uri)
                 self.scanThreads[uri].start()
-                self.concurrentThreads -= 1
             except IndexError: pass
 
     def join_all_threads(self):
@@ -349,7 +354,6 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         path = self.model.get_path(rowref)
         self.model[path][SCAN_COMPLETE_IDX] = True
         self.model[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()
-        self.register_thread_completed()
         #If the user has not yet given the folder a descriptive name then
         #check of the folder contains a .conduit file in which that name is 
         #stored
@@ -636,7 +640,6 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         path = self.items.get_path(rowref)
         self.items[path][SCAN_COMPLETE_IDX] = True
         self.items[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()
-        self.register_thread_completed()
         #If the user has not yet given the folder a descriptive name then
         #check of the folder contains a .conduit file in which that name is 
         #stored (i.e. the case when the user starts the sync from a

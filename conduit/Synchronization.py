@@ -179,24 +179,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.cancelled = False
         self.setName("Synchronization Thread: %s" % conduit.datasource.get_UID())
         
-    def cancel(self):
-        """
-        Cancels the sync thread. Does not do so immediately but as soon as
-        possible.
-        """
-        self.cancelled = True
-        
-    def check_thread_not_cancelled(self, dataprovidersToCancel):
-        """
-        Checks if the thread has been scheduled to be cancelled. If it has
-        then this function sets the status of the dataproviders to indicate
-        that they were stopped through a cancel operation.
-        """
-        if self.cancelled:
-            for s in dataprovidersToCancel:
-                s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
-            raise Exceptions.StopSync
-            
     def _convert_data(self, sink, fromType, toType, data):
         """
         Converts and returns data from fromType to toType.
@@ -231,7 +213,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                 LUID
                                 )
          
-    def _resolve_missing(self, sourceWrapper, sinkWrapper, missingData, leftToRight):
+    def _apply_missing_policy(self, sourceWrapper, sinkWrapper, missingData, leftToRight):
         """
         Applies user policy when missingData is present in source but
         missing from sink. Assumes that source is on the left (visually) unless
@@ -259,7 +241,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             except:
                 logw("Forced Put Failed\n%s" % traceback.format_exc()) 
 
-    def _resolve_conflict(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
+    def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
         Applies user policy when a put() has failed. This may mean emitting
         the conflict up to the GUI or skipping altogether
@@ -283,7 +265,24 @@ class SyncWorker(threading.Thread, gobject.GObject):
             logw("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
-            
+    def cancel(self):
+        """
+        Cancels the sync thread. Does not do so immediately but as soon as
+        possible.
+        """
+        self.cancelled = True
+        
+    def check_thread_not_cancelled(self, dataprovidersToCancel):
+        """
+        Checks if the thread has been scheduled to be cancelled. If it has
+        then this function sets the status of the dataproviders to indicate
+        that they were stopped through a cancel operation.
+        """
+        if self.cancelled:
+            for s in dataprovidersToCancel:
+                s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
+            raise Exceptions.StopSync
+
     def one_way_sync(self, source, sink, skipOlder, leftToRight):
         """
         Transfers numItems of data from source to sink
@@ -303,7 +302,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
                     if comp == DataType.COMPARISON_MISSING:
-                        self._resolve_missing(source, sink, err.toData, leftToRight)
+                        self._apply_missing_policy(source, sink, err.toData, leftToRight)
                     elif comp == DataType.COMPARISON_OLDER and skipOlder:
                         logd("Skipping %s", newdata)
                         pass
@@ -311,7 +310,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         logd("Skipping %s", newdata)
                         pass
                     else:
-                        self._resolve_conflict(source, sink, err.comparison, err.fromData, err.toData)
+                        self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
 
             except Exceptions.ConversionDoesntExistError:
                 logd("No Conversion Exists")
