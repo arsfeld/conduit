@@ -3,6 +3,7 @@ conduit_PYTHON = \
 	Contact.py \
 	DataType.py \
 	Email.py \
+	Event.py \
 	File.py \
 	__init__.py \
 	Note.py \

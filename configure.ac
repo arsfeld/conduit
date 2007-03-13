@@ -105,7 +105,7 @@ if test "x$enable_dbus" = "xyes"; then
 	PKG_CHECK_MODULES(DBUS, [
 		dbus-1 >= $DBUS_REQUIRED],
 		[have_dbus=yes] , [have_dbus=no])
-	DBUS_SERVICES_DIR=`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`
+	DBUS_SERVICES_DIR=`pkg-config --variable=session_bus_services_dir dbus-1`
 	AC_SUBST(DBUS_SERVICES_DIR)
 else
 	have_dbus="no (disabled)"
@@ -153,10 +153,11 @@ conduit/dataproviders/BackpackModule/backpack-1.1/Makefile
 conduit/dataproviders/FileModule/Makefile
 conduit/dataproviders/FeedModule/Makefile
 conduit/dataproviders/FlickrModule/Makefile
-conduit/dataproviders/FlickrModule/FlickrAPI-8/Makefile
+conduit/dataproviders/FlickrModule/FlickrAPI/Makefile
 conduit/dataproviders/FspotModule/Makefile
 conduit/dataproviders/GmailModule/Makefile
 conduit/dataproviders/GmailModule/libgmail-0.1.5/Makefile
+conduit/dataproviders/SettingsModule/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit.pc

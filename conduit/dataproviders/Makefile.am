@@ -9,10 +9,9 @@ SUBDIRS = \
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
-	ContactConverterModule.py \
 	__init__.py \
 	iPodModule.py \
-	NotesModule.py \
+	TomboyModule.py \
 	ConverterModule.py
 
 if ENABLE_EVOLUTION
