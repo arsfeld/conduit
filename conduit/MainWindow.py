@@ -137,9 +137,11 @@ class GtkView(dbus.service.Object):
         self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
         self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
         self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("twoway"))
+
         #furthur from this point all dataproviders are loaded in callback as 
         #its the easiest way modules which can be added and removed at runtime (like ipods)
         self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)
+        self.moduleManager.connect("dataprovider-removed", self.on_dataprovider_removed)
 
         #initialise the Type Converter
         self.type_converter = TypeConverter(self.moduleManager)
@@ -174,6 +176,14 @@ class GtkView(dbus.service.Object):
             self.dataproviderTreeModel.add_dataprovider(dataprovider)
             new = self.moduleManager.get_new_module_instance(dataprovider.get_key())
             self.canvas.check_pending_dataproviders(new)
+
+    def on_dataprovider_removed(self, unloader, dataprovider):
+        """
+        Called under some conditions that change while application is running,
+        for example an iPod is unplugged, or a conduit instance is removed
+        from the network
+        """
+        self.dataproviderTreeModel.remove_dataprovider(dataprovider)
 
     def on_synchronize_all_clicked(self, widget):
         """
