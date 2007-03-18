@@ -61,6 +61,7 @@ class ModuleManager(gobject.GObject):
             self._load_modules_in_file(f)
 
         for i in self.dataproviderFactories:
+            i.connect("dataprovider-removed", self._on_dynamic_dataprovider_removed)
             i.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
             i.probe()
 
@@ -74,6 +75,10 @@ class ModuleManager(gobject.GObject):
         log("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
         self._append_module(dpw, klass)
 
+    def _on_dynamic_dataprovider_removed(self, monitor, key):
+        log("Dynamic dataprovider (%s) removed by %s" % (key, monitor))
+        self._remove_module(key)
+
     def _emit_added(self, dataproviderWrapper):
         if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
             self.emit("dataprovider-added", dataproviderWrapper)
@@ -81,6 +86,11 @@ class ModuleManager(gobject.GObject):
             #Dont emit a signal when a datatype of converter is loaded as I dont
             #think signal emission is useful in that case
             pass
+
+    def _emit_removed(self, dataproviderWrapper):
+        if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
+            self.emit("dataprovider-removed", dataproviderWrapper)
+            log("yah, i emitted")
 
     def _build_filelist_from_directories(self, directories=None):
         """
@@ -149,7 +159,24 @@ class ModuleManager(gobject.GObject):
             self._emit_added(wrapper)
         else:
             log("Wrapper with key %s allready loaded" % key)
-            
+    
+    def _remove_module(self, key):
+        """
+        Looks for a given key in the class registry and attempts to remove it
+        
+        @param key: The key of the class to remove
+        """
+        
+        if not key in self.moduleWrappers:
+            logw("Unable to remove class - it isn't available! (%s)" % key)
+            return
+
+        # notify everything that dp is no longer available
+        self._emit_removed(self.moduleWrappers[key])
+
+        # remove from moduleWrappers...
+        del self.moduleWrappers[key]
+
     def _import_file(self, filename):
         """
         Tries to import the specified file. Returns the python module on succes.
@@ -302,8 +329,7 @@ class DataProviderFactory(gobject.GObject):
             gobject.TYPE_PYOBJECT,      #Wrapper
             gobject.TYPE_PYOBJECT]),    #Class
         "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_PYOBJECT,      #Wrapper
-            gobject.TYPE_PYOBJECT])     #Class
+            gobject.TYPE_STRING])     #Unique key
     }
 
     def __init__(self, **kwargs):
@@ -325,9 +351,11 @@ class DataProviderFactory(gobject.GObject):
                     )
         log("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
         self.emit("dataprovider-added", dpw, klass)
+        return dpw.get_key()
 
-    def emit_removed(self, klass, initargs, category=None):
-        logw("DataProviderFactory.emit_removed() Not Implemented")
+    def emit_removed(self, key):
+        log("DataProviderFactory.emit_removed(): For %s" % key)
+        self.emit("dataprovider-removed", key)
 
     def probe(self):
         pass
