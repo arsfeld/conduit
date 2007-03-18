@@ -137,8 +137,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         category that it was in if there is no remaining dataproviders in
         that category
         """
-        pass
-        #self.row_deleted(path)
+        path = self.on_get_path(dpw)
+        self.row_deleted(path)
         #del (self.childrencache[parent])
 
     def on_get_flags(self):

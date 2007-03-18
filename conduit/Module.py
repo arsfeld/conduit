@@ -90,7 +90,6 @@ class ModuleManager(gobject.GObject):
     def _emit_removed(self, dataproviderWrapper):
         if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
             self.emit("dataprovider-removed", dataproviderWrapper)
-            log("yah, i emitted")
 
     def _build_filelist_from_directories(self, directories=None):
         """
