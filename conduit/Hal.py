@@ -79,7 +79,7 @@ class HalMonitor(gobject.GObject):
         self.emit(signal, device_udi, mount, name)
 
     def _add_volume(self, volume_type, device_udi, mount, name):
-        signature = (volume_type, device_udi, mount, name)
+        signature = str(device_udi)
         if signature not in self.registered_volumes:
             self.registered_volumes.append(signature)
             if volume_type == IPOD:
@@ -96,9 +96,9 @@ class HalMonitor(gobject.GObject):
             logw("Hal: Volume allready present. Not adding")
 
     def _remove_volume(self, volume_type, device_udi, mount, name):
-        signature = (volume_type, device_udi, mount, name)
+        signature = str(device_udi)
         if signature in self.registered_volumes:
-            self.registered_volumes.pop(signature)
+            self.registered_volumes = [v for v in self.registered_volumes if v!=signature]
             if volume_type == IPOD:
                 signal = "ipod-removed"
             elif volume_type == USB_KEY:
