@@ -139,7 +139,26 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         path = self.on_get_path(dpw)
         self.row_deleted(path)
+        del self.dataproviders[path[0]][path[1]]
+        
         #del (self.childrencache[parent])
+
+        i = self._get_category_index_by_name(dpw.category)
+        if len(self.dataproviders[i]) == 0:
+            log("Category %s empty - removing." % dpw.category)
+            self.row_deleted((i, ))
+            del self.dataproviders[i]
+            del self.cats[i]
+        
+        self._rebuild_path_mappings()
+
+    def _rebuild_path_mappings(self):
+        self.pathMappings = {}
+
+        for i, cat in enumerate(self.cats):
+            self.pathMappings[cat] = (i, )
+            for j, dp in enumerate(self.dataproviders[i]):
+                self.pathMappings[dp] = (i, j)
 
     def on_get_flags(self):
         """
