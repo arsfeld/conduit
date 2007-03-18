@@ -332,28 +332,24 @@ class TestFactory(Module.DataProviderFactory):
         gobject.timeout_add(7000, self.make_two)
         
     def make_one(self, *args):
-        self.emit_added(
-                klass=TestDynamicSource,
-                initargs=("Foo",), 
-                category=DataProvider.CATEGORY_TEST)
+        self.key1 = self.emit_added(
+                            klass=TestDynamicSource,
+                            initargs=("Foo",), 
+                            category=DataProvider.CATEGORY_TEST)
         
 #        gobject.timeout_add(4000, self.remove_one)
 
         return False
 
     def remove_one(self, *args):
-         self.emit_removed(
-                 klass=TestDynamicSource,
-                 initargs=("Foo",),
-                 category=DataProvider.CATEGORY_TEST)
-
+         self.emit_removed(self.key1)
          return False
 
     def make_two(self, *args):
-        self.emit_added(
-                klass=TestDynamicSource,
-                initargs=("Bar","Baz"), 
-                category=DataProvider.CATEGORY_TEST)
+        self.key2 = self.emit_added(
+                             klass=TestDynamicSource,
+                             initargs=("Bar","Baz"), 
+                             category=DataProvider.CATEGORY_TEST)
 
         gobject.timeout_add(7000, self.remove_two)
 
@@ -361,9 +357,5 @@ class TestFactory(Module.DataProviderFactory):
         return False
 
     def remove_two(self, *args):
-         self.emit_removed(
-                 klass=TestDynamicSource,
-                 initargs=("Bar","Baz"),
-                 category=DataProvider.CATEGORY_TEST)
-
+         self.emit_removed(self.key2)
          return False
