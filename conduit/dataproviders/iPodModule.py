@@ -59,6 +59,9 @@ class iPodFactory(Module.DataProviderFactory):
         if kwargs.has_key("hal"):
             self.hal = kwargs["hal"]
             self.hal.connect("ipod-added", self._ipod_added)
+            self.hal.connect("ipod-removed", self._ipod_removed)
+
+        self.ipods = {}
 
     def probe(self):
         """ Probe for iPod's that are already attached """
@@ -72,11 +75,21 @@ class iPodFactory(Module.DataProviderFactory):
                     "multimedia-player-ipod-video-white",
                     mount)
 
+        keys = []
         for klass in [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]:
-            self.emit_added(
-                    klass,           # Dataprovider class
-                    (mount,udi,),        # Init args
-                    cat)             # Category..
+            key = self.emit_added(
+                           klass,            # Dataprovider class
+                           (mount,udi,),     # Init args
+                           cat)              # Category..
+            keys.append(key)
+
+        self.ipods[udi] = keys
+
+    def _ipod_removed(self, hal, udi, mount, name):
+        for key in self.ipods[udi]:
+            self.emit_removed(key)
+
+        del self.ipods[udi]
 
 class IPodBase(TwoWay):
     def __init__(self, *args):
