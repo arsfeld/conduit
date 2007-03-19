@@ -14,13 +14,14 @@ from conduit.datatypes import DataType
 import time
 
 MODULES = {
-	"TestSource" :          { "type": "dataprovider" },
-	"TestSink" :            { "type": "dataprovider" },
+    "TestSource" :          { "type": "dataprovider" },
+    "TestSink" :            { "type": "dataprovider" },
     "TestConflict" :        { "type": "dataprovider" },
     "TestChangeType" :      { "type": "dataprovider" },
-	"TestTwoWay" :          { "type": "dataprovider" },
-	"TestSinkFailRefresh" : { "type": "dataprovider" },
+    "TestTwoWay" :          { "type": "dataprovider" },
+    "TestSinkFailRefresh" : { "type": "dataprovider" },
     "TestFactory" :         { "type": "dataprovider-factory" },
+#    "TestFactoryRemoval" :  { "type": "dataprovider-factory" },
     "CheeseConverter" :     { "type": "converter" }
 }
 
@@ -340,26 +341,51 @@ class TestFactory(Module.DataProviderFactory):
                             klass=TestDynamicSource,
                             initargs=("Foo",), 
                             category=DataProvider.CATEGORY_TEST)
-        
-#        gobject.timeout_add(4000, self.remove_one)
-
+        #run once
         return False
-
-    def remove_one(self, *args):
-         self.emit_removed(self.key1)
-         return False
 
     def make_two(self, *args):
         self.key2 = self.emit_added(
                              klass=TestDynamicSource,
                              initargs=("Bar","Baz"), 
                              category=DataProvider.CATEGORY_TEST)
-
-        gobject.timeout_add(7000, self.remove_two)
-
         #run once
         return False
 
-    def remove_two(self, *args):
-         self.emit_removed(self.key2)
-         return False
+class TestFactoryRemoval(Module.DataProviderFactory):
+    """
+    Repeatedly add/remove a DP/Category to stress test framework
+    """
+    def __init__(self, **kwargs):
+        Module.DataProviderFactory.__init__(self, **kwargs)
+        gobject.timeout_add(5000, self.added)
+        self.count = 200
+        self.stats = None
+
+    def added(self):
+        if self.stats == None:
+            self.stats = conduit.memstats()
+
+        cat = DataProvider.DataProviderCategory(
+                    "TestHotplug",
+                    "emblem-system",
+                    "/test/")
+
+        self.key = self.emit_added(
+                           klass=TestDynamicSource,
+                           initargs=("Bar","Bazzer"),
+                           category=cat)
+
+        gobject.timeout_add(500, self.removed)
+        return False
+
+    def removed(self):
+        self.emit_removed(self.key)
+        if self.count > 0:
+            gobject.timeout_add(500, self.added)
+            self.count = self.count - 1
+        else:
+            conduit.memstats(self.stats)
+        return False
+
+
