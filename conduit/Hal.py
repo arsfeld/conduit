@@ -60,7 +60,7 @@ class HalMonitor(gobject.GObject):
         gobject.GObject.__init__(self)
         self.vol_monitor = gnomevfs.VolumeMonitor()
         
-        self.registered_volumes = []
+        self.registered_volumes = {}
         self.bus = dbus.SystemBus()
 
         if Utils.dbus_service_available(self.bus,'org.freedesktop.Hal'):
@@ -80,8 +80,8 @@ class HalMonitor(gobject.GObject):
 
     def _add_volume(self, volume_type, device_udi, mount, name):
         signature = str(device_udi)
-        if signature not in self.registered_volumes:
-            self.registered_volumes.append(signature)
+        if not self.registered_volumes.has_key(signature):
+            self.registered_volumes[signature] = (volume_type, device_udi, mount, name)
             if volume_type == IPOD:
                 signal = "ipod-added"
             elif volume_type == USB_KEY:
@@ -98,7 +98,7 @@ class HalMonitor(gobject.GObject):
     def _remove_volume(self, volume_type, device_udi, mount, name):
         signature = str(device_udi)
         if signature in self.registered_volumes:
-            self.registered_volumes = [v for v in self.registered_volumes if v!=signature]
+            del self.registered_volumes[signature]
             if volume_type == IPOD:
                 signal = "ipod-removed"
             elif volume_type == USB_KEY:
@@ -194,7 +194,7 @@ class HalMonitor(gobject.GObject):
         return (mount, label)
 
     def get_all_ipods(self):
-        return [i for i in self.registered_volumes if i[TYPE_IDX] == IPOD]
+        return [self.registered_volumes[i] for i in self.registered_volumes if self.registered_volumes[i][TYPE_IDX] == IPOD]
 
     def get_all_usb_keys(self):
-        return [i for i in self.registered_volumes if i[TYPE_IDX] == USB_KEY]
+        return [self.registered_volumes[i] for i in self.registered_volumes if self.registered_volumes[i][TYPE_IDX] == USB_KEY]
