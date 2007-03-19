@@ -309,8 +309,14 @@ class Canvas(goocanvas.CanvasView):
         log("Replacing all instances of %s with a PendingDataProvider" % wrapper.get_key())
         for c in self.conduits:
             for dp in c.get_dataproviders_by_key(wrapper.get_key()):
-                logd("Found matching dp: %s" % dp)
-    
+                logd("Found matching dp (%s), make pending!" % dp)
+
+                c.delete_dataprovider_from_conduit(dp)
+
+                pendingWrapper = PendingDataproviderWrapper(wrapper.get_key())
+                self.pendingDataprovidersToAdd[wrapper.get_key()] = pendingWrapper
+                c.add_dataprovider_to_conduit(pendingWrapper)
+
     def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """
         Adds a new dataprovider to the Canvas
