@@ -184,6 +184,7 @@ class GtkView(dbus.service.Object):
         from the network
         """
         self.dataproviderTreeModel.remove_dataprovider(dataprovider)
+        self.canvas.make_pending_dataproviders(dataprovider)
 
     def on_synchronize_all_clicked(self, widget):
         """

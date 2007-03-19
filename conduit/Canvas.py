@@ -278,7 +278,12 @@ class Canvas(goocanvas.CanvasView):
 
     def check_pending_dataproviders(self, wrapper):
         """
-        Foo
+        When a dataprovider is added, replace any active instances 
+        of PendingDataProvider for that type with a real DataProvider
+
+        @param wrapper: The dataprovider wrapper to insert on canvas in 
+        place of a Pending DP
+        @type wrapper: L{conduit.Module.ModuleWrapper}
         """
         key = wrapper.get_key()
         if key in self.pendingDataprovidersToAdd:
@@ -292,6 +297,16 @@ class Canvas(goocanvas.CanvasView):
                     c.add_dataprovider_to_conduit(wrapper)
                     self._connect_dataprovider_signals(wrapper)
             del self.pendingDataprovidersToAdd[key]
+
+    def make_pending_dataproviders(self, wrapper):
+        """
+        When a dataprovider is removed, replace any active instances 
+        with a PendingDataProvider
+
+        @param wrapper: The dataprovider wrapper to replace with a Pending DP
+        @type wrapper: L{conduit.Module.ModuleWrapper} 
+        """
+        pass
     
     def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """
