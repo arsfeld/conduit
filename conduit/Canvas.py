@@ -306,7 +306,10 @@ class Canvas(goocanvas.CanvasView):
         @param wrapper: The dataprovider wrapper to replace with a Pending DP
         @type wrapper: L{conduit.Module.ModuleWrapper} 
         """
-        pass
+        log("Replacing all instances of %s with a PendingDataProvider" % wrapper.get_key())
+        for c in self.conduits:
+            for dp in c.get_dataproviders_by_key(wrapper.get_key()):
+                logd("Found matching dp: %s" % dp)
     
     def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """

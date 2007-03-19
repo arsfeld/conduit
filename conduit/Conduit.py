@@ -441,7 +441,15 @@ class Conduit(goocanvas.Group, gobject.GObject):
             return True
         else:
             return False
-            
+
+    def get_dataproviders_by_key(self, key):
+        """
+        Use list comprehension to return all dp's with a given key
+
+        @returns: A list of dataproviders with a given key
+        """
+        return [dp for dp in [self.datasource] + self.datasinks if dp.get_key()==key]
+
     def delete_connector(self, dataprovider):
         """
         Deletes the connector associated with the given dataprovider
