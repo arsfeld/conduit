@@ -189,20 +189,32 @@ class Canvas(goocanvas.CanvasView):
         clicks on a dataprovider
         @type dataproviderPopupXML: C{gtk.glade.XML}
         """
-        self.conduitMenu = conduitPopupXML.get_widget("GroupMenu")
-        self.dataproviderMenu = dataproviderPopupXML.get_widget("ItemMenu")
+        self.conduitMenu = conduitPopupXML.get_widget("ConduitMenu")
+        self.dataproviderMenu = dataproviderPopupXML.get_widget("DataProviderMenu")
 
         self.twoWayMenuItem = conduitPopupXML.get_widget("two_way_sync")
         self.twoWayMenuItem.connect("toggled", self.on_two_way_sync_toggle)
 
+        self.slowSyncMenuItem = conduitPopupXML.get_widget("slow_sync")
+        self.slowSyncMenuItem.connect("toggled", self.on_slow_sync_toggle)
+
     def on_two_way_sync_toggle(self, widget):
         """
-        Hmm
+        Enables or disables two way sync on dataproviders.
         """
         if widget.get_active():
             self.selected_conduit.enable_two_way_sync()
         else:
             self.selected_conduit.disable_two_way_sync()
+
+    def on_slow_sync_toggle(self, widget):
+        """
+        Enables or disables slow sync of dataproviders.
+        """
+        if widget.get_active():
+            self.selected_conduit.enable_slow_sync()
+        else:
+            self.selected_conduit.disable_slow_sync()
 
     def on_dataprovider_button_press(self, view, target, event, user_data_dataprovider_wrapper):
         """
@@ -244,8 +256,10 @@ class Canvas(goocanvas.CanvasView):
                     self.twoWayMenuItem.set_property("sensitive", False)
                 else:
                     self.twoWayMenuItem.set_property("sensitive", True)
-                #Set if the item is ticked
+                #Set item ticked if two way sync enabled
                 self.twoWayMenuItem.set_active(self.selected_conduit.twoWaySyncEnabled)
+                #Set item ticked if two way sync enabled
+                self.slowSyncMenuItem.set_active(self.selected_conduit.slowSyncEnabled)
                 #Show the menu                
                 if not self.selected_conduit.is_busy():
                     self.conduitMenu.popup(

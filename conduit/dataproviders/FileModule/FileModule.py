@@ -442,7 +442,6 @@ class _FileSourceConfigurator(_ScannerThreadManager):
                                         message_format="Please Name All Folders")
                         warning.format_secondary_text("All folders require a descriptive name. To name a folder simply click on it")
                         warning.run()
-                        print "Closed"
                         dialog.emit_stop_by_name("response")
 
 class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):

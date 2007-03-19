@@ -1,6 +1,7 @@
 import gtk
 import gobject
 import random
+import datetime
 
 import conduit
 from conduit import log,logd,logw
@@ -32,6 +33,8 @@ class TestDataType(DataType.DataType):
         self.UID = integerData
 
         self.set_open_URI("file:///home/")
+        self.set_UID(str(self.UID))
+        self.set_mtime(datetime.datetime(2003,8,16))
         
     def __str__(self):
         return "testData %s" % self.UID
@@ -52,10 +55,6 @@ class TestDataType(DataType.DataType):
             return conduit.datatypes.COMPARISON_EQUAL
         else:
             return conduit.datatypes.COMPARISON_UNKNOWN
-
-    def get_UID(self):
-        return str(self.UID)
-            
 
 class _TestBase:
     def __init__(self):
@@ -169,7 +168,8 @@ class TestSink(_TestBase, DataProvider.DataSink):
             raise Exceptions.SyncronizeError
         self.count += 1
         logd("TEST SINK: put(): %s (known UID:%s)" % (data,LUID))
-        return data.get_UID()+self._name_
+        LUID=data.get_UID()+self._name_
+        return LUID
 
 class TestTwoWay(_TestBase, DataProvider.TwoWay):
 
@@ -209,6 +209,8 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
         logd("TWO WAY: put() %s" % data)
+        LUID=data.get_UID()+self._name_
+        return LUID
 
     def finish(self):
         self.data = None
@@ -255,6 +257,8 @@ class TestConflict(DataProvider.DataSink):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         if not overwrite:
             raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_OLDER, data, TestDataType(0))
+        LUID=data.get_UID()+self._name_
+        return LUID
 
     def get_UID(self):
         return Utils.random_string()

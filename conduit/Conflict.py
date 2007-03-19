@@ -58,7 +58,7 @@ class ConflictResolver:
         self.numConflicts = 0
 
         #resolve conflicts in a background thread
-        self.resolveThreadManager = FooThreadManager(3)
+        self.resolveThreadManager = ConflictResolveThreadManager(3)
 
         self.view = gtk.TreeView( self.model )
         self._build_view()
@@ -179,6 +179,36 @@ class ConflictResolver:
         self.expander.set_label("Conflicts (%s)" % self.numConflicts)
         self.standalone.set_title("Conflicts (%s)" % self.numConflicts)
 
+    def _conflict_resolved(self, resolvethread, path):
+        """
+        Callback when a ConflictResolveThread finishes. Deletes the 
+        appropriate conflict from the model. Also looks to see if there
+        are any other conflicts remainng so it can set the sink status and/or
+        delete the partnership
+        """
+        rowref = self.model.get_iter(path)
+        self.model.remove(rowref)
+
+        #now look for any sync partnerships with no children
+        empty = False
+        for source,sink in self.partnerships:
+            rowref = self.partnerships[(source,sink)]
+            numChildren = self.model.iter_n_children(rowref)
+            if numChildren == 0:
+                empty = True
+
+        #do in two loops so as to not change the dict while iterating
+        if empty:
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+            del(self.partnerships[(source,sink)])
+            self.model.remove(rowref)
+        else:
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+
+        #FIXME: Do this properly with model signals and a count function
+        self.numConflicts -= 1
+        self._set_conflict_titles()
+
     def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
         #We start with the expander disabled. Make sure we only enable it once
         if len(self.model) == 0:
@@ -217,28 +247,11 @@ class ConflictResolver:
         self.on_fullscreen_toggled(sender)
         return True
 
-    def _conflict_resolved(self, resolvethread, path):
-        rowref = self.model.get_iter(path)
-        self.model.remove(rowref)
-
-        #now look for any sync partnerships with no children
-        empty = False
-        for source,sink in self.partnerships:
-            rowref = self.partnerships[(source,sink)]
-            numChildren = self.model.iter_n_children(rowref)
-            if numChildren == 0:
-                empty = True
-
-        #do in two loops so as to not change the dict while iterating
-        if empty:
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-            del(self.partnerships[(source,sink)])
-            self.model.remove(rowref)
-        else:
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
-    
-    #Connect to resolve button
     def on_resolve_conflicts(self, sender):
+        """
+        According to the users selection, start backgroun threads to
+        resolve the conflicts
+        """
         def _resolve_func(model, path, rowref):
             if model[path][DIRECTION_IDX] == CONFLICT_SKIP:
                 logd("Not resolving")
@@ -348,7 +361,7 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
         return True
 
-class _FooThread(threading.Thread, gobject.GObject):
+class _ConflictResolveThread(threading.Thread, gobject.GObject):
     """
     Resolves a conflict by putting the data into sink
     """
@@ -373,13 +386,13 @@ class _FooThread(threading.Thread, gobject.GObject):
     def run(self):
         try:
             logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-            matchingUID = conduit.mappingDB.get_matching_uid(
+            matchingUID = conduit.mappingDB.get_mapping(
                                 self.sink.get_UID(), 
                                 self.data.get_UID()
                                 )
             LUID = self.sink.module.put(self.data, True, matchingUID)
             #Now store the mapping of the original URI to the new one
-            conduit.mappingDB.save_relationship(
+            conduit.mappingDB.save_mapping(
                                 self.sink.get_UID(), 
                                 self.data.get_UID(),
                                 LUID
@@ -391,7 +404,7 @@ class _FooThread(threading.Thread, gobject.GObject):
 
         gobject.idle_add(self.emit, "scan-completed")
 
-class FooThreadManager:
+class ConflictResolveThreadManager:
     """
     Manages many resolve threads. This involves joining and cancelling
     said threads, and respecting a maximum num of concurrent threads limit
@@ -429,7 +442,7 @@ class FooThreadManager:
         running = len(self.fooThreads) - len(self.pendingFooThreadArgs)
 
         if args not in self.fooThreads:
-            thread = _FooThread(*args)
+            thread = _ConflictResolveThread(*args)
             #signals run in the order connected. Connect the user one first 
             #incase they wish to do something before we delete the thread
             thread.connect("scan-completed", completedCb, completedCbUserData)

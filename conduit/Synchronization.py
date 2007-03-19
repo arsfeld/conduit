@@ -180,8 +180,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #Start at the beginning
         self.state = SyncWorker.CONFIGURE_STATE
         self.cancelled = False
-        self.setName("Synchronization Thread: %s" % conduit.datasource.get_UID())
-        
+
+        if conduit.is_two_way():
+            self.setName("%s <--> %s" % (self.source, self.sinks[0]))
+        else:
+            self.setName("%s |--> %s" % (self.source, self.sinks))
     def _convert_data(self, sink, fromType, toType, data):
         """
         Converts and returns data from fromType to toType.
@@ -200,21 +203,31 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         return newdata
 
-    def _put_data(self, data, sink, overwrite):
+    def _put_data(self, source, sink, data, overwrite):
         """
         Puts data into sink, overwrites if overwrite is True
         """            
-        matchingUID = self.mappingDB.get_matching_uid(
-                                sink.get_UID(), 
-                                data.get_UID()
+        LUID, mtime = self.mappingDB.get_mapping(
+                                sourceUID=source.get_UID(),
+                                sourceDataLUID=data.get_UID(),
+                                sinkUID=sink.get_UID()
                                 )
-        LUID = sink.module.put(data, overwrite, matchingUID)
-        #Now store the mapping of the original URI to the new one
-        self.mappingDB.save_relationship(
-                                sink.get_UID(), 
-                                data.get_UID(),
-                                LUID
+        #if data.get_mtime() != mtime or slow_sync:
+        LUID = sink.module.put(data, overwrite, LUID)
+        mtime = data.get_mtime()
+        #Now store the mapping of the original URI to the new one. We only
+        #get here if the put was successful, so the mtime of the putted
+        #data wll be the same as the original data
+        self.mappingDB.save_mapping(
+                                sourceUID=source.get_UID(),
+                                sourceDataLUID=data.get_UID(),
+                                sinkUID=sink.get_UID(),
+                                sinkDataLUID=LUID,
+                                mtime=mtime
                                 )
+
+    def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, missingDataUID, leftToRight):
+        pass
          
     def _apply_missing_policy(self, sourceWrapper, sinkWrapper, missingData, leftToRight):
         """
@@ -240,7 +253,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         elif self.policy["missing"] == "replace":
             logd("Missing Policy: Replace")
             try:
-                self._put_data(missingData, sinkWrapper, True)
+                self._put_data(sourceWrapper, sinkWrapper, missingData, True)
             except:
                 logw("Forced Put Failed\n%s" % traceback.format_exc()) 
 
@@ -260,7 +273,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
                 try:
-                    self._put_data(toData, sinkWrapper, True)
+                    self._put_data(sourceWrapper, sinkWrapper, toData, True)
                 except:
                     logw("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
@@ -288,7 +301,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
     def one_way_sync(self, source, sink, skipOlder, leftToRight):
         """
-        Transfers numItems of data from source to sink
+        Transfers numItems of data from source to sink. Does not consider 
+        if either is a slow sync or not. That is handled in put_data. This 
+        function only serves as a means to deal with exceptions and policy
         """
         if leftToRight == True:
             log("Synchronizing %s |--> %s " % (source, sink))
@@ -301,7 +316,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 #convert data type if necessary
                 newdata = self._convert_data(sink, source.get_out_type(), sink.get_in_type(), data)
                 try:
-                    self._put_data(newdata, sink, False)
+                    self._put_data(source, sink, newdata, False)
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
                     if comp == DataType.COMPARISON_MISSING:
@@ -339,7 +354,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         
     def two_way_sync(self, source, sink):
         """
-        Performs a two way sync from source to sink and back
+        Performs a two way sync from source to sink and back.
         """
         log("Synchronizing %s <--> %s " % (source, sink))
         self.one_way_sync(source, sink, True, True)
@@ -366,6 +381,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
         exception if the synchronisation state machine does not complete, in
         some way, without success.
         """
+        logd("Sync %s beginning. Slow: %s, Twoway: %s" % (
+                                self,
+                                self.conduit.do_slow_sync(), 
+                                self.conduit.is_two_way()
+                                ))
         #Variable to exit the loop
         finished = False
         #Keep track of those sinks that didnt refresh ok

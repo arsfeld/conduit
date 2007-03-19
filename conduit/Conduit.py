@@ -74,6 +74,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                                                 }
 
         self.twoWaySyncEnabled = False
+        self.slowSyncEnabled = False
                                                 
     def on_status_changed(self, dataprovider):
         """
@@ -559,6 +560,15 @@ class Conduit(goocanvas.Group, gobject.GObject):
 
     def is_two_way(self):
         return self.can_do_two_way_sync() and self.twoWaySyncEnabled
+
+    def enable_slow_sync(self):
+        self.slowSyncEnabled = True
+
+    def disable_slow_sync(self):
+        self.slowSyncEnabled = False
+
+    def do_slow_sync(self):
+        return self.slowSyncEnabled
 
            
 class Connector(goocanvas.Group):

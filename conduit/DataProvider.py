@@ -460,10 +460,17 @@ class DataSink(DataProviderBase):
         an existing datatype instace (if one exists). Generally used in conflict
         resolution. 
         @type overwrite: C{bool}
-        dataprovider is capable of handling        
+        @param LUID: A locally unique identifier representing the location
+        where the data was previously put.
         @raise conduit.Exceptions.SynchronizeConflictError: if there is a 
         conflict between the data being put, and that which it is overwriting 
         a L{conduit.Exceptions.SynchronizeConflictError} is raised.
+        """
+        self.set_status(STATUS_SYNC)
+
+    def delete(self, LUID):
+        """
+        Deletes data with LUID.
         """
         self.set_status(STATUS_SYNC)
 

@@ -9,11 +9,12 @@ from conduit import log,logd,logw
 class MappingDB:
     """
     Manages mappings of LUID <--> LUID on a per dataprovider basis.
-    Table with 3 fields -
-        1. The Dataprovider wrapper UID
-        2. LUIDA
-        3. LUIDB
-    The mapping from A<->B is bidirectional.
+    Table with 5 fields -
+        1. Source Wrapper UID
+        2. Source Data LUID
+        3. Sink Wrapper UID
+        4. Sink Data LUID
+        5. Modification Time
 
     This class is a mapping around a simple python dict based DB. This wrapper
     will make it easier to swap out database layers at a later date. 
@@ -22,57 +23,72 @@ class MappingDB:
     def __init__(self):
         self._db = None
 
-    def _get_relationships(self, dpwUID):
+    def get_mappings_for_dataproviders(self, sourceUID, sinkUID):
         """
-        Gets all relationships for a dataproviderwrapper
+        Gets all the data mappings for the dataprovider pair
+        sourceUID <--> sinkUID
         """
-        maps = {}
-        for i in self._db._dpw[dpwUID]:
-            maps[i["LUIDA"]] = [i["LUIDB"]]
-        #logd("Found %s relationships for %s" % (len(maps), dpwUID))
-        return maps
-
+        return [i for i in self._db if i["sourceUID"] == sourceUID and i["sinkUID"] == sinkUID]
+        
     def open_db(self, filename):
         """
         Opens the mapping DB at the location @ filename
         """
         self._db = SimpleDb(os.path.abspath(filename))
-        self._db.create("dpw","LUIDA", "LUIDB", mode="open")
+        self._db.create("sourceUID","sourceDataLUID", "sinkUID", "sinkDataLUID","mtime", mode="open")
         #We access the DB via all fields so all need indices
         self._db.create_index(*self._db.fields)
 
-    def save_relationship(self, dpwUID, LUIDA, LUIDB):
+    def save_mapping(self, sourceUID, sourceDataLUID, sinkUID, sinkDataLUID, mtime):
         """
-        Saves a relationship between LUIDA and LUIDB on 
-        behalf of dpw
+        Saves a mapping between the dataproviders with sourceUID and sinkUID
+        The mapping says that within that syncronization pair the two data
+        items sourceeDataLUID and sinkDataLUID are synchronized
         """
-        if None in [dpwUID, LUIDA, LUIDB]:
+        if None in [sourceUID, sourceDataLUID, sinkUID, sinkDataLUID]:
+            logw("Could not save mapping")
             return
-        for i in self._db._dpw[dpwUID]:
-            if i["LUIDA"] == LUIDA:
-                if i["LUIDB"] == LUIDB:
-                    #already saved
-                    #logd("Skipping relationship: %s<-%s->%s (already exists)" % (LUIDA, dpwUID, LUIDB))
+
+        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
+        for i in existing:
+            if i["sourceDataLUID"] == sourceDataLUID:
+                if i["sinkDataLUID"] == sinkDataLUID and i["mtime"] == mtime:
+                    logd("Skipping mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
                     return
                 else:
-                    #update existing relationship
-                    #logd("Updating relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
-                    self._db.update(i, LUIDB=LUIDB)
+                    logd("Updating mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
+                    self._db.update(
+                        i,
+                        sourceDataLUID=sourceDataLUID,
+                        sinkDataLUID=sinkDataLUID,
+                        mtime=mtime
+                        )
                     return
-        #create new
-        #logd("Saving relationship: %s<-%s->%s" % (LUIDA, dpwUID, LUIDB))
-        self._db.insert(dpw=dpwUID,LUIDA=LUIDA,LUIDB=LUIDB)
-        
-    def get_matching_uid(self, dpwUID, LUID):
+
+
+        logd("Saving new mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
+        self._db.insert(
+                    sourceUID=sourceUID,
+                    sourceDataLUID=sourceDataLUID,
+                    sinkUID=sinkUID,
+                    sinkDataLUID=sinkDataLUID,
+                    mtime=mtime
+                    )
+
+    def get_mapping(self, sourceUID, sourceDataLUID, sinkUID):
         """
-        Gets the matching UID for dpw and LUID
+        For a given source and sink pair, get the mapping data for
+        the sourceDataLUID. This includes the matching sinkDataLUID
+        and mtime.
+
+        @returns: sinkDataLUID, mtime
         """
-        match=None
-        for r in self._db._dpw[dpwUID]:
-            if r["LUIDA"]==LUID:
-                match=r["LUIDB"]
-        #logd("Found matching UID %s for %s (%s)" % (match, LUID, dpwUID))
-        return match
+        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
+        for i in existing:
+            if i["sourceDataLUID"] == sourceDataLUID:
+                return i["sinkDataLUID"], i["mtime"]
+
+        return None, None
 
     def save(self):
         logd("Saving mapping DB to %s" % self._db.name)
@@ -80,14 +96,20 @@ class MappingDB:
 
     def debug(self):
         print "Contents of MappingDB: %s" % self._db.name
-        dpws = [i["dpw"] for i in self._db]
-        dpws = Utils.distinct_list(dpws)
-        for i in dpws:
-            print "\t%s" % i
-            rels = self._get_relationships(i)
-            for j in rels.keys():
-                print "\t\t%s --> %s" % (j, self.get_matching_uid(i,j))
-       
+        sources = [i["sourceUID"] for i in self._db]
+        sources = Utils.distinct_list(sources)
+        for sourceUID in sources:
+            print "\t%s:" % sourceUID
+            #all matching sinkUIDs for sourceUID
+            sinks = [i["sinkUID"] for i in self._db if i["sourceUID"] == sourceUID]
+            sinks = Utils.distinct_list(sinks)
+            for sinkUID in sinks:
+                print "\t\t%s --> %s" % (sourceUID, sinkUID)
+                #get relationships
+                rels = self.get_mappings_for_dataproviders(sourceUID, sinkUID)
+                for r in rels:
+                    print "\t\t\t%s --> %s" % (r["sourceDataLUID"], r["sinkDataLUID"])
+      
         
 class SimpleDb:
     """

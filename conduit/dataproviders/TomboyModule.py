@@ -91,6 +91,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
                     contents=str(self.remoteTomboy.GetNoteContents(uid)),
                     raw=str(self.remoteTomboy.GetNoteContentsXml(uid))
                     )
+        n.set_UID(uid)
         n.set_open_URI(uid)
         return n
 

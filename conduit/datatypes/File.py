@@ -30,7 +30,6 @@ class File(DataType.DataType):
         """
         if self.triedOpen == False:
             self.set_open_URI(self._get_text_uri())
-            self.set_UID(self._get_text_uri())
             try:
                 self.vfsFile = gnomevfs.Handle(self.URI)
                 self.fileExists = True

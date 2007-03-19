@@ -90,8 +90,8 @@ class GtkView(dbus.service.Object):
         self.hpane = self.widgets.get_widget("hpaned1")
 
         #Configure popup menus
-        self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "GroupMenu")
-        self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "ItemMenu") 
+        self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "ConduitMenu")
+        self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "DataProviderMenu") 
         self.canvas_popup_widgets.signal_autoconnect(self)
         self.item_popup_widgets.signal_autoconnect(self)        
 
@@ -563,7 +563,7 @@ class ConduitStatusIcon(gtk.StatusIcon):
         self.manager = gtk.UIManager()
         self.manager.insert_action_group(ag, 0)
         self.manager.add_ui_from_string(menu)
-        self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent
+        self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent        
         self.connect('popup-menu', self.on_popup_menu)
 
         #start with the application icon
