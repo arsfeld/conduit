@@ -20,6 +20,7 @@ if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
 import conduit
 from conduit import log,logd,logw
 from conduit.ModuleWrapper import ModuleWrapper
+import conduit.Module as Module
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
@@ -28,6 +29,10 @@ ALLOWED_PORT_TO = 3410
 
 PORT_IDX = 0
 VERSION_IDX = 1
+
+MODULES = {
+        "NetworkFactory" :     { "type": "dataprovider-factory" }
+}
 
 def decode_avahi_text_array_to_dict(array):
     """
@@ -51,18 +56,14 @@ def encode_dict_to_avahi_text_array(d):
         array.append("%s=%s" % (key, d[key]))
     return array
     
-class ConduitNetworkManager(gobject.GObject):
+class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
     """
     Controlls all network related communication aspects. This involves
     1) Advertising dataprovider presence on local network using avahi
     2) Discovering remote conduit capabilities (i.e. what dataproviders it has advertised)
     3) Data transmission to/from remote conduit instances
     """
-    __gsignals__ = {
-        #Fired when the module detects a dataprovider on the remote machine added
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_PYOBJECT])
-    }
-    def __init__(self):
+    def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
         self.dataproviderAdvertiser = AvahiAdvertiser()
         self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
