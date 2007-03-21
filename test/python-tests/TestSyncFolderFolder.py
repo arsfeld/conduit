@@ -84,7 +84,7 @@ except Exception, err:
 
 a = sinkW.module.get_num_items()
 b = sourceW.module.get_num_items()
-ok("Got all items to sync (%s,%s)" % (a,b), (a+b)==len(FILES))
+ok("Got all items to sync (%s,%s,%s)" % (a,b,len(FILES)), (a+b)==len(FILES))
 
 #now put them in a conduit and sync
 conduit = Conduit.Conduit()

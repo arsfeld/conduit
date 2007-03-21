@@ -49,7 +49,6 @@ class File(DataType.DataType):
         self.triedOpen = False
         self.fileExists = False
 
-
     def _get_text_uri(self):
         """
         The mixing of text_uri and gnomevfs.URI in the gnomevfs api is very
@@ -112,10 +111,7 @@ class File(DataType.DataType):
         #see http://mail.python.org/pipermail/python-list/2005-December/355679.html
         newInfo = gnomevfs.FileInfo()
         newInfo.mtime = long(time.mktime(mtime.timetuple()))
-
-        logd("Updating file mtime to %s" % mtime)
         gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
-
         #close so the file info is re-read
         self._close_file()
 
@@ -170,10 +166,12 @@ class File(DataType.DataType):
         """
         Sets the modification time of the file
         """
-        try:
-            self.force_new_mtime(mtime)
-        except:
-            logw("Error setting mtime of %s to %s" % (self.URI, mtime))
+        if mtime != None:
+            try:
+                self.force_new_mtime(mtime)
+            except:
+                logw("Error setting mtime of %s" % self.URI)
+                traceback.print_exc()
     
     def get_size(self):
         """
@@ -298,11 +296,10 @@ class TempFile(File):
         fd, name = tempfile.mkstemp(prefix="conduit")
         os.write(fd, contents)
         os.close(fd)
-    
-        self._newFilename = None
 
         File.__init__(self, name)
 
+        self._newFilename = None
         logd("New tempfile created at %s" % name)
             
     def force_new_filename(self, filename):
@@ -329,4 +326,4 @@ class TempFile(File):
 
             logd("TempFile transferred to %s. filename %s" % (URI, self._newFilename))
             File.transfer(self, str(URI), overwrite)
-           
+          

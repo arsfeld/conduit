@@ -8,6 +8,7 @@ import conduit.datatypes.Event as Event
 import conduit.datatypes.Text as Text
 import conduit.datatypes.Email as Email
 import conduit.datatypes.File as File
+import conduit.datatypes.Note as Note
 
 MODULES = {
         "EmailConverter" :      { "type": "converter" },
@@ -30,7 +31,7 @@ class EmailConverter:
         t = Text.Text(
                     text=email.get_email_string()
                     )
-        return Utils.retain_info_in_conversion(email, t)
+        return t
 
     def file_to_email(self, thefile):
         """
@@ -56,14 +57,14 @@ class EmailConverter:
                             )
             email.add_attachment(thefile.get_local_uri())
 
-        return Utils.retain_info_in_conversion(thefile, email)
+        return email
             
     def text_to_email(self, text):
         email = Email.Email(
                         None,
                         content=text.get_string()
                         )
-        return Utils.retain_info_in_conversion(text, email)
+        return email
 
 
 class NoteConverter:
@@ -85,16 +86,16 @@ class NoteConverter:
         t = Text.Text(
                     text=note.get_note_string()
                     )
-        return Utils.retain_info_in_conversion(note, t)
+        return t
 
     def note_to_file(self, note):
-        f = File.TempFile(note.contents)
+        f = File.TempFile(note.raw)
         f.force_new_filename(note.title)
-        return Utils.retain_info_in_conversion(note, f)
+        return f
 
 class ContactConverter:
     def __init__(self):
-        self.conversions =  {    
+        self.conversions =  {
                             "contact,file"    : self.contact_to_file,
                             "contact,text"    : self.contact_to_text,
                             "file,contact"    : self.file_to_contact,
@@ -103,19 +104,19 @@ class ContactConverter:
     def contact_to_file(self, contact):
         #get vcard data
         f = Utils.new_tempfile(contact.get_vcard_string())
-        return Utils.retain_info_in_conversion(contact, t)
+        return t
 
     def contact_to_text(self, contact):
         #get vcard data
         t = Text.Text(
                     text=contact.get_vcard_string()
                     )
-        return Utils.retain_info_in_conversion(contact, t)
+        return t
 
     def file_to_contact(self, f):
         c = Contact.Contact(None)
-        c.readVCard(f.get_contents_as_text())
-        return Utils.retain_info_in_conversion(f, c)
+        c. set_from_vcard_string(f.get_contents_as_text())
+        return c
 
 class EventConverter:
     def __init__(self):
@@ -129,23 +130,23 @@ class EventConverter:
     def event_to_file(self, event):
         #get ical data
         f = Utils.new_tempfile(event.get_ical_string())
-        return Utils.retain_info_in_conversion(event, f)
+        return f
 
     def event_to_text(self, event):
         t = Text.Text(
                     text=event.get_ical_string()
                     )
-        return Utils.retain_info_in_conversion(event, t)
+        return t
 
     def file_to_event(self, f):
         e = Event.Event(None)
         e.set_from_ical_string(f.get_contents_as_text())
-        return Utils.retain_info_in_conversion(f, e)
+        return e
 
     def text_to_event(self, text):
         e = Event.Event(None)
         e.set_from_ical_string(text.get_string())
-        return Utils.retain_info_in_conversion(text, e)
+        return e
 
 class FileConverter:
     def __init__(self):
@@ -165,7 +166,7 @@ class FileConverter:
             mime.index("text")
             raw = theFile.get_contents_as_text()
             text = Text.Text(text=raw)
-            return Utils.retain_info_in_conversion(theFile, text)
+            return text
         except ValueError:
             raise Exception(
                     "Could not convert %s to text. Binary file" % 
@@ -183,7 +184,7 @@ class FileConverter:
                     title=title,
                     raw=raw
                     )
-            return Utils.retain_info_in_conversion(theFile, note)
+            return note
         except ValueError:
             raise Exception(
                     "Could not convert %s to text. Binary file" % 

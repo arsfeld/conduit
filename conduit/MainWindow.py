@@ -300,6 +300,18 @@ class GtkView(dbus.service.Object):
 
         #construct the dialog
         tree = gtk.glade.XML(conduit.GLADE_FILE, "PreferencesDialog")
+        #Show the DB contents to help debugging
+        if conduit.IS_DEVELOPMENT_VERSION:
+            notebook = tree.get_widget("prop_notebook")
+            debugText = conduit.mappingDB.debug()
+            textView = gtk.TextView()
+            textView.set_editable(False)
+            textView.get_buffer().set_text(debugText)
+            sw = gtk.ScrolledWindow()
+            sw.add(textView)
+            notebook.append_page(sw,gtk.Label('Mapping DB'))
+            notebook.show_all()
+        
         converterTreeView = tree.get_widget("dataConversionsTreeView")
         converterTreeView.set_model(converterListStore)
         converterTreeView.append_column(gtk.TreeViewColumn('Conversions Available', 

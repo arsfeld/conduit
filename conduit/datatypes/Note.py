@@ -14,7 +14,7 @@ class Note(DataType.DataType):
 
         Optional kwargs
           - contents: The raw note contents
-          - modified: Unix timestamp modified time
+          - mtime: python datetime
           - raw: Raw note XML. This should probbably be removed and put into
           - a dedicated TomboyNote datatype at some point.
         """

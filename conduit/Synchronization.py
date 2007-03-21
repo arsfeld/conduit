@@ -212,9 +212,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                 sourceDataLUID=data.get_UID(),
                                 sinkUID=sink.get_UID()
                                 )
+#        print "Mtimes: ". data.get_mtime(), mtime
         #if data.get_mtime() != mtime or slow_sync:
         LUID = sink.module.put(data, overwrite, LUID)
-        mtime = data.get_mtime()
+#        mtime = data.get_mtime()
         #Now store the mapping of the original URI to the new one. We only
         #get here if the put was successful, so the mtime of the putted
         #data wll be the same as the original data

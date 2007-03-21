@@ -37,7 +37,10 @@ else:
     conduit.SHARED_MODULE_DIR =     os.path.abspath('@PKGLIBDIR@')
     conduit.EXTRA_LIB_DIR =         os.path.join(conduit.SHARED_MODULE_DIR, "contrib")
 
-conduit.log("Conduit Installed: %s" % conduit.IS_INSTALLED)
+#Development versions are X.ODD_VERSION.Y
+conduit.IS_DEVELOPMENT_VERSION = int(conduit.APPVERSION.split('.')[1]) % 2 == 1
+
+conduit.log("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
 conduit.log("Log Level: %s" % conduit.LOG_LEVEL)
 
 # Start the application

@@ -95,20 +95,21 @@ class MappingDB:
         self._db.commit()
 
     def debug(self):
-        print "Contents of MappingDB: %s" % self._db.name
+        s = "Contents of MappingDB: %s\n" % self._db.name
         sources = [i["sourceUID"] for i in self._db]
         sources = Utils.distinct_list(sources)
         for sourceUID in sources:
-            print "\t%s:" % sourceUID
+            s += "\t%s:\n" % sourceUID
             #all matching sinkUIDs for sourceUID
             sinks = [i["sinkUID"] for i in self._db if i["sourceUID"] == sourceUID]
             sinks = Utils.distinct_list(sinks)
             for sinkUID in sinks:
-                print "\t\t%s --> %s" % (sourceUID, sinkUID)
+                s += "\t\t%s --> %s\n" % (sourceUID, sinkUID)
                 #get relationships
                 rels = self.get_mappings_for_dataproviders(sourceUID, sinkUID)
                 for r in rels:
-                    print "\t\t\t%s --> %s" % (r["sourceDataLUID"], r["sinkDataLUID"])
+                    s += "\t\t\t%s --> %s\n" % (r["sourceDataLUID"], r["sinkDataLUID"])
+        return s
       
         
 class SimpleDb:

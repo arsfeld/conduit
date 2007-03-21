@@ -80,7 +80,21 @@ class TypeConverter:
                                         "from %s to %s" % (fromtype,totype))
                         logw("KeyError was %s" % err)
                     except Exception:
-                        logw("Error #341")
+                        logw("BAD PROGRAMMER")
+
+    def _retain_info_in_conversion(self, fromdata, todata):
+        """
+        Retains the original datatype properties through a type conversion.
+        Properties retained include;
+          - gnome-open'able URI
+          - modification time
+          - original UID
+        Call this function from a typeconverter
+        """
+        todata.set_mtime(fromdata.get_mtime())
+        todata.set_open_URI(fromdata.get_open_URI())
+        todata.set_UID(fromdata.get_UID())
+        return todata
                     
     def convert(self, from_type, to_type, data):
         """
@@ -98,7 +112,8 @@ class TypeConverter:
         """
         try:
             logd("Converting %s -> %s" % (from_type, to_type))
-            return self.convertables[from_type][to_type](data)
+            to = self.convertables[from_type][to_type](data)
+            return self._retain_info_in_conversion(fromdata=data, todata=to)
         except TypeError, err:
             extra="Could not call conversion function\n%s" % traceback.format_exc()
             raise Exceptions.ConversionError(from_type, to_type, extra)
@@ -107,7 +122,8 @@ class TypeConverter:
             logw("Trying conversion from %s -> text & text -> %s" % (from_type, to_type))
             try:
                 intermediate = self.convertables[from_type]["text"](data)
-                return self.convertables["text"][to_type](intermediate)
+                to = self.convertables["text"][to_type](intermediate)
+                return self._retain_info_in_conversion(fromdata=data, todata=to)
             except Exception, err:
                 #This is the normal case where the conversion just doesnt exist
                 raise Exceptions.ConversionError(from_type, to_type, err)
