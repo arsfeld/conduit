@@ -73,6 +73,8 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         self.localModules = kwargs['moduleManager']
 
         self.dataproviderAdvertiser = AvahiAdvertiser()
+        self.advertisedDataproviders = {}
+
         self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
         self.detectedHosts = {}
         self.detectedConduits = {}
@@ -103,7 +105,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         """
         When a local dataprovider is no longer available, unadvertise it
         """
-        self.unadvertised_dataprovider(dataproviderWrapper)
+        self.unadvertise_dataprovider(dataproviderWrapper)
 
     def advertise_dataprovider(self, dataproviderWrapper):
         """
@@ -120,6 +122,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
             logd("Advertising %s on port %s" % (dataproviderWrapper, port))
             ok = self.dataproviderAdvertiser.advertise_dataprovider(dataproviderWrapper, port)
             if ok:
+                self.advertisedDataproviders[dataproviderWrapper] = port
                 self.usedPorts[port] = True
             else:
                 logw("Could not advertise dataprovider")
@@ -131,8 +134,12 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         Removes the advertised dataprovider and makes its port
         available to be assigned to another dataprovider later
         """
+        
+        if not dataproviderWrapper in self.advertisedDataproviders:
+            return
+
         #Look up the port, remove it from the list of used ports
-        port = self.dataproviderAdvertiser.get_advertised_dataprovider_port(dataproviderWrapper)
+        port = self.advertisedDataproviders[dataproviderWrapper]
         self.usedPorts[port] = False
 
         #Unadvertise
