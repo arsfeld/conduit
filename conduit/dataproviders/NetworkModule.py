@@ -380,6 +380,9 @@ class AvahiMonitor:
         """
         DBus callback when a new service is detected
         """
+        if flags & avahi.LOOKUP_RESULT_OUR_OWN:
+            return
+
         service = self.server.ResolveService(
                                         interface, 
                                         protocol,
@@ -397,17 +400,16 @@ class AvahiMonitor:
         Dbus callback
         """
         extra_info = avahi.txt_array_to_string_array(txt)
+        extra = decode_avahi_text_array_to_dict(extra_info)
+
         logd("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
-        #Check if the service is local and then check the 
-        #conduit versions are identical
-        if name.split(":")[0] == self.hostname: #FIXME: Avahi 0.6.15 has a built in check function for this
-            logd("Ignoring %s because it is on the local machine" % name)
+
+        # Check if the service is local and then check the 
+        # conduit versions are identical
+        if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
+            self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
         else:
-            extra = decode_avahi_text_array_to_dict(extra_info)
-            if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
-                self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
-            else:
-                logd("Ignoring %s because remote conduit is different version" % name)
+            logd("Ignoring %s because remote conduit is different version" % name)
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
