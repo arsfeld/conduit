@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:admin="http://webns.net/mvcb/" xml:lang="en">
   <doap:Project>
-    <doap:name>Sound Juicer</doap:name>
-    <doap:shortname>sound-juicer</doap:shortname>
-    <doap:homepage rdf:resource="http://www.burtonini.com/blog/computers/sound-juicer"/>
+    <doap:name>Conduit</doap:name>
+    <doap:shortname>conduit</doap:shortname>
+    <doap:homepage rdf:resource="http://www.conduit-project.org"/>
     <doap:created>2003-04-11</doap:created>
 
-    <doap:description>A lean and friendly audio CD extractor for GNOME.</doap:description>
-    <doap:shortdesc>A lean and friendly audio CD extractor for GNOME.</doap:shortdesc>
-    <doap:bug-database rdf:resource="http://bugzilla.gnome.org/"/>
-    <doap:programming-language>C</doap:programming-language>
+    <doap:description>A synchronization application for GNOME.</doap:description>
+    <doap:shortdesc>Synchronization for GNOME.</doap:shortdesc>
+    <doap:bug-database rdf:resource="http://www.conduit-project.org/"/>
+    <doap:programming-language>python</doap:programming-language>
     <doap:os>Linux</doap:os>
     <doap:license rdf:resource="http://usefulinc.com/doap/licenses/gpl"/>
-    <doap:download-page rdf:resource="http://www.burtonini.com/blog/computers/sound-juicer"/>
+    <doap:download-page rdf:resource="http://www.conduit-project.org"/>
 
     <doap:maintainer>
       <foaf:Person>
-        <foaf:name>Ross Burton</foaf:name>
-        <foaf:mbox>mailto:ross@burtonini.com</foaf:mbox>
+        <foaf:name>John Stowers</foaf:name>
+        <foaf:mbox>mailto:john.stowers@gmail.com</foaf:mbox>
       </foaf:Person>
     </doap:maintainer>
 

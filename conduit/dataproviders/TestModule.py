@@ -333,8 +333,9 @@ class TestFactory(Module.DataProviderFactory):
         Module.DataProviderFactory.__init__(self, **kwargs)
 
         #callback the GUI in 5 seconds to add a new dataprovider
-        gobject.timeout_add(4000, self.make_one)
-        gobject.timeout_add(7000, self.make_two)
+        gobject.timeout_add(3000, self.make_one)
+        gobject.timeout_add(5000, self.make_two)
+        gobject.timeout_add(7000, self.remove_one)
         
     def make_one(self, *args):
         self.key1 = self.emit_added(
@@ -352,6 +353,10 @@ class TestFactory(Module.DataProviderFactory):
         #run once
         return False
 
+    def remove_one(self, *args):
+        self.emit_removed(self.key1)
+        return False
+
 class TestFactoryRemoval(Module.DataProviderFactory):
     """
     Repeatedly add/remove a DP/Category to stress test framework
@@ -362,19 +367,19 @@ class TestFactoryRemoval(Module.DataProviderFactory):
         self.count = 200
         self.stats = None
 
-    def added(self):
-        if self.stats == None:
-            self.stats = conduit.memstats()
-
-        cat = DataProvider.DataProviderCategory(
+        self.cat = DataProvider.DataProviderCategory(
                     "TestHotplug",
                     "emblem-system",
                     "/test/")
 
+    def added(self):
+        if self.stats == None:
+            self.stats = conduit.memstats()
+
         self.key = self.emit_added(
                            klass=TestDynamicSource,
                            initargs=("Bar","Bazzer"),
-                           category=cat)
+                           category=self.cat)
 
         gobject.timeout_add(500, self.removed)
         return False
@@ -383,7 +388,7 @@ class TestFactoryRemoval(Module.DataProviderFactory):
         self.emit_removed(self.key)
         if self.count > 0:
             gobject.timeout_add(500, self.added)
-            self.count = self.count - 1
+            self.count -= 1
         else:
             conduit.memstats(self.stats)
         return False

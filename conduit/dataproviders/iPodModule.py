@@ -238,6 +238,7 @@ class IPodNoteTwoWay(IPodBase):
                 else:
                     #only overwrite if newer
                     logw("OVERWRITE IF NEWER NOT IMPLEMENTED")
+                    self._save_note_to_ipod(LUID, note)
                     return LUID
     
         #make a new note

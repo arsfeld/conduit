@@ -212,20 +212,23 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                 sourceDataLUID=data.get_UID(),
                                 sinkUID=sink.get_UID()
                                 )
-#        print "Mtimes: ". data.get_mtime(), mtime
-        #if data.get_mtime() != mtime or slow_sync:
-        LUID = sink.module.put(data, overwrite, LUID)
-#        mtime = data.get_mtime()
-        #Now store the mapping of the original URI to the new one. We only
-        #get here if the put was successful, so the mtime of the putted
-        #data wll be the same as the original data
-        self.mappingDB.save_mapping(
-                                sourceUID=source.get_UID(),
-                                sourceDataLUID=data.get_UID(),
-                                sinkUID=sink.get_UID(),
-                                sinkDataLUID=LUID,
-                                mtime=mtime
-                                )
+        #Unless the user has selected slow_sync only put data whose mtime has
+        #changed
+        if data.get_mtime() != mtime or self.conduit.do_slow_sync():
+            LUID = sink.module.put(data, overwrite, LUID)
+            mtime = data.get_mtime()
+            #Now store the mapping of the original URI to the new one. We only
+            #get here if the put was successful, so the mtime of the putted
+            #data wll be the same as the original data
+            self.mappingDB.save_mapping(
+                                    sourceUID=source.get_UID(),
+                                    sourceDataLUID=data.get_UID(),
+                                    sinkUID=sink.get_UID(),
+                                    sinkDataLUID=LUID,
+                                    mtime=mtime
+                                    )
+        else:
+            logd("Skipping %s. Mtimes has not changed (actual %s v saved %s)" % (data.get_UID(), data.get_mtime(), mtime))
 
     def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, missingDataUID, leftToRight):
         pass

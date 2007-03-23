@@ -33,8 +33,15 @@ resources_DATA = \
 	sink-icon.png \
 	source-icon.png \
 	tomboy.png \
-	twoway-icon.png
-
+	twoway-icon.png \
+	conduit-progress-1.png \
+	conduit-progress-2.png \
+	conduit-progress-3.png \
+	conduit-progress-4.png \
+	conduit-progress-5.png \
+	conduit-progress-6.png \
+	conduit-progress-7.png \
+	conduit-progress-8.png
 
 conduitbindir = $(libdir)/conduit
 
