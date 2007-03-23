@@ -167,7 +167,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
         logd("Remote Dataprovider '%s' removed" % name)
 
-        self.emit_removed(self.detectedConduits[name])
+        self.emit_removed(self.detectedConduits[name]['local_key'])
         del self.detectedConduits[name]
 
     def get_all_modules(self):
@@ -402,7 +402,7 @@ class AvahiMonitor:
         else:
             extra = decode_avahi_text_array_to_dict(extra_info)
             if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
-                self.detected_cb(name, host, address, port, extra_info)
+                self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
             else:
                 logd("Ignoring %s because remote conduit is different version" % name)
 
@@ -410,7 +410,7 @@ class AvahiMonitor:
         """
         Dbus callback when a service is removed
         """
-        self.removed_cb(name)
+        self.removed_cb(str(name))
 
     def _resolve_error(self, error):
         """
