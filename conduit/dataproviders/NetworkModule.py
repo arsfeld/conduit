@@ -152,7 +152,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
 
         if not self.detectedHosts.has_key(host):
             self.detectedHosts[host] = {}
-            self.detectedHosts[host]["category"] = DataProviderCategory("On %s" % host, "computer", host)
+            self.detectedHosts[host]["category"] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
 
         #FIXME: Do more than emite a dummy dp!!
         local_key = self.emit_added(
