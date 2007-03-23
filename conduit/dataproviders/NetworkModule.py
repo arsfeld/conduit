@@ -88,7 +88,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         # look for dataproviders to share
         for dp_type in ["twoway", "sink", "source"]:
             for dp in self.localModules.get_modules_by_type(dp_type):
-                self.on_local_dataprovider_added()
+                self.on_local_dataprovider_added(None, dp)
 
         # detect any hotpluggable dataproviders to share
         self.localModules.connect("dataprovider-added", self.on_local_dataprovider_added)
