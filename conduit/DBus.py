@@ -58,6 +58,9 @@ class DBusView(dbus.service.Object):
     def _on_dataprovider_added(self, loader, dataprovider):
         self.NewDataprovider(dataprovider.get_key())
 
+    def _on_dataprovider_removed(self, loader, dataprovider):
+        self.DataproviderRemoved(dataprovider.get_key())
+
     def _on_sync_started(self, thread):
         pass
 
@@ -116,6 +119,7 @@ class DBusView(dbus.service.Object):
     def set_model(self, model):
         self.model = model
         self.model.connect("dataprovider-added", self._on_dataprovider_added)
+        self.model.connect("dataprovider-removed", self._on_dataprovider_removed)
 
         #initialise the Type Converter
         self.type_converter = TypeConverter(self.model)
@@ -249,6 +253,10 @@ class DBusView(dbus.service.Object):
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
     def NewDataprovider(self, key):
         self._print("Emmiting DBus signal NewDataprovider %s" % key)
+
+    @dbus.service.signal(CONDUIT_DBUS_IFACE)
+    def DataproviderRemoved(self, key):
+        self._print("Emiting DBus signal DataproviderRemoved %s" % key)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
     def SyncCompleted(self, conduitUID):
