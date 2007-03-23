@@ -18,7 +18,8 @@ import libgmail
 
 MODULES = {
 	"GmailEmailTwoWay" :    { "type": "dataprovider" },
-	"GmailContactTwoWay" :  { "type": "dataprovider" }
+	"GmailContactTwoWay" :  { "type": "dataprovider" },
+        "PicasaWebTwoWay" :     { "type": "dataprovider" },
 }
 
 GOOGLE_CAT = DataProvider.DataProviderCategory("Google", "applications-internet")
@@ -377,3 +378,80 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
             "username" : self.username,
             "password" : self.password,
             }
+
+class PicasaWebTwoWay(GmailBase, DataProvider.TwoWay):
+    """
+    Allow uploading/downloading via Google PicasaWeb as it now has a GData API
+    
+    See http://code.google.com/apis/picasaweb/gdata.html#top
+    http://djcraven.blogspot.com/2006/10/success-posting-to-blogger-beta-using.html 
+    """
+    _name_ = _("Photos")
+    _description_ = _("Sync your PicasaWeb photos")
+    _category_ = GOOGLE_CAT
+    _module_type_ = "twoway"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "contact-new"
+
+    def __init__(self, *args):
+        GmailBase.__init__(self, *args)
+        DataProvider.TwoWay.__init__(self)
+        self.need_configuration(True)
+
+        self.contacts = None
+        self.username = ""
+        self.password = ""
+
+    def initialize(self):
+        return True
+
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        GmailBase.refresh(self)
+
+        self.photos = []
+
+    def get_num_items(self):
+        DataProvider.TwoWay.get_num_items(self)
+        return len(self.photos)
+
+    def get(self, index):
+        DataProvider.TwoWay.get(self, index)
+        return self.photos[index]
+
+    def put(self, contact, overwrite, LUID=None):
+        DataProvider.TwoWay.put(self, contact, overwrite, LUID)
+
+    def finish(self):
+        self.photos = None
+
+    def configure(self, window):
+        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")
+        
+        #get a whole bunch of widgets
+        searchLabelEmailsCb = tree.get_widget("searchLabelEmails")
+        labelEntry = tree.get_widget("labels")
+        usernameEntry = tree.get_widget("username")
+        passwordEntry = tree.get_widget("password")
+        
+        #preload the widgets
+        usernameEntry.set_text(self.username)
+        
+        dlg = tree.get_widget("GmailSinkConfigDialog")
+        dlg.set_transient_for(window)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            self.username = usernameEntry.get_text()
+            if passwordEntry.get_text() != self.password:
+                self.password = passwordEntry.get_text()
+                self.set_configured(True)
+        dlg.destroy()
+
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "password" : self.password,
+            }
+
