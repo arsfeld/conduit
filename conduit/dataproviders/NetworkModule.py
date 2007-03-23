@@ -138,17 +138,12 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         #Unadvertise
         self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
 
-    def dataprovider_detected(self):
+    def dataprovider_detected(self, name, host, address, port, extra_info):
         """
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
-        logd("Remote Dataprovider detected")
-
-        #FIXME: Identify host name of remote machine and only have one category for that machine
-        host = "SOME_HOST"
-        port = "8080"
-        key = "Tomboy"
+        logd("Remote Dataprovider '%s' detected on %s" % (name, host))
 
         if not self.detectedHosts.has_key(host):
             self.detectedHosts[host] = {}
@@ -157,20 +152,23 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         #FIXME: Do more than emite a dummy dp!!
         local_key = self.emit_added(
                              RemoteDataProvider, 
-                             (host, port), 
+                             (name, host, port), 
                              self.detectedHosts[host]["category"])
 
-        self.detectedConduits[key] = {
+        self.detectedConduits[name] = {
                                        "local_key" : local_key,
                                      }
 
-    def dataprovider_removed(self):
+    def dataprovider_removed(self, name):
         """
         Callback which is triggered when a dataprovider is unadvertised 
         from a remote conduit instance
         """
         #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
-        logd("Remote Dataprovider removed")
+        logd("Remote Dataprovider '%s' removed" % name)
+
+        self.emit_removed(self.detectedConduits[name])
+        del self.detectedConduits[name]
 
     def get_all_modules(self):
         #May take some time. Do whatever needs to be done to get all modules
@@ -404,7 +402,7 @@ class AvahiMonitor:
         else:
             extra = decode_avahi_text_array_to_dict(extra_info)
             if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
-                self.detected_cb()
+                self.detected_cb(name, host, address, port, extra_info)
             else:
                 logd("Ignoring %s because remote conduit is different version" % name)
 
@@ -412,7 +410,7 @@ class AvahiMonitor:
         """
         Dbus callback when a service is removed
         """
-        self.removed_cb()
+        self.removed_cb(name)
 
     def _resolve_error(self, error):
         """
