@@ -177,10 +177,6 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         self.emit_removed(self.detectedConduits[name]['local_key'])
         del self.detectedConduits[name]
 
-    def get_all_modules(self):
-        #May take some time. Do whatever needs to be done to get all modules
-        return []
-
 class RemoteDataProvider(DataProvider.TwoWay):
     _name_ = "Networked DataProvider"
     _description_ = "Yo"
@@ -285,7 +281,7 @@ class AvahiAdvertiser:
                     port,                   #port
                     avahi.string_array_to_txt_array(["version=%s" % version])
                     )
-        except dbus.dbus_bindings.DBusException, err:
+        except dbus.DBusException, err:
             print err            
 
     def _advertise_all_services(self):
