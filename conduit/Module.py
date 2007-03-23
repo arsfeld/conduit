@@ -232,7 +232,8 @@ class ModuleManager(gobject.GObject):
                 elif infos["type"] == "dataprovider-factory":
                     # build a dict of kwargs to pass to factories
                     kwargs = {
-                        "hal":    self.hal
+                        "hal":    self.hal,
+                        "moduleManager": self,
                     }
                     #instantiate and store the factory
                     instance = klass(**kwargs)
