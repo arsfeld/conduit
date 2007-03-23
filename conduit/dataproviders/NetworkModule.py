@@ -21,6 +21,7 @@ import conduit
 from conduit import log,logd,logw
 from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Module as Module
+import conduit.DataProvider as DataProvider
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
@@ -65,8 +66,15 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
     """
     def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
+
+        if not kwargs.has_key("moduleManager"):
+            return
+
+        self.localModules = kwargs['moduleManager']
+
         self.dataproviderAdvertiser = AvahiAdvertiser()
         self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
+        self.detectedHosts = {}
         self.detectedConduits = {}
 
         #Keep record of advertised dataproviders
@@ -74,6 +82,28 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         self.usedPorts = {}
         for i in range(ALLOWED_PORT_FROM, ALLOWED_PORT_TO):
             self.usedPorts[i] = False
+
+        # look for dataproviders to share
+        for dp_type in ["twoway", "sink", "source"]:
+            for dp in self.localModules.get_modules_by_type(dp_type):
+                self.on_local_dataprovider_added()
+
+        # detect any hotpluggable dataproviders to share
+        self.localModules.connect("dataprovider-added", self.on_local_dataprovider_added)
+        self.localModules.connect("dataprovider-removed", self.on_local_dataprovider_removed)
+
+    def on_local_dataprovider_added(self, loader, dataproviderWrapper):
+        """
+        When a local dataprovider is added, check it to see if it is shared then advertise it
+        """
+        # FIXME: Doesn't care or respect anything about the user :-)
+        self.advertise_dataprovider(dataproviderWrapper)
+
+    def on_local_dataprovider_removed(self, loader, dataproviderWrapper):
+        """
+        When a local dataprovider is no longer available, unadvertise it
+        """
+        self.unadvertised_dataprovider(dataproviderWrapper)
 
     def advertise_dataprovider(self, dataproviderWrapper):
         """
@@ -104,6 +134,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         #Look up the port, remove it from the list of used ports
         port = self.dataproviderAdvertiser.get_advertised_dataprovider_port(dataproviderWrapper)
         self.usedPorts[port] = False
+
         #Unadvertise
         self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
 
@@ -112,8 +143,26 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
-        #FIXME: Do protocol negotionation and then emit "dataprovider-added"
         logd("Remote Dataprovider detected")
+
+        #FIXME: Identify host name of remote machine and only have one category for that machine
+        host = "SOME_HOST"
+        port = "8080"
+        key = "Tomboy"
+
+        if not self.detectedHosts.has_key(host):
+            self.detectedHosts[host] = {}
+            self.detectedHosts[host]["category"] = DataProviderCategory("On %s" % host, "computer", host)
+
+        #FIXME: Do more than emite a dummy dp!!
+        local_key = self.emit_added(
+                             RemoteDataProvider, 
+                             (host, port), 
+                             self.detectedHosts[host]["category"])
+
+        self.detectedConduits[key] = {
+                                       "local_key" : local_key,
+                                     }
 
     def dataprovider_removed(self):
         """
@@ -126,6 +175,37 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
     def get_all_modules(self):
         #May take some time. Do whatever needs to be done to get all modules
         return []
+
+class RemoteDataProvider(DataProvider.TwoWay):
+    _name_ = "Networked DataProvider"
+    _description_ = "Yo"
+    _module_type_ = "twoway"
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        DataProvider.TwoWay.__init__(self)
+        self.data = None
+
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        self.data = [1,2,3,4,5]
+
+    def get_num_items(self):
+        DataProvider.TwoWay.get_num_items(self)
+        return len(self.data)
+
+    def get(self, index):
+        DataProvider.TwoWay.get(self, index)
+        return self.data[index]
+
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.TwoWay.put(self, data, overwrite, LUID)
+        return "2384987397429834"
+
+    def finish(self):
+        self.data = None
 
 class RemoteModuleWrapper(ModuleWrapper):
     """
