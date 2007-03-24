@@ -56,10 +56,10 @@ class DBusView(dbus.service.Object):
         logd("DBus Message: %s" % message)
 
     def _on_dataprovider_added(self, loader, dataprovider):
-        self.NewDataprovider(dataprovider.get_key())
+        self.DataproviderAvailable(dataprovider.get_key())
 
     def _on_dataprovider_removed(self, loader, dataprovider):
-        self.DataproviderRemoved(dataprovider.get_key())
+        self.DataproviderUnavailable(dataprovider.get_key())
 
     def _on_sync_started(self, thread):
         pass
@@ -251,12 +251,12 @@ class DBusView(dbus.service.Object):
             return ERROR
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
-    def NewDataprovider(self, key):
-        self._print("Emmiting DBus signal NewDataprovider %s" % key)
+    def DataproviderAvailable(self, key):
+        self._print("Emmiting DBus signal DataproviderAvailable %s" % key)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
-    def DataproviderRemoved(self, key):
-        self._print("Emiting DBus signal DataproviderRemoved %s" % key)
+    def DataproviderUnavailable(self, key):
+        self._print("Emiting DBus signal DataproviderUnavailable %s" % key)
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE)
     def SyncCompleted(self, conduitUID):
