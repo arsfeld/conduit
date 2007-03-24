@@ -311,7 +311,7 @@ class AvahiAdvertiser:
         @returns: True if the dataprovder is successfully advertised
         @rtype:C{bool}
         """
-        name = dataproviderWrapper
+        name = dataproviderWrapper.get_key()
         version = conduit.APPVERSION
         if name not in self.advertisedDataProviders:
             #add the new service to the list to be advertised
@@ -325,7 +325,7 @@ class AvahiAdvertiser:
         """
         Unadvertises the dataprovider on the local network.
         """
-        name = dataproviderWrapper
+        name = dataproviderWrapper.get_key()
         if name in self.advertisedDataProviders:
             #Remove the old service to the list to be advertised
             del(self.advertisedDataProviders[name])
