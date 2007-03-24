@@ -77,7 +77,7 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
 
         self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
         self.detectedHosts = {}
-        self.detectedConduits = {}
+        self.detectedDataproviders = {}
 
         #Keep record of advertised dataproviders
         #Keep record of which ports are already used
@@ -99,7 +99,8 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
         When a local dataprovider is added, check it to see if it is shared then advertise it
         """
         # FIXME: Doesn't care or respect anything about the user :-)
-        self.advertise_dataprovider(dataproviderWrapper)
+        if dataproviderWrapper.name == "Test Dynamic Source" or dataproviderWrapper.name == "Tomboy Notes":
+            self.advertise_dataprovider(dataproviderWrapper)
 
     def on_local_dataprovider_removed(self, loader, dataproviderWrapper):
         """
@@ -162,20 +163,20 @@ class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
                              (name, host, port), 
                              self.detectedHosts[host]["category"])
 
-        self.detectedConduits[name] = {
+        self.detectedDataproviders[name] = {
                                        "local_key" : local_key,
-                                     }
+                                           }
 
     def dataprovider_removed(self, name):
         """
         Callback which is triggered when a dataprovider is unadvertised 
         from a remote conduit instance
         """
-        #FIXME: Do protocol negotionation and then emit "dataprovider-removed"
-        logd("Remote Dataprovider '%s' removed" % name)
+        if self.detectedDataproviders.has_key(name):
+            logd("Remote Dataprovider '%s' removed" % name)
 
-        self.emit_removed(self.detectedConduits[name]['local_key'])
-        del self.detectedConduits[name]
+            self.emit_removed(self.detectedDataproviders[name]['local_key'])
+            del self.detectedDataproviders[name]
 
 class RemoteDataProvider(DataProvider.TwoWay):
     _name_ = "Networked DataProvider"
