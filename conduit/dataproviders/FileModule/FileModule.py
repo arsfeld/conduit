@@ -567,8 +567,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
         destFile = File.File(newURI)
         comp = vfsFile.compare(destFile)
-        #FIXME: We should probbably raise on MISSING also
-        if overwrite or comp == DataType.COMPARISON_NEWER or comp == DataType.COMPARISON_MISSING:
+        if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
         return newURI

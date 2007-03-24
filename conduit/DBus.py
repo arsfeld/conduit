@@ -74,7 +74,7 @@ class DBusView(dbus.service.Object):
                 self.SyncCompleted(i)
 
     #FIXME: More args
-    def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
+    def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices, isDeleted):
         conduit = thread.conduit
         for i in self.UIDs:
             if self.UIDs[i] == conduit:
@@ -125,7 +125,7 @@ class DBusView(dbus.service.Object):
         self.type_converter = TypeConverter(self.model)
         #initialise the Synchronisation Manager
         self.sync_manager = SyncManager(self.type_converter)
-        self.sync_manager.set_twoway_policy({"conflict":"skip","missing":"skip"})
+        self.sync_manager.set_twoway_policy({"conflict":"skip","deleted":"skip"})
         self.sync_manager.add_syncworker_callbacks(
                                 self._on_sync_started, 
                                 self._on_sync_completed, 
@@ -226,17 +226,17 @@ class DBusView(dbus.service.Object):
         return uid
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ss', out_signature='i')
-    def SetSyncPolicy(self, conflictPolicy, missingPolicy):
-        self._print("SetSyncPolicy (conflict:%s missing:%s)" % (conflictPolicy, missingPolicy))
+    def SetSyncPolicy(self, conflictPolicy, deletedPolicy):
+        self._print("SetSyncPolicy (conflict:%s deleted:%s)" % (conflictPolicy, deletedPolicy))
         allowedPolicy = ["ask", "replace", "skip"]
         if conflictPolicy not in allowedPolicy:
             return ERROR
-        if missingPolicy not in allowedPolicy:
+        if deletedPolicy not in allowedPolicy:
             return ERROR
 
         self.sync_manager.set_twoway_policy({
                 "conflict"  :   conflictPolicy,
-                "missing"   :   missingPolicy}
+                "deleted"   :   deletedPolicy}
                 )
         return SUCCESS
 

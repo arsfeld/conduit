@@ -37,13 +37,14 @@ SOURCE_DATA_IDX = 1         #The datasource data
 SINK_IDX = 2                #The datasink
 SINK_DATA_IDX = 3           #The datasink data
 DIRECTION_IDX = 4           #The current user decision re: the conflict (-->, <-- or -x-)
-AVAILABLE_DIRECTIONS_IDX= 5 #Available user decisions, i.e. in the case of missing
-                            #the availabe choices are --> or -x- NOT <--
+AVAILABLE_DIRECTIONS_IDX= 5 #Available user decisions
+IS_DELETED_CONFLICT_IDX = 6 #Is the conflict actually a result of an item being deleted
+
 
 class ConflictResolver:
     """
     Manages a gtk.TreeView which is used for asking the user what they  
-    wish to do in the case of a conflict, or when an item is missing
+    wish to do in the case of a conflict
     """
     def __init__(self, widgets):
         self.model = gtk.TreeStore( gobject.TYPE_PYOBJECT,  #Datasource
@@ -51,7 +52,8 @@ class ConflictResolver:
                                     gobject.TYPE_PYOBJECT,  #Datasink
                                     gobject.TYPE_PYOBJECT,  #Sink Data
                                     gobject.TYPE_INT,       #Resolved direction
-                                    gobject.TYPE_PYOBJECT   #Tuple of valid states for direction 
+                                    gobject.TYPE_PYOBJECT,  #Tuple of valid states for direction
+                                    gobject.TYPE_BOOLEAN    #Tuple of valid states for direction  
                                     )
         #In the conflict treeview, group by sink <-> source partnership 
         self.partnerships = {}
@@ -209,13 +211,13 @@ class ConflictResolver:
         self.numConflicts -= 1
         self._set_conflict_titles()
 
-    def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices):
+    def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices, isDeleted):
         #We start with the expander disabled. Make sure we only enable it once
         if len(self.model) == 0:
             self.expander.set_sensitive(True)
 
         self.numConflicts += 1
-        rowdata = ( source, sourceData, sink, sinkData, CONFLICT_SKIP, validChoices)
+        rowdata = ( source, sourceData, sink, sinkData, CONFLICT_SKIP, validChoices, isDeleted)
         if (source,sink) in self.partnerships:
             self.model.append(self.partnerships[(source,sink)], rowdata)  
         else:
@@ -260,15 +262,18 @@ class ConflictResolver:
                 logd("Resolving source data --> sink")
                 data = model[path][SOURCE_DATA_IDX]
                 sink = model[path][SINK_IDX]
+                sourceUID = model[path][SOURCE_IDX].get_UID()
             else:
                 logd("Resolving source <-- sink data")
                 data = model[path][SINK_DATA_IDX]
                 sink = model[path][SOURCE_IDX]
+                sourceUID = model[path][SINK_IDX].get_UID()
 
+            deleted = model[path][IS_DELETED_CONFLICT_IDX]
             #add to resolve thread
             #FIXME: Think of a way to make rowrefs persist through signals so I
             #dont have to use paths, which is broken
-            self.resolveThreadManager.make_thread(self._conflict_resolved,path,data,sink)
+            self.resolveThreadManager.make_thread(self._conflict_resolved,path,data,sink,sourceUID,deleted)
 
         self.model.foreach(_resolve_func)
 
@@ -363,10 +368,11 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
 class _ConflictResolveThread(threading.Thread, gobject.GObject):
     """
-    Resolves a conflict by putting the data into sink
+    Resolves a conflict or deletion event. If a deleted event then
+    calls sink.delete, if a conflict then does put()
     """
     __gsignals__ =  { 
-                    "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    "completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
     def __init__(self, *args):
@@ -374,35 +380,55 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
         Args
          - arg[0]: data
          - arg[1]: sink
+         - arg[2]: sourceUID
+         - arg[3]: isDeleted
         """
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         
         self.data = args[0]
         self.sink = args[1]
+        self.sourceUID = args[2]
+        self.isDeleted = args[3]
 
-        self.setName("ResolveThread for sink: %s" % self.sink)
+        self.setName("ResolveThread for sink: %s. (Delete: %s)" % (self.sink, self.isDeleted))
 
     def run(self):
         try:
-            logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-            matchingUID = conduit.mappingDB.get_mapping(
-                                self.sink.get_UID(), 
-                                self.data.get_UID()
-                                )
-            LUID = self.sink.module.put(self.data, True, matchingUID)
-            #Now store the mapping of the original URI to the new one
-            conduit.mappingDB.save_mapping(
-                                self.sink.get_UID(), 
-                                self.data.get_UID(),
-                                LUID
-                                )
-            #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+            if self.isDeleted:
+                logd("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
+                self.sink.module.delete(self.data.get_UID())
+                self.mappingDB.delete_mappings(
+                                    sourceUID=self.sourceUID,
+                                    sourceDataLUID=self.data.get_UID(),
+                                    sinkUID=self.sink.get_UID()
+                                    )
+            else:
+                logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
+                matchingUID = conduit.mappingDB.get_mapping(
+                                    sourceUID=self.sourceUID,
+                                    sourceDataLUID=self.data.get_UID(),
+                                    sinkUID=self.sink.get_UID()
+                                    )
+
+                LUID = self.sink.module.put(self.data, True, matchingUID)
+                mtime = self.data.get_mtime()
+                #Now store the mapping of the original URI to the new one. We only
+                #get here if the put was successful, so the mtime of the putted
+                #data wll be the same as the original data
+                conduit.mappingDB.save_mapping(
+                                        sourceUID=self.sourceUID,
+                                        sourceDataLUID=self.data.get_UID(),
+                                        sinkUID=self.sink.get_UID(),
+                                        sinkDataLUID=LUID,
+                                        mtime=mtime
+                                        )
+                #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
         except Exception, err:                        
             logw("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
 
-        gobject.idle_add(self.emit, "scan-completed")
+        gobject.idle_add(self.emit, "completed")
 
 class ConflictResolveThreadManager:
     """
@@ -445,8 +471,8 @@ class ConflictResolveThreadManager:
             thread = _ConflictResolveThread(*args)
             #signals run in the order connected. Connect the user one first 
             #incase they wish to do something before we delete the thread
-            thread.connect("scan-completed", completedCb, completedCbUserData)
-            thread.connect("scan-completed", self._register_thread_completed, *args)
+            thread.connect("completed", completedCb, completedCbUserData)
+            thread.connect("completed", self._register_thread_completed, *args)
             #This is why we use args, not kwargs, because args are hashable
             self.fooThreads[args] = thread
 

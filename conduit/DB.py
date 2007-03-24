@@ -90,6 +90,27 @@ class MappingDB:
 
         return None, None
 
+    def delete_mapping(self, sourceUID, sourceDataLUID, sinkUID):
+        """
+        Deletes mapping between the dataproviders sourceUID and sinkUID
+        that involve sourceDataLUID
+
+        @returns: The number of mappings deleted
+        """
+        if dataLUID == None:
+            logw("Could not delete NULL mapping %s <--> %s" % (sourceUID, sinkUID))
+            return 0
+
+        delete = []
+        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
+        for i in existing:
+            if i["sourceDataLUID"] == sourceDataLUID:
+                delete.append(i)
+
+        num = self._db.delete(delete)
+        logd("%s mappings deleted for mapping %s <--> %s" % (num, sourceUID, sinkUID))
+        return num
+
     def save(self):
         logd("Saving mapping DB to %s" % self._db.name)
         self._db.commit()

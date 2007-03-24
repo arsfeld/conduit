@@ -63,6 +63,7 @@ class _TestBase:
         self.errorAfter = 999
         self.slow = False
         self.UID = Utils.random_string()
+        self.numData = 5
         #Variables to test the config fuctions
         self.aString = ""
         self.aInt = 0
@@ -80,6 +81,8 @@ class _TestBase:
             self.slow = bool(param)
         def setUID(param):
             self.UID = str(param)        
+        def setNumData(param):
+            self.numData = int(param)
         items = [
                     {
                     "Name" : "Error At:",
@@ -98,7 +101,13 @@ class _TestBase:
                     "Widget" : gtk.Entry,
                     "Callback" : setUID,
                     "InitialValue" : self.UID
-                    }  
+                    },
+                    {
+                    "Name" : "Num Data",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setNumData,
+                    "InitialValue" : self.numData
+                    } 
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
         dialog.run()
@@ -127,15 +136,13 @@ class TestSource(_TestBase, DataProvider.DataSource):
     _out_type_ = "text"
     _icon_ = "emblem-system"
 
-
-    NUM_DATA = 5    
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
         
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
-        return TestSource.NUM_DATA
+        return self.numData
 
     def get(self, index):
         DataProvider.DataSource.get(self, index)
@@ -187,12 +194,13 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         _TestBase.__init__(self)
         DataProvider.TwoWay.__init__(self)
         self.data = None
+        self.numData = 10
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.data = []
         #Assemble a random array of data
-        for i in range(0, random.randint(1, TestTwoWay.NUM_DATA)):
+        for i in range(0, random.randint(1, self.numData)):
             self.data.append(TestDataType(i))
 
     def get_num_items(self):

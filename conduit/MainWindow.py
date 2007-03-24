@@ -150,7 +150,7 @@ class GtkView(dbus.service.Object):
         self.sync_manager = SyncManager(self.type_converter)
         self.sync_manager.set_twoway_policy({
                 "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
-                "missing"   :   conduit.settings.get("twoway_policy_missing")}
+                "deleted"   :   conduit.settings.get("twoway_policy_deleted")}
                 )
         self.sync_manager.add_syncworker_callbacks(
                                 self.on_sync_started, 
@@ -343,12 +343,12 @@ class GtkView(dbus.service.Object):
         conflict_ask_rb = tree.get_widget("conflict_ask_rb")
         conflict_replace_rb = tree.get_widget("conflict_replace_rb")
         conflict_skip_rb = tree.get_widget("conflict_skip_rb")
-        missing_ask_rb = tree.get_widget("missing_ask_rb")
-        missing_replace_rb = tree.get_widget("missing_replace_rb")
-        missing_skip_rb = tree.get_widget("missing_skip_rb")
+        deleted_ask_rb = tree.get_widget("deleted_ask_rb")
+        deleted_replace_rb = tree.get_widget("deleted_replace_rb")
+        deleted_skip_rb = tree.get_widget("deleted_skip_rb")
         #set initial conditions        
         restore_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
-        restore_policy_state("missing", missing_ask_rb, missing_replace_rb, missing_skip_rb)
+        restore_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
                                         
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
@@ -365,7 +365,7 @@ class GtkView(dbus.service.Object):
             #Save the users two way sync policy
             policy = {}
             policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
-            policy["missing"] = save_policy_state("missing", missing_ask_rb, missing_replace_rb, missing_skip_rb)
+            policy["deleted"] = save_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
             self.sync_manager.set_twoway_policy(policy)
         dialog.destroy()                
 

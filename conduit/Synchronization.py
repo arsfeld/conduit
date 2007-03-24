@@ -15,7 +15,9 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes as DataType
 import conduit.DB as DB
+import conduit.Utils as Utils
 from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
+from conduit.datatypes import DataType
 
 class SyncManager: 
     """
@@ -42,7 +44,7 @@ class SyncManager:
         self.syncConflictCbs = []
 
         #Two way sync policy
-        self.policy = {"conflict":"ask","missing":"ask"}
+        self.policy = {"conflict":"ask","deleted":"ask"}
 
     def _connect_sync_thread_callbacks(self, thread):
         for cb in self.syncStartedCbs:
@@ -150,7 +152,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         gobject.TYPE_PYOBJECT,      #from data
                         gobject.TYPE_PYOBJECT,      #datasink wrapper
                         gobject.TYPE_PYOBJECT,      #to data
-                        gobject.TYPE_PYOBJECT]),    #valid resolve choices
+                        gobject.TYPE_PYOBJECT,      #valid resolve choices
+                        gobject.TYPE_BOOLEAN]),     #Is the conflict from a deletion
                     "sync-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
                     "sync-started": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
@@ -230,37 +233,37 @@ class SyncWorker(threading.Thread, gobject.GObject):
         else:
             logd("Skipping %s. Mtimes has not changed (actual %s v saved %s)" % (data.get_UID(), data.get_mtime(), mtime))
 
-    def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, missingDataUID, leftToRight):
-        pass
-         
-    def _apply_missing_policy(self, sourceWrapper, sinkWrapper, missingData, leftToRight):
+    def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, dataLUID, leftToRight):
         """
-        Applies user policy when missingData is present in source but
-        missing from sink. Assumes that source is on the left (visually) unless
+        Applies user policy when data has been deleted from source.
+        Assumes that source is on the left (visually) unless
         leftToRight is False
         """ 
-        if self.policy["missing"] == "skip":
-            logd("Missing Policy: Skipping")
-        elif self.policy["missing"] == "ask":
-            logd("Missing Policy: Ask")
+        if self.policy["deleted"] == "skip":
+            logd("Deleted Policy: Skipping")
+        elif self.policy["deleted"] == "ask":
+            logd("Deleted Policy: Ask")
             if leftToRight == True:
-                validResolveChoices = (CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP)
+                validResolveChoices = (CONFLICT_COPY_SINK_TO_SOURCE,CONFLICT_SKIP)
             else:
                 validResolveChoices = (CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
             self.emit("sync-conflict", 
-                        sourceWrapper, 
-                        None, 
-                        sinkWrapper, 
-                        missingData, 
-                        validResolveChoices
+                        sourceWrapper,              #datasource wrapper
+                        DeletedData(dataLUID),      #from data
+                        sinkWrapper,                #datasink wrapper
+                        DeletedData(None),          #to data
+                        validResolveChoices,        #valid resolve choices
+                        True                        #This conflict is a deletion
                         )
-        elif self.policy["missing"] == "replace":
-            logd("Missing Policy: Replace")
-            try:
-                self._put_data(sourceWrapper, sinkWrapper, missingData, True)
-            except:
-                logw("Forced Put Failed\n%s" % traceback.format_exc()) 
-
+        elif self.policy["deleted"] == "replace":
+            logd("Deleted Policy: Replace (Delete corresponding data)")
+            self.sinkWrapper.module.delete(dataLUID)
+            self.mappingDB.delete_mappings(
+                                sourceUID=sourceWrapper.get_UID(),
+                                sourceDataLUID=dataLUID,
+                                sinkUID=sinkWrapper.get_UID()
+                                )
+         
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
         Applies user policy when a put() has failed. This may mean emitting
@@ -273,7 +276,14 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 logd("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
                 logd("Conflict Policy: Ask")
-                self.emit("sync-conflict", sourceWrapper, fromData, sinkWrapper, toData, (0,1,2))
+                self.emit("sync-conflict", 
+                            sourceWrapper, 
+                            fromData, 
+                            sinkWrapper, 
+                            toData, 
+                            (0,1,2),
+                            False
+                            )
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
                 try:
@@ -309,11 +319,17 @@ class SyncWorker(threading.Thread, gobject.GObject):
         if either is a slow sync or not. That is handled in put_data. This 
         function only serves as a means to deal with exceptions and policy
         """
+        numItems = source.module.get_num_items()
+        #Detecting items which have been deleted involves comparing the
+        #data LUIDs which are returned from the get() with those 
+        #that were synchronized last time
+        existing = [i["sourceDataLUID"] for i in self.mappingDB.get_mappings_for_dataproviders(source.get_UID(), sink.get_UID())]
+
         if leftToRight == True:
             log("Synchronizing %s |--> %s " % (source, sink))
         else:
             log("Synchronizing %s <--| %s " % (source, sink))
-        numItems = source.module.get_num_items()
+
         for i in range(0, numItems):
             data = source.module.get(i)
             try:
@@ -323,16 +339,18 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     self._put_data(source, sink, newdata, False)
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
-                    if comp == DataType.COMPARISON_MISSING:
-                        self._apply_missing_policy(source, sink, err.toData, leftToRight)
-                    elif comp == DataType.COMPARISON_OLDER and skipOlder:
-                        logd("Skipping %s", newdata)
+                    if comp == DataType.COMPARISON_OLDER and skipOlder:
+                        logd("Skipping %s (Older)", newdata)
                         pass
                     elif comp == DataType.COMPARISON_EQUAL:
-                        logd("Skipping %s", newdata)
+                        logd("Skipping %s (Equal)", newdata)
                         pass
                     else:
                         self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
+
+                #now remove from the list of expected data to synchronize
+                if existing.count(newdata.get_UID()):
+                    existing.remove(newdata.get_UID())
 
             except Exceptions.ConversionDoesntExistError:
                 logd("No Conversion Exists")
@@ -351,11 +369,18 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 raise Exceptions.StopSync                  
             except Exception, err:                        
                 #Cannot continue
-                logw("Unknown synchronisation error (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+                logw("Unknown synchronisation error\n%s" % traceback.format_exc())
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                 source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
                 raise Exceptions.StopSync
-        
+
+        #give dataproviders the freedom to also provide a list of deleted 
+        #data UIDs.
+        deleted = Utils.distinct_list(existing + source.module.get_deleted_items())
+        logd("There were %s deleted items" % len(deleted))
+        for d in deleted:
+            self._apply_deleted_policy(source, sink, d, leftToRight)
+       
     def two_way_sync(self, source, sink):
         """
         Performs a two way sync from source to sink and back.
@@ -526,3 +551,24 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.mappingDB.save()
         self.emit("sync-completed")
                 
+class DeletedData(DataType.DataType):
+    """
+    Simple wrapper around a deleted item. If an item has been deleted then
+    we can no longer rely on its open_URI, and we must fall back to a 
+    plain string object
+    """
+    def __init__(self, UID, **kwargs):
+        self.UID = UID
+        self.snippet = kwargs.get("snippet", "Deleted from %s" % self.UID)
+
+    def get_UID(self):
+        return self.UID
+        
+    def get_snippet(self):
+        return self.snippet
+
+    def get_open_URI(self):
+        return None
+
+    def __str__(self):
+        return "Deleted Data: %s" % self.UID

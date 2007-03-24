@@ -44,7 +44,7 @@ class Settings(gobject.GObject):
         'enable_dbus_interface'     :   True,   #Should conduit present a full dbus interface to let remote apps use it
         'disable_twoway_sync'       :   True,   #If the user selects it, shoud two way sync be used
         'twoway_policy_conflict'    :   "ask",  #ask,replace,skip
-        'twoway_policy_missing'     :   "ask",  #ask,replace,skip
+        'twoway_policy_deleted'     :   "ask",  #ask,replace,skip
         'gui_expanded_columns'      :   [],     #list of expanded column paths in the treeview
         'gui_hpane_postion'         :   250,    #The hpane seperating the canvas and treeview position
         'gui_window_size'           :   []      #W,H   

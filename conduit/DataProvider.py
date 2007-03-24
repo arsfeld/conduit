@@ -431,6 +431,17 @@ class DataSource(DataProviderBase):
         self.set_status(STATUS_SYNC)
         return 0
 
+    def get_deleted_items(self):
+        """
+        Dataproviders may override this function if they wish to maintain
+        their own mappingDB. If this is the case then this function provides
+        a way for them to communicate the list of data items that have been
+        deleted since the last successful sync
+
+        @returns: A list of data LUIDs that have been deleted
+        """
+        return []
+
 class DataSink(DataProviderBase):
     """
     Base Class for DataSinks

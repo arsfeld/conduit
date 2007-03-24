@@ -233,7 +233,7 @@ class File(DataType.DataType):
         based on size only
         """
         if not gnomevfs.exists(B.URI):
-            return conduit.datatypes.COMPARISON_MISSING
+            return conduit.datatypes.COMPARISON_NEWER
 
         #Compare based on size only?
         if sizeOnly:

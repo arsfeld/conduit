@@ -31,9 +31,9 @@ ALLOWED_PORT_TO = 3410
 PORT_IDX = 0
 VERSION_IDX = 1
 
-MODULES = {
-        "NetworkFactory" :     { "type": "dataprovider-factory" }
-}
+#MODULES = {
+#        "NetworkFactory" :     { "type": "dataprovider-factory" }
+#}
 
 def decode_avahi_text_array_to_dict(array):
     """

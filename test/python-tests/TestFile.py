@@ -86,7 +86,7 @@ ok("Local Compare: checking newest > newer = %s" % comp,comp == conduit.datatype
 comp = newest.compare(newest)
 ok("Local Compare: checking newest == newest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
 comp = oldest.compare(null)
-ok("Local Compare: checking oldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_MISSING)
+ok("Local Compare: checking oldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
 
 comp = roldest.compare(rolder)
 ok("Remote Compare: checking roldest < rolder = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
@@ -95,7 +95,7 @@ ok("Remote Compare: checking rnewest > rnewer = %s" % comp,comp == conduit.datat
 comp = rnewest.compare(rnewest)
 ok("Remote Compare: checking rnewest == rnewest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
 comp = roldest.compare(null)
-ok("Remote Compare: checking roldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_MISSING)
+ok("Remote Compare: checking roldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
 
 comp = oldest.compare(rolder)
 ok("Remote & Local Compare: checking oldest < rolder = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
