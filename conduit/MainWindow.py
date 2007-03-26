@@ -647,106 +647,115 @@ class ConduitStatusIcon(gtk.StatusIcon):
 
 #FIXME: Make this into a proper class used just for managing single instance
 #and command line usage.
-#0) Make into proper class. Most of whats below goes into __init__
-#1) Make it its own dbus iface at the /activate path
-#2) It should have single method - Activate()
-#3) Remeber the case where the user has started it via --console (or DBus activation)
+#1) Remeber the case where the user has started it via --console (or DBus activation)
 #   In that case GTkView will have to be constructed before being presented
-#4) Remember that the DBus view and the gui view are not mutually exclusive
+#2) Remember that the DBus view and the gui view are not mutually exclusive
 #   and things like the conflict icon get might confusing in these situations
-def conduit_main():
-    """
-    Conduit main initialization function
+class Application(dbus.service.Object):
+    def __init__(self):
+        """
+        Conduit application class
 
-    Parses command line arguments. Shows the main window and 
-    enters the gtk mainloop. Sets up the views and models;
-    restores application settings, shows a welcome message and
-    closes the splash screen
-    """
-    memstats = conduit.memstats()
-    import getopt, sys
-    #Default command line values
-    settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
-    useGUI = True
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:c", ["help", "settings=", "console"])
-        #parse args
-        for o, a in opts:
-            if o in ("-h", "--help"):
-                print "./%s [--help] [--settings=path_to_settings_file] [--console]" % sys.argv[0]
-                sys.exit(0)
-            if o in ("-s", "--settings"):
-                settingsFile = os.path.join(os.getcwd(), a)
-            if o in ("-c", "--console"):
-                useGUI = False
-    except getopt.GetoptError:
-        # print help information and exit:
-        logw("Unknown command line option")
+        Parses command line arguments. Shows the main window and 
+        enters the gtk mainloop. Sets up the views and models;
+        restores application settings, shows a welcome message and
+        closes the splash screen
+        """
+        memstats = conduit.memstats()
+        import getopt, sys
+        #Default command line values
+        settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+        useGUI = True
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "hs:c", ["help", "settings=", "console"])
+            #parse args
+            for o, a in opts:
+                if o in ("-h", "--help"):
+                    print "./%s [--help] [--settings=path_to_settings_file] [--console]" % sys.argv[0]
+                    sys.exit(0)
+                if o in ("-s", "--settings"):
+                     settingsFile = os.path.join(os.getcwd(), a)
+                if o in ("-c", "--console"):
+                   useGUI = False
+        except getopt.GetoptError:
+            # print help information and exit:
+            logw("Unknown command line option")
+            pass
+
+        #FIXME: attempt workaround for gnomvefs bug...
+        #this shouldn't need to be here, but if we call it after touching the session bus
+        #then nothing will work
+        gnomevfs.VolumeMonitor()
+
+        #Make conduit single instance. If it is already running then present it
+        #to the user
+        if Utils.dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
+            log("Conduit is already running")
+            bus = dbus.SessionBus()
+            obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
+            iface = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
+            iface.Present()
+            sys.exit(0)
+
+        # Initialise dbus stuff here as any earlier will cause breakage
+        # 1: Outstanding gnomevfs bug!
+        # 2: Interferes with Conduit already running check.
+        bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, "/activate")
+
+        #Draw the GUI asap so that the user sees the splash screen
+        if useGUI:
+            gtkView = GtkView()
+
+        #Dynamically load all datasources, datasinks and converters
+        dirs_to_search =    [
+                            os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
+                            os.path.join(conduit.USER_DIR, "modules")
+                            ]
+        model = ModuleManager(dirs_to_search)
+
+        #The status icon is shared between the GUI and the Dbus iface
+        if conduit.settings.get("show_status_icon") == True:
+            statusIcon = ConduitStatusIcon()
+        else:
+            statusIcon = None
+
+        #Set up the application wide defaults
+        conduit.settings.set_settings_file(settingsFile)
+        conduit.mappingDB.open_db(os.path.join(conduit.USER_DIR, "mapping.db"))
+
+        #Set the view models
+        #gtkView...
+        if useGUI:
+            gtkView.set_model(model)
+            gtkView.canvas.add_welcome_message()
+            gtkView.restore_settings()
+            gtkView.mainWindow.show_all()
+            gtkView.splash.destroy()
+
+            if statusIcon:
+                gtkView.sync_manager.add_syncworker_callbacks(
+                                        statusIcon.on_sync_started,
+                                        statusIcon.on_sync_completed,
+                                        statusIcon.on_sync_conflict
+                                        )
+
+        #Dbus view...
+        if conduit.settings.get("enable_dbus_interface") == True:
+            dbusView = DBusView()
+            dbusView.set_model(model)
+
+            if statusIcon:
+                dbusView.sync_manager.add_syncworker_callbacks(
+                                        statusIcon.on_sync_started,
+                                        statusIcon.on_sync_completed,
+                                        statusIcon.on_sync_conflict
+                                        )
+
+        conduit.memstats(memstats)
+        gtk.main()
+
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+    def Activate(self):
+        logd("Dbus: Got Activate() call")
         pass
-
-    #FIXME: attempt workaround for gnomvefs bug...
-    #this shouldn't need to be here, but if we call it after touching the session bus
-    #then nothing will work
-    gnomevfs.VolumeMonitor()
-
-    #Make conduit single instance. If it is already running then present it
-    #to the user
-    if Utils.dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
-        log("Conduit is already running")
-        bus = dbus.SessionBus()
-        obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
-        iface = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
-        iface.Present()
-        sys.exit(0)
-        
-    #Draw the GUI asap so that the user sees the splash screen
-    if useGUI:
-        gtkView = GtkView()
-
-    #Dynamically load all datasources, datasinks and converters
-    dirs_to_search =    [
-                        os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                        os.path.join(conduit.USER_DIR, "modules")
-                        ]
-    model = ModuleManager(dirs_to_search)
-
-    #The status icon is shared between the GUI and the Dbus iface
-    if conduit.settings.get("show_status_icon") == True:
-        statusIcon = ConduitStatusIcon()
-    else:
-        statusIcon = None
-
-    #Set up the application wide defaults
-    conduit.settings.set_settings_file(settingsFile)
-    conduit.mappingDB.open_db(os.path.join(conduit.USER_DIR, "mapping.db"))
-
-    #Set the view models
-    #gtkView...
-    if useGUI:
-        gtkView.set_model(model)
-        gtkView.canvas.add_welcome_message()
-        gtkView.restore_settings()
-        gtkView.mainWindow.show_all()
-        gtkView.splash.destroy()
-
-        if statusIcon:
-            gtkView.sync_manager.add_syncworker_callbacks(
-                                    statusIcon.on_sync_started,
-                                    statusIcon.on_sync_completed,
-                                    statusIcon.on_sync_conflict
-                                    )
-
-    #Dbus view...
-    if conduit.settings.get("enable_dbus_interface") == True:
-        dbusView = DBusView()
-        dbusView.set_model(model)
-
-        if statusIcon:
-            dbusView.sync_manager.add_syncworker_callbacks(
-                                    statusIcon.on_sync_started,
-                                    statusIcon.on_sync_completed,
-                                    statusIcon.on_sync_conflict
-                                    )
-
-    conduit.memstats(memstats)
-    gtk.main()

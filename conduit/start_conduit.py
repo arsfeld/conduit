@@ -45,5 +45,5 @@ conduit.log("Log Level: %s" % conduit.LOG_LEVEL)
 
 # Start the application
 import conduit.MainWindow
-conduit.MainWindow.conduit_main()
+app = conduit.MainWindow.Application()
  
