@@ -10,6 +10,7 @@ import gobject
 import gtk, gtk.glade
 import gnome.ui
 import os.path
+import getopt, sys
 from gettext import gettext as _
 
 import dbus, dbus.service
@@ -30,10 +31,9 @@ from conduit.Conflict import ConflictResolver
 
 import conduit.VolumeMonitor as gnomevfs
 
-CONDUIT_DBUS_PATH = "/gui"
 CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
 
-class GtkView(dbus.service.Object):
+class GtkView:
     """
     The main conduit window.
     """
@@ -120,12 +120,6 @@ class GtkView(dbus.service.Object):
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver(self.widgets)
         
-        #Dbus can also be used to control the gui. Useful for 
-        #automated testing and activation
-        if conduit.settings.get("enable_dbus_interface") == True:
-            bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
-            dbus.service.Object.__init__(self, bus_name, CONDUIT_DBUS_PATH)
-
     def set_model(self, model):
         """
         In conduit the model manages all available dataproviders. It is shared
@@ -471,20 +465,7 @@ class GtkView(dbus.service.Object):
         self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
         #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
 
-    #---------------------------------------------------------------------------
-    # DBUS METHODS (follow DBus naming conventions
-    #
-    # Example: dbus-send --session --dest=org.freedesktop.conduit \
-    #           --print-reply /gui org.freedesktop.conduit.Present
-    #---------------------------------------------------------------------------
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
-    def Present(self):
-        """
-        Test method to check the DBus interface is working
-        """
-        self.mainWindow.present()
 
-    
 class SplashScreen:
     """
     Simple splash screen class which shows an image for a predetermined period
@@ -659,12 +640,18 @@ class Application(dbus.service.Object):
         Parses command line arguments. Shows the main window and 
         enters the gtk mainloop. Sets up the views and models;
         restores application settings, shows a welcome message and
-        closes the splash screen
+        closes the splash screen.
+
+        Notes: 
+            1) If conduit is launched without --console switch then the gui
+            and the console interfaces are started
+            2) If launched with --console and then later via the gui then set 
+            up the gui and connect all the appropriate signal handlers
         """
         memstats = conduit.memstats()
-        import getopt, sys
         #Default command line values
         settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+        sessionBus = dbus.SessionBus()
         useGUI = True
         try:
             opts, args = getopt.getopt(sys.argv[1:], "hs:c", ["help", "settings=", "console"])
@@ -680,27 +667,26 @@ class Application(dbus.service.Object):
         except getopt.GetoptError:
             # print help information and exit:
             logw("Unknown command line option")
-            pass
+            sys.exit(0)
 
         #FIXME: attempt workaround for gnomvefs bug...
         #this shouldn't need to be here, but if we call it after touching the session bus
         #then nothing will work
         gnomevfs.VolumeMonitor()
 
-        #Make conduit single instance. If it is already running then present it
-        #to the user
-        if Utils.dbus_service_available(dbus.SessionBus(), CONDUIT_DBUS_IFACE):
+        #Make conduit single instance. If conduit is already running then
+        #also check if the GUI is up
+        if Utils.dbus_service_available(sessionBus, CONDUIT_DBUS_IFACE):
             log("Conduit is already running")
-            bus = dbus.SessionBus()
-            obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
-            iface = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
-            iface.Present()
+            #obj = sessionBus.get_object(CONDUIT_DBUS_IFACE, "/gui")
+            #iface = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
+            #iface.Present()
             sys.exit(0)
 
         # Initialise dbus stuff here as any earlier will cause breakage
         # 1: Outstanding gnomevfs bug!
         # 2: Interferes with Conduit already running check.
-        bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
+        bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=sessionBus)
         dbus.service.Object.__init__(self, bus_name, "/activate")
 
         #Draw the GUI asap so that the user sees the splash screen
@@ -755,7 +741,15 @@ class Application(dbus.service.Object):
         conduit.memstats(memstats)
         gtk.main()
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
-    def Activate(self):
-        logd("Dbus: Got Activate() call")
-        pass
+        @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='b')
+        def HasGUI(self):
+            pass
+
+        @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+        def BuildGUI(self):
+            pass
+        
+        @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+        def ShowGUI(self):
+            pass
+
