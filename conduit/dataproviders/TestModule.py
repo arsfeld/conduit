@@ -41,8 +41,8 @@ class TestDataType(DataType.DataType):
         return "testData %s" % self.UID
 
     def get_snippet(self):
-        return str(self)
-    
+        return str(self) + "\nI am a piece of test data #" + Utils.random_string()
+     
     #The strings are numerically compared. If A < B then it is older
     #If A is larger than B then it is newer.
     def compare(self, A, B):

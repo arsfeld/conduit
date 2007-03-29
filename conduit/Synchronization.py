@@ -11,13 +11,14 @@ import gobject
 
 import conduit
 from conduit import log,logd,logw
+
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
-import conduit.datatypes as DataType
 import conduit.DB as DB
 import conduit.Utils as Utils
+
 from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
-from conduit.datatypes import DataType
+from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
 
 class SyncManager: 
     """
@@ -269,7 +270,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         Applies user policy when a put() has failed. This may mean emitting
         the conflict up to the GUI or skipping altogether
         """
-        if comparison == DataType.COMPARISON_EQUAL or comparison == DataType.COMPARISON_UNKNOWN or comparison == DataType.COMPARISON_OLDER:
+        if comparison == COMPARISON_EQUAL or comparison == COMPARISON_UNKNOWN or comparison == COMPARISON_OLDER:
             log("CONFLICT: Putting EQUAL or UNKNOWN or OLDER Data")
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             if self.policy["conflict"] == "skip":
@@ -339,10 +340,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     self._put_data(source, sink, newdata, False)
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
-                    if comp == DataType.COMPARISON_OLDER and skipOlder:
+                    if comp == COMPARISON_OLDER and skipOlder:
                         logd("Skipping %s (Older)", newdata)
                         pass
-                    elif comp == DataType.COMPARISON_EQUAL:
+                    elif comp == COMPARISON_EQUAL:
                         logd("Skipping %s (Equal)", newdata)
                         pass
                     else:
