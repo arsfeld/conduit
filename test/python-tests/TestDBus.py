@@ -7,7 +7,7 @@ import sys
 import time
 
 CONDUIT_DBUS_PATH = "/"
-CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
+CONDUIT_DBUS_IFACE = "org.gnome.Conduit"
 
 bus = dbus.SessionBus()
 obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)

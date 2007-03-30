@@ -122,6 +122,7 @@ SHARED_DATA_DIR =           os.path.join(os.path.abspath(name),"data")
 GLADE_FILE =                os.path.join(os.path.abspath(name),"data","conduit.glade")
 SHARED_MODULE_DIR =         os.path.join(os.path.abspath(name),"conduit")
 EXTRA_LIB_DIR =             os.path.join(os.path.abspath(name),"contrib")
+DBUS_IFACE =                "org.gnome.Conduit"
 
 import Settings
 import DB

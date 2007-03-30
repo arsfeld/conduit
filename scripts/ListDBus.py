@@ -12,7 +12,7 @@ avail = dbus_iface.ListNames()
 #print ""
 
 inspect={
-    "org.freedesktop.conduit":["/","/gui","/activate"],
+    "org.gnome.Conduit":["/","/activate"],
     "org.gnome.Tomboy":["/org/gnome/Tomboy/RemoteControl"]
     }
       

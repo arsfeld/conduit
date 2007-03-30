@@ -10,12 +10,6 @@ environment.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-#
-# Stuff that allows us to import uninstalled conduit module
-# This code is modified from deskbar-applet
-#
-
 import sys
 import os, os.path
 
@@ -39,9 +33,6 @@ else:
 
 #Development versions are X.ODD_VERSION.Y
 conduit.IS_DEVELOPMENT_VERSION = int(conduit.APPVERSION.split('.')[1]) % 2 == 1
-
-conduit.log("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
-conduit.log("Log Level: %s" % conduit.LOG_LEVEL)
 
 # Start the application
 import conduit.MainWindow

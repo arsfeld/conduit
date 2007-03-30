@@ -16,25 +16,25 @@ import dbus.service
 if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
     import dbus.glib
 
+import conduit
 from conduit import log,logd,logw
 from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 from conduit.Conduit import Conduit
 
-CONDUIT_DBUS_PATH = "/"
-CONDUIT_DBUS_IFACE = "org.freedesktop.conduit"
-
 ERROR = -1
 SUCCESS = 0
 
 #Example Message
-#   dbus-send --session --dest=org.freedesktop.conduit \
-#       --print-reply / org.freedesktop.conduit.Ping
+#   dbus-send --session --dest=org.gnome.Conduit \
+#       --print-reply / org.gnome.Conduit.Ping
 class DBusView(dbus.service.Object):
-    def __init__(self):
-        bus_name = dbus.service.BusName(CONDUIT_DBUS_IFACE, bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, CONDUIT_DBUS_PATH)
+    def __init__(self, conduitApplication):
+        bus_name = dbus.service.BusName(conduit.DBUS_IFACE, bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, "/")
         log("DBus interface initialized")
+
+        self.conduitApplication = conduitApplication
 
         self.model = None
 
@@ -132,33 +132,37 @@ class DBusView(dbus.service.Object):
                                 self._on_sync_conflict
                                 )
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='i')
     def Quit(self):
-        gtk.main_quit()
+        #sessionBus = dbus.SessionBus()
+        #obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")
+        #conduitApp = dbus.Interface(obj, conduit.DBUS_IFACE)
+        #conduitApp.Quit()
+        self.conduitApplication.Quit()
         return SUCCESS
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSources(self):
         self._print("GetAllDataSources")
         #get the dataproviders
         return [i.get_key() for i in self._get_sources()]
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='as')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSinks(self):
         self._print("GetAllDataSinks")
         return [i.get_key() for i in self._get_sinks()]
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='i')
     def GetDataSource(self, key):
         self._print("GetDataSource %s" % key)
         return self._add_dataprovider(key, self._get_sources())
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='i')
     def GetDataSink(self, key):
         self._print("GetDataSink %s" % key)
         return self._add_dataprovider(key, self._get_sinks())        
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='s', out_signature='a{ss}')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='a{ss}')
     def GetDataProviderInformation(self, key):
         self._print("GetDataProviderInformation %s" % key)
         info = {}
@@ -177,7 +181,7 @@ class DBusView(dbus.service.Object):
 
         return info
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='i', out_signature='as')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='i', out_signature='as')
     def GetAllCompatibleDataSinks(self, sourceUID):
         """
         Gets all datasinks compatible with the supplied datasource. Compatible 
@@ -202,7 +206,7 @@ class DBusView(dbus.service.Object):
 
         return compat
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ii', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='ii', out_signature='i')
     def BuildConduit(self, sourceUID, sinkUID):
         self._print("BuildConduit %s:%s" % (sourceUID, sinkUID))
         uid = ERROR
@@ -215,7 +219,7 @@ class DBusView(dbus.service.Object):
             self.UIDs[uid] = conduit
         return uid
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ii', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='ii', out_signature='i')
     def AddSinkToConduit(self, conduitUID, sinkUID):
         self._print("AddSinkToConduit %s:%s" % (conduitUID, sinkUID))
         uid = ERROR
@@ -225,7 +229,7 @@ class DBusView(dbus.service.Object):
             uid = conduitUID
         return uid
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ss', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='ss', out_signature='i')
     def SetSyncPolicy(self, conflictPolicy, deletedPolicy):
         self._print("SetSyncPolicy (conflict:%s deleted:%s)" % (conflictPolicy, deletedPolicy))
         allowedPolicy = ["ask", "replace", "skip"]
@@ -241,7 +245,7 @@ class DBusView(dbus.service.Object):
         return SUCCESS
 
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='i', out_signature='i')
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='i', out_signature='i')
     def Sync(self, conduitUID):
         self._print("Sync %s" % conduitUID)
         if conduitUID in self.UIDs:
@@ -250,18 +254,18 @@ class DBusView(dbus.service.Object):
         else:
             return ERROR
 
-    @dbus.service.signal(CONDUIT_DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE)
     def DataproviderAvailable(self, key):
         self._print("Emmiting DBus signal DataproviderAvailable %s" % key)
 
-    @dbus.service.signal(CONDUIT_DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE)
     def DataproviderUnavailable(self, key):
         self._print("Emiting DBus signal DataproviderUnavailable %s" % key)
 
-    @dbus.service.signal(CONDUIT_DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE)
     def SyncCompleted(self, conduitUID):
         self._print("Emmiting DBus signal SyncCompleted %s" % conduitUID)
 
-    @dbus.service.signal(CONDUIT_DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE)
     def Conflict(self, UID):
         self._print("Emmiting DBus signal Conflict")

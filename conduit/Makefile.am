@@ -25,7 +25,6 @@ conduit_PYTHON = \
 	MainWindow.py \
 	Module.py \
 	ModuleWrapper.py \
-	Network.py \
 	Settings.py \
 	Synchronization.py \
 	Tree.py \

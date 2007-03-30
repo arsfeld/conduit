@@ -21,7 +21,6 @@
   <property name="focus_on_map">True</property>
   <property name="urgency_hint">False</property>
   <property name="has_separator">False</property>
-  <signal name="destroy" handler="gtk_main_quit" last_modification_time="Sat, 06 Aug 2005 07:20:40 GMT"/>
 
   <child internal-child="vbox">
     <widget class="GtkVBox" id="vbox35">
