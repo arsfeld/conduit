@@ -15,6 +15,8 @@ import md5
 import gtk, gtk.glade
 import gnomevfs
 import socket
+import datetime
+import time
 
 from conduit import log,logd,logw
 import conduit.datatypes.File as File
@@ -154,7 +156,28 @@ def open_URI(uri):
     APP = "gnome-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
 
-    
+def datetime_from_timestamp(t):
+    """
+    Makes a datetime object from a unix timestamp.
 
+    Note: For the sake of consistancy always drop the
+    fractional (microsecond) part of the timestamp
+    """
+    if type(t) not in [long, int, float]:
+        raise Exception("Timestamp must be a number")
 
+    return datetime.datetime.fromtimestamp(long(t))
+
+def datetime_get_timestamp(d):
+    """
+    Returns the unix timestamp for a datetime
+
+    Note: For the sake of consistancy always drop the
+    fractional (microsecond) part of the timestamp
+    """
+    if type(d) != datetime.datetime:
+        raise Exception("Must supply a datetime")
+
+    f = time.mktime(d.timetuple())
+    return long(f)
 
