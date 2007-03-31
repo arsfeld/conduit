@@ -30,10 +30,44 @@ def row(entries):
         s += "%s|" % ("-"*WIDTH)
     return s
 
-def tmpfile():
+#Functions to construct new types
+def new_file():
     fd, name = tempfile.mkstemp(prefix="conduit")
     os.close(fd)
-    return name
+    return conduit.datatypes.File.File(
+                name
+                )
+
+def new_note():
+    return conduit.datatypes.Note.Note(
+                title=Utils.random_string(),
+                mtime=datetime.datetime(1977,3,23)
+                )
+
+def new_event():
+    icals = get_files_from_data_dir("1.ical")
+    e = conduit.datatypes.Event.Event(
+                URI=Utils.random_string()
+                )
+    f = open(icals[0],'r')
+    e.set_from_ical_string(f.read())
+    f.close()
+    return e
+
+def new_contact():
+    vcards = get_files_from_data_dir("1.vcard")
+    c = conduit.datatypes.Contact.Contact(
+                URI=Utils.random_string()
+                )
+    f = open(vcards[0],'r')
+    c.set_from_vcard_string(f.read())
+    f.close()
+    return c
+
+def new_email():
+    return conduit.datatypes.Email.Email(
+                URI=Utils.random_string()
+                )
 
 #Dynamically load all datasources, datasinks and converters
 dirs_to_search =    [
@@ -43,14 +77,13 @@ dirs_to_search =    [
 model = ModuleManager(dirs_to_search)
 type_converter = TypeConverter(model)
 
-    #type           #klass,                             #args
+    #type           #construction function
 TYPES = {
-    "file"      :   (conduit.datatypes.File.File,       {"URI":tmpfile()}),
-    "note"      :   (conduit.datatypes.Note.Note,       {"title":Utils.random_string(),
-                                                        "mtime":datetime.datetime(1967,3,23)}),
-    "event"     :   (conduit.datatypes.Event.Event,     {"URI":Utils.random_string()}),
-    "contact"   :   (conduit.datatypes.Contact.Contact, {"URI":Utils.random_string()}),
-    "email"     :   (conduit.datatypes.Email.Email,     {"URI":Utils.random_string()})
+    "file"      :   new_file,
+    "note"      :   new_note,
+    "event"     :   new_event,
+    "contact"   :   new_contact,
+    "email"     :   new_email
     }
 
 #Draw a table of the available conversions.
@@ -78,19 +111,20 @@ print "%s: No conversion possible" % pad("N")
 
 #now test all the conversions
 for fromtype,totype in tests:
-    fromklass,fromkwargs = TYPES[fromtype]
-    frominstance = fromklass(**fromkwargs)
-
+    conv = "%s --> %s" % (fromtype,totype)
     toinstance = None
     try:
+        #call the construction function to make a new instance
+        frominstance = TYPES[fromtype]()
+        #convert
         toinstance = type_converter.convert(fromtype,totype,frominstance)
-        ok("Converted %s --> %s" % (fromtype,totype), toinstance != None, False)
+        ok("[%s] Conversion Successful" % conv,toinstance != None, False)
         #check that all info was retained
         retained = toinstance.get_mtime() == frominstance.get_mtime()
-        ok("Mtime retained in conversion %s --> %s (%s vs. %s)" % (fromtype,totype,toinstance.get_mtime(),frominstance.get_mtime()), retained, False)
+        ok("[%s] Mtime retained (%s vs. %s)" % (conv,toinstance.get_mtime(),frominstance.get_mtime()), retained, False)
         retained = toinstance.get_UID() == frominstance.get_UID()
-        ok("UID retained in conversion %s --> %s (%s vs. %s)" % (fromtype,totype,toinstance.get_UID(),frominstance.get_UID()), retained, False)
+        ok("[%s] UID retained (%s vs. %s)" % (conv,toinstance.get_UID(),frominstance.get_UID()), retained, False)
         retained = toinstance.get_open_URI() == frominstance.get_open_URI()
-        ok("open URI retained in conversion %s --> %s (%s vs. %s)" % (fromtype,totype,toinstance.get_open_URI(),frominstance.get_open_URI()), retained, False)
+        ok("[%s] Open URI retained (%s vs. %s)" % (conv,toinstance.get_open_URI(),frominstance.get_open_URI()), retained, False)
     except Exception:
-        ok("Converted %s --> %s\n%s" % (fromtype,totype,traceback.format_exc()), False, False)
+        ok("[%s] Conversion Failed\n%s" % (conv,traceback.format_exc()), False, False)

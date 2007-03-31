@@ -239,7 +239,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         Applies user policy when data has been deleted from source.
         Assumes that source is on the left (visually) unless
         leftToRight is False
-        """ 
+        """
+        logd("DELETE SUPPORT NOT FINSHED")
+        return
         if self.policy["deleted"] == "skip":
             logd("Deleted Policy: Skipping")
         elif self.policy["deleted"] == "ask":

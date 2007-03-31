@@ -104,7 +104,7 @@ class ContactConverter:
     def contact_to_file(self, contact):
         #get vcard data
         f = Utils.new_tempfile(contact.get_vcard_string())
-        return t
+        return f
 
     def contact_to_text(self, contact):
         #get vcard data

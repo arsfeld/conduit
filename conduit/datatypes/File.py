@@ -19,6 +19,7 @@ class File(DataType.DataType):
         self.group = kwargs.get("group","")
 
         self.URI = gnomevfs.URI(URI)
+        logd("Setting FILE open URI to %s" % URI)
         self.set_open_URI(URI)
         self.set_UID(URI)
 
@@ -107,10 +108,10 @@ class File(DataType.DataType):
         """
         Changes the mtime of the file
         """
-        #FIXME: Does this lose precision?
-        #see http://mail.python.org/pipermail/python-list/2005-December/355679.html
+        timestamp = conduit.Utils.datetime_get_timestamp(mtime)
+        logd("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
         newInfo = gnomevfs.FileInfo()
-        newInfo.mtime = long(time.mktime(mtime.timetuple()))
+        newInfo.mtime = timestamp
         gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
         #close so the file info is re-read
         self._close_file()
@@ -169,9 +170,8 @@ class File(DataType.DataType):
         if mtime != None:
             try:
                 self.force_new_mtime(mtime)
-            except:
-                logw("Error setting mtime of %s" % self.URI)
-                traceback.print_exc()
+            except Exception, err:
+                logw("Error setting mtime of %s. \n%s" % (self.URI, traceback.format_exc()))
     
     def get_size(self):
         """

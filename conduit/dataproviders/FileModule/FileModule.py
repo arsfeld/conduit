@@ -469,12 +469,13 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                         )
         #A DB of files with meta information
         self.db = None
+        self._tmpfile = os.path.join(Utils.tempfile.mkdtemp(), "uris.db")
         self._create_empty_db()
         #When acting as a sink, place all unmatched items in here
         self.unmatchedURI = os.path.expanduser("~")
 
     def _create_empty_db(self):
-        self.db = DB.SimpleDb("uris")
+        self.db = DB.SimpleDb(self._tmpfile)
         self.db.create("uri", "type", "basepath", "group", mode="overwrite")
         self.db.create_index("group")
         self.db.create_index("type")

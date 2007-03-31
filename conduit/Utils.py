@@ -67,6 +67,12 @@ def new_tempfile(contents, contentsAreText=True):
     """
     return File.TempFile(contents)
 
+def new_tempdir(self):
+    """
+    Creates a new temporary directory
+    """
+    return tempfile.mkdtemp("conduit")
+
 def flatten_list(x):
     """flatten(sequence) -> list
 
@@ -166,6 +172,9 @@ def datetime_from_timestamp(t):
     if type(t) not in [long, int, float]:
         raise Exception("Timestamp must be a number")
 
+    if t < 0:
+        raise Exception("Timestamps before 1970 are not valid")
+
     return datetime.datetime.fromtimestamp(long(t))
 
 def datetime_get_timestamp(d):
@@ -179,5 +188,9 @@ def datetime_get_timestamp(d):
         raise Exception("Must supply a datetime")
 
     f = time.mktime(d.timetuple())
+
+    if f < 0:
+        raise Exception("Timestamps before 1970 are not valid")
+
     return long(f)
 
