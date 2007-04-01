@@ -159,6 +159,14 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
 
         return uid
 
+    def delete(self, LUID):
+        if self.remoteTomboy.NoteExists(LUID):
+            if self.remoteTomboy.DeleteNote(LUID):
+                logd("Deleted note %s" % LUID)
+                return
+
+        logw("Error deleting note %s" % LUID)
+
     def finish(self):
         self.notes = []
 

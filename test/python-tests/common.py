@@ -37,9 +37,17 @@ def ok(message, code, die=True):
             print "[PASS] %s" % message
             return True
 
+#returns list of files that match the glob in the data dir
 def get_files_from_data_dir(glob_str):
     files = []
     for i in glob.glob(os.path.join(os.path.dirname(__file__),"data",glob_str)):
         files.append(os.path.abspath(i))
     return files
+
+#returns the contents of the file called name in the data dir
+def read_data_file(name):
+    f = open(name,'r')
+    txt = f.read()
+    f.close()
+    return txt
 

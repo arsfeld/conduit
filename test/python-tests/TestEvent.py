@@ -18,9 +18,7 @@ for i in icals:
     try:
         c = Event.Event(i)
         ok("Created event from file %s" % i, True)
-        f = open(i,'r')
-        c.set_from_ical_string(f.read())
-        f.close()
+        c.set_from_ical_string( read_data_file(i) )
 
         #check the URI
         ok("Uri (%s) retained" % os.path.basename(i), c.get_open_URI() == i)

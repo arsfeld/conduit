@@ -65,7 +65,7 @@ try:
     ok("Note was overwritten correctly", True)
 except:
     traceback.print_exc()
-    ok("Note was nverwritten correctly", False)
+    ok("Note was overwritten correctly", False)
 
 #Try and overwrite the note with an older version. Check it conflicts
 olddate = datetime.datetime.fromtimestamp(0)
@@ -78,3 +78,9 @@ except Exceptions.SynchronizeConflictError, err:
     comp = err.comparison
     ok("Oldnote conflicts with newnote. Comparison: %s" % comp, comp == conduit.datatypes.COMPARISON_OLDER)
 
+#remove the note
+try:
+    tomboy.delete(uid)
+    ok("Deleted note (%s)" % uid, tomboy.remoteTomboy.NoteExists(uid) == False)
+except:
+    ok("Deleted note (%s)" % uid, False)

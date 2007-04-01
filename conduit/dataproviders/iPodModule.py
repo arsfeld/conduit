@@ -164,13 +164,15 @@ class IPodNoteTwoWay(IPodBase):
             if mtime == rawNoteFile.get_mtime():
                 raw = rawNoteFile.get_contents_as_text()
 
-        #get the contents from the note, get the raw from the raw copy
+        #get the contents from the note, get the raw from the raw copy.
+        #the UID for notes from the ipod is the filename
         n = Note.Note(
                     title=uid,
                     mtime=mtime,
                     contents=noteFile.get_contents_as_text(),
                     raw=raw
                     )
+        n.set_UID(uid)
         n.set_open_URI(noteURI)
         return n
     
