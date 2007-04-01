@@ -79,7 +79,7 @@ class FlickrSink(DataProvider.DataSink):
         photo = photoInfo.photo[0]
         #photo is a dict so we can use pythons string formatting natively with
         #the correct keys
-        url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(originalsecret)s_o.%(originalformat)s" % photo
+        url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(secret)s.jpg" % photo
         return url
         
     def initialize(self):
