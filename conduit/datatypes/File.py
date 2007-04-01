@@ -11,17 +11,24 @@ from conduit.datatypes import DataType
 
 class File(DataType.DataType):
     def __init__(self, URI, **kwargs):
+        """
+        File constructor.
+        Compulsory args
+          - URI: The title of the note
+
+        Optional kwargs
+          - basepath: The files basepath
+          - group: A named group to which this file belongs
+        """
         DataType.DataType.__init__(self,"file")
         self._close_file()
+        
+        #compulsory args
+        self.URI = gnomevfs.URI(URI)
 
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
-
-        self.URI = gnomevfs.URI(URI)
-        logd("Setting FILE open URI to %s" % URI)
-        self.set_open_URI(URI)
-        self.set_UID(URI)
 
     def _open_file(self):
         """
@@ -30,7 +37,6 @@ class File(DataType.DataType):
         Only tries to do this once for performance reasons
         """
         if self.triedOpen == False:
-            self.set_open_URI(self._get_text_uri())
             try:
                 self.vfsFile = gnomevfs.Handle(self.URI)
                 self.fileExists = True

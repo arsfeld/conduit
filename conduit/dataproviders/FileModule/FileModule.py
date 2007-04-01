@@ -566,7 +566,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 #unknown. Store in orphan dir
                 newURI = os.path.join(self.unmatchedURI, pathFromBase)
 
-        destFile = File.File(newURI)
+        destFile = File.File(URI=newURI)
         comp = vfsFile.compare(destFile)
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
@@ -576,11 +576,14 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
         item = self._get_files_from_db()[index]
-        return File.File(
-                    item['uri'],
+        f = File.File(
+                    URI=item['uri'],
                     basepath=item['basepath'],
                     group=item['group']
                     )
+        f.set_open_URI(item['uri'])
+        f.set_UID(item['uri'])
+        return f
 
     def get_num_items(self):
         DataProvider.TwoWay.get_num_items(self)
