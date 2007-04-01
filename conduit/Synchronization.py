@@ -343,10 +343,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
                     if comp == COMPARISON_OLDER and skipOlder:
-                        logd("Skipping %s (Older)", newdata)
+                        logd("Skipping %s (Older)" % newdata)
                         pass
                     elif comp == COMPARISON_EQUAL:
-                        logd("Skipping %s (Equal)", newdata)
+                        logd("Skipping %s (Equal)" % newdata)
                         pass
                     else:
                         self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
@@ -359,13 +359,13 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 logd("No Conversion Exists")
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
             except Exceptions.ConversionError, err:
-                logw("Error converting %s" % err)
+                logw("Error converting %s\n%s" % (err, traceback.format_exc()))
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SyncronizeError, err:
-                logw("Error synchronizing %s", err)                     
+                logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))                     
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SyncronizeFatalError, err:
-                logw("Error synchronizing %s", err)
+                logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
                 source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
                 #Cannot continue
