@@ -21,7 +21,8 @@ import gnomevfs
 import os.path
 
 MODULES = {
-	"FileTwoWay" :    { "type": "dataprovider" }
+	"FileSource" :      { "type": "dataprovider" },
+	"FolderTwoWay" :    { "type": "dataprovider" }
 }
 
 TYPE_FILE = 0
@@ -216,12 +217,12 @@ class _FileSourceConfigurator(_ScannerThreadManager):
     """
     FILE_ICON = gtk.icon_theme_get_default().load_icon("text-x-generic", 16, 0)
     FOLDER_ICON = gtk.icon_theme_get_default().load_icon("folder", 16, 0)
-    def __init__(self, mainWindow, items, unmatchedURI):
+    def __init__(self, mainWindow, items):
         _ScannerThreadManager.__init__(self)
         self.tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
-						"FileTwowayConfigDialog"
+						"FileSourceConfigDialog"
 						)
         dic = { "on_addfile_clicked" : self.on_addfile_clicked,
                 "on_adddir_clicked" : self.on_adddir_clicked,
@@ -234,11 +235,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         
         self._make_view()
 
-        #Config the folderchoose button when we are used as a sink
-        self.folderChooserButton = self.tree.get_widget("filechooserbutton1")
-        self.folderChooserButton.set_current_folder_uri(unmatchedURI)
-
-        self.dlg = self.tree.get_widget("FileTwowayConfigDialog")
+        self.dlg = self.tree.get_widget("FileSourceConfigDialog")
         #connect to dialog response signal because we want to validate that
         #the user has named all the groups before we let them quit
         self.dlg.connect("response",self.on_response)
@@ -367,10 +364,9 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         #We can actually go ahead and cancel all the threads. The items count
         #is only used as GUI bling and is recalculated in refresh() anyway
         self.cancel_all_threads()
-        unmatchedURI = self.folderChooserButton.get_uri()
 
         self.dlg.destroy()
-        return response, unmatchedURI
+        return response
         
     def on_addfile_clicked(self, *args):
         dialog = gtk.FileChooserDialog( _("Include file ..."),  
@@ -442,20 +438,21 @@ class _FileSourceConfigurator(_ScannerThreadManager):
                                         message_format="Please Name All Folders")
                         warning.format_secondary_text("All folders require a descriptive name. To name a folder simply click on it")
                         warning.run()
+                        warning.destroy()
                         dialog.emit_stop_by_name("response")
 
-class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
+class FileSource(DataProvider.DataSource, _ScannerThreadManager):
 
     _name_ = _("Files")
-    _description_ = _("Source for synchronizing files")
+    _description_ = _("Source for synchronizing multiple files")
     _category_ = DataProvider.CATEGORY_LOCAL
-    _module_type_ = "twoway"
+    _module_type_ = "source"
     _in_type_ = "file"
     _out_type_ = "file"
     _icon_ = "text-x-generic"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self)
+        DataProvider.DataSource.__init__(self)
         _ScannerThreadManager.__init__(self)
         
         #list of file and folder URIs
@@ -471,8 +468,6 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         self.db = None
         self._tmpfile = os.path.join(Utils.tempfile.mkdtemp(), "uris.db")
         self._create_empty_db()
-        #When acting as a sink, place all unmatched items in here
-        self.unmatchedURI = os.path.expanduser("~")
 
     def _create_empty_db(self):
         self.db = DB.SimpleDb(self._tmpfile)
@@ -491,15 +486,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         return True
 
     def configure(self, window):
-        f = _FileSourceConfigurator(window, self.items, self.unmatchedURI)
-        response, unmatchedURI = f.show_dialog()
-
-        if response == gtk.RESPONSE_OK:
-            logd("Unmatched Folder URI: %s" % unmatchedURI)
-            self.unmatchedURI = unmatchedURI
+        f = _FileSourceConfigurator(window, self.items)
+        response = f.show_dialog()
        
     def refresh(self):
-        DataProvider.TwoWay.refresh(self)
+        DataProvider.DataSource.refresh(self)
         #Empty the DB to ensure we alwawys have a continous list of 
         #db record IDs that we can use as the index   
         self._create_empty_db()
@@ -528,53 +519,8 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                     for i in item[CONTAINS_ITEMS_IDX]:
                         self.db.insert(i,TYPE_FILE, item[URI_IDX], item[GROUP_NAME_IDX])
 
-    def put(self, vfsFile, overwrite, LUID=None):
-        """
-        Puts vfsFile at the correct location. There are two scenarios
-        1) File came from a foreign DP like tomboy
-        2) File came from another file dp
-
-        Behaviour:
-        1) The foreign DP should have encoded enough information (such as
-        the filename) so that we can go ahead and put the file in the orphan dir
-        2) First we see if the file has a group attribute. If so we try and find
-        a correspnding group here. If one exists then we put the files into the 
-        directory with that group name
-        
-        If not we put the file in the orphan dir. We try and retain the relative
-        path for the files in the specifed group and recreate that in the
-        orphan dir
-        """
-        DataProvider.TwoWay.put(self, vfsFile, overwrite, LUID)
-        newURI = ""
-        if vfsFile.basePath == "":
-            #came from another type of dataprovider such as tomboy
-            #where relative path makes no sense. Could also come from
-            #the File dp when the user has selected a single file
-            logd("NO BASEPATH. GOING TO EMPTY DIR")
-            newURI = self.unmatchedURI+"/"+vfsFile.get_filename()
-        else:
-            pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
-            #Look for corresponding groups
-            if len(self.db._group[vfsFile.group]) != 0:
-                logd("FOUND CORRESPONDING GROUP")
-                #defined group containing some files
-                destPath = self.db._group[vfsFile.group][0]['basepath']
-                newURI = destPath+pathFromBase
-            else:
-                logd("GOING TO ORPHAN DIR")
-                #unknown. Store in orphan dir
-                newURI = os.path.join(self.unmatchedURI, pathFromBase)
-
-        destFile = File.File(URI=newURI)
-        comp = vfsFile.compare(destFile)
-        if overwrite or comp == DataType.COMPARISON_NEWER:
-            vfsFile.transfer(newURI, True)
-
-        return newURI
-                
     def get(self, index):
-        DataProvider.TwoWay.get(self, index)
+        DataProvider.DataSource.get(self, index)
         item = self._get_files_from_db()[index]
         f = File.File(
                     URI=item['uri'],
@@ -586,7 +532,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
         return f
 
     def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
+        DataProvider.DataSource.get_num_items(self)
         #When functioning as a datasource we are only interested in the 
         #files because that is all that will be get()
         return len(self._get_files_from_db())
@@ -596,7 +542,6 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
 
     def set_configuration(self, config):
         try:
-            self.unmatchedURI = config["unmatchedURI"]
             files = config["files"]
             folders = config["folders"]
             for f in files:
@@ -609,7 +554,7 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 if Utils.get_protocol(f) != "":
                     self.items.append((f,TYPE_FOLDER,0,False,"",[]))
         except: 
-            logw("Error restoring FileTwoWay configuration")
+            logw("Error restoring FileSource configuration")
 
     def get_configuration(self):
         files = []
@@ -622,12 +567,11 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 #If the user named the group then save this
                 if item[GROUP_NAME_IDX] != "":
                     _save_config_file_for_dir(item[URI_IDX], item[GROUP_NAME_IDX])
-        return {"unmatchedURI" : self.unmatchedURI,
-                "files" : files,
+        return {"files" : files,
                 "folders" : folders}
 
     def get_UID(self):
-        return ""
+        return Utils.get_user_string()
 
     def _on_scan_folder_progress(self, folderScanner, numItems, rowref):
         """
@@ -651,4 +595,187 @@ class FileTwoWay(DataProvider.TwoWay, _ScannerThreadManager):
                 configString = _get_config_file_for_dir(folderScanner.baseURI)
                 self.items[path][GROUP_NAME_IDX] = configString
             except gnomevfs.NotFoundError: pass
+
+class _FolderTwoWayConfigurator:
+    def __init__(self, mainWindow, folder, folderGroupName):
+        self.folder = folder
+        self.folderGroupName = folderGroupName
+
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade",
+						"FolderTwoWayConfigDialog"
+						)
+        self.folderChooser = tree.get_widget("filechooserbutton1")
+        self.folderChooser.set_uri(self.folder)
+        self.folderEntry = tree.get_widget("entry1")
+        self.folderEntry.set_text(self.folderGroupName)
+
+        self.dlg = tree.get_widget("FolderTwoWayConfigDialog")
+        self.dlg.connect("response",self.on_response)
+        self.dlg.set_transient_for(mainWindow)
+
+    def on_response(self, dialog, response_id):
+        if response_id == gtk.RESPONSE_OK:
+            if self.folderEntry.get_text() == "":
+                #stop this dialog from closing, and show a warning to the
+                #user indicating that the folder must be named
+                warning = gtk.MessageDialog(
+                                parent=dialog,
+                                flags=gtk.DIALOG_MODAL, 
+                                type=gtk.MESSAGE_WARNING, 
+                                buttons=gtk.BUTTONS_OK, 
+                                message_format="Please Enter a Folder Name")
+                warning.format_secondary_text("All folders require a descriptive name. To name a folder enter its name where indicated")
+                warning.run()
+                warning.destroy()
+                dialog.emit_stop_by_name("response")
+            else:
+                self.folderGroupName = self.folderEntry.get_text()
+                self.folder = self.folderChooser.get_uri()
+
+    def show_dialog(self):
+        self.dlg.show_all()
+        self.dlg.run()
+        self.dlg.destroy()
+        return self.folder, self.folderGroupName
+
+
+class FolderTwoWay(DataProvider.TwoWay):
+    """
+    TwoWay dataprovider for synchronizing a folder
+    """
+
+    _name_ = _("Folder")
+    _description_ = _("Synchronize folders")
+    _category_ = DataProvider.CATEGORY_LOCAL
+    _module_type_ = "twoway"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "folder"
+
+    def __init__(self, *args):
+        DataProvider.TwoWay.__init__(self)
+
+        self.folder = os.path.expanduser("~")
+        self.folderGroupName = "Home"
+        self.files = []
+
+    def initialize(self):
+        return True
+
+    def configure(self, window):
+        #get its name
+        try:
+            self.folderGroupName = _get_config_file_for_dir(self.folder)
+        except gnomevfs.NotFoundError: pass
+
+        f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName)
+        self.folder, self.folderGroupName = f.show_dialog()        
+
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+
+        #scan the folder
+        scanThread = _FolderScanner(self.folder)
+        scanThread.start()
+        scanThread.join()
+
+        self.files = scanThread.get_uris()
+
+    def put(self, vfsFile, overwrite, LUID=None):
+        """
+        Puts vfsFile at the correct location. There are two scenarios
+        1) File came from a foreign DP like tomboy
+        2) File came from another file dp
+
+        Behaviour:
+        1) The foreign DP should have encoded enough information (such as
+        the filename) so that we can go ahead and put the file in the dir
+        2) First we see if the file has a group attribute. If so, and the
+        group matches the groupName here then we put the files into the 
+        directory. If not we put the file in the orphan dir. We try and 
+        retain the relative path for the files in the specifed group 
+        and recreate that in the group dir
+        """
+        DataProvider.TwoWay.put(self, vfsFile, overwrite, LUID)
+        newURI = ""
+        if vfsFile.basePath == "":
+            #came from another type of dataprovider such as tomboy
+            #where relative path makes no sense. Could also come from
+            #the File dp when the user has selected a single file
+            logd("NO BASEPATH. GOING TO EMPTY DIR")
+            newURI = self.folder+"/"+vfsFile.get_filename()
+        else:
+            pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
+            #Look for corresponding groups
+            if self.folderGroupName == vfsFile.group:
+                logd("FOUND CORRESPONDING GROUP")
+                #put in the folder
+                newURI = self.folder+pathFromBase
+            else:
+                logd("RECREATING GROUP")
+                #unknown. Store in the dir but recreate the group
+                newURI = self.folder+"/"+vfsFile.group+pathFromBase
+
+        destFile = File.File(URI=newURI)
+        comp = vfsFile.compare(destFile)
+        if overwrite or comp == DataType.COMPARISON_NEWER:
+            vfsFile.transfer(newURI, True)
+
+        return newURI
+                
+    def get(self, index):
+        DataProvider.TwoWay.get(self, index)
+        item = self.files[index]
+        f = File.File(
+                    URI=item['uri'],
+                    basepath=item['basepath'],
+                    group=item['group']
+                    )
+        f.set_open_URI(item['uri'])
+        f.set_UID(item['uri'])
+        return f
+
+    def get_num_items(self):
+        DataProvider.TwoWay.get_num_items(self)
+        return len(self.files)
+
+    def finish(self):
+        self.db = None
+
+    def set_configuration(self, config):
+        self.folder = config["folder"]
+
+    def get_configuration(self):
+        _save_config_file_for_dir(self.folder, self.folderGroupName)
+        return {"folder" : self.folder}
+
+    def get_UID(self):
+        return "%s:%s" % (self.folder, self.folderGroupName)
+
+    def _on_scan_folder_progress(self, folderScanner, numItems, rowref):
+        """
+        Called by the folder scanner thread and used to update
+        the estimate of the number of items in the directory
+        """
+        path = self.items.get_path(rowref)
+        self.items[path][CONTAINS_NUM_ITEMS_IDX] = numItems
+
+    def _on_scan_folder_completed(self, folderScanner, rowref):
+        logd("Folder scan complete %s" % folderScanner)
+        path = self.items.get_path(rowref)
+        self.items[path][SCAN_COMPLETE_IDX] = True
+        self.items[path][CONTAINS_ITEMS_IDX] = folderScanner.get_uris()
+        #If the user has not yet given the folder a descriptive name then
+        #check of the folder contains a .conduit file in which that name is 
+        #stored (i.e. the case when the user starts the sync from a
+        #saved configuration)
+        if self.items[path][GROUP_NAME_IDX] == "":
+            try:
+                configString = _get_config_file_for_dir(folderScanner.baseURI)
+                self.items[path][GROUP_NAME_IDX] = configString
+            except gnomevfs.NotFoundError: pass
+
+
 
