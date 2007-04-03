@@ -106,7 +106,7 @@
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkScrolledWindow" id="scrolledwindow12">
+		    <widget class="GtkScrolledWindow" id="filesscrolledwindow">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>

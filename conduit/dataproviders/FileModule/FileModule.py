@@ -235,6 +235,16 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         
         self._make_view()
 
+        #setup dnd onto the file list
+        targets = [ ( "text/uri-list", 0, 0 ) ]
+        f = self.tree.get_widget("filesscrolledwindow")
+        f.drag_dest_set(
+            gtk.DEST_DEFAULT_MOTION | gtk.DEST_DEFAULT_HIGHLIGHT | gtk.DEST_DEFAULT_DROP,
+            targets, 
+            gtk.gdk.ACTION_COPY
+            )
+        f.connect("drag_data_received", self._dnd_data_get)
+
         self.dlg = self.tree.get_widget("FileSourceConfigDialog")
         #connect to dialog response signal because we want to validate that
         #the user has named all the groups before we let them quit
@@ -251,6 +261,18 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         for uri, rowref in i:
             self.make_thread(uri, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
 
+    def _dnd_data_get(self, wid, context, x, y, selection, targetType, time):
+        for uri in selection.get_uris():
+            try:
+                logd("Drag recieved %s" % uri)
+                info = gnomevfs.get_file_info(uri)
+                if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
+                    self._add_directory(uri)
+                else:
+                    self.model.append((uri,TYPE_SINGLE_FILE,0,False,"",[]))
+            except Exception, err:
+                logd("Error adding %s\n%s" % (uri,err))
+            
     def _make_view(self):
         """
         Creates the treeview and connects the model and appropriate
@@ -359,6 +381,15 @@ class _FileSourceConfigurator(_ScannerThreadManager):
             self.model[path][GROUP_NAME_IDX] = configString
         except gnomevfs.NotFoundError: pass
 
+    def _add_directory(self, folderURI):
+        """
+        Adds the directory to the db. Starts a thread to scan it in the background
+        """
+        if folderURI not in self.scanThreads:
+            rowref = self.model.append((folderURI,TYPE_FOLDER,0,False,"",[])) 
+            self.make_thread(folderURI, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
+
+
     def show_dialog(self):
         response = self.dlg.run()
         #We can actually go ahead and cancel all the threads. The items count
@@ -406,10 +437,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             folderURI = dialog.get_uri()
-            #Scan a thread to scan the folder
-            if folderURI not in self.scanThreads:
-                rowref = self.model.append((folderURI,TYPE_FOLDER,0,False,"",[])) 
-                self.make_thread(folderURI, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
+            self._add_directory(folderURI)
         elif response == gtk.RESPONSE_CANCEL:
             pass
         dialog.destroy()
