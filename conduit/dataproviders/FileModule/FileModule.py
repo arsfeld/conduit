@@ -4,6 +4,7 @@ import traceback
 import threading
 import gobject
 import time
+import urllib
 
 
 import conduit
@@ -550,13 +551,14 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
     def get(self, index):
         DataProvider.DataSource.get(self, index)
         item = self._get_files_from_db()[index]
+        filename = urllib.unquote(item['uri'])
         f = File.File(
-                    URI=item['uri'],
+                    URI=filename,
                     basepath=item['basepath'],
                     group=item['group']
                     )
-        f.set_open_URI(item['uri'])
-        f.set_UID(item['uri'])
+        f.set_open_URI(filename)
+        f.set_UID(filename)
         return f
 
     def get_num_items(self):
@@ -755,14 +757,15 @@ class FolderTwoWay(DataProvider.TwoWay):
                 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
-        item = self.files[index]
+        #remove %20 from spaces
+        filename = urllib.unquote(self.files[index])
         f = File.File(
-                    URI=item['uri'],
-                    basepath=item['basepath'],
-                    group=item['group']
+                    URI=filename,
+                    basepath=self.folder,
+                    group=self.folderGroupName
                     )
-        f.set_open_URI(item['uri'])
-        f.set_UID(item['uri'])
+        f.set_open_URI(filename)
+        f.set_UID(filename)
         return f
 
     def get_num_items(self):
@@ -770,7 +773,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         return len(self.files)
 
     def finish(self):
-        self.db = None
+        self.files = []
 
     def set_configuration(self, config):
         self.folder = config["folder"]
