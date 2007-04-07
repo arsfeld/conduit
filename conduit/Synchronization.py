@@ -392,6 +392,95 @@ class SyncWorker(threading.Thread, gobject.GObject):
         self.one_way_sync(source, sink, True, True)
         self.one_way_sync(sink, source, True, False)
 
+    def two_way_sync_2(self, source, sink):
+        """
+        Performs a two way sync from source to sink and back.
+        General approach
+            1.  Get all the data from both DPs
+            2.  Get all existing relationships
+            3.  Go through all the data and classify into the following
+                a.  Data with no existing mappings.  This is basically new
+                    data so can be put into the corresponding sink
+                b.  Data for which a mapping exists. This can then be classified
+                    into 
+                    1.  The mtime of the data has not changed at either end. Skip
+                    2.  The mtime of the data has changed. Compare the data to 
+                        see which is newer
+                    3.  Data that is missing from the existing mappings, i.e. data
+                        that has been deleted
+        """
+        log("Synchronizing v2 %s <--> %s " % (source, sink))
+        sourceData = [source.module.get(i) for i in range(0,source.module.get_num_items())]
+        sinkData = [sink.module.get(i) for i in range(0,sink.module.get_num_items())]
+        
+        known = {}
+        #first look up the existing relationships
+        # key = [UID]
+        # values = (mtime, correspondingUID)
+        for i in self.mappingDB.get_mappings_for_dataproviders(source.get_UID(), sink.get_UID()):
+            if known.has_key(i["sourceDataLUID"]) or known.has_key(i["sinkDataLUID"]):
+                pass
+            else:
+                known[ i["sourceDataLUID"] ] = (i["mtime"],i["sinkDataLUID"],i["sourceUID"])
+                known[ i["sinkDataLUID"] ] = (i["mtime"],i["sourceDataLUID"],i["sinkUID"])
+
+        #precompute the actions. mostly for debugability
+        toput = []      # (sourcedp, data, sinkdp)
+        tocomp = []     # (dp1, data1, dp2, data2)
+        todelete = []   # (dataUID, sink)
+        #the difficulty is that if some data is known then we need to wait for
+        #its matching pair before we can compare it and decide who is newer
+        waitingForData = {}
+        # key: the UID of the data we are waiting for
+        # value: the data, dp and mtime we know
+        #messy list foo...... but need to do this both ways smartly
+        for sourcedp,sinkdp in [ (source,sink), (sink,source) ]:
+            for data in [sourcedp.module.get(i) for i in range(0, sourcedp.module.get_num_items())]:
+                dataUID = data.get_UID()
+                #logd("DATA: %s" % dataUID)
+                #are we waiting for this data
+                if waitingForData.has_key(dataUID):
+                    olddp, olddata, olduid, mtime = waitingForData[dataUID]
+                    if olddata.get_mtime() != mtime or data.get_mtime() != mtime or self.conduit.do_slow_sync():
+                        # CASE 3.b.2
+                        tocomp.append( (olddp, olddata, sourcedp, data) )
+                    else:
+                        # CASE 3.b.1
+                        #logd("Skipping %s and %s. Mtimes has not changed (%s)" % (olddata.get_UID(), data.get_UID(), mtime))
+                        pass
+                    del(known[dataUID])
+                else:
+                    if known.has_key(dataUID):
+                        mtime, matchingUID, sourceUID = known[dataUID]
+                        #its a known relationship so wait for its friend
+                        waitingForData[matchingUID] = (sourcedp, data, dataUID, mtime)
+                        del(known[dataUID])
+                    else:
+                        # CASE 3.a
+                        toput.append( (sourcedp, data, sinkdp) )
+
+            #no go and see what data remains that was previously known about, and that
+            #has now been deleted from the sink
+            for k in known:
+                mtime, matchingUID, sourceUID = known[k]
+                if sourcedp.get_UID() == sourceUID:
+                    # CASE 3.b.3
+                    #logd("DELETED %s from %s. Remove %s from %s" % (k, sourcedp.name, matchingUID, sinkdp.name))
+                    todelete.append( (matchingUID, sinkdp) )
+    
+        if True:
+            for sourcedp, data, sinkdp in toput:
+                print "-- DATA TO PUT ---------------------------------------"
+                print "| %s (%s) -----> %s" % (sourcedp.name,data.get_UID(),sinkdp.name)
+
+            for dp1, data1, dp2, data2 in tocomp:
+                print "-- DATA TO COMPARE -----------------------------------"
+                print "| %s (%s) <----> %s (%s)" % (dp1.name,data1.get_UID(),dp2.name,data2.get_UID())
+
+            for uid, sink in todelete:
+                print "-- DATA TO DELETE ------------------------------------"
+                print "| %s (%s)" % (sink.name, uid)
+
     def run(self):
         """
         The main syncronisation state machine.
@@ -515,6 +604,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         if  self.conduit.is_two_way():
                             #two way
                             self.two_way_sync(self.source, sink)
+                            #self.two_way_sync_2(self.source, sink)
                         else:
                             #one way
                             self.one_way_sync(self.source, sink, False, True)
