@@ -171,6 +171,6 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         self.notes = []
 
     def get_UID(self):
-        return ""
+        return Utils.get_user_string()
 
 

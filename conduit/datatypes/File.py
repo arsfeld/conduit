@@ -136,7 +136,7 @@ class File(DataType.DataType):
         else:
             mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
-        #FIXME: I should probbably do something with the result
+        #FIXME: IGNORES gnomevfs.XFER_NEW_UNIQUE_DIRECTORY. FUCK
         logd("Transfering File %s -> %s" % (self.URI, newURI))
         result = gnomevfs.xfer_uri( self.URI, newURI,
                                     gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,

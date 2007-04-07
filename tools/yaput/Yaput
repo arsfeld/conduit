@@ -1,0 +1,264 @@
+#!/usr/bin/python
+
+# Original Author:
+#   Michele Campeotto <micampe@micampe.it>
+#   (C) 2004 Michele Campeotto.
+# Yahoo! authorization code by:
+#    Cameron Mallory <cmallory@berserk.org>
+# Glue and debugging:
+#   Eric Weigle <weigle@gmail.com>
+#
+# License: GNU GPL version 2.
+
+import gtk, gobject
+import sys, os, os.path, thread, time
+import urllib, urllib2, urlparse, mimetools, mimetypes
+import ConfigParser
+import shelve, md5
+
+import dbus
+import dbus.service
+if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
+  import dbus.glib
+
+CONFIG_FILE = "~/.flickr_uploadr";
+
+class Uploadr:
+    def __init__(self):
+        self.alpha = 25
+
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_title("Uploadr")
+        self.window.connect("delete_event", self.delete_event)
+        self.window.set_border_width(10)
+        self.window.set_resizable(False)
+
+        self.vbox = gtk.VBox(False)
+        self.vbox.set_spacing(10)
+
+        self.frame = gtk.Frame()
+        self.frame.set_shadow_type(gtk.SHADOW_IN)
+        self.frame.set_size_request(150, 150)
+        self.frame.show()
+
+        self.white = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 150, 150)
+        try:
+            self.white.fill(0xffffffffL)
+        except OverflowError:
+            print "I'm sorry I can't get white to work on your Python."
+            print "You'll have a black background instead."
+            self.white.fill(0) # looks like crap, but at least doesn't crash
+
+        self.image = gtk.Image()
+        self.logo = self.white_background(gtk.gdk.pixbuf_new_from_file("flickr_logo.gif"))
+        self.image.set_from_pixbuf(self.logo)
+        self.image.show()
+        self.frame.add(self.image)
+
+        self.vbox.pack_start(self.frame, True, True)
+
+        self.progress = gtk.ProgressBar()
+        self.progress.set_orientation(gtk.PROGRESS_LEFT_TO_RIGHT)
+        self.progress.set_text("Connecting...")
+        self.vbox.pack_start(self.progress, False, False)
+        self.progress.show()
+
+        # to support drops from Konqueror I must do everything by hand,
+        # default handlers don't work
+        self.vbox.connect('drag_motion', self.motion_cb)
+        self.vbox.connect('drag_drop', self.drop_cb)
+        self.vbox.connect("drag_data_received", self.receive_callback)
+        self.vbox.drag_dest_set(0, [], 0)
+
+        self.window.add(self.vbox)
+        self.vbox.set_sensitive(False)
+        self.vbox.show()
+        self.window.show()
+
+        gobject.timeout_add(500, self.connect_to_conduit)
+
+        if len(sys.argv) > 2:
+        	self.upload_files(sys.argv[2:])
+
+    # ----------------------------------------------------------------------
+    # Sets up the connection to conduit
+    def connect_to_conduit(self):
+        bus = dbus.SessionBus()
+        conduit_object = bus.get_object('org.gnome.Conduit', '/activate')
+        self.conduit = dbus.Interface(conduit_object, 'org.gnome.Conduit')
+        self.progress.set_text("Drop pictures here")
+        self.vbox.set_sensitive(True)
+
+    def motion_cb(self, widget, context, x, y, time):
+        context.drag_status(gtk.gdk.ACTION_COPY, time)
+        return True
+
+    def drop_cb(self, widget, context, x, y, time):
+        widget.drag_get_data(context, 'text/uri-list', time)
+        return True
+
+    def delete_event(self, widget, event, data=None):
+        gtk.main_quit()
+        return False
+
+    # This is the main function to actually upload images after user drag/drops them
+    # onto the main gtk window.
+    def receive_callback(self, widget, context, x, y, selection, targetType, timestamp):
+        print "Raising Conduit"
+        if self.conduit.HasGUI():
+            print "Has Gui"
+            self.conduit.ShowGUI()
+        else:
+            print "BAD"
+
+        self.upload_files(
+                [urllib.unquote(urlparse.urlsplit(name)[2])
+                    for name in selection.data.split('\r\n')[:-1]
+                        if os.path.isfile(urllib.unquote(urlparse.urlsplit(name)[2]))])
+
+
+    def upload_files(self, files):
+            # FIXME: this will upload everything you pass to it,
+            # should check for valid image files
+            #info = UploadDetails(self.window).run()
+
+            #if info is None:
+            #    return
+            #else:
+            #    self.open_flickr = info['open_flickr']
+            #    del(info['open_flickr'])
+            #    FLICKR.update(info)
+
+            #self.photoids = []
+
+            for filename in files:
+                current = files.index(filename)
+                self.progress.set_text("%s" % (filename.split("/")[-1],))
+                self.progress.set_fraction(float(current) / len(files))
+
+                pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+
+                # resize to fit in frame
+                if pixbuf.get_height() < pixbuf.get_width():
+                    width = 120
+                    height = int(120.0 / pixbuf.get_width() * pixbuf.get_height())
+                else:
+                    height = 120
+                    width = int(120.0 / pixbuf.get_height() * pixbuf.get_width())
+                pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_TILES)
+
+                pixbuf = self.white_background(pixbuf)
+
+                # fade
+                gobject.timeout_add(50, self.do_fade, self.image.get_pixbuf().copy(), pixbuf)
+
+                finish = thread.allocate_lock()
+                finish.acquire()
+                thread.start_new_thread(self.upload, (filename, finish))
+
+                while finish.locked():
+                    while gtk.events_pending():
+                        gtk.main_iteration(False)
+                        time.sleep(0.05)
+
+            gobject.timeout_add(50, self.do_fade, self.image.get_pixbuf().copy(), self.logo)
+            self.progress.set_text("Drop pictures here")
+            self.progress.set_fraction(0.0)
+
+    def white_background(self, image):
+        x = (150 - image.get_width()) / 2
+        y = (150 - image.get_height()) / 2
+        composed = self.white.copy()
+        image.composite(composed, x, y,
+                    min(150, image.get_width()),
+                    min(150, image.get_height()),
+                    x, y, 1, 1, gtk.gdk.INTERP_TILES, 255)
+        return composed
+
+    def do_fade(self, pixbuf, new_pixbuf):
+        new_pixbuf.composite(pixbuf,
+                0, 0, pixbuf.get_width(), pixbuf.get_height(),
+                0, 0, 1, 1,
+                gtk.gdk.INTERP_TILES, self.alpha)
+        self.image.set_from_pixbuf(pixbuf)
+        self.alpha += 25
+        if self.alpha < 255:
+            return True
+        else:
+            self.alpha = 25
+            self.image.set_from_pixbuf(new_pixbuf)
+            return False
+
+    # ----------------------------------------------------------------------
+    def upload(self, filepath, finish):
+        time.sleep(3)
+        finish.release()
+        thread.exit()
+
+class UploadDetails(gtk.Dialog):
+    def __init__(self, parent):
+        self.config = ConfigParser.ConfigParser()
+        self.config.read(os.path.expanduser(CONFIG_FILE))
+
+        gtk.Dialog.__init__(self, "Pictures information", parent,
+                gtk.DIALOG_MODAL,
+                (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT, gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+
+        table = gtk.Table(4, 2)
+        table.set_border_width(10)
+        table.set_row_spacings(10)
+
+        label = gtk.Label("Title: ")
+        label.set_alignment(1, 0.5)
+        table.attach(label, 0, 1, 0, 1)
+
+        self.ptitle = gtk.Entry()
+        table.attach(self.ptitle, 1, 2, 0, 1)
+
+        label = gtk.Label("Tags: ")
+        label.set_alignment(1, 0.5)
+        table.attach(label, 0, 1, 1, 2)
+
+        self.tags = gtk.Entry()
+        table.attach(self.tags, 1, 2, 1, 2)
+
+        self.is_private = gtk.CheckButton("The pictures are private")
+        if self.config.has_option('settings', 'is_public'):
+            self.is_private.set_active(not self.config.getboolean('settings', 'is_public'))
+        table.attach(self.is_private, 1, 2, 2, 3)
+
+        self.open_flickr = gtk.CheckButton("Open Flickr after upload")
+        if self.config.has_option('settings', 'open_flickr'):
+            self.open_flickr.set_active(self.config.getboolean('settings', 'open_flickr'))
+        else:
+            self.open_flickr.set_active(True)
+        table.attach(self.open_flickr, 1, 2, 3, 4)
+
+        self.vbox.pack_start(table, True, True)
+        self.show_all()
+
+    def run(self):
+        response = gtk.Dialog.run(self)
+        info = {"title": self.ptitle.get_text(), "tags": self.tags.get_text(),
+                "is_public": self.is_private.get_active() and "0" or "1",
+                "open_flickr": self.open_flickr.get_active() and True or False }
+        self.destroy()
+
+        if response == gtk.RESPONSE_ACCEPT:
+            self.config = ConfigParser.ConfigParser()
+            # this succeeds by returning [] even if config is nonexistent.
+            self.config.read(os.path.expanduser(CONFIG_FILE))
+            if not 'settings' in self.config.sections():
+                self.config.add_section('settings')
+            self.config.set('settings', 'is_public', info["is_public"])
+            self.config.set('settings', 'open_flickr', info["open_flickr"])
+            os.umask(0177)
+            self.config.write(open(os.path.expanduser(CONFIG_FILE), 'w'))
+            return info
+        else:
+            return None
+
+if __name__ == "__main__":
+    hello = Uploadr()
+    gtk.main()
+

@@ -1,3 +1,4 @@
+AC_PREREQ(2.57)
 AC_INIT([conduit], [0.3.0],[mailto:john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
 
@@ -41,11 +42,10 @@ AM_GLIB_GNU_GETTEXT
 # Requirements
 ################################################################################
 #Dont actually need any devel modules at the moment - bindings are out of tree
-#PKG_CHECK_MODULES(CONDUIT,
-#	gtk+-2.0				>= 2.10
-#	pygtk-2.0				>= 2.10
-#	pygobject-2.0			>= 2.6
-#)
+PKG_CHECK_MODULES(CONDUIT,
+	gtk+-2.0				>= 2.10
+	pygtk-2.0				>= 2.10
+)
 #AC_SUBST(CONDUIT_CFLAGS)
 #AC_SUBST(CONDUIT_LIBS)
 
@@ -71,47 +71,35 @@ fi
 ################################################################################
 # Check for evolution-python to build the evolution dataprovider
 ################################################################################
-EVOLUTION_PYTHON_REQUIRED=0.0.0
-AC_ARG_ENABLE(evolution, AC_HELP_STRING([--disable-evolution],[Disable evolution support]),,[enable_evolution=yes])
+AC_ARG_ENABLE([evolution],
+              AC_HELP_STRING([--enable-evolution], [Enable support for evolution]),,
+              [enable_evolution=no])
+
 if test "x$enable_evolution" = "xyes"; then
-	PKG_CHECK_MODULES(EVOLUTION, [
-		evolution-python >= $EVOLUTION_PYTHON_REQUIRED],
+	PKG_CHECK_MODULES(EVOLUTION, [evolution-python >= 0.0.0] ,
 		[have_evolution=yes] , [have_evolution=no])
 else
 	have_evolution="no (disabled)"
 fi
 AM_CONDITIONAL(ENABLE_EVOLUTION, test "$have_evolution" = "yes")
 
-################################################################################
-# Check for sync-python to build the opensync dataprovider
-################################################################################
-SYNC_PYTHON_REQUIRED=0.0.0
-AC_ARG_ENABLE(opensync, AC_HELP_STRING([--disable-opensync],[Disable opensync support]),,[enable_opensync=yes])
-if test "x$enable_opensync" = "xyes"; then
-	PKG_CHECK_MODULES(OPENSYNC, [
-		sync-python >= $SYNC_PYTHON_REQUIRED],
-		[have_opensync=yes] , [have_opensync=no])
-else
-	have_opensync="no (disabled)"
-fi
-AM_CONDITIONAL(ENABLE_OPENSYNC, test "$have_opensync" = "yes")
 
 ################################################################################
 # DBus
 ################################################################################
-DBUS_REQUIRED=0.93
-AC_ARG_ENABLE(dbus, AC_HELP_STRING([--disable-dbus],[Disable dbus service]),,[enable_dbus=yes])
-if test "x$enable_dbus" = "xyes"; then
-	PKG_CHECK_MODULES(DBUS, [
-		dbus-1 >= $DBUS_REQUIRED],
-		[have_dbus=yes] , [have_dbus=no])
-	DBUS_SERVICES_DIR=`pkg-config --variable=session_bus_services_dir dbus-1`
-	AC_SUBST(DBUS_SERVICES_DIR)
-else
-	have_dbus="no (disabled)"
-fi
-AM_CONDITIONAL(ENABLE_DBUS, test "$have_dbus" = "yes")
+PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.93 ])
 
+AC_ARG_WITH([session_bus_services_dir],
+            AC_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
+
+if test "x$with_session_bus_services_dir" = "x" ; then
+   services_dir="`pkg-config --variable session_bus_services_dir dbus-1`"
+else
+   services_dir="$with_session_bus_services_dir"
+fi
+
+DBUS_SERVICES_DIR="$services_dir"
+AC_SUBST(DBUS_SERVICES_DIR)
 
 ################################################################################
 # Write the values of various paths for start_conduit.py
@@ -169,7 +157,5 @@ echo $PACKAGE v$VERSION
 echo
 echo Prefix............... : $prefix
 echo Evolution Support.... : $have_evolution
-echo Opensync Support..... : $have_opensync
-echo Dbus Service......... : $have_dbus
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo

@@ -56,15 +56,12 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 ################################################################################
 # DBus 
 ################################################################################
-if ENABLE_DBUS
 dbusservicedir=$(DBUS_SERVICES_DIR)
 dbusservice_in_files=org.gnome.Conduit.service.in
 dbusservice_DATA=$(dbusservice_in_files:.service.in=.service)
 
 $(dbusservice_DATA): $(dbusservice_in_files) Makefile
 	@sed -e "s|\@bindir\@|$(bindir)|" $< > $@
-endif
-
 
 ################################################################################
 # Build rules
