@@ -246,7 +246,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
     def emit_change_detected(self):
         if self.is_busy():
             self.pendingChangeDetected = True
-        else
+        else:
             self.set_status(STATUS_CHANGE_DETECTED)
             self.emit("change-detected")
 
