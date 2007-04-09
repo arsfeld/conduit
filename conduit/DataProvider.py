@@ -15,7 +15,8 @@ import conduit
 from conduit import log,logd,logw
 
 #Constants used in the sync state machine
-STATUS_NONE = 1
+STATUS_NONE = 0
+STATUS_CHANGE_DETECTED = 1
 STATUS_REFRESH = 2
 STATUS_DONE_REFRESH_OK = 3
 STATUS_DONE_REFRESH_ERROR = 4
@@ -103,6 +104,8 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         """
         goocanvas.Group.__init__(self)
         gobject.GObject.__init__(self)
+
+        self.pendingChangeDetected = False
         
         self.widgetColorRGBA = widgetColorRGBA
 
@@ -236,7 +239,16 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         Perform any post-sync cleanup. For example, free any structures created
         in refresh that were used in the synchronization.
         """
-        pass
+        if self.pendingChangeDetected:
+            self.set_status(STATUS_CHANGE_DETECTED)
+            self.emit("change-detected")
+
+    def emit_change_detected(self):
+        if self.is_busy():
+            self.pendingChangeDetected = True
+        else
+            self.set_status(STATUS_CHANGE_DETECTED)
+            self.emit("change-detected")
 
     def set_status(self, newStatus):
         """
@@ -265,6 +277,8 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         s = self.status
         if s == STATUS_NONE:
             return _("Ready")
+        elif s == STATUS_CHANGE_DETECTED:
+            return _("New data to sync")
         elif s == STATUS_REFRESH:
             return _("Refreshing...")
         elif s == STATUS_DONE_REFRESH_OK:

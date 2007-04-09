@@ -47,6 +47,7 @@ class EvoContactSource(DataProvider.DataSource):
         return self.contacts[index]
 
     def finish(self):
+        DataProvider.DataSource.finish(self)
         self.contacts = None
 
     def get_UID(self):

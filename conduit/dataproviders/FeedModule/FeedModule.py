@@ -168,6 +168,7 @@ class RSSSource(DataProvider.DataSource):
         return len(self.files)
 
     def finish(self):
+        DataProvider.DataSource.finish(self)
         self.files = None
 
     def get_configuration(self):

@@ -221,7 +221,8 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         LUID=data.get_UID()+self._name_
         return LUID
 
-    def finish(self):
+    def finish(self): 
+        DataProvider.TwoWay.finish(self)
         self.data = None
 
 class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):

@@ -91,6 +91,7 @@ class SynceTwoWay(DataProvider.TwoWay):
             })
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         # self.synce.AckChanges
         self._temp_delete_partnership()
         self.objects = None

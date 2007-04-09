@@ -168,6 +168,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         logw("Error deleting note %s" % LUID)
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         self.notes = []
 
     def get_UID(self):

@@ -568,6 +568,7 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
         return len(self._get_files_from_db())
 
     def finish(self):
+        DataProvider.DataSource.finish(self)
         self.db = None
 
     def set_configuration(self, config):
@@ -773,6 +774,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         return len(self.files)
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         self.files = []
 
     def set_configuration(self, config):

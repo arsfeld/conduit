@@ -249,6 +249,7 @@ class IPodNoteTwoWay(IPodBase):
         return note.title
         
     def finish(self):
+        TwoWay.finish(self)
         self.notes = []
 
 class IPodContactsTwoWay(IPodBase):
@@ -294,6 +295,7 @@ class IPodContactsTwoWay(IPodBase):
         _string_to_unqiue_file(str(contact), self.dataDir, 'contact')
 
     def finish(self):
+        TwoWay.finish(self)
         self.notes = None
 
 class IPodCalendarTwoWay(IPodBase):
@@ -339,5 +341,6 @@ class IPodCalendarTwoWay(IPodBase):
         _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
     def finish(self):
+        TwoWay.finish(self)
         self.notes = None
 

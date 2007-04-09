@@ -90,6 +90,7 @@ class FspotSource(DataProvider.DataSource):
         return len(self.photoURIs)
     
     def finish(self):
+        DataProvider.DataSource.finish(self)
         self.photoURIs = None
 
     def configure(self, window):

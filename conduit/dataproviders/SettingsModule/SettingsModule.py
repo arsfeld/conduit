@@ -129,7 +129,7 @@ class Settings(DataProvider.DataSource):
         return num
     
     def finish(self):
-        pass
+        DataProvider.DataSource.finish(self)
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(

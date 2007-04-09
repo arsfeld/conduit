@@ -207,6 +207,7 @@ class RemoteDataProvider(DataProvider.TwoWay):
         return "2384987397429834"
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         self.data = None
 
 class RemoteModuleWrapper(ModuleWrapper):

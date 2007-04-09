@@ -285,6 +285,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         return draftMsg.id
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         self.mails = None
 
     def get_configuration(self):
@@ -348,6 +349,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.put(self, contact, overwrite, LUID)
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         self.contacts = None
 
     def configure(self, window):
@@ -424,6 +426,7 @@ class PicasaWebTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.put(self, contact, overwrite, LUID)
 
     def finish(self):
+        DataProvider.TwoWay.finish(self)
         self.photos = None
 
     def configure(self, window):
