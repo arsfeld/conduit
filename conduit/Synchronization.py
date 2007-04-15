@@ -250,7 +250,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 validResolveChoices = (CONFLICT_COPY_SINK_TO_SOURCE,CONFLICT_SKIP)
             else:
                 validResolveChoices = (CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
-            self.emit("sync-conflict", 
+            gobject.idle_add(self.emit,"sync-conflict", 
                         sourceWrapper,              #datasource wrapper
                         DeletedData(dataLUID),      #from data
                         sinkWrapper,                #datasink wrapper
@@ -279,7 +279,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 logd("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
                 logd("Conflict Policy: Ask")
-                self.emit("sync-conflict", 
+                gobject.idle_add(self.emit,"sync-conflict", 
                             sourceWrapper, 
                             fromData, 
                             sinkWrapper, 
@@ -521,7 +521,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #on the GUI and the user can see them.
         #UNLESS the error is Fatal (causes us to throw a stopsync exceptiion)
         #in which case set the error status immediately.
-        self.emit("sync-started")
+        gobject.idle_add(self.emit, "sync-started")
         while not finished:
             self.check_thread_not_cancelled([self.source] + self.sinks)
             logd("Syncworker state %s" % self.state)
@@ -642,7 +642,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 finished = True
 
         self.mappingDB.save()
-        self.emit("sync-completed")
+        gobject.idle_add(self.emit, "sync-completed")
                 
 class DeletedData(DataType.DataType):
     """

@@ -61,6 +61,9 @@ class DBusView(dbus.service.Object):
     def _on_dataprovider_removed(self, loader, dataprovider):
         self.DataproviderUnavailable(dataprovider.get_key())
 
+    def _on_data_changed(self, sender, key):
+        self.DataproviderChanged(key)
+
     def _on_sync_started(self, thread):
         pass
 
@@ -98,6 +101,8 @@ class DBusView(dbus.service.Object):
                     uid = self._rand()
                     #store hash pointing to object instance
                     self.UIDs[uid] = new
+                    #connect to signals
+                    new.connect("change-detected", self._on_data_changed, key)
         return uid
 
     def _get_sources(self):
@@ -261,6 +266,10 @@ class DBusView(dbus.service.Object):
     @dbus.service.signal(conduit.DBUS_IFACE)
     def DataproviderUnavailable(self, key):
         self._print("Emiting DBus signal DataproviderUnavailable %s" % key)
+
+    @dbus.service.signal(conduit.DBUS_IFACE)
+    def DataproviderChanged(self, key):
+        self._print("Emmiting DBus signal DataproviderChanged %s" % key)
 
     @dbus.service.signal(conduit.DBUS_IFACE)
     def SyncCompleted(self, conduitUID):

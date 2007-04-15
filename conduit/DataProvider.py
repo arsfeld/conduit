@@ -90,7 +90,8 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
     """
     
     __gsignals__ =  { 
-                    "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+                    "change-detected": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
     def __init__(self, widgetColorRGBA=0):
@@ -131,7 +132,15 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         the derived DataProvider goes through its stages (STATUS_* etc)
         """
         self.emit ("status-changed")
-        return False        
+        return False
+
+    def __emit_change_detected(self):
+        """
+        Emits a 'change-detected' signal to the main loop.
+        """
+        self.set_status(STATUS_CHANGE_DETECTED)
+        self.emit("change-detected")
+        self.pendingChangeDetected = False
         
     def _build_widget(self):
         """
@@ -170,6 +179,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                     )
         except Exception, err:
             pass
+
         desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
                                 y=int(2*self.widget_height/3), 
                                 width=4*self.widget_width/5, 
@@ -240,15 +250,13 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         in refresh that were used in the synchronization.
         """
         if self.pendingChangeDetected:
-            self.set_status(STATUS_CHANGE_DETECTED)
-            self.emit("change-detected")
+            self.__emit_change_detected()
 
     def emit_change_detected(self):
         if self.is_busy():
             self.pendingChangeDetected = True
         else:
-            self.set_status(STATUS_CHANGE_DETECTED)
-            self.emit("change-detected")
+            self.__emit_change_detected()
 
     def set_status(self, newStatus):
         """

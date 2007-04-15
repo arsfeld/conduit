@@ -140,6 +140,13 @@ class TestSource(_TestBase, DataProvider.DataSource):
         _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
         
+        #signal we have new data in a few seconds
+        gobject.timeout_add(3000, self._emit_change)
+
+    def _emit_change(self):
+        self.emit_change_detected()
+        return False
+       
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
         return self.numData
