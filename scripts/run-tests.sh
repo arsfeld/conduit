@@ -17,6 +17,7 @@ Options:\n\
     -u      Upload results\n\
     -p      Prepare some files on remote servers\n\
     -s NAME Perform only the test called NAME\n\n\
+    -o      Offline. Skip tests that require a net connection\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
 login information in the relevant dataproviders\n\
@@ -32,13 +33,15 @@ do_coverage=0
 do_upload=0
 do_prepare=0
 do_single_test="x"
-while getopts "cups:" options
+do_online="TRUE"
+while getopts "cups:o" options
 do
     case $options in
         c )     do_coverage=1;;
         u )     do_upload=1;;
         p )     do_prepare=1;;
         s )     do_single_test=$OPTARG;;
+        o )     do_online="FALSE";;
         \? )    echo -e $USAGE
                 exit 1;;
         * )     echo -e $USAGE
@@ -104,6 +107,7 @@ do
         TEST_DIRECTORY=$TEST_DATA_DIR \
         COVERAGE_FILE="$LOGDIR/.coverage" \
         CONDUIT_LOGFILE=$logfile \
+        CONDUIT_ONLINE=$do_online \
         python $EXEC 2> /dev/null | \
         tee --append $indexfile
 

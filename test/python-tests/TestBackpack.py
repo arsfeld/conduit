@@ -9,6 +9,10 @@ from conduit.TypeConverter import TypeConverter
 import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
 
+if not is_online():
+    print "SKIPPING"
+    sys.exit()
+
 #Dynamically load all datasources, datasinks and converters
 dirs_to_search =    [
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),

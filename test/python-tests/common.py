@@ -51,3 +51,8 @@ def read_data_file(name):
     f.close()
     return txt
 
+def is_online():
+    try:    
+        return os.environ["CONDUIT_ONLINE"] == "TRUE"
+    except KeyError:
+        return False

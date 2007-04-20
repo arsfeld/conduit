@@ -31,7 +31,7 @@ GROUP = "TestGroup"
 sourceW = None
 sinkW = None
 for i in model.get_all_modules():
-    if i.classname == "FileTwoWay":
+    if i.classname == "FolderTwoWay":
         sourceW = model.get_new_module_instance(i.get_key())
         sinkW = model.get_new_module_instance(i.get_key())
 
@@ -67,20 +67,19 @@ for i in (sourceDir, sinkDir):
 
 #configure the source and sink
 config = {}
-config["unmatchedURI"] = os.environ['HOME']
-config["files"] = []
-config["folders"] = ["file://"+sourceDir]
+config["folderGroupName"] = GROUP
+config["folder"] = ["file://"+sourceDir]
 sourceW.module.set_configuration(config)
-config["folders"] = ["file://"+sinkDir]
+config["folder"] = ["file://"+sinkDir]
 sinkW.module.set_configuration(config)
 
 #check they refresh ok
 try:
     sinkW.module.refresh()
     sourceW.module.refresh()
-    ok("Refresh FileTwoWay", True)
+    ok("Refresh FolderTwoWay", True)
 except Exception, err:
-    ok("Refresh FileTwoWay (%s)" % err, False)
+    ok("Refresh FolderTwoWay (%s)" % err, False)
 
 a = sinkW.module.get_num_items()
 b = sourceW.module.get_num_items()

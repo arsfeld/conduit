@@ -10,6 +10,10 @@ import conduit.datatypes.Email as Email
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
+if not is_online():
+    print "SKIPPING"
+    sys.exit()
+
 #Dynamically load all datasources, datasinks and converters
 dirs_to_search =    [
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),

@@ -702,7 +702,9 @@ class FolderTwoWay(DataProvider.TwoWay):
         except gnomevfs.NotFoundError: pass
 
         f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName)
-        self.folder, self.folderGroupName = f.show_dialog()        
+        self.folder, self.folderGroupName = f.show_dialog()
+
+        print self.folder    
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -779,10 +781,14 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def set_configuration(self, config):
         self.folder = config["folder"]
+        self.folderGroupName = config["folderGroupName"]
 
     def get_configuration(self):
         _save_config_file_for_dir(self.folder, self.folderGroupName)
-        return {"folder" : self.folder}
+        return {
+            "folder" : self.folder,
+            "folderGroupName" : self.folderGroupName
+            }
 
     def get_UID(self):
         return "%s:%s" % (self.folder, self.folderGroupName)

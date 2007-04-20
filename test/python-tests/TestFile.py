@@ -49,7 +49,7 @@ ok("Local Compare: checking newest == newest = %s" % comp,comp == conduit.dataty
 comp = oldest.compare(null)
 ok("Local Compare: checking oldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
 
-if True:
+if is_online():
     remoteURIs = [  "ssh://root@www.greenbirdsystems.com/root/sync/Document.abw",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Image.png",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Tgz.tar.gz",
