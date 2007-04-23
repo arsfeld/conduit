@@ -47,11 +47,8 @@ def _save_config_file_for_dir(uri, groupName):
     tempFile.transfer(uri, True)
 
 def _get_config_file_for_dir(uri):
-    try:
-        config = os.path.join(uri,CONFIG_FILE_NAME)
-        return gnomevfs.read_entire_file(config)
-    except gnomevfs.NotFoundError:
-        return ""
+    config = os.path.join(uri,CONFIG_FILE_NAME)
+    return gnomevfs.read_entire_file(config)
 
 class _FolderScanner(threading.Thread, gobject.GObject):
     """
@@ -704,11 +701,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName)
         self.folder, self.folderGroupName = f.show_dialog()
 
-        print self.folder    
-
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-
         #scan the folder
         scanThread = _FolderScanner(self.folder)
         scanThread.start()
@@ -736,18 +730,18 @@ class FolderTwoWay(DataProvider.TwoWay):
         if vfsFile.basePath == "":
             #came from another type of dataprovider such as tomboy
             #where relative path makes no sense. Could also come from
-            #the File dp when the user has selected a single file
-            logd("NO BASEPATH. GOING TO EMPTY DIR")
+            #the FileSource dp when the user has selected a single file
+            logd("FolderTwoWay: No basepath. Going to empty dir")
             newURI = self.folder+"/"+vfsFile.get_filename()
         else:
             pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
             if self.folderGroupName == vfsFile.group:
-                logd("FOUND CORRESPONDING GROUP")
+                logd("FolderTwoWay: Found corresponding group")
                 #put in the folder
                 newURI = self.folder+pathFromBase
             else:
-                logd("RECREATING GROUP")
+                logd("FolderTwoWay: Recreating group")
                 #unknown. Store in the dir but recreate the group
                 newURI = self.folder+"/"+vfsFile.group+pathFromBase
 
@@ -757,6 +751,11 @@ class FolderTwoWay(DataProvider.TwoWay):
             vfsFile.transfer(newURI, True)
 
         return newURI
+
+    def delete(self, LUID):
+        f = File.File(URI=LUID)
+        if f.exists():
+            f.delete()
                 
     def get(self, index):
         DataProvider.TwoWay.get(self, index)

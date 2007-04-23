@@ -13,12 +13,12 @@ MODULES = {
 class EvoContactSource(DataProvider.DataSource):
 
     _name_ = "Evolution Contacts"
-    _description_ = "Sync your liferea RSS feeds"
+    _description_ = "Sync your Contacts"
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
     _in_type_ = "contact"
     _out_type_ = "contact"
-    _icon_ = ""
+    _icon_ = "contact-new"
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)

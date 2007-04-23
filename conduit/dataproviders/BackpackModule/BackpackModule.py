@@ -109,7 +109,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                 except backpack.BackpackError, err:
                     log("Could not create page to store notes in (%s)" % err)
                     #cannot continue
-                    raise SyncronizeFatalError
+                    raise Exceptions.SyncronizeFatalError
                     
         #First put needs to cache the existing note titles and uris
         if len(self._notes) == 0:
@@ -132,7 +132,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                 self._notes[note.title] = uid
         except backpack.BackpackError, err:
             log("Could not sync note (%s)" % err)
-            raise SyncronizeError
+            raise Exceptions.SyncronizeError
                 
         return uid
 
