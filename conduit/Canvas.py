@@ -71,9 +71,6 @@ class Canvas(goocanvas.CanvasView):
         #available (via callback)
         self.pendingDataprovidersToAdd = {}
 
-        #FIXME: When more testing is complete, this can be removed
-        self.disableTwoWaySync = True
-
     def _connect_dataprovider_signals(self, dataproviderWrapper):
         view = self.get_item_view(dataproviderWrapper.module)
         view.connect("button_press_event",  self.on_dataprovider_button_press, dataproviderWrapper)
@@ -252,7 +249,7 @@ class Canvas(goocanvas.CanvasView):
                 return True
             elif event.button == 3:
                 #Preset the two way menu items sensitivity
-                if not self.selected_conduit.can_do_two_way_sync() or self.disableTwoWaySync:
+                if not self.selected_conduit.can_do_two_way_sync():
                     self.twoWayMenuItem.set_property("sensitive", False)
                 else:
                     self.twoWayMenuItem.set_property("sensitive", True)
@@ -435,24 +432,6 @@ class Canvas(goocanvas.CanvasView):
             del(self.welcomeMessage)
             self.welcomeMessage = None
             
-    #FIXME: CAN DELETE THIS FUNCTION WHEN TWO WAY HAS HAD MORE TESTING AND
-    #IS SUFFICIENTLY TRUSTED TO BE ENABLED/DISABLED ON A PER CONDUIT BASIS
-    #ALONE
-    def disable_two_way_sync(self, disable):
-        """
-        Sets whether the canvas should enable/disable two-way
-        sync on all those conduits that support it
-        
-        @param disable: Whether to enable or disable two-way sync.
-        True for disable
-        @type disable: C{bool}
-        """
-        logd("Disable two-way sync? %s" % disable)
-        self.disableTwoWaySync = disable
-        if disable == True:
-            for conduit in self.conduits:
-                conduit.disable_two_way_sync()
-
 class PendingDataProvider(goocanvas.Group):
     def __init__(self):
         goocanvas.Group.__init__(self)

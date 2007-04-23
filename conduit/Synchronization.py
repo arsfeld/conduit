@@ -207,46 +207,113 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         return newdata
 
-    def _put_data(self, source, sink, data, overwrite):
+    def _put_data(self, source, sink, data, LUID, mtime, overwrite):
         """
-        Puts data into sink, overwrites if overwrite is True
-        """            
-        LUID, mtime = self.mappingDB.get_mapping(
+        Puts data into sink, overwrites if overwrite is True. Updates 
+        the mappingDB
+        """
+        log("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
+        LUID = sink.module.put(data, overwrite, LUID)
+        mtime = data.get_mtime()
+        #Now store the mapping of the original URI to the new one. We only
+        #get here if the put was successful, so the mtime of the putted
+        #data wll be the same as the original data
+        self.mappingDB.save_mapping(
                                 sourceUID=source.get_UID(),
                                 sourceDataLUID=data.get_UID(),
-                                sinkUID=sink.get_UID()
+                                sinkUID=sink.get_UID(),
+                                sinkDataLUID=LUID,
+                                mtime=mtime
                                 )
-        #Unless the user has selected slow_sync only put data whose mtime has
-        #changed
-        if data.get_mtime() != mtime or self.conduit.do_slow_sync():
-            LUID = sink.module.put(data, overwrite, LUID)
-            mtime = data.get_mtime()
-            #Now store the mapping of the original URI to the new one. We only
-            #get here if the put was successful, so the mtime of the putted
-            #data wll be the same as the original data
-            self.mappingDB.save_mapping(
-                                    sourceUID=source.get_UID(),
-                                    sourceDataLUID=data.get_UID(),
-                                    sinkUID=sink.get_UID(),
-                                    sinkDataLUID=LUID,
-                                    mtime=mtime
-                                    )
-        else:
-            logd("Skipping %s. Mtimes has not changed (actual %s v saved %s)" % (data.get_UID(), data.get_mtime(), mtime))
 
-    def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, dataLUID, leftToRight):
+    def _delete_data(self, source, sink, dataLUID):
+        """
+        Deletes data from sink and updates the mapping DB
+        """
+        log("Deleting %s from %s" % (dataLUID, sink.get_UID()))
+        sink.module.delete(dataLUID)
+        self.mappingDB.delete_mapping(
+                            sourceUID=source.get_UID(),
+                            dataLUID=dataLUID,
+                            sinkUID=sink.get_UID()
+                            )
+        #FIXME: Is this necessary or refective of bad design?
+        self.mappingDB.delete_mapping(
+                            sourceUID=sink.get_UID(),
+                            dataLUID=dataLUID,
+                            sinkUID=source.get_UID()
+                            )
+
+    def _transfer_data(self, source, sink, data):
+        """
+        Transfers the data from source to sink, includes performing any conversions,
+        handling exceptions, etc. Only transfers data if the mtime of the
+        data has changed
+
+        @returns: The data that was put or None
+        """
+        newdata = None
+        try:
+            #convert data type if necessary
+            newdata = self._convert_data(sink, source.get_out_type(), sink.get_in_type(), data)
+            try:
+                #Get existing mapping
+                LUID, mtime = self.mappingDB.get_mapping(
+                                        sourceUID=source.get_UID(),
+                                        sourceDataLUID=newdata.get_UID(),
+                                        sinkUID=sink.get_UID()
+                                        )
+                if newdata.get_mtime() != mtime or self.conduit.do_slow_sync():
+                    self._put_data(source, sink, newdata, LUID, mtime, False)
+                else:
+                    log("Skipping %s. Mtimes has not changed (actual %s v saved %s)" % (newdata.get_UID(), newdata.get_mtime(), mtime))
+            except Exceptions.SynchronizeConflictError, err:
+                comp = err.comparison
+                if comp == COMPARISON_OLDER:
+                    log("Skipping %s (Older)" % newdata)
+                elif comp == COMPARISON_EQUAL:
+                    log("Skipping %s (Equal)" % newdata)
+                else:
+                    self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
+
+        except Exceptions.ConversionDoesntExistError:
+            logw("No Conversion Exists")
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
+        except Exceptions.ConversionError, err:
+            logw("Error converting %s\n%s" % (err, traceback.format_exc()))
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
+        except Exceptions.SyncronizeError, err:
+            logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))                     
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
+        except Exceptions.SyncronizeFatalError, err:
+            logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
+            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
+            #Cannot continue
+            raise Exceptions.StopSync                  
+        except Exception, err:                        
+            #Cannot continue
+            logw("Unknown synchronisation error\n%s" % traceback.format_exc())
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+            raise Exceptions.StopSync
+
+        return newdata
+
+    def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, dataLUID):
         """
         Applies user policy when data has been deleted from source.
-        Assumes that source is on the left (visually) unless
-        leftToRight is False
+
+        Depending on if the dp is on the left or not, the arrows may suggest
+        resolution in different directions
         """
-        logd("DELETE SUPPORT NOT FINSHED")
-        return
         if self.policy["deleted"] == "skip":
             logd("Deleted Policy: Skipping")
         elif self.policy["deleted"] == "ask":
             logd("Deleted Policy: Ask")
-            if leftToRight == True:
+            #check if the source is visually on the left of the sink
+            if self.source == sourceWrapper:
+                #it is on the left
                 validResolveChoices = (CONFLICT_COPY_SINK_TO_SOURCE,CONFLICT_SKIP)
             else:
                 validResolveChoices = (CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
@@ -259,13 +326,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         True                        #This conflict is a deletion
                         )
         elif self.policy["deleted"] == "replace":
-            logd("Deleted Policy: Replace (Delete corresponding data)")
-            self.sinkWrapper.module.delete(dataLUID)
-            self.mappingDB.delete_mappings(
-                                sourceUID=sourceWrapper.get_UID(),
-                                sourceDataLUID=dataLUID,
-                                sinkUID=sinkWrapper.get_UID()
-                                )
+            self._delete_data(sourceWrapper, sinkWrapper, dataLUID)
          
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
@@ -273,7 +334,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
         the conflict up to the GUI or skipping altogether
         """
         if comparison == COMPARISON_EQUAL or comparison == COMPARISON_UNKNOWN or comparison == COMPARISON_OLDER:
-            log("CONFLICT: Putting EQUAL or UNKNOWN or OLDER Data")
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             if self.policy["conflict"] == "skip":
                 logd("Conflict Policy: Skipping")
@@ -290,12 +350,17 @@ class SyncWorker(threading.Thread, gobject.GObject):
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
                 try:
-                    self._put_data(sourceWrapper, sinkWrapper, toData, True)
+                    LUID, mtime = self.mappingDB.get_mapping(
+                                            sourceUID=sourceWrapper.get_UID(),
+                                            sourceDataLUID=toData.get_UID(),
+                                            sinkUID=sinkWrapper.get_UID()
+                                            )
+                    self._put_data(sourceWrapper, sinkWrapper, toData, LUID, mtime, True)
                 except:
                     logw("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
         else:
-            logw("Unknown comparison (BAD PROGRAMMER)\n%s" % traceback.format_exc())
+            logw("Unknown comparison\n%s" % traceback.format_exc())
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
     def cancel(self):
@@ -316,83 +381,34 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
             raise Exceptions.StopSync
 
-    def one_way_sync(self, source, sink, skipOlder, leftToRight):
+    def one_way_sync(self, source, sink):
         """
-        Transfers numItems of data from source to sink. Does not consider 
-        if either is a slow sync or not. That is handled in put_data. This 
-        function only serves as a means to deal with exceptions and policy
+        Transfers numItems of data from source to sink.
         """
+        log("Synchronizing %s |--> %s " % (source, sink))
+
         numItems = source.module.get_num_items()
         #Detecting items which have been deleted involves comparing the
         #data LUIDs which are returned from the get() with those 
         #that were synchronized last time
         existing = [i["sourceDataLUID"] for i in self.mappingDB.get_mappings_for_dataproviders(source.get_UID(), sink.get_UID())]
 
-        if leftToRight == True:
-            log("Synchronizing %s |--> %s " % (source, sink))
-        else:
-            log("Synchronizing %s <--| %s " % (source, sink))
-
         for i in range(0, numItems):
             data = source.module.get(i)
-            try:
-                #convert data type if necessary
-                newdata = self._convert_data(sink, source.get_out_type(), sink.get_in_type(), data)
-                try:
-                    self._put_data(source, sink, newdata, False)
-                except Exceptions.SynchronizeConflictError, err:
-                    comp = err.comparison
-                    if comp == COMPARISON_OLDER and skipOlder:
-                        logd("Skipping %s (Older)" % newdata)
-                        pass
-                    elif comp == COMPARISON_EQUAL:
-                        logd("Skipping %s (Equal)" % newdata)
-                        pass
-                    else:
-                        self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
-
-                #now remove from the list of expected data to synchronize
-                if existing.count(newdata.get_UID()):
-                    existing.remove(newdata.get_UID())
-
-            except Exceptions.ConversionDoesntExistError:
-                logd("No Conversion Exists")
-                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
-            except Exceptions.ConversionError, err:
-                logw("Error converting %s\n%s" % (err, traceback.format_exc()))
-                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-            except Exceptions.SyncronizeError, err:
-                logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))                     
-                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-            except Exceptions.SyncronizeFatalError, err:
-                logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))
-                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
-                source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
-                #Cannot continue
-                raise Exceptions.StopSync                  
-            except Exception, err:                        
-                #Cannot continue
-                logw("Unknown synchronisation error\n%s" % traceback.format_exc())
-                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-                raise Exceptions.StopSync
+            logd("1WAY PUT: %s (%s) -----> %s" % (source.name,data.get_UID(),sink.name))
+            newdata = self._transfer_data(source, sink, data)
+            #now remove from the list of expected data to synchronize
+            if existing.count(newdata.get_UID()):
+                existing.remove(newdata.get_UID())
 
         #give dataproviders the freedom to also provide a list of deleted 
         #data UIDs.
         deleted = Utils.distinct_list(existing + source.module.get_deleted_items())
         logd("There were %s deleted items" % len(deleted))
         for d in deleted:
-            self._apply_deleted_policy(source, sink, d, leftToRight)
+            self._apply_deleted_policy(source, sink, d)
        
     def two_way_sync(self, source, sink):
-        """
-        Performs a two way sync from source to sink and back.
-        """
-        log("Synchronizing %s <--> %s " % (source, sink))
-        self.one_way_sync(source, sink, True, True)
-        self.one_way_sync(sink, source, True, False)
-
-    def two_way_sync_2(self, source, sink):
         """
         Performs a two way sync from source to sink and back.
         General approach
@@ -409,14 +425,14 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     3.  Data that is missing from the existing mappings, i.e. data
                         that has been deleted
         """
-        log("Synchronizing v2 %s <--> %s " % (source, sink))
+        log("Synchronizing (Two Way) %s <--> %s " % (source, sink))
         sourceData = [source.module.get(i) for i in range(0,source.module.get_num_items())]
         sinkData = [sink.module.get(i) for i in range(0,sink.module.get_num_items())]
         
         known = {}
         #first look up the existing relationships
         # key = [UID]
-        # values = (mtime, correspondingUID)
+        # values = (mtime, correspondingDataUID, correspondingOtherDataproviderUID)
         for i in self.mappingDB.get_mappings_for_dataproviders(source.get_UID(), sink.get_UID()):
             if known.has_key(i["sourceDataLUID"]) or known.has_key(i["sinkDataLUID"]):
                 pass
@@ -425,9 +441,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 known[ i["sinkDataLUID"] ] = (i["mtime"],i["sourceDataLUID"],i["sinkUID"])
 
         #precompute the actions. mostly for debugability
+        #PHASE ONE
         toput = []      # (sourcedp, data, sinkdp)
         tocomp = []     # (dp1, data1, dp2, data2)
-        todelete = []   # (dataUID, sink)
+        todelete = []   # (sourcedp, dataUID, sinkdp)
         #the difficulty is that if some data is known then we need to wait for
         #its matching pair before we can compare it and decide who is newer
         waitingForData = {}
@@ -437,7 +454,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         for sourcedp,sinkdp in [ (source,sink), (sink,source) ]:
             for data in [sourcedp.module.get(i) for i in range(0, sourcedp.module.get_num_items())]:
                 dataUID = data.get_UID()
-                #logd("DATA: %s" % dataUID)
+                logd("2WAY DAT: %s" % dataUID)
                 #are we waiting for this data
                 if waitingForData.has_key(dataUID):
                     olddp, olddata, olduid, mtime = waitingForData[dataUID]
@@ -446,8 +463,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         tocomp.append( (olddp, olddata, sourcedp, data) )
                     else:
                         # CASE 3.b.1
-                        #logd("Skipping %s and %s. Mtimes has not changed (%s)" % (olddata.get_UID(), data.get_UID(), mtime))
-                        pass
+                        logd("Skipping %s and %s. Mtimes has not changed (%s)" % (olddata.get_UID(), data.get_UID(), mtime))
                     del(known[dataUID])
                 else:
                     if known.has_key(dataUID):
@@ -465,21 +481,31 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 mtime, matchingUID, sourceUID = known[k]
                 if sourcedp.get_UID() == sourceUID:
                     # CASE 3.b.3
-                    #logd("DELETED %s from %s. Remove %s from %s" % (k, sourcedp.name, matchingUID, sinkdp.name))
-                    todelete.append( (matchingUID, sinkdp) )
+                    logd("DELETED %s from %s. Remove %s from %s" % (k, sourcedp.name, matchingUID, sinkdp.name))
+                    todelete.append( (sourcedp, matchingUID, sinkdp) )
     
-        if True:
-            for sourcedp, data, sinkdp in toput:
-                print "-- DATA TO PUT ---------------------------------------"
-                print "| %s (%s) -----> %s" % (sourcedp.name,data.get_UID(),sinkdp.name)
+        #PHASE TWO
+        for sourcedp, data, sinkdp in toput:
+            logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,data.get_UID(),sinkdp.name))
+            self._transfer_data(sourcedp, sinkdp, data)
 
-            for dp1, data1, dp2, data2 in tocomp:
-                print "-- DATA TO COMPARE -----------------------------------"
-                print "| %s (%s) <----> %s (%s)" % (dp1.name,data1.get_UID(),dp2.name,data2.get_UID())
+        for dp1, data1, dp2, data2 in tocomp:
+            logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1.get_UID(),dp2.name,data2.get_UID()))
+            #Convert from the most modified data into the other. Remember that items are 
+            #only in this list if their mtimes have changed
+            if data1.get_mtime() > data2.get_mtime():
+                sourcedp = dp1
+                sinkdp = dp2
+                data = data1
+            else:
+                sourcedp = dp2
+                sinkdp = dp1
+                data = data2
+            self._transfer_data(sourcedp, sinkdp, data)
 
-            for uid, sink in todelete:
-                print "-- DATA TO DELETE ------------------------------------"
-                print "| %s (%s)" % (sink.name, uid)
+        for sourcedp, uid, sinkdp in todelete:
+            logd("2WAY DEL: %s (%s)" % (sinkdp.name, uid))
+            self._apply_deleted_policy(sourcedp, sinkdp, uid)
 
     def run(self):
         """
@@ -604,10 +630,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         if  self.conduit.is_two_way():
                             #two way
                             self.two_way_sync(self.source, sink)
-                            #self.two_way_sync_2(self.source, sink)
                         else:
                             #one way
-                            self.one_way_sync(self.source, sink, False, True)
+                            self.one_way_sync(self.source, sink)
  
                 #Done go clean up
                 self.state = SyncWorker.DONE_STATE

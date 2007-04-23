@@ -57,7 +57,7 @@ class GtkView:
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
-            log("Adding %s to icon them search path" % (i))
+            logd("Adding %s to icon theme search path" % (i))
 
         self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "MainWindow")
         
@@ -97,7 +97,6 @@ class GtkView:
         self.canvas = Canvas()
         self.canvasSW.add(self.canvas)
         #set canvas options
-        self.canvas.disable_two_way_sync(conduit.settings.get("disable_twoway_sync"))
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
         #Pass both popups to the canvas
@@ -324,8 +323,6 @@ class GtkView:
         removable_devices_check.set_active(conduit.settings.get("enable_removable_devices"))
         save_settings_check = tree.get_widget("save_settings_check")
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
-        use_two_way_sync_check = tree.get_widget("use_two_way_sync_check")
-        use_two_way_sync_check.set_active(conduit.settings.get("disable_twoway_sync")) 
         status_icon_check = tree.get_widget("status_icon_check")
         status_icon_check.set_active(conduit.settings.get("show_status_icon")) 
 
@@ -347,12 +344,6 @@ class GtkView:
         if response == gtk.RESPONSE_OK:
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.settings.set("show_status_icon", status_icon_check.get_active())
-            disable = use_two_way_sync_check.get_active()
-            conduit.settings.set("disable_twoway_sync", disable)
-            #FIXME: Once the 2way stuff is confirmed, this setting will be removed
-            #From the prefs, and be managed entirely from the right click conduit menu
-            self.canvas.disable_two_way_sync(disable)
-            #Save the users two way sync policy
             policy = {}
             policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
             policy["deleted"] = save_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
@@ -655,7 +646,13 @@ class Application(dbus.service.Object):
         self.dbus = None
 
         #Default command line values
-        settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+        if conduit.IS_DEVELOPMENT_VERSION:
+            settingsFile = os.path.join(conduit.USER_DIR, "settings-dev.xml")
+            dbFile = os.path.join(conduit.USER_DIR, "mapping-dev.db")
+        else:
+            settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+            dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
+
         sessionBus = dbus.SessionBus()
         buildGUI = True
         try:
@@ -720,7 +717,7 @@ class Application(dbus.service.Object):
            
         #Set up the application wide defaults
         conduit.settings.set_settings_file(settingsFile)
-        conduit.mappingDB.open_db(os.path.join(conduit.USER_DIR, "mapping.db"))
+        conduit.mappingDB.open_db(dbFile)
 
         #Set the view models
         if buildGUI:
