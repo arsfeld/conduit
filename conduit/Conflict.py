@@ -81,7 +81,8 @@ class ConflictResolver:
         self.standalone.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
         self.standalone.set_destroy_with_parent(True)
         self.standalone.set_default_size(-1, 200)
-        self.standalone.add(self.conflictScrolledWindow)
+        #widgets cannot have two parents       
+        #self.standalone.add(self.conflictScrolledWindow)
         self.standalone.connect("delete-event", self.on_standalone_closed)
         #the button callbacks are shared
         widgets.get_widget("conflictCancelButton").connect("clicked", self.on_cancel_conflicts)
@@ -343,6 +344,15 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
                                             gtk.gdk.RGB_DITHER_NONE,
                                             0, 0
                                             )
+#            self.image.draw_pixbuf(
+#                            None,       #gc for clipping
+#                            window,     #draw to
+#                            0, 0,                       #x, y in pixbuf
+#                            cell_area.x, cell_area.y,   # x, y in drawable
+#                            -1, -1,                     # use pixbuf width & height
+#                            gtk.gdk.RGB_DITHER_NONE,
+#                            0, 0
+#                            )
         return True
 
     def set_direction(self, direction):
