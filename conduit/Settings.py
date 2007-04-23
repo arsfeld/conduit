@@ -42,7 +42,6 @@ class Settings(gobject.GObject):
         'enable_network'            :   True,   #Should conduit look for other conduits on the local network
         'enable_removable_devices'  :   True,   #Should conduit support iPods, USB keys, etc
         'enable_dbus_interface'     :   True,   #Should conduit present a full dbus interface to let remote apps use it
-        'disable_twoway_sync'       :   True,   #If the user selects it, shoud two way sync be used
         'twoway_policy_conflict'    :   "ask",  #ask,replace,skip
         'twoway_policy_deleted'     :   "ask",  #ask,replace,skip
         'gui_expanded_columns'      :   [],     #list of expanded column paths in the treeview
@@ -171,7 +170,7 @@ class Settings(gobject.GObject):
         not yet in gconf
         """
         if key in self.DEFAULTS:
-        #function arguments override defaults
+            #function arguments override defaults
             if default is None:
                 default = self.DEFAULTS[key]
             if vtype is None:
@@ -186,7 +185,7 @@ class Settings(gobject.GObject):
         
         value = self.client.get(key)
         if not value:
-            self.set(key, vtype, default)
+            self.set(key, default, vtype)
             return default
 
         if vtype is bool:
@@ -220,7 +219,7 @@ class Settings(gobject.GObject):
             strvalues = [str(i) for i in value]
             self.client.set_list(key, gconf.VALUE_STRING, strvalues)
         else:
-            logw("Unknown gconf type (k:%s v:%s)" % (key,value))
+            logw("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
 
     def get_username_and_password(self, classname):
         """
