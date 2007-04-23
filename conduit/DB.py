@@ -90,10 +90,10 @@ class MappingDB:
 
         return None, None
 
-    def delete_mapping(self, sourceUID, sourceDataLUID, sinkUID):
+    def delete_mapping(self, sourceUID, sinkUID, dataLUID):
         """
         Deletes mapping between the dataproviders sourceUID and sinkUID
-        that involve sourceDataLUID
+        that involve dataLUID
 
         @returns: The number of mappings deleted
         """
@@ -104,7 +104,7 @@ class MappingDB:
         delete = []
         existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
         for i in existing:
-            if i["sourceDataLUID"] == sourceDataLUID:
+            if i["sinkDataLUID"] == dataLUID or i["sourceDataLUID"] == dataLUID:
                 delete.append(i)
 
         num = self._db.delete(delete)
@@ -115,21 +115,28 @@ class MappingDB:
         logd("Saving mapping DB to %s" % self._db.name)
         self._db.commit()
 
+    def delete(self):
+        """
+        Empties the database
+        """
+        logd("Empty the DB")
+        self._db.delete(self._db)
+        self._db.commit()
+
     def debug(self):
         s = "Contents of MappingDB: %s\n" % self._db.name
         sources = [i["sourceUID"] for i in self._db]
         sources = Utils.distinct_list(sources)
         for sourceUID in sources:
-            s += "\t%s:\n" % sourceUID
             #all matching sinkUIDs for sourceUID
             sinks = [i["sinkUID"] for i in self._db if i["sourceUID"] == sourceUID]
             sinks = Utils.distinct_list(sinks)
             for sinkUID in sinks:
-                s += "\t\t%s --> %s\n" % (sourceUID, sinkUID)
+                s += "\t%s --> %s\n" % (sourceUID, sinkUID)
                 #get relationships
                 rels = self.get_mappings_for_dataproviders(sourceUID, sinkUID)
                 for r in rels:
-                    s += "\t\t\t%s --> %s\n" % (r["sourceDataLUID"], r["sinkDataLUID"])
+                    s += "\t\t%s --> %s\n" % (r["sourceDataLUID"], r["sinkDataLUID"])
         return s
       
         

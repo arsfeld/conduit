@@ -33,10 +33,10 @@ class VolumeMonitor:
 
     def __init__(self):
         """ Create singleton instance """
-        log("VolumeMonitor.__init__")
+        logd("VolumeMonitor.__init__")
         # Check whether we already have an instance
         if VolumeMonitor.__instance is None:
-            log("VolumeMonitor.__init__.instancing")
+            logd("VolumeMonitor.__init__.instancing")
             # Create and remember instance
             VolumeMonitor.__instance = gnomevfs.VolumeMonitor()
 

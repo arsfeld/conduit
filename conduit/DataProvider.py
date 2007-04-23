@@ -348,7 +348,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @param window: The parent window (to show a modal dialog)
         @type window: {gtk.Window}
         """
-        log("configure() not overridden by derived class %s" % self._name_)
+        logd("configure() not overridden by derived class %s" % self._name_)
         self.set_configured(True)
 
     def is_configured(self):
@@ -365,7 +365,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
-        log("get_configuration() not overridden by derived class %s" % self._name_)
+        logd("get_configuration() not overridden by derived class %s" % self._name_)
         return {}
 
     def set_configuration(self, config):
@@ -373,7 +373,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        log("set_configuration() not overridden by derived class %s" % self._name_)
+        logd("set_configuration() not overridden by derived class %s" % self._name_)
         for c in config:
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods

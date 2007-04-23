@@ -108,7 +108,7 @@ class ModuleManager(gobject.GObject):
 
         while len(directories) > 0:
             d = directories.pop(0)
-            log("Reading directory %s" % d)
+            logd("Reading directory %s" % d)
             try:
                 if not os.path.exists(d):
                     continue
@@ -157,7 +157,7 @@ class ModuleManager(gobject.GObject):
             #Emit a signal because this wrapper is new
             self._emit_added(wrapper)
         else:
-            log("Wrapper with key %s allready loaded" % key)
+            logw("Wrapper with key %s allready loaded" % key)
     
     def _remove_module(self, key):
         """
@@ -248,7 +248,7 @@ class ModuleManager(gobject.GObject):
             logw("Could not make class %s. Initargs must be a tuple" % classname)
             return None
         if classname in self.classRegistry:
-            log("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
+            logd("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
             return self.classRegistry[classname](*initargs)
         else:
             logw("Could not find class named %s" % classname)
@@ -349,12 +349,12 @@ class DataProviderFactory(gobject.GObject):
                     klass.__name__,     #classname
                     initargs,
                     )
-        log("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
+        logd("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
         self.emit("dataprovider-added", dpw, klass)
         return dpw.get_key()
 
     def emit_removed(self, key):
-        log("DataProviderFactory.emit_removed(): For %s" % key)
+        logd("DataProviderFactory.emit_removed(): For %s" % key)
         self.emit("dataprovider-removed", key)
 
     def probe(self):

@@ -152,7 +152,7 @@ class ModuleWrapper:
                     self.icon_path = info.get_filename()
                 except:
                     self.icon[size] = None
-                    logw("Could not load icon %s" % self.icon_name)
+                    logw("Could not load icon %s for %s" % (self.icon_name, self.name))
                     #Last resort: Try the non icon-naming-spec compliant icon
                     self.icon_name = "gtk-missing-image"
                     info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, size, 0)

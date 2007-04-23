@@ -118,7 +118,7 @@ def dataprovider_add_dir_to_path(dataproviderfile, directory=""):
     """
     path = os.path.join(dataproviderfile, "..", directory)
     path = os.path.abspath(path)
-    log("Adding %s to search path" % path)
+    logd("Adding %s to python path" % path)
     sys.path.insert(0,path)
 
 def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
