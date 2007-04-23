@@ -77,5 +77,15 @@ ok("Saved DB relationships restored", len(n.get_mappings_for_dataproviders(sourc
 ok("Saved DB relationships restored", len(n.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink2",)) == 2)
 
 print n.debug()
+
+#delete some mappings
+n.delete_mapping(sourceUID="source",dataLUID="data1",sinkUID="sink")
+n.delete_mapping(sourceUID="source",dataLUID="data3",sinkUID="sink2")
+
+ok("Deleted Mappings", len(n.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink2",)) == 1)
+ok("Deleted Mappings", len(n.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 2)
+
+print n.debug()
+
 n.save()
 

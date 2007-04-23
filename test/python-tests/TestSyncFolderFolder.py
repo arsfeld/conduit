@@ -10,6 +10,10 @@ import conduit.Synchronization as Synchronization
 
 from conduit.datatypes import COMPARISON_EQUAL
 
+import traceback
+import random
+import time
+
 #Set up our own mapping DB so we dont pollute the global one
 tempdb = os.path.join
 conduit.mappingDB.open_db(os.path.join(os.environ['TEST_DIRECTORY'],Utils.random_string()+".db"))
@@ -35,7 +39,7 @@ for i in model.get_all_modules():
         sourceW = model.get_new_module_instance(i.get_key())
         sinkW = model.get_new_module_instance(i.get_key())
 
-ok("Got Source and Sink", sourceW != None and sinkW != None)
+ok("Init: Got Source and Sink", sourceW != None and sinkW != None)
 
 sourceDir = os.path.join(os.environ['TEST_DIRECTORY'],"source")
 sinkDir = os.path.join(os.environ['TEST_DIRECTORY'],"sink")
@@ -68,38 +72,71 @@ for i in (sourceDir, sinkDir):
 #configure the source and sink
 config = {}
 config["folderGroupName"] = GROUP
-config["folder"] = ["file://"+sourceDir]
+config["folder"] = "file://"+sourceDir
 sourceW.module.set_configuration(config)
-config["folder"] = ["file://"+sinkDir]
+config["folder"] = "file://"+sinkDir
 sinkW.module.set_configuration(config)
 
 #check they refresh ok
 try:
     sinkW.module.refresh()
     sourceW.module.refresh()
-    ok("Refresh FolderTwoWay", True)
+    ok("Init: Refresh FolderTwoWay", True)
 except Exception, err:
-    ok("Refresh FolderTwoWay (%s)" % err, False)
+    ok("Init: Refresh FolderTwoWay (%s)" % err, False)
 
 a = sinkW.module.get_num_items()
 b = sourceW.module.get_num_items()
-ok("Got all items to sync (%s,%s,%s)" % (a,b,len(FILES)), (a+b)==len(FILES))
+ok("Sync: Got all items (%s,%s,%s)" % (a,b,len(FILES)), (a+b)==len(FILES))
 
 #now put them in a conduit and sync
 conduit = Conduit.Conduit()
 conduit.add_dataprovider_to_conduit(sourceW)
 conduit.add_dataprovider_to_conduit(sinkW)
-
 conduit.enable_two_way_sync()
-sync_manager.sync_conduit(conduit)
 
-#now wait for sync to finish (block)
+#SYNC and wait for sync to finish (block)
+sync_manager.sync_conduit(conduit)
 sync_manager.join_all()
 
 for name,contents in FILES:
     f1 = File.File(os.path.join(sourceDir, name))
     f2 = File.File(os.path.join(sinkDir, name))
     comp = f1.compare(f2)
-    ok("checking source/%s == sink/%s" % (name, name),comp == COMPARISON_EQUAL)
+    ok("Sync: checking source/%s == sink/%s" % (name, name),comp == COMPARISON_EQUAL)
 
+#Now delete half the files
+for i in range(0, NUM_FILES/2):
+    name, contents = FILES[i]
+    #alternate deleting from source or sink
+    if i % 2 == 0:
+        dest = sourceDir
+    else:
+        dest = sinkDir
+
+    path = os.path.join(dest, name)
+    del(FILES[i])
+    os.remove(path)
+
+#some IO time
+time.sleep(1)
+
+#SYNC and wait for sync to finish (block)
+sync_manager.sync_conduit(conduit)
+sync_manager.join_all()
+
+#some IO time
+time.sleep(1)
+
+sinkW.module.refresh()
+sourceW.module.refresh()
+a = sinkW.module.get_num_items()
+b = sourceW.module.get_num_items()
+ok("Delete: Files were deleted (%s,%s,%s)" % (a,b,len(FILES)), a==b and a==len(FILES))
+
+for name,contents in FILES:
+    f1 = File.File(os.path.join(sourceDir, name))
+    f2 = File.File(os.path.join(sinkDir, name))
+    comp = f1.compare(f2)
+    ok("Delete: checking source/%s == sink/%s" % (name, name),comp == COMPARISON_EQUAL)
 
