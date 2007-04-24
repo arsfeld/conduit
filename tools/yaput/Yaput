@@ -130,8 +130,8 @@ class Uploadr:
             self.sink = self.conduitApp.GetDataSink("TestSink")
             self.conduit = self.conduitApp.BuildConduit(self.source, self.sink)
             
-            #self.conduitApp.connect("SyncCompleted", self.sync_complete_cb)
-            #self.conduitApp.connect("SyncProgress", self.sync_progress_cb)
+            self.conduitApp.connect_to_signal("SyncCompleted", self.sync_complete_cb)
+            self.conduitApp.connect_to_signal("SyncProgress", self.sync_progress_cb)
 
             self.progress.set_text("Drop pictures here")
             self.vbox.set_sensitive(True)
