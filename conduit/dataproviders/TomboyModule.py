@@ -25,7 +25,7 @@ import datetime
 
 TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
 TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
-TOMBOY_MIN_VERSION = (0,5,10)
+TOMBOY_MIN_VERSION = "0.5.10"
 
 MODULES = {
 	"TomboyNoteTwoWay" :    { "type": "dataprovider" }
@@ -53,7 +53,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         if Utils.dbus_service_available(self.bus,TOMBOY_DBUS_IFACE):
             obj = self.bus.get_object(TOMBOY_DBUS_IFACE, TOMBOY_DBUS_PATH)
             self.remoteTomboy = dbus.Interface(obj, "org.gnome.Tomboy.RemoteControl")
-            version = self.remoteTomboy.Version()
+            version = str(self.remoteTomboy.Version())
             if version >= TOMBOY_MIN_VERSION:
                 log("Using Tomboy Version %s" % version)
                 return True
