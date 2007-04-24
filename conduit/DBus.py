@@ -102,7 +102,7 @@ class DBusView(dbus.service.Object):
                     #store hash pointing to object instance
                     self.UIDs[uid] = new
                     #connect to signals
-                    new.connect("change-detected", self._on_data_changed, key)
+                    new.module.connect("change-detected", self._on_data_changed, key)
         return uid
 
     def _get_sources(self):
@@ -233,6 +233,16 @@ class DBusView(dbus.service.Object):
             conduit.add_dataprovider_to_conduit(self.UIDs[sinkUID])
             uid = conduitUID
         return uid
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='is', out_signature='i')
+    def AddDataToSource(self, sourceUID, dataLUID):
+        self._print("AddDataToSource %s:%s" % (sourceUID, dataLUID))
+        res = ERROR
+        if sourceUID in self.UIDs:
+            source = self.UIDs[sourceUID]
+            if source.module.add(dataLUID):
+                res = SUCCESS
+        return res
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='ss', out_signature='i')
     def SetSyncPolicy(self, conflictPolicy, deletedPolicy):

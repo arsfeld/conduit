@@ -464,6 +464,15 @@ class DataSource(DataProviderBase):
         """
         return []
 
+    def add(self, LUID):
+        """
+        Adds an item to the datasource according to LUID. This method 
+        is used by the DBus interface
+
+        @returns: True if the data was successfully added
+        """
+        return False
+
 class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
