@@ -26,8 +26,7 @@ dirs_to_search =    [
 model = Module.ModuleManager(dirs_to_search)
 type_converter = TypeConverter.TypeConverter(model)
 sync_manager = Synchronization.SyncManager(type_converter)
-
-#sync_manager.set_sync_policy({"conflict":"skip","missing":"skip"})
+sync_manager.set_twoway_policy({"conflict":"replace","deleted":"replace"})
 
 NUM_FILES = 10
 GROUP = "TestGroup"
