@@ -11,8 +11,13 @@ try:
     f = File.File()
 except:
     ok("Base: Must specify URI", True)
+
 null = File.File("/foo/bar")
 ok("Base: non-existant file", null.exists() == False)
+
+folder = File.File(os.environ["HOME"])
+ok("Base: check if HOME exists", folder.exists() == True)
+ok("Base: check if HOME is folder", folder.is_directory() == True)
 
 localURIs = [   os.path.abspath(os.path.join(my_path,"tests","old","oldest")),
                 os.path.abspath(os.path.join(my_path,"tests","old","older")),

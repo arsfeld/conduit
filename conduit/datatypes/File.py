@@ -31,30 +31,14 @@ class File(DataType.DataType):
         self.group = kwargs.get("group","")
 
     def _open_file(self):
-        """
-        Opens the file. 
-        
-        Only tries to do this once for performance reasons
-        """
         if self.triedOpen == False:
-            try:
-                self.vfsFile = gnomevfs.Handle(self.URI)
-                self.fileExists = True
-                self.triedOpen = True
-            except gnomevfs.NotFoundError:
-                logd("Could not open file %s. Does not exist" % self.URI)
-                self.fileExists = False
-                self.triedOpen = True
-            except:
-                logd("Could not open file %s. Exception:\n%s" % (self.URI, traceback.format_exc()))
-                self.fileExists = False
-                self.triedOpen = True
+            self.triedOpen = True
+            self.fileExists = gnomevfs.exists(self.URI)
 
     def _close_file(self):
-        self.vfsHandle = None
         self.fileInfo = None
-        self.triedOpen = False
         self.fileExists = False
+        self.triedOpen = False
 
     def _get_text_uri(self):
         """
@@ -66,23 +50,21 @@ class File(DataType.DataType):
     def _get_file_info(self):
         """
         Gets the file info. Because gnomevfs is dumb this method works a lot
-        more reliably than self.vfsFile.get_file_info().
+        more reliably than self.vfsFileHandle.get_file_info().
         
         Only tries to get the info once for performance reasons
         """
-        #Open the file (if not already done so)
         self._open_file()
         #The get_file_info works more reliably on remote vfs shares
         if self.fileInfo == None:
-            if self.fileExists == True:
-                #self.fileInfo = self.vfsFile.get_file_info()
-                #FIXME: HACK HACK Why does the following perform better on http?
+            if self.exists() == True:
                 self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
                 logw("Cannot get info on non-existant file %s" % self.URI)
 
     def exists(self):
-        return gnomevfs.exists(self.URI)
+        self._open_file()
+        return self.fileExists
 
     def is_local(self):
         """
@@ -91,6 +73,13 @@ class File(DataType.DataType):
         copy the file to that location, and return the new path
         """
         return self.URI.is_local
+
+    def is_directory(self):
+        """
+        @returns: True if the File is a directory
+        """
+        self._get_file_info()
+        return self.fileInfo.type == gnomevfs.FILE_TYPE_DIRECTORY
 
     def force_new_filename(self, filename):
         """
@@ -136,12 +125,29 @@ class File(DataType.DataType):
         else:
             mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
-        #FIXME: IGNORES gnomevfs.XFER_NEW_UNIQUE_DIRECTORY. FUCK
         logd("Transfering File %s -> %s" % (self.URI, newURI))
-        result = gnomevfs.xfer_uri( self.URI, newURI,
-                                    gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                                    gnomevfs.XFER_ERROR_MODE_ABORT,
-                                    mode)
+        try:
+            result = gnomevfs.xfer_uri( self.URI, newURI,
+                                        gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                                        gnomevfs.XFER_ERROR_MODE_ABORT,
+                                        mode)
+        except gnomevfs.NotFoundError:
+            if self.exists() and not gnomevfs.exists(newURIString):
+                logw("GNOMEVFS BUG")                
+                #FIXME: IGNORES gnomevfs.XFER_NEW_UNIQUE_DIRECTORY
+                #Make the required directory
+                parent = newURI.parent
+                if not gnomevfs.exists(parent):
+                    gnomevfs.make_directory(
+                                parent,
+                                gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
+                                )
+                    logw("GNOMEVFS BUG: Making Parent Dir")
+                    #try the copy again
+                    result = gnomevfs.xfer_uri( self.URI, newURI,
+                                        gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                                        gnomevfs.XFER_ERROR_MODE_ABORT,
+                                        mode)
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
