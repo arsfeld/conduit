@@ -76,7 +76,7 @@ class iPodFactory(Module.DataProviderFactory):
                     mount)
 
         keys = []
-        for klass in [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]:
+        for klass in [IPodNoteTwoWay]:#, IPodContactsTwoWay, IPodCalendarTwoWay]:
             key = self.emit_added(
                            klass,            # Dataprovider class
                            (mount,udi,),     # Init args
@@ -154,13 +154,13 @@ class IPodNoteTwoWay(IPodBase):
         then always use the plain copy. and ignore the shadow copy
         """
         noteURI = os.path.join(self.dataDir, uid)
-        noteFile = File.File(noteURI)
+        noteFile = File.File(URI=noteURI)
         rawNoteURI = os.path.join(self._get_shadow_dir(),uid)
 
         raw = ""
         mtime = noteFile.get_mtime()
         if os.path.exists(rawNoteURI):
-            rawNoteFile = File.File(rawNoteURI)
+            rawNoteFile = File.File(URI=rawNoteURI)
             if mtime == rawNoteFile.get_mtime():
                 raw = rawNoteFile.get_contents_as_text()
 
@@ -183,14 +183,14 @@ class IPodNoteTwoWay(IPodBase):
         uid is the note title
         """
         ipodnote = Utils.new_tempfile(note.contents)
-        ipodnote.transfer(os.path.join(self.dataDir,uid))
+        ipodnote.transfer(os.path.join(self.dataDir,uid), overwrite=True)
         if note.get_mtime() != None:
             ipodnote.force_new_mtime(note.get_mtime())
 
         if note.raw != "":
             shadowDir = self._get_shadow_dir()
             rawnote = Utils.new_tempfile(note.raw)
-            rawnote.transfer(os.path.join(shadowDir,uid))
+            rawnote.transfer(os.path.join(shadowDir,uid), overwrite=True)
             if note.get_mtime() != None:
                 rawnote.force_new_mtime(note.get_mtime())
 
@@ -247,6 +247,15 @@ class IPodNoteTwoWay(IPodBase):
         logw("CHECK IF EXISTS, COMPARE, SAVE")
         self._save_note_to_ipod(note.title, note)
         return note.title
+
+    def delete(self, LUID):
+        note = File.File(URI=os.path.join(self.dataDir, LUID))
+        if note.exists():
+            note.delete()
+
+        raw = File.File(URI=os.path.join(self._get_shadow_dir(), LUID))
+        if raw.exists():
+            raw.delete()
         
     def finish(self):
         TwoWay.finish(self)
