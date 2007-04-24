@@ -17,9 +17,9 @@ Utils.dataprovider_add_dir_to_path(__file__, "libgmail-0.1.5")
 import libgmail
 
 MODULES = {
-	"GmailEmailTwoWay" :    { "type": "dataprovider" },
-	"GmailContactTwoWay" :  { "type": "dataprovider" },
-        "PicasaWebTwoWay" :     { "type": "dataprovider" },
+    "GmailEmailTwoWay" :    { "type": "dataprovider" },
+#    "GmailContactTwoWay" :  { "type": "dataprovider" },
+#    "PicasaWebTwoWay" :     { "type": "dataprovider" },
 }
 
 GOOGLE_CAT = DataProvider.DataProviderCategory("Google", "applications-internet")

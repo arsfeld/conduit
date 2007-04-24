@@ -160,6 +160,9 @@ class TestSource(_TestBase, DataProvider.DataSource):
         if index == self.errorAfter:
             raise Exceptions.SyncronizeError
         return data
+
+    def add(self, LUID):
+        return True
 		
 class TestSink(_TestBase, DataProvider.DataSink):
 

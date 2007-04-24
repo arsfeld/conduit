@@ -24,9 +24,9 @@ import dbus.glib
 import threading
 
 MODULES = {
-    "SynceContactTwoWay" :  { "type": "dataprovider" },
-    "SynceCalendarTwoWay" : { "type": "dataprovider" },
-    "SynceEmailTwoWay"    : { "type": "dataprovider" },
+#    "SynceContactTwoWay" :  { "type": "dataprovider" },
+#    "SynceCalendarTwoWay" : { "type": "dataprovider" },
+#    "SynceEmailTwoWay"    : { "type": "dataprovider" },
 }
 
 PHONE_CAT = conduit.DataProvider.DataProviderCategory("Phone","media-memory","Phone")
