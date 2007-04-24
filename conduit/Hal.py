@@ -113,6 +113,7 @@ class HalMonitor(gobject.GObject):
             logw("Hal: Volume doesnt exist. Cannot remove")
 
     def _volume_mounted_cb(self,monitor,volume):
+        logd("Volume mounted")
         device_udi = volume.get_hal_udi()
         if device_udi :
             properties = self._get_properties(device_udi)
@@ -124,14 +125,14 @@ class HalMonitor(gobject.GObject):
         return True
                 
     def _volume_pre_unmounted_cb(self,monitor,volume):
-        logd("Pre umount")
+        logd("Volume pre-unmount")
         device_udi = volume.get_hal_udi()
         if device_udi :
             pass
         return False
                 
     def _volume_unmounted_cb(self,monitor,volume):
-        logd("Umount")
+        logd("Volume Umounted")
         device_udi = volume.get_hal_udi()
         if device_udi :
             properties = self._get_properties(device_udi)
@@ -156,6 +157,14 @@ class HalMonitor(gobject.GObject):
                return True
         return False  
 
+    def _is_usb_disk(self,properties):
+        if properties.has_key("info.parent") and properties.has_key("info.parent")!="":
+            prop2 = self._get_properties(properties["info.parent"])
+            if prop2.has_key("storage.model") and prop2["storage.model"]=="USB Flash Disk":
+                if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
+                    return True
+        return False  
+
     def _scan_hardware(self):
         """
         Scans for removable volumes. Adds to the list of registered volumes.
@@ -167,14 +176,15 @@ class HalMonitor(gobject.GObject):
                 properties = self._get_properties(device_udi)
                 if self._is_ipod(properties):
                     mount, name = self.get_device_information(properties)
-                    signature = (IPOD, device_udi, mount, name)
+                    #signature = (IPOD, device_udi, mount, name)
                     self._add_volume(IPOD, device_udi, mount, name)
+                elif self._is_usb_disk(properties):
+                    mount, name = self.get_device_information(properties)
+                    #signature = (USB_KEY, device_udi, mount, name)
+                    self._add_volume(USB_KEY, device_udi, mount, name)
                 else:
-                    #FIXME: How do I determine if a volume is removable
-                    #(i.e. a USB key) instead of a normal hard disk
-                    #self._add_volume(USB_KEY, device_udi, mount, name)
                     logd("Hal: Skipping non ipod UDI %s" % device_udi)
-                    pass
+
         #Only run once if run in the idle handler
         return False
 

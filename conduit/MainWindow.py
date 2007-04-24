@@ -653,7 +653,6 @@ class Application(dbus.service.Object):
             settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
             dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
 
-        sessionBus = dbus.SessionBus()
         buildGUI = True
         try:
             opts, args = getopt.getopt(sys.argv[1:], "hs:c", ["help", "settings=", "console"])
@@ -683,6 +682,7 @@ class Application(dbus.service.Object):
 
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
+        sessionBus = dbus.SessionBus()
         if Utils.dbus_service_available(sessionBus, conduit.DBUS_IFACE):
             log("Conduit is already running")
             obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")

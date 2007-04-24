@@ -469,6 +469,21 @@ class PendingDataProvider(goocanvas.Group):
     def get_out_type(self):
         return ""
 
+    def need_configuration(self, need):
+        pass
+
+    def set_configured(self, configured):
+        pass
+
+    def is_configured(self):
+        return False
+
+    def set_status(self, newStatus):
+        pass
+
+    def finish(self):
+        pass
+
 class PendingDataproviderWrapper(ModuleWrapper):
     def __init__(self, key):
         ModuleWrapper.__init__(
