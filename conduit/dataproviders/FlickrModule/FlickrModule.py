@@ -39,6 +39,7 @@ class FlickrSink(DataProvider.DataSink):
     
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
+        self.need_configuration(True)
         
         self.username = ""
         self.fapi = None
@@ -183,6 +184,11 @@ class FlickrSink(DataProvider.DataSink):
             self.showFamily = familyCb.get_active()
             self.showFriends = friendsCb.get_active()                        
             self.username = username.get_text()
+
+            #user must enter their username
+            if len(self.username) != "":
+                self.set_configured(True)
+
         dlg.destroy()    
         
     def get_configuration(self):
@@ -193,6 +199,11 @@ class FlickrSink(DataProvider.DataSink):
             "showFriends" : self.showFriends,
             "showFamily" : self.showFamily
             }
+
+    def set_configuration(self, config):
+        DataProvider.DataSink.set_configuration(self, config)
+        if len(self.username) != "":
+            self.set_configured(True)
 
     def get_UID(self):
         return self.token
