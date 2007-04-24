@@ -10,6 +10,7 @@ import urllib
 import conduit
 from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
+import conduit.Module as Module
 import conduit.datatypes as DataType
 import conduit.datatypes.File as File
 import conduit.datatypes.Text as Text
@@ -23,7 +24,8 @@ import os.path
 
 MODULES = {
 	"FileSource" :      { "type": "dataprovider" },
-	"FolderTwoWay" :    { "type": "dataprovider" }
+	"FolderTwoWay" :    { "type": "dataprovider" },
+#    "USBFactory" :      { "type": "dataprovider-factory" }
 }
 
 TYPE_FILE = 0
@@ -814,6 +816,49 @@ class FolderTwoWay(DataProvider.TwoWay):
                 configString = _get_config_file_for_dir(folderScanner.baseURI)
                 self.items[path][GROUP_NAME_IDX] = configString
             except gnomevfs.NotFoundError: pass
+
+class USBFactory(Module.DataProviderFactory):
+    def __init__(self, **kwargs):
+        Module.DataProviderFactory.__init__(self, **kwargs)
+
+        if kwargs.has_key("hal"):
+            self.hal = kwargs["hal"]
+            self.hal.connect("usb-added", self._usb_added)
+            self.hal.connect("usb-removed", self._usb_removed)
+
+        self.usb = {}
+
+    def probe(self):
+        """
+        Probe for USB Keys that are already attached
+        """
+        for device_type, udi, mount, name in self.hal.get_all_usb_keys():
+            self._usb_added(None, udi, mount, name)
+
+    def _usb_added(self, hal, udi, mount, name):
+        """
+        New USB key has been discovered
+        """
+        cat = DataProvider.DataProviderCategory(
+                    name,
+                    "drive-removable-media",
+                    mount)
+
+        keys = []
+        for klass in [FileSource]:
+            key = self.emit_added(
+                           klass,            # Dataprovider class
+                           (mount,udi,),     # Init args
+                           cat)              # Category..
+            keys.append(key)
+
+        self.usb[udi] = keys
+
+    def _usb_removed(self, hal, udi, mount, name):
+        for key in self.usb[udi]:
+            self.emit_removed(key)
+
+        del self.usb[udi]
 
 
 
