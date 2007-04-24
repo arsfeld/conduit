@@ -408,7 +408,7 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
             if self.isDeleted:
                 logd("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
                 self.sink.module.delete(self.data.get_UID())
-                self.mappingDB.delete_mappings(
+                conduit.mappingDB.delete_mappings(
                                     sourceUID=self.sourceUID,
                                     sourceDataLUID=self.data.get_UID(),
                                     sinkUID=self.sink.get_UID()
