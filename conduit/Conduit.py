@@ -11,7 +11,7 @@ import gobject
 from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 
-class Conduit(goocanvas.Group, gobject.GObject):
+class Conduit(goocanvas.GroupModel, gobject.GObject):
     """
     Model of a Conduit, which is a one-to-many bridge of DataSources to
     DataSinks.
@@ -53,7 +53,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         self.dataprovider_status = {}
         
         #draw a box which will contain the dataproviders
-        self.bounding_box = goocanvas.Rect(   
+        self.bounding_box = goocanvas.RectModel(
                                 x=0, 
                                 y=y_from_origin, 
                                 width=canvas_width, 
@@ -64,7 +64,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
                                 radius_y=5, 
                                 radius_x=5
                                 )
-        self.add_child(self.bounding_box)
+        self.add_child(self.bounding_box,-1)
         #and store the positions
         self.positions[self.bounding_box] =     {   
                                                 "x" : 0, 
@@ -306,7 +306,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
 
         self.move_dataprovider_to(dataprovider_wrapper,x_pos,y_pos)
         #add to this group
-        self.add_child(new_widget)
+        self.add_child(new_widget,-1)
         
         #----- STEP THREE ----------------------------------------------------                
         #Draw the pretty curvy connector lines only if there
@@ -336,7 +336,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         statusText = self.make_status_text(x_pos+x_offset, y_pos+y_offset, msg)
         statusText.set_property("anchor", anchor)
         self.dataprovider_status[dataprovider_wrapper.module] = statusText
-        self.add_child(statusText)            
+        self.add_child(statusText,-1)            
 
         #----- STEP FIVE -----------------------------------------------------                
         if resize_box is True:
@@ -361,7 +361,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         toY = self.positions[sink]["y"] + self.positions[sink]["h"] - Conduit.CONNECTOR_YOFFSET
         #draw the connector and add it as child
         con = Connector(fromX, fromY, toX, toY)
-        self.add_child(con)
+        self.add_child(con, -1)
         self.connectors[sink] = con
 
     def update_connectors_connectedness(self, typeConverter):
@@ -395,7 +395,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         Creates a L{goocanvas.Text} object containing text and at the 
         supplied position
         """
-        text = goocanvas.Text   (  
+        text = goocanvas.TextModel   (  
                                 x=x, 
                                 y=y, 
                                 width=80, 
@@ -579,7 +579,7 @@ class Conduit(goocanvas.Group, gobject.GObject):
         return self.slowSyncEnabled
 
            
-class Connector(goocanvas.Group):
+class Connector(goocanvas.GroupModel):
     """
     Represents the graphical connection between a datasource and a datasink
 
@@ -590,7 +590,7 @@ class Connector(goocanvas.Group):
     """
 
     def __init__(self, fromX, fromY, toX, toY):
-        goocanvas.Group.__init__(self)
+        goocanvas.GroupModel.__init__(self)
         self.fromX = fromX
         self.fromY = fromY
         self.toX = toX
@@ -598,11 +598,11 @@ class Connector(goocanvas.Group):
         self.twoway = False
 
         #The path is a goocanvas.Path element. 
-        self.path = goocanvas.Path(data="",stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
+        self.path = goocanvas.PathModel(data="",stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
         self._draw_path()
-        self.add_child(self.path)
+        self.add_child(self.path,-1)
 
-        self.left_end_round = goocanvas.Ellipse(
+        self.left_end_round = goocanvas.EllipseModel(
                                     center_x=fromX, 
                                     center_y=fromY, 
                                     radius_x=6, 
@@ -611,7 +611,7 @@ class Connector(goocanvas.Group):
                                     line_width=0.0
                                     )
         points = goocanvas.Points([(fromX, fromY), (fromX-1, fromY)])
-        self.left_end_arrow = goocanvas.Polyline(
+        self.left_end_arrow = goocanvas.PolylineModel(
                             points=points,
                             stroke_color="black",
                             line_width=5,
@@ -624,7 +624,7 @@ class Connector(goocanvas.Group):
         
 
         points = goocanvas.Points([(toX-1, toY), (toX, toY)])
-        self.right_end = goocanvas.Polyline(
+        self.right_end = goocanvas.PolylineModel(
                             points=points,
                             stroke_color="black",
                             line_width=5,
@@ -635,7 +635,7 @@ class Connector(goocanvas.Group):
                             )
         self._draw_arrow_ends()
 
-        self.add_child(self.right_end)
+        self.add_child(self.right_end,-1)
 
     def _draw_arrow_ends(self):
         #Always draw the right arrow end for the correct width
@@ -651,9 +651,9 @@ class Connector(goocanvas.Group):
             self.remove_child(roundidx)
         
         if self.twoway == True:
-            self.add_child(self.left_end_arrow)
+            self.add_child(self.left_end_arrow,-1)
         else:
-            self.add_child(self.left_end_round)
+            self.add_child(self.left_end_round,-1)
 
     def _draw_path(self):
         """

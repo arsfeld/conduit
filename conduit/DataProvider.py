@@ -75,7 +75,7 @@ CATEGORY_REMOTE = DataProviderCategory("Remote", "network-server")
 CATEGORY_WEB = DataProviderCategory("On The Web", "applications-internet")
 CATEGORY_TEST = DataProviderCategory("Test")
 
-class DataProviderBase(goocanvas.Group, gobject.GObject):
+class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
     
@@ -147,7 +147,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
         Drawing this widget by drawing all the items which represent a
         dataprovider, including the icon, text, etc
         """
-        box = goocanvas.Rect(   x=0, 
+        box = goocanvas.RectModel(   x=0, 
                                 y=0, 
                                 width=self.widget_width, 
                                 height=self.widget_height,
@@ -157,7 +157,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                 radius_y=RECTANGLE_RADIUS, 
                                 radius_x=RECTANGLE_RADIUS
                                 )
-        name = goocanvas.Text(  x=int(2*self.widget_width/5), 
+        name = goocanvas.TextModel(  x=int(2*self.widget_width/5), 
                                 y=int(1*self.widget_height/3), 
                                 width=3*self.widget_width/5, 
                                 text=self._name_, 
@@ -166,7 +166,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                 )
         try:
             pb=gtk.icon_theme_get_default().load_icon(self._icon_, 16, 0)
-            image = goocanvas.Image(pixbuf=pb,
+            image = goocanvas.ImageModel(pixbuf=pb,
                                     x=int(  
                                             (1*self.widget_width/5) - 
                                             (pb.get_width()/2) 
@@ -179,8 +179,7 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
                                     )
         except Exception, err:
             pass
-
-        desc = goocanvas.Text(  x=int(1*self.widget_width/10), 
+        desc = goocanvas.TextModel(  x=int(1*self.widget_width/10), 
                                 y=int(2*self.widget_height/3), 
                                 width=4*self.widget_width/5, 
                                 text=self._description_, 
@@ -191,15 +190,15 @@ class DataProviderBase(goocanvas.Group, gobject.GObject):
     
        
         #Add all the visual elements which represent a dataprovider    
-        self.add_child(box)
-        self.add_child(name)
+        self.add_child(box, -1)
+        self.add_child(name, -1)
         #FIXME: This block of code does not work if in the above try-except
         #block. why? Who knows!
         try:
-            self.add_child(image)
+            self.add_child(image, -1)
         except Exception, err:
             pass
-        self.add_child(desc) 
+        self.add_child(desc, -1) 
             
     def get_widget_dimensions(self):
         """

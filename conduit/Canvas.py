@@ -19,7 +19,7 @@ from conduit.Tree import DND_TARGETS
 from conduit.ModuleWrapper import ModuleWrapper
 
 
-class Canvas(goocanvas.CanvasView):
+class Canvas(goocanvas.Canvas):
     """
     This class manages many L{conduit.Conduit.Conduit} objects
     """
@@ -34,15 +34,14 @@ class Canvas(goocanvas.CanvasView):
         """
         Draws an empty canvas of the appropriate size
         """
-        goocanvas.CanvasView.__init__(self)
+        goocanvas.Canvas.__init__(self)
         self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
         self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
         self.show()
         
         #set up the model 
-        self.model = goocanvas.CanvasModelSimple()
-        self.root = self.model.get_root_item()
-        self.set_model(self.model)
+        self.root = goocanvas.GroupModel()
+        self.set_root_item_model(self.root)
 
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
@@ -72,12 +71,12 @@ class Canvas(goocanvas.CanvasView):
         self.pendingDataprovidersToAdd = {}
 
     def _connect_dataprovider_signals(self, dataproviderWrapper):
-        view = self.get_item_view(dataproviderWrapper.module)
-        view.connect("button_press_event",  self.on_dataprovider_button_press, dataproviderWrapper)
+        view = self.get_item(dataproviderWrapper.module)
+        view.connect("button-press-event",  self.on_dataprovider_button_press, dataproviderWrapper)
 
     def _connect_conduit_signals(self, conduit):
-        view = self.get_item_view(conduit)
-        view.connect("button_press_event",  self.on_conduit_button_press, conduit)
+        view = self.get_item(conduit)
+        view.connect("button-press-event",  self.on_conduit_button_press, conduit)
 
     def set_type_converter(self, typeConverter):
         """
@@ -363,7 +362,7 @@ class Canvas(goocanvas.CanvasView):
             #save so that the appropriate signals can be connected
             #self.newconduit = c
             #now add to root element
-            self.root.add_child(c)
+            self.root.add_child(c, -1)
             #connect signals
             self._connect_conduit_signals(c)
             self.conduits.append(c)
@@ -409,7 +408,7 @@ class Canvas(goocanvas.CanvasView):
         """
         if self.welcomeMessage is None and len(self.conduits) == 0:
             import pango
-            self.welcomeMessage = goocanvas.Text(  
+            self.welcomeMessage = goocanvas.TextModel(  
                                     x=Canvas.CANVAS_WIDTH/2, 
                                     y=Canvas.CANVAS_HEIGHT/3, 
                                     width=2*Canvas.CANVAS_WIDTH/5, 
@@ -419,7 +418,7 @@ class Canvas(goocanvas.CanvasView):
                                     font="Sans 10",
                                     fill_color="black",
                                     )
-            self.root.add_child(self.welcomeMessage)   
+            self.root.add_child(self.welcomeMessage,-1)   
             del pango
 
     def delete_welcome_message(self):
@@ -432,10 +431,10 @@ class Canvas(goocanvas.CanvasView):
             del(self.welcomeMessage)
             self.welcomeMessage = None
             
-class PendingDataProvider(goocanvas.Group):
+class PendingDataProvider(goocanvas.GroupModel):
     def __init__(self):
-        goocanvas.Group.__init__(self)
-        box = goocanvas.Rect(   
+        goocanvas.GroupModel.__init__(self)
+        box = goocanvas.RectModel(   
                     x=0, 
                     y=0, 
                     width=DataProvider.WIDGET_WIDTH, 
@@ -446,7 +445,7 @@ class PendingDataProvider(goocanvas.Group):
                     radius_y=DataProvider.RECTANGLE_RADIUS, 
                     radius_x=DataProvider.RECTANGLE_RADIUS
                     )
-        self.add_child(box)
+        self.add_child(box, -1)
 
     def get_UID(self):
         return ""
