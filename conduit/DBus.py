@@ -67,14 +67,23 @@ class DBusView(dbus.service.Object):
     def _on_sync_started(self, thread):
         pass
 
-    def _on_sync_completed(self, thread):
+    def _on_sync_completed(self, thread, error):
         """
         Signal received when a sync finishes
         """
         for i in self.UIDs:
             if self.UIDs[i] == thread.conduit:
                 #Send the DBUS signal
-                self.SyncCompleted(i)
+                self.SyncCompleted(i, bool(error))
+
+    def _on_sync_progress(self, thread, conduit, progress):
+        """
+        Signal received when a sync finishes
+        """
+        for i in self.UIDs:
+            if self.UIDs[i] == conduit:
+                #Send the DBUS signal
+                self.SyncProgress(i,float(progress))
 
     #FIXME: More args
     def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices, isDeleted):
@@ -134,7 +143,8 @@ class DBusView(dbus.service.Object):
         self.sync_manager.add_syncworker_callbacks(
                                 self._on_sync_started, 
                                 self._on_sync_completed, 
-                                self._on_sync_conflict
+                                self._on_sync_conflict,
+                                self._on_sync_progress
                                 )
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='i')
@@ -145,6 +155,13 @@ class DBusView(dbus.service.Object):
         #conduitApp.Quit()
         self.conduitApplication.Quit()
         return SUCCESS
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='i', out_signature='s')
+    def GetDataProviderKey(self, uid):
+        key = ""
+        if uid in self.UIDs:
+            key = self.UIDs[uid].get_key()
+        return key
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataSources(self):
@@ -165,7 +182,7 @@ class DBusView(dbus.service.Object):
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='i')
     def GetDataSink(self, key):
         self._print("GetDataSink %s" % key)
-        return self._add_dataprovider(key, self._get_sinks())        
+        return self._add_dataprovider(key, self._get_sinks())       
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='a{ss}')
     def GetDataProviderInformation(self, key):
@@ -173,16 +190,21 @@ class DBusView(dbus.service.Object):
         info = {}
         for i in self._get_all_dps():
             if i.get_key() == key:
+                #FIXME: Need to call get_icon so that the icon_name/path is loaded
+                i.get_icon()
+
                 info["name"] = i.name
                 info["description"] = i.description
                 info["module_type"] = i.module_type
-                info["category"] = i.category
+                info["category"] = i.category.name
                 info["in_type"] = i.get_in_type()
                 info["out_type"] = i.get_out_type()
                 info["classname"] = i.classname
                 info["key"] = i.get_key()
                 info["enabled"] = str(i.enabled)
                 info["UID"] = i.get_UID()
+                info["icon_name"] = i.icon_name
+                info["icon_path"] = i.icon_path
 
         return info
 
@@ -210,6 +232,28 @@ class DBusView(dbus.service.Object):
                     compat.append(s.get_key())
 
         return compat
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='i', out_signature='s')
+    def GetDataProviderConfiguration(self, uid):
+        self._print("GetDataProviderConfiguration %s" % uid)
+        xml = ""
+        if uid in self.UIDs:
+            #create new conduit, populate and add to hashmap
+            dataprovider = self.UIDs[uid]
+            xml = dataprovider.module.get_configuration_xml()
+        return xml
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='is', out_signature='i')
+    def SetDataProviderConfiguration(self, uid, xmltext):
+        self._print("SetDataProviderConfiguration %s" % uid)
+        ok = ERROR
+        if uid in self.UIDs:
+            #create new conduit, populate and add to hashmap
+            dataprovider = self.UIDs[uid]
+            dataprovider.module.set_configuration_xml(xmltext)
+            ok = SUCCESS
+        return ok
+
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='ii', out_signature='i')
     def BuildConduit(self, sourceUID, sinkUID):
@@ -269,22 +313,26 @@ class DBusView(dbus.service.Object):
         else:
             return ERROR
 
-    @dbus.service.signal(conduit.DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='s')
     def DataproviderAvailable(self, key):
         self._print("Emmiting DBus signal DataproviderAvailable %s" % key)
 
-    @dbus.service.signal(conduit.DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='s')
     def DataproviderUnavailable(self, key):
         self._print("Emiting DBus signal DataproviderUnavailable %s" % key)
 
-    @dbus.service.signal(conduit.DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='s')
     def DataproviderChanged(self, key):
         self._print("Emmiting DBus signal DataproviderChanged %s" % key)
 
-    @dbus.service.signal(conduit.DBUS_IFACE)
-    def SyncCompleted(self, conduitUID):
-        self._print("Emmiting DBus signal SyncCompleted %s" % conduitUID)
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='ib')
+    def SyncCompleted(self, conduitUID, error):
+        self._print("Emmiting DBus signal SyncCompleted %s (error: %s)" % (conduitUID,error))
 
-    @dbus.service.signal(conduit.DBUS_IFACE)
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='id')
+    def SyncProgress(self, conduitUID, progress):
+        self._print("Emmiting DBus signal SyncProgress %s %s%%" % (conduitUID,progress*100.0))
+
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='i')
     def Conflict(self, UID):
         self._print("Emmiting DBus signal Conflict")
