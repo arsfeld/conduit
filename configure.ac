@@ -146,6 +146,7 @@ conduit/dataproviders/FspotModule/Makefile
 conduit/dataproviders/GmailModule/Makefile
 conduit/dataproviders/GmailModule/libgmail-0.1.5/Makefile
 conduit/dataproviders/SettingsModule/Makefile
+conduit/dataproviders/SettingsModule/settings/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit.pc
