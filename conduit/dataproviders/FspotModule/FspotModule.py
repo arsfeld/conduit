@@ -1,20 +1,14 @@
+import os
 import gtk
 import gobject
-from gettext import gettext as _
 from pysqlite2 import dbapi2 as sqlite
 
-
 import conduit
-from conduit import log,logd,logw
+from conduit import logd
 import conduit.Utils as Utils
+import conduit.Exceptions
 import conduit.DataProvider as DataProvider
-import conduit.Exceptions as Exceptions
-import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
-
-import os
-import os.path
-
 
 MODULES = {
 	"FspotSource" : { "type": "dataprovider" }
@@ -25,8 +19,8 @@ NAME_IDX = 1
 
 class FspotSource(DataProvider.DataSource):
 
-    _name_ = _("F-Spot Photos")
-    _description_ = _("Sync your F-Spot photos")
+    _name_ = "F-Spot Photos"
+    _description_ = "Sync your F-Spot photos"
     _category_ = DataProvider.CATEGORY_LOCAL
     _module_type_ = "source"
     _in_type_ = "file"
@@ -40,33 +34,34 @@ class FspotSource(DataProvider.DataSource):
         self.need_configuration(True)
         #Settings
         self.enabledTags = []
-        self.photoURIs = None
-
-        self.tags = []
-        self._get_all_tags()
+        self.photos = []
 
     def _get_all_tags(self):
-        self.tags = []
+        tags = []
         if os.path.exists(FspotSource.PHOTO_DB):
             #Create a connection to the database
             con = sqlite.connect(FspotSource.PHOTO_DB)
             cur = con.cursor()
             #Get a list of all tags for the config dialog
             cur.execute("SELECT id, name FROM tags")
-            for (tagid, tagname) in cur:
-                self.tags.append([tagid,tagname])
-            con.close()  
+            for tagid, tagname in cur:
+                tags.append( (tagid,tagname) )
+            con.close()
+
+        return tags
 
     def initialize(self):
         return True
         
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-        self._get_all_tags()
-        #Stupid pysqlite thread stuff. Connection must be made in the same thread
+        #only work if Fspot is installed
+        if not os.path.exists(FspotSource.PHOTO_DB):
+            raise Exceptions.RefreshError("Fspot is not installed")
+
+        #Stupid pysqlite thread stuff. 
+        #Connection must be made in the same thread
         #as any execute statements
-        self.photoURIs = []
-        #Create a connection to the database
         con = sqlite.connect(FspotSource.PHOTO_DB)
         tagCur = con.cursor()
         photoCur = con.cursor()
@@ -74,29 +69,38 @@ class FspotSource(DataProvider.DataSource):
             tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tagID))
             for photoID in tagCur:
                 photoCur.execute("SELECT directory_path, name FROM photos WHERE id=?", (photoID))
-                for (directory_path, name) in photoCur:
+                for directory_path, name in photoCur:
                     #Return the file, loaded from a (local only??) URI
-                    logd("Found photo with name=%s" % name)
-                    self.photoURIs.append(os.path.join(directory_path, name))
+                    if type(photoID) == tuple:
+                        uid = photoID[0]
+                    else:
+                        logw("Error getting photo ID")
+                        uid = photoID
+
+                    logd("Found photo with name=%s (ID: %s)" % (name,uid))
+                    self.photos.append( (os.path.join(directory_path, name),uid) )
 
         con.close()
         
     def get(self, index):
         DataProvider.DataSource.get(self, index)
-        return File.File(self.photoURIs[index])
+        photouri, photouid = self.photos[index]
+
+        f = File.File(URI=photouri)
+        f.set_UID(photouid)
+        f.set_open_URI(photouri)
+
+        return f
 
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
-        return len(self.photoURIs)
+        return len(self.photos)
     
     def finish(self):
         DataProvider.DataSource.finish(self)
-        self.photoURIs = None
+        self.photos = []
 
     def configure(self, window):
-        """
-        Indeed
-        """
         def col1_toggled_cb(cell, path, model ):
             #not because we get this cb before change state
             checked = not cell.get_active()
@@ -122,9 +126,8 @@ class FspotSource(DataProvider.DataSource):
                                     gobject.TYPE_BOOLEAN,   #active
                                     )
         #Fill the list store
-        self._get_all_tags()
         i = 0
-        for t in self.tags:
+        for t in self._get_all_tags():
             list_store.append((t[ID_IDX],t[NAME_IDX],t[ID_IDX] in self.enabledTags))
             i += 1
         #Set up the treeview
@@ -152,6 +155,6 @@ class FspotSource(DataProvider.DataSource):
         dlg.destroy()
 
     def get_UID(self):
-        return ""
+        return Utils.get_user_string()
 
 
