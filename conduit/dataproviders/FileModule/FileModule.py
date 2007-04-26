@@ -560,6 +560,11 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
         f.set_UID(filename)
         return f
 
+    def add(self, LUID):
+        f = File.File(URI=LUID)
+        if f.exists() and not f.is_directory():
+            self.items.append((f._get_text_uri(),TYPE_SINGLE_FILE,0,False,"",[]))                
+
     def get_num_items(self):
         DataProvider.DataSource.get_num_items(self)
         #When functioning as a datasource we are only interested in the 
