@@ -20,6 +20,44 @@ import conduit.Utils as Utils
 from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
 
+def _put_data(source, sink, data, LUID, mtime, overwrite):
+    """
+    Puts data into sink, overwrites if overwrite is True. Updates 
+    the mappingDB
+    """
+    log("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
+    LUID = sink.module.put(data, overwrite, LUID)
+    mtime = data.get_mtime()
+    #Now store the mapping of the original URI to the new one. We only
+    #get here if the put was successful, so the mtime of the putted
+    #data wll be the same as the original data
+    conduit.mappingDB.save_mapping(
+                            sourceUID=source.get_UID(),
+                            sourceDataLUID=data.get_UID(),
+                            sinkUID=sink.get_UID(),
+                            sinkDataLUID=LUID,
+                            mtime=mtime
+                            )
+
+def _delete_data(source, sink, dataLUID):
+    """
+    Deletes data from sink and updates the mapping DB
+    """
+    log("Deleting %s from %s" % (dataLUID, sink.get_UID()))
+    sink.module.delete(dataLUID)
+    conduit.mappingDB.delete_mapping(
+                        sourceUID=source.get_UID(),
+                        dataLUID=dataLUID,
+                        sinkUID=sink.get_UID()
+                        )
+    #FIXME: Is this necessary or refective of bad design?
+    conduit.mappingDB.delete_mapping(
+                        sourceUID=sink.get_UID(),
+                        dataLUID=dataLUID,
+                        sinkUID=source.get_UID()
+                        )
+
+
 class SyncManager: 
     """
     Given a dictionary of relationships this class synchronizes
@@ -40,6 +78,7 @@ class SyncManager:
         self.syncStartedCbs = []
         self.syncCompleteCbs = []
         self.syncConflictCbs = []
+        self.syncProgressCbs = []
 
         #Two way sync policy
         self.policy = {"conflict":"ask","deleted":"ask"}
@@ -51,10 +90,12 @@ class SyncManager:
             thread.connect("sync-completed", cb)
         for cb in self.syncConflictCbs:
             thread.connect("sync-conflict", cb)
+        for cb in self.syncProgressCbs:
+            thread.connect("sync-progress", cb)
 
         return thread
 
-    def add_syncworker_callbacks(self, syncStartedCb, syncCompleteCb, syncConflictCb):
+    def add_syncworker_callbacks(self, syncStartedCb, syncCompleteCb, syncConflictCb, syncProgressCb):
         """
         Sets the callbacks that are called by the SyncWorker threads
         upon the specified conditions
@@ -65,6 +106,8 @@ class SyncManager:
             self.syncCompleteCbs.append(syncCompleteCb)
         if syncConflictCb != None and syncConflictCb not in self.syncConflictCbs:
             self.syncConflictCbs.append(syncConflictCb)
+        if syncProgressCb != None and syncProgressCb not in self.syncProgressCbs:
+            self.syncProgressCbs.append(syncProgressCb)
 
     def set_twoway_policy(self, policy):
         logd("Setting sync policy: %s" % policy)
@@ -154,7 +197,8 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         gobject.TYPE_PYOBJECT,      #valid resolve choices
                         gobject.TYPE_BOOLEAN]),     #Is the conflict from a deletion
                     "sync-completed": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+                        gobject.TYPE_BOOLEAN]),     #True if there was an error
                     "sync-started": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
                     "sync-progress": 
@@ -211,43 +255,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         return newdata
 
-    def _put_data(self, source, sink, data, LUID, mtime, overwrite):
-        """
-        Puts data into sink, overwrites if overwrite is True. Updates 
-        the mappingDB
-        """
-        log("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
-        LUID = sink.module.put(data, overwrite, LUID)
-        mtime = data.get_mtime()
-        #Now store the mapping of the original URI to the new one. We only
-        #get here if the put was successful, so the mtime of the putted
-        #data wll be the same as the original data
-        conduit.mappingDB.save_mapping(
-                                sourceUID=source.get_UID(),
-                                sourceDataLUID=data.get_UID(),
-                                sinkUID=sink.get_UID(),
-                                sinkDataLUID=LUID,
-                                mtime=mtime
-                                )
-
-    def _delete_data(self, source, sink, dataLUID):
-        """
-        Deletes data from sink and updates the mapping DB
-        """
-        log("Deleting %s from %s" % (dataLUID, sink.get_UID()))
-        sink.module.delete(dataLUID)
-        conduit.mappingDB.delete_mapping(
-                            sourceUID=source.get_UID(),
-                            dataLUID=dataLUID,
-                            sinkUID=sink.get_UID()
-                            )
-        #FIXME: Is this necessary or refective of bad design?
-        conduit.mappingDB.delete_mapping(
-                            sourceUID=sink.get_UID(),
-                            dataLUID=dataLUID,
-                            sinkUID=source.get_UID()
-                            )
-
     def _transfer_data(self, source, sink, data):
         """
         Transfers the data from source to sink, includes performing any conversions,
@@ -268,7 +275,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                         sinkUID=sink.get_UID()
                                         )
                 if newdata.get_mtime() != mtime or self.conduit.do_slow_sync():
-                    self._put_data(source, sink, newdata, LUID, mtime, False)
+                    _put_data(source, sink, newdata, LUID, mtime, False)
                 else:
                     log("Skipping %s. Mtimes has not changed (actual %s v saved %s)" % (newdata.get_UID(), newdata.get_mtime(), mtime))
             except Exceptions.SynchronizeConflictError, err:
@@ -281,23 +288,23 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
 
         except Exceptions.ConversionDoesntExistError:
-            logw("No Conversion Exists")
+            logw("ConversionDoesntExistError")
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
         except Exceptions.ConversionError, err:
-            logw("Error converting %s\n%s" % (err, traceback.format_exc()))
+            logw("%s\n%s" % (err, traceback.format_exc()))
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
         except Exceptions.SyncronizeError, err:
-            logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))                     
+            logw("%s\n%s" % (err, traceback.format_exc()))                     
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
         except Exceptions.SyncronizeFatalError, err:
-            logw("Error synchronizing %s\n%s" % (err, traceback.format_exc()))
+            logw("%s\n%s" % (err, traceback.format_exc()))
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
             #Cannot continue
             raise Exceptions.StopSync                  
-        except Exception, err:                        
+        except Exception:       
             #Cannot continue
-            logw("Unknown synchronisation error\n%s" % traceback.format_exc())
+            logw("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             raise Exceptions.StopSync
@@ -330,7 +337,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         True                        #This conflict is a deletion
                         )
         elif self.policy["deleted"] == "replace":
-            self._delete_data(sourceWrapper, sinkWrapper, dataLUID)
+            _delete_data(sourceWrapper, sinkWrapper, dataLUID)
          
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
@@ -359,12 +366,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                             sourceDataLUID=toData.get_UID(),
                                             sinkUID=sinkWrapper.get_UID()
                                             )
-                    self._put_data(sourceWrapper, sinkWrapper, toData, LUID, mtime, True)
+                    _put_data(sourceWrapper, sinkWrapper, toData, LUID, mtime, True)
                 except:
                     logw("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
         else:
-            logw("Unknown comparison\n%s" % traceback.format_exc())
+            logw("UNKNOWN COMPARISON\n%s" % traceback.format_exc())
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
     def cancel(self):
@@ -410,7 +417,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
             newdata = self._transfer_data(source, sink, data)
             #now remove from the list of expected data to synchronize
-            if existing.count(newdata.get_UID()):
+            if newdata != None and existing.count(newdata.get_UID()):
                 existing.remove(newdata.get_UID())
 
         #give dataproviders the freedom to also provide a list of deleted 
@@ -567,6 +574,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                     ))
             #Variable to exit the loop
             finished = False
+            aborted = False
             #Keep track of those sinks that didnt refresh ok
             sinkDidntRefreshOK = {}
             sinkDidntConfigureOK = {}
@@ -601,7 +609,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         self.state = SyncWorker.REFRESH_STATE
                     else:
                         #We are finished
-                        print "NOT ENOUGHT CONFIGURED OK"
+                        logw("Not enough configured datasinks")
                         self.state = SyncWorker.DONE_STATE                  
 
                 #refresh state
@@ -613,12 +621,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                     except Exceptions.RefreshError:
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                        logw("Error Refreshing: %s" % self.source)
+                        logw("RefreshError: %s" % self.source)
                         #Cannot continue with no source data
                         raise Exceptions.StopSync
                     except Exception, err:
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                        logw("Unknown error refreshing: %s\n%s" % (self.source,traceback.format_exc()))
+                        logw("UNKNOWN REFRESH ERROR: %s\n%s" % (self.source,traceback.format_exc()))
                         #Cannot continue with no source data
                         raise Exceptions.StopSync           
 
@@ -630,11 +638,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                 sink.module.refresh()
                                 sink.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                             except Exceptions.RefreshError:
-                                logw("Error refreshing: %s" % sink)
+                                logw("RefreshError: %s" % sink)
                                 sinkDidntRefreshOK[sink] = True
                                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
-                            except Exception, err:
-                                logw("Unknown error refreshing: %s\n%s" % (sink,traceback.format_exc()))
+                            except Exception:
+                                logw("UNKNOWN REFRESH ERROR: %s\n%s" % (sink,traceback.format_exc()))
                                 sinkDidntRefreshOK[sink] = True
                                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                                 
@@ -700,9 +708,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         except Exceptions.StopSync:
             logw("Sync Aborted")
+            aborted = True
 
         conduit.mappingDB.save()
-        gobject.idle_add(self.emit, "sync-completed")
+        gobject.idle_add(self.emit, "sync-completed", aborted or len(self.sinkErrors) != 0)
                 
 class DeletedData(DataType.DataType):
     """
