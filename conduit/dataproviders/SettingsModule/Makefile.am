@@ -1,3 +1,5 @@
+SUBDIRS = settings
+
 conduit_handlersdir = $(libdir)/conduit/dataproviders/SettingsModule
 conduit_handlers_PYTHON = \
 	SettingsModule.py \
