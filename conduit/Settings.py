@@ -246,21 +246,6 @@ class Settings(gobject.GObject):
         @param syncSet: A list of conduits to save
         @type syncSet: L{conduit.Conduit.Conduit}[]
         """
-        def make_xml_configuration(parentNode, configDict):
-            for config in configDict:
-                    configxml = doc.createElement(str(config))
-                    #store the value and value type
-                    try:
-                        vtype = Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
-                        value = Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
-                    except KeyError:
-                        logw("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
-                        vtype = Settings.TYPE_TO_TYPE_NAME[str]
-                        value = Settings.TYPE_TO_STRING[str](configDict[config])
-                    configxml.setAttribute("type", vtype)
-                    configxml.appendChild(doc.createTextNode(value))
-                    parentNode.appendChild(configxml)    
-            
         log("Saving Sync Set")
         #Build the application settings xml document
         doc = Document()
@@ -287,9 +272,8 @@ class Settings(gobject.GObject):
                 sourcexml.setAttribute("key", source.get_key())
                 conduitxml.appendChild(sourcexml)
                 #Store source settings
-                configurations = source.module.get_configuration()
-                #logd("Source Settings %s" % configurations)
-                make_xml_configuration(sourcexml, configurations)
+                configxml = xml.dom.minidom.parseString(source.module.get_configuration_xml())
+                sourcexml.appendChild(configxml.documentElement)
             
             #Store all sinks
             sinksxml = doc.createElement("datasinks")
@@ -298,9 +282,8 @@ class Settings(gobject.GObject):
                 sinkxml.setAttribute("key", sink.get_key())
                 sinksxml.appendChild(sinkxml)
                 #Store sink settings
-                configurations = sink.module.get_configuration()
-                #logd("Sink Settings %s" % configurations)
-                make_xml_configuration(sinkxml, configurations)
+                configxml = xml.dom.minidom.parseString(sink.module.get_configuration_xml())
+                sinkxml.appendChild(configxml.documentElement)
             conduitxml.appendChild(sinksxml)        
 
         #Save to disk
@@ -324,20 +307,22 @@ class Settings(gobject.GObject):
             of dataproviders and in the form <settingname>value</settingname>
             """
             settings = {}
-            for s in xml.childNodes:
-                if s.nodeType == s.ELEMENT_NODE:
-                    #now convert the setting to the correct type
-                    raw = s.childNodes[0].data
-                    vtype = s.getAttribute("type")
-                    try:
-                        data = Settings.STRING_TO_TYPE[vtype](raw)
-                    except KeyError:
-                        #fallback to string type
-                        logw("Cannot convert string (%s) to native type %s" % (raw, vtype))
-                        traceback.print_exc()
-                        data = str(raw)
-                    logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
-                    settings[s.localName] = data
+            for i in xml.childNodes:
+                if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
+                    for s in i.childNodes:
+                        if s.nodeType == s.ELEMENT_NODE:
+                            #now convert the setting to the correct type
+                            raw = s.childNodes[0].data
+                            vtype = s.getAttribute("type")
+                            try:
+                                data = Settings.STRING_TO_TYPE[vtype](raw)
+                            except KeyError:
+                                #fallback to string type
+                                logw("Cannot convert string (%s) to native type %s" % (raw, vtype))
+                                traceback.print_exc()
+                                data = str(raw)
+                            logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                            settings[s.localName] = data
             return settings
             
         def restore_dataprovider(wrapperKey, dpSettings, x, y):
@@ -365,7 +350,7 @@ class Settings(gobject.GObject):
         try:
             #Open                
             doc = minidom.parse(self.xmlSettingFilePath)
-            xmlVersion = doc.getElementsByTagName("conduit-application")[0].getAttribute("version")
+            xmlVersion = doc.documentElement.getAttribute("version")
             #And check it is the correct version        
             if expectedVersion != xmlVersion:
                 log("%s xml file is incorrect version" % self.xmlSettingFilePath)

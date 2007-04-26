@@ -9,7 +9,7 @@ import gtk, gtk.glade
 import gobject
 import goocanvas
 from gettext import gettext as _
-
+import xml.dom.minidom
 
 import conduit
 from conduit import log,logd,logw
@@ -367,6 +367,32 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
         logd("get_configuration() not overridden by derived class %s" % self._name_)
         return {}
 
+    def get_configuration_xml(self):
+        """
+        Returns the dataprovider configuration as xml
+        @rtype: C{string}
+        """
+        doc = xml.dom.minidom.Element("configuration")
+
+        configDict = self.get_configuration()
+        for config in configDict:
+                configxml = xml.dom.minidom.Element(str(config))
+                #store the value and value type
+                try:
+                    vtype = conduit.Settings.Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
+                    value = conduit.Settings.Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
+                except KeyError:
+                    logw("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
+                    vtype = conduit.Settings.Settings.TYPE_TO_TYPE_NAME[str]
+                    value = conduit.Settings.Settings.TYPE_TO_STRING[str](configDict[config])
+                configxml.setAttribute("type", vtype)
+                valueNode = xml.dom.minidom.Text()
+                valueNode.data = value
+                configxml.appendChild(valueNode)
+                doc.appendChild(configxml)
+
+        return doc.toxml()
+
     def set_configuration(self, config):
         """
         Restores applications settings
@@ -385,6 +411,37 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
                     getattr(self, c, False),
                     callable(getattr(self, c, None)))
                     )
+
+    def set_configuration_xml(self, xmltext):
+        """
+        Restores applications settings from XML
+
+        @param xmltext: xml representation of settings
+        @type xmltext: C{string}
+        """
+        doc = xml.dom.minidom.parseString(xmltext)
+
+        configxml = doc.documentElement
+        if configxml.nodeType == configxml.ELEMENT_NODE and configxml.localName == "configuration":
+            settings = {}
+            for s in configxml.childNodes:
+                if s.nodeType == s.ELEMENT_NODE:
+                    #now convert the setting to the correct type (if filled out)
+                    if s.hasChildNodes():
+                        raw = s.firstChild.data
+                        vtype = s.getAttribute("type")
+                        try:
+                            data = conduit.Settings.Settings.STRING_TO_TYPE[vtype](raw)
+                        except KeyError:
+                            #fallback to string type
+                            logw("Cannot convert string (%s) to native type %s\n" % (raw, vtype, traceback.format_exc()))
+                            data = str(raw)
+                        logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                        settings[s.localName] = data
+
+            self.set_configuration(settings)
+        else:
+            logd("Could not find <configuration> xml fragment")
 
     def get_UID(self):
         """
