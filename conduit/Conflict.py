@@ -13,8 +13,8 @@ import gobject
 import gtk, gtk.gdk
 
 import conduit
-import conduit.DataProvider as DataProvider
 from conduit import log,logd,logw
+import conduit.DataProvider as DataProvider
 import conduit.Utils as Utils
 
 #ENUM represeting the images drawn by ArrowCellRenderer
@@ -182,16 +182,19 @@ class ConflictResolver:
         self.expander.set_label("Conflicts (%s)" % self.numConflicts)
         self.standalone.set_title("Conflicts (%s)" % self.numConflicts)
 
-    def _conflict_resolved(self, resolvethread, path):
+    def _conflict_resolved(self, sender, rowref):
         """
         Callback when a ConflictResolveThread finishes. Deletes the 
         appropriate conflict from the model. Also looks to see if there
         are any other conflicts remainng so it can set the sink status and/or
         delete the partnership
         """
-        rowref = self.model.get_iter(path)
-        self.model.remove(rowref)
+        if not self.model.iter_is_valid(rowref):
+            #FIXME: Need to work a way around this before resolution can be threaded
+            logw("Iters do not persist throug signal emission!")
+            return
 
+        self.model.remove(rowref)
         #now look for any sync partnerships with no children
         empty = False
         for source,sink in self.partnerships:
@@ -255,6 +258,11 @@ class ConflictResolver:
         According to the users selection, start backgroun threads to
         resolve the conflicts
         """
+        IHaveMadeItersPersist = False
+
+        #save the resolved rowrefs and remove them at the end
+        resolved = []
+
         def _resolve_func(model, path, rowref):
             if model[path][DIRECTION_IDX] == CONFLICT_SKIP:
                 logd("Not resolving")
@@ -262,21 +270,51 @@ class ConflictResolver:
             elif model[path][DIRECTION_IDX] == CONFLICT_COPY_SOURCE_TO_SINK:
                 logd("Resolving source data --> sink")
                 data = model[path][SOURCE_DATA_IDX]
+                source = model[path][SOURCE_IDX]                
                 sink = model[path][SINK_IDX]
-                sourceUID = model[path][SOURCE_IDX].get_UID()
             else:
                 logd("Resolving source <-- sink data")
                 data = model[path][SINK_DATA_IDX]
+                source = model[path][SINK_IDX]
                 sink = model[path][SOURCE_IDX]
-                sourceUID = model[path][SINK_IDX].get_UID()
 
             deleted = model[path][IS_DELETED_CONFLICT_IDX]
+
             #add to resolve thread
-            #FIXME: Think of a way to make rowrefs persist through signals so I
-            #dont have to use paths, which is broken
-            self.resolveThreadManager.make_thread(self._conflict_resolved,path,data,sink,sourceUID,deleted)
+            #FIXME: Think of a way to make rowrefs persist through signals
+            if IHaveMadeItersPersist:
+                self.resolveThreadManager.make_thread(self._conflict_resolved,rowref,data,sink,source,deleted)
+            else:
+                try:
+                    if deleted:
+                        logd("Resolving conflict. Deleting %s from %s" % (data, sink))
+                        conduit.Synchronization._delete_data(source, sink, data.get_UID())
+                    else:
+                        logd("Resolving conflict. Putting %s --> %s" % (data, sink))
+                        conduit.Synchronization._put_data(source, sink, data, None, None, True)
+
+                    self.model.remove(rowref)
+                except Exception:
+                    logw("Could not resolve conflict\n%s" % traceback.format_exc())
 
         self.model.foreach(_resolve_func)
+
+        if not IHaveMadeItersPersist:
+            #now look for any sync partnerships with no children
+            empty = False
+            for source,sink in self.partnerships:
+                rowref = self.partnerships[(source,sink)]
+                numChildren = self.model.iter_n_children(rowref)
+                if numChildren == 0:
+                    empty = True
+
+            #do in two loops so as to not change the dict while iterating
+            if empty:
+                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                del(self.partnerships[(source,sink)])
+                self.model.remove(rowref)
+            else:
+                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
 
     #Connect to cancel button
     def on_cancel_conflicts(self, sender):
@@ -390,7 +428,7 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
         Args
          - arg[0]: data
          - arg[1]: sink
-         - arg[2]: sourceUID
+         - arg[2]: source
          - arg[3]: isDeleted
         """
         threading.Thread.__init__(self)
@@ -398,7 +436,7 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
         
         self.data = args[0]
         self.sink = args[1]
-        self.sourceUID = args[2]
+        self.source = args[2]
         self.isDeleted = args[3]
 
         self.setName("ResolveThread for sink: %s. (Delete: %s)" % (self.sink, self.isDeleted))
@@ -407,34 +445,11 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
         try:
             if self.isDeleted:
                 logd("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
-                self.sink.module.delete(self.data.get_UID())
-                conduit.mappingDB.delete_mappings(
-                                    sourceUID=self.sourceUID,
-                                    sourceDataLUID=self.data.get_UID(),
-                                    sinkUID=self.sink.get_UID()
-                                    )
+                conduit.Synchronization._delete_data(self.source, self.sink, self.data.get_UID())
             else:
                 logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-                matchingUID = conduit.mappingDB.get_mapping(
-                                    sourceUID=self.sourceUID,
-                                    sourceDataLUID=self.data.get_UID(),
-                                    sinkUID=self.sink.get_UID()
-                                    )
-
-                LUID = self.sink.module.put(self.data, True, matchingUID)
-                mtime = self.data.get_mtime()
-                #Now store the mapping of the original URI to the new one. We only
-                #get here if the put was successful, so the mtime of the putted
-                #data wll be the same as the original data
-                conduit.mappingDB.save_mapping(
-                                        sourceUID=self.sourceUID,
-                                        sourceDataLUID=self.data.get_UID(),
-                                        sinkUID=self.sink.get_UID(),
-                                        sinkDataLUID=LUID,
-                                        mtime=mtime
-                                        )
-                #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-        except Exception, err:                        
+                conduit.Synchronization._put_data(self.source, self.sink, self.data, None, None, True)
+        except Exception:                        
             logw("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
 
