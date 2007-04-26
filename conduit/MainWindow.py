@@ -77,7 +77,10 @@ class GtkView:
         #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("MainWindow")
         self.mainWindow.hide()
-        self.mainWindow.set_title(conduit.APPNAME)
+        if conduit.IS_DEVELOPMENT_VERSION:
+            self.mainWindow.set_title("%s %s - DEVELOPMENT RELEASE" % (conduit.APPNAME, conduit.APPVERSION))
+        else:
+            self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_from_file(os.path.join(conduit.SHARED_DATA_DIR, "conduit-icon.png"))
         
@@ -144,14 +147,15 @@ class GtkView:
         self.sync_manager.add_syncworker_callbacks(
                                 self.on_sync_started, 
                                 self.on_sync_completed, 
-                                self.conflictResolver.on_conflict
+                                self.conflictResolver.on_conflict,
+                                None    #FIXME: self.canvas.on_conduit_progress
                                 )
         self.dataproviderTreeView.expand_all()
 
     def on_sync_started(self, thread):
         logd("GUI got sync started")
 
-    def on_sync_completed(self, thread):
+    def on_sync_completed(self, thread, error):
         logd("GUI got sync completed")
        
     def on_dataprovider_added(self, loader, dataprovider):
@@ -274,6 +278,10 @@ class GtkView:
             conduit.settings.set("twoway_policy_%s" % policy, i)
             return i
 
+        def on_clear_button_clicked(sender, textview):
+            conduit.mappingDB.delete()
+            textview.get_buffer().set_text(conduit.mappingDB.debug())
+
         #Build some liststores to display
         convertables = self.type_converter.get_convertables_descriptive_list()
         converterListStore = gtk.ListStore( str )
@@ -292,13 +300,22 @@ class GtkView:
         #Show the DB contents to help debugging
         if conduit.IS_DEVELOPMENT_VERSION:
             notebook = tree.get_widget("prop_notebook")
-            debugText = conduit.mappingDB.debug()
+
+            #Show a text window and a button in a VBox
+            vbox = gtk.VBox(False,5)
+
             textView = gtk.TextView()
             textView.set_editable(False)
-            textView.get_buffer().set_text(debugText)
+            textView.get_buffer().set_text(conduit.mappingDB.debug())
             sw = gtk.ScrolledWindow()
             sw.add(textView)
-            notebook.append_page(sw,gtk.Label('Mapping DB'))
+            vbox.pack_start(sw,True,True)
+
+            clear = gtk.Button(None,gtk.STOCK_CLEAR)
+            clear.connect("clicked", on_clear_button_clicked, textView)
+            vbox.pack_start(clear, False, False)
+
+            notebook.append_page(vbox,gtk.Label('Mapping DB'))
             notebook.show_all()
         
         converterTreeView = tree.get_widget("dataConversionsTreeView")
@@ -595,9 +612,9 @@ class ConduitStatusIcon(gtk.StatusIcon):
         gobject.timeout_add(100, self._go_to_running_state)
         logd("Icon got sync started")
 
-    def on_sync_completed(self, thread):
+    def on_sync_completed(self, thread, error):
         self.running -= 1
-        logd("Icon got sync completed %s" % self.running)
+        logd("Icon got sync completed %s (error: %s)" % (self.running, error))
 
     def on_sync_conflict(self, thread, *args):
         self.conflict = True
@@ -732,7 +749,8 @@ class Application(dbus.service.Object):
                 self.dbus.sync_manager.add_syncworker_callbacks(
                                         self.statusIcon.on_sync_started,
                                         self.statusIcon.on_sync_completed,
-                                        self.statusIcon.on_sync_conflict
+                                        self.statusIcon.on_sync_conflict,
+                                        None
                                         )
 
         conduit.memstats(memstats)
@@ -774,7 +792,8 @@ OPTIONS:
             self.gui.sync_manager.add_syncworker_callbacks(
                                     self.statusIcon.on_sync_started,
                                     self.statusIcon.on_sync_completed,
-                                    self.statusIcon.on_sync_conflict
+                                    self.statusIcon.on_sync_conflict,
+                                    None
                                     )
 
         if self.splash != None:
