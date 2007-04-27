@@ -21,6 +21,7 @@ if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
 WIDTH = 250
 HEIGHT = 150
 CONFIG = """<configuration><username type="string">%s</username><showFriends type="bool">True</showFriends><showFamily type="bool">True</showFamily><showPublic type="bool">True</showPublic><tagWith type="string">Conduit</tagWith></configuration>"""
+DEBUG = False
 
 class Uploadr:
     def __init__(self):
@@ -108,7 +109,10 @@ class Uploadr:
 
     def _on_username_changed(self, entry):
         if len(entry.get_text()) > 0:
-            xml = CONFIG % entry.get_text()
+            if DEBUG:
+                xml = """<configuration><slow type="bool">True</slow></configuration>"""
+            else:
+                xml = CONFIG % entry.get_text()
             self.conduitApp.SetDataProviderConfiguration(self.sink, xml)
 
     def _on_drag_and_drop(self, wid, context, x, y, selection, targetType, time):
@@ -128,8 +132,13 @@ class Uploadr:
             ######
             # Build the export interface
             ######
-            self.source = self.conduitApp.GetDataSource("FileSource")
-            self.sink = self.conduitApp.GetDataSink("FlickrSink")
+            if DEBUG:
+                self.source = self.conduitApp.GetDataSource("TestSource")
+                self.sink = self.conduitApp.GetDataSink("TestSink")
+            else:
+                self.source = self.conduitApp.GetDataSource("FileSource")
+                self.sink = self.conduitApp.GetDataSink("FlickrSink")
+
             self.conduit = self.conduitApp.BuildConduit(self.source, self.sink)
             
             #get an icon for the GUI
