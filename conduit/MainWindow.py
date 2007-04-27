@@ -76,7 +76,6 @@ class GtkView:
         
         #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("MainWindow")
-        self.mainWindow.hide()
         if conduit.IS_DEVELOPMENT_VERSION:
             self.mainWindow.set_title("%s %s - DEVELOPMENT RELEASE" % (conduit.APPNAME, conduit.APPVERSION))
         else:
