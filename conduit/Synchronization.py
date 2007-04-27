@@ -17,7 +17,7 @@ import conduit.Exceptions as Exceptions
 import conduit.DB as DB
 import conduit.Utils as Utils
 
-from conduit.Conflict import CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
+from conduit.Conflict import CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
 
 def _put_data(source, sink, data, LUID, mtime, overwrite):
@@ -325,9 +325,13 @@ class SyncWorker(threading.Thread, gobject.GObject):
             #check if the source is visually on the left of the sink
             if self.source == sourceWrapper:
                 #it is on the left
-                validResolveChoices = (CONFLICT_COPY_SINK_TO_SOURCE,CONFLICT_SKIP)
+                #dont support copying back yet
+                #(CONFLICT_COPY_SINK_TO_SOURCE,CONFLICT_SKIP)
+                validResolveChoices = (CONFLICT_DELETE, CONFLICT_SKIP) 
             else:
-                validResolveChoices = (CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
+                #dont support copying back yet
+                #(CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
+                validResolveChoices = (CONFLICT_DELETE, CONFLICT_SKIP) 
             gobject.idle_add(self.emit,"sync-conflict", 
                         sourceWrapper,              #datasource wrapper
                         DeletedData(dataLUID),      #from data
@@ -355,7 +359,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                             fromData, 
                             sinkWrapper, 
                             toData, 
-                            (CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE),
+                            (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_COPY_SINK_TO_SOURCE),
                             False
                             )
             elif self.policy["conflict"] == "replace":
@@ -425,7 +429,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         deleted = Utils.distinct_list(existing + source.module.get_deleted_items())
         logd("There were %s deleted items" % len(deleted))
         for d in deleted:
-            self._apply_deleted_policy(source, sink, d)
+            matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), d, sink.get_UID())
+            if matchingUID != None:
+                self._apply_deleted_policy(source, sink, matchingUID)
        
     def two_way_sync(self, source, sink):
         """
