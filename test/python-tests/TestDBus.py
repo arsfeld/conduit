@@ -8,10 +8,7 @@ import time
 
 CONDUIT_DBUS_PATH = "/"
 CONDUIT_DBUS_IFACE = "org.gnome.Conduit"
-
 bus = dbus.SessionBus()
-obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
-remoteConduit = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
 
 def dbus_service_available(bus,interface):
     obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
@@ -20,8 +17,8 @@ def dbus_service_available(bus,interface):
     return interface in avail
 
 #Start the conduit process
-APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "conduit", "start_conduit.py"))
-pid = os.spawnlp(os.P_NOWAIT, "python", "python", APP, "--console")
+#APP = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "conduit", "start_conduit.py"))
+#pid = os.spawnlp(os.P_NOWAIT, "python", "python", APP, "--console")
 
 #wait for it to startup
 MAX_WAIT = 5
@@ -33,7 +30,10 @@ while i < MAX_WAIT:
     i += 1
 
 ok ("checking conduit DBus is available", i != MAX_WAIT)
-#Check DBUS service available
+
+obj = bus.get_object(CONDUIT_DBUS_IFACE, CONDUIT_DBUS_PATH)
+remoteConduit = dbus.Interface(obj, CONDUIT_DBUS_IFACE)
+
 #Test the searches
 ok ("searching for TestSource", "TestSource" in remoteConduit.GetAllDataSources() )
 ok ("searching for TestSink", "TestSink" in remoteConduit.GetAllDataSinks() )
@@ -61,5 +61,5 @@ ok("synchronizing", remoteConduit.Sync(conduit) )
 #quit
 ok("Quitting", remoteConduit.Quit() )
 
-waitpid(pid,0)
+#waitpid(pid,0)
 
