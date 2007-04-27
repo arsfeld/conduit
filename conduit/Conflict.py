@@ -17,18 +17,11 @@ from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
 import conduit.Utils as Utils
 
-#ENUM represeting the images drawn by ArrowCellRenderer
-RIGHT_ARROW = 0
-CROSS = 1
-LEFT_ARROW = 2
-DOUBLE_ARROW = 3
-NO_ARROW = 4
-
 #ENUM of directions when resolving a conflict
-CONFLICT_COPY_SOURCE_TO_SINK = RIGHT_ARROW  #right drawn arrow
-CONFLICT_SKIP = CROSS                       #dont draw an arrow - draw a -x-
-CONFLICT_COPY_SINK_TO_SOURCE = LEFT_ARROW   #left drawn arrow
-CONFLICT_BOTH = DOUBLE_ARROW                #double headed arrow
+CONFLICT_SKIP = 0                   #dont draw an arrow - draw a -x-
+CONFLICT_COPY_SOURCE_TO_SINK = 1    #right drawn arrow
+CONFLICT_COPY_SINK_TO_SOURCE = 2    #left drawn arrow
+CONFLICT_DELETE = 3                 #double headed arrow
 
 #Indexes into the conflict tree model in which 
 #conflict data is stored
@@ -264,6 +257,10 @@ class ConflictResolver:
         resolved = []
 
         def _resolve_func(model, path, rowref):
+            #skip header rows
+            if model.iter_depth(rowref) == 0:
+                return
+            #do as the user inducated with the arrow
             if model[path][DIRECTION_IDX] == CONFLICT_SKIP:
                 logd("Not resolving")
                 return
@@ -361,6 +358,8 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
                     os.path.join(conduit.SHARED_DATA_DIR, "conflict-right.png"))
     SKIP_IMAGE = gtk.gdk.pixbuf_new_from_file(
                     os.path.join(conduit.SHARED_DATA_DIR, "conflict-skip.png"))
+    DELETE_IMAGE = gtk.gdk.pixbuf_new_from_file(
+                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-twoway.png"))
 
     def __init__(self):
         gtk.GenericCellRenderer.__init__(self)
@@ -400,6 +399,8 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
             self.image = ConflictCellRenderer.RIGHT_IMAGE
         elif direction == CONFLICT_SKIP:
             self.image = ConflictCellRenderer.SKIP_IMAGE
+        elif direction == CONFLICT_DELETE:
+            self.image = ConflictCellRenderer.DELETE_IMAGE
         else:
             self.image = None
 
@@ -407,10 +408,12 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
         model = widget.get_model()
         #Click toggles between --> and <-- and -x- but only within the list
         #of valid choices
-        if model[path][DIRECTION_IDX] == model[path][AVAILABLE_DIRECTIONS_IDX][-1]:
+        curIdx = list(model[path][AVAILABLE_DIRECTIONS_IDX]).index(model[path][DIRECTION_IDX])
+
+        if curIdx == len(model[path][AVAILABLE_DIRECTIONS_IDX]) - 1:
             model[path][DIRECTION_IDX] = model[path][AVAILABLE_DIRECTIONS_IDX][0]
         else:
-            model[path][DIRECTION_IDX] += 1
+            model[path][DIRECTION_IDX] = model[path][AVAILABLE_DIRECTIONS_IDX][curIdx+1]
 
         return True
 
