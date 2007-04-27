@@ -82,7 +82,9 @@ class Conduit(goocanvas.GroupModel, gobject.GObject):
         dataproviders and adjusts the status text on the canvas
         accordingly
         """
-        self.update_status_text(dataprovider,dataprovider.get_status_text())
+        #FIXME: CAUSES SEG FAULT. NEED TO DEBUG        
+        #self.update_status_text(dataprovider,dataprovider.get_status_text())
+        pass
     
     def get_conduit_dimensions(self):
         """
