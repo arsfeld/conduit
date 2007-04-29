@@ -598,8 +598,7 @@ class Connector(goocanvas.GroupModel):
         self.twoway = False
 
         #The path is a goocanvas.Path element. 
-        self.path = goocanvas.PathModel(data="",stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
-        self._draw_path()
+        self.path = goocanvas.PathModel(data=self._draw_path(),stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
         self.add_child(self.path,-1)
 
         self.left_end_round = goocanvas.EllipseModel(
@@ -687,8 +686,7 @@ class Connector(goocanvas.GroupModel):
                                     0,r,r,r,                #quarter circle
                                     self.toX,self.toY       #absolute line to point
                                     )
-        #Asign to the internal path object
-        self.path.set_property("data",p)
+        return p
             
     def resize_connector_width(self, dw):
         """
@@ -699,7 +697,7 @@ class Connector(goocanvas.GroupModel):
         """
         #Only the X location changes
         self.toX += dw
-        self._draw_path()
+        self.path.set_property("data", self._draw_path())
         self._draw_arrow_ends()
 
     def set_color(self, color):
