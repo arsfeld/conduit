@@ -354,12 +354,18 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 logd("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
                 logd("Conflict Policy: Ask")
+                if sourceWrapper.module_type in ["twoway", "sink"]:
+                    #in twoway case the user can copy back
+                    avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_COPY_SINK_TO_SOURCE)
+                else:
+                    avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK)
+
                 gobject.idle_add(self.emit,"sync-conflict", 
                             sourceWrapper, 
                             fromData, 
                             sinkWrapper, 
                             toData, 
-                            (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_COPY_SINK_TO_SOURCE),
+                            avail,
                             False
                             )
             elif self.policy["conflict"] == "replace":

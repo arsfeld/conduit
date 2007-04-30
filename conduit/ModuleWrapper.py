@@ -81,7 +81,7 @@ class ModuleWrapper:
         if type(initargs) == tuple:
             self.initargs = initargs
         else:
-            logw("BAD PROGRAMMER ---- INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
+            logw("INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
             self.initargs = ()
         self.module = module
         self.enabled = enabled

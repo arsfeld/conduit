@@ -269,11 +269,18 @@ class ConflictResolver:
                 data = model[path][SOURCE_DATA_IDX]
                 source = model[path][SOURCE_IDX]                
                 sink = model[path][SINK_IDX]
-            else:
+            elif model[path][DIRECTION_IDX] == CONFLICT_COPY_SINK_TO_SOURCE:
                 logd("Resolving source <-- sink data")
                 data = model[path][SINK_DATA_IDX]
                 source = model[path][SINK_IDX]
                 sink = model[path][SOURCE_IDX]
+            elif model[path][DIRECTION_IDX] == CONFLICT_DELETE:
+                logd("Resolving deletion  --->")
+                data = model[path][SOURCE_DATA_IDX]
+                source = model[path][SOURCE_IDX]
+                sink = model[path][SINK_IDX]
+            else:
+                logw("Unknown resolution")
 
             deleted = model[path][IS_DELETED_CONFLICT_IDX]
 
