@@ -221,7 +221,7 @@ class ConflictResolver:
             self.partnerships[(source,sink)] = self.model.append(None, rowdata)
 
         #update the expander label and the standalone window title
-        self._set_conflict_titles()
+        #self._set_conflict_titles()
 
     def on_expand(self, sender):
         pass
