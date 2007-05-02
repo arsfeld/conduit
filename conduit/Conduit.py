@@ -660,8 +660,16 @@ class Connector(goocanvas.GroupModel):
         connector between a datasource and datasink. Then assigns the path
         to the internal path object
         """
+        if self.toX < self.fromX:
+            #prevent the initial redraw from calculating an invalid, -ve toX point
+            p = "M%s,%s "           \
+                "L%s,%s "       %   (
+                                    self.fromX,self.fromY,  #absolute start point
+                                    self.fromX,self.fromY   #absolute line to point
+                                    )
+
         #Dont build curves if its just a dead horizontal link
-        if self.fromY == self.toY:
+        elif self.fromY == self.toY:
             #draw simple straight line
             p = "M%s,%s "           \
                 "L%s,%s "       %   (
@@ -686,6 +694,7 @@ class Connector(goocanvas.GroupModel):
                                     0,r,r,r,                #quarter circle
                                     self.toX,self.toY       #absolute line to point
                                     )
+        print p
         return p
             
     def resize_connector_width(self, dw):
@@ -696,9 +705,10 @@ class Connector(goocanvas.GroupModel):
         @type dw: C{int}
         """
         #Only the X location changes
-        self.toX += dw
-        self.path.set_property("data", self._draw_path())
-        self._draw_arrow_ends()
+        if dw != 0:
+            self.toX += dw
+            self.path.set_property("data", self._draw_path())
+            self._draw_arrow_ends()
 
     def set_color(self, color):
         """
