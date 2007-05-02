@@ -151,6 +151,9 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         else:
             uid = self.remoteTomboy.CreateNote()
         
+        #hackery because python dbus bindings dont marshal dbus.String to str
+        uid = str(uid)
+
         if uid == "":
             raise Exceptions.SyncronizeError("Error creating Tomboy note")
 
