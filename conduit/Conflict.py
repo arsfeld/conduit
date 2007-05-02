@@ -215,10 +215,12 @@ class ConflictResolver:
 
         self.numConflicts += 1
         rowdata = ( source, sourceData, sink, sinkData, CONFLICT_SKIP, validChoices, isDeleted)
-        if (source,sink) in self.partnerships:
-            self.model.append(self.partnerships[(source,sink)], rowdata)  
-        else:
-            self.partnerships[(source,sink)] = self.model.append(None, rowdata)
+        if (source,sink) not in self.partnerships:
+            #create a header row
+            headerdata = (source, None, sink, None, CONFLICT_SKIP, (), False)
+            self.partnerships[(source,sink)] = self.model.append(None, headerdata)
+
+        self.model.append(self.partnerships[(source,sink)], rowdata)  
 
         #update the expander label and the standalone window title
         #self._set_conflict_titles()
