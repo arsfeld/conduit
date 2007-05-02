@@ -1,4 +1,12 @@
-import evolution as evo
+try:
+    import evolution as evo
+
+    MODULES = {
+    	"EvoContactSource" : { "type": "dataprovider" }	
+    }
+except ImportError:
+    MODULES = {}
+
 
 import conduit
 from conduit import log,logd,logw
