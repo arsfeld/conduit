@@ -541,6 +541,10 @@ class ConduitAboutDialog(gtk.AboutDialog):
 class ConduitStatusIcon(gtk.StatusIcon):
     def __init__(self, conduitApplication):
         gtk.StatusIcon.__init__(self)
+
+        #we need some custom icons
+        gtk.icon_theme_get_default().prepend_search_path(conduit.SHARED_DATA_DIR)
+
         self.conduitApplication = conduitApplication
         menu = '''
             <ui>

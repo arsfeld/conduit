@@ -53,6 +53,9 @@ desktop_in_files = conduit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
+pixmapdir = $(datadir)/pixmaps
+pixmap_DATA = conduit-icon.png
+
 ################################################################################
 # DBus 
 ################################################################################
