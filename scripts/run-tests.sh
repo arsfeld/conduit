@@ -16,7 +16,7 @@ Options:\n\
     -c      Code coverage analysis\n\
     -u      Upload results\n\
     -p      Prepare some files on remote servers\n\
-    -s NAME Perform only the test called NAME\n\n\
+    -s NAME Perform only the test called NAME\n\
     -o      Offline. Skip tests that require a net connection\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
@@ -34,7 +34,8 @@ do_upload=0
 do_prepare=0
 do_single_test="x"
 do_online="TRUE"
-while getopts "cups:o" options
+do_debug=0
+while getopts "cups:od" options
 do
     case $options in
         c )     do_coverage=1;;
@@ -42,6 +43,7 @@ do
         p )     do_prepare=1;;
         s )     do_single_test=$OPTARG;;
         o )     do_online="FALSE";;
+        d )     do_debug=1;;
         \? )    echo -e $USAGE
                 exit 1;;
         * )     echo -e $USAGE
@@ -103,13 +105,23 @@ do
             EXEC="$t"
         fi
 
-        #run the test
-        TEST_DIRECTORY=$TEST_DATA_DIR \
-        COVERAGE_FILE="$LOGDIR/.coverage" \
-        CONDUIT_LOGFILE=$logfile \
-        CONDUIT_ONLINE=$do_online \
-        python $EXEC 2> /dev/null | \
-        tee --append $indexfile
+        #code coverage analysis?
+        if [ $do_debug -eq 1 ] ; then
+            #run the test
+            TEST_DIRECTORY=$TEST_DATA_DIR \
+            COVERAGE_FILE="$LOGDIR/.coverage" \
+            CONDUIT_LOGFILE=$logfile \
+            CONDUIT_ONLINE=$do_online \
+            python $t
+        else
+            #run the test
+            TEST_DIRECTORY=$TEST_DATA_DIR \
+            COVERAGE_FILE="$LOGDIR/.coverage" \
+            CONDUIT_LOGFILE=$logfile \
+            CONDUIT_ONLINE=$do_online \
+            python $EXEC 2> /dev/null | \
+            tee --append $indexfile
+        fi
 
         #html
         echo "</pre></p>" >> $indexfile

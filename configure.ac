@@ -1,46 +1,22 @@
-AC_PREREQ(2.57)
 AC_INIT([conduit], [0.3.0],[mailto:john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
-
 AC_CONFIG_SRCDIR(conduit/__init__.py)
-AC_CONFIG_HEADERS(config.h)
-AC_CONFIG_MACRO_DIR([m4])
-
 AM_MAINTAINER_MODE
-
-AC_PROG_CC
-AC_ISC_POSIX
-AC_HEADER_STDC
-AC_PROG_LIBTOOL
-
-################################################################################
-# GNOME
-################################################################################
-GNOME_COMMON_INIT
-
-################################################################################
-# Python 2.4
-################################################################################
-AM_PATH_PYTHON(2.4)
 
 ################################################################################
 # Translation & i18n
 ################################################################################
 GETTEXT_PACKAGE="conduit"
-IT_PROG_INTLTOOL([0.35.0])
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [The gettext package])
+AC_SUBST([GETTEXT_PACKAGE])
+AC_DEFINE_UNQUOTED([GETTEXT_PACKAGE], "$GETTEXT_PACKAGE", [Gettext package])
 AM_GLIB_GNU_GETTEXT
-
-################################################################################
-# GConf support
-################################################################################
-#AC_PATH_PROG(GCONFTOOL, gconftool-2)
-#AM_GCONF_SOURCE_2
+IT_PROG_INTLTOOL([0.35.0])
 
 ################################################################################
 # Requirements
 ################################################################################
+AM_PATH_PYTHON(2.4)
+
 #Dont actually need any devel modules at the moment - bindings are out of tree
 PKG_CHECK_MODULES(CONDUIT,
 	gtk+-2.0				>= 2.10
@@ -66,6 +42,22 @@ except:
 else
   AC_MSG_RESULT([no])
   AC_MSG_ERROR([Python module vobject required to run conduit])
+fi
+
+AC_MSG_CHECKING([for goocanvas module])
+if AC_RUN_LOG([$PYTHON -c '
+try:
+    import goocanvas
+except ImportError, e:
+    if str(e).find("goocanvas") >= 0:
+          raise
+except:
+    pass
+']); then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([Python module goocanvas required to run conduit])
 fi
 
 ################################################################################
