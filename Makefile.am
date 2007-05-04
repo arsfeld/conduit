@@ -11,14 +11,6 @@ release: dist doap.rdf
 	svn cp ../trunk/ ../tags/$(VERSION)	
 	scp $(PACKAGE)-$(VERSION).tar.gz $(WEBROOT)
 
-dist-hook:
-	echo "FOO" > ChangeLog.new
-	mv -f ChangeLog.new $(distdir)/ChangeLog
-	echo "FOO" > NEWS.new
-	mv -f NEWS.new $(distdir)/NEWS
-	echo "FOO" > TODO.new
-	mv -f TODO.new $(distdir)/TODO
-
 DISTCLEANFILES = \
 	intltool-extract \
 	intltool-merge \
@@ -35,12 +27,21 @@ EXTRA_DIST = \
 	doap.rdf.in
 
 #Update ChangeLog, NEWS and TODO from http://www.conduit-project.org
+dist-hook:
+	./scripts/svn2cl.sh --output=ChangeLog.new
+	mv -f ChangeLog.new $(distdir)/ChangeLog
+	wget -q -O NEWS.new \
+		"http://www.conduit-project.org/wiki/$(VERSION)?format=txt"
+	mv -f NEWS.new $(distdir)/NEWS
+	wget -q -O TODO.new \
+		"http://www.conduit-project.org/wiki/TODO?format=txt"
+	mv -f TODO.new $(distdir)/TODO
+
 #dist-hook:
-#	./scripts/svn2cl.sh --output=ChangeLog.new
+#	echo "FOO" > ChangeLog.new
 #	mv -f ChangeLog.new $(distdir)/ChangeLog
-#	wget -q -O NEWS.new \
-#		"http://www.conduit-project.org/wiki/$(VERSION)?format=txt"
+#	echo "FOO" > NEWS.new
 #	mv -f NEWS.new $(distdir)/NEWS
-#	wget -q -O TODO.new \
-#		"http://www.conduit-project.org/wiki/TODO?format=txt"
+#	echo "FOO" > TODO.new
 #	mv -f TODO.new $(distdir)/TODO
+
