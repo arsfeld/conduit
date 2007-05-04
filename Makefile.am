@@ -28,11 +28,16 @@ EXTRA_DIST = \
 
 #Update ChangeLog, NEWS and TODO from http://www.conduit-project.org
 dist-hook:
-	./scripts/svn2cl.sh --output=ChangeLog.new
-	mv -f ChangeLog.new $(distdir)/ChangeLog
+	echo "" > ChangeLog.new
+	if [ -d '.svn' ]; then \
+		svn2cl.sh --output=ChangeLog.new; \
+	fi
+	mv -f ChangeLog.new $(distdir)/ChangeLog;
+
 	wget -q -O NEWS.new \
 		"http://www.conduit-project.org/wiki/$(VERSION)?format=txt"
 	mv -f NEWS.new $(distdir)/NEWS
+
 	wget -q -O TODO.new \
 		"http://www.conduit-project.org/wiki/TODO?format=txt"
 	mv -f TODO.new $(distdir)/TODO

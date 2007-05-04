@@ -84,13 +84,11 @@ PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.93 ])
 AC_ARG_WITH([session_bus_services_dir],
             AC_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
 
-if test "x$with_session_bus_services_dir" = "x" ; then
-   services_dir="`pkg-config --variable session_bus_services_dir dbus-1`"
+if test "x$with_dbus_service_dir" != "x"; then
+	DBUS_SERVICES_DIR=$with_dbus_service_dir
 else
-   services_dir="$with_session_bus_services_dir"
+	DBUS_SERVICES_DIR=${datadir}/dbus-1/services
 fi
-
-DBUS_SERVICES_DIR="$services_dir"
 AC_SUBST(DBUS_SERVICES_DIR)
 
 ################################################################################
