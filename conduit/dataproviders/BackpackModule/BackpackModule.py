@@ -57,6 +57,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
     def __init__(self, *args):
         BackpackBase.__init__(self, *args)
         DataProvider.DataSink.__init__(self)
+        self.need_configuration(True)
         
         self.storeInPage = "Conduit"
         self.pageID = None
@@ -89,6 +90,11 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             self.storeInPage = pagenameEntry.get_text()
             if apikeyEntry.get_text() != self.apikey:
                 self.apikey = apikeyEntry.get_text()
+
+            #user must enter their username
+            if len(self.username) > 0 and len(self.apikey) > 0:
+                self.set_configured(True)
+
         dlg.destroy()    
         
         
@@ -136,9 +142,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                 
         return uid
 
-    def get_configuration(self):
-        return {
-            "storeInPage" : self.storeInPage,
-            "username" : self.username,
-            "apikey" : self.apikey
-            }
+    def get_UID(self):
+        return self.username
+
+

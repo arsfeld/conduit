@@ -186,7 +186,7 @@ class FlickrSink(DataProvider.DataSink):
             self.username = username.get_text()
 
             #user must enter their username
-            if len(self.username) != "":
+            if len(self.username) > 0:
                 self.set_configured(True)
 
         dlg.destroy()    
