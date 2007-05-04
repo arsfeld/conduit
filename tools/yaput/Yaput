@@ -8,6 +8,9 @@
 # Glue and debugging:
 #   Eric Weigle <weigle@gmail.com>
 #
+# Rewritten to use Conduit (http://www.conduit-project.org)
+#   John Stowers <john.stowers@gmail.com>
+#
 # License: GNU GPL version 2.
 
 import gtk, gobject
