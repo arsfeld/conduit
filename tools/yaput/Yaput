@@ -158,6 +158,10 @@ class Uploadr:
         self.progress.set_fraction(1.0)
         if error == True:
             self.progress.set_text("Error")
+        else:
+            self.progress.set_text("Drop pictures here")
+
+        self.files = []
         self.vbox.set_sensitive(True)
 
     def sync_progress_cb(self, conduit, progress):
@@ -192,7 +196,8 @@ class Uploadr:
                 gtk.main_iteration(False)
                 time.sleep(0.05)
 
-            self.files.append(filename)
+            if filename not in self.files:
+                self.files.append(filename)
 
             ###
             # Add the file to conduit
