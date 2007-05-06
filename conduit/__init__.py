@@ -115,7 +115,7 @@ def memstats(prev=(0.0,0.0,0.0)):
 name = os.path.join(os.path.dirname(__file__), '..')
 
 APPNAME =                   "Conduit"
-APPVERSION =                "0.3.0"
+APPVERSION =                "0.3.1"
 IS_INSTALLED =              False
 IS_DEVELOPMENT_VERSION =    True
 SHARED_DATA_DIR =           os.path.join(os.path.abspath(name),"data")
