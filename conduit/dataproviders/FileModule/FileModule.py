@@ -4,8 +4,6 @@ import traceback
 import threading
 import gobject
 import time
-import urllib
-
 
 import conduit
 from conduit import log,logd,logw
@@ -550,11 +548,12 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
     def get(self, index):
         DataProvider.DataSource.get(self, index)
         item = self._get_files_from_db()[index]
-        filename = urllib.unquote(item['uri'])
+        #gnomevfs seems to escape spaces to %20
+        filename = Utils.unescape(item['uri'])
         f = File.File(
-                    URI=filename,
-                    basepath=item['basepath'],
-                    group=item['group']
+                    URI=        filename,
+                    basepath=   Utils.unescape( item['basepath'] ),
+                    group=      item['group']
                     )
         f.set_open_URI(filename)
         f.set_UID(filename)
@@ -767,10 +766,10 @@ class FolderTwoWay(DataProvider.TwoWay):
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
         #remove %20 from spaces
-        filename = urllib.unquote(self.files[index])
+        filename = Utils.unescape(self.files[index])
         f = File.File(
                     URI=filename,
-                    basepath=self.folder,
+                    basepath=Utils.unescape(self.folder),
                     group=self.folderGroupName
                     )
         f.set_open_URI(filename)

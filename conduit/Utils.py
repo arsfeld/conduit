@@ -17,6 +17,7 @@ import gnomevfs
 import socket
 import datetime
 import time
+import urllib
 
 from conduit import log,logd,logw
 import conduit.datatypes.File as File
@@ -193,4 +194,17 @@ def datetime_get_timestamp(d):
         raise Exception("Timestamps before 1970 are not valid")
 
     return long(f)
+
+def escape(s):
+    """
+    Escapes a path or filename of special characters
+    """
+    return gnomevfs.escape_host_and_path_string(s)
+
+def unescape(s):
+    """
+    Unescapes a quoted string presumably created by above
+    """
+    #the urllib implementation seems more reliable than gnomevfs.unescape
+    return urllib.unquote(s)
 

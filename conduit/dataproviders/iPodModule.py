@@ -19,8 +19,6 @@ import conduit.Module as Module
 import conduit.Utils as Utils
 from conduit.datatypes import DataType
 
-from gettext import gettext as _
-
 from conduit.DataProvider import DataSource
 from conduit.DataProvider import DataSink
 from conduit.DataProvider import TwoWay
@@ -128,8 +126,8 @@ class IPodNoteTwoWay(IPodBase):
     LUID is the note title
     """
 
-    _name_ = _("Notes")
-    _description_ = _("Sync your iPod notes")
+    _name_ = "iPod Notes"
+    _description_ = "Sync your iPod notes"
     _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"
@@ -263,8 +261,8 @@ class IPodNoteTwoWay(IPodBase):
 
 class IPodContactsTwoWay(IPodBase):
 
-    _name_ = _("Contacts")
-    _description_ = _("Sync your iPod contacts")
+    _name_ = "iPod Contacts"
+    _description_ = "Sync your iPod contacts"
     _module_type_ = "twoway"
     _in_type_ = "contact"
     _out_type_ = "contact"
@@ -309,8 +307,8 @@ class IPodContactsTwoWay(IPodBase):
 
 class IPodCalendarTwoWay(IPodBase):
 
-    _name_ = _("Calendar")
-    _description_ = _("Sync your iPod calendar")
+    _name_ = "Calendar"
+    _description_ = "Sync your iPod calendar"
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"
