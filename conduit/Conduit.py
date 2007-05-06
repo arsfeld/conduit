@@ -662,10 +662,11 @@ class Connector(goocanvas.GroupModel):
         """
         if self.toX < self.fromX:
             #prevent the initial redraw from calculating an invalid, -ve toX point
+            #FIXME: Hardcoded number stops goocanvas segfault at initial construction
             p = "M%s,%s "           \
                 "L%s,%s "       %   (
                                     self.fromX,self.fromY,  #absolute start point
-                                    self.fromX,self.fromY   #absolute line to point
+                                    317,self.fromY   #absolute line to point
                                     )
 
         #Dont build curves if its just a dead horizontal link
@@ -707,7 +708,8 @@ class Connector(goocanvas.GroupModel):
         #Only the X location changes
         if dw != 0:
             self.toX += dw
-            self.path.set_property("data", self._draw_path())
+            #FIXME: Stop segfault. Fix goocanvas
+            #self.path.set_property("data", self._draw_path())
             self._draw_arrow_ends()
 
     def set_color(self, color):
