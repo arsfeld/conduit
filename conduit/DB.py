@@ -23,6 +23,16 @@ class MappingDB:
     def __init__(self):
         self._db = None
 
+    def _open_db(self,f):
+        """
+        Blindly opens the mappingDB. Throws exceptions if the db is corrupt
+        """
+        self._db = SimpleDb(f)
+        self._db.create("sourceUID","sourceDataLUID", "sinkUID", "sinkDataLUID","mtime", mode="open")
+        #We access the DB via all fields so all need indices
+        self._db.create_index(*self._db.fields)
+
+
     def get_mappings_for_dataproviders(self, sourceUID, sinkUID):
         """
         Gets all the data mappings for the dataprovider pair
@@ -30,14 +40,19 @@ class MappingDB:
         """
         return [i for i in self._db if i["sourceUID"] == sourceUID and i["sinkUID"] == sinkUID]
         
-    def open_db(self, filename):
+    def open_db(self, f):
         """
         Opens the mapping DB at the location @ filename
         """
-        self._db = SimpleDb(os.path.abspath(filename))
-        self._db.create("sourceUID","sourceDataLUID", "sinkUID", "sinkDataLUID","mtime", mode="open")
-        #We access the DB via all fields so all need indices
-        self._db.create_index(*self._db.fields)
+        filename = os.path.abspath(f)
+        try:
+            self._open_db(filename)
+        except:
+            logw("Mapping DB has become corrupted, deleting")
+            if os.path.exists(filename) and os.path.isfile(filename):
+                os.unlink(filename)
+
+            self._open_db(filename)
 
     def save_mapping(self, sourceUID, sourceDataLUID, sinkUID, sinkDataLUID, mtime):
         """
