@@ -106,8 +106,7 @@ class ConflictResolver:
         column1 = gtk.TreeViewColumn("Resolution", confRenderer)
         column1.set_cell_data_func(confRenderer, self._direction_data_func, DIRECTION_IDX)
         column1.set_property("expand", False)
-        column1.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
-        column1.set_min_width(40)
+        #column1.set_min_width(40)
 
         #Visible column2 is the display name of source and source data
         column2 = gtk.TreeViewColumn("Sink")
@@ -360,7 +359,12 @@ class ConflictResolver:
                 self.compareButton.set_sensitive(False)
 
 class ConflictCellRenderer(gtk.GenericCellRenderer):
+    """
+    An unfortunately neccessary wrapper around a CellRenderPixbuf because
+    said renderer is not activatable
+    """
 
+    #Images are 16x16
     LEFT_IMAGE = gtk.gdk.pixbuf_new_from_file(
                     os.path.join(conduit.SHARED_DATA_DIR, "conflict-left.png"))
     RIGHT_IMAGE = gtk.gdk.pixbuf_new_from_file(
@@ -376,15 +380,17 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
     def on_get_size(self, widget, cell_area):
         return  (   0,0, 
-                    ConflictCellRenderer.SKIP_IMAGE.get_property("width"), 
-                    ConflictCellRenderer.SKIP_IMAGE.get_property("height")
+                    16,16
                     )
 
     def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
         if self.image != None:
+            middle_x = (cell_area.width - 16) / 2
+            middle_y = (cell_area.height - 16) / 2  
             self.image.render_to_drawable_alpha(window,
                                             0, 0,                       #x, y in pixbuf
-                                            cell_area.x, cell_area.y,   # x, y in drawable
+                                            middle_x + cell_area.x,     #middle x in drawable
+                                            middle_y + cell_area.y,     #middle y in drawable
                                             -1, -1,                     # use pixbuf width & height
                                             0, 0,                       # alpha (deprecated params)
                                             gtk.gdk.RGB_DITHER_NONE,
