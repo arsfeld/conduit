@@ -201,6 +201,22 @@ def escape(s):
     """
     return gnomevfs.escape_host_and_path_string(s)
 
+def escape_html(s):
+    """
+    Escapes html special chars (&, <, >) for webservice dps
+    """
+    html_escape_table = {
+        "&": "&amp;",
+        '"': "&quot;",
+        "'": "&apos;",
+        ">": "&gt;",
+        "<": "&lt;",
+    }
+    L=[]
+    for c in s:
+        L.append(html_escape_table.get(c,c))
+    return "".join(L)
+
 def unescape(s):
     """
     Unescapes a quoted string presumably created by above

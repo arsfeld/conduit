@@ -66,6 +66,33 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         #and cache the results. key = note uid
         self._notes = {}
 
+    def refresh(self):
+        BackpackBase.refresh(self)
+        DataProvider.DataSink.refresh(self)
+        #First search for the pageID of the named page to put notes in
+        if self.pageID is None:
+            pages = self.ba.page.list()
+            for uid,scope,title in pages:
+                if title == self.storeInPage:
+                    self.pageID = uid
+                    logd("Found Page %s:%s:%s" % (uid,scope,title))
+
+            #Didnt find the page so create
+            if self.pageID is None:
+                try:
+                    self.pageID, foo = self.ba.page.create(self.storeInPage,"Automatically Synchronized Notes")
+                    log("Created page")
+                except backpack.BackpackError, err:
+                    log("Could not create page to store notes in (%s)" % err)
+                    #cannot continue
+                    raise Exceptions.RefreshError
+                    
+        #First put needs to cache the existing note titles and uris
+        if len(self._notes) == 0:
+            for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
+                self._notes[title] = uid
+            logd("Found existing notes: %s" % self._notes)
+
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -101,31 +128,8 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         
     def put(self, note, overwrite, LUID=None):
         DataProvider.DataSink.put(self, note, overwrite, LUID)
-        #First search for the pageID of the named page to put notes in
-        if self.pageID is None:
-            pages = self.ba.page.list()
-            for uid,scope,title in pages:
-                if title == self.storeInPage:
-                    self.pageID = uid
-                    logd("Found Page %s:%s:%s" % (uid,scope,title))
-            #Didnt find the page so create
-            if self.pageID is None:
-                try:
-                    self.pageID, foo = self.ba.page.create(self.storeInPage,"Automatically Synchronized Notes")
-                    log("Created page")
-                except backpack.BackpackError, err:
-                    log("Could not create page to store notes in (%s)" % err)
-                    #cannot continue
-                    raise Exceptions.SyncronizeFatalError
-                    
-        #First put needs to cache the existing note titles and uris
-        if len(self._notes) == 0:
-            for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
-                self._notes[title] = uid
-            logd("Found existing notes: %s" % self._notes)
-        
-        #FIXME: implement overwrite and LUID behaviour
 
+        #FIXME: implement overwrite and LUID behaviour
         #If all that went well then actually store some notes.
         uid = None
         try:
@@ -142,6 +146,16 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             raise Exceptions.SyncronizeError
                 
         return uid
+
+    def delete(self, LUID):
+        if LUID in self._notes.values():
+            try:
+                self.ba.notes.destroy(self.pageID,LUID)
+            except backpack.BackpackError, err:
+                log("Could delete note (%s)" % err)
+                raise Exceptions.SyncronizeError
+        else:
+            logd("Could not find note")
 
     def get_UID(self):
         return "%s:%s" % (self.username,self.storeInPage)
