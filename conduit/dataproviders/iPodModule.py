@@ -38,17 +38,16 @@ MODULES = {
 
 def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
     # fixme: gnomevfs is a pain :-(, this function sucks, someone make it nicer? :(
-    if gnomevfs.exists(str(os.path.join(uri, prefix + postfix))):
-        for i in range(1, 100):
-            if False == gnomevfs.exists(str(os.path.join(uri, prefix + str(i) + postfix))):
-                break
-        uri = str(os.path.join(uri, prefix + str(i) + postfix))
-    else:
-        uri = str(os.path.join(uri, prefix + postfix))
+    for i in range(1, 10000):
+        if False == gnomevfs.exists(str(os.path.join(uri, prefix + str(i) + postfix))):
+            break
+    
+    luid = prefix + str(i) + postfix
+    uri = str(os.path.join(uri, luid))
 
     temp = Utils.new_tempfile(txt)
     temp.transfer(uri, True)
-    return uri
+    return luid
 
 class iPodFactory(Module.DataProviderFactory):
     def __init__(self, **kwargs):
@@ -66,6 +65,8 @@ class iPodFactory(Module.DataProviderFactory):
         for device_type, udi, mount, name in self.hal.get_all_ipods():
             self._ipod_added(None, udi, mount, name)
 
+        self._ipod_added(None, "FAKEIPOD", "/home/john/fake-ipod", "John")
+
     def _ipod_added(self, hal, udi, mount, name):
         """ New iPod has been discovered """
         cat = DataProvider.DataProviderCategory(
@@ -74,7 +75,7 @@ class iPodFactory(Module.DataProviderFactory):
                     mount)
 
         keys = []
-        for klass in [IPodNoteTwoWay]:#, IPodContactsTwoWay, IPodCalendarTwoWay]:
+        for klass in [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]:
             key = self.emit_added(
                            klass,            # Dataprovider class
                            (mount,udi,),     # Init args
@@ -279,12 +280,17 @@ class IPodContactsTwoWay(IPodBase):
         
         self.contacts = []
 
+        #Also checks directory exists
+        if not os.path.exists(self.dataDir):
+            os.mkdir(self.dataDir)
+
         for f in os.listdir(self.dataDir):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 try:
                     contact = Contact.Contact(None)
                     contact.set_from_vcard_string(open(fullpath,'r').read())
+                    contact.set_UID(f)
                     self.contacts.append(contact)
                 except:
                     pass
@@ -299,7 +305,18 @@ class IPodContactsTwoWay(IPodBase):
 
     def put(self, contact, overwrite, LUID=None):
         TwoWay.put(self, contact, overwrite, LUID)
-        _string_to_unqiue_file(str(contact), self.dataDir, 'contact')
+
+        if LUID != None:
+            f = Utils.new_tempfile(contact.get_vcard_string())
+            f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
+            return LUID
+        
+        return _string_to_unqiue_file(contact.get_vcard_string(), self.dataDir, 'contact')
+
+    def delete(self, LUID):
+        contact = File.File(URI=os.path.join(self.dataDir, LUID))
+        if contact.exists():
+            contact.delete()    
 
     def finish(self):
         TwoWay.finish(self)
@@ -325,12 +342,17 @@ class IPodCalendarTwoWay(IPodBase):
         
         self.events = []
 
+        #Also checks directory exists
+        if not os.path.exists(self.dataDir):
+            os.mkdir(self.dataDir)
+
         for f in os.listdir(self.dataDir):
             fullpath = os.path.join(self.dataDir, f)
             if os.path.isfile(fullpath):
                 try:
                     event = Event.Event(None)
                     event.set_from_ical_string(open(fullpath,'r').read())
+                    event.set_UID(f)
                     self.events.append(event)
                 except:
                     pass
@@ -345,7 +367,18 @@ class IPodCalendarTwoWay(IPodBase):
 
     def put(self, event, overwrite, LUID=None):
         TwoWay.put(self, event, overwrite, LUID)
-        _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
+
+        if LUID != None:
+            f = Utils.new_tempfile(event.get_ical_string())
+            f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
+            return LUID
+
+        return _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
+
+    def delete(self, LUID):
+        contact = File.File(URI=os.path.join(self.dataDir, LUID))
+        if contact.exists():
+            contact.delete()    
 
     def finish(self):
         TwoWay.finish(self)
