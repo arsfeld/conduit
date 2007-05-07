@@ -202,7 +202,7 @@ class FlickrSink(DataProvider.DataSink):
 
     def set_configuration(self, config):
         DataProvider.DataSink.set_configuration(self, config)
-        if len(self.username) != "":
+        if len(self.username) != 0:
             self.set_configured(True)
 
     def get_UID(self):

@@ -79,6 +79,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         
         #preload the widgets
         usernameEntry.set_text(self.username)
+        apikeyEntry.set_text(self.apikey)
         pagenameEntry.set_text(self.storeInPage)        
         
         dlg = tree.get_widget("BackpackNotesSinkConfigDialog")
@@ -133,7 +134,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                 uid = self._notes[note.title]
                 self.ba.notes.update(self.pageID,uid,note.title,note.contents)
             else:
-                logd("Creating New")
+                logd("Creating New (title: %s)" % note.title)
                 uid,title,mtime,content = self.ba.notes.create(self.pageID,note.title,note.contents)
                 self._notes[note.title] = uid
         except backpack.BackpackError, err:
@@ -143,6 +144,19 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         return uid
 
     def get_UID(self):
-        return self.username
+        return "%s:%s" % (self.username,self.storeInPage)
+
+    def set_configuration(self, config):
+        DataProvider.DataSink.set_configuration(self, config)
+        if len(self.username) > 0 and len(self.apikey) > 0:
+            self.set_configured(True)
+
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "apikey" : self.apikey,
+            "storeInPage" : self.storeInPage
+            }
+
 
 
