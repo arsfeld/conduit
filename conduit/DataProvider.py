@@ -10,6 +10,7 @@ import gobject
 import goocanvas
 from gettext import gettext as _
 import xml.dom.minidom
+import traceback
 
 import conduit
 from conduit import log,logd,logw
@@ -412,16 +413,17 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
                     callable(getattr(self, c, None)))
                     )
 
-    def set_configuration_xml(self, xmltext):
+    def set_configuration_xml(self, xmltext, configxml=None):
         """
         Restores applications settings from XML
 
         @param xmltext: xml representation of settings
         @type xmltext: C{string}
         """
-        doc = xml.dom.minidom.parseString(xmltext)
+        if configxml == None:
+            doc = xml.dom.mnidom.parseString(xmltext)
+            configxml = doc.documentElement
 
-        configxml = doc.documentElement
         if configxml.nodeType == configxml.ELEMENT_NODE and configxml.localName == "configuration":
             settings = {}
             for s in configxml.childNodes:
@@ -439,7 +441,11 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
                         logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
                         settings[s.localName] = data
 
-            self.set_configuration(settings)
+            try:
+                self.set_configuration(settings)
+            except Exception, err: 
+                logw("Error restoring %s configuration\n%s" % 
+                        (self._name_, traceback.format_exc()))
         else:
             logd("Could not find <configuration> xml fragment")
 

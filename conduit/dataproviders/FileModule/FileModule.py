@@ -575,20 +575,11 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
         self.db = None
 
     def set_configuration(self, config):
-        try:
-            files = config["files"]
-            folders = config["folders"]
-            for f in files:
-                #FIXME: Hack because we PrettyPrint xml and cannot xml.dom.ext.StripXml(doc) it
-                #see http://mail.python.org/pipermail/xml-sig/2004-September/010563.html
-                #the solution is to ????
-                if Utils.get_protocol(f) != "":
-                    self.items.append((f,TYPE_SINGLE_FILE,0,False,"",[]))
-            for f in folders:
-                if Utils.get_protocol(f) != "":
-                    self.items.append((f,TYPE_FOLDER,0,False,"",[]))
-        except: 
-            logw("Error restoring FileSource configuration")
+        for f in config.get("files",[]):
+            self.items.append((f,TYPE_SINGLE_FILE,0,False,"",[]))
+        for f in config.get("folders",[]):
+            if Utils.get_protocol(f) != "":
+                self.items.append((f,TYPE_FOLDER,0,False,"",[]))
 
     def get_configuration(self):
         files = []

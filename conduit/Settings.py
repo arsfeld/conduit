@@ -301,45 +301,25 @@ class Settings(gobject.GObject):
         SORRY ABOUT THE UGLYNESS AND COMPLETE LACK OF ROBUSTNESS
         """
         log("Restoring Sync Set")
-        def get_settings(xml):
-            """
-            Makes a dict of dataprovider settings (settings are child nodes
-            of dataproviders and in the form <settingname>value</settingname>
-            """
-            settings = {}
-            for i in xml.childNodes:
-                if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
-                    for s in i.childNodes:
-                        if s.nodeType == s.ELEMENT_NODE:
-                            #now convert the setting to the correct type
-                            raw = s.childNodes[0].data
-                            vtype = s.getAttribute("type")
-                            try:
-                                data = Settings.STRING_TO_TYPE[vtype](raw)
-                            except KeyError:
-                                #fallback to string type
-                                logw("Cannot convert string (%s) to native type %s" % (raw, vtype))
-                                traceback.print_exc()
-                                data = str(raw)
-                            logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
-                            settings[s.localName] = data
-            return settings
-            
-        def restore_dataprovider(wrapperKey, dpSettings, x, y):
+           
+        def restore_dataprovider(wrapperKey, dpxml, x, y):
             """
             Adds the dataprovider back onto the canvas at the specifed
             location and configures it with the given settings
             
             @returns: The conduit the dataprovider was restored to
             """
-            #logd("Restoring %s to (x=%s,y=%s)" % (wrapperKey,x,y))
             conduit = None
+
+            logd("Restoring %s to (x=%s,y=%s)" % (wrapperKey,x,y))
             wrapper = mainWindow.moduleManager.get_new_module_instance(wrapperKey)
             if wrapper is not None:
-                wrapper.module.set_configuration(dpSettings)
+                for i in dpxml.childNodes:
+                    if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
+                        wrapper.module.set_configuration_xml(xmltext="", configxml=i)
+
             conduit = mainWindow.canvas.add_dataprovider_to_canvas(wrapperKey, wrapper, x, y)
-            #else:
-            #    logw("Could not restore %s to (x=%s,y=%s)" % (wrapperKey,x,y))
+
             return conduit
 
         #Check the file exists
@@ -370,20 +350,18 @@ class Settings(gobject.GObject):
                     #one datasource
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
                         key = i.getAttribute("key")
-                        settings = get_settings(i)
                         #add to canvas
                         if len(key) > 0:
-                            conduit = restore_dataprovider(key,settings,x,y)
+                            conduit = restore_dataprovider(key,i,x,y)
                     #many datasinks
                     elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
                         #each datasink
                         for sink in i.childNodes:
                             if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
                                 key = sink.getAttribute("key")
-                                settings = get_settings(sink)
                                 #add to canvas
                                 if len(key) > 0:
-                                    conduit = restore_dataprovider(key,settings,x,y)
+                                    conduit = restore_dataprovider(key,sink,x,y)
 
                     #restore conduit specific settings
                     if conduit != None:
@@ -394,3 +372,4 @@ class Settings(gobject.GObject):
         except:
             logw("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
             os.remove(self.xmlSettingFilePath)
+
