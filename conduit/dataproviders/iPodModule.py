@@ -281,9 +281,11 @@ class IPodContactsTwoWay(IPodBase):
         TwoWay.get(self, index)
         uid = self.objects[index]
         fullpath = os.path.join(self.dataDir, uid)
+        f = File.File(URI=fullpath)
 
         contact = Contact.Contact(None)
-        contact.set_from_vcard_string(open(fullpath, 'r').read())
+        contact.set_from_vcard_string(f.get_contents_as_text())
+        contact.set_mtime(f.get_mtime())
         contact.set_UID(uid)
         return contact
 
@@ -314,9 +316,11 @@ class IPodCalendarTwoWay(IPodBase):
         TwoWay.get(self, index)
         uid = self.objects[index]
         fullpath = os.path.join(self.dataDir, uid)
+        f = File.File(URI=fullpath)
 
         event = Event.Event(None)
-        event.set_from_ical_string(open(fullpath,'r').read())
+        event.set_from_ical_string(f.get_contents_as_text())
+        event.set_mtime(f.get_mtime())
         event.set_UID(uid)
         return event
 
