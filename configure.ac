@@ -60,6 +60,22 @@ else
   AC_MSG_ERROR([Python module goocanvas required to run conduit])
 fi
 
+AC_MSG_CHECKING([for dateutil module])
+if AC_RUN_LOG([$PYTHON -c '
+try:
+    import dateutil
+except ImportError, e:
+    if str(e).find("dateutil") >= 0:
+          raise
+except:
+    pass
+']); then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+  AC_MSG_ERROR([Python module dateutil required to run conduit])
+fi
+
 ################################################################################
 # Check for evolution-python to build the evolution dataprovider
 ################################################################################
