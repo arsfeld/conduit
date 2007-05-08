@@ -95,6 +95,35 @@ class IPodBase(TwoWay):
         TwoWay.__init__(self)
         self.mountPoint = args[0]
         self.uid = args[1]
+        self.objects = None
+
+    def refresh(self):
+        TwoWay.refresh(self)
+        self.objects = []
+
+        #Also checks directory exists
+        if not os.path.exists(self.dataDir):
+            os.mkdir(self.dataDir)
+        
+        #When acting as a source, only notes in the Notes dir are
+        #considered
+        for f in os.listdir(self.dataDir):
+            fullpath = os.path.join(self.dataDir, f)
+            if os.path.isfile(fullpath):
+                self.objects.append(f)
+
+    def get_num_items(self):
+        TwoWay.get_num_items(self)
+        return len(self.objects)
+
+    def delete(self, LUID):
+        obj = File.File(URI=os.path.join(self.dataDir, LUID))
+        if obj.exists():
+            obj.delete()
+
+    def finish(self):
+        TwoWay.finish(self)
+        self.objects = None
 
     def get_UID(self):
         return self.uid
@@ -138,7 +167,7 @@ class IPodNoteTwoWay(IPodBase):
         IPodBase.__init__(self, *args)
 
         self.dataDir = os.path.join(self.mountPoint, 'Notes')        
-        self.notes = []
+        self.objects = []
 
     def _get_shadow_dir(self):
         shadowDir = os.path.join(self.mountPoint, '.conduit')
@@ -198,28 +227,9 @@ class IPodNoteTwoWay(IPodBase):
         shadowDir = self._get_shadow_dir()
         return os.path.exists(os.path.join(shadowDir,uid)) and os.path.exists(os.path.join(self.dataDir,uid))
                 
-    def refresh(self):
-        TwoWay.refresh(self)
-        self.notes = []
-
-        #Also checks directory exists
-        if not os.path.exists(self.dataDir):
-            os.mkdir(self.dataDir)
-        
-        #When acting as a source, only notes in the Notes dir are
-        #considered
-        for f in os.listdir(self.dataDir):
-            fullpath = os.path.join(self.dataDir, f)
-            if os.path.isfile(fullpath):
-                self.notes.append(f)
-
-    def get_num_items(self):
-        TwoWay.get_num_items(self)
-        return len(self.notes)
-
     def get(self, index):
         TwoWay.get(self, index)
-        uid = self.notes[index]
+        uid = self.objects[index]
         return self._get_note_from_ipod(uid)
 
     def put(self, note, overwrite, LUID=None):
@@ -248,17 +258,11 @@ class IPodNoteTwoWay(IPodBase):
         return note.title
 
     def delete(self, LUID):
-        note = File.File(URI=os.path.join(self.dataDir, LUID))
-        if note.exists():
-            note.delete()
+        IPodBase.delete(self, LUID)
 
         raw = File.File(URI=os.path.join(self._get_shadow_dir(), LUID))
         if raw.exists():
             raw.delete()
-        
-    def finish(self):
-        TwoWay.finish(self)
-        self.notes = []
 
 class IPodContactsTwoWay(IPodBase):
 
@@ -270,38 +274,18 @@ class IPodContactsTwoWay(IPodBase):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        IPodBase.__init__(self, *args)
-        
+        IPodBase.__init__(self, *args)        
         self.dataDir = os.path.join(self.mountPoint, 'Contacts')
-        self.contacts = None
-
-    def refresh(self):
-        TwoWay.refresh(self)
-        
-        self.contacts = []
-
-        #Also checks directory exists
-        if not os.path.exists(self.dataDir):
-            os.mkdir(self.dataDir)
-
-        for f in os.listdir(self.dataDir):
-            fullpath = os.path.join(self.dataDir, f)
-            if os.path.isfile(fullpath):
-                try:
-                    contact = Contact.Contact(None)
-                    contact.set_from_vcard_string(open(fullpath,'r').read())
-                    contact.set_UID(f)
-                    self.contacts.append(contact)
-                except:
-                    pass
-
-    def get_num_items(self):
-        TwoWay.get_num_items(self)
-        return len(self.contacts)
 
     def get(self, index):
         TwoWay.get(self, index)
-        return self.contacts[index]
+        uid = self.objects[index]
+        fullpath = os.path.join(self.dataDir, uid)
+
+        contact = Contact.Contact(None)
+        contact.set_from_vcard_string(open(fullpath, 'r').read())
+        contact.set_UID(uid)
+        return contact
 
     def put(self, contact, overwrite, LUID=None):
         TwoWay.put(self, contact, overwrite, LUID)
@@ -312,15 +296,6 @@ class IPodContactsTwoWay(IPodBase):
             return LUID
         
         return _string_to_unqiue_file(contact.get_vcard_string(), self.dataDir, 'contact')
-
-    def delete(self, LUID):
-        contact = File.File(URI=os.path.join(self.dataDir, LUID))
-        if contact.exists():
-            contact.delete()    
-
-    def finish(self):
-        TwoWay.finish(self)
-        self.notes = None
 
 class IPodCalendarTwoWay(IPodBase):
 
@@ -333,37 +308,17 @@ class IPodCalendarTwoWay(IPodBase):
 
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
-        
         self.dataDir = os.path.join(self.mountPoint, 'Calendars')
-        self.events = None
-
-    def refresh(self):
-        TwoWay.refresh(self)
-        
-        self.events = []
-
-        #Also checks directory exists
-        if not os.path.exists(self.dataDir):
-            os.mkdir(self.dataDir)
-
-        for f in os.listdir(self.dataDir):
-            fullpath = os.path.join(self.dataDir, f)
-            if os.path.isfile(fullpath):
-                try:
-                    event = Event.Event(None)
-                    event.set_from_ical_string(open(fullpath,'r').read())
-                    event.set_UID(f)
-                    self.events.append(event)
-                except:
-                    pass
-
-    def get_num_items(self):
-        TwoWay.get_num_items(self)
-        return len(self.events)
 
     def get(self, index):
         TwoWay.get(self, index)
-        return self.events[index]
+        uid = self.objects[index]
+        fullpath = os.path.join(self.dataDir, uid)
+
+        event = Event.Event(None)
+        event.set_from_ical_string(open(fullpath,'r').read())
+        event.set_UID(uid)
+        return event
 
     def put(self, event, overwrite, LUID=None):
         TwoWay.put(self, event, overwrite, LUID)
@@ -374,13 +329,4 @@ class IPodCalendarTwoWay(IPodBase):
             return LUID
 
         return _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
-
-    def delete(self, LUID):
-        contact = File.File(URI=os.path.join(self.dataDir, LUID))
-        if contact.exists():
-            contact.delete()    
-
-    def finish(self):
-        TwoWay.finish(self)
-        self.notes = None
 
