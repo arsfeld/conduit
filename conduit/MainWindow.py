@@ -63,6 +63,7 @@ class GtkView:
         
         dic = { "on_mainwindow_delete" : self.on_window_closed,
                 "on_mainwindow_resized" : self.on_window_resized,
+                "on_mainwindow_state_event" : self.on_window_state_event,
                 "on_synchronize_activate" : self.on_synchronize_all_clicked,      
                 "on_quit_activate" : self.on_window_closed,
                 "on_clear_canvas_activate" : self.on_clear_canvas,
@@ -117,6 +118,9 @@ class GtkView:
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver(self.widgets)
         
+        #tracked in self.on_window_state_event
+        self.window_state = 0
+        
     def set_model(self, model):
         """
         In conduit the model manages all available dataproviders. It is shared
@@ -150,6 +154,20 @@ class GtkView:
                                 None    #FIXME: self.canvas.on_conduit_progress
                                 )
         self.dataproviderTreeView.expand_all()
+        
+    def present(self):
+        """
+        Present the main window. Enjoy your window
+        """
+        logd("Presenting GUI")
+        self.mainWindow.present()
+        
+    def iconify(self):
+        """
+        Iconifies the main window
+        """
+        logd("Iconifying GUI")
+        self.mainWindow.hide()
 
     def on_sync_started(self, thread):
         logd("GUI got sync started")
@@ -375,6 +393,9 @@ class GtkView:
         dialog.set_transient_for(self.mainWindow)
         dialog.run()
         dialog.destroy()
+        
+    def on_window_state_event(self, widget, event):
+        self.window_state = event.new_window_state
 
     def on_window_closed(self, widget, event=None):
         """
@@ -470,7 +491,12 @@ class GtkView:
         #GUI settings
         self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
         #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
-
+        
+    def is_iconified(self):
+        """
+        Returns True if mainWindow is iconified (or "hidden")
+        """
+        return self.window_state != 0
 
 class SplashScreen:
     """
@@ -570,6 +596,7 @@ class ConduitStatusIcon(gtk.StatusIcon):
         self.manager.add_ui_from_string(menu)
         self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent        
         self.connect('popup-menu', self.on_popup_menu)
+        self.connect('activate', self.on_click)
 
         #start with the application icon
         self._reset_states()
@@ -644,6 +671,14 @@ class ConduitStatusIcon(gtk.StatusIcon):
         dialog = ConduitAboutDialog()
         dialog.run()
         dialog.destroy()
+        
+    def on_click(self, status):
+        if self.conduitApplication.HasGUI():
+            if self.conduitApplication.gui.is_iconified():
+                self.conduitApplication.gui.present()
+            else:
+                self.conduitApplication.gui.iconify()
+        
 
 class Application(dbus.service.Object):
     def __init__(self):
@@ -674,8 +709,10 @@ class Application(dbus.service.Object):
             dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
 
         buildGUI = True
+        iconify = False
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "hs:c", ["help", "settings=", "console"])
+            opts, args = getopt.getopt(sys.argv[1:], "hs:ci", 
+                ["help", "settings=", "console", "iconify"])
             #parse args
             for o, a in opts:
                 if o in ("-h", "--help"):
@@ -685,6 +722,8 @@ class Application(dbus.service.Object):
                      settingsFile = os.path.join(os.getcwd(), a)
                 if o in ("-c", "--console"):
                    buildGUI = False
+                if o in ("-i", "--iconify"):
+                    iconify = True
         except getopt.GetoptError:
             # print help information and exit:
             logw("Unknown command line option")
@@ -742,7 +781,9 @@ class Application(dbus.service.Object):
         #Set the view models
         if buildGUI:
             self.BuildGUI()
-
+            if iconify:
+                self.IconifyGUI()
+        
         #Dbus view...
         if conduit.settings.get("enable_dbus_interface") == True:
             self.dbus = DBusView(self)
@@ -771,7 +812,8 @@ $ %s [OPTIONS]
 OPTIONS:
     -h, --help          Print this help notice.
     -c, --console       Launch Conduit with no GUI) (default=no).
-    -s, --settings=FILE Override saving conduit settings to FILE""" % sys.argv[0]
+    -s, --settings=FILE Override saving conduit settings to FILE
+    -i, --iconify       Iconify on startup""" % sys.argv[0]
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='b')
     def HasGUI(self):
@@ -804,7 +846,11 @@ OPTIONS:
     
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):
-        self.gui.mainWindow.present()
+        self.gui.present()
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')        
+    def IconifyGUI(self):
+        self.gui.iconify()
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):
