@@ -747,7 +747,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
-        return str(gnomevfs.URI(newURI))
+        #return str(gnomevfs.URI(newURI))
+        return newURI
 
     def delete(self, LUID):
         f = File.File(URI=LUID)
