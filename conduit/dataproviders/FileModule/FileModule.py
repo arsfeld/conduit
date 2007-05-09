@@ -657,7 +657,8 @@ class _FolderTwoWayConfigurator:
                 dialog.emit_stop_by_name("response")
             else:
                 self.folderGroupName = self.folderEntry.get_text()
-                self.folder = self.folderChooser.get_uri()
+                uri = self.folderChooser.get_uri()
+                self.folder = Utils.unescape(gnomevfs.make_uri_canonical(uri))
 
     def show_dialog(self):
         self.dlg.show_all()
@@ -747,8 +748,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
-        #return str(gnomevfs.URI(newURI))
-        return newURI
+        return Utils.unescape(gnomevfs.make_uri_canonical(newURI))
 
     def delete(self, LUID):
         f = File.File(URI=LUID)
