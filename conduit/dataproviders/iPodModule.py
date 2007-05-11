@@ -65,8 +65,6 @@ class iPodFactory(Module.DataProviderFactory):
         for device_type, udi, mount, name in self.hal.get_all_ipods():
             self._ipod_added(None, udi, mount, name)
 
-        self._ipod_added(None, "FAKEIPOD", "/home/john/fake-ipod", "John")
-
     def _ipod_added(self, hal, udi, mount, name):
         """ New iPod has been discovered """
         cat = DataProvider.DataProviderCategory(
