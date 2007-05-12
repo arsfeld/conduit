@@ -72,17 +72,27 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
     def process_host_xml(self, huh, response):
         for event, elem in ET.iterparse(StringIO(response.out_data)):
             if elem.tag == "dataprovider":
-                uid = elem.findtext("uid")
-                name = elem.findtext("name")
-                icon = elem.findtext("icon")
+                guid = response.host + ":" + elem.findtext("uid")
+
+                params = []
+                params.append(elem.findtext("uid"))
+                params.append(elem.findtext("name"))
+                params.append(elem.findtext("description"))
+                params.append(elem.findtext("icon"))
+                params.append(elem.findtext("module_type"))
+                params.append(elem.findtext("in_type"))
+                params.append(elem.findtext("out_type"))
+                params.append(response.host)
+                params.append(str(response.port))
+
                 elem.clear()
 
                 local_key = self.emit_added(
                              ClientDataProvider, 
-                             (uid, name, icon), 
+                             tuple(params), 
                              self.detectedHosts[response.host]["category"])
 
-                self.detectedDataproviders[name] = {
+                self.detectedDataproviders[guid] = {
                                                    "local_key" : local_key,
                                                    }
 
@@ -110,8 +120,17 @@ class ClientDataProvider(DataProvider.TwoWay):
 
     def __init__(self, *args):
         self._name_ = args[1]
-        self._description_ = args[1]
-        self._icon_ = args[2]
+        self._description_ = args[2]
+        self._icon_ = args[3]
+        self._module_type_ = args[4]
+        self._in_type_ = args[5]
+        self._out_type_ = args[6]
+
+        self.uid = args[0]
+        self.host = args[7]
+        self.port = args[8]
+
+        self.base = "/%s" % self.uid
 
         DataProvider.TwoWay.__init__(self)
         self.objects = None
@@ -120,7 +139,7 @@ class ClientDataProvider(DataProvider.TwoWay):
         DataProvider.TwoWay.refresh(self)
         self.objects = []
 
-        response = Request('localhost', 3400, "PUT", "/TomboyNoteTwoWay-None").get()
+        response = Request(self.host, self.port, "PUT", self.base).get()
         for event, elem in ET.iterparse(StringIO(response)):
             if elem.tag == "object":
                 uid = elem.findtext("uid")
@@ -136,15 +155,15 @@ class ClientDataProvider(DataProvider.TwoWay):
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
         uid = self.objects[index]
-        response = Request('localhost', 3400, "GET", "/TomboyNoteTwoWay-None/" + uid).get()
+        request = Request(self.host, self.port, "GET", self.base + "/" + uid).get()
         return None
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        response = Request('localhost', 3400, "PUT", "/TomboyNoteTwoWay-None/" + LUID, data).get()
+        request = Request(self.host, self.port, "PUT", self.base + "/" + LUID, data).get()
 
     def delete(self, LUID):
-        response = Request('localhost', 3400, "DELETE", "/TomboyNoteTwoWay-None/" + LUID).get()
+        request = Request(self.host, self.port, "DELETE", self.base + "/" + LUID).get()
 
     def finish(self):
         DataProvider.TwoWay.finish(self)
