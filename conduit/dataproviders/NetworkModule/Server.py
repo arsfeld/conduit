@@ -107,9 +107,8 @@ class RootResource(resource.Resource):
         self.putChild('index', DataproviderIndex(self.advertised))
 
         # look for dataproviders to share
-        for dp_type in ["twoway", "sink", "source"]:
-            for dp in self.modules.get_modules_by_type(dp_type):
-                self.on_dataprovider_added(None, dp)
+        for dp in self.modules.get_modules_by_type(None):
+            self.on_dataprovider_added(None, dp)
 
         # detect any hotpluggable dataproviders to share
         self.modules.connect("dataprovider-added", self.on_dataprovider_added)
@@ -162,6 +161,12 @@ class DataproviderResource(resource.Resource):
     def getXML(self):
         dpstr = "<dataprovider>"
         dpstr += "<uid>%s</uid>" % self.get_UID()
+        dpstr += "<name>%s</name>" % self.wrapper.name
+        dpstr += "<description>%s</description>" % self.wrapper.description
+        dpstr += "<icon>%s</icon>" % self.wrapper.icon_name
+        dpstr += "<module_type>%s</module_type>" % self.wrapper.module_type
+        dpstr += "<in_type>%s</in_type>" % self.wrapper.in_type
+        dpstr += "<out_type>%s</out_type>" % self.wrapper.out_type
         dpstr += "</dataprovider>"
         return dpstr
 

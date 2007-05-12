@@ -49,10 +49,10 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
         self.detectedHosts = {}
         self.detectedDataproviders = {}
 
-        gobject.timeout_add(10000, self.make_one)
+        gobject.timeout_add(1000, self.make_one)
 
     def make_one(self):
-        self.dataprovider_detected("Tomboy", "localhost", "Baz", "Baz", "")
+        self.dataprovider_detected("Tomboy", "localhost", "Baz", 3400, "")
 
     def dataprovider_detected(self, name, host, address, port, extra_info):
         """
@@ -65,29 +65,22 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
             self.detectedHosts[host] = {}
             self.detectedHosts[host]["category"] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
 
-        headers = {}
-        headers['Content-Type'] = None
-        data = ""
-        response = client.getPage("http://localhost:3400/index", method="GET", postdata=data, headers=headers)
-        response.addCallback(self.process_host_xml, host)
-        response.addErrback(self.process_err)
+        request = Request(host, port, "GET", "/")
+        request.connect("complete", self.process_host_xml)
+        request.start()
 
-    def process_err(self, err):
-        log(">>>> Network error %s" % repr(err))
-
-    def process_host_xml(self, response, host):
-        log(">>>> :O?")
-        for event, elem in ET.iterparse(StringIO(response)):
+    def process_host_xml(self, huh, response):
+        for event, elem in ET.iterparse(StringIO(response.out_data)):
             if elem.tag == "dataprovider":
                 uid = elem.findtext("uid")
-                name = ""
-                icon = ""
+                name = elem.findtext("name")
+                icon = elem.findtext("icon")
                 elem.clear()
 
                 local_key = self.emit_added(
                              ClientDataProvider, 
                              (uid, name, icon), 
-                             self.detectedHosts[host]["category"])
+                             self.detectedHosts[response.host]["category"])
 
                 self.detectedDataproviders[name] = {
                                                    "local_key" : local_key,
@@ -116,6 +109,10 @@ class ClientDataProvider(DataProvider.TwoWay):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
+        self._name_ = args[1]
+        self._description_ = args[1]
+        self._icon_ = args[2]
+
         DataProvider.TwoWay.__init__(self)
         self.objects = None
 
@@ -156,9 +153,16 @@ class ClientDataProvider(DataProvider.TwoWay):
     def get_UID(self):
         return ""
 
-class Request(threading.Thread):
-    def __init__(self, host, port, request, URI, data=None):
+class Request(threading.Thread, gobject.GObject):
+    __gsignals__ =  { 
+                    "complete": 
+                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+                        gobject.TYPE_PYOBJECT])      #request,
+                    }
+
+    def __init__(self, host, port, request, URI, data=None, callback=None):
         threading.Thread.__init__(self)
+        gobject.GObject.__init__(self)
 
         self.host = host
         self.port = port
@@ -167,14 +171,18 @@ class Request(threading.Thread):
         self.in_data = data
         self.out_data = ""
 
+        self.callback = None
+
     def run(self):
         conn = httplib.HTTPConnection(self.host, self.port)
         conn.request(self.request, self.URI)
         r1 = conn.getresponse()
         self.out_data = r1.read()
-        logd(self.out_data)
         conn.close()
-    
+        log(self.out_data)
+
+        gobject.idle_add(self.emit, "complete", self)
+
     def get(self):
         threading.Thread.start(self)
         threading.Thread.join(self, 8)
