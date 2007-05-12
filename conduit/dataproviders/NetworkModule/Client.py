@@ -19,8 +19,7 @@ from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Module as Module
 import conduit.DataProvider as DataProvider
 
-from twisted.web import client
-
+import copy
 import httplib
 from cStringIO import StringIO
 try:
@@ -74,22 +73,25 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
             if elem.tag == "dataprovider":
                 guid = response.host + ":" + elem.findtext("uid")
 
-                params = []
-                params.append(elem.findtext("uid"))
-                params.append(elem.findtext("name"))
-                params.append(elem.findtext("description"))
-                params.append(elem.findtext("icon"))
-                params.append(elem.findtext("module_type"))
-                params.append(elem.findtext("in_type"))
-                params.append(elem.findtext("out_type"))
-                params.append(response.host)
-                params.append(str(response.port))
+                params = {
+                             "_name_":        elem.findtext("name"),
+                             "_description_": elem.findtext("description"),
+                             "_icon_":        elem.findtext("icon"),
+                             "_module_type_": elem.findtext("module_type"),
+                             "_in_type_":     elem.findtext("in_type"),
+                             "_out_type_":    elem.findtext("out_type"),
+                             "_uid_":         elem.findtext("uid"),
+                             "_host_":        response.host,
+                             "_port_":        response.port,
+                         }
+
+                new_dp = type(guid, (ClientDataProvider, ), params)
 
                 elem.clear()
 
                 local_key = self.emit_added(
-                             ClientDataProvider, 
-                             tuple(params), 
+                             new_dp, 
+                             (new_dp._host_, ), 
                              self.detectedHosts[response.host]["category"])
 
                 self.detectedDataproviders[guid] = {
@@ -111,35 +113,17 @@ class ClientDataProvider(DataProvider.TwoWay):
     """
     Provides the client portion of dataprovider proxying.
     """
-    _name_ = "Networked DataProvider"
-    _description_ = "Yo"
-    _module_type_ = "twoway"
-    _in_type_ = "text"
-    _out_type_ = "text"
-    _icon_ = "emblem-system"
 
     def __init__(self, *args):
-        self._name_ = args[1]
-        self._description_ = args[2]
-        self._icon_ = args[3]
-        self._module_type_ = args[4]
-        self._in_type_ = args[5]
-        self._out_type_ = args[6]
-
-        self.uid = args[0]
-        self.host = args[7]
-        self.port = args[8]
-
-        self.base = "/%s" % self.uid
-
         DataProvider.TwoWay.__init__(self)
+        self.base = "/%s" % self._uid_
         self.objects = None
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.objects = []
 
-        response = Request(self.host, self.port, "PUT", self.base).get()
+        response = Request(self._host_, self._port_, "PUT", self.base).get()
         for event, elem in ET.iterparse(StringIO(response)):
             if elem.tag == "object":
                 uid = elem.findtext("uid")
@@ -155,15 +139,15 @@ class ClientDataProvider(DataProvider.TwoWay):
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
         uid = self.objects[index]
-        request = Request(self.host, self.port, "GET", self.base + "/" + uid).get()
+        request = Request(self._host_, self._port_, "GET", self.base + "/" + uid).get()
         return None
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        request = Request(self.host, self.port, "PUT", self.base + "/" + LUID, data).get()
+        request = Request(self._host_, self._port_, "PUT", self.base + "/" + LUID, data).get()
 
     def delete(self, LUID):
-        request = Request(self.host, self.port, "DELETE", self.base + "/" + LUID).get()
+        request = Request(self._host_, self._port_, "DELETE", self.base + "/" + LUID).get()
 
     def finish(self):
         DataProvider.TwoWay.finish(self)
