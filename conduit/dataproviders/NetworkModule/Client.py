@@ -1,6 +1,5 @@
 """
-Contains classes for advertising conduit via avahi and for transmitting and
-receiving python objects over the network.
+Contains classes for transmitting and receiving python objects over the network.
 
 Copyright: John Stowers, 2006
 License: GPLv2
@@ -15,9 +14,10 @@ import conduit.DataProvider as DataProvider
 
 import Peers
 
-import httplib
 from cStringIO import StringIO
+import httplib
 import threading
+import pickle
 
 try:
     import xml.etree.ElementTree as ET
@@ -148,7 +148,7 @@ class ClientDataProvider(DataProvider.TwoWay):
         DataProvider.TwoWay.get(self, index)
         uid = self.objects[index]
         request = Request(self._host_, self._port_, "GET", self.base + "/" + uid).get()
-        return None
+        return pickle.loads(request)
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)

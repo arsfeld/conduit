@@ -1,11 +1,5 @@
 """
-Contains classes for advertising conduit via avahi and for transmitting and
-receiving python objects over the network.
-
-Parts of this code adapted from glchess (GPLv2)
-http://glchess.sourceforge.net/
-Parts of this code adapted from elisa (GPLv2)
-Parts of this code adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/457669
+Contains classes for transmitting and receiving python objects over the network.
 
 Copyright: John Stowers, 2006
 License: GPLv2
@@ -24,14 +18,9 @@ import Peers
 
 from twisted.internet import reactor
 from twisted.web import resource, server
-
-AVAHI_SERVICE_NAME = "_conduit._tcp"
-AVAHI_SERVICE_DOMAIN = ""
+import pickle
 
 SERVER_PORT = 3400
-
-PORT_IDX = 0
-VERSION_IDX = 1
     
 class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
     """
@@ -43,25 +32,22 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
     def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
 
-        logd(">>>> Starting NetworkServerFactory")
-
         if not kwargs.has_key("moduleManager"):
             return
 
-        self.localModules = kwargs['moduleManager']
+        self.modules = kwargs['moduleManager']
 
         #self.dataproviderAdvertiser = Peers.AvahiAdvertiser()
         self.advertisedDataproviders = {}
 
-        for dp in self.localModules.get_modules_by_type(None):
+        for dp in self.modules.get_modules_by_type(None):
             self.on_local_dataprovider_added(None, dp)
 
         # detect any hotpluggable dataproviders to share
-        self.localModules.connect("dataprovider-added", self.on_local_dataprovider_added)
-        self.localModules.connect("dataprovider-removed", self.on_local_dataprovider_removed)
+        self.modules.connect("dataprovider-added", self.on_local_dataprovider_added)
+        self.modules.connect("dataprovider-removed", self.on_local_dataprovider_removed)
 
-        reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self.localModules)))
-
+        reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self.modules)))
 
     def on_local_dataprovider_added(self, loader, dataproviderWrapper):
         """
@@ -208,7 +194,7 @@ class DataproviderObject(resource.Resource):
         self.path = path
 
     def render_GET(self, request):
-        return self.parent.objects[self.path].raw
+        return pickle.dumps(self.parent.objects[self.path])
 	
     def render_PUT(self, request):
         try:
