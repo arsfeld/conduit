@@ -597,10 +597,6 @@ class Connector(goocanvas.GroupModel):
         self.toY = toY
         self.twoway = False
 
-        #The path is a goocanvas.Path element. 
-        self.path = goocanvas.PathModel(data=self._draw_path(),stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)                
-        self.add_child(self.path,-1)
-
         self.left_end_round = goocanvas.EllipseModel(
                                     center_x=fromX, 
                                     center_y=fromY, 
@@ -632,9 +628,12 @@ class Connector(goocanvas.GroupModel):
                             arrow_length=3,
                             arrow_width=3
                             )
-        self._draw_arrow_ends()
 
+        self._draw_arrow_ends()
         self.add_child(self.right_end,-1)
+
+        self.path = goocanvas.PathModel(data="",stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)
+        self._draw_path()
 
     def _draw_arrow_ends(self):
         #Always draw the right arrow end for the correct width
@@ -660,17 +659,7 @@ class Connector(goocanvas.GroupModel):
         connector between a datasource and datasink. Then assigns the path
         to the internal path object
         """
-        if self.toX < self.fromX:
-            #prevent the initial redraw from calculating an invalid, -ve toX point
-            #FIXME: Hardcoded number stops goocanvas segfault at initial construction
-            p = "M%s,%s "           \
-                "L%s,%s "       %   (
-                                    self.fromX,self.fromY,  #absolute start point
-                                    317,self.fromY   #absolute line to point
-                                    )
-
-        #Dont build curves if its just a dead horizontal link
-        elif self.fromY == self.toY:
+        if self.fromY == self.toY:
             #draw simple straight line
             p = "M%s,%s "           \
                 "L%s,%s "       %   (
@@ -695,8 +684,14 @@ class Connector(goocanvas.GroupModel):
                                     0,r,r,r,                #quarter circle
                                     self.toX,self.toY       #absolute line to point
                                     )
-        print p
-        return p
+
+        pidx = self.find_child(self.path)
+        if pidx != -1:
+            self.remove_child(pidx)
+
+        #Reecreate the path to work round goocanvas bug
+        self.path = goocanvas.PathModel(data=p,stroke_color="black",line_width=Conduit.CONNECTOR_LINE_WIDTH)
+        self.add_child(self.path,-1)
             
     def resize_connector_width(self, dw):
         """
@@ -708,8 +703,7 @@ class Connector(goocanvas.GroupModel):
         #Only the X location changes
         if dw != 0:
             self.toX += dw
-            #FIXME: Stop segfault. Fix goocanvas
-            #self.path.set_property("data", self._draw_path())
+            self._draw_path()
             self._draw_arrow_ends()
 
     def set_color(self, color):
