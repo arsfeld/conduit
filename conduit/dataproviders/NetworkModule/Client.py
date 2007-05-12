@@ -2,11 +2,6 @@
 Contains classes for advertising conduit via avahi and for transmitting and
 receiving python objects over the network.
 
-Parts of this code adapted from glchess (GPLv2)
-http://glchess.sourceforge.net/
-Parts of this code adapted from elisa (GPLv2)
-Parts of this code adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/457669
-
 Copyright: John Stowers, 2006
 License: GPLv2
 """
@@ -15,60 +10,91 @@ import gobject
 
 import conduit
 from conduit import log,logd,logw
-from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Module as Module
 import conduit.DataProvider as DataProvider
 
-import copy
+import Peers
+
 import httplib
 from cStringIO import StringIO
+import threading
+
 try:
     import xml.etree.ElementTree as ET
 except:
     import elementtree.ElementTree as ET
 
-import threading
 
 class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
     """
-    Controlls all network related communication aspects. This involves
-    1) Advertising dataprovider presence on local network using avahi
+    Responsible for making networked Conduit resources available to the user. This includes:
+    1) Monitoring Avahi events to detect other Conduit instances on the network
     2) Discovering remote conduit capabilities (i.e. what dataproviders it has advertised)
     3) Data transmission to/from remote conduit instances
     """
     def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
 
-        if not kwargs.has_key("moduleManager"):
-            return
-
-        self.localModules = kwargs['moduleManager']
-
-#        self.dataproviderMonitor = Peers.AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
-        self.detectedHosts = {}
-        self.detectedDataproviders = {}
+        self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
+        self.hosts = {}
+        self.dataproviders = {}
 
         gobject.timeout_add(1000, self.make_one)
 
     def make_one(self):
-        self.dataprovider_detected("Tomboy", "localhost", "Baz", 3400, "")
+        self.host_available("Tomboy", "localhost", "Baz", 3400, "")
 
-    def dataprovider_detected(self, name, host, address, port, extra_info):
+    def host_available(self, name, host, address, port, extra_info):
         """
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
-        logd("Remote Dataprovider '%s' detected on %s" % (name, host))
+        logd("Remote host '%s' detected" % host)
 
-        if not self.detectedHosts.has_key(host):
-            self.detectedHosts[host] = {}
-            self.detectedHosts[host]["category"] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
+        if not self.hosts.has_key(host):
+            self.hosts[host] = {}
+            self.hosts[host]["category"] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
 
         request = Request(host, port, "GET", "/")
-        request.connect("complete", self.process_host_xml)
+        request.connect("complete", self.parse_host_xml)
         request.start()
 
-    def process_host_xml(self, huh, response):
+    def host_removed(self, host):
+        """
+        Callback which is triggered when a host is no longer available
+        """
+        if self.hosts.has_key(name):
+            logd("Remote host '%s' removed" % name)
+            
+            for uid, dp in self.dataproviders.iteritems():
+                if dp._host_ == host:
+                    self.dataprovider_removed(dp)
+                    
+
+    def dataprovider_added(self, dataprovider):
+        """
+        Enroll a dataprovider with Conduit's ModuleManager.
+        """
+        # Register a dataprovider with Conduit
+        key = self.emit_added(
+                                  dataprovider, 
+                                  (dataprovider._host_, ), 
+                                  self.hosts[dataprovider._host_]["category"]
+                             )
+
+        # Record the key so we can unregister the dp later (if needed)
+        self.dataproviders[dataprovider._guid_] = {
+                                                       "local_key" : key,
+                                                  }
+
+    def dataprovider_removed(self, wrapper):
+        """
+        Remove a dataprovider from ModuleManager
+        """
+        self.emit_removed(self.dataproviders[wrapper._guid_]['local_key'])
+        del self.dataproviders[wrapper._guid_]
+
+    def parse_host_xml(self, huh, response):
         for event, elem in ET.iterparse(StringIO(response.out_data)):
             if elem.tag == "dataprovider":
                 guid = response.host + ":" + elem.findtext("uid")
@@ -83,31 +109,13 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
                              "_uid_":         elem.findtext("uid"),
                              "_host_":        response.host,
                              "_port_":        response.port,
+                             "_guid_":        guid,
                          }
 
                 new_dp = type(guid, (ClientDataProvider, ), params)
+                self.dataprovider_added(new_dp)
 
                 elem.clear()
-
-                local_key = self.emit_added(
-                             new_dp, 
-                             (new_dp._host_, ), 
-                             self.detectedHosts[response.host]["category"])
-
-                self.detectedDataproviders[guid] = {
-                                                   "local_key" : local_key,
-                                                   }
-
-    def dataprovider_removed(self, name):
-        """
-        Callback which is triggered when a dataprovider is unadvertised 
-        from a remote conduit instance
-        """
-        if self.detectedDataproviders.has_key(name):
-            logd("Remote Dataprovider '%s' removed" % name)
-
-            self.emit_removed(self.detectedDataproviders[name]['local_key'])
-            del self.detectedDataproviders[name]
 
 class ClientDataProvider(DataProvider.TwoWay):
     """
