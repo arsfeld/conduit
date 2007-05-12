@@ -5,7 +5,7 @@ receiving python objects over the network.
 Parts of this code adapted from glchess (GPLv2)
 http://glchess.sourceforge.net/
 Parts of this code adapted from elisa (GPLv2)
-
+Parts of this code adapted from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/457669
 
 Copyright: John Stowers, 2006
 License: GPLv2
@@ -31,10 +31,6 @@ ALLOWED_PORT_TO = 3410
 PORT_IDX = 0
 VERSION_IDX = 1
 
-MODULES = {
-#        "NetworkFactory" :     { "type": "dataprovider-factory" }
-}
-
 def decode_avahi_text_array_to_dict(array):
     """
     Avahi text arrays are encoded as key=value
@@ -56,168 +52,6 @@ def encode_dict_to_avahi_text_array(d):
     for key in d:
         array.append("%s=%s" % (key, d[key]))
     return array
-    
-class NetworkFactory(Module.DataProviderFactory, gobject.GObject):
-    """
-    Controlls all network related communication aspects. This involves
-    1) Advertising dataprovider presence on local network using avahi
-    2) Discovering remote conduit capabilities (i.e. what dataproviders it has advertised)
-    3) Data transmission to/from remote conduit instances
-    """
-    def __init__(self, **kwargs):
-        gobject.GObject.__init__(self)
-
-        if not kwargs.has_key("moduleManager"):
-            return
-
-        self.localModules = kwargs['moduleManager']
-
-        self.dataproviderAdvertiser = AvahiAdvertiser()
-        self.advertisedDataproviders = {}
-
-        self.dataproviderMonitor = AvahiMonitor(self.dataprovider_detected, self.dataprovider_removed)
-        self.detectedHosts = {}
-        self.detectedDataproviders = {}
-
-        #Keep record of advertised dataproviders
-        #Keep record of which ports are already used
-        self.usedPorts = {}
-        for i in range(ALLOWED_PORT_FROM, ALLOWED_PORT_TO):
-            self.usedPorts[i] = False
-
-        # look for dataproviders to share
-        for dp_type in ["twoway", "sink", "source"]:
-            for dp in self.localModules.get_modules_by_type(dp_type):
-                self.on_local_dataprovider_added(None, dp)
-
-        # detect any hotpluggable dataproviders to share
-        self.localModules.connect("dataprovider-added", self.on_local_dataprovider_added)
-        self.localModules.connect("dataprovider-removed", self.on_local_dataprovider_removed)
-
-    def on_local_dataprovider_added(self, loader, dataproviderWrapper):
-        """
-        When a local dataprovider is added, check it to see if it is shared then advertise it
-        """
-        # FIXME: Doesn't care or respect anything about the user :-)
-        if dataproviderWrapper.name == "Test Dynamic Source" or dataproviderWrapper.name == "Tomboy Notes":
-            self.advertise_dataprovider(dataproviderWrapper)
-
-    def on_local_dataprovider_removed(self, loader, dataproviderWrapper):
-        """
-        When a local dataprovider is no longer available, unadvertise it
-        """
-        self.unadvertise_dataprovider(dataproviderWrapper)
-
-    def advertise_dataprovider(self, dataproviderWrapper):
-        """
-        Announces the availability of the dataproviderWrapper on the network
-        by selecting an allowed port and announcing as such.
-        """
-        port = None
-        for i in range(ALLOWED_PORT_FROM, ALLOWED_PORT_TO):
-            if self.usedPorts[i] == False:
-                port = i
-                break
-        
-        if port != None:
-            logd("Advertising %s on port %s" % (dataproviderWrapper, port))
-            ok = self.dataproviderAdvertiser.advertise_dataprovider(dataproviderWrapper, port)
-            if ok:
-                self.advertisedDataproviders[dataproviderWrapper] = port
-                self.usedPorts[port] = True
-            else:
-                logw("Could not advertise dataprovider")
-        else:
-            logw("Could not find free a free port to advertise %s" % dataproviderWrapper)
-
-    def unadvertise_dataprovider(self, dataproviderWrapper):
-        """
-        Removes the advertised dataprovider and makes its port
-        available to be assigned to another dataprovider later
-        """
-        
-        if not dataproviderWrapper in self.advertisedDataproviders:
-            return
-
-        #Look up the port, remove it from the list of used ports
-        port = self.advertisedDataproviders[dataproviderWrapper]
-        self.usedPorts[port] = False
-
-        #Unadvertise
-        self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
-
-    def dataprovider_detected(self, name, host, address, port, extra_info):
-        """
-        Callback which is triggered when a dataprovider is advertised on 
-        a remote conduit instance
-        """
-        logd("Remote Dataprovider '%s' detected on %s" % (name, host))
-
-        if not self.detectedHosts.has_key(host):
-            self.detectedHosts[host] = {}
-            self.detectedHosts[host]["category"] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
-
-        #FIXME: Do more than emite a dummy dp!!
-        local_key = self.emit_added(
-                             RemoteDataProvider, 
-                             (name, host, port), 
-                             self.detectedHosts[host]["category"])
-
-        self.detectedDataproviders[name] = {
-                                       "local_key" : local_key,
-                                           }
-
-    def dataprovider_removed(self, name):
-        """
-        Callback which is triggered when a dataprovider is unadvertised 
-        from a remote conduit instance
-        """
-        if self.detectedDataproviders.has_key(name):
-            logd("Remote Dataprovider '%s' removed" % name)
-
-            self.emit_removed(self.detectedDataproviders[name]['local_key'])
-            del self.detectedDataproviders[name]
-
-class RemoteDataProvider(DataProvider.TwoWay):
-    _name_ = "Networked DataProvider"
-    _description_ = "Yo"
-    _module_type_ = "twoway"
-    _in_type_ = "text"
-    _out_type_ = "text"
-    _icon_ = "emblem-system"
-
-    def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self)
-        self.data = None
-
-    def refresh(self):
-        DataProvider.TwoWay.refresh(self)
-        self.data = [1,2,3,4,5]
-
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.data)
-
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        return self.data[index]
-
-    def put(self, data, overwrite, LUID=None):
-        DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        return "2384987397429834"
-
-    def finish(self):
-        DataProvider.TwoWay.finish(self)
-        self.data = None
-
-class RemoteModuleWrapper(ModuleWrapper):
-    """
-    A DataProviderWrapper but running on another machine. Intercepts 
-    calls to .module.foo() functions and calls these over RPC to the 
-    remote module instead.
-    """
-    def __init__(self, classname, host, address, port):
-        pass
 
 class AvahiAdvertiser:
     """
@@ -425,7 +259,3 @@ class AvahiMonitor:
         """
         logw("Avahi/D-Bus error: %s" % repr(error))
 
-
-################################################################################
-# From http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/457669
-################################################################################
