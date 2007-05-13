@@ -209,7 +209,7 @@ class DataproviderObject(resource.Resource):
             # construct an object out of the data stream
             obj = pickle.loads(data)
 
-            new_uid = self.parent.instance.module.put(obj, overwrite, self.path)
+            new_uid = self.parent.instance.put(obj, False, self.path)
             return new_uid
         except:
             return "Put failed."

@@ -127,7 +127,7 @@ class ClientDataProvider(DataProvider.TwoWay):
         DataProvider.TwoWay.refresh(self)
         self.objects = []
 
-        response = Request(self._host_, self._port_, "PUT", self.base).get()
+        response = Request(self._host_, self._port_, "GET", self.base).get()
         for event, elem in ET.iterparse(StringIO(response)):
             if elem.tag == "object":
                 uid = elem.findtext("uid")
