@@ -151,11 +151,11 @@ class ClientDataProvider(DataProvider.TwoWay):
 
         # work out the url (only add LUID if it is set)
         put_url = self.base + "/"
-        if LUID != None:
-            put_url += str(LUID)
+        #if LUID != None:
+        #    put_url += str(LUID.encode("hex"))
 
         # pickle the data for transmission...
-        stream = pickle.dumps(data)
+        stream = pickle.dumps([data, overwrite, LUID])
 
         request = Request(self._host_, self._port_, "PUT", put_url, stream).get()
 
@@ -165,7 +165,7 @@ class ClientDataProvider(DataProvider.TwoWay):
         return request
 
     def delete(self, LUID):
-        request = Request(self._host_, self._port_, "DELETE", self.base + "/" + LUID).get()
+        request = Request(self._host_, self._port_, "DELETE", self.base + "/" + LUID.encode("hex")).get()
 
     def finish(self):
         DataProvider.TwoWay.finish(self)

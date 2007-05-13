@@ -207,9 +207,12 @@ class DataproviderObject(resource.Resource):
             data = request.content.read()
 
             # construct an object out of the data stream
-            obj = pickle.loads(data)
+            struct = pickle.loads(data)
+            obj = struct[0]
+            overwrite = struct[1]
+            LUID = struct[2]
 
-            new_uid = self.parent.instance.put(obj, False, self.path)
+            new_uid = self.parent.instance.put(obj, overwrite, LUID)
             return new_uid
         except:
             return "Put failed."
