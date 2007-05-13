@@ -11,6 +11,7 @@ import conduit
 from conduit import log,logd,logw
 import conduit.Module as Module
 import conduit.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
 
 import Peers
 
@@ -147,7 +148,21 @@ class ClientDataProvider(DataProvider.TwoWay):
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        request = Request(self._host_, self._port_, "PUT", self.base + "/" + LUID, data).get()
+
+        # work out the url (only add LUID if it is set)
+        put_url = self.base + "/"
+        if LUID != None:
+            put_url += str(LUID)
+
+        # pickle the data for transmission...
+        pickeld = pickle.dumps(data)
+
+        request = Request(self._host_, self._port_, "PUT", put_url, pickled).get()
+
+        if request == "Put failed.":
+            raise Exceptions.SyncronizeError("Error putting %s" % data)
+
+        return request
 
     def delete(self, LUID):
         request = Request(self._host_, self._port_, "DELETE", self.base + "/" + LUID).get()
@@ -181,7 +196,7 @@ class Request(threading.Thread, gobject.GObject):
 
     def run(self):
         conn = httplib.HTTPConnection(self.host, self.port)
-        conn.request(self.request, self.URI)
+        conn.request(self.request, self.URI, self.in_data)
         r1 = conn.getresponse()
         self.out_data = r1.read()
         conn.close()
