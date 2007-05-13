@@ -143,6 +143,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
                         raise Exceptions.SynchronizeConflictError(comp, note, existingNote)
                     else:
                         return LUID
+            else:
+                log("Told to replace note %s, nothing there to replace.")
                     
         #We havent, or its been deleted so add it. 
         log("Saving new Note")
