@@ -172,7 +172,7 @@ class ClientDataProvider(DataProvider.TwoWay):
         self.objects = None
 
     def get_UID(self):
-        return ""
+        return "Networked" + self._host_ + self._name_
 
 class Request(threading.Thread, gobject.GObject):
     __gsignals__ =  { 

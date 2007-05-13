@@ -125,6 +125,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         """
         DataProvider.TwoWay.put(self, note, overwrite, LUID)
 
+        logd(">>>> %s %s" % (note.get_UID(), LUID))
+
         #Check if we have already uploaded the photo
         if LUID != None:
             if self.remoteTomboy.NoteExists(LUID):
@@ -144,7 +146,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
                     else:
                         return LUID
             else:
-                log("Told to replace note %s, nothing there to replace.")
+                log("Told to replace note %s, nothing there to replace." % LUID)
                     
         #We havent, or its been deleted so add it. 
         log("Saving new Note")
