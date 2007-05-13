@@ -158,7 +158,7 @@ class DataproviderResource(resource.Resource):
         dpstr += "</dataprovider>"
         return dpstr
 
-    def render(self, request):
+    def render_GET(self, request):
         xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
         xml += "<objects>"
 
@@ -181,6 +181,9 @@ class DataproviderResource(resource.Resource):
         self.objects = objs
 
         return xml
+
+    def render_PUT(self, request):
+        return DataproviderObject(self, "").render_PUT(request)
 
     def getChild(self, path, request):
         uid = path.decode("hex")

@@ -155,9 +155,9 @@ class ClientDataProvider(DataProvider.TwoWay):
             put_url += str(LUID)
 
         # pickle the data for transmission...
-        pickeld = pickle.dumps(data)
+        stream = pickle.dumps(data)
 
-        request = Request(self._host_, self._port_, "PUT", put_url, pickled).get()
+        request = Request(self._host_, self._port_, "PUT", put_url, stream).get()
 
         if request == "Put failed.":
             raise Exceptions.SyncronizeError("Error putting %s" % data)
