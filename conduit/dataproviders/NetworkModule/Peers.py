@@ -25,8 +25,6 @@ import conduit.DataProvider as DataProvider
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
-ALLOWED_PORT_FROM = 3400
-ALLOWED_PORT_TO = 3410
 
 PORT_IDX = 0
 VERSION_IDX = 1
@@ -76,12 +74,12 @@ class AvahiAdvertiser:
     textdata changes. Furthurmore I want each dataprovider to be on its own
     port so being limited to one service and port is a disadvantage here    
     """
-    def __init__(self):
+    def __init__(self, name, port):
         """
         Constructor.
         """
-        #Maintain a list of currently advertised dataproviders
-        self.advertisedDataProviders = {}
+        self.name = name
+        self.port = port
 
         # Connect to the Avahi server
         bus = dbus.SystemBus()
@@ -92,7 +90,10 @@ class AvahiAdvertiser:
                             ), 
                         avahi.DBUS_INTERFACE_SERVER
                         )
+
+        # Get this device's hostname
         self.hostname = server.GetHostName()
+
         # Register this service
         path = server.EntryGroupNew()
         self.group = dbus.Interface(
@@ -100,81 +101,32 @@ class AvahiAdvertiser:
                     avahi.DBUS_INTERFACE_ENTRY_GROUP
                     )
 
-    def _add_service(self, name, port, version):
+    def announce(self):
         """
-        Adds the service representing a dataprovider
-        to the group
+        Resets the group, announces Conduit, and commits the change
         """
+        self.reset()
+
         try:
             self.group.AddService(
                     avahi.IF_UNSPEC,        #interface
                     avahi.PROTO_UNSPEC,     #protocol
                     0,                      #flags
-                    "%s:%s" % (self.hostname,name),     #name
+                    self.hostname,          #name
                     AVAHI_SERVICE_NAME,     #service type
                     AVAHI_SERVICE_DOMAIN,   #domain
                     '',                     #host
-                    port,                   #port
-                    avahi.string_array_to_txt_array(["version=%s" % version])
+                    self.port,                   #port
+                    avahi.string_array_to_txt_array(["version=%s" % conduit.APPVERSION])
                     )
         except dbus.DBusException, err:
-            print err            
+            print err
 
-    def _advertise_all_services(self):
-        """
-        Resets the group, advertises all services, and commits the change
-        """
-        self._reset_all_services()
-        for name in self.advertisedDataProviders:
-            port = self.advertisedDataProviders[name][PORT_IDX]
-            version = self.advertisedDataProviders[name][VERSION_IDX]
-            self._add_service(name, port, version)
-        self._commit_all_services()
+        self.group.Commit() 
             
-    def _reset_all_services(self):
+    def reset(self):
         if not self.group.IsEmpty():
             self.group.Reset()
-
-    def _commit_all_services(self):
-        self.group.Commit()
-        
-    def advertise_dataprovider(self, dataproviderWrapper, port):
-        """
-        Advertises the dataprovider on the local network. Returns true if the
-        dataprovider is successfully advertised.
-
-        @returns: True if the dataprovder is successfully advertised
-        @rtype:C{bool}
-        """
-        name = dataproviderWrapper.get_key()
-        version = conduit.APPVERSION
-        if name not in self.advertisedDataProviders:
-            #add the new service to the list to be advertised
-            self.advertisedDataProviders[name] = (port, version)
-            #re-advertise all services
-            self._advertise_all_services()
-            return True
-        return False            
-
-    def unadvertise_dataprovider(self, dataproviderWrapper):
-        """
-        Unadvertises the dataprovider on the local network.
-        """
-        name = dataproviderWrapper.get_key()
-        if name in self.advertisedDataProviders:
-            #Remove the old service to the list to be advertised
-            del(self.advertisedDataProviders[name])
-            #re-advertise all services
-            self._advertise_all_services()
-
-    def get_advertised_dataprovider_port(self, dataproviderWrapper):
-        """
-        Returns the port on which the dataprovider is advertised
-        @returns: Port number
-        @rtype: C{int}
-        """
-        name = dataproviderWrapper
-        return self.advertisedDataProviders[name][PORT_IDX]
 
 class AvahiMonitor:
     """
@@ -197,7 +149,9 @@ class AvahiMonitor:
                                 avahi.DBUS_NAME,
                                 avahi.DBUS_PATH_SERVER),
                             avahi.DBUS_INTERFACE_SERVER)
+
         self.hostname = self.server.GetHostName()
+
         obj = bus.get_object(
                             avahi.DBUS_NAME,
                             self.server.ServiceBrowserNew(
@@ -216,8 +170,8 @@ class AvahiMonitor:
         """
         DBus callback when a new service is detected
         """
-        if flags & avahi.LOOKUP_RESULT_OUR_OWN:
-            return
+        #if flags & avahi.LOOKUP_RESULT_OUR_OWN:
+        #    return
 
         service = self.server.ResolveService(
                                         interface, 

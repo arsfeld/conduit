@@ -37,9 +37,9 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
 
         self.modules = kwargs['moduleManager']
 
-        #self.dataproviderAdvertiser = Peers.AvahiAdvertiser()
-        self.advertisedDataproviders = {}
-
+        self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
+        self.advertiser.announce()
+        
         for dp in self.modules.get_modules_by_type(None):
             self.on_local_dataprovider_added(None, dp)
 
@@ -56,12 +56,14 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
         # FIXME: Doesn't care or respect anything about the user :-)
         #if dataproviderWrapper.name == "Test Dynamic Source" or dataproviderWrapper.name == "Tomboy Notes":
         #    self.advertise_dataprovider(dataproviderWrapper)
+        self.advertiser.announce()
 
     def on_local_dataprovider_removed(self, loader, dataproviderWrapper):
         """
         When a local dataprovider is no longer available, unadvertise it
         """
         #self.unadvertise_dataprovider(dataproviderWrapper)
+        self.advertiser.announce()
 
 
     def advertise_dataprovider(self, dataproviderWrapper):
@@ -102,7 +104,7 @@ class RootResource(resource.Resource):
 
     def on_dataprovider_added(self, loader, wrapper):
         # FIXME: Doesn't care or respect anything about the user :-)
-        if wrapper.name == "Test Dynamic Source" or wrapper.name == "Tomboy Notes":
+        if wrapper.get_key() == "TomboyNoteTwoWay":
             instance = self.modules.get_new_module_instance(wrapper.get_key())
             self.advertised[wrapper.get_UID()] = DataproviderResource(wrapper, instance)
 

@@ -39,11 +39,6 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
         self.hosts = {}
         self.dataproviders = {}
 
-        gobject.timeout_add(1000, self.make_one)
-
-    def make_one(self):
-        self.host_available("Tomboy", "localhost", "Baz", 3400, "")
-
     def host_available(self, name, host, address, port, extra_info):
         """
         Callback which is triggered when a dataprovider is advertised on 
@@ -63,8 +58,8 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
         """
         Callback which is triggered when a host is no longer available
         """
-        if self.hosts.has_key(name):
-            logd("Remote host '%s' removed" % name)
+        if self.hosts.has_key(host):
+            logd("Remote host '%s' removed" % host)
             
             for uid, dp in self.dataproviders.iteritems():
                 if dp._host_ == host:
@@ -190,7 +185,6 @@ class Request(threading.Thread, gobject.GObject):
         r1 = conn.getresponse()
         self.out_data = r1.read()
         conn.close()
-        log(self.out_data)
 
         gobject.idle_add(self.emit, "complete", self)
 
