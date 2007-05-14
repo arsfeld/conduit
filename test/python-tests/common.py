@@ -86,11 +86,12 @@ class SimpleSyncTest(object):
 
         ok("Environment ready", self.model != None and self.type_converter != None and self.sync_manager != None)
 
-        self.source = self.get_source()
-        ok("Source created", self.source != None)
+    def prepare(self, source, sink):
+        self.source = source
+        ok("Source ready", self.source != None)
 
-        self.sink = self.get_sink()
-        ok("Sink created", self.sink != None)
+        self.sink = sink
+        ok("Sink ready", self.sink != None)
 
         self.conduit = Conduit.Conduit()
         ok("Conduit created", self.conduit != None)
