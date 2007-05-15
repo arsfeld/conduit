@@ -109,23 +109,10 @@ def test_delete_all(dp):
     dp.module.refresh()
     ok("All objects deleted", dp.module.get_num_items() == 0)
 
-def test_blank_sync(pair):
+def test_sync(host):
     """
-    Ensure that both dps are blank
-    Run a combination of two way/one way and slow sync
-    """
-    test_delete_all(pair.source)
-    test_delete_all(pair.sink)
-
-    a, b = pair.sync()
-    ok("Sync worked", a == 0 and b == 0)
-
-def test_add_sync_sync(obj):
-    """
-    If the source has 3 items and the sink has 0 then after the first sync
-    both sides should have 3.
-
-    Syncing straight away for a 2nd time should give no change
+    Wrapper around the sync method. It calls sync twice and checks for changes, which would
+    indicate that the mappings db has become corrupted
     """
     # get the counts before we start
     a1 = host.get_source_count()
@@ -133,11 +120,46 @@ def test_add_sync_sync(obj):
 
     # after the first sync the counts should be the same on both sides
     a2, b2 = host.sync()
-    ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a1, a2, b1, b2), a1==a2 and a2==b2)
+    ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a1, a2, b1, b2), a2==b2)
 
     # after the third sync nothing should have changed
     a3, b3 = host.sync()
-    ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a2, a3, b2, b3), a2==a3 and a3==b3)
+    ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a2, a3, b2, b3), a3==b3)
+
+    ok("Count didn't change between last 2 syncs", a2==a3 and b2==b3)
+
+    return (a2-a1, b2-b1)
+
+def test_add_data(host, dp, datatype, dataset):
+    """
+    Add some data to a dataprovider
+    """
+    objs = dataset()
+    for i in range(0, len(objs)):
+        obj = convert(host, datatype, dp.in_type, objs[i])
+        dp.module.put(obj, True, str(i))
+
+    dp.module.refresh()
+    ok("Dataset loaded into source", dp.module.get_num_items() == len(objs)) 
+
+    test_sync(host)
+
+def test_modify_data(host, dp):
+    pass
+
+def test_delete_data(host, dp):
+    pass
+
+def test_clear(host):
+    """
+    Ensure that both dps are blank
+    Run a combination of two way/one way and slow sync
+    """
+    test_delete_all(host.source)
+    test_delete_all(host.sink)
+
+    a, b = host.sync()
+    ok("Sync worked", a == 0 and b == 0)
 
 def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     """
@@ -150,21 +172,21 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     host.set_slow_sync(slow)
 
     # Ensure the dps are empty
-    test_blank_sync(host)
+    test_clear(host)
+    test_add_data(host, host.source, datatype, dataset)
+    test_modify_data(host, host.source)
+    test_modify_data(host, host.sink)
+    test_delete_data(host, host.source)
+    test_delete_data(host, host.sink)
 
-    objs = dataset()
-    for i in range(0, len(objs)):
-        obj = convert(host, datatype, source.in_type, objs[i])
-        source.module.put(obj, True, str(i))
+    test_clear(host)
+    test_add_data(host, host.sink, datatype, dataset)
+    test_modify_data(host, host.sink)
+    test_modify_data(host, host.source)
+    test_delete_data(host, host.sink)
+    test_delete_data(host, host.source)
 
-    source.module.refresh()
-    ok("Dataset loaded into source", source.module.get_num_items() == len(objs)) 
-
-    # Try a simple add / sync / sync
-    test_add_sync_sync(host)
-
-    # Ensure dps are empty
-    test_blank_sync(host)
+    test_clear(host)
 
 # Intialise sync management framework
 host = SimpleSyncTest()
@@ -209,7 +231,7 @@ for source in targets:
 for source, sink, datatype, dataset in combinations:
     # Run all combinations of slow and 1way/2way
     test_full(host, source, sink, datatype, dataset, True, False)
-    test_full(host, source, sink, datatype, dataset, True, True)
+    #test_full(host, source, sink, datatype, dataset, True, True)
     test_full(host, source, sink, datatype, dataset, False, False)
-    test_full(host, source, sink, datatype, dataset, False, True)
+    #test_full(host, source, sink, datatype, dataset, False, True)
 
