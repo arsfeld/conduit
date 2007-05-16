@@ -78,7 +78,7 @@ def prep_folder_calendar(host):
 
     dp = host.get_dataprovider("FolderTwoWay")
     dp.module.folderGroupName = "calendar"
-    dp.module.folder = sink_folder
+    dp.module.folder = "file://"+sink_folder
     return dp
 
 def prep_folder_contacts(host):
@@ -88,7 +88,7 @@ def prep_folder_contacts(host):
 
     dp = host.get_dataprovider("FolderTwoWay")
     dp.module.folderGroupName = "contacts"
-    dp.module.folder = sink_folder
+    dp.module.folder = "file://"+sink_folder
     return dp
 
 def test_delete_all(dp):
