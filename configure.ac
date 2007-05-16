@@ -153,6 +153,8 @@ conduit/dataproviders/GmailModule/Makefile
 conduit/dataproviders/GmailModule/libgmail-0.1.5/Makefile
 conduit/dataproviders/SettingsModule/Makefile
 conduit/dataproviders/SettingsModule/settings/Makefile
+conduit/dataproviders/SmugMugModule/Makefile
+conduit/dataproviders/SmugMugModule/SmugMugAPI/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit.pc

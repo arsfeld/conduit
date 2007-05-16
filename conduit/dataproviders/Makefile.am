@@ -5,7 +5,8 @@ SUBDIRS = \
 	FlickrModule \
 	FspotModule \
 	GmailModule \
-	SettingsModule
+	SettingsModule \
+	SmugMugModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \

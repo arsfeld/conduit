@@ -739,7 +739,7 @@ class FolderTwoWay(DataProvider.TwoWay):
                 #put in the folder
                 newURI = self.folder+pathFromBase
             else:
-                logd("FolderTwoWay: Recreating group")
+                logd("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
                 #unknown. Store in the dir but recreate the group
                 newURI = self.folder+"/"+vfsFile.group+pathFromBase
 
