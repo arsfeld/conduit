@@ -866,6 +866,8 @@ OPTIONS:
             log("Stopping DBus synchronization threads")
             self.dbus.sync_manager.cancel_all()
 
+        self.model.quit()
+
         gtk.main_quit()
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')

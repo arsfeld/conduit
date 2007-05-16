@@ -317,6 +317,10 @@ class ModuleManager(gobject.GObject):
             if i.module_type == type_filter:
                 i.module = self._instantiate_class(i.classname, i.initargs)
 
+    def quit(self):
+        for dpf in self.dataproviderFactories:
+            dpf.quit()
+
 class DataProviderFactory(gobject.GObject):
     """
     Abstract base class for a factory which emits Dataproviders. Users should 
@@ -358,6 +362,12 @@ class DataProviderFactory(gobject.GObject):
         self.emit("dataprovider-removed", key)
 
     def probe(self):
+        pass
+
+    def quit(self):
+        """
+        Shutdown cleanup...
+        """
         pass
 
 
