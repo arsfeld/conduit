@@ -1,6 +1,7 @@
 import sys
 import os
 import glob
+import time
 
 # make sure we have conduit folder in path!
 my_path = os.path.dirname(__file__)
@@ -107,6 +108,8 @@ class SimpleSyncTest(object):
         self.sync_manager.join_all()
 
         print conduit.mappingDB.debug()
+
+        time.sleep(1)
 
         return (self.get_source_count(), self.get_sink_count())
 

@@ -179,12 +179,15 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     test_delete_data(host, host.source)
     test_delete_data(host, host.sink)
 
-    test_clear(host)
-    test_add_data(host, host.sink, datatype, dataset)
-    test_modify_data(host, host.sink)
-    test_modify_data(host, host.source)
-    test_delete_data(host, host.sink)
-    test_delete_data(host, host.source)
+    # Same tests again, but inject at the sink.
+    # Only makes sense in the twoway case
+    if twoway:
+        test_clear(host)
+        test_add_data(host, host.sink, datatype, dataset)
+        test_modify_data(host, host.sink)
+        test_modify_data(host, host.source)
+        test_delete_data(host, host.sink)
+        test_delete_data(host, host.source)
 
     test_clear(host)
 
@@ -235,3 +238,6 @@ for source, sink, datatype, dataset in combinations:
     test_full(host, source, sink, datatype, dataset, False, False)
     #test_full(host, source, sink, datatype, dataset, False, True)
 
+    # conduit.mappingDB.delete()
+
+host.module_manager.quit()
