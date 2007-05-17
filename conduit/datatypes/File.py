@@ -62,6 +62,29 @@ class File(DataType.DataType):
             else:
                 logw("Cannot get info on non-existant file %s" % self.URI)
 
+    def _make_directory_and_parents(self, directory):
+        """
+        Because gnomevfs.make_dir does not perform as mkdir -p this function
+        is required to make a heirarchy of directories.
+
+        @param directory: A directory that does not exist
+        @type directory: gnomevfs.URI
+        """
+        exists = False
+        dirs = []
+        while not exists:
+            dirs.append(directory)
+            directory = directory.parent
+            exists = gnomevfs.exists(directory)
+
+        dirs.reverse()
+        for d in dirs:
+            logd("Making directory %s" % d)
+            gnomevfs.make_directory(
+                d,
+                gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
+                )
+
     def exists(self):
         self._open_file()
         return self.fileExists
@@ -126,28 +149,17 @@ class File(DataType.DataType):
             mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
         logd("Transfering File %s -> %s" % (self.URI, newURI))
-        try:
-            result = gnomevfs.xfer_uri( self.URI, newURI,
-                                        gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                                        gnomevfs.XFER_ERROR_MODE_ABORT,
-                                        mode)
-        except gnomevfs.NotFoundError:
-            if self.exists() and not gnomevfs.exists(newURIString):
-                logw("GNOMEVFS BUG")                
-                #FIXME: IGNORES gnomevfs.XFER_NEW_UNIQUE_DIRECTORY
-                #Make the required directory
-                parent = newURI.parent
-                if not gnomevfs.exists(parent):
-                    gnomevfs.make_directory(
-                                parent,
-                                gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
-                                )
-                    logw("GNOMEVFS BUG: Making Parent Dir")
-                    #try the copy again
-                    result = gnomevfs.xfer_uri( self.URI, newURI,
-                                        gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                                        gnomevfs.XFER_ERROR_MODE_ABORT,
-                                        mode)
+
+        #recursively create all parent dirs if needed
+        parent = newURI.parent
+        if not gnomevfs.exists(parent):
+            self._make_directory_and_parents(parent)
+
+        #Copy the file
+        result = gnomevfs.xfer_uri( self.URI, newURI,
+                            gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                            gnomevfs.XFER_ERROR_MODE_ABORT,
+                            mode)
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
