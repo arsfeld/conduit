@@ -680,11 +680,14 @@ class FolderTwoWay(DataProvider.TwoWay):
     _out_type_ = "file"
     _icon_ = "folder"
 
+    DEFAULT_FOLDER = os.path.expanduser("~")
+    DEFAULT_GROUP = "Home"
+
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
 
-        self.folder = os.path.expanduser("~")
-        self.folderGroupName = "Home"
+        self.folder = FolderTwoWay.DEFAULT_FOLDER
+        self.folderGroupName = FolderTwoWay.DEFAULT_GROUP
         self.files = []
 
     def initialize(self):
@@ -777,8 +780,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.files = []
 
     def set_configuration(self, config):
-        self.folder = config["folder"]
-        self.folderGroupName = config["folderGroupName"]
+        self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
+        self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
 
     def get_configuration(self):
         _save_config_file_for_dir(self.folder, self.folderGroupName)
