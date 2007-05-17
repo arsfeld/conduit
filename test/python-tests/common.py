@@ -87,6 +87,9 @@ class SimpleSyncTest(object):
 
         ok("Environment ready", self.model != None and self.type_converter != None and self.sync_manager != None)
 
+    def print_mapping_db(self):
+        print conduit.mappingDB.debug()
+
     def prepare(self, source, sink):
         self.source = source
         ok("Source ready", self.source != None)
@@ -100,14 +103,39 @@ class SimpleSyncTest(object):
         self.conduit.add_dataprovider_to_conduit(self.source)
         self.conduit.add_dataprovider_to_conduit(self.sink)
 
+    def configure(self, source={}, sink={}):
+        if len(source) > 0:
+            try:
+                self.source.module.set_configuration(source)
+                ok("Source configured", True)
+            except:
+                ok("Source configured", False)
+        if len(sink) > 0:
+            try:
+                self.sink.module.set_configuration(sink)
+                ok("Sink configured", True)
+            except:
+                ok("Sink configured", False)
+
+    def refresh(self):
+        #refresh conduit
+        self.sync_manager.refresh_conduit(self.conduit)
+        self.sync_manager.join_all()
+
+        aborted = self.sync_manager.sync_aborted(self.conduit) 
+        ok("Refresh completed", aborted != True)
+
+        return self.source.module.get_num_items(), self.sink.module.get_num_items()
+
     def sync(self):
         #sync conduit
         self.sync_manager.sync_conduit(self.conduit)
-
         # wait for sync to finish
         self.sync_manager.join_all()
 
-        print conduit.mappingDB.debug()
+        #print conduit.mappingDB.debug()
+        aborted = self.sync_manager.sync_aborted(self.conduit) 
+        ok("Sync completed", aborted != True)
 
         time.sleep(1)
 
@@ -126,6 +154,9 @@ class SimpleSyncTest(object):
             self.conduit.enable_two_way_sync()
         else:
             self.conduit.disable_two_way_sync()
+
+    def set_two_way_policy(self, policy):
+        self.sync_manager.set_twoway_policy(policy)
 
     def get_two_way_sync(self):
         return self.conduit.is_two_way()
