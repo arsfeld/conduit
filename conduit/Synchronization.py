@@ -171,7 +171,16 @@ class SyncManager:
         #Connect the callbacks
         self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
         self.syncWorkers[conduit].start()
-            
+
+    def sync_aborted(self, conduit):
+        """
+        Returns True if the supplied conduit aborted (the sync did not complete
+        due to an unhandled exception
+        """
+        try:
+            return self.syncWorkers[conduit].aborted
+        except KeyError:
+            return True
 
 class SyncWorker(threading.Thread, gobject.GObject):
     """
@@ -227,6 +236,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #may occur in a data conversion. Needed so that the correct status
         #is shown on the GUI at the end of the sync process
         self.sinkErrors = {}
+
+        #true if the sync aborts via an unhandled exception
+        self.aborted = False
 
         #Start at the beginning
         self.state = SyncWorker.CONFIGURE_STATE
@@ -586,7 +598,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
                                     ))
             #Variable to exit the loop
             finished = False
-            aborted = False
             #Keep track of those sinks that didnt refresh ok
             sinkDidntRefreshOK = {}
             sinkDidntConfigureOK = {}
@@ -720,10 +731,10 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         except Exceptions.StopSync:
             logw("Sync Aborted")
-            aborted = True
+            self.aborted = True
 
         conduit.mappingDB.save()
-        gobject.idle_add(self.emit, "sync-completed", aborted or len(self.sinkErrors) != 0)
+        gobject.idle_add(self.emit, "sync-completed", self.aborted or len(self.sinkErrors) != 0)
                 
 class DeletedData(DataType.DataType):
     """

@@ -68,7 +68,7 @@ def new_tempfile(contents, contentsAreText=True):
     """
     return File.TempFile(contents)
 
-def new_tempdir(self):
+def new_tempdir():
     """
     Creates a new temporary directory
     """
