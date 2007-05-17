@@ -193,7 +193,7 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
 
 # Intialise sync management framework
 host = SimpleSyncTest()
-host.sync_manager.set_twoway_policy({
+host.set_two_way_policy({
                 "conflict"  :   "replace",
                 "deleted"   :   "replace"}
                 )

@@ -54,6 +54,17 @@ ok("Local Compare: checking newest == newest = %s" % comp,comp == conduit.dataty
 comp = oldest.compare(null)
 ok("Local Compare: checking oldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
 
+#test the handling of weird characters and transferring files to unusual paths
+tmpdir = Utils.new_tempdir()
+f1 = Utils.new_tempfile(Utils.random_string())
+f2 = os.path.join(tmpdir,"I am", "a", "path with spaces", "foo.txt")
+
+f3 = Utils.new_tempfile(Utils.random_string())
+f4 = os.path.join(tmpdir,"I also am", "a", "wird path", "foo.txt")
+
+f1.transfer(f2)
+f3.transfer(f4)
+
 if is_online():
     remoteURIs = [  "ssh://root@www.greenbirdsystems.com/root/sync/Document.abw",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Image.png",

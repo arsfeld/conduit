@@ -1,45 +1,26 @@
 #common sets up the conduit environment
 from common import *
 
-import conduit.Module as Module
 import conduit.Utils as Utils
 import conduit.datatypes.File as File
-import conduit.Conduit as Conduit
-import conduit.TypeConverter as TypeConverter
-import conduit.Synchronization as Synchronization
-
 from conduit.datatypes import COMPARISON_EQUAL
 
 import traceback
 import random
 import time
 
-#Set up our own mapping DB so we dont pollute the global one
-tempdb = os.path.join
-conduit.mappingDB.open_db(os.path.join(os.environ['TEST_DIRECTORY'],Utils.random_string()+".db"))
-
-#Dynamically load all datasources, datasinks and converters
-dirs_to_search =    [
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.USER_DIR, "modules")
-                    ]
-model = Module.ModuleManager(dirs_to_search)
-type_converter = TypeConverter.TypeConverter(model)
-sync_manager = Synchronization.SyncManager(type_converter)
-sync_manager.set_twoway_policy({"conflict":"replace","deleted":"replace"})
-
 NUM_FILES = 10
 GROUP = "TestGroup"
 
-sourceW = None
-sinkW = None
-for i in model.get_all_modules():
-    if i.classname == "FolderTwoWay":
-        sourceW = model.get_new_module_instance(i.get_key())
-        sinkW = model.get_new_module_instance(i.get_key())
+test = SimpleSyncTest()
+test.set_two_way_policy({"conflict":"replace","deleted":"replace"})
 
-ok("Init: Got Source and Sink", sourceW != None and sinkW != None)
+#setup the conduit
+sourceW = test.get_dataprovider("FolderTwoWay")
+sinkW = test.get_dataprovider("FolderTwoWay")
+test.prepare(sourceW, sinkW)
 
+#prepare the test data
 sourceDir = os.path.join(os.environ['TEST_DIRECTORY'],"source")
 sinkDir = os.path.join(os.environ['TEST_DIRECTORY'],"sink")
 if not os.path.exists(sourceDir):
@@ -48,7 +29,6 @@ if not os.path.exists(sinkDir):
     os.mkdir(sinkDir)
 
 FILES = []
-#create some random files
 for i in range(0, NUM_FILES):
     name = Utils.random_string()
     contents = Utils.random_string()
@@ -72,31 +52,19 @@ for i in (sourceDir, sinkDir):
 config = {}
 config["folderGroupName"] = GROUP
 config["folder"] = "file://"+sourceDir
-sourceW.module.set_configuration(config)
+test.configure(source=config)
+
 config["folder"] = "file://"+sinkDir
-sinkW.module.set_configuration(config)
+test.configure(sink=config)
 
-#check they refresh ok
-try:
-    sinkW.module.refresh()
-    sourceW.module.refresh()
-    ok("Init: Refresh FolderTwoWay", True)
-except Exception, err:
-    ok("Init: Refresh FolderTwoWay (%s)" % err, False)
-
-a = sinkW.module.get_num_items()
-b = sourceW.module.get_num_items()
+#check they scan the dirs ok
+a = test.get_source_count()
+b = test.get_sink_count()
 ok("Sync: Got all items (%s,%s,%s)" % (a,b,len(FILES)), (a+b)==len(FILES))
 
-#now put them in a conduit and sync
-conduit = Conduit.Conduit()
-conduit.add_dataprovider_to_conduit(sourceW)
-conduit.add_dataprovider_to_conduit(sinkW)
-conduit.enable_two_way_sync()
-
-#SYNC and wait for sync to finish (block)
-sync_manager.sync_conduit(conduit)
-sync_manager.join_all()
+#sync
+test.set_two_way_sync(True)
+test.sync()
 
 for name,contents in FILES:
     f1 = File.File(os.path.join(sourceDir, name))
@@ -121,16 +89,11 @@ for i in range(0, NUM_FILES/2):
 time.sleep(1)
 
 #SYNC and wait for sync to finish (block)
-sync_manager.sync_conduit(conduit)
-sync_manager.join_all()
-
-#some IO time
+test.sync()
 time.sleep(1)
 
-sinkW.module.refresh()
-sourceW.module.refresh()
-a = sinkW.module.get_num_items()
-b = sourceW.module.get_num_items()
+a = test.get_source_count()
+b = test.get_sink_count()
 ok("Delete: Files were deleted (%s,%s,%s)" % (a,b,len(FILES)), a==b and a==len(FILES))
 
 for name,contents in FILES:
