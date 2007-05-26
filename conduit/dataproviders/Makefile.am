@@ -16,7 +16,7 @@ conduit_handlers_PYTHON = \
 	ConverterModule.py
 
 if ENABLE_EVOLUTION
-	conduit_handlers_PYTHON += EvolutionModule.py
+	SUBDIRS += EvolutionModule
 endif
 
 clean-local:
