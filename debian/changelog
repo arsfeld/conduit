@@ -1,3 +1,15 @@
+conduit (0.3.0-1~getdeb1) feisty; urgency=low
+
+  * New upstream version
+
+ -- Joao Pinto <joao.pinto@getdeb.net>  Sun, 06 May 2007 19:17:27 +0000
+
+conduit (0.3.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Marcos Rodriguez <marcos@unknown>  Sun,  6 May 2007 14:31:35 -0400
+
 conduit (0.2.0) unreleased; urgency=low
 
   * New version with the following improvements:
