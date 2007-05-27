@@ -16,10 +16,6 @@ import conduit.DataProvider as DataProvider
 import conduit.datatypes.Contact as Contact
 import conduit.Utils as Utils
 
-MODULES = {
-	"EvoContactSource" : { "type": "dataprovider" }	
-}
-
 class EvoContactSource(DataProvider.DataSource):
 
     DEFAULT_ADDRESSBOOK = "default"
