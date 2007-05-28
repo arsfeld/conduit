@@ -103,6 +103,23 @@ class MappingDB:
             if i["sourceDataLUID"] == sourceDataLUID:
                 return i["sinkDataLUID"], i["mtime"]
 
+        existing = self.get_mappings_for_dataproviders(sinkUID,sourceUID)
+        for i in existing:
+            if i["sourceDataLUID"] == sourceDataLUID:
+                return i["sinkDataLUID"], i["mtime"]
+
+        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
+        for i in existing:
+            if i["sinkDataLUID"] == sourceDataLUID:
+                return i["sourceDataLUID"], i["mtime"]
+
+        existing = self.get_mappings_for_dataproviders(sinkUID,sourceUID)
+        for i in existing:
+            if i["sinkDataLUID"] == sourceDataLUID:
+                return i["sourceDataLUID"], i["mtime"]
+
+        logd("No mapping found for LUID: %s" % sourceDataLUID)
+
         return None, None
 
     def delete_mapping(self, sourceUID, sinkUID, dataLUID):
