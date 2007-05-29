@@ -685,6 +685,7 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
+        self.need_configuration(True)
 
         self.folder = FolderTwoWay.DEFAULT_FOLDER
         self.folderGroupName = FolderTwoWay.DEFAULT_GROUP
@@ -708,7 +709,7 @@ class FolderTwoWay(DataProvider.TwoWay):
 
         f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName)
         self.folder, self.folderGroupName = f.show_dialog()
-
+        self.set_configured(True)
         self._monitor_folder()
 
     def refresh(self):
