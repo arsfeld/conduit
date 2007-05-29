@@ -144,6 +144,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
                     if comp != conduit.datatypes.COMPARISON_NEWER:
                         raise Exceptions.SynchronizeConflictError(comp, note, existingNote)
                     else:
+                        self._save_note_to_tomboy(LUID, note)
                         return LUID
             else:
                 log("Told to replace note %s, nothing there to replace." % LUID)
