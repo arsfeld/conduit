@@ -793,6 +793,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
         self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
 
+        self.set_configured(True)
         self._monitor_folder()
 
     def get_configuration(self):
