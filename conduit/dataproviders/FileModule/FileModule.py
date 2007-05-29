@@ -690,6 +690,13 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.folderGroupName = FolderTwoWay.DEFAULT_GROUP
         self.files = []
 
+        self._monitor_folder_id = None
+
+    def __del__(self):
+        if self._monitor_folder_id != None:
+            gnomevfs.monitor_cancel(self._monitor_folder_id)
+            self._monitor_folder_id = None
+
     def initialize(self):
         return True
 
@@ -701,6 +708,8 @@ class FolderTwoWay(DataProvider.TwoWay):
 
         f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName)
         self.folder, self.folderGroupName = f.show_dialog()
+
+        self._monitor_folder()
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -783,6 +792,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
         self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
 
+        self._monitor_folder()
+
     def get_configuration(self):
         _save_config_file_for_dir(self.folder, self.folderGroupName)
         return {
@@ -815,6 +826,25 @@ class FolderTwoWay(DataProvider.TwoWay):
                 configString = _get_config_file_for_dir(folderScanner.baseURI)
                 self.items[path][GROUP_NAME_IDX] = configString
             except gnomevfs.NotFoundError: pass
+
+    def _monitor_folder(self):
+        if self._monitor_folder_id != None:
+            gnomvevfs.monitor_cancel(self._monitored_folder)
+            self._monitor_folder_id = None
+
+        try:
+            self._monitor_folder_id = gnomevfs.monitor_add(self.folder, gnomevfs.MONITOR_DIRECTORY, self._monitor_folder_cb)
+        except gnomevfs.NotSupportedError:
+            # silently fail if we are looking at a folder that doesn't support directory monitoring
+            pass
+
+    def _monitor_folder_cb(self, monitor_uri, event_uri, event, data=None):
+        """
+        Called when a file in the current folder is changed, added or deleted
+        """
+        # supported events = CHANGED, DELETED, STARTEXECUTING, STOPEXECUTING, CREATED, METADATA_CHANGED
+        if event in (gnomevfs.MONITOR_EVENT_CREATED, gnomevfs.MONITOR_EVENT_CHANGED, gnomevfs.MONITOR_EVENT_DELETED):
+            self.emit_change_detected()
 
 class USBFactory(Module.DataProviderFactory):
     def __init__(self, **kwargs):

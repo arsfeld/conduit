@@ -139,6 +139,8 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
         """
         Emits a 'change-detected' signal to the main loop.
         """
+        logd("Change detected in dataproviders data (%s)" % self.get_UID())
+
         self.set_status(STATUS_CHANGE_DETECTED)
         self.emit("change-detected")
         self.pendingChangeDetected = False
