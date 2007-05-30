@@ -5,6 +5,7 @@ SUBDIRS = \
 	FlickrModule \
 	FspotModule \
 	GmailModule \
+	PicasaModule \
 	SettingsModule \
 	SmugMugModule
 

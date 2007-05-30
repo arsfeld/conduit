@@ -151,6 +151,8 @@ conduit/dataproviders/FlickrModule/FlickrAPI/Makefile
 conduit/dataproviders/FspotModule/Makefile
 conduit/dataproviders/GmailModule/Makefile
 conduit/dataproviders/GmailModule/libgmail-0.1.5/Makefile
+conduit/dataproviders/PicasaModule/Makefile
+conduit/dataproviders/PicasaModule/PicasaAPI/Makefile
 conduit/dataproviders/SettingsModule/Makefile
 conduit/dataproviders/SettingsModule/settings/Makefile
 conduit/dataproviders/SmugMugModule/Makefile
