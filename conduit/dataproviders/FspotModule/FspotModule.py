@@ -154,6 +154,17 @@ class FspotSource(DataProvider.DataSource):
             self.set_configured(True)
         dlg.destroy()
 
+    def set_configuration(self, config):
+        self.enabledTags = []
+        for tag in config.get("tags", []):
+            self.enabledTags.append(int(tag))
+            
+    def get_configuration(self):
+        strTags = []
+        for tag in self.enabledTags:
+            strTags.append(str(tag))
+        return {"tags": strTags}
+
     def get_UID(self):
         return Utils.get_user_string()
 
