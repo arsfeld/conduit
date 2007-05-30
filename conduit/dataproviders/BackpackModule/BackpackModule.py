@@ -19,8 +19,6 @@ MODULES = {
 	"BackpackNoteSink" : { "type": "dataprovider" }
 }
 
-BACKPACK_CAT = DataProvider.DataProviderCategory("Backpackit.com","backpack")
-
 class BackpackBase(DataProvider.DataProviderBase):
     """
     Simple wrapper to share gmail login stuff
@@ -48,11 +46,11 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
 
     _name_ = _("Backpack Notes")
     _description_ = _("Store things in Backpack Notes")
-    _category_ = BACKPACK_CAT
+    _category_ = DataProvider.CATEGORY_NOTES
     _module_type_ = "sink"
     _in_type_ = "note"
     _out_type_ = "note"
-    _icon_ = "tomboy"
+    _icon_ = "backpack"
 
     def __init__(self, *args):
         BackpackBase.__init__(self, *args)

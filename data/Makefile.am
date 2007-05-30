@@ -41,7 +41,10 @@ resources_DATA = \
 	conduit-progress-5.png \
 	conduit-progress-6.png \
 	conduit-progress-7.png \
-	conduit-progress-8.png
+	conduit-progress-8.png \
+	picasa.png \
+	smugmug.png \
+	flickr.png
 
 conduitbindir = $(libdir)/conduit
 

@@ -471,7 +471,7 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
 
     _name_ = _("Files")
     _description_ = _("Source for synchronizing multiple files")
-    _category_ = DataProvider.CATEGORY_LOCAL
+    _category_ = DataProvider.CATEGORY_FILES
     _module_type_ = "source"
     _in_type_ = "file"
     _out_type_ = "file"
@@ -674,7 +674,7 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     _name_ = _("Folder")
     _description_ = _("Synchronize folders")
-    _category_ = DataProvider.CATEGORY_LOCAL
+    _category_ = DataProvider.CATEGORY_FILES
     _module_type_ = "twoway"
     _in_type_ = "file"
     _out_type_ = "file"

@@ -35,9 +35,9 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
     LUID is the tomboy uid string
     """
 
-    _name_ = _("Tomboy Notes")
-    _description_ = _("Sync your Tomboy notes")
-    _category_ = DataProvider.CATEGORY_LOCAL
+    _name_ = "Tomboy Notes"
+    _description_ = "Sync your Tomboy notes"
+    _category_ = DataProvider.CATEGORY_NOTES
     _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"

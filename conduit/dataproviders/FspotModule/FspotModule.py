@@ -21,7 +21,7 @@ class FspotSource(DataProvider.DataSource):
 
     _name_ = "F-Spot Photos"
     _description_ = "Sync your F-Spot photos"
-    _category_ = DataProvider.CATEGORY_LOCAL
+    _category_ = DataProvider.CATEGORY_PHOTOS
     _module_type_ = "source"
     _in_type_ = "file"
     _out_type_ = "file"

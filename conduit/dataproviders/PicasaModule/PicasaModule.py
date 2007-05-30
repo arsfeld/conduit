@@ -25,11 +25,11 @@ class PicasaSink(DataProvider.DataSink):
 
     _name_ = "Picasa"
     _description_ = "Sync Your Google Picasa Photos"
-    _category_ = DataProvider.CATEGORY_WEB
+    _category_ = DataProvider.CATEGORY_PHOTOS
     _module_type_ = "sink"
     _in_type_ = "file"
     _out_type_ = "file"
-    _icon_ = "image-x-generic"
+    _icon_ = "picasa"
 
     ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
     

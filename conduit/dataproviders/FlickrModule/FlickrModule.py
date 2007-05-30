@@ -27,11 +27,11 @@ class FlickrSink(DataProvider.DataSink):
 
     _name_ = "Flickr"
     _description_ = "Sync Your Flickr.com Photos"
-    _category_ = DataProvider.CATEGORY_WEB
+    _category_ = DataProvider.CATEGORY_PHOTOS
     _module_type_ = "sink"
     _in_type_ = "file"
     _out_type_ = "file"
-    _icon_ = "image-x-generic"
+    _icon_ = "flickr"
 
     API_KEY="65552e8722b21d299388120c9fa33580"
     SHARED_SECRET="03182987bf7fc4d1"

@@ -35,7 +35,7 @@ class Settings(DataProvider.DataSource):
 
     _name_ = "System Settings"
     _description_ = "Sync your desktop preferences"
-    _category_ = DataProvider.CATEGORY_LOCAL
+    _category_ = DataProvider.CATEGORY_MISC
     _module_type_ = "source"
     _in_type_ = "setting"
     _out_type_ = "setting"

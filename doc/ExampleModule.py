@@ -1,54 +1,11 @@
 """
 An Example DataSource and DataType implementation.
-
-The most important field in this file is the MODULES dictionary. This
-specifies the capabilities of the new DataSource and DataType and any 
-conversion functions which have defined.
-
-@var MODULES:  The MODULES variable is a dictionary of dictionaries. The
-outer dict defines the name of a class defined in this file with the properties
-specified by the value of the inner dict.
-
-The keys in the inner dict represent
- -  name: The name of the DataProvider (for graphical purposes)
- -  description: Description of the DataProvider (for graphical purposes)
- -  type: String, "source" for Datasource, "sink" for Datasinks
-    and "converter" for classes contating DataType conversion methods
- -  category: a DataProviderCategory object specifying a category name 
-    and icon ("MoinMoin", "applications-internet" respecively)
- -  in_type: The name of the DataType this DataProvider accepts in its
-    put() method (if present)
- -  out_type: The name of the DataType returned from this classes get()
-    method
-
-The dictionary is in the following format:::
-
-    MODULES = {
-    	"MoinMoinDataSource" : {
-    		"name": _("GNOME Wiki Source"),
-    		"description": _("Get Pages from the GNOME Wiki"),
-    		"type": "source",
-    		"category": DataProviderCategory("MoinMoin", "applications-internet"),
-    		"in_type": "wikipage",
-    		"out_type": "wikipage"
-    	},
-    	"WikiPageConverter" : {
-    		"name": _("Wiki Converter"),
-    		"description": _("Bla"),
-    		"type": "converter",
-    		"category": "",
-    		"in_type": "",
-    		"out_type": "",
-    	}
-    }
-
 """
 import gtk
-from gettext import gettext as _
 
 import conduit
 from conduit import log,logd,logw
-from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_WEB
+from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_FILES
 from conduit.datatypes import DataType
 from conduit.datatypes import Text
 import conduit.Exceptions as Exceptions
@@ -71,9 +28,9 @@ class MoinMoinDataSource(DataSource):
     @type self.pages: C{string}[]
     """
 
-    _name_ = _("GNOME Wiki")
-    _description_ = _("Get Pages from the GNOME Wiki")
-    _category_ = CATEGORY_WEB
+    _name_ = "GNOME Wiki"
+    _description_ = "Get Pages from the GNOME Wiki"
+    _category_ = CATEGORY_FILES
     _module_type_ = "source"
     _in_type_ = "wikipage"
     _out_type_ = "wikipage"

@@ -31,7 +31,7 @@ class RSSSource(DataProvider.DataSource):
 
     _name_ = _("RSS Feed")
     _description_ = _("Sync data from RSS enclosures")
-    _category_ = DataProvider.CATEGORY_WEB
+    _category_ = DataProvider.CATEGORY_MISC
     _module_type_ = "source"
     _in_type_ = ""
     _out_type_ = "file"

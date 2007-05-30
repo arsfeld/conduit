@@ -71,9 +71,13 @@ class DataProviderCategory:
         self.icon = icon
         self.key = name + key
 
-CATEGORY_LOCAL = DataProviderCategory("On This Computer", "computer")
-CATEGORY_REMOTE = DataProviderCategory("Remote", "network-server")
-CATEGORY_WEB = DataProviderCategory("On The Web", "applications-internet")
+#Default Categories for the DataProviders
+CATEGORY_FILES = DataProviderCategory("Files and Folders", "computer")
+CATEGORY_NOTES = DataProviderCategory("Notes", "tomboy")
+CATEGORY_PHOTOS = DataProviderCategory("Photos", "image-x-generic")
+CATEGORY_OFFICE = DataProviderCategory("Office", "applications-office")
+CATEGORY_SETTINGS = DataProviderCategory("Settings", "applications-system")
+CATEGORY_MISC = DataProviderCategory("Miscellanous", "applications-accessories")
 CATEGORY_TEST = DataProviderCategory("Test")
 
 class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
