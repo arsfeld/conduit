@@ -1,5 +1,4 @@
 import gtk
-from gettext import gettext as _
 
 try:
     import elementtree.ElementTree as ET
@@ -64,7 +63,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
             logw("Tomboy DBus interface not found")
             return False
 
-    def _save_note_to_tomboy(self, uid, note):
+    def _update_note(self, uid, note):
         ok = False
         if note.raw != "":
             ok = self.remoteTomboy.SetNoteContentsXml(uid, note.raw)
@@ -75,9 +74,11 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
             else:
                 content = note.contents
             ok = self.remoteTomboy.SetNoteContents(uid, content)
-        return ok
 
-    def _get_note_from_tomboy(self, uid):
+        if not ok:
+            raise Exceptions.SyncronizeError("Error setting Tomboy note content (uri: %s)" % uid)
+
+    def _get_note(self, uid):
         try:
             timestr = self.remoteTomboy.GetNoteChangeDate(uid)
             mtime = datetime.datetime.fromtimestamp(int(timestr))
@@ -95,6 +96,18 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         n.set_open_URI(str(uid))
         return n
 
+    def _create_note(self, note):
+        if note.title != "":
+            uid = self.remoteTomboy.CreateNamedNote(note.title)
+        else:
+            uid = self.remoteTomboy.CreateNote()
+        #hackery because python dbus bindings dont marshal dbus.String to str
+        uid = str(uid)
+        if uid == "":
+            raise Exceptions.SyncronizeError("Error creating Tomboy note")
+
+        #fill out the note content
+        self._update_note(uid, note)
 
     def initialize(self):
         """
@@ -113,7 +126,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
     def get(self, index):
         DataProvider.TwoWay.get(self, index)
         noteURI = self.notes[index]
-        return self._get_note_from_tomboy(noteURI)
+        return self._get_note(noteURI)
                 
     def get_num_items(self):
         DataProvider.TwoWay.get_num_items(self)
@@ -125,47 +138,32 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         """
         DataProvider.TwoWay.put(self, note, overwrite, LUID)
 
-        logd(">>>> %s %s" % (note.get_UID(), LUID))
-
         #Check if we have already uploaded the photo
         if LUID != None:
             if self.remoteTomboy.NoteExists(LUID):
                 if overwrite == True:
                     #replace the note
                     log("Replacing Note %s" % LUID)
-                    self._save_note_to_tomboy(LUID, note)
+                    self._update_note(LUID, note)
                     return LUID
                 else:
                     #Only replace if newer
-                    existingNote = self._get_note_from_tomboy(LUID)
+                    existingNote = self._get_note(LUID)
                     comp = note.compare(existingNote)
                     logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
                             (note.title,existingNote.title,comp))
                     if comp != conduit.datatypes.COMPARISON_NEWER:
                         raise Exceptions.SynchronizeConflictError(comp, note, existingNote)
                     else:
-                        self._save_note_to_tomboy(LUID, note)
+                        self._update_note(LUID, note)
                         return LUID
             else:
                 log("Told to replace note %s, nothing there to replace." % LUID)
                     
         #We havent, or its been deleted so add it. 
         log("Saving new Note")
-        if note.title != "":
-            uid = self.remoteTomboy.CreateNamedNote(note.title)
-        else:
-            uid = self.remoteTomboy.CreateNote()
-        
-        #hackery because python dbus bindings dont marshal dbus.String to str
-        uid = str(uid)
-
-        if uid == "":
-            raise Exceptions.SyncronizeError("Error creating Tomboy note")
-
-        if not self._save_note_to_tomboy(uid, note):
-            raise Exceptions.SyncronizeError("Error setting Tomboy note content")
-
-        return uid
+        LUID = self._create_note(note)
+        return LUID
 
     def delete(self, LUID):
         if self.remoteTomboy.NoteExists(LUID):
