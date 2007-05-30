@@ -1,11 +1,12 @@
+MODULES = {}
 try:
     import evolution as evo
-
-    MODULES = {
-    	"EvoContactTwoWay" : { "type": "dataprovider" }	
-    }
-except ImportError:
-    MODULES = {}
+    if evo.__version__ == (0,0,1):
+        MODULES = {
+        	"EvoContactTwoWay" : { "type": "dataprovider" }	
+        }
+except ImportError: pass
+    
 
 import gtk
 import gobject
@@ -19,25 +20,53 @@ import conduit.Exceptions as Exceptions
 
 import datetime
 
-class EvoContactTwoWay(DataProvider.DataSource):
+class EvoContactTwoWay(DataProvider.TwoWay):
 
     DEFAULT_ADDRESSBOOK = "default"
 
     _name_ = "Evolution Contacts"
     _description_ = "Sync your Contacts"
-    _category_ = DataProvider.CATEGORY_LOCAL
+    _category_ = DataProvider.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "contact"
     _out_type_ = "contact"
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self)
+        DataProvider.TwoWay.__init__(self)
         self.contacts = None
 
         self.selectedAddressBook = EvoContactTwoWay.DEFAULT_ADDRESSBOOK
-
         self._addressBooks = evo.list_addressbooks()
+
+    def _get_contact(self, LUID):
+        """
+        Retrieve a specific contact object from evolution
+        FIXME: In 0.5 this will replace get(...)
+        """
+        obj = self.book.get_contact(LUID)
+        contact = Contact.Contact(None)
+        contact.set_from_vcard_string(obj.get_vcard_string())
+        contact.set_UID(obj.get_uid())
+        contact.set_mtime(datetime.datetime.fromtimestamp(obj.get_modified()))
+        return contact
+
+    def _create_contact(self, contact):
+        obj = evo.EContact(vcard=contact.get_vcard_string())
+        if self.book.add_contact(obj):
+            return obj.get_uid()
+        else:
+            raise Exceptions.SyncronizeError("Error creating contact")
+
+    def _delete_contact(self, uid):
+        return self.book.remove_contact_by_id(uid)
+
+    def _update_contact(self, uid, contact):
+        if self._delete_contact(uid):
+            uid = self._create_contact(contact)
+            return uid
+        else:
+            raise Exceptions.SyncronizeError("Error updating contact (uid: %s)" % uid)
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
@@ -72,7 +101,7 @@ class EvoContactTwoWay(DataProvider.DataSource):
         dlg.destroy()            
 
     def refresh(self):
-        DataProvider.DataSource.refresh(self)
+        DataProvider.TwoWay.refresh(self)
         self.contacts = []
 
         self.book = evo.open_addressbook(self.selectedAddressBook)
@@ -80,54 +109,44 @@ class EvoContactTwoWay(DataProvider.DataSource):
             self.contacts.append(i.get_uid())
 
     def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
+        DataProvider.TwoWay.get_num_items(self)
         return len(self.contacts)
 
     def get(self, index):
-        DataProvider.DataSource.get(self, index)
+        DataProvider.TwoWay.get(self, index)
         uid = self.contacts[index]
-        return self._get(uid)
-
-    def _get(self, LUID):
-        """
-        Retrieve a specific contact object from evolution
-        FIXME: In 0.5 this will replace get(...)
-        """
-        obj = self.book.get_contact(LUID)
-        contact = Contact.Contact(None)
-        contact.set_from_vcard_string(obj.get_vcard_string())
-        contact.set_UID(obj.get_uid())
-        contact.set_mtime(datetime.datetime.fromtimestamp(obj.get_modified()))
-        return contact
+        return self._get_contact(uid)
 
     def put(self, contact, overwrite, LUID=None):
         if LUID != None:
             obj = self.book.get_contact(LUID)
             if obj != None:
                 if overwrite == True:
-                    # overwrite
-                    # FIXME: Overwrite + return LUID instead of falling back to creating a new object
-                    self.book.remove_contact_by_id(LUID)
+                    # overwrite and return new ID
+                    uid = self._update_contact(LUID, contact)
+                    return uid
                 else:
-                    existingContact = self._get(LUID)
+                    existingContact = self._get_contact(LUID)
                     comp = contact.compare(existingContact)
                     # only update if newer
                     if comp != conduit.datatypes.COMPARISON_NEWER:
                         raise Exceptions.SynchronizeConflictError(comp, contact, existingContact)
                     else:
-                        # FIXME: Overwrite + return LUID instead of falling back to creating a new object
-                        self.book.remove_contact_by_id(LUID)
+                        # overwrite and return new ID
+                        uid = self._update_contact(LUID, contact)
+                        return uid
 
         # if we get here then it is new...
-        obj = evo.EContact(vcard=contact.get_vcard_string(), uid=LUID)
-        self.book.add_contact(obj)
-        return obj.get_uid()
+        log("Creating new contact")
+        uid = self._create_contact(contact)
+        return uid
 
     def delete(self, LUID):
-        self.book.remove_contact_by_id(LUID)
+        if not self._delete_contact(LUID):
+            logw("Error deleting contact (uid: %s)" % LUID)
 
     def finish(self):
-        DataProvider.DataSource.finish(self)
+        DataProvider.TwoWay.finish(self)
         self.contacts = None
 
     def get_configuration(self):
