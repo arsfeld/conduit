@@ -44,10 +44,8 @@ class FlickrSink(DataProvider.DataSink):
         self.username = ""
         self.fapi = None
         self.token = None
-        self.tagWith = "Conduit"
+        self.tagWith = ""
         self.showPublic = True
-        self.showFriends = True
-        self.showFamily = True
 
     def _get_user_quota(self):
         """
@@ -133,10 +131,14 @@ class FlickrSink(DataProvider.DataSink):
         #We havent, or its been deleted so upload it
         logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % 
             (photoURI, mimeType, originalName))
+        #tags have to be space seperated
+        tagstr = self.tagWith.replace(","," ")
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
                                 filename=photoURI,
                                 title=originalName,
+                                is_public="%i" % self.showPublic,
+                                tags=tagstr
                                 )
         if self.fapi.getRspErrorCode(ret) != 0:
             raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % self.fapi.getPrintableError(ret))
@@ -161,16 +163,12 @@ class FlickrSink(DataProvider.DataSink):
         attachTagCb = tree.get_widget("attach_tag_check")
         tagEntry = tree.get_widget("tag_entry")
         publicCb = tree.get_widget("public_check")
-        friendsCb = tree.get_widget("friends_check")
-        familyCb = tree.get_widget("family_check")
         username = tree.get_widget("username")
         
         #preload the widgets
         attachTagCb.set_active(len(self.tagWith) > 0)
         tagEntry.set_text(self.tagWith)
         publicCb.set_active(self.showPublic)
-        friendsCb.set_active(self.showFriends)
-        familyCb.set_active(self.showFamily)
         username.set_text(self.username)
         
         dlg = tree.get_widget("FlickrSinkConfigDialog")
@@ -181,8 +179,6 @@ class FlickrSink(DataProvider.DataSink):
             if attachTagCb.get_active():
                 self.tagWith = tagEntry.get_text()
             self.showPublic = publicCb.get_active()
-            self.showFamily = familyCb.get_active()
-            self.showFriends = friendsCb.get_active()                        
             self.username = username.get_text()
 
             #user must enter their username
@@ -195,9 +191,7 @@ class FlickrSink(DataProvider.DataSink):
         return {
             "username" : self.username,
             "tagWith" : self.tagWith,
-            "showPublic" : self.showPublic,
-            "showFriends" : self.showFriends,
-            "showFamily" : self.showFamily
+            "showPublic" : self.showPublic
             }
 
     def set_configuration(self, config):
