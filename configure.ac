@@ -84,7 +84,7 @@ AC_ARG_ENABLE([evolution],
               [enable_evolution=no])
 
 if test "x$enable_evolution" = "xyes"; then
-	PKG_CHECK_MODULES(EVOLUTION, [evolution-python >= 0.0.0] ,
+	PKG_CHECK_MODULES(EVOLUTION, [evolution-python >= 0.0.1] ,
 		[have_evolution=yes] , [have_evolution=no])
 else
 	have_evolution="no (disabled)"

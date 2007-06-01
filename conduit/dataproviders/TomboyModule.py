@@ -108,6 +108,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
 
         #fill out the note content
         self._update_note(uid, note)
+        return uid
 
     def initialize(self):
         """

@@ -14,19 +14,16 @@ if not is_online():
     print "SKIPPING"
     sys.exit()
 
-#Dynamically load all datasources, datasinks and converters
-dirs_to_search =    [
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.USER_DIR, "modules")
-                    ]
-model = ModuleManager(dirs_to_search)
-type_converter = TypeConverter(model)
-
-flickr = model.get_new_module_instance("FlickrSink").module
-flickr.username = "%s" % os.environ['TEST_USERNAME']
-
 #A Reliable photo_id of a photo that will not be deleted
 SAFE_PHOTO_ID="404284530"
+
+#setup the test
+test = SimpleTest(sinkName="FlickrSink")
+config = {"username":os.environ['TEST_USERNAME']}
+test.configure(sink=config)
+
+#get the module directly so we can call some special functions on it
+flickr = test.get_sink().module
 
 #Log in
 try:
@@ -55,9 +52,3 @@ try:
 except Exception, err:
     ok("Upload a photo (%s)" % err, False)
 
-#Upload the photo again
-flickr.put(f, True, uid)
-ok("Replace the photo (UID:%s) " % uid, True)
-#Upload the photo again
-flickr.put(f, False, uid)
-ok("Skip uploading because photo already uploaded (UID:%s) " % uid, True)

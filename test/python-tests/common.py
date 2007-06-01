@@ -66,12 +66,11 @@ def is_online():
     except KeyError:
         return False
 
-class SimpleSyncTest(object):
+class SimpleTest(object):
     """
-    Helper class to make setting up test-pairs as easy as possible
+    Helper class to make testing dataproviders easy as possible
     """
-
-    def __init__(self):
+    def __init__(self, sourceName=None, sinkName=None):
         #Set up our own mapping DB so we dont pollute the global one
         conduit.mappingDB.open_db(os.path.join(os.environ['TEST_DIRECTORY'],Utils.random_string()+".db"))
 
@@ -86,6 +85,73 @@ class SimpleSyncTest(object):
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
 
         ok("Environment ready", self.model != None and self.type_converter != None and self.sync_manager != None)
+
+        self.source = None
+        if sourceName != None:
+            self.source = self.get_dataprovider(sourceName)
+            self.sourceName = sourceName
+
+        self.sink = None
+        if sinkName != None:
+            self.sink = self.get_dataprovider(sinkName)
+            self.sinkName = sinkName
+
+    def get_dataprovider(self, name):
+        """
+        Return a DP identified by a given name
+        """
+        wrapper = None
+        for dp in self.model.get_all_modules():
+            if dp.classname == name:
+                wrapper = self.model.get_new_module_instance(dp.get_key())
+
+        ok("Find wrapper '%s'" % name, wrapper != None)
+        return wrapper
+
+    def wrap_dataprovider(self, dp):
+        wrapper = ModuleWrapper (   
+                    getattr(dp, "_name_", ""),
+                    getattr(dp, "_description_", ""),
+                    getattr(dp, "_icon_", ""),
+                    getattr(dp, "_module_type_", ""),
+                    None,
+                    getattr(dp, "_in_type_", ""),
+                    getattr(dp, "_out_type_", ""),
+                    dp.__class__.__name__,     #classname
+                    [],
+                    dp,
+                    True
+                    )
+
+        return wrapper
+
+    def configure(self, source={}, sink={}):
+        if len(source) > 0:
+            try:
+                self.source.module.set_configuration(source)
+                ok("Source configured", True)
+            except:
+                ok("Source configured", False)
+        if len(sink) > 0:
+            try:
+                self.sink.module.set_configuration(sink)
+                ok("Sink configured", True)
+            except:
+                ok("Sink configured", False)
+
+    def get_source(self):
+        return self.source
+
+    def get_sink(self):
+        return self.sink
+
+class SimpleSyncTest(SimpleTest):
+    """
+    Helper class to make setting up test-pairs as easy as possible
+    """
+
+    def __init__(self):
+        SimpleTest.__init__(self)
 
     def print_mapping_db(self):
         print conduit.mappingDB.debug()
@@ -102,20 +168,6 @@ class SimpleSyncTest(object):
 
         self.conduit.add_dataprovider_to_conduit(self.source)
         self.conduit.add_dataprovider_to_conduit(self.sink)
-
-    def configure(self, source={}, sink={}):
-        if len(source) > 0:
-            try:
-                self.source.module.set_configuration(source)
-                ok("Source configured", True)
-            except:
-                ok("Source configured", False)
-        if len(sink) > 0:
-            try:
-                self.sink.module.set_configuration(sink)
-                ok("Sink configured", True)
-            except:
-                ok("Sink configured", False)
 
     def refresh(self):
         #refresh conduit
@@ -173,37 +225,4 @@ class SimpleSyncTest(object):
     def get_slow_sync(self):
         return self.conduit.do_slow_sync()
 
-    def get_source(self):
-        raise NotImplementedError
 
-    def get_sink(self):
-        raise NotImplementedError
-
-    def get_dataprovider(self, name):
-        """
-        Return a DP identified by a given name
-        """
-        wrapper = None
-        for dp in self.model.get_all_modules():
-            if dp.classname == name:
-                wrapper = self.model.get_new_module_instance(dp.get_key())
-
-        ok("Find wrapper '%s'" % name, wrapper != None)
-        return wrapper
-
-    def wrap_dataprovider(self, dp):
-        wrapper = ModuleWrapper (   
-                    getattr(dp, "_name_", ""),
-                    getattr(dp, "_description_", ""),
-                    getattr(dp, "_icon_", ""),
-                    getattr(dp, "_module_type_", ""),
-                    None,
-                    getattr(dp, "_in_type_", ""),
-                    getattr(dp, "_out_type_", ""),
-                    dp.__class__.__name__,     #classname
-                    [],
-                    dp,
-                    True
-                    )
-
-        return wrapper

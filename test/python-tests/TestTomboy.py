@@ -11,14 +11,9 @@ import random
 import datetime
 import traceback
 
-#Dynamically load all datasources, datasinks and converters
-dirs_to_search =    [
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.USER_DIR, "modules")
-                    ]
-model = ModuleManager(dirs_to_search)
-
-tomboy = model.get_new_module_instance("TomboyNoteTwoWay").module
+#setup the test
+test = SimpleTest(sinkName="TomboyNoteTwoWay")
+tomboy = test.get_sink().module
 
 try:
     tomboy.refresh()
@@ -45,10 +40,11 @@ newnote = Note.Note(
                     )
 try:
     uid = tomboy.put(newnote,False)
+    print "uid", uid
     ok("Put new note (%s)" % uid, uid != None)
-except:
+except Exception, err:
     traceback.print_exc()
-    ok("Put new note", False)
+    ok("Put new note: %s" % err, False)
 
 #modify the note and replace the old one
 teststr = Utils.random_string()
@@ -61,7 +57,7 @@ except:
 
 #check the content was replace correctly
 try:
-    tomboy._get_note_from_tomboy(uid).contents.index(teststr)
+    tomboy._get_note(uid).contents.index(teststr)
     ok("Note was overwritten correctly", True)
 except:
     traceback.print_exc()
@@ -69,7 +65,7 @@ except:
 
 #Try and overwrite the note with an older version. Check it conflicts
 olddate = datetime.datetime.fromtimestamp(0)
-newnote = tomboy._get_note_from_tomboy(uid)
+newnote = tomboy._get_note(uid)
 newnote.set_mtime(olddate)
 try:
     tomboy.put(newnote, False, uid)

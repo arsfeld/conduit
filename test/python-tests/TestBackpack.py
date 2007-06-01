@@ -13,20 +13,17 @@ if not is_online():
     print "SKIPPING"
     sys.exit()
 
-#Dynamically load all datasources, datasinks and converters
-dirs_to_search =    [
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.USER_DIR, "modules")
-                    ]
-model = ModuleManager(dirs_to_search)
-type_converter = TypeConverter(model)
+#setup the test
+test = SimpleTest(sinkName="BackpackNoteSink")
+backpack = test.get_sink().module
 
-backpack = model.get_new_module_instance("BackpackNoteSink").module
-backpack.username = "%s" % os.environ['TEST_USERNAME']
-#This key is meant to be secret, but it doesnt really matter because this account
-#is solely for testing
-backpack.apikey = "13f3e8657d25d399f4b6b4f7eda7986ae6e0fbde"
-backpack.storeInPage = "%s-%s" % (conduit.APPNAME, conduit.APPVERSION)
+#configure the backpack
+config = {
+    "username" :        os.environ['TEST_USERNAME'],
+    "apikey" :          "13f3e8657d25d399f4b6b4f7eda7986ae6e0fbde",
+    "storeInPage" :     "%s-%s" % (conduit.APPNAME, conduit.APPVERSION)
+}    
+test.configure(sink=config)
 
 #Log in
 try:
