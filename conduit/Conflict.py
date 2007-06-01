@@ -11,6 +11,7 @@ import random
 import os.path
 import gobject
 import gtk, gtk.gdk
+import pango
 
 import conduit
 from conduit import log,logd,logw
@@ -93,11 +94,11 @@ class ConflictResolver:
 
         sourceIconRenderer = gtk.CellRendererPixbuf()
         sourceNameRenderer = gtk.CellRendererText()
+        sourceNameRenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
         column0.pack_start(sourceIconRenderer, False)
         column0.pack_start(sourceNameRenderer, True)
 
         column0.set_property("expand", True)
-        column0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         column0.set_cell_data_func(sourceNameRenderer, self._name_data_func, True)
         column0.set_cell_data_func(sourceIconRenderer, self._icon_data_func, True)
 
@@ -106,18 +107,17 @@ class ConflictResolver:
         column1 = gtk.TreeViewColumn("Resolution", confRenderer)
         column1.set_cell_data_func(confRenderer, self._direction_data_func, DIRECTION_IDX)
         column1.set_property("expand", False)
-        #column1.set_min_width(40)
 
         #Visible column2 is the display name of source and source data
         column2 = gtk.TreeViewColumn("Sink")
 
         sinkIconRenderer = gtk.CellRendererPixbuf()
         sinkNameRenderer = gtk.CellRendererText()
+        sinkNameRenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
         column2.pack_start(sinkIconRenderer, False)
         column2.pack_start(sinkNameRenderer, True)
 
         column2.set_property("expand", True)
-        column2.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
         column2.set_cell_data_func(sinkNameRenderer, self._name_data_func, False)
         column2.set_cell_data_func(sinkIconRenderer, self._icon_data_func, False)
 
