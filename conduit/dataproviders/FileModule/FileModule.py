@@ -743,7 +743,10 @@ class FolderTwoWay(DataProvider.TwoWay):
             #where relative path makes no sense. Could also come from
             #the FileSource dp when the user has selected a single file
             logd("FolderTwoWay: No basepath. Going to empty dir")
-            newURI = self.folder+"/"+vfsFile.get_filename()
+            if LUID != None:
+                newURI = LUID
+            else:
+                newURI = self.folder+"/"+vfsFile.get_filename()
         else:
             pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
