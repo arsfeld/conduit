@@ -1,7 +1,5 @@
 """
 Flickr Uploader.
-
-Code Borrowed from postr, ross burtoni
 """
 import os, sys
 import gtk
@@ -146,6 +144,22 @@ class FlickrSink(DataProvider.DataSink):
             #return the photoID
             return ret.photoid[0].elementText
 
+    def delete(self, LUID):
+        #Authenticating with delete permissions does not yet work....
+        #
+        #if self._get_photo_info(LUID) != None:
+        #    ret = self.fapi.photos_delete(
+        #                    api_key=FlickrSink.API_KEY,
+        #                    photo_id=LUID
+        #                    )
+        #    if self.fapi.getRspErrorCode(ret) != 0:
+        #        logw("Flickr Error Deleting: %s" % self.fapi.getPrintableError(ret))
+        #else:
+        #    logw("Photo doesnt exist")
+        pass
+
+        
+
     def configure(self, window):
         """
         Configures the GmailSource for which emails it should return
@@ -160,13 +174,11 @@ class FlickrSink(DataProvider.DataSink):
                         "FlickrSinkConfigDialog")
         
         #get a whole bunch of widgets
-        attachTagCb = tree.get_widget("attach_tag_check")
         tagEntry = tree.get_widget("tag_entry")
         publicCb = tree.get_widget("public_check")
         username = tree.get_widget("username")
         
         #preload the widgets
-        attachTagCb.set_active(len(self.tagWith) > 0)
         tagEntry.set_text(self.tagWith)
         publicCb.set_active(self.showPublic)
         username.set_text(self.username)
@@ -176,8 +188,7 @@ class FlickrSink(DataProvider.DataSink):
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
-            if attachTagCb.get_active():
-                self.tagWith = tagEntry.get_text()
+            self.tagWith = tagEntry.get_text()
             self.showPublic = publicCb.get_active()
             self.username = username.get_text()
 
