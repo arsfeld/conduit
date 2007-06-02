@@ -18,6 +18,7 @@ Options:\n\
     -p      Prepare some files on remote servers\n\
     -s NAME Perform only the test called NAME\n\
     -o      Offline. Skip tests that require a net connection\n\
+    -d      Debug. also print test ouput to console\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
 login information in the relevant dataproviders\n\

@@ -19,7 +19,11 @@ SAFE_PHOTO_ID="404284530"
 
 #setup the test
 test = SimpleTest(sinkName="FlickrSink")
-config = {"username":os.environ['TEST_USERNAME']}
+config = {
+    "username":     os.environ['TEST_USERNAME'],
+    "tagWith" :     "Conduit",
+    "showPublic":   False
+}
 test.configure(sink=config)
 
 #get the module directly so we can call some special functions on it

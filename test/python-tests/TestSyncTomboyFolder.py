@@ -18,9 +18,10 @@ folderDir = os.path.join(os.environ['TEST_DIRECTORY'],"folder")
 if not os.path.exists(folderDir):
     os.mkdir(folderDir)
 
-for i in get_files_from_data_dir("*.tomboy"):
+tomboyFiles = get_files_from_data_dir("*.tomboy")
+for i in tomboyFiles:
     f = File.File(i)
-    f.transfer(folderDir, True)
+    f.transfer(folderDir+"/"+f.get_filename(), True)
 
 time.sleep(1)
 
@@ -35,18 +36,16 @@ test.refresh()
 
 a = test.get_source_count()
 b = test.get_sink_count()
-ok("Got items to sync (%s,%s)" % (a,b), a > 0 and b == 0)
+ok("Got items to sync (%s,%s)" % (a,b), a > 0 and b == len(tomboyFiles))
 
 #sync
 test.set_two_way_sync(True)
 test.sync()
 
-
 #Check the notes were all transferred
-#tomboy.module.refresh()
-#a = tomboy.module.get_num_items()
-#folder.module.refresh()
-#b = folder.module.get_num_items()
-#ok("All notes transferred (%s,%s)" % (a,b), a == b)
+test.refresh()
+a = test.get_source_count()
+b = test.get_sink_count()
+ok("All notes transferred (%s,%s)" % (a,b), a == b)
 
-print conduit.mappingDB.debug()
+#test.print_mapping_db()

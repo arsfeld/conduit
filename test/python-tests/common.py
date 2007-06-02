@@ -145,6 +145,9 @@ class SimpleTest(object):
     def get_sink(self):
         return self.sink
 
+    def print_mapping_db(self):
+        print conduit.mappingDB.debug()
+
 class SimpleSyncTest(SimpleTest):
     """
     Helper class to make setting up test-pairs as easy as possible
@@ -152,9 +155,6 @@ class SimpleSyncTest(SimpleTest):
 
     def __init__(self):
         SimpleTest.__init__(self)
-
-    def print_mapping_db(self):
-        print conduit.mappingDB.debug()
 
     def prepare(self, source, sink):
         self.source = source
