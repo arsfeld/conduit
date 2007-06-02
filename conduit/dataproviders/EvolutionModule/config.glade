@@ -27,7 +27,7 @@
     <widget class="GtkVBox" id="vbox22">
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
-      <property name="spacing">0</property>
+      <property name="spacing">5</property>
 
       <child internal-child="action_area">
 	<widget class="GtkHButtonBox" id="hbuttonbox9">
@@ -72,7 +72,7 @@
 	<widget class="GtkVBox" id="comboboxbox">
 	  <property name="visible">True</property>
 	  <property name="homogeneous">False</property>
-	  <property name="spacing">0</property>
+	  <property name="spacing">5</property>
 
 	  <child>
 	    <widget class="GtkLabel" id="sourceLabel">
