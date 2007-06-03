@@ -42,8 +42,11 @@ class SmugMugSink(DataProvider.DataSink):
         self.album = ""
         self.sapi = None
 
+    def _get_photo_info (self, photoId):
+        return self.sapi.get_image_info (photoId)
+
     def _get_raw_photo_url(self, photoInfo):
-    	return photoInfo['OriginalURL']
+        return photoInfo['OriginalURL']
         
     def initialize(self):
         return True
@@ -70,7 +73,7 @@ class SmugMugSink(DataProvider.DataSink):
 
         #Check if we have already uploaded the photo
         if LUID != None:
-            info = self.sapi.get_image_info(LUID)
+            info = self._get_photo_info(LUID)
             #check if a photo exists at that UID
             if info != None:
                 if overwrite == True:
