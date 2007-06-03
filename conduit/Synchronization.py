@@ -497,9 +497,9 @@ class SyncWorker(threading.Thread, gobject.GObject):
         for i in sourceModified[:]:
             matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), i, sink.get_UID())
             if sinkModified.count(matchingUID) != 0:
-                logw("BOTH MODIFIED: %s v %s" % (uid, matchingUID))
+                logw("BOTH MODIFIED: %s v %s" % (i, matchingUID))
                 sourceModified.remove(i)
-                sinkModified.remove(i)
+                sinkModified.remove(matchingUID)
                 tocomp.append( (source, i, sink, matchingUID, mtime) )
 
         #all that remains in the original lists are to be put
