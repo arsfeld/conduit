@@ -490,23 +490,8 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
                         gobject.TYPE_STRING,    #GROUP_NAME_IDX
                         gobject.TYPE_PYOBJECT   #CONTAINS_ITEMS_IDX
                         )
-        #A DB of files with meta information
-        self.db = None
-        self._tmpfile = os.path.join(Utils.tempfile.mkdtemp(), "uris.db")
-        self._create_empty_db()
-
-    def _create_empty_db(self):
-        self.db = DB.SimpleDb(self._tmpfile)
-        self.db.create("uri", "type", "basepath", "group", mode="overwrite")
-        self.db.create_index("group")
-        self.db.create_index("type")
-
-    def _get_files_from_db(self):
-        """
-        Returns just those items that are files (not folders or empty folders
-        from the DB
-        """
-        return self.db._type[TYPE_FILE]+self.db._type[TYPE_SINGLE_FILE]
+        #A dictionary of files with meta info
+        self.files = {} #uri:   (basepath, groupname)
 
     def initialize(self):
         return True
@@ -517,16 +502,12 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
        
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-        #Empty the DB to ensure we alwawys have a continous list of 
-        #db record IDs that we can use as the index   
-        self._create_empty_db()
         #Make a whole bunch of threads to go and scan the directories
         for item in self.items:
             #Make sure we rescan
             item[SCAN_COMPLETE_IDX] = False
             if item[TYPE_IDX] == TYPE_SINGLE_FILE:
-                fileUri = item[URI_IDX]
-                self.db.insert(fileUri,TYPE_SINGLE_FILE,"","")
+                self.files[item[URI_IDX]] = ( "", "" )
             else:
                 folderURI = item[URI_IDX]
                 rowref = item.iter
@@ -540,23 +521,23 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
         for item in self.items:
             if item[TYPE_IDX] == TYPE_FOLDER:
                 if item[CONTAINS_NUM_ITEMS_IDX] == 0:
-                    self.db.insert(item[URI_IDX],TYPE_EMPTY_FOLDER, item[URI_IDX], item[GROUP_NAME_IDX])
+                    self.files[item[URI_IDX]] = ( item[URI_IDX], item[GROUP_NAME_IDX] )
                 else:
                     for i in item[CONTAINS_ITEMS_IDX]:
-                        self.db.insert(i,TYPE_FILE, item[URI_IDX], item[GROUP_NAME_IDX])
+                        self.files[i] = ( item[URI_IDX], item[GROUP_NAME_IDX] )
 
-    def get(self, index):
-        DataProvider.DataSource.get(self, index)
-        item = self._get_files_from_db()[index]
-        #gnomevfs seems to escape spaces to %20
-        filename = Utils.unescape(item['uri'])
+        print self.files
+
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
+        basepath, group = self.files[LUID]
         f = File.File(
-                    URI=        filename,
-                    basepath=   Utils.unescape( item['basepath'] ),
-                    group=      item['group']
+                    URI=        LUID,
+                    basepath=   basepath,
+                    group=      group
                     )
-        f.set_open_URI(filename)
-        f.set_UID(filename)
+        f.set_open_URI(LUID)
+        f.set_UID(LUID)
         return f
 
     def add(self, LUID):
@@ -564,15 +545,12 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
         if f.exists() and not f.is_directory():
             self.items.append((f._get_text_uri(),TYPE_SINGLE_FILE,0,False,"",[]))                
 
-    def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
-        #When functioning as a datasource we are only interested in the 
-        #files because that is all that will be get()
-        return len(self._get_files_from_db())
+    def get_all(self):
+        return self.files.keys()
 
     def finish(self):
         DataProvider.DataSource.finish(self)
-        self.db = None
+        self.files = {}
 
     def set_configuration(self, config):
         for f in config.get("files",[]):
