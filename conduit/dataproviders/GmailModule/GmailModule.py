@@ -203,7 +203,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.refresh(self)
         GmailBase.refresh(self)
 
-        self.mails = []
+        self.mails = {}
 
         if self.loggedIn:
             if self.getAllEmail:
@@ -229,7 +229,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                             for message in thread:
                                 mail = Email.Email(None)
                                 mail.set_from_email_string(message.source)
-                                self.mails.append(mail)                    
+                                self.mails[message.id] = mail              
                 elif len(self.getWithLabel) > 0:
                     logd("Getting Email Labelled: %s" % self.getWithLabel)                
                     result = self.ga.getMessagesByLabel(self.getWithLabel)
@@ -238,7 +238,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                             for message in thread:
                                 mail = Email.Email(None)
                                 mail.set_from_email_string(message.source)
-                                self.mails.append(mail)
+                                self.mails[message.id] = mail
                 elif len(self.getInFolder) > 0:
                     logd("Getting Email in Folder: %s" % self.getInFolder)                
                     result = self.ga.getMessagesByFolder(self.getInFolder)
@@ -247,17 +247,17 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                             for message in thread:
                                 mail = Email.Email(None)
                                 mail.set_from_email_string(message.source)
-                                self.mails.append(mail)
+                                self.mails[message.id] = mail
         else:
             raise Exceptions.SyncronizeFatalError
                 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        return self.mails[index]
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self.mails[LUID]
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.mails)
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return [x for x in self.mails.iterkeys()]
 
     def put(self, email, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, email, overwrite, LUID)
@@ -324,7 +324,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.refresh(self)
         GmailBase.refresh(self)
 
-        self.contacts = []
+        self.contacts = {}
 
         if self.loggedIn:
             result = self.ga.getContacts().getAllContacts()
@@ -336,13 +336,13 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         else:
             raise Exceptions.SyncronizeFatalError
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.contacts)
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return [x for x in self.contacts.iterkeys()]
 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        return self.contacts[index]
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self.contacts[LUID]
 
     def put(self, contact, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, contact, overwrite, LUID)
