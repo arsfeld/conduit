@@ -332,7 +332,8 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
                 #FIXME: When Contact can load a vcard file, use that instead!
                contact = Contact.Contact()
                contact.set_from_vcard_string(c.getVCard())
-               self.contacts.append(contact)
+               contact.set_UID(c.email)
+               self.contacts[c.email] = contact
         else:
             raise Exceptions.SyncronizeFatalError
 
