@@ -39,7 +39,7 @@ class SynceTwoWay(DataProvider.TwoWay):
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         
-        self.objects = []
+        self.objects = {}
 
         # get hold of dbus service        
         bus = dbus.SessionBus()
@@ -65,19 +65,19 @@ class SynceTwoWay(DataProvider.TwoWay):
         # process changes from sync interface
         chgs = self.synce.GetRemoteChanges([self.obj_type_id])
         for luid,changetype,obj in chgs[self.obj_type_id]:
-            self.objects.append(str(obj))
+            self.objects[str(luid)] = str(obj)
 
     def _synchronized_cb(self):
         log("event fired, my sweet children...")
         self.synchronized_ev.set()
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.objects)
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return [x for x in self.objects.iterkeys()]
 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        return self.objects[index]
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self.objects[LUID]
 
     def put(self, obj, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, obj, overwrite, LUID)
