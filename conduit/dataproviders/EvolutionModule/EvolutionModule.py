@@ -127,14 +127,13 @@ class EvoContactTwoWay(DataProvider.TwoWay, EvoBase):
         for i in self.book.get_all_contacts():
             self.contacts.append(i.get_uid())
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.contacts)
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return self.contacts
 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        uid = self.contacts[index]
-        return self._get_contact(uid)
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self._get_contact(LUID)
 
     def put(self, contact, overwrite, LUID=None):
         if LUID != None:
