@@ -110,9 +110,9 @@ class IPodBase(TwoWay):
             if os.path.isfile(fullpath):
                 self.objects.append(f)
 
-    def get_num_items(self):
-        TwoWay.get_num_items(self)
-        return len(self.objects)
+    def get_all(self):
+        TwoWay.get_all(self)
+        return self.objects
 
     def delete(self, LUID):
         obj = File.File(URI=os.path.join(self.dataDir, LUID))
@@ -225,10 +225,9 @@ class IPodNoteTwoWay(IPodBase):
         shadowDir = self._get_shadow_dir()
         return os.path.exists(os.path.join(shadowDir,uid)) and os.path.exists(os.path.join(self.dataDir,uid))
                 
-    def get(self, index):
-        TwoWay.get(self, index)
-        uid = self.objects[index]
-        return self._get_note_from_ipod(uid)
+    def get(self, LUID):
+        TwoWay.get(self, LUID)
+        return self._get_note_from_ipod(LUID)
 
     def put(self, note, overwrite, LUID=None):
         """
@@ -275,16 +274,15 @@ class IPodContactsTwoWay(IPodBase):
         IPodBase.__init__(self, *args)        
         self.dataDir = os.path.join(self.mountPoint, 'Contacts')
 
-    def get(self, index):
+    def get(self, LUID):
         TwoWay.get(self, index)
-        uid = self.objects[index]
-        fullpath = os.path.join(self.dataDir, uid)
+        fullpath = os.path.join(self.dataDir, LUID)
         f = File.File(URI=fullpath)
 
         contact = Contact.Contact(None)
         contact.set_from_vcard_string(f.get_contents_as_text())
         contact.set_mtime(f.get_mtime())
-        contact.set_UID(uid)
+        contact.set_UID(LUID)
         return contact
 
     def put(self, contact, overwrite, LUID=None):
@@ -310,16 +308,15 @@ class IPodCalendarTwoWay(IPodBase):
         IPodBase.__init__(self, *args)
         self.dataDir = os.path.join(self.mountPoint, 'Calendars')
 
-    def get(self, index):
-        TwoWay.get(self, index)
-        uid = self.objects[index]
-        fullpath = os.path.join(self.dataDir, uid)
+    def get(self, LUID):
+        TwoWay.get(self, LUID)
+        fullpath = os.path.join(self.dataDir, LUID)
         f = File.File(URI=fullpath)
 
         event = Event.Event(None)
         event.set_from_ical_string(f.get_contents_as_text())
         event.set_mtime(f.get_mtime())
-        event.set_UID(uid)
+        event.set_UID(LUID)
         return event
 
     def put(self, event, overwrite, LUID=None):
