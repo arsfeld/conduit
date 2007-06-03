@@ -23,8 +23,8 @@ SAFE_IMAGE_ID =158962651
 #setup the test
 test = SimpleTest(sinkName="SmugMugSink")
 config = {
-    "username":     os.environ['CONDUIT_USERNAME'],
-    "password":     os.environ['CONDUIT_PASSWORD'],
+    "username":     os.environ['TEST_USERNAME'],
+    "password":     os.environ['TEST_PASSWORD'],
     "album"   :     SAFE_ALBUM_NAME
 }
 test.configure(sink=config)
