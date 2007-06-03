@@ -238,9 +238,9 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
     def refresh(self):
         """
         Performs any (logging in, etc) which must be undertaken on the 
-        dataprovider prior to calling get(). If possible it should gather 
-        enough information so that get_num_items() can return a
-        meaningful response
+        dataprovider prior to calling get_all(). Should gather all information
+        so a subsequent call to get_all() can return the uids of all the
+        data this dataprovider holds
         
         This function may be called multiple times so derived classes should
         be aware of this.
@@ -491,37 +491,36 @@ class DataSource(DataProviderBase):
         """
         DataProviderBase.__init__(self, widgetColorRGBA)
         
-    def get(self, index):
+    def get(self, LUID):
         """
-        Returns data at specified index. This function must be overridden by the 
+        Returns data with the specified LUID. This function must be overridden by the 
         appropriate dataprovider.
 
         Derived classes should call this function to ensure the dataprovider
         status is updated.
 
-        It is expected that you may call this function with numbers in the 
-        range 0 -> L{conduit.DataProvider.DataSource.get_num_items}.
-        
-        @param index: The index of the data to return
-        @type index: C{int}
+        @param LUID: The index of the data to return
+        @type LUID: C{string}
         @rtype: L{conduit.DataType.DataType}
         @returns: An item of data
         """
         self.set_status(STATUS_SYNC)
         return None
-                
+
     def get_num_items(self):
         """
-        Returns the number of items requiring sychronization. This function 
-        must be overridden by the appropriate dataprovider.
-        
+        Returns the number of items requiring sychronization.
         @returns: The number of items to synchronize
         @rtype: C{int}
         """
         self.set_status(STATUS_SYNC)
         return len(self.get_all())
-
+                
     def get_all(self):
+        """
+        Returns an array of all the LUIDs this dataprovider holds. 
+        """
+        self.set_status(STATUS_SYNC)
         return []
 
     def add(self, LUID):

@@ -19,8 +19,8 @@ Utils.dataprovider_add_dir_to_path(__file__)
 from GConfUtils import GConfImport, GConfExport
 
 MODULES = {
-	"Settings"     : { "type": "dataprovider"  },
-    "SettingConverter"  : { "type": "converter"     }
+#	"Settings"     : { "type": "dataprovider"  },
+#    "SettingConverter"  : { "type": "converter"     }
 }
 
 #The directory the backup .cfg files reside in
@@ -109,24 +109,24 @@ class Settings(DataProvider.DataSource):
     def refresh(self):
         DataProvider.DataSource.refresh(self)
         
-    def get(self, index):
-        DataProvider.DataSource.get(self, index)
-        #little bit of hackery because index is actually the index
-        #of enabled items in the model
-        enabled = 0
-        for i in self.model:
-            if i[ENABLED_IDX]:
-                if enabled == index:
-                    return Setting(i[NAME_IDX],i[BACKUP_IDX])
-                enabled += 1
-            
-    def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
-        num = 0
-        for i in self.model:
-            if i[ENABLED_IDX] == True:
-                num += 1
-        return num
+#     def get(self, index):
+#         DataProvider.DataSource.get(self, index)
+#         #little bit of hackery because index is actually the index
+#         #of enabled items in the model
+#         enabled = 0
+#         for i in self.model:
+#             if i[ENABLED_IDX]:
+#                 if enabled == index:
+#                     return Setting(i[NAME_IDX],i[BACKUP_IDX])
+#                 enabled += 1
+#             
+#     def get_all(self):
+#         DataProvider.DataSource.get_all(self)
+#         num = 0
+#         for i in self.model:
+#             if i[ENABLED_IDX] == True:
+#                 num += 1
+#         return num
     
     def finish(self):
         DataProvider.DataSource.finish(self)

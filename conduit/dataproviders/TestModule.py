@@ -147,9 +147,9 @@ class TestSource(_TestBase, DataProvider.DataSource):
         self.emit_change_detected()
         return False
        
-    def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
-        return self.numData
+    def get_all(self):
+        DataProvider.DataSource.get_all(self)
+        return range(0,self.numData)
 
     def get(self, index):
         DataProvider.DataSource.get(self, index)
@@ -213,21 +213,16 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         for i in range(0, random.randint(1, self.numData)):
             self.data.append(TestDataType(i))
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        num = len(self.data)
-        logd("TWO WAY: get_num_items() returned %s" % num)
-        return num
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return self.data
 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        data = self.data[index]
-        logd("TWO WAY: get() returned %s" % data)
-        return data
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return LUID
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        logd("TWO WAY: put() %s" % data)
         LUID=data.get_UID()+self._name_
         return LUID
 

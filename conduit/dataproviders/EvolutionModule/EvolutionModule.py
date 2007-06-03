@@ -254,14 +254,13 @@ class EvoMemoTwoWay(DataProvider.TwoWay, EvoBase):
         for i in self.source.get_all_objects():
             self.memos.append(i.get_uid())
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.memos)
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return self.memos
 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        uid = self.memos[index]
-        return self._get_memo(uid)
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self._get_memo(LUID)
 
     def put(self, memo, overwrite, LUID=None):
         if LUID != None:
