@@ -324,12 +324,11 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         return newdata
 
-    def _apply_deleted_policy(self, sourceWrapper, sinkWrapper, dataLUID):
+    def _apply_deleted_policy(self, sourceWrapper, sourceDataLUID, sinkWrapper, sinkDataLUID):
         """
         Applies user policy when data has been deleted from source.
-
-        Depending on if the dp is on the left or not, the arrows may suggest
-        resolution in different directions
+        sourceDataLUID is the original UID of the data that has been deleted
+        sinkDataLUID is the uid of the data in sink that should now be deleted
         """
         if self.policy["deleted"] == "skip":
             logd("Deleted Policy: Skipping")
@@ -347,14 +346,14 @@ class SyncWorker(threading.Thread, gobject.GObject):
                 validResolveChoices = (CONFLICT_DELETE, CONFLICT_SKIP) 
             gobject.idle_add(self.emit,"sync-conflict", 
                         sourceWrapper,              #datasource wrapper
-                        DeletedData(dataLUID),      #from data
+                        DeletedData(sourceDataLUID),#from data
                         sinkWrapper,                #datasink wrapper
-                        DeletedData(None),          #to data
+                        DeletedData(sinkDataLUID),  #to data
                         validResolveChoices,        #valid resolve choices
                         True                        #This conflict is a deletion
                         )
         elif self.policy["deleted"] == "replace":
-            _delete_data(sourceWrapper, sinkWrapper, dataLUID)
+            _delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
          
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
@@ -455,7 +454,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         for d in deleted:
             matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), d, sink.get_UID())
             if matchingUID != None:
-                self._apply_deleted_policy(source, sink, matchingUID)
+                self._apply_deleted_policy(source, d, sink, matchingUID)
        
     def two_way_sync(self, source, sink):
         """
@@ -517,7 +516,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
             matchingUID, mtime = conduit.mappingDB.get_mapping(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
             logd("2WAY DEL: %s (%s)" % (sinkdp.name, matchingUID))
             if matchingUID != None:
-                self._apply_deleted_policy(sourcedp, sinkdp, matchingUID)
+                self._apply_deleted_policy(sourcedp, dataUID, sinkdp, matchingUID)
 
         for dp1, data1UID, dp2, data2UID, mtime in tocomp:
             logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
@@ -716,7 +715,7 @@ class DeletedData(DataType.DataType):
     """
     def __init__(self, UID, **kwargs):
         self.UID = UID
-        self.snippet = kwargs.get("snippet", "Deleted from %s" % self.UID)
+        self.snippet = kwargs.get("snippet", "Deleted %s" % self.UID)
 
     def get_UID(self):
         return self.UID

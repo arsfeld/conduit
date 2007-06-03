@@ -144,7 +144,7 @@ class ConflictResolver:
             if is_source:
                 text = tree_model.get_value(rowref, SOURCE_DATA_IDX).get_snippet()
             else:
-                text = tree_model.get_value(rowref, SOURCE_DATA_IDX).get_snippet()
+                text = tree_model.get_value(rowref, SINK_DATA_IDX).get_snippet()
 
         cell_renderer.set_property("text", text)
 
@@ -277,7 +277,7 @@ class ConflictResolver:
                 sink = model[path][SOURCE_IDX]
             elif model[path][DIRECTION_IDX] == CONFLICT_DELETE:
                 logd("Resolving deletion  --->")
-                data = model[path][SOURCE_DATA_IDX]
+                data = model[path][SINK_DATA_IDX]
                 source = model[path][SOURCE_IDX]
                 sink = model[path][SINK_IDX]
             else:
