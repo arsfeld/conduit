@@ -143,29 +143,31 @@ class RSSSource(DataProvider.DataSource):
                             if t in self.allowedTypes:
                                 if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
                                     allreadyInserted.append(url)
-                                    #Make a file
-                                    f = File.File(url)
-                                    #create the correct extension
-                                    # use python built in mimetypes (utilises /etc/mime.types)
-                                    #  fix to use pygtk when they are out of api freeze and can fix 349619?
-                                    try:
-                                        ext = mimetypes.guess_extension(t)
-                                    except:
-                                        ext = ""
-                                    self.files.append(f)
+                                    self.files.append(url)
                             else:
                                 logd("Enclosure %s is on non-allowed type (%s)" % (title,t))
         except:
             log("Error getting/parsing feed \n%s" % traceback.format_exc())
             raise Exceptions.RefreshError
-                            
-    def get(self, index):
-        DataProvider.DataSource.get(self, index)
-        return self.files[index]
 
-    def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)                            
-        return len(self.files)
+    def get_all(self):
+        DataProvider.DataSource.get_all(self)                            
+        return self.files
+            
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
+        #Make a file
+        f = File.File(LUID)
+
+        #create the correct extension
+        # use python built in mimetypes (utilises /etc/mime.types)
+        #  fix to use pygtk when they are out of api freeze and can fix 349619?
+        try:
+            ext = mimetypes.guess_extension(t)
+        except:
+            ext = ""
+
+        return f
 
     def finish(self):
         DataProvider.DataSource.finish(self)
