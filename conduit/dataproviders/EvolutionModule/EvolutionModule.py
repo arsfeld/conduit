@@ -149,7 +149,7 @@ class EvoContactTwoWay(DataProvider.TwoWay, EvoBase):
                     comp = contact.compare(existingContact)
                     # only update if newer
                     if comp != conduit.datatypes.COMPARISON_NEWER:
-                        raise Exceptions.SynchronizeConflictError(comp, contact, existingContact)
+                        raise Exceptions.SynchronizeConflictError(comp, existingContact, contact)
                     else:
                         # overwrite and return new ID
                         uid = self._update_contact(LUID, contact)
