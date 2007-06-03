@@ -129,7 +129,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         return self._get_note(uri)
                 
     def get_all(self):
-        DataProvider.TwoWay.get_num_items(self)
+        DataProvider.TwoWay.get_all(self)
         return self.notes
 
     def put(self, note, overwrite, LUID=None):
@@ -153,7 +153,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
                     logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
                             (note.title,existingNote.title,comp))
                     if comp != conduit.datatypes.COMPARISON_NEWER:
-                        raise Exceptions.SynchronizeConflictError(comp, note, existingNote)
+                        raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
                     else:
                         self._update_note(LUID, note)
                         return LUID
