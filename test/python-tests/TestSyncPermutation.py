@@ -77,8 +77,7 @@ def prep_folder_calendar(host):
         os.mkdir(sink_folder)
 
     dp = host.get_dataprovider("FolderTwoWay")
-    dp.module.folderGroupName = "calendar"
-    dp.module.folder = "file://"+sink_folder
+    dp.module.set_configuration( { "folderGroupName": "calendar", "folder": "file://"+sink_folder } )
     return dp
 
 def prep_folder_contacts(host):
@@ -87,8 +86,7 @@ def prep_folder_contacts(host):
         os.mkdir(sink_folder)
 
     dp = host.get_dataprovider("FolderTwoWay")
-    dp.module.folderGroupName = "contacts"
-    dp.module.folder = "file://"+sink_folder
+    dp.module.set_configuration( { "folderGroupName": "contacts", "folder": "file://"+sink_folder } )
     return dp
 
 def test_delete_all(dp):
@@ -100,10 +98,7 @@ def test_delete_all(dp):
     uids = []
 
     dp.module.refresh()
-    for i in range(0, dp.module.get_num_items()):
-        uids.append(dp.module.get(i).get_UID())
-
-    for uid in uids:
+    for uid in dp.module.get_all():
         dp.module.delete(uid)
 
     dp.module.refresh()
@@ -137,7 +132,7 @@ def test_add_data(host, dp, datatype, dataset):
     objs = dataset()
     for i in range(0, len(objs)):
         obj = convert(host, datatype, dp.in_type, objs[i])
-        dp.module.put(obj, True, str(i))
+        dp.module.put(obj, True)
 
     dp.module.refresh()
     ok("Dataset loaded into source", dp.module.get_num_items() == len(objs)) 
@@ -159,7 +154,7 @@ def test_clear(host):
     test_delete_all(host.sink)
 
     a, b = host.sync()
-    ok("Sync worked", a == 0 and b == 0)
+    ok("Sync worked (%s, %s)" % (a, b), a == 0 and b == 0)
 
 def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     """
@@ -240,4 +235,4 @@ for source, sink, datatype, dataset in combinations:
 
     # conduit.mappingDB.delete()
 
-host.module_manager.quit()
+host.model.quit()

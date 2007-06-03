@@ -519,7 +519,7 @@ class DataSource(DataProviderBase):
         @rtype: C{int}
         """
         self.set_status(STATUS_SYNC)
-        return 0
+        return len(self.get_all())
 
     def get_all(self):
         return []

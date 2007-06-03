@@ -275,7 +275,7 @@ class IPodContactsTwoWay(IPodBase):
         self.dataDir = os.path.join(self.mountPoint, 'Contacts')
 
     def get(self, LUID):
-        TwoWay.get(self, index)
+        TwoWay.get(self, LUID)
         fullpath = os.path.join(self.dataDir, LUID)
         f = File.File(URI=fullpath)
 
