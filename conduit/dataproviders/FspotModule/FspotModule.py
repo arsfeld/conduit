@@ -63,38 +63,35 @@ class FspotSource(DataProvider.DataSource):
         #Connection must be made in the same thread
         #as any execute statements
         con = sqlite.connect(FspotSource.PHOTO_DB)
-        tagCur = con.cursor()
-        photoCur = con.cursor()
-        for tagID in self.enabledTags:
-            tagCur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tagID))
-            for photoID in tagCur:
-                photoCur.execute("SELECT directory_path, name FROM photos WHERE id=?", (photoID))
-                for directory_path, name in photoCur:
-                    #Return the file, loaded from a (local only??) URI
-                    if type(photoID) == tuple:
-                        uid = photoID[0]
-                    else:
-                        logw("Error getting photo ID")
-                        uid = photoID
+        cur = con.cursor()
 
-                    logd("Found photo with name=%s (ID: %s)" % (name,uid))
-                    self.photos.append( (os.path.join(directory_path, name),uid) )
+        for tagID in self.enabledTags:
+            cur.execute("SELECT photo_id FROM photo_tags WHERE tag_id=%s" % (tagID))
+            for photo_uid in cur:
+                self.photos.append(photo_uid[0])
 
         con.close()
-        
-    def get(self, index):
-        DataProvider.DataSource.get(self, index)
-        photouri, photouid = self.photos[index]
+
+    def get_all(self):
+        DataProvider.DataSource.get_all(self)
+        return self.photos
+
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
+
+        con = sqlite.connect(FspotSource.PHOTO_DB)
+        cur = con.cursor()
+        cur.execute("SELECT directory_path, name FROM photos WHERE id=?", (LUID, ))
+        directory_path, name = cur.fetchone()        
+        con.close()
+
+        photouri = directory_path + "/" + name
 
         f = File.File(URI=photouri)
-        f.set_UID(photouid)
+        f.set_UID(LUID)
         f.set_open_URI(photouri)
 
         return f
-
-    def get_num_items(self):
-        DataProvider.DataSource.get_num_items(self)
-        return len(self.photos)
     
     def finish(self):
         DataProvider.DataSource.finish(self)
@@ -158,6 +155,8 @@ class FspotSource(DataProvider.DataSource):
         self.enabledTags = []
         for tag in config.get("tags", []):
             self.enabledTags.append(int(tag))
+
+        self.set_configured(True)
             
     def get_configuration(self):
         strTags = []
