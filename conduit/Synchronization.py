@@ -16,6 +16,7 @@ import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.DB as DB
 import conduit.Utils as Utils
+import conduit.DeltaProvider as DeltaProvider
 
 from conduit.Conflict import CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
@@ -396,6 +397,14 @@ class SyncWorker(threading.Thread, gobject.GObject):
             logw("UNKNOWN COMPARISON\n%s" % traceback.format_exc())
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
+    def _get_changes(self, source, sink):
+        if hasattr(source.module, "get_changes"):
+            added, modified, deleted = source.module.get_changes()
+        else:
+            delta = DeltaProvider.DeltaProvider(source, sink)
+            added, modified, deleted = delta.get_changes()
+        return added, modified, deleted
+
     def cancel(self):
         """
         Cancels the sync thread. Does not do so immediately but as soon as
@@ -420,32 +429,29 @@ class SyncWorker(threading.Thread, gobject.GObject):
         """
         log("Synchronizing %s |--> %s " % (source, sink))
 
-        numItems = source.module.get_num_items()
-        #Detecting items which have been deleted involves comparing the
-        #data LUIDs which are returned from the get() with those 
-        #that were synchronized last time
-        existing = [i["sourceDataLUID"] for i in conduit.mappingDB.get_mappings_for_dataproviders(source.get_UID(), sink.get_UID())]
+        #get all the data
+        added, modified, deleted = self._get_changes(source, sink)
 
-        for i in range(0, numItems):
+        #one way sync treats added and modifed the same. Both get transferred
+        items = added + modified
+        numItems = len(items)
+        idx = 0
+        for i in items:
+            idx += 1.0
             self.check_thread_not_cancelled([source, sink])
 
             data = source.module.get(i)
             logd("1WAY PUT: %s (%s) -----> %s" % (source.name,data.get_UID(),sink.name))
 
             #work out the percent complete
-            done = (i+1.0)/(numItems*len(self.sinks)) + \
+            done = idx/(numItems*len(self.sinks)) + \
                     float(self.sinks.index(sink))/len(self.sinks)
             gobject.idle_add(self.emit, "sync-progress", self.conduit, done)
 
+            #transfer the data
             newdata = self._transfer_data(source, sink, data)
-            #now remove from the list of expected data to synchronize
-            if newdata != None and existing.count(newdata.get_UID()):
-                existing.remove(newdata.get_UID())
 
-        #give dataproviders the freedom to also provide a list of deleted 
-        #data UIDs.
-        deleted = Utils.distinct_list(existing + source.module.get_deleted_items())
-        logd("There were %s deleted items" % len(deleted))
+        #handle deleted data
         for d in deleted:
             matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), d, sink.get_UID())
             if matchingUID != None:
@@ -469,81 +475,57 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         that has been deleted
         """
         log("Synchronizing (Two Way) %s <--> %s " % (source, sink))
-        sourceData = [source.module.get(i) for i in range(0,source.module.get_num_items())]
-        sinkData = [sink.module.get(i) for i in range(0,sink.module.get_num_items())]
-        
-        known = {}
-        #first look up the existing relationships
-        # key = [UID]
-        # values = (mtime, correspondingDataUID, correspondingOtherDataproviderUID)
-        for i in conduit.mappingDB.get_mappings_for_dataproviders(source.get_UID(), sink.get_UID()):
-            if known.has_key(i["sourceDataLUID"]) or known.has_key(i["sinkDataLUID"]):
-                pass
-            else:
-                known[ i["sourceDataLUID"] ] = (i["mtime"],i["sinkDataLUID"],i["sourceUID"])
-                known[ i["sinkDataLUID"] ] = (i["mtime"],i["sourceDataLUID"],i["sinkUID"])
-
-        #precompute the actions. mostly for debugability
-        #PHASE ONE
-        toput = []      # (sourcedp, data, sinkdp)
-        tocomp = []     # (dp1, data1, dp2, data2, mtime)
+        #Need to do all the analysis before we touch the mapping db
+        toput = []      # (sourcedp, dataUID, sinkdp)
         todelete = []   # (sourcedp, dataUID, sinkdp)
-        #the difficulty is that if some data is known then we need to wait for
-        #its matching pair before we can compare it and decide who is newer
-        waitingForData = {}
-        # key: the UID of the data we are waiting for
-        # value: the data, dp and mtime we know
-        #messy list foo...... but need to do this both ways smartly
-        for sourcedp,sinkdp in [ (source,sink), (sink,source) ]:
-            for data in [sourcedp.module.get(i) for i in range(0, sourcedp.module.get_num_items())]:
-                dataUID = data.get_UID()
-                logd("2WAY DAT: %s" % dataUID)
-                #are we waiting for this data
-                if waitingForData.has_key(dataUID):
-                    olddp, olddata, olduid, mtime = waitingForData[dataUID]
-                    if olddata.get_mtime() != mtime or data.get_mtime() != mtime or self.conduit.do_slow_sync():
-                        # CASE 3.b.2
-                        tocomp.append( (olddp, olddata, sourcedp, data, mtime) )
-                    else:
-                        # CASE 3.b.1
-                        logd("Skipping %s and %s. Mtimes has not changed (%s)" % (olddata.get_UID(), data.get_UID(), mtime))
-                    del(known[dataUID])
-                else:
-                    if known.has_key(dataUID):
-                        mtime, matchingUID, sourceUID = known[dataUID]
-                        #its a known relationship so wait for its friend
-                        waitingForData[matchingUID] = (sourcedp, data, dataUID, mtime)
-                        del(known[dataUID])
-                    else:
-                        # CASE 3.a
-                        toput.append( (sourcedp, data, sinkdp) )
+        tocomp = []     # (dp1, data1UID, dp2, data2UID, mtime)
 
-            #no go and see what data remains that was previously known about, and that
-            #has now been deleted from the sink
-            for k in known:
-                mtime, matchingUID, sourceUID = known[k]
-                if sourcedp.get_UID() == sourceUID:
-                    # CASE 3.b.3
-                    logd("DELETED %s from %s. Remove %s from %s" % (k, sourcedp.name, matchingUID, sinkdp.name))
-                    todelete.append( (sourcedp, matchingUID, sinkdp) )
-    
-        #PHASE TWO
-        for sourcedp, data, sinkdp in toput:
-            logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,data.get_UID(),sinkdp.name))
+        #PHASE ONE: CALCULATE WHAT NEEDS TO BE DONE
+        #get all the datauids
+        sourceAdded, sourceModified, sourceDeleted = self._get_changes(source, sink)
+        sinkAdded, sinkModified, sinkDeleted = self._get_changes(sink, source)
+
+        #added data can be put right away
+        toput += [(source, i, sink) for i in sourceAdded]
+        toput += [(sink, i, source) for i in sinkAdded]
+        #as can deleted data
+        todelete += [(source, i, sink) for i in sourceDeleted]
+        todelete += [(sink, i, source) for i in sinkDeleted]
+
+        #modified is a bit harder because we need to check if both side have
+        #been modified at the same time. First find items in both lists and seperate
+        #them out as they need to be compared.
+        for i in sourceModified[:]:
+            matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), i, sink.get_UID())
+            if sinkModified.count(matchingUID) != 0:
+                logw("BOTH MODIFIED: %s v %s" % (uid, matchingUID))
+                sourceModified.remove(i)
+                sinkModified.remove(i)
+                tocomp.append( (source, i, sink, matchingUID, mtime) )
+
+        #all that remains in the original lists are to be put
+        toput += [(source, i, sink) for i in sourceModified]
+        toput += [(sink, i, source) for i in sinkModified]
+
+        #PHASE TWO: TRANSFER DATA
+        for sourcedp, dataUID, sinkdp in toput:
+            data = sourcedp.module.get(dataUID)
+            logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
             self._transfer_data(sourcedp, sinkdp, data)
 
-        for dp1, data1, dp2, data2, mtime in tocomp:
-            logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1.get_UID(),dp2.name,data2.get_UID()))
-            #Convert from the most modified data into the other. Remember that items are 
-            #only in this list if their mtimes have changed. 
-            #three cases
-            #A) mtimes are both None - user decides which is newer
-            #B) both mtimes have changed - compare method
-            #C) one mtime has changed - transfer data
+        for sourcedp, dataUID, sinkdp in todelete:
+            matchingUID, mtime = conduit.mappingDB.get_mapping(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
+            logd("2WAY DEL: %s (%s)" % (sinkdp.name, matchingUID))
+            if matchingUID != None:
+                self._apply_deleted_policy(sourcedp, sinkdp, matchingUID)
+
+        for dp1, data1UID, dp2, data2UID, mtime in tocomp:
+            logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
+            data1 = dp1.module.get(data1UID)
+            data2 = dp2.module.get(data2UID)
             d1mtime = data1.get_mtime()
             d2mtime = data2.get_mtime()
             if d1mtime == None and d2mtime == None:
-                #case A
                 self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
             else:
                 if d1mtime > d2mtime:
@@ -557,17 +539,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
                     fromdata = data1
                     todata = data2
 
-                if d1mtime != mtime and d2mtime != mtime:
-                    #case B
-                    #FIXME: Convert and compare
-                    self._apply_conflict_policy(sourcedp, sinkdp, COMPARISON_UNKNOWN, fromdata, todata)
-                else:
-                    #case C
-                    self._transfer_data(sourcedp, sinkdp, fromdata)
-
-        for sourcedp, uid, sinkdp in todelete:
-            logd("2WAY DEL: %s (%s)" % (sinkdp.name, uid))
-            self._apply_deleted_policy(sourcedp, sinkdp, uid)
+                self._apply_conflict_policy(sourcedp, sinkdp, COMPARISON_UNKNOWN, fromdata, todata)
 
     def run(self):
         """

@@ -120,18 +120,17 @@ class TomboyNoteTwoWay(DataProvider.TwoWay):
         DataProvider.TwoWay.refresh(self)
         self.notes = []
         if self._check_tomboy_version():
-            self.notes = self.remoteTomboy.ListAllNotes()
+            self.notes = [str(i) for i in self.remoteTomboy.ListAllNotes()]
         else:
             raise Exceptions.RefreshError
                 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        noteURI = self.notes[index]
-        return self._get_note(noteURI)
+    def get(self, uri):
+        DataProvider.TwoWay.get(self, uri)
+        return self._get_note(uri)
                 
-    def get_num_items(self):
+    def get_all(self):
         DataProvider.TwoWay.get_num_items(self)
-        return len(self.notes)
+        return self.notes
 
     def put(self, note, overwrite, LUID=None):
         """

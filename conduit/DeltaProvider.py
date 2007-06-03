@@ -2,109 +2,63 @@
 Shared API for comparing the previous state of a dp to the current 
 state. Returns only changes to core synch mechanism.
 
-This class is a proxy for the TwoWay dataprovider. It filter's incoming
-and outgoing objects so we can detect changes rather than trying to sync 
-everything
+This class is a proxy for the TwoWay dataprovider. If the dataprovider
+cannot implement get_changes() using backend dependant means this
+class uses the mapping DB to implement get_changes()
+
+This class will always be slower than if the backend implements the function
+iteself.
 
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import os, cPickle
+import conduit
+from conduit import logd, logw, log
 import conduit.DataProvider as DataProvider
 import conduit.datatypes.DataType as DataType
 
-#fixme - conduit will try and create a widget for any dataprovider...
-#fixme - for CHANGE_DELETED, new DataType is created.. but wrong 
-#         type is passed to __init__ (hardcoded to "note")
+class DeltaProvider:
+    def __init__(self, dpw, otherdpw):
+        self.me = dpw
+        self.other = otherdpw
 
-class DeltaProvider(DataProvider.TwoWay):
-    _name_ = ""
-    _description_ = ""
+        log("Delta: Source (%s) does not implement get_changes(). Proxying..." % self.me.get_UID())
 
-    def __init__(self, dp):
-        DataProvider.TwoWay.__init__(self)
-
-        self.provider = dp
-        self._delta_file = "hashtable.db"
-
-        self.db = {}
-        if os.path.exists(self._delta_file):
-            f = open(self._delta_file)
-            self.db = cPickle.load(f)
-
-        self.accessed = {}
-
-    def refresh(self):
-        """ Call refresh on target dp and filter the output so we only return
-            changes to sync code
+    def get_changes(self):
         """
-        DataProvider.TwoWay.refresh(self)
+        @returns: added, modified, deleted
+        """
+        allItems = self.me.module.get_all()
+        logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
-        self.changes = []
+        #In order to detect deletions we need to fetch all the existing relationships.
+        #we also get the mtimes because we need those to detect if something has changed
+        mtimes = {}
+        for i in conduit.mappingDB.get_mappings_for_dataproviders(self.me.get_UID(), self.other.get_UID()):
+            mtimes[ i["sourceDataLUID"] ] = i["mtime"]
+        for i in conduit.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
+            mtimes[ i["sinkDataLUID"] ] = i["mtime"]
 
-        self.provider.refresh()
-        for i in range(0, self.provider.get_num_items()):
-            obj = self.provider.get(i)
-            key = obj.get_UID()
+        logd("Delta: Expecting %s items\n%s" % (len(mtimes), mtimes.keys()))
 
-            self.accessed[key] = key
+        #now classify all my items relative to the expected data from the previous
+        #sync with the supplied other dataprovider. Copy (slice) the list because we
+        #modify it in place
+        modified = []
+        for i in allItems[:]:
+            if i in mtimes:
+                data = self.me.module.get(i)
+                if data.get_mtime() != mtimes[i]:
+                    modified.append(i)
+                del(mtimes[i])
+                allItems.remove(i)
 
-            if not key in self.db:
-                obj.change_type = DataType.CHANGE_ADDED
-            elif self.db[key]['hash'] != obj.get_hash():
-                obj.change_type = DataType.CHANGE_MODIFIED
+        logd("Delta: New %s items\n%s" % (len(allItems), allItems))
+        logd("Delta: Modified %s items\n%s" % (len(modified), modified))
+        logd("Delta: Deleted %s items\n%s" % (len(mtimes), mtimes.keys()))
 
-            # if the change_type has been set, add it to list of things to return to Conduit
-            if obj.change_type != DataType.CHANGE_UNMODIFIED:
-                self.changes.append(obj)
+        #now all that remains in mtimes is data which has been deleted,
+        #and all that remains in allItems is new data
+        return allItems, modified, mtimes.keys()
 
-        # these are the UID's that are no longer in the dp - they must have been deleted!
-        for r in [r for r in self.db if r not in self.accessed]:
-            obj = DataType.DataType("note")
-            obj.set_UID(self.db[r]['LUID'])
-            obj.change_type = DataType.CHANGE_DELETED
-            self.changes.append(obj)
-
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.changes)
-
-    def get(self, index):
-        DataProvider.TwoWay.get(self,index)
-        return self.changes[index]
-
-    def put(self, change, overwrite):
-        DataProvider.TwoWay.put(self, change, overwrite)
-
-        # get UID of change...
-        current_uid = change.get_UID()
-
-        # actually "commit" the change to the real dp
-        self.provider.put(change, overwrite)
-
-        # record the hash of the object..
-        self.db[change.get_UID()]['hash'] = change.get_hash()
-
-        # has UID changed? delete old UID from self.db
-        if current_uid != change.get_UID():
-            self._delete(self, current_uid)
-
-    def finish(self):
-        for c in self.changes:
-            if c.change_type == DataType.CHANGE_DELETED:
-                self._delete(c.get_UID())
-            else:
-                self.db[c.get_UID()] = {}
-                self.db[c.get_UID()]['hash'] = c.get_hash()
-                self.db[c.get_UID()]['LUID'] = c.get_UID()
-
-        f = open(self._delta_file, 'w+')
-        f.write(cPickle.dumps(self.db))
-        f.close()
-        return
-
-    def _delete(self, UID):
-        """ Remove an item from self.db """
-        del self.db[UID]
 

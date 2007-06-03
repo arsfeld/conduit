@@ -658,7 +658,7 @@ class _FolderTwoWayConfigurator:
             else:
                 self.folderGroupName = self.folderEntry.get_text()
                 uri = self.folderChooser.get_uri()
-                self.folder = Utils.unescape(gnomevfs.make_uri_canonical(uri))
+                self.folder = gnomevfs.make_uri_canonical(uri)
 
     def show_dialog(self):
         self.dlg.show_all()
@@ -764,29 +764,27 @@ class FolderTwoWay(DataProvider.TwoWay):
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
-        return Utils.unescape(gnomevfs.make_uri_canonical(newURI))
+        return gnomevfs.make_uri_canonical(newURI)
 
     def delete(self, LUID):
         f = File.File(URI=LUID)
         if f.exists():
             f.delete()
                 
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        #remove %20 from spaces
-        filename = Utils.unescape(self.files[index])
+    def get(self, uid):
+        DataProvider.TwoWay.get(self, uid)
         f = File.File(
-                    URI=filename,
-                    basepath=Utils.unescape(self.folder),
+                    URI=uid,
+                    basepath=self.folder,
                     group=self.folderGroupName
                     )
-        f.set_open_URI(filename)
-        f.set_UID(filename)
+        f.set_open_URI(uid)
+        f.set_UID(uid)
         return f
 
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.files)
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return self.files
 
     def finish(self):
         DataProvider.TwoWay.finish(self)
@@ -834,7 +832,7 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def _monitor_folder(self):
         if self._monitor_folder_id != None:
-            gnomvevfs.monitor_cancel(self._monitored_folder)
+            gnomevfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
 
         try:
