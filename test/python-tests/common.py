@@ -96,7 +96,7 @@ class SimpleTest(object):
             self.sink = self.get_dataprovider(sinkName)
             self.sinkName = sinkName
 
-    def get_dataprovider(self, name):
+    def get_dataprovider(self, name, die=True):
         """
         Return a DP identified by a given name
         """
@@ -105,7 +105,7 @@ class SimpleTest(object):
             if dp.classname == name:
                 wrapper = self.model.get_new_module_instance(dp.get_key())
 
-        ok("Find wrapper '%s'" % name, wrapper != None)
+        ok("Find wrapper '%s'" % name, wrapper != None, die)
         return wrapper
 
     def wrap_dataprovider(self, dp):
@@ -177,7 +177,7 @@ class SimpleSyncTest(SimpleTest):
         aborted = self.sync_manager.sync_aborted(self.conduit) 
         ok("Refresh completed", aborted != True)
 
-        return self.source.module.get_num_items(), self.sink.module.get_num_items()
+        return self.get_source_count(), self.get_sink_count()
 
     def sync(self):
         #sync conduit
@@ -195,11 +195,11 @@ class SimpleSyncTest(SimpleTest):
 
     def get_source_count(self):
         self.source.module.refresh()
-        return self.source.module.get_num_items()
+        return len(self.source.module.get_all())
 
     def get_sink_count(self):
         self.sink.module.refresh()
-        return self.sink.module.get_num_items()
+        return len(self.sink.module.get_all())
 
     def set_two_way_sync(self, val):
         if val:

@@ -8,20 +8,15 @@ import conduit.Utils as Utils
 import datetime
 
 #Dynamically load all datasources, datasinks and converters
-dirs_to_search =    [
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.USER_DIR, "modules")
-                    ]
-model = ModuleManager(dirs_to_search)
+test = SimpleTest()
 
 ipod = None
-#look for an ipod
-for i in model.get_all_modules():
-    if i.classname == "IPodNoteTwoWay":
-        ipod = model.get_new_module_instance(i.get_key()).module
-
-if ipod != None:
-    ok("Detected iPod", True)
+wrapper = test.get_dataprovider(
+                    name="IPodNoteTwoWay",
+                    die=False               #dont exit if not found
+                    )
+if wrapper != None:
+    ipod = wrapper.module
 else:
     #grossness, simulate an ipod
     from conduit.dataproviders import iPodModule
@@ -51,6 +46,11 @@ try:
 except Exception, err:
     ok("Put note %s" % err, False)
 
+#Check that we saved the note back
+note = ipod._get_note_from_ipod(newuid)
+comp = note.compare(newnote)
+ok("Got note back idenitcal. Comparison %s" % comp, comp == conduit.datatypes.COMPARISON_EQUAL, False)
+
 #check we overwrite the note ok
 try:
     newnewuid = ipod.put(newnote,True,newuid)
@@ -62,12 +62,12 @@ except Exception, err:
 #Check that we saved the note back
 note = ipod._get_note_from_ipod(newuid)
 comp = note.compare(newnote)
-ok("Got note back idenitcal. Comparison %s" % comp, comp == conduit.datatypes.COMPARISON_EQUAL)
+ok("Got note back idenitcal. Comparison %s" % comp, comp == conduit.datatypes.COMPARISON_EQUAL, False)
 
 #Check that we saved the note back
 try:
     ipod.refresh()
-    num = ipod.get_num_items()
+    num = len(ipod.get_all())
     ok("Notes Present on iPod %s" % num, num>0)
 except Exception, err:
     ok("Could not get number of notes on ipod (%s)" % err, False) 
