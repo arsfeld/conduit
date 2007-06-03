@@ -96,11 +96,11 @@ class _FolderScanner(threading.Thread, gobject.GObject):
                 if fileinfo.name[0] in [".",".."]: 
                     pass
                 elif fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                    self.dirs.append(dir+"/"+gnomevfs.escape_string(fileinfo.name))
+                    self.dirs.append(dir+"/"+fileinfo.name)
                     t += 1
                 else:
                     try:
-                        uri = gnomevfs.make_uri_canonical(dir+"/"+gnomevfs.escape_string(fileinfo.name))
+                        uri = gnomevfs.make_uri_canonical(dir+"/"+fileinfo.name)
                         #Ignores hidden files                        
                         if fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
                             self.URIs.append(uri)
