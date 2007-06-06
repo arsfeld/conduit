@@ -144,6 +144,7 @@ conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
 conduit/dataproviders/BackpackModule/Makefile
 conduit/dataproviders/BackpackModule/backpack-1.1/Makefile
+conduit/dataproviders/EvolutionModule/Makefile
 conduit/dataproviders/FileModule/Makefile
 conduit/dataproviders/FeedModule/Makefile
 conduit/dataproviders/FlickrModule/Makefile

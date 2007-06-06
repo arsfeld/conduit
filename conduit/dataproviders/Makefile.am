@@ -7,7 +7,8 @@ SUBDIRS = \
 	GmailModule \
 	PicasaModule \
 	SettingsModule \
-	SmugMugModule
+	SmugMugModule \
+	EvolutionModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
@@ -15,10 +16,6 @@ conduit_handlers_PYTHON = \
 	iPodModule.py \
 	TomboyModule.py \
 	ConverterModule.py
-
-if ENABLE_EVOLUTION
-	SUBDIRS += EvolutionModule
-endif
 
 clean-local:
 	rm -rf *.pyc *.pyo
