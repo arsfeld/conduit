@@ -28,7 +28,8 @@ class DeltaProvider:
         """
         @returns: added, modified, deleted
         """
-        allItems = self.me.module.get_all()
+	# copy list for in case there are other sinks to follow
+        allItems = list(self.me.module.get_all())
         logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
