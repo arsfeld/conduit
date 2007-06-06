@@ -217,7 +217,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 conduit_handlersdir = $(libdir)/conduit/dataproviders/SmugMugModule/SmugMugAPI
-conduit_handlers_PYTHON = smugmugrapi.py
+conduit_handlers_PYTHON = smugmug.py
 all: all-am
 
 .SUFFIXES:
