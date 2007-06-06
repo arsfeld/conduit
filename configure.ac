@@ -79,18 +79,17 @@ fi
 ################################################################################
 # Check for evolution-python to build the evolution dataprovider
 ################################################################################
-AC_ARG_ENABLE([evolution],
-              AC_HELP_STRING([--enable-evolution], [Enable support for evolution]),,
-              [enable_evolution=no])
-
-if test "x$enable_evolution" = "xyes"; then
-	PKG_CHECK_MODULES(EVOLUTION, [evolution-python >= 0.0.1] ,
-		[have_evolution=yes] , [have_evolution=no])
-else
-	have_evolution="no (disabled)"
-fi
-AM_CONDITIONAL(ENABLE_EVOLUTION, test "$have_evolution" = "yes")
-
+#AC_ARG_ENABLE([evolution],
+#              AC_HELP_STRING([--enable-evolution], [Enable support for evolution]),,
+#              [enable_evolution=no])
+#
+#if test "x$enable_evolution" = "xyes"; then
+#	PKG_CHECK_MODULES(EVOLUTION, [evolution-python >= 0.0.1] ,
+#		[have_evolution=yes] , [have_evolution=no])
+#else
+#	have_evolution="no (disabled)"
+#fi
+#AM_CONDITIONAL(ENABLE_EVOLUTION, test "$have_evolution" = "yes")
 
 ################################################################################
 # DBus
@@ -168,6 +167,5 @@ echo
 echo $PACKAGE v$VERSION
 echo
 echo Prefix............... : $prefix
-echo Evolution Support.... : $have_evolution
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo
