@@ -6,7 +6,8 @@ try:
         	"EvoContactTwoWay" : { "type": "dataprovider" },
         	"EvoMemoTwoWay" : { "type": "dataprovider" },
         }
-except ImportError: pass
+except:
+    pass
     
 
 import gtk
