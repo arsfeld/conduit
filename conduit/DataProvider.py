@@ -586,8 +586,108 @@ class TwoWay(DataSource, DataSink):
         DataSource.__init__(self, widgetColorRGBA)
         DataSink.__init__(self, widgetColorRGBA)
 
+class ImageSink(DataSink):
+    """
+    Abstract Base class for Image DataSinks
+    """
+    _category_ = CATEGORY_PHOTOS
+    _module_type_ = "sink"
+    _in_type_ = "file"
+    _out_type_ = "file"
 
+    ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
+    
+    def __init__(self, *args):
+        DataSink.__init__(self)
+        self.need_configuration(True)
         
+        self.username = ""
+
+    def initialize(self):
+        return True
+
+    def _get_photo_info(self, photoID):
+        """
+        This should return the info for a given photo id,
+        If this returns anything different from None, it will be
+        passed onto _get_raw_photo_url 
+        """
+        return None
+
+    def _get_raw_photo_url(self, photoInfo):
+        """
+        This should return the url of the online photo
+        """
+        return None
+
+    def upload_photo (self, url, name):
+        """
+        Upload a photo
+        """
+        return None 
+
+    def put(self, photo, overwrite, LUID=None):
+        """
+        Accepts a vfs file. Must be made local.
+        I also store a md5 of the photos uri to check for duplicates
+        """
+        DataSink.put(self, photo, overwrite, LUID)
+
+        originalName = photo.get_filename()
+        #Gets the local URI (/foo/bar). If this is a remote file then
+        #it is first transferred to the local filesystem
+        photoURI = photo.get_local_uri()
+
+        mimeType = photo.get_mimetype()
+        if mimeType not in self.ALLOWED_MIMETYPES:
+            raise Exceptions.SyncronizeError("%s does not allow uploading %s Files" % (_name_, mimeType))
+        
+        #Check if we have already uploaded the photo
+        if LUID != None:
+            info = self._get_photo_info(LUID)
+            #check if a photo exists at that UID
+            if info != None:
+                if overwrite == True:
+                    #replace the photo
+                    logw("REPLACE NOT IMPLEMENTED")
+                    return LUID
+                else:
+                    #Only upload the photo if it is newer than the Remote one
+                    url = self._get_raw_photo_url(info)
+                    remoteFile = File.File(url)
+
+                    #this is a limited test for equality type comparison
+                    comp = photo.compare(remoteFile,True)
+                    logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
+                            (photo.get_filename(),remoteFile.get_filename(),comp))
+                    if comp != conduit.datatypes.COMPARISON_EQUAL:
+                        raise Exceptions.SynchronizeConflictError(comp, photo, remoteFile)
+                    else:
+                        return LUID
+
+        #We havent, or its been deleted so upload it
+        logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
+
+        #upload the file
+        return self.upload_photo (photoURI, originalName)
+
+    def delete(self, LUID):
+       pass
+ 
+    def is_configured (self):
+        return False
+        
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "tagWith" : self.tagWith,
+            "showPublic" : self.showPublic
+            }
+
+    def set_configuration(self, config):
+        DataSink.set_configuration(self, config)
+        self.set_configured(self.is_configured())
+    
 
 class DataProviderSimpleConfigurator:
     """

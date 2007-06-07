@@ -21,25 +21,20 @@ MODULES = {
 	"FlickrSink" :          { "type": "dataprovider" }        
 }
 
-class FlickrSink(DataProvider.DataSink):
+class FlickrSink(DataProvider.ImageSink):
 
     _name_ = "Flickr"
     _description_ = "Sync Your Flickr.com Photos"
-    _category_ = DataProvider.CATEGORY_PHOTOS
     _module_type_ = "sink"
-    _in_type_ = "file"
-    _out_type_ = "file"
     _icon_ = "flickr"
 
     API_KEY="65552e8722b21d299388120c9fa33580"
     SHARED_SECRET="03182987bf7fc4d1"
-    ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
     
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
+        DataProvider.ImageSink.__init__(self)
         self.need_configuration(True)
         
-        self.username = ""
         self.fapi = None
         self.token = None
         self.tagWith = ""
@@ -77,64 +72,15 @@ class FlickrSink(DataProvider.DataSink):
         #photo is a dict so we can use pythons string formatting natively with
         #the correct keys
         url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(secret)s.jpg" % photo
+	print url
         return url
-        
-    def initialize(self):
-        return True
-        
-    def refresh(self):
-        DataProvider.DataSink.refresh(self)
-        self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
-        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="write")
-        
-    def put(self, photo, overwrite, LUID=None):
-        """
-        Accepts a vfs file. Must be made local.
-        I also store a md5 of the photos uri to check for duplicates
-        """
-        DataProvider.DataSink.put(self, photo, overwrite, LUID)
 
-        originalName = photo.get_filename()
-        #Gets the local URI (/foo/bar). If this is a remote file then
-        #it is first transferred to the local filesystem
-        photoURI = photo.get_local_uri()
-
-        mimeType = photo.get_mimetype()
-        if mimeType not in FlickrSink.ALLOWED_MIMETYPES:
-            raise Exceptions.SyncronizeError("Flickr does not allow uploading %s Files" % mimeType)
-        
-        #Check if we have already uploaded the photo
-        if LUID != None:
-            info = self._get_photo_info(LUID)
-            #check if a photo exists at that UID
-            if info != None:
-                if overwrite == True:
-                    #replace the photo
-                    logw("REPLACE NOT IMPLEMENTED")
-                    return LUID
-                else:
-                    #Only upload the photo if it is newer than the Flickr one
-                    url = self._get_raw_photo_url(info)
-                    flickrFile = File.File(url)
-                    #Flickr doesnt store the photo modification time anywhere, 
-                    #so this is a limited test for equality type comparison
-                    comp = photo.compare(flickrFile,True)
-                    logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
-                            (photo.get_filename(),flickrFile.get_filename(),comp))
-                    if comp != conduit.datatypes.COMPARISON_EQUAL:
-                        raise Exceptions.SynchronizeConflictError(comp, photo, flickrFile)
-                    else:
-                        return LUID
-
-        #We havent, or its been deleted so upload it
-        logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % 
-            (photoURI, mimeType, originalName))
-        #tags have to be space seperated
+    def upload_photo (self, url, name):
         tagstr = self.tagWith.replace(","," ")
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
-                                filename=photoURI,
-                                title=originalName,
+                                filename=url,
+                                title=name,
                                 is_public="%i" % self.showPublic,
                                 tags=tagstr
                                 )
@@ -143,7 +89,12 @@ class FlickrSink(DataProvider.DataSink):
         else:
             #return the photoID
             return ret.photoid[0].elementText
-
+        
+    def refresh(self):
+        DataProvider.ImageSink.refresh(self)
+        self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
+        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="write")
+        
     def delete(self, LUID):
         #Authenticating with delete permissions does not yet work....
         #
@@ -157,8 +108,6 @@ class FlickrSink(DataProvider.DataSink):
         #else:
         #    logw("Photo doesnt exist")
         pass
-
-        
 
     def configure(self, window):
         """
@@ -193,10 +142,12 @@ class FlickrSink(DataProvider.DataSink):
             self.username = username.get_text()
 
             #user must enter their username
-            if len(self.username) > 0:
-                self.set_configured(True)
+            self.set_configured(self.is_configured())
 
         dlg.destroy()    
+       
+    def is_configured (self):
+        return len (self.username) > 0
         
     def get_configuration(self):
         return {
@@ -204,11 +155,6 @@ class FlickrSink(DataProvider.DataSink):
             "tagWith" : self.tagWith,
             "showPublic" : self.showPublic
             }
-
-    def set_configuration(self, config):
-        DataProvider.DataSink.set_configuration(self, config)
-        if len(self.username) != 0:
-            self.set_configured(True)
 
     def get_UID(self):
         return self.token
