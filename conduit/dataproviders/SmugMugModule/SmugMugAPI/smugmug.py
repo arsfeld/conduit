@@ -24,7 +24,11 @@ import string
 import re
 from xmlrpclib import *
 import httplib, mimetypes
-from xml.etree.ElementTree import fromstring, ElementTree 
+
+try:
+    from xml.etree.ElementTree import fromstring, ElementTree 
+except:
+    from elementtree.ElementTree import fromstring, ElementTree
 
 import os
 from os import path
