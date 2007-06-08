@@ -42,17 +42,17 @@ class SmugMugSink(DataProvider.ImageSink):
     def _get_raw_photo_url(self, photoInfo):
         return photoInfo['OriginalURL']
         
-    def refresh(self):
-        DataProvider.ImageSink.refresh(self)
-        self.sapi = SmugMug(self.username, self.password)
-
-    def upload_photo (self, url, name):
+    def _upload_photo (self, url, name):
        # upload to album; and return image id here
         try:
-            albumID = self.get_album_id ()
+            albumID = self._get_album_id ()
             return self.sapi.upload_file( albumID, url, name )
         except:
             raise Exceptions.SyncronizeError("SmugMug Upload Error.")
+
+    def refresh(self):
+        DataProvider.ImageSink.refresh(self)
+        self.sapi = SmugMug(self.username, self.password)
  
     def configure(self, window):
         """
@@ -106,7 +106,11 @@ class SmugMugSink(DataProvider.ImageSink):
             
         return True
 
-    def get_album_id (self):
+    def _get_album_id (self):
+        """
+        Tries to retrieve a valid album id, and creates
+        a new one if it does not exist yet
+        """
         id = 0
         
         # see if album already exists

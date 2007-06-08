@@ -621,11 +621,17 @@ class ImageSink(DataSink):
         """
         return None
 
-    def upload_photo (self, url, name):
+    def _upload_photo (self, url, name):
         """
         Upload a photo
         """
         return None 
+
+    def _replace_photo (self, id, url, name):
+        """
+        Replace a photo with a new version
+        """
+        return id
 
     def put(self, photo, overwrite, LUID=None):
         """
@@ -650,8 +656,7 @@ class ImageSink(DataSink):
             if info != None:
                 if overwrite == True:
                     #replace the photo
-                    logw("REPLACE NOT IMPLEMENTED")
-                    return LUID
+                    return self._replace_photo(LUID, photoURI, originalName)
                 else:
                     #Only upload the photo if it is newer than the Remote one
                     url = self._get_raw_photo_url(info)
@@ -666,11 +671,10 @@ class ImageSink(DataSink):
                     else:
                         return LUID
 
-        #We havent, or its been deleted so upload it
         logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
 
         #upload the file
-        return self.upload_photo (photoURI, originalName)
+        return self._upload_photo (photoURI, originalName)
 
     def delete(self, LUID):
        pass
@@ -678,13 +682,6 @@ class ImageSink(DataSink):
     def is_configured (self):
         return False
         
-    def get_configuration(self):
-        return {
-            "username" : self.username,
-            "tagWith" : self.tagWith,
-            "showPublic" : self.showPublic
-            }
-
     def set_configuration(self, config):
         DataSink.set_configuration(self, config)
         self.set_configured(self.is_configured())

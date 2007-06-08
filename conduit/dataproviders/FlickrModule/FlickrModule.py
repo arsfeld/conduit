@@ -72,10 +72,9 @@ class FlickrSink(DataProvider.ImageSink):
         #photo is a dict so we can use pythons string formatting natively with
         #the correct keys
         url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(secret)s.jpg" % photo
-	print url
         return url
 
-    def upload_photo (self, url, name):
+    def _upload_photo (self, url, name):
         tagstr = self.tagWith.replace(","," ")
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
@@ -111,11 +110,7 @@ class FlickrSink(DataProvider.ImageSink):
 
     def configure(self, window):
         """
-        Configures the GmailSource for which emails it should return
-        
-        All the inner function foo is because the allEmail
-        option is mutually exclusive with all the others (which may be
-        mixed according to the users preferences
+        Configures the Flickr sink
         """
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -137,6 +132,7 @@ class FlickrSink(DataProvider.ImageSink):
         
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
+            # get the values from the widgets
             self.tagWith = tagEntry.get_text()
             self.showPublic = publicCb.get_active()
             self.username = username.get_text()

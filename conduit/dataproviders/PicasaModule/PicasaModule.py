@@ -63,7 +63,7 @@ class PicasaSink(DataProvider.ImageSink):
 
         self.gphotos = self.galbum.getPhotos()
 
-    def upload_photo (self, url, name):
+    def _upload_photo (self, url, name):
         try:
             ret = self.galbum.uploadPhoto(url, name)
             return ret.id
