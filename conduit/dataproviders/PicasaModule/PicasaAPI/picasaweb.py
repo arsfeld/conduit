@@ -355,11 +355,3 @@ class PicasaPhoto (object):
         self.__title = title
         self.__url = url
 
-if __name__=="__main__":
-    picasa = PicasaWeb("thomas.vanmachelen@gmail.com","olie_1boll")
-
-    for a in picasa.getAlbums().values():
-        print a.name
-        for value in a.getPhotos ().values():
-            print value.id, value.url, value.title
-        break
