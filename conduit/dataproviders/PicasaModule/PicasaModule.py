@@ -28,6 +28,8 @@ class PicasaSink(DataProvider.ImageSink):
     _module_type_ = "sink"
     _icon_ = "picasa"
 
+    ALLOWED_MIMETYPES = ["image/jpeg"]
+
     def __init__(self, *args):
         DataProvider.ImageSink.__init__(self)
         self.need_configuration(True)

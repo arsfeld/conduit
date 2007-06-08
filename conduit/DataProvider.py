@@ -14,6 +14,7 @@ import traceback
 
 import conduit
 from conduit import log,logd,logw
+import conduit.Exceptions as Exceptions
 
 #Constants used in the sync state machine
 STATUS_NONE = 0
@@ -640,7 +641,7 @@ class ImageSink(DataSink):
 
         mimeType = photo.get_mimetype()
         if mimeType not in self.ALLOWED_MIMETYPES:
-            raise Exceptions.SyncronizeError("%s does not allow uploading %s Files" % (_name_, mimeType))
+            raise Exceptions.SyncronizeError("%s does not allow uploading %s Files" % (self._name_, mimeType))
         
         #Check if we have already uploaded the photo
         if LUID != None:
