@@ -13,12 +13,13 @@ from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Module as Module
 import conduit.DataProvider as DataProvider
 import conduit.Utils as Utils
+import conduit.Exceptions as Exceptions
 
 import Peers
 
 from twisted.internet import reactor
-from twisted.web import resource, server
-import pickle
+from twisted.web import resource, server, xmlrpc
+import xmlrpclib, pickle
 
 SERVER_PORT = 3400
     
@@ -37,190 +38,93 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
 
         self.modules = kwargs['moduleManager']
 
+        self.shared = {}
+
         self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
         self.advertiser.announce()
         
-        for dp in self.modules.get_modules_by_type(None):
-            self.on_local_dataprovider_added(None, dp)
+        reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self)))
 
-        # detect any hotpluggable dataproviders to share
-        self.modules.connect("dataprovider-added", self.on_local_dataprovider_added)
-        self.modules.connect("dataprovider-removed", self.on_local_dataprovider_removed)
+        # After a short delay share some services
+        gobject.timeout_add(1000, self.test_cb)
 
-        reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self.modules)))
+    def test_cb(self):
+        for wrapper in self.modules.get_modules_by_type(None):
+            if wrapper.get_key() in ("TomboyNoteTwoWay", "EvoContactTwoWay"):
+                instance = self.modules.get_new_module_instance(wrapper.get_key())
+                self.share_dataprovider(instance)
 
-    def on_local_dataprovider_added(self, loader, dataproviderWrapper):
+    def share_dataprovider(self, dataproviderWrapper):
         """
-        When a local dataprovider is added, check it to see if it is shared then advertise it
+        Shares a dataprovider on the network
         """
-        # FIXME: Doesn't care or respect anything about the user :-)
-        #if dataproviderWrapper.name == "Test Dynamic Source" or dataproviderWrapper.name == "Tomboy Notes":
-        #    self.advertise_dataprovider(dataproviderWrapper)
+        self.shared[dataproviderWrapper.get_UID()] = DataproviderResource(dataproviderWrapper)
         self.advertiser.announce()
 
-    def on_local_dataprovider_removed(self, loader, dataproviderWrapper):
+    def unshare_dataprovider(self, dataproviderWrapper):
         """
-        When a local dataprovider is no longer available, unadvertise it
+        Stop sharing a dataprovider
         """
-        #self.unadvertise_dataprovider(dataproviderWrapper)
+        if self.shared.has_key(dataproviderWrapper.get_key()):
+            self.shared.remove(dataproviderWrapper.get_key())
         self.advertiser.announce()
 
+class RootResource(xmlrpc.XMLRPC):
+    isLeaf = False
 
-    def advertise_dataprovider(self, dataproviderWrapper):
-        """
-        Announces the availability of the dataproviderWrapper on the network
-        by selecting an allowed port and announcing as such.
-        """
-        logd("Advertising %s" % dataproviderWrapper)
-        if not self.dataproviderAdvertiser.advertise_dataprovider(dataproviderWrapper):
-            logw("Could not advertise dataprovider")
+    def __init__(self, factory):
+        xmlrpc.XMLRPC.__init__(self)
+        self.factory = factory
 
-    def unadvertise_dataprovider(self, dataproviderWrapper):
-        """
-        Removes the advertised dataprovider and makes its port
-        available to be assigned to another dataprovider later
-        """
-        if not dataproviderWrapper in self.advertisedDataproviders:
-            return
-
-        #Unadvertise
-        self.dataproviderAdvertiser.unadvertise_dataprovider(dataproviderWrapper)
-
-class RootResource(resource.Resource):
-    def __init__(self, modules):
-        resource.Resource.__init__(self)
-        self.modules = modules
-        self.advertised = {}
-
-        self.putChild('index', DataproviderIndex(self.advertised))
-
-        # look for dataproviders to share
-        for dp in self.modules.get_modules_by_type(None):
-            self.on_dataprovider_added(None, dp)
-
-        # detect any hotpluggable dataproviders to share
-        self.modules.connect("dataprovider-added", self.on_dataprovider_added)
-        self.modules.connect("dataprovider-removed", self.on_dataprovider_removed)
-
-    def on_dataprovider_added(self, loader, wrapper):
-        # FIXME: Doesn't care or respect anything about the user :-)
-        if wrapper.get_key() == "TomboyNoteTwoWay":
-            instance = self.modules.get_new_module_instance(wrapper.get_key())
-            self.advertised[wrapper.get_UID()] = DataproviderResource(wrapper, instance)
-
-    def on_dataprovider_removed(self, loader, wrapper):
-        if self.advertised.has_key(wrapper.get_UID()):
-            del self.advertised[wrapper.get_UID()]
+    def xmlrpc_get_all(self):
+        info = {}
+        for key, dp in self.factory.shared.iteritems():
+            info[key] = dp.get_info()
+        return info
 
     def getChild(self, path, request):
-        if self.advertised.has_key(path):
-            return self.advertised[path]
-        else:
-            return self.children['index']
-
-class DataproviderIndex(resource.Resource):
-    def __init__(self, advertised):
-        resource.Resource.__init__(self)
-        self.advertised = advertised
-
-    def render(self, request):
-        """
-        Return an XML document describing available dataproviders
-        """
-        #FIXME: Str concat for XML gen?? Nooooooo
-        dpstr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-        dpstr += "<conduit>"
-        dpstr += "<version>1</version>"
-        for uid, wrapper in self.advertised.iteritems():
-            dpstr += wrapper.getXML()
-        dpstr += "</conduit>"
-        return dpstr
-
-class DataproviderResource(resource.Resource):
-    def __init__(self, wrapper, instance):
-        resource.Resource.__init__(self)
-        self.wrapper = wrapper
-        self.instance = instance.module
-        self.objects = {}
-
-    def get_UID(self):
-        return self.wrapper.get_UID()
-
-    def getXML(self):
-        dpstr = "<dataprovider>"
-        dpstr += "<uid>%s</uid>" % self.get_UID()
-        dpstr += "<name>%s</name>" % self.wrapper.name
-        dpstr += "<description>%s</description>" % self.wrapper.description
-        dpstr += "<icon>%s</icon>" % self.wrapper.icon_name
-        dpstr += "<module_type>%s</module_type>" % self.wrapper.module_type
-        dpstr += "<in_type>%s</in_type>" % self.wrapper.in_type
-        dpstr += "<out_type>%s</out_type>" % self.wrapper.out_type
-        dpstr += "</dataprovider>"
-        return dpstr
-
-    def render_GET(self, request):
-        xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-        xml += "<objects>"
-
-        objs = {}
-
-        # This is a bit of a fiddle until we have Conduit 0.5...
-        self.instance.refresh()
-        for i in range(0, self.instance.get_num_items()):
-            obj = self.instance.get(i)
-            obj_id = obj.get_UID()
-
-            # cache this object 
-            objs[obj_id] = obj
-
-            # add info about this object to XML that we return
-            xml += "<object><uid>%s</uid><mtime>%s</mtime></object>" % (obj_id.encode("hex"), obj.get_mtime())
-
-        xml += "</objects>"
-
-        self.objects = objs
-
-        return xml
-
-    def render_PUT(self, request):
-        return DataproviderObject(self, "").render_PUT(request)
-
-    def getChild(self, path, request):
-        uid = path.decode("hex")
-        if self.objects.has_key(uid):
-            return DataproviderObject(self, uid)
-        else:
+        if path == "":
             return self
+        elif self.factory.shared.has_key(path):
+            return self.factory.shared[path]
 
-class DataproviderObject(resource.Resource):
-    def __init__(self, parent, path):
-        resource.Resource.__init__(self)
-        self.parent = parent
-        self.path = path
+class DataproviderResource(xmlrpc.XMLRPC):
+    def __init__(self, wrapper):
+        xmlrpc.XMLRPC.__init__(self)
+        self.wrapper = wrapper
+        self.module = wrapper.module
 
-    def render_GET(self, request):
-        return pickle.dumps(self.parent.objects[self.path])
-	
-    def render_PUT(self, request):
+    def get_info(self):
+        """
+        Return information about this dataprovider (so that client can show correct icon, name, description etc)
+        """
+        wrapper = self.wrapper
+        return { "uid":          wrapper.get_UID(),
+                 "name":         wrapper.name,
+                 "description":  wrapper.description,
+                 "icon":         wrapper.icon_name,
+                 "module_type":  wrapper.module_type,
+                 "in_type":      wrapper.in_type,
+                 "out_type":     wrapper.out_type,
+               }
+
+    def xmlrpc_get_info(self):
+        return self.get_info()
+
+    def xmlrpc_get_all(self):
+        self.module.refresh()
+        return self.module.get_all()
+
+    def xmlrpc_get(self, LUID):
+        return xmlrpclib.Binary(pickle.dumps(self.module.get(LUID)))
+
+    def xmlrpc_put(self, data, overwrite, LUID):
+        data = pickle.loads(str(data))
         try:
-            request.content.seek(0)
-            data = request.content.read()
+            return self.module.put(data, overwrite, LUID)
+        except Exceptions.SynchronizeConflictError, e:
+            return xmlrpclib.Fault("SynchronizeConflictError", e.comparison)
 
-            # construct an object out of the data stream
-            struct = pickle.loads(data)
-            obj = struct[0]
-            overwrite = struct[1]
-            LUID = struct[2]
-
-            new_uid = self.parent.instance.put(obj, overwrite, LUID)
-            return new_uid
-        except:
-            return "Put failed."
-
-    def render_DELETE(self, request):
-        try:
-            self.parent.instance.delete(self.path)
-            return "Deleted."
-        except:
-            return "Delete failed..."
-
+    def xmlrpc_delete(self, LUID):
+        self.module.delete(LUID)
+        return ""

@@ -16,15 +16,9 @@ import conduit.Exceptions as Exceptions
 import Peers
 
 from cStringIO import StringIO
-import httplib
+import xmlrpclib
 import threading
 import pickle
-
-try:
-    import xml.etree.ElementTree as ET
-except:
-    import elementtree.ElementTree as ET
-
 
 class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
     """
@@ -37,7 +31,7 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
         gobject.GObject.__init__(self)
 
         self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
-        self.hosts = {}
+        self.categories = {}
         self.dataproviders = {}
 
     def host_available(self, name, host, address, port, extra_info):
@@ -47,71 +41,84 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
         """
         logd("Remote host '%s' detected" % host)
 
-        if not self.hosts.has_key(host):
-            self.hosts[host] = {}
-            self.hosts[host]["category"] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
+        # Path to remote data services
+        url = "http://" + host + ":" + port + "/"
 
-        request = Request(host, port, "GET", "/")
-        request.connect("complete", self.parse_host_xml)
+        # Create a categories group for this host?
+        if not self.categories.has_key(url):
+            self.categories[url] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
+        
+        # Create a dataproviders list for this host
+        self.dataproviders[url] = {}
+
+        # Request all dp's for this host
+        request = ClientDataproviderList(url)
+        request.connect("complete", self.dataprovider_process)
         request.start()
 
-    def host_removed(self, host):
+    def host_removed(self, url):
         """
         Callback which is triggered when a host is no longer available
         """
-        if self.hosts.has_key(host):
-            logd("Remote host '%s' removed" % host)
-            
-            for uid, dp in self.dataproviders.iteritems():
-                if dp._host_ == host:
-                    self.dataprovider_removed(dp)
-                    
+        logd("Remote host '%s' removed" % url)
 
-    def dataprovider_added(self, dataprovider):
+        if self.categories.has_key(url):
+            self.categories.remove(url)
+        
+        if self.dataproviders.has_key(url):
+            for uid, dp in self.dataproviders[url].iteritems():
+                self.dataprovider_removed(dp)
+            self.dataproviders.remove(url)
+                    
+    def dataprovider_process(self, huh, response):
+        """
+        """
+        # get some local refs
+        dps = self.dataproviders[response.url]
+        data = response.data_out
+
+        # loop through all dp's 
+        for uid, info in data.iteritems():
+            if uid not in dps:
+                self.dataprovider_added(response.url, uid, info)
+
+        for uid in dps.iterkeys():
+            if uid not in data.iterkeys():
+                self.dataprovider_removed
+
+    def dataprovider_added(self, host_url, uid, info):
         """
         Enroll a dataprovider with Conduit's ModuleManager.
         """
-        # Register a dataprovider with Conduit
+        newurl = host_url + uid
+
+        params = {}
+        for key, val in info.iteritems():
+            params['_' + key + '_'] = val
+
+        params['host_url'] = host_url
+        params['url'] = newurl
+
+        # Actually create a new object type based on ClientDataProvider
+        # but with the properties from the remote DataProvider
+        newdp = type(newurl, (ClientDataProvider, ), params)
+
+        # Register the new dataprovider with Conduit
         key = self.emit_added(
-                                  dataprovider, 
-                                  (dataprovider._host_, ), 
-                                  self.hosts[dataprovider._host_]["category"]
+                                  newdp, 
+                                  (newurl, ), 
+                                  self.categories[host_url]
                              )
 
         # Record the key so we can unregister the dp later (if needed)
-        self.dataproviders[dataprovider._guid_] = {
-                                                       "local_key" : key,
-                                                  }
+        self.dataproviders[host_url][newurl] = key
 
     def dataprovider_removed(self, wrapper):
         """
         Remove a dataprovider from ModuleManager
         """
-        self.emit_removed(self.dataproviders[wrapper._guid_]['local_key'])
-        del self.dataproviders[wrapper._guid_]
-
-    def parse_host_xml(self, huh, response):
-        for event, elem in ET.iterparse(StringIO(response.out_data)):
-            if elem.tag == "dataprovider":
-                guid = response.host + ":" + elem.findtext("uid")
-
-                params = {
-                             "_name_":        elem.findtext("name"),
-                             "_description_": elem.findtext("description"),
-                             "_icon_":        elem.findtext("icon"),
-                             "_module_type_": elem.findtext("module_type"),
-                             "_in_type_":     elem.findtext("in_type"),
-                             "_out_type_":    elem.findtext("out_type"),
-                             "_uid_":         elem.findtext("uid"),
-                             "_host_":        response.host,
-                             "_port_":        response.port,
-                             "_guid_":        guid,
-                         }
-
-                new_dp = type(guid, (ClientDataProvider, ), params)
-                self.dataprovider_added(new_dp)
-
-                elem.clear()
+        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.url])
+        self.dataproviders[wrapper.host_url].remove(wrapper.url)
 
 class ClientDataProvider(DataProvider.TwoWay):
     """
@@ -120,91 +127,57 @@ class ClientDataProvider(DataProvider.TwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-        self.base = "/%s" % self._uid_
+
+        self.server = xmlrpclib.Server(self.url)
         self.objects = None
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-        self.objects = []
+        self.objects = self.server.get_all()
 
-        response = Request(self._host_, self._port_, "GET", self.base).get()
-        for event, elem in ET.iterparse(StringIO(response)):
-            if elem.tag == "object":
-                uid = elem.findtext("uid")
-                mtime = elem.findtext("mtime")
-                elem.clear()
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return self.objects
 
-                self.objects.append(uid)
-
-    def get_num_items(self):
-        DataProvider.TwoWay.get_num_items(self)
-        return len(self.objects)
-
-    def get(self, index):
-        DataProvider.TwoWay.get(self, index)
-        uid = self.objects[index]
-        request = Request(self._host_, self._port_, "GET", self.base + "/" + uid).get()
-        return pickle.loads(request)
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return pickle.loads(str(self.server.get(LUID)))
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-
-        # work out the url (only add LUID if it is set)
-        put_url = self.base + "/"
-        #if LUID != None:
-        #    put_url += str(LUID.encode("hex"))
-
-        # pickle the data for transmission...
-        stream = pickle.dumps([data, overwrite, LUID])
-
-        request = Request(self._host_, self._port_, "PUT", put_url, stream).get()
-
-        if request == "Put failed.":
-            raise Exceptions.SyncronizeError("Error putting %s" % data)
-
-        return request
+        data_out = xmlrpclib.Binary(pickle.dumps(data))
+        try:
+            return self.server.put(data_out, overwrite, LUID)
+        except xmlrpclib.Fault, f:
+            if f.faultCode == "SynchronizeConflictError":
+                fromData = self.get(LUID)
+                raise Exceptions.SynchronizeConflictError(f.faultString, fromData, data)
+            else:
+                raise f
 
     def delete(self, LUID):
-        request = Request(self._host_, self._port_, "DELETE", self.base + "/" + LUID.encode("hex")).get()
+        self.server.delete(LUID)
 
     def finish(self):
         DataProvider.TwoWay.finish(self)
         self.objects = None
 
     def get_UID(self):
-        return "Networked" + self._host_ + self._name_
+        return "Networked" + self.url
 
-class Request(threading.Thread, gobject.GObject):
+class ClientDataproviderList(threading.Thread, gobject.GObject):
     __gsignals__ =  { 
                     "complete": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
                         gobject.TYPE_PYOBJECT])      #request,
                     }
 
-    def __init__(self, host, port, request, URI, data=None, callback=None):
+    def __init__(self, url):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
-
-        self.host = host
-        self.port = port
-        self.request = request
-        self.URI = URI
-        self.in_data = data
-        self.out_data = ""
-
-        self.callback = None
+        self.url = url
 
     def run(self):
-        conn = httplib.HTTPConnection(self.host, self.port)
-        conn.request(self.request, self.URI, self.in_data)
-        r1 = conn.getresponse()
-        self.out_data = r1.read()
-        conn.close()
-
+        server = xmlrpclib.Server(self.url)
+        self.data_out = server.get_all()
         gobject.idle_add(self.emit, "complete", self)
-
-    def get(self):
-        threading.Thread.start(self)
-        threading.Thread.join(self, 8)
-        return self.out_data
-
