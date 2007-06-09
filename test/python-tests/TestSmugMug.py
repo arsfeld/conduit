@@ -40,7 +40,7 @@ except Exception, err:
     ok("Logged in (%s)" % err, False)  
 
 # Test getting the album id
-album_id = smugmug.get_album_id ()
+album_id = smugmug._get_album_id ()
 
 if album_id:
     ok("Got album id %d for album %s" % (album_id, SAFE_ALBUM_NAME), True)
