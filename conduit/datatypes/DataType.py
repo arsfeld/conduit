@@ -5,7 +5,7 @@ CHANGE_ADDED = 1
 CHANGE_MODIFIED = 2
 CHANGE_DELETED = 3
 
-class DataType:
+class DataType(object):
     """
     Base DataType which represents any thing 
     which can be synchronized between two DataProviders
@@ -106,4 +106,20 @@ class DataType:
 
         return s
 
+    def __getstate__(self):
+        """
+        Store the object state in a dict for pickling
+        """
+        data = {}
+        data['mtime'] = self.get_mtime()
+        data['uid'] = self.get_UID()
+        data['open_uri'] = self.get_open_URI()
+        return data
 
+    def __setstate__(self, data):
+        """
+        Set object state from dict (after unpickling)
+        """
+        self.set_mtime(data['mtime'])
+        self.set_UID(data['uid'])
+        self.set_open_URI(data['open_uri'])

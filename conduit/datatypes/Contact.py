@@ -24,24 +24,13 @@ class Contact(DataType.DataType):
         return conduit.datatypes.COMPARISON_UNKNOWN
 
     def __getstate__(self):
-        """
-        Store the object state in a dict for pickling
-        """
-        data = {}
+        data = DataType.DataType.__getstate__(self)
         data['vcard'] = self.get_vcard_string()
-        data['mtime'] = self.get_mtime()
-        data['uid'] = self.get_UID()
-        data['open_uri'] = self.get_open_URI()
         return data
 
     def __setstate__(self, data):
-        """
-        Set object state from dict (after unpickling)
-        """
         self.set_from_vcard_string(data['vcard'])
-        self.set_mtime(data['mtime'])
-        self.set_UID(data['uid'])
-        self.set_open_URI(data['open_uri'])
+        DataType.DataType.__setstate__(self, data)
 
     def __str__(self):
         return self.get_vcard_string()

@@ -70,9 +70,20 @@ class Note(DataType.DataType):
 
     def get_note_string(self):
         return ("Title: %s\n%s\n(Modified: %s)" % (self.title, self.contents, self.get_mtime()))
+
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data["title"] = self.title
+        data["contents"] = self.contents
+        data["raw"] = self.raw
+        return data
+
+    def __setstate__(self, data):
+        self.title = data["title"]
+        self.contents = data["contents"]
+        self.raw = data["raw"]
+        DataType.DataType.__setstate__(self, data)
         
     def __str__(self):
         return self.title
-        
-
 

@@ -313,6 +313,23 @@ class File(DataType.DataType):
             logw("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
 
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data['uri'] = str(self.URI)
+        data['basePath'] = self.basePath
+        data['group'] = self.group
+        return data
+
+    def __setstate__(self, data):
+        self.URI = gnomevfs.URI(data['uri'])
+        self.basePath = data['basePath']
+        self.group = data['group']
+        DataType.DataType.__setstate__(self, data)
+
+        #fd, name = tempfile.mkstemp(prefix="conduit")
+        #os.write(fd, contents)
+        #os.close(fd)
+
 class TempFile(File):
     """
     A Small extension to a File. This allows new filenames (force_new_filename)
@@ -356,4 +373,13 @@ class TempFile(File):
 
             logd("TempFile transferred to %s. filename %s" % (URI, self._newFilename))
             File.transfer(self, str(URI), overwrite)
-          
+
+    def __getstate__(self):
+        data = File.__getstate__(self)
+        data['_newFilename'] = self._newFilename
+        return data
+
+    def __setstate__(self, data):
+        self._newFilename = data['_newFilename']
+        File.__setstate__(self, data)
+

@@ -23,4 +23,11 @@ class Event(DataType.DataType):
     def compare(self, B):
         return conduit.datatypes.UNKNOWN
 
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data['ical'] = self.get_ical_string()
+        return data
 
+    def __setstate__(self, data):
+        self.set_from_ical_string(data['ical'])
+        DataType.DataType.__setstate__(self, data)
