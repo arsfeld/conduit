@@ -9,10 +9,6 @@ License: GPLv2
 import conduit
 import conduit.Utils as Utils
 
-from twisted.internet import gtk2reactor
-gtk2reactor.install()
-from twisted.internet import reactor
-
 Utils.dataprovider_add_dir_to_path(__file__, "")
 import Server
 import Client
@@ -24,7 +20,7 @@ NetworkClientFactory = Client.NetworkClientFactory
 NetworkServerFactory = Server.NetworkServerFactory
 
 MODULES = {
-#        "NetworkServerFactory" :     { "type": "dataprovider-factory" },
-#        "NetworkClientFactory" :     { "type": "dataprovider-factory" },
+        "NetworkServerFactory" :     { "type": "dataprovider-factory" },
+        "NetworkClientFactory" :     { "type": "dataprovider-factory" },
 }
 

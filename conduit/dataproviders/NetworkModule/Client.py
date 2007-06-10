@@ -86,13 +86,15 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
             if uid not in data.iterkeys():
                 self.dataprovider_removed
 
-    def dataprovider_added(self, host_url, uid, info):
-        """
-        Enroll a dataprovider with Conduit's ModuleManager.
-        """
+    def dataprovider_create(self, host_url, uid, info):
         newurl = host_url + uid
 
         params = {}
+
+        if info == None:
+            s = xmlrpclib.Server(newurl)
+            info = s.get_info()
+
         for key, val in info.iteritems():
             params['_' + key + '_'] = val
 
@@ -102,16 +104,23 @@ class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
         # Actually create a new object type based on ClientDataProvider
         # but with the properties from the remote DataProvider
         newdp = type(newurl, (ClientDataProvider, ), params)
+        return newdp
+
+    def dataprovider_added(self, host_url, uid, info):
+        """
+        Enroll a dataprovider with Conduit's ModuleManager.
+        """
+        newdp = self.dataprovider_create(host_url, uid, info)
 
         # Register the new dataprovider with Conduit
         key = self.emit_added(
                                   newdp, 
-                                  (newurl, ), 
-                                  self.categories[host_url]
+                                  (newdp.url, ), 
+                                  self.categories[newdp.host_url]
                              )
 
         # Record the key so we can unregister the dp later (if needed)
-        self.dataproviders[host_url][newurl] = key
+        self.dataproviders[host_url][newdp.url] = key
 
     def dataprovider_removed(self, wrapper):
         """
@@ -143,11 +152,17 @@ class ClientDataProvider(DataProvider.TwoWay):
         DataProvider.TwoWay.get(self, LUID)
         return pickle.loads(str(self.server.get(LUID)))
 
-    def put(self, data, overwrite, LUID=None):
+    def put(self, data, overwrite=False, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
         data_out = xmlrpclib.Binary(pickle.dumps(data))
+
+        if LUID == None:
+            LUID_out = ""
+        else:
+            LUID_out = LUID
+
         try:
-            return self.server.put(data_out, overwrite, LUID)
+            return self.server.put(data_out, overwrite, LUID_out)
         except xmlrpclib.Fault, f:
             if f.faultCode == "SynchronizeConflictError":
                 fromData = self.get(LUID)

@@ -19,11 +19,11 @@ import Peers
 
 from twisted.internet import reactor
 from twisted.web import resource, server, xmlrpc
-import xmlrpclib, pickle
+import xmlrpclib, pickle, threading
 
 SERVER_PORT = 3400
-    
-class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
+
+class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject, threading.Thread):
     """
     Controlls all network related communication aspects. This involves
     1) Advertising dataprovider presence on local network using avahi
@@ -32,21 +32,29 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
     """
     def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
+        threading.Thread.__init__(self)
 
         if not kwargs.has_key("moduleManager"):
             return
 
         self.modules = kwargs['moduleManager']
+        self.start()
 
+    def run(self):
         self.shared = {}
 
         self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
         self.advertiser.announce()
         
         reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self)))
-
+        
         # After a short delay share some services
         gobject.timeout_add(1000, self.test_cb)
+
+        reactor.run(installSignalHandlers=0)
+
+    def quit(self):
+        reactor.stop()
 
     def test_cb(self):
         for wrapper in self.modules.get_modules_by_type(None):
@@ -58,7 +66,7 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject):
         """
         Shares a dataprovider on the network
         """
-        self.shared[dataproviderWrapper.get_UID()] = DataproviderResource(dataproviderWrapper)
+        self.shared[dataproviderWrapper.get_UID().encode("hex")] = DataproviderResource(dataproviderWrapper)
         self.advertiser.announce()
 
     def unshare_dataprovider(self, dataproviderWrapper):
@@ -99,7 +107,7 @@ class DataproviderResource(xmlrpc.XMLRPC):
         Return information about this dataprovider (so that client can show correct icon, name, description etc)
         """
         wrapper = self.wrapper
-        return { "uid":          wrapper.get_UID(),
+        return { "uid":          wrapper.get_UID().encode("hex"),
                  "name":         wrapper.name,
                  "description":  wrapper.description,
                  "icon":         wrapper.icon_name,
@@ -120,6 +128,8 @@ class DataproviderResource(xmlrpc.XMLRPC):
 
     def xmlrpc_put(self, data, overwrite, LUID):
         data = pickle.loads(str(data))
+        if len(LUID) == 0:
+            LUID = None
         try:
             return self.module.put(data, overwrite, LUID)
         except Exceptions.SynchronizeConflictError, e:
