@@ -11,6 +11,12 @@ import conduit.datatypes.Event as Event
 # import any dp's that we'll need to wrap
 from conduit.dataproviders import iPodModule
 
+try:
+    if os.environ["STRESS_TEST"] != "YES":
+        sys.exit()
+except:
+    sys.exit()
+
 def objset_contacts():
     """
     Return a sample of contact objects
@@ -227,11 +233,15 @@ for source in targets:
                 combinations.append( (source, sink, in_type2, rules[in_type2][1]) )
 
 for source, sink, datatype, dataset in combinations:
+    if datatype in ("contact", "note"):
+        newsource = host.networked_dataprovider(source)
+        test_full(host, newsource, sink, datatype, dataset, True, False)
+
     # Run all combinations of slow and 1way/2way
     test_full(host, source, sink, datatype, dataset, True, False)
-    #test_full(host, source, sink, datatype, dataset, True, True)
+    # test_full(host, source, sink, datatype, dataset, True, True)
     test_full(host, source, sink, datatype, dataset, False, False)
-    #test_full(host, source, sink, datatype, dataset, False, True)
+    # test_full(host, source, sink, datatype, dataset, False, True)
 
     # conduit.mappingDB.delete()
 

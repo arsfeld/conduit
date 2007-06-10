@@ -118,12 +118,38 @@ class SimpleTest(object):
                     getattr(dp, "_in_type_", ""),
                     getattr(dp, "_out_type_", ""),
                     dp.__class__.__name__,     #classname
-                    [],
+                    tuple([]),
                     dp,
                     True
                     )
 
         return wrapper
+
+    def networked_dataprovider(self, dp):
+        """
+        Dirty evil cludge so we can test networked sync...
+        """
+        found = False
+
+        #fixme: need cleaner way to get networked factory..
+        for i in range(0, len(self.model.dataproviderFactories)):
+            factory = self.model.dataproviderFactories[i]
+            if str(factory).find("NetworkServerFactory") != -1:
+                found = True
+                factory.share_dataprovider(dp)
+                break
+
+        if found == False:
+            return None
+
+        time.sleep(1)
+
+        for i in range(0, len(self.model.dataproviderFactories)):
+            factory = self.model.dataproviderFactories[i]
+            if str(factory).find("NetworkClientFactory") != -1:
+                newdp = factory.dataprovider_create("http://localhost:3400/", dp.get_UID().encode("hex"), None)
+                ok("Created new ClientDataProvider", newdp != None)
+                return self.wrap_dataprovider( newdp() )
 
     def configure(self, source={}, sink={}):
         if len(source) > 0:
