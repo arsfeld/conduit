@@ -296,7 +296,7 @@ class ConflictResolver:
                         conduit.Synchronization._delete_data(source, sink, data.get_UID())
                     else:
                         logd("Resolving conflict. Putting %s --> %s" % (data, sink))
-                        conduit.Synchronization._put_data(source, sink, data, None, None, True)
+                        conduit.Synchronization._put_data(source, sink, data, None, True)
 
                     self.model.remove(rowref)
                 except Exception:
@@ -466,7 +466,7 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
                 conduit.Synchronization._delete_data(self.source, self.sink, self.data.get_UID())
             else:
                 logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-                conduit.Synchronization._put_data(self.source, self.sink, self.data, None, None, True)
+                conduit.Synchronization._put_data(self.source, self.sink, self.data, None, True)
         except Exception:                        
             logw("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)

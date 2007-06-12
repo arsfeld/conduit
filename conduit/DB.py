@@ -28,10 +28,32 @@ class MappingDB:
         Blindly opens the mappingDB. Throws exceptions if the db is corrupt
         """
         self._db = SimpleDb(f)
-        self._db.create("sourceUID","sourceDataLUID", "sinkUID", "sinkDataLUID","mtime", mode="open")
+        self._db.create("sourceUID","sourceDataLUID", "sourceDataMtime", "sinkUID", "sinkDataLUID", "sinkDataMtime", mode="open")
         #We access the DB via all fields so all need indices
         self._db.create_index(*self._db.fields)
 
+    def _get_mapping(self, sourceUID, sourceDataLUID, sinkUID):
+        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
+        for i in existing:
+            if i["sourceDataLUID"] == sourceDataLUID:
+                return i
+
+        existing = self.get_mappings_for_dataproviders(sinkUID,sourceUID)
+        for i in existing:
+            if i["sourceDataLUID"] == sourceDataLUID:
+                return i
+
+        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
+        for i in existing:
+            if i["sinkDataLUID"] == sourceDataLUID:
+                return i
+
+        existing = self.get_mappings_for_dataproviders(sinkUID,sourceUID)
+        for i in existing:
+            if i["sinkDataLUID"] == sourceDataLUID:
+                return i
+
+        return None
 
     def get_mappings_for_dataproviders(self, sourceUID, sinkUID):
         """
@@ -54,7 +76,7 @@ class MappingDB:
 
             self._open_db(filename)
 
-    def save_mapping(self, sourceUID, sourceDataLUID, sinkUID, sinkDataLUID, mtime):
+    def save_mapping(self, sourceUID, sourceDataLUID, sourceDataMtime, sinkUID, sinkDataLUID, sinkDataMtime):
         """
         Saves a mapping between the dataproviders with sourceUID and sinkUID
         The mapping says that within that syncronization pair the two data
@@ -64,63 +86,58 @@ class MappingDB:
             logw("Could not save mapping")
             return
 
-        existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
-        for i in existing:
-            if i["sourceDataLUID"] == sourceDataLUID:
-                if i["sinkDataLUID"] == sinkDataLUID and i["mtime"] == mtime:
-                    logd("Skipping mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
-                    return
-                else:
-                    logd("Updating mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
-                    self._db.update(
-                        i,
+        existing = self._get_mapping(sourceUID, sourceDataLUID, sinkUID)
+        if existing != None:
+            logd("Updating mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
+            self._db.update(
+                existing,
+                sourceDataLUID=sourceDataLUID,
+                sourceDataMtime=sourceDataMtime,
+                sinkDataLUID=sinkDataLUID,
+                sinkDataMtime=sinkDataMtime
+                )
+        else:
+            logd("Saving new mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
+            self._db.insert(
+                        sourceUID=sourceUID,
                         sourceDataLUID=sourceDataLUID,
+                        sourceDataMtime=sourceDataMtime,
+                        sinkUID=sinkUID,
                         sinkDataLUID=sinkDataLUID,
-                        mtime=mtime
+                        sinkDataMtime=sinkDataMtime
                         )
-                    return
 
-
-        logd("Saving new mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
-        self._db.insert(
-                    sourceUID=sourceUID,
-                    sourceDataLUID=sourceDataLUID,
-                    sinkUID=sinkUID,
-                    sinkDataLUID=sinkDataLUID,
-                    mtime=mtime
-                    )
-
-    def get_mapping(self, sourceUID, sourceDataLUID, sinkUID):
+    def get_matching_UID(self, sourceUID, sourceDataLUID, sinkUID):
         """
         For a given source and sink pair, get the mapping data for
-        the sourceDataLUID. This includes the matching sinkDataLUID
-        and mtime.
+        the sourceDataLUID. 
 
-        @returns: sinkDataLUID, mtime
+        @returns: dataLUID
         """
         existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
         for i in existing:
             if i["sourceDataLUID"] == sourceDataLUID:
-                return i["sinkDataLUID"], i["mtime"]
+                return i["sinkDataLUID"]
 
         existing = self.get_mappings_for_dataproviders(sinkUID,sourceUID)
         for i in existing:
             if i["sourceDataLUID"] == sourceDataLUID:
-                return i["sinkDataLUID"], i["mtime"]
+                return i["sinkDataLUID"]
 
         existing = self.get_mappings_for_dataproviders(sourceUID,sinkUID)
         for i in existing:
             if i["sinkDataLUID"] == sourceDataLUID:
-                return i["sourceDataLUID"], i["mtime"]
+                return i["sourceDataLUID"]
 
         existing = self.get_mappings_for_dataproviders(sinkUID,sourceUID)
         for i in existing:
             if i["sinkDataLUID"] == sourceDataLUID:
-                return i["sourceDataLUID"], i["mtime"]
+                return i["sourceDataLUID"]
 
         logd("No mapping found for LUID: %s" % sourceDataLUID)
 
-        return None, None
+        return None
+
 
     def delete_mapping(self, sourceUID, sinkUID, dataLUID):
         """

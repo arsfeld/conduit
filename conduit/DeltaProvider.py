@@ -28,17 +28,17 @@ class DeltaProvider:
         """
         @returns: added, modified, deleted
         """
-	# copy list for in case there are other sinks to follow
-        allItems = list(self.me.module.get_all())
+        #Copy (slice) list for in case there are other sinks to follow
+        allItems = self.me.module.get_all()[:]
         logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
         #we also get the mtimes because we need those to detect if something has changed
         mtimes = {}
         for i in conduit.mappingDB.get_mappings_for_dataproviders(self.me.get_UID(), self.other.get_UID()):
-            mtimes[ i["sourceDataLUID"] ] = i["mtime"]
+            mtimes[ i["sourceDataLUID"] ] = i["sourceDataMtime"]
         for i in conduit.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
-            mtimes[ i["sinkDataLUID"] ] = i["mtime"]
+            mtimes[ i["sinkDataLUID"] ] = i["sinkDataMtime"]
 
         logd("Delta: Expecting %s items\n%s" % (len(mtimes), mtimes.keys()))
 

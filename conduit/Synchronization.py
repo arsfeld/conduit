@@ -21,7 +21,7 @@ import conduit.DeltaProvider as DeltaProvider
 from conduit.Conflict import CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
 
-def _put_data(source, sink, data, LUID, mtime, overwrite):
+def _put_data(source, sink, data, LUID, overwrite):
     """
     Puts data into sink, overwrites if overwrite is True. Updates 
     the mappingDB
@@ -35,9 +35,10 @@ def _put_data(source, sink, data, LUID, mtime, overwrite):
     conduit.mappingDB.save_mapping(
                             sourceUID=source.get_UID(),
                             sourceDataLUID=data.get_UID(),
+                            sourceDataMtime=mtime,
                             sinkUID=sink.get_UID(),
                             sinkDataLUID=LUID,
-                            mtime=mtime
+                            sinkDataMtime=mtime
                             )
 
 def _delete_data(source, sink, dataLUID):
@@ -271,8 +272,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
     def _transfer_data(self, source, sink, data):
         """
         Transfers the data from source to sink, includes performing any conversions,
-        handling exceptions, etc. Only transfers data if the mtime of the
-        data has changed
+        handling exceptions, etc.
 
         @returns: The data that was put or None
         """
@@ -282,15 +282,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
             newdata = self._convert_data(sink, source.get_out_type(), sink.get_in_type(), data)
             try:
                 #Get existing mapping
-                LUID, mtime = conduit.mappingDB.get_mapping(
+                LUID = conduit.mappingDB.get_matching_UID(
                                         sourceUID=source.get_UID(),
                                         sourceDataLUID=newdata.get_UID(),
                                         sinkUID=sink.get_UID()
                                         )
-                if newdata.get_mtime() != mtime or self.conduit.do_slow_sync():
-                    _put_data(source, sink, newdata, LUID, mtime, False)
-                else:
-                    log("Skipping %s. Mtimes has not changed (actual %s v saved %s)" % (newdata.get_UID(), newdata.get_mtime(), mtime))
+                _put_data(source, sink, newdata, LUID, False)
             except Exceptions.SynchronizeConflictError, err:
                 comp = err.comparison
                 if comp == COMPARISON_OLDER:
@@ -383,12 +380,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
                 try:
-                    LUID, mtime = conduit.mappingDB.get_mapping(
+                    LUID = conduit.mappingDB.get_matching_UID(
                                             sourceUID=sourceWrapper.get_UID(),
                                             sourceDataLUID=toData.get_UID(),
                                             sinkUID=sinkWrapper.get_UID()
                                             )
-                    _put_data(sourceWrapper, sinkWrapper, toData, LUID, mtime, True)
+                    _put_data(sourceWrapper, sinkWrapper, toData, LUID, True)
                 except:
                     logw("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
@@ -452,32 +449,19 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         #handle deleted data
         for d in deleted:
-            matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), d, sink.get_UID())
+            matchingUID = conduit.mappingDB.get_matching_UID(source.get_UID(), d, sink.get_UID())
             if matchingUID != None:
                 self._apply_deleted_policy(source, d, sink, matchingUID)
        
     def two_way_sync(self, source, sink):
         """
         Performs a two way sync from source to sink and back.
-        General approach
-            1.  Get all the data from both DPs
-            2.  Get all existing relationships
-            3.  Go through all the data and classify into the following
-                a.  Data with no existing mappings.  This is basically new
-                    data so can be put into the corresponding sink
-                b.  Data for which a mapping exists. This can then be classified
-                    into 
-                    1.  The mtime of the data has not changed at either end. Skip
-                    2.  The mtime of the data has changed. Compare the data to 
-                        see which is newer
-                    3.  Data that is missing from the existing mappings, i.e. data
-                        that has been deleted
         """
         log("Synchronizing (Two Way) %s <--> %s " % (source, sink))
         #Need to do all the analysis before we touch the mapping db
         toput = []      # (sourcedp, dataUID, sinkdp)
         todelete = []   # (sourcedp, dataUID, sinkdp)
-        tocomp = []     # (dp1, data1UID, dp2, data2UID, mtime)
+        tocomp = []     # (dp1, data1UID, dp2, data2UID)
 
         #PHASE ONE: CALCULATE WHAT NEEDS TO BE DONE
         #get all the datauids
@@ -495,12 +479,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #been modified at the same time. First find items in both lists and seperate
         #them out as they need to be compared.
         for i in sourceModified[:]:
-            matchingUID, mtime = conduit.mappingDB.get_mapping(source.get_UID(), i, sink.get_UID())
+            matchingUID = conduit.mappingDB.get_matching_UID(source.get_UID(), i, sink.get_UID())
             if sinkModified.count(matchingUID) != 0:
                 logw("BOTH MODIFIED: %s v %s" % (i, matchingUID))
                 sourceModified.remove(i)
                 sinkModified.remove(matchingUID)
-                tocomp.append( (source, i, sink, matchingUID, mtime) )
+                tocomp.append( (source, i, sink, matchingUID) )
 
         #all that remains in the original lists are to be put
         toput += [(source, i, sink) for i in sourceModified]
@@ -513,12 +497,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
             self._transfer_data(sourcedp, sinkdp, data)
 
         for sourcedp, dataUID, sinkdp in todelete:
-            matchingUID, mtime = conduit.mappingDB.get_mapping(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
+            matchingUID = conduit.mappingDB.get_matching_UID(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
             logd("2WAY DEL: %s (%s)" % (sinkdp.name, matchingUID))
             if matchingUID != None:
                 self._apply_deleted_policy(sourcedp, dataUID, sinkdp, matchingUID)
 
-        for dp1, data1UID, dp2, data2UID, mtime in tocomp:
+        for dp1, data1UID, dp2, data2UID in tocomp:
             logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
             data1 = dp1.module.get(data1UID)
             data2 = dp2.module.get(data2UID)
