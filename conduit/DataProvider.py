@@ -15,6 +15,7 @@ import traceback
 import conduit
 from conduit import log,logd,logw
 import conduit.Exceptions as Exceptions
+import conduit.datatypes.File as File
 
 #Constants used in the sync state machine
 STATUS_NONE = 0
