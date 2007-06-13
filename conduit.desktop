@@ -8,5 +8,5 @@ Exec=conduit
 Terminal=false
 Type=Application
 Icon=conduit-icon.png
-Categories=Application;System;GTK;
+Categories=GNOME;GTK;Utility;
 
