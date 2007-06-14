@@ -15,7 +15,7 @@ import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
 Utils.dataprovider_add_dir_to_path(__file__, "SmugMugAPI")
-from smugmug import SmugMug
+from smugmug import SmugMug, SmugMugException
 
 MODULES = {
     "SmugMugSink" :          { "type": "dataprovider" }        
@@ -37,13 +37,19 @@ class SmugMugSink(DataProvider.ImageSink):
         self.sapi = None
 
     def _get_photo_info (self, photoId):
-        return self.sapi.get_image_info (photoId)
+        try:
+            return self.sapi.get_image_info (photoId)
+        except SmugMugException, e:
+            logw ("Get info error: %s" % e.get_printable_error())
+            return None
 
     def _get_raw_photo_url(self, photoInfo):
         return photoInfo['OriginalURL']
         
     def _upload_photo (self, url, name):
-       # upload to album; and return image id here
+        """
+        Upload to album; and return image id here
+        """
         try:
             albumID = self._get_album_id ()
             return self.sapi.upload_file( albumID, url, name )
@@ -52,7 +58,25 @@ class SmugMugSink(DataProvider.ImageSink):
 
     def refresh(self):
         DataProvider.ImageSink.refresh(self)
-        self.sapi = SmugMug(self.username, self.password)
+
+        # make sure we logout from previous logins
+        if self.sapi:
+            self.sapi.logout()
+
+        # login to smugmug
+        try:
+            self.sapi = SmugMug(self.username, self.password)
+        except SmugMugException, e:
+            raise Exceptions.RefreshError (e.get_printable_error())
+
+    def delete(self, LUID):
+        """
+        Use LUID to delete from smugmug album
+        """
+        try:
+            self.sapi.delete_image(LUID)
+        except SmugMugException, e:
+            logw('Delete error: %s' % e.get_printable_error())
  
     def configure(self, window):
         """

@@ -1,8 +1,8 @@
-# Most of the code from this file comes from:
+# Upload code comes from:
 #
 # Copyright (C) 2004 John C. Ruttenberg
 #
-# with some small additions by
+# All other calls re-implemented to use REST api
 #
 # Copyright (C) 2007 Thomas Van Machelen
 #
@@ -20,177 +20,124 @@
 # this program text; if not, write to the Free Software Foundation, Inc., 59
 # Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-import string
-import re
-from xmlrpclib import *
 import httplib, mimetypes
+import urllib, urllib2
 
-try:
-    from xml.etree.ElementTree import fromstring, ElementTree 
-except:
-    from elementtree.ElementTree import fromstring, ElementTree
+from xml.dom.minidom import parseString
 
 import os
 from os import path
 
-version = "1.10"
+# conduit's api key
+API_KEY = "8Od9l5euu0srE81aM0vZlsEHmEFBB9vP"
 
-def error(string):
-	from sys import exit, stderr
-	stderr.write(string + "\n")
-	exit(1)
+def get_text(x):
+	""" get textual content of the node 'x' """
+	r=""
+	for i in x.childNodes:
+		if i.nodeType == x.TEXT_NODE:
+			r+=str(i.nodeValue)
+	return r
 
-def message(opts,string):
-	from sys import stderr
-	if not opts.quiet:
-		stderr.write(string)
+def get_child(element, name):
+	nodes = element.getElementsByTagName(name)
 
-def minutes_seconds(seconds):
-    if seconds < 60:
-        return "%d" % seconds
-    else:
-        return "%d:%02d" % (seconds / 60, seconds % 60)
-	
+	if len(nodes) > 0:
+		return element.getElementsByTagName(name)[0]
+	else:
+		return None
+
+def get_child_text(element, name):
+	return get_text(get_child(element, name))
+
+def get_attribute(element, name):
+	if element.hasAttribute(name):
+		return str(element.getAttribute(name))
+	else:
+	 	return None
 
 def filename_get_data(name):
 	f = file(name,"rb")
 	d = f.read()
 	f.close()
 	return d
-	
+
 def get_content_type(filename):
-	return mimetypes.guess_type(filename)[0] or 'application/octet-stream'	
+	return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+class SmugMugException (Exception):
+	def __init__ (self, code, message):
+		self.code = code
+		self.message = message
+
+	def get_printable_error (self):
+		return 'Code: %s; Message: %s' % (self.code, self.message)
 
 class SmugMug:
+	END_POINT = 'https://api.smugmug.com/hack/rest/1.1.1/?'
+
 	def __init__(self,account,passwd):
 		self.account = account
 		self.password = passwd
-		self.sp = ServerProxy("https://upload.smugmug.com/xmlrpc/")
-		self.api_version = "1.0"
+
 		self.categories = None
 		self.subcategories = None
 		self.albums = None
+
 		self.login()
 
-	def __del__(self):
-		self.logout()
-
 	def login(self):
-		rep = self.sp.loginWithPassword(self.account,self.password,self.api_version)
-		self.session = rep['SessionID']
+		rsp = self._call_method(method='smugmug.login.withPassword', EmailAddress=self.account, Password=self.password, APIKey=API_KEY)
+
+		self.session = get_child_text(rsp, 'SessionID')
 
 	def logout(self):
-		self.sp.logout(self.session)
-		
-	def create_album(self,name,category_id=0):
-		return self.sp.createAlbum(self.session,name,category_id)
+		self._call_method(method='smugmug.logout', SessionID=self.session)
 
 	def get_categories(self):
-		categories = self.sp.getCategories(self.session)
+		rsp = self._call_method(method='smugmug.categories.get', SessionID=self.session)
+
 		self.categories = {}
-		for category in categories:
-			self.categories[category['Title']] = category['CategoryID']
-			
-	def get_category(self,category_string):
-		if re.match("\d+$",category_string):
-			return string.atoi(category_string)
-		if not self.categories:
-			self.get_categories()
 
-		if not self.categories.has_key(category_string):
-			error("Unknown category " + category_string)
-		else:
-			return self.categories[category_string]
+		for cat in rsp.getElementsByTagName('Category'):
+			self.categories[get_child_text(cat, 'Title')] = get_attribute(cat, 'id')
 
-	def get_subcategory(self,category,subcategory_string):
-		if re.match("\d+$",subcategory_string):
-			return string.atoi(subcategory_string)
-		if not self.subcategories:
-			self.subcategories = {}
-		if not self.subcategories.has_key(category):
-			subcategories = self.sp.getSubCategories(self.session,category)
-			subcategory_map = {}
-			for subcategory in subcategories:
-				subcategory_map[subcategory['Title']] = subcategory['SubCategoryID']
-			self.subcategories[category] = subcategory_map
+		return self.categories
 
-		if not self.subcategories[category].has_key(subcategory_string):
-			error("Unknown subcategory " + subcategory_string)
-		else:
-			return self.subcategories[category][subcategory_string]
-			
+	def create_album(self, name, category=0, is_public=False):
+		rsp = self._call_method (method='smugmug.albums.create', SessionID=self.session, Title=name, CategoryID=category, Public=int(is_public))
+
+		return get_attribute(get_child(rsp, 'Album'), 'id')
+
 	def get_albums (self):
-		albums = self.sp.getAlbums (self.session)
+		rsp = self._call_method(method='smugmug.albums.get', SessionID=self.session)
+
 		self.albums = {}
-		for album in albums:
-			self.albums[album['Title']] = album['AlbumID']
-			
+
+		# make an album name: id dict
+		for album in rsp.getElementsByTagName('Album'):
+			self.albums[get_child_text(album, 'Title')] = get_attribute(album, 'id')
+
 		return self.albums
-			
+
 	def get_images (self, albumID):
-		return self.sp.getImages (self.session, albumID)
-			
+		rsp = self._call_method (method='smugmug.images.get', SessionID=self.session, AlbumID=albumID)
+
+		images = []
+		
+		# create an image id list
+		for image in rsp.getElementsByTagName ('Image'):
+			images.append (get_attribute(image, 'id'))
+
+		return images
+
 	def get_image_info (self, imageID):
-		try:
-			return self.sp.getImageInfo (self.session, imageID)
-		except:
-			return None		
+		rsp = self._call_method (method='smugmug.images.getInfo', SessionID=self.session, ImageID=imageID)
 
-	def upload_files(self,albumid,opts,args,local_information=None):
-		from time import time
-		from os import stat
-		from string import atoi
+		return self._make_dict (rsp.getElementsByTagName('Image')[0])
 
-		max_size = atoi(opts.max_size)
-
-		total_size = 0
-		sizes = {}
-		files = []
-		for file in args:
-			if not path.isfile(file):
-				message(opts,"%s not a file.	Not uploading\n")
-				continue
-			size = stat(file).st_size
-			if size > max_size:
-				message(opts,"%s size %d greater than %d.	Not uploading\n" %
-								(file,size,max_size))
-			else:
-				files.append(file)
-				sizes[file] = size
-				total_size += size
-
-		t = time()
-		total_xfered_bytes = 0
-
-		for file in files:
-			t0 = time()
-			message(opts,file + "...")
-			if not opts.test:
-				self.upload_file(albumid,file,caption(file,opts))
-			t1 = time()
-			if local_information:
-				local_information.file_uploaded(file)
-			seconds = t1 - t0
-			try:
-				bytes_per_second = sizes[file] / seconds
-				total_xfered_bytes += sizes[file]
-				estimated_remaining_seconds = (total_size - total_xfered_bytes) / bytes_per_second
-				message(opts,"[OK] %d bytes %d seconds %dKB/sec ETA %s\n" % (
-					sizes[file],
-					seconds,
-					bytes_per_second / 1000,
-					minutes_seconds(estimated_remaining_seconds)))
-			except:
-				pass			
-
-		total_seconds = time() - t
-		try:
-			message(opts,"%s %d bytes %dKB/sec\n" % (
-				minutes_seconds(total_seconds),
-				total_size,
-				(total_size / total_seconds) / 1000))
-		except:
-			pass
+	def delete_image (self, imageID):
+		self._call_method(method='smugmug.images.delete', SessionID=self.session, ImageID=imageID)
 
 	def upload_file(self,albumid,filename,caption=None):
 		fields = []
@@ -201,16 +148,16 @@ class SmugMug:
 
 		data = filename_get_data(filename)
 		fields.append(['ByteCount',str(len(data))])
+		fields.append(['ResponseType', 'REST'])
 
 		file = ['Image',filename,data]
 		rsp = self.post_multipart("upload.smugmug.com","/photos/xmladd.mg",fields,[file])
 
 		try:
-			tree = ElementTree(fromstring(rsp))
-			return tree.find("//int").text
+			tree = parseString(rsp).documentElement
+			return get_child_text(tree, 'ImageID')
 		except:
 			return None
-		
 
 	def post_multipart(self,host,selector,fields,files):
 		"""
@@ -264,4 +211,38 @@ class SmugMug:
 		body = CRLF.join(L)
 		content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
 		return content_type, body
-		
+
+	def _call_method (self, **args):
+		data = urllib.urlencode(args)
+		xml = urllib2.urlopen(self.END_POINT + data).read()
+		rsp = parseString(xml).documentElement
+
+		self._check_error(rsp)
+
+		return rsp
+
+	@classmethod
+	def _check_error(cls, element):
+		if get_attribute(element, 'stat') != 'fail':
+		 	return
+
+		err = get_child (element, 'err')
+		raise SmugMugException (get_attribute(err, 'code'), get_attribute(err, 'msg'))
+
+
+	@classmethod
+	def _make_dict (cls, element):
+		result = {}
+
+		for child in element.childNodes:
+			if not child.nodeName:
+				continue
+
+			value = get_text(child)
+			if not value:
+				continue
+
+			result[child.nodeName] = value
+
+		return result
+

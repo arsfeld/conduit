@@ -678,7 +678,7 @@ class ImageSink(DataSink):
         return self._upload_photo (photoURI, originalName)
 
     def delete(self, LUID):
-       pass
+        pass
  
     def is_configured (self):
         return False
