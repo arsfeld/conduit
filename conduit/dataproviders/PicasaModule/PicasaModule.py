@@ -63,6 +63,14 @@ class PicasaSink(DataProvider.ImageSink):
 
         self.gphotos = self.galbum.getPhotos()
 
+    def delete(self, LUID):
+        if not self.gphotos.has_key(LUID):
+            logw("Photo does not exit")
+            return
+
+        self.galbum.deletePhoto (self.gphotos[LUID])
+        del self.gphotos[LUID]
+
     def _upload_photo (self, url, name):
         try:
             ret = self.galbum.uploadPhoto(url, name)

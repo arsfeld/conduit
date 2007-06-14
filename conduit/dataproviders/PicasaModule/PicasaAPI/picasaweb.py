@@ -54,7 +54,7 @@ def encode_multipart_formdata(fields, files):
     CRLF = '\r\n'
     L = []
     for (key, value) in fields:
-    	# prepend MediaMultipart posting
+        # prepend MediaMultipart posting
         if L == []:
             L.append ("Media multipart posting")
         L.append('--' + BOUNDARY)
@@ -103,6 +103,12 @@ class PicasaHTTPErrorProcessor(urllib2.HTTPErrorProcessor):
 opener = urllib2.build_opener (PicasaHTTPErrorProcessor())
 urllib2.install_opener(opener)
 
+###########################################
+class PicasaDeleteRequest(urllib2.Request):
+###########################################
+    def get_method(self):
+        return "DELETE"
+
 #####################################
 class PicasaWebException(Exception):
 #####################################
@@ -122,6 +128,7 @@ class GDataApi:
     gallery = "user/%(userid)s?kind=album"
     album_by_id = "user/%(userid)s/albumid/%(aid)s?kind=photo"
     picture_by_id = "user/%(userid)s/albumid/%(aid)s/photoid/%(pid)s"
+    delete_picture = entry + "user/%(userid)s/albumid/%(aid)s/photoid/%(pid)s/%(version)s" 
     post_url = feed + "user/%(userid)s"
     post_picture = feed + "user/%(userid)s/albumid/%(aid)s"
 
@@ -140,13 +147,16 @@ class GDataApi:
     def _getposturlforupload (userid, aid):
         return GDataApi.post_picture % {"userid" : userid, "aid" : aid }
 
+    def _getphotodeleteurl (userid, aid, pid, version):
+        return GDataApi.delete_picture % {"userid" : userid, "aid" : aid, "pid" : pid, "version" : version }
+
     # create the static methods
     getalbumfeedbyid = staticmethod (_getalbumfeedbyid)
     getgalleryfeed = staticmethod (_getgalleryfeed)
     getpicturefeed = staticmethod (_getpicturefeed)
     getposturl = staticmethod (_getposturl)
-    getposturlforupload = staticmethod (_getposturlforupload )
-
+    getposturlforupload = staticmethod (_getposturlforupload)
+    getphotodeleteurl = staticmethod (_getphotodeleteurl)
 
 ###############################################################################
 class GoogleConnection(object):
@@ -323,18 +333,26 @@ class PicasaAlbum(object):
             response = opener.open(request)
             xml =response.read()
 
-	    root = parseString (xml).documentElement
+            root = parseString (xml).documentElement
 
             return self.createPhotoFromXml (root)
         else:
             raise PicasaWebException("File doesn't exist")
 
+    def deletePhoto (self, photo):
+        url = GDataApi.getphotodeleteurl (self.__gc.user, self.id, photo.id, photo.version)
+
+        request = PicasaDeleteRequest (url, headers=self.__gc.getauthheaders())
+        response = opener.open(request)
+        xml = response.read ()
+
     def createPhotoFromXml (self, element):
         id = getText(element.getElementsByTagName("gphoto:id")[0])  # gphoto:id
         title = getText(element.getElementsByTagName("title")[0]) # title
         url = element.getElementsByTagName("media:content")[0].getAttribute('url')
+        version = getText(element.getElementsByTagName("gphoto:version")[0]) # gphoto.version
 
-        return PicasaPhoto (id, title, url)
+        return PicasaPhoto (id, title, url, version)
 
     def __repr__(self):
         return "<album %s : %s>" % (self.__id,self.__name)
@@ -342,16 +360,19 @@ class PicasaAlbum(object):
 ###############################################################################
 class PicasaPhoto (object):
 ###############################################################################
-    __id = None
-    __title = None
+    __id=None
+    __title=None
     __url=None
+    __version=None
 
     title = property (lambda s : s.__title)
     id = property (lambda s : s.__id)
     url = property(lambda s : s.__url)
+    version = property(lambda s: s.__version)
 
-    def __init__ (self, id, title, url):
+    def __init__ (self, id, title, url, version):
         self.__id = id
         self.__title = title
         self.__url = url
+        self.__version = version
 
