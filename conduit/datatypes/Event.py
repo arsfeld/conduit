@@ -21,7 +21,7 @@ class Event(DataType.DataType):
         return self.iCal.serialize()
 
     def compare(self, B):
-        return conduit.datatypes.UNKNOWN
+        return conduit.datatypes.COMPARISON_UNKNOWN
 
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)

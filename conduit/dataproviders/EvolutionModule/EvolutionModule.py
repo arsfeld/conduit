@@ -207,7 +207,7 @@ class EvoCalendarTwoWay(DataProvider.TwoWay, EvoBase):
         """
         Get an event from Evolution.
         """
-        raw = self.events[LUID]
+        raw = self.calendar.get_object(LUID, "")
         event = Event.Event(None)
         event.set_from_ical_string(raw.get_as_string())
         event.set_UID(raw.get_uid())
@@ -215,12 +215,11 @@ class EvoCalendarTwoWay(DataProvider.TwoWay, EvoBase):
         return event
 
     def _create_event(self, event):
-        #obj = evo.ECalComponent(vcard=contact.get_vcard_string())
-        #if self.book.add_contact(obj):
-        #    return obj.get_uid()
-        #else:
-        #    raise Exceptions.SyncronizeError("Error creating contact")
-        pass
+        obj = evo.ECalComponent(evo.CAL_COMPONENT_EVENT, event.get_ical_string())
+        if self.calendar.add_object(obj):
+            return obj.get_uid()
+        else:
+            raise Exceptions.SyncronizeError("Error creating event")
 
     def _update_event(self, uid, event):
         if self._delete_event(uid):
@@ -230,8 +229,7 @@ class EvoCalendarTwoWay(DataProvider.TwoWay, EvoBase):
             raise Exceptions.SyncronizeError("Error updating calendar (uid: %s)" % uid)
 
     def _delete_event(self, uid):
-        #return self.book.remove_contact_by_id(uid)
-        pass
+        return self.calendar.remove_object(self.calendar.get_object(uid, ""))
 
     def configure(self, window):
         self.calendarURI = EvoBase.configure(self, 
@@ -243,15 +241,15 @@ class EvoCalendarTwoWay(DataProvider.TwoWay, EvoBase):
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-        self.events = {}
+        self.events = []
 
         self.calendar = evo.open_calendar_source(self.calendarURI, 0)
         for i in self.calendar.get_all_objects():
-            self.events[i.get_uid()] = i
+            self.events.append(i.get_uid())
 
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
-        return list(self.events.iterkeys())
+        return self.events
 
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)
