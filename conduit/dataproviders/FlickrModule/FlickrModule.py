@@ -92,7 +92,7 @@ class FlickrSink(DataProvider.ImageSink):
     def refresh(self):
         DataProvider.ImageSink.refresh(self)
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
-        self.token = self.fapi.getToken(self.username, browser="gnome-open -p", perms="write")
+        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="write")
         
     def delete(self, LUID):
         #Authenticating with delete permissions does not yet work....
