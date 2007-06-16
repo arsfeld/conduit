@@ -4,6 +4,7 @@ try:
     if evo.__version__ == (0,0,1):
         MODULES = {
         	"EvoContactTwoWay" : { "type": "dataprovider" },
+        	"EvoCalendarTwoWay" : { "type": "dataprovider" },
         	"EvoMemoTwoWay" : { "type": "dataprovider" },
         }
 except:
@@ -16,10 +17,12 @@ import gobject
 import conduit
 from conduit import log,logd,logw
 import conduit.DataProvider as DataProvider
-import conduit.datatypes.Contact as Contact
-import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
+
+import conduit.datatypes.Contact as Contact
+import conduit.datatypes.Event as Event
+import conduit.datatypes.Note as Note
 
 import datetime
 
@@ -179,6 +182,122 @@ class EvoContactTwoWay(DataProvider.TwoWay, EvoBase):
     def get_UID(self):
         #return the uri of the evo addressbook in use
         return self.addressBookURI
+
+class EvoCalendarTwoWay(DataProvider.TwoWay, EvoBase):
+
+    DEFAULT_CALENDAR_URI = "default"
+
+    _name_ = "Evolution Calendar"
+    _description_ = "Sync your Calendar"
+    _category_ = DataProvider.CATEGORY_OFFICE
+    _module_type_ = "twoway"
+    _in_type_ = "event"
+    _out_type_ = "event"
+    _icon_ = "contact-new"
+
+    def __init__(self, *args):
+        DataProvider.TwoWay.__init__(self)
+        EvoBase.__init__(self)
+        self.events = None
+
+        self.calendarURI = EvoCalendarTwoWay.DEFAULT_CALENDAR_URI
+        self._calendarURIs = evo.list_addressbooks()
+
+    def _get_event(self, LUID):
+        """
+        Get an event from Evolution.
+        """
+        raw = self.events[LUID]
+        event = Event.Event(None)
+        event.set_from_ical_string(raw.get_as_string())
+        event.set_UID(raw.get_uid())
+        event.set_mtime(datetime.datetime.fromtimestamp(raw.get_modified()))
+        return event
+
+    def _create_event(self, event):
+        #obj = evo.ECalComponent(vcard=contact.get_vcard_string())
+        #if self.book.add_contact(obj):
+        #    return obj.get_uid()
+        #else:
+        #    raise Exceptions.SyncronizeError("Error creating contact")
+        pass
+
+    def _update_event(self, uid, event):
+        if self._delete_event(uid):
+            uid = self._create_event(event)
+            return uid
+        else:
+            raise Exceptions.SyncronizeError("Error updating calendar (uid: %s)" % uid)
+
+    def _delete_event(self, uid):
+        #return self.book.remove_contact_by_id(uid)
+        pass
+
+    def configure(self, window):
+        self.calendarURI = EvoBase.configure(self, 
+                                    window, 
+                                    self.calendarURI, 
+                                    self._calendarURIs,
+                                    "Calendar"
+                                    )
+
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        self.events = {}
+
+        self.calendar = evo.open_calendar_source(self.calendarURI, 0)
+        for i in self.calendar.get_all_objects():
+            self.events[i.get_uid()] = i
+
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return list(self.events.iterkeys())
+
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self._get_event(LUID)
+
+    def put(self, event, overwrite, LUID=None):
+        if LUID != None:
+            existing = self._get_event(LUID)
+            if existing != None:
+                if overwrite == True:
+                    uid = self._update_event(LUID, event)
+                    return uid
+                else:
+                    comp = event.compare(existing)
+                    # only update if newer
+                    if comp != conduit.datatypes.COMPARISON_NEWER:
+                        raise Exceptions.SynchronizeConflictError(comp, existing, event)
+                    else:
+                        # overwrite and return new ID
+                        uid = self._update_event(LUID, event)
+                        return uid
+
+        # if we get here then it is new...
+        log("Creating new event")
+        uid = self._create_event(event)
+        return uid
+
+    def delete(self, LUID):
+        if not self._delete_event(LUID):
+            logw("Error deleting event (uid: %s)" % LUID)
+
+    def finish(self):
+        DataProvider.TwoWay.finish(self)
+        self.events = None
+
+    def get_configuration(self):
+        return {
+            "calendarURI" : self.calendarURI
+            }
+
+    def set_configuration(self, config):
+        self.calendarURI = config.get("calendarURI", EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)
+
+    def get_UID(self):
+        #return the uri of the evo calendar in use
+        return self.calendarURI
 
 class EvoMemoTwoWay(DataProvider.TwoWay, EvoBase):
 
