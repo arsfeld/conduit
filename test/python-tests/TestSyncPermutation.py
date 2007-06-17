@@ -1,4 +1,4 @@
-import sys, inspect
+import sys, threading, inspect
 
 #common sets up the conduit environment
 from common import *
@@ -16,6 +16,18 @@ try:
         sys.exit()
 except:
     sys.exit()
+
+run_old = threading.Thread.run
+def run(*args, **kwargs):
+    try:
+        run_old(*args, **kwargs)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except:
+        sys.excepthook(*sys.exc_info())
+        sys.quit()
+threading.Thread.run = run
+
 
 def objset_contacts():
     """
@@ -94,6 +106,18 @@ def prep_folder_contacts(host):
     dp = host.get_dataprovider("FolderTwoWay")
     dp.module.set_configuration( { "folderGroupName": "contacts", "folder": "file://"+sink_folder } )
     return dp
+
+def prep_evo_contacts(host):
+    dp = host.get_dataprovider("EvoContactTwoWay")
+    opts = dict(dp.module._addressBooks)
+    dp.module.set_configuration( { "addressBookURI": opts["conduit-test"], } )
+    return dp
+
+#def prep_evo_calendar(host):
+#    dp = host.get_dataprovider("EvoCalendarTwoWay")
+#    opts = dict(dp.module._calendarURIs)
+#    dp.module.set_configuration( { "calendarURI": opts["conduit-test"], } )
+#    return dp
 
 def test_delete_all(dp):
     """
@@ -192,57 +216,64 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
 
     test_clear(host)
 
-# Intialise sync management framework
-host = SimpleSyncTest()
-host.set_two_way_policy({
-                "conflict"  :   "replace",
-                "deleted"   :   "replace"}
-                )
-# It's hard to pick sane combinations of dps, so heres a little rules table to help out
-# col 1 = weight. in sync folder <--> contact we need to use contact objects over file objects.
-# col 2 = a function to call to get some data.
-# As a bonus, reject combinations where col 1 is same (e.g. contact <--> event)
-rules = {
-    "contact":  (5, objset_contacts),
-    "event":   (5, objset_events),
-#    "note":     (5, objset_notes),
-    "file":     (1, objset_files),
-}
+try:
+    # Intialise sync management framework
+    host = SimpleSyncTest()
+    host.set_two_way_policy({
+                    "conflict"  :   "replace",
+                    "deleted"   :   "replace"}
+                    )
+    # It's hard to pick sane combinations of dps, so heres a little rules table to help out
+    # col 1 = weight. in sync folder <--> contact we need to use contact objects over file objects.
+    # col 2 = a function to call to get some data.
+    # As a bonus, reject combinations where col 1 is same (e.g. contact <--> event)
+    rules = {
+        "contact":  (5, objset_contacts),
+        "event":   (5, objset_events),
+    #    "note":     (5, objset_notes),
+        "file":     (1, objset_files),
+    }
 
-targets = []
-combinations = []
+    targets = []
+    combinations = []
 
-# Cludge to gather all the dataprovider initialisers
-for name in dir(sys.modules[__name__]):
-    fn = getattr(sys.modules[__name__], name)
-    if name[:5] == "prep_" and inspect.isfunction(fn):    
-        targets.append( fn(host) )
+    # Cludge to gather all the dataprovider initialisers
+    for name in dir(sys.modules[__name__]):
+        fn = getattr(sys.modules[__name__], name)
+        if name[:5] == "prep_" and inspect.isfunction(fn):    
+            targets.append( fn(host) )
 
-# Cludge to match valid combinations of above
-for source in targets:
-    for sink in targets:
-        if source != sink:
-            in_type1 = source.in_type
-            in_type2 = sink.in_type
+    # Cludge to match valid combinations of above
+    for source in targets:
+        for sink in targets:
+            if source != sink:
+                in_type1 = source.in_type
+                in_type2 = sink.in_type
 
-            if in_type1 == in_type2:
-                combinations.append( (source, sink, in_type1, rules[in_type1][1]) )
-            elif rules[in_type1][0] > rules[in_type2][0]:
-                combinations.append( (source, sink, in_type1, rules[in_type1][1]) )
-            elif rules[in_type2][0] > rules[in_type1][0]:
-                combinations.append( (source, sink, in_type2, rules[in_type2][1]) )
+                if in_type1 == in_type2:
+                    combinations.append( (source, sink, in_type1, rules[in_type1][1]) )
+                elif rules[in_type1][0] > rules[in_type2][0]:
+                    combinations.append( (source, sink, in_type1, rules[in_type1][1]) )
+                elif rules[in_type2][0] > rules[in_type1][0]:
+                    combinations.append( (source, sink, in_type2, rules[in_type2][1]) )
 
-for source, sink, datatype, dataset in combinations:
-    if datatype in ("contact", "note"):
-        newsource = host.networked_dataprovider(source)
-        test_full(host, newsource, sink, datatype, dataset, True, False)
+    for source, sink, datatype, dataset in combinations:
+        #if datatype in ("contact", "note"):
+        #    newsource = host.networked_dataprovider(source)
+        #    test_full(host, newsource, sink, datatype, dataset, True, False)
 
-    # Run all combinations of slow and 1way/2way
-    test_full(host, source, sink, datatype, dataset, True, False)
-    # test_full(host, source, sink, datatype, dataset, True, True)
-    test_full(host, source, sink, datatype, dataset, False, False)
-    # test_full(host, source, sink, datatype, dataset, False, True)
+        # Run all combinations of slow and 1way/2way
+        test_full(host, source, sink, datatype, dataset, True, False)
+        # test_full(host, source, sink, datatype, dataset, True, True)
+        test_full(host, source, sink, datatype, dataset, False, False)
+        # test_full(host, source, sink, datatype, dataset, False, True)
 
-    # conduit.mappingDB.delete()
+        conduit.mappingDB.delete()
+
+except (KeyboardInterrupt, SystemExit):
+    pass
+
+except:
+    sys.excepthook(*sys.exc_info())
 
 host.model.quit()

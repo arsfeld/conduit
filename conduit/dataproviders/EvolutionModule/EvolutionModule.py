@@ -164,7 +164,10 @@ class EvoContactTwoWay(EvoBase):
             raise Exceptions.SyncronizeError("Error creating contact")
 
     def _delete_object(self, uid):
-        return self.book.remove_contact_by_id(uid)
+        try:
+            return self.book.remove_contact_by_id(uid)
+        except:
+            return False
 
     def refresh(self):
         EvoBase.refresh(self)
@@ -233,7 +236,10 @@ class EvoCalendarTwoWay(EvoBase):
             raise Exceptions.SyncronizeError("Error creating event")
 
     def _delete_object(self, uid):
-        return self.calendar.remove_object(self.calendar.get_object(uid, ""))
+        try:
+            return self.calendar.remove_object(self.calendar.get_object(uid, ""))
+        except:
+            return False
 
     def refresh(self):
         EvoBase.refresh(self)
@@ -299,7 +305,10 @@ class EvoTasksTwoWay(EvoBase):
             raise Exceptions.SyncronizeError("Error creating event")
 
     def _delete_object(self, uid):
-        return self.tasks.remove_object(self.tasks.get_object(uid, ""))
+        try:
+            return self.tasks.remove_object(self.tasks.get_object(uid, ""))
+        except:
+            return False
 
     def refresh(self):
         EvoBase.refresh(self)
@@ -376,7 +385,10 @@ class EvoMemoTwoWay(EvoBase):
             raise Exceptions.SyncronizeError("Error creating memo")
 
     def _delete_object(self, uid):
-        return self.source.remove_object(uid)
+        try:
+            return self.source.remove_object(uid)
+        except:
+            return False
 
     def refresh(self):
         EvoBase.refresh(self)

@@ -211,7 +211,7 @@ class SimpleSyncTest(SimpleTest):
         # wait for sync to finish
         self.sync_manager.join_all()
 
-        #print conduit.mappingDB.debug()
+        print conduit.mappingDB.debug()
         aborted = self.sync_manager.sync_aborted(self.conduit) 
         ok("Sync completed", aborted != True)
 
