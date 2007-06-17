@@ -257,6 +257,8 @@ try:
                 elif rules[in_type2][0] > rules[in_type1][0]:
                     combinations.append( (source, sink, in_type2, rules[in_type2][1]) )
 
+    count = 0
+
     for source, sink, datatype, dataset in combinations:
         #if datatype in ("contact", "note"):
         #    newsource = host.networked_dataprovider(source)
@@ -268,7 +270,10 @@ try:
         test_full(host, source, sink, datatype, dataset, False, False)
         # test_full(host, source, sink, datatype, dataset, False, True)
 
-        conduit.mappingDB.delete()
+        #conduit.mappingDB.delete()
+        count += 1
+
+    ok("%d combinations of dataprovider tested" % count, count > 0)
 
 except (KeyboardInterrupt, SystemExit):
     pass
