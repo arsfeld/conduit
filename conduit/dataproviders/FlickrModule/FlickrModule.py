@@ -59,6 +59,7 @@ class FlickrSink(DataProvider.ImageSink):
     def _get_photo_info(self, photoID):
         info = self.fapi.photos_getInfo(
                                     api_key=FlickrSink.API_KEY,
+                                    auth_token=self.token,
                                     photo_id=photoID
                                     )
         if self.fapi.getRspErrorCode(info) != 0:
@@ -92,21 +93,21 @@ class FlickrSink(DataProvider.ImageSink):
     def refresh(self):
         DataProvider.ImageSink.refresh(self)
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
-        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="write")
+        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="delete")
         
     def delete(self, LUID):
-        #Authenticating with delete permissions does not yet work....
-        #
-        #if self._get_photo_info(LUID) != None:
-        #    ret = self.fapi.photos_delete(
-        #                    api_key=FlickrSink.API_KEY,
-        #                    photo_id=LUID
-        #                    )
-        #    if self.fapi.getRspErrorCode(ret) != 0:
-        #        logw("Flickr Error Deleting: %s" % self.fapi.getPrintableError(ret))
-        #else:
-        #    logw("Photo doesnt exist")
-        pass
+        if self._get_photo_info(LUID) != None:
+            ret = self.fapi.photos_delete(
+                            api_key=FlickrSink.API_KEY,
+                            auth_token=self.token,
+                            photo_id=LUID
+                            )
+            if self.fapi.getRspErrorCode(ret) != 0:
+                logw("Flickr Error Deleting: %s" % self.fapi.getPrintableError(ret))
+            else:
+                logd("Successfully deleted photo [%s]" % LUID)
+        else:
+            logw("Photo doesnt exist")
 
     def configure(self, window):
         """
