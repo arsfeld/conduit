@@ -214,7 +214,9 @@ class SmugMug:
 
 	def _call_method (self, **args):
 		data = urllib.urlencode(args)
-		xml = urllib2.urlopen(self.END_POINT + data).read()
+		f = urllib2.urlopen(self.END_POINT + data)
+		xml = f.read()
+		f.close ()
 		rsp = parseString(xml).documentElement
 
 		self._check_error(rsp)
