@@ -61,10 +61,11 @@ class _FolderScanner(threading.Thread, gobject.GObject):
                     "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
-    def __init__(self, baseURI):
+    def __init__(self, baseURI, includeHidden):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         self.baseURI = baseURI
+        self.includeHidden = includeHidden
         self.dirs = [baseURI]
         self.cancelled = False
         self.URIs = []
@@ -93,16 +94,20 @@ class _FolderScanner(threading.Thread, gobject.GObject):
             try: fileinfo = hdir.next()
             except StopIteration: continue;
             while fileinfo:
-                if fileinfo.name[0] in [".",".."]: 
-                    pass
-                elif fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                    self.dirs.append(dir+"/"+fileinfo.name)
-                    t += 1
+                print fileinfo.name
+                if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
+                    if fileinfo.name in [".",".."]: 
+                        pass
+                    else:
+                        #Include hidden directories
+                        if fileinfo.name[0] != "." or self.includeHidden:
+                            self.dirs.append(dir+"/"+fileinfo.name)
+                            t += 1
                 else:
                     try:
                         uri = gnomevfs.make_uri_canonical(dir+"/"+fileinfo.name)
-                        #Ignores hidden files                        
-                        if fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
+                        #Include hidden files                  
+                        if fileinfo.type == gnomevfs.FILE_TYPE_REGULAR or self.includeHidden:
                             self.URIs.append(uri)
                     except UnicodeDecodeError:
                         raise "UnicodeDecodeError",uri
@@ -143,7 +148,7 @@ class _ScannerThreadManager:
         self.scanThreads = {}
         self.pendingScanThreadsURIs = []
 
-    def make_thread(self, folderURI, progressCb, completedCb, rowref):
+    def make_thread(self, folderURI, includeHidden, progressCb, completedCb, rowref):
         """
         Makes a thread for scanning folderURI. The thread callsback the model
         at regular intervals and updates rowref within that model
@@ -151,7 +156,7 @@ class _ScannerThreadManager:
         running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
 
         if folderURI not in self.scanThreads:
-            thread = _FolderScanner(folderURI)
+            thread = _FolderScanner(folderURI, includeHidden)
             thread.connect("scan-progress",progressCb, rowref)
             thread.connect("scan-completed",completedCb, rowref)
             thread.connect("scan-completed", self._register_thread_completed, folderURI)
@@ -257,7 +262,12 @@ class _FileSourceConfigurator(_ScannerThreadManager):
             if item[TYPE_IDX] == TYPE_FOLDER and item[SCAN_COMPLETE_IDX] == False:
                 i.append((item[URI_IDX],item.iter))
         for uri, rowref in i:
-            self.make_thread(uri, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
+            self.make_thread(uri, 
+                        False,
+                        self._on_scan_folder_progress, 
+                        self._on_scan_folder_completed, 
+                        rowref
+                        )
 
     def _dnd_data_get(self, wid, context, x, y, selection, targetType, time):
         for uri in selection.get_uris():
@@ -385,7 +395,13 @@ class _FileSourceConfigurator(_ScannerThreadManager):
         """
         if folderURI not in self.scanThreads:
             rowref = self.model.append((folderURI,TYPE_FOLDER,0,False,"",[])) 
-            self.make_thread(folderURI, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
+            self.make_thread(
+                    folderURI, 
+                    False,
+                    self._on_scan_folder_progress, 
+                    self._on_scan_folder_completed, 
+                    rowref
+                    )
 
 
     def show_dialog(self):
@@ -511,7 +527,14 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
             else:
                 folderURI = item[URI_IDX]
                 rowref = item.iter
-                self.make_thread(folderURI, self._on_scan_folder_progress, self._on_scan_folder_completed, rowref)
+                #dont include hidden files for file source
+                self.make_thread(
+                        folderURI, 
+                        False,  
+                        self._on_scan_folder_progress, 
+                        self._on_scan_folder_completed, 
+                        rowref
+                        )
         
         #All threads must complete before refresh can exit - otherwise we might
         #miss some items
@@ -600,8 +623,9 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
             except gnomevfs.NotFoundError: pass
 
 class _FolderTwoWayConfigurator:
-    def __init__(self, mainWindow, folder, folderGroupName):
+    def __init__(self, mainWindow, folder, folderGroupName, includeHidden):
         self.folder = folder
+        self.includeHidden = includeHidden
         self.folderGroupName = folderGroupName
 
         tree = Utils.dataprovider_glade_get_widget(
@@ -613,6 +637,8 @@ class _FolderTwoWayConfigurator:
         self.folderChooser.set_uri(self.folder)
         self.folderEntry = tree.get_widget("entry1")
         self.folderEntry.set_text(self.folderGroupName)
+        self.hiddenCb = tree.get_widget("hidden")
+        self.hiddenCb.set_active(includeHidden)
 
         self.dlg = tree.get_widget("FolderTwoWayConfigDialog")
         self.dlg.connect("response",self.on_response)
@@ -637,12 +663,13 @@ class _FolderTwoWayConfigurator:
                 self.folderGroupName = self.folderEntry.get_text()
                 uri = self.folderChooser.get_uri()
                 self.folder = gnomevfs.make_uri_canonical(uri)
+                self.includeHidden = self.hiddenCb.get_active()
 
     def show_dialog(self):
         self.dlg.show_all()
         self.dlg.run()
         self.dlg.destroy()
-        return self.folder, self.folderGroupName
+        return self.folder, self.folderGroupName, self.includeHidden
 
 
 class FolderTwoWay(DataProvider.TwoWay):
@@ -660,6 +687,7 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     DEFAULT_FOLDER = os.path.expanduser("~")
     DEFAULT_GROUP = "Home"
+    DEFAULT_HIDDEN = False
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
@@ -667,6 +695,7 @@ class FolderTwoWay(DataProvider.TwoWay):
 
         self.folder = FolderTwoWay.DEFAULT_FOLDER
         self.folderGroupName = FolderTwoWay.DEFAULT_GROUP
+        self.includeHidden = FolderTwoWay.DEFAULT_HIDDEN
         self.files = []
 
         self._monitor_folder_id = None
@@ -685,15 +714,15 @@ class FolderTwoWay(DataProvider.TwoWay):
             self.folderGroupName = _get_config_file_for_dir(self.folder)
         except gnomevfs.NotFoundError: pass
 
-        f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName)
-        self.folder, self.folderGroupName = f.show_dialog()
+        f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName, self.includeHidden)
+        self.folder, self.folderGroupName, self.includeHidden = f.show_dialog()
         self.set_configured(True)
         self._monitor_folder()
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         #scan the folder
-        scanThread = _FolderScanner(self.folder)
+        scanThread = _FolderScanner(self.folder, self.includeHidden)
         scanThread.start()
         scanThread.join()
 
@@ -771,6 +800,7 @@ class FolderTwoWay(DataProvider.TwoWay):
     def set_configuration(self, config):
         self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
         self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
+        self.includeHidden = config.get("includeHidden", FolderTwoWay.DEFAULT_HIDDEN)
 
         self.set_configured(True)
         self._monitor_folder()
@@ -779,7 +809,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         _save_config_file_for_dir(self.folder, self.folderGroupName)
         return {
             "folder" : self.folder,
-            "folderGroupName" : self.folderGroupName
+            "folderGroupName" : self.folderGroupName,
+            "includeHidden" : self.includeHidden
             }
 
     def get_UID(self):
