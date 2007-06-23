@@ -338,7 +338,7 @@ class EvoTasksTwoWay(EvoBase):
 
 class EvoMemoTwoWay(EvoBase):
 
-    DEFAULT_ADDRESSBOOK_URI = "default"
+    DEFAULT_URI = ""
 
     _name_ = "Evolution Memos"
     _description_ = "Sync your Memos"
@@ -352,7 +352,7 @@ class EvoMemoTwoWay(EvoBase):
         EvoBase.__init__(self)
         self.source = None
 
-        self.memoSourceURI = ""
+        self.memoSourceURI = self.DEFAULT_URI
         self._memoSources = evo.list_memo_sources()
 
     def _get_object(self, LUID):
@@ -410,7 +410,7 @@ class EvoMemoTwoWay(EvoBase):
             }
 
     def set_configuration(self, config):
-        self.memoSourceURI = config.get("memoSourceURI", "")
+        self.memoSourceURI = config.get("memoSourceURI", self.DEFAULT_URI)
 
     def get_UID(self):
         #return the uri of the evo addressbook in use
