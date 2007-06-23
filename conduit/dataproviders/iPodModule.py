@@ -36,6 +36,12 @@ MODULES = {
         "iPodFactory" :     { "type": "dataprovider-factory" }
 }
 
+try:
+    import gpod
+    LIBGPOD_PHOTOS = True
+except:
+    LIBGPOD_PHOTOS = False
+
 def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
     # fixme: gnomevfs is a pain :-(, this function sucks, someone make it nicer? :(
     for i in range(1, 10000):
@@ -79,6 +85,13 @@ class iPodFactory(Module.DataProviderFactory):
                            (mount,udi,),     # Init args
                            cat)              # Category..
             keys.append(key)
+
+        #if LIBGPOD_PHOTOS == True:
+        #    key = self.emit_added(
+        #                   IPodPhotoTwoWay,  # Dataprovider class
+        #                   (mount,udi,),     # Init args
+        #                   cat)              # Category..
+        #    keys.append(key)
 
         self.ipods[udi] = keys
 
@@ -329,3 +342,38 @@ class IPodCalendarTwoWay(IPodBase):
 
         return _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
+class IPodPhotoTwoWay(IPodBase):
+
+    _name_ = "Photos"
+    _description_ = "Sync your iPod photos"
+    _module_type_ = "twoway"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "contact-new"
+
+    def __init__(self, *args):
+        IPodBase.__init__(self, *args)
+        self.uids = None
+
+    def refresh(self):
+        TwoWay.refresh(self)
+        self.db = gpod.PhotoDatabase(self.mountPoint)
+        self.uids = []
+
+        for photo in self.db.PhotoAlbums[0]:
+            self.uids.append(photo.id)
+
+    def get_all(self):
+        return self.uids
+
+    def get(self, LUID):
+        pass
+
+    def put(self, obj, overwrite, LUID=None):
+        pass
+
+    def delete(self, LUID):
+        pass
+
+    def finish(self):
+        self.uids = None
