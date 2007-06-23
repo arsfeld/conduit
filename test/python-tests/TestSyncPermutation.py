@@ -1,7 +1,10 @@
-import sys, threading, inspect
+import sys, threading, thread, inspect
 
 #common sets up the conduit environment
 from common import *
+
+# we are going to wrap some debugging code around our internals..
+import conduit.Synchronization as Sync
 
 # import any datatypes that are needed
 import conduit.datatypes.File as File
@@ -17,17 +20,21 @@ try:
 except:
     sys.exit()
 
-run_old = threading.Thread.run
-def run(*args, **kwargs):
-    try:
-        run_old(*args, **kwargs)
-    except (KeyboardInterrupt, SystemExit):
-        raise
-    except:
-        sys.excepthook(*sys.exc_info())
-        sys.quit()
-threading.Thread.run = run
+def catch(old_func):
+    def func(*args, **kwargs):
+        try:
+            return old_func(*args, **kwargs)
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            sys.excepthook(*sys.exc_info())
+            thread.interrupt_main()
 
+    func.__doc__ = old_func.__doc__
+    return func
+
+threading.Thread.run = catch(threading.Thread.run)
+Sync.SyncWorker.run = catch(Sync.SyncWorker.run)
 
 def objset_contacts():
     """
