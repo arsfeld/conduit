@@ -1,5 +1,6 @@
 SUBDIRS = \
 	BackpackModule \
+	BoxDotNetModule \
 	FileModule \
 	FeedModule \
 	FlickrModule \
