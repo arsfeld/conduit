@@ -1,4 +1,4 @@
-import sys, threading, thread, inspect
+import sys, threading, thread, inspect, datetime
 
 #common sets up the conduit environment
 from common import *
@@ -41,13 +41,12 @@ def objset_contacts():
     Return a sample of contact objects
     """
     objs = []
-
     vcards = get_files_from_data_dir("*.vcard")
     for i in range(0, len(vcards)):
         c = Contact.Contact(vcards[i])
         c.set_from_vcard_string( read_data_file(vcards[i]) )
         objs.append(c)
-
+    ok("Got %d sample contacts" % len(objs), len(objs) > 0)
     return objs
 
 def objset_events():
@@ -60,13 +59,16 @@ def objset_events():
         c = Event.Event(icals[i])
         c.set_from_ical_string( read_data_file(icals[i]) )
         objs.append(c)
+    ok("Got %d sample events" % len(objs), len(objs) > 0)
     return objs
 
 def objset_files():
     """
     Return a sample of file objects
     """
-    return [File.File(f) for f in get_files_from_data_dir("*")]
+    objs = [File.File(f) for f in get_files_from_data_dir("*")]
+    ok("Got %d sample contacts" % len(objs), len(objs) > 0)
+    return objs
 
 def convert(host, fromType, toType, data):
     newdata = None
@@ -141,7 +143,7 @@ def test_delete_all(dp):
     dp.module.refresh()
     ok("All objects deleted", dp.module.get_num_items() == 0)
 
-def test_sync(host):
+def test_sync(host, should_change=True):
     """
     Wrapper around the sync method. It calls sync twice and checks for changes, which would
     indicate that the mappings db has become corrupted
@@ -158,7 +160,8 @@ def test_sync(host):
     a3, b3 = host.sync()
     ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a2, a3, b2, b3), a3==b3)
 
-    ok("Count didn't change between last 2 syncs", a2==a3 and b2==b3)
+    if should_change:
+        ok("Count didn't change between last 2 syncs", a2==a3 and b2==b3)
 
     return (a2-a1, b2-b1)
 
@@ -177,7 +180,14 @@ def test_add_data(host, dp, datatype, dataset):
     test_sync(host)
 
 def test_modify_data(host, dp):
-    pass
+    dp.module.refresh()
+    uids = dp.module.get_all()
+    for uid in uids:
+        obj = dp.module.get(uid)
+        obj.set_mtime(datetime.datetime.now())
+        dp.module.put(obj, True, obj.get_UID())
+
+    test_sync(host, False)
 
 def test_delete_data(host, dp):
     pass
