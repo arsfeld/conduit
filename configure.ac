@@ -143,6 +143,8 @@ conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
 conduit/dataproviders/BackpackModule/Makefile
 conduit/dataproviders/BackpackModule/backpack-1.1/Makefile
+conduit/dataproviders/BoxDotNetModule/Makefile
+conduit/dataproviders/BoxDotNetModule/BoxDotNetAPI/Makefile
 conduit/dataproviders/EvolutionModule/Makefile
 conduit/dataproviders/FileModule/Makefile
 conduit/dataproviders/FeedModule/Makefile
