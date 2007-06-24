@@ -39,7 +39,7 @@ class EvoBase(DataProvider.TwoWay):
         raise NotImplementedError
 
     def _update_object(self, uid, obj):
-        if self._delete_object(obj):
+        if self._delete_object(uid):
             uid = self._create_object(obj)
             return uid
         else:
@@ -167,6 +167,7 @@ class EvoContactTwoWay(EvoBase):
         try:
             return self.book.remove_contact_by_id(uid)
         except:
+            # sys.excepthook(*sys.exc_info())
             return False
 
     def refresh(self):
