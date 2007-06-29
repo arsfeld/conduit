@@ -5,7 +5,7 @@ import bisect
 import conduit
 import conduit.Utils as Utils
 from conduit import log,logd,logw
-
+   
 class MappingDB:
     """
     Manages mappings of LUID <--> LUID on a per dataprovider basis.
@@ -89,13 +89,22 @@ class MappingDB:
         existing = self._get_mapping(sourceUID, sourceDataLUID, sinkUID)
         if existing != None:
             logd("Updating mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
-            self._db.update(
-                existing,
-                sourceDataLUID=sourceDataLUID,
-                sourceDataMtime=sourceDataMtime,
-                sinkDataLUID=sinkDataLUID,
-                sinkDataMtime=sinkDataMtime
-                )
+            if sourceUID == existing['sourceUID']:
+                self._db.update(
+                    existing,
+                    sourceDataLUID=sourceDataLUID,
+                    sourceDataMtime=sourceDataMtime,
+                    sinkDataLUID=sinkDataLUID,
+                    sinkDataMtime=sinkDataMtime
+                    )
+            else:
+                self._db.update(
+                    existing,
+                    sourceDataLUID=sinkDataLUID,
+                    sourceDataMtime=sinkDataMtime,
+                    sinkDataLUID=sourceDataLUID,
+                    sinkDataMtime=sourceDataMtime
+                    )
         else:
             logd("Saving new mapping: %s --> %s" % (sourceDataLUID,sinkDataLUID))
             self._db.insert(
