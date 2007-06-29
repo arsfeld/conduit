@@ -180,17 +180,23 @@ def test_add_data(host, dp, datatype, dataset):
     test_sync(host)
 
 def test_modify_data(host, dp):
+    ok("Testing MODIFY Case (Prepare)", True)
     dp.module.refresh()
     uids = dp.module.get_all()
     for uid in uids:
         obj = dp.module.get(uid)
         obj.set_mtime(datetime.datetime.now())
         dp.module.put(obj, True, obj.get_UID())
-
+    ok("Testing MODIFY Case (Sync Runs)", True)
     test_sync(host, False)
+    ok("Testing MODIFY Case (Complete)", True)
 
-def test_delete_data(host, dp):
-    pass
+def test_delete_data(host, source):
+    a = host.get_source_count()
+    b = host.get_sink_count()
+    ok("Testing DELETE Case (Prepare)", a==b)
+
+    ok("Testing DELETE Case (Complete)", True)
 
 def test_clear(host):
     """
@@ -213,23 +219,40 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     host.set_two_way_sync(twoway)
     host.set_slow_sync(slow)
 
-    # Ensure the dps are empty
+    # Fresh data (source end), and try modifying data on both sides
     test_clear(host)
     test_add_data(host, host.source, datatype, dataset)
     test_modify_data(host, host.source)
     test_modify_data(host, host.sink)
+
+    # Fresh data (source end), delete on source + sync
+    test_clear(host)
+    test_add_data(host, host.source, datatype, dataset)
     test_delete_data(host, host.source)
+
+    # Fresh data (source end), delete on sink + sync
+    test_clear(host)
+    test_add_data(host, host.source, datatype, dataset)
     test_delete_data(host, host.sink)
 
     # Same tests again, but inject at the sink.
     # Only makes sense in the twoway case
     if twoway:
+        # Fresh data (source end), and try modifying data on both sides
         test_clear(host)
         test_add_data(host, host.sink, datatype, dataset)
-        test_modify_data(host, host.sink)
         test_modify_data(host, host.source)
-        test_delete_data(host, host.sink)
+        test_modify_data(host, host.sink)
+
+        # Fresh data (source end), delete on source + sync
+        test_clear(host)
+        test_add_data(host, host.sink, datatype, dataset)
         test_delete_data(host, host.source)
+
+        # Fresh data (source end), delete on sink + sync
+        test_clear(host)
+        test_add_data(host, host.sink, datatype, dataset)
+        test_delete_data(host, host.sink)
 
     test_clear(host)
 
