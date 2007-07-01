@@ -119,13 +119,13 @@ def prep_folder_contacts(host):
 def prep_evo_contacts(host):
     dp = host.get_dataprovider("EvoContactTwoWay")
     opts = dict(dp.module._addressBooks)
-    dp.module.set_configuration( { "addressBookURI": opts["conduit-test"], } )
+    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
     return dp
 
 #def prep_evo_calendar(host):
 #    dp = host.get_dataprovider("EvoCalendarTwoWay")
 #    opts = dict(dp.module._calendarURIs)
-#    dp.module.set_configuration( { "calendarURI": opts["conduit-test"], } )
+#    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
 #    return dp
 
 def test_delete_all(dp):

@@ -1,7 +1,7 @@
 MODULES = {}
 try:
     import evolution as evo
-    if evo.__version__ == (0,0,1):
+    if evo.__version__ >= (0,0,1):
         MODULES = {
                 "EvoContactTwoWay"  : { "type": "dataprovider" },
                 "EvoCalendarTwoWay" : { "type": "dataprovider" },
@@ -28,8 +28,10 @@ import conduit.datatypes.Note as Note
 import datetime
 
 class EvoBase(DataProvider.TwoWay):
-    def __init__(self, *args):
+    def __init__(self, sourceURI, *args):
         DataProvider.TwoWay.__init__(self)
+        self.defaultURI = sourceURI
+        self.sourceURI = sourceURI
         self.uids = None
 
     def _get_object(self, uid):
@@ -127,6 +129,18 @@ class EvoBase(DataProvider.TwoWay):
         dlg.destroy()  
         return selected
 
+    def get_configuration(self):
+        return {
+            "sourceURI" : self.sourceURI
+            }
+
+    def set_configuration(self, config):
+        self.sourceURI = config.get("sourceURI", self.defaultURI)
+
+    def get_UID(self):
+        return self.sourceURI
+
+
 class EvoContactTwoWay(EvoBase):
 
     DEFAULT_ADDRESSBOOK_URI = "default"
@@ -140,14 +154,12 @@ class EvoContactTwoWay(EvoBase):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        EvoBase.__init__(self)
-        self.addressBookURI = EvoContactTwoWay.DEFAULT_ADDRESSBOOK_URI
+        EvoBase.__init__(self, EvoContactTwoWay.DEFAULT_ADDRESSBOOK_URI)
         self._addressBooks = evo.list_addressbooks()
 
     def _get_object(self, LUID):
         """
         Retrieve a specific contact object from evolution
-        FIXME: In 0.5 this will replace get(...)
         """
         obj = self.book.get_contact(LUID)
         contact = Contact.Contact(None)
@@ -173,29 +185,17 @@ class EvoContactTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         
-        self.book = evo.open_addressbook(self.addressBookURI)
+        self.book = evo.open_addressbook(self.sourceURI)
         for i in self.book.get_all_contacts():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.addressBookURI = EvoBase.configure(self, 
+        self.sourceURI = EvoBase.configure(self, 
                                     window, 
-                                    self.addressBookURI, 
+                                    self.sourceURI, 
                                     self._addressBooks,
                                     "Addressbook"
                                     )
-
-    def get_configuration(self):
-        return {
-            "addressBookURI" : self.addressBookURI
-            }
-
-    def set_configuration(self, config):
-        self.addressBookURI = config.get("addressBookURI", EvoContactTwoWay.DEFAULT_ADDRESSBOOK_URI)
-
-    def get_UID(self):
-        #return the uri of the evo addressbook in use
-        return self.addressBookURI
 
 class EvoCalendarTwoWay(EvoBase):
 
@@ -210,8 +210,7 @@ class EvoCalendarTwoWay(EvoBase):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        EvoBase.__init__(self)
-        self.calendarURI = EvoCalendarTwoWay.DEFAULT_CALENDAR_URI
+        EvoBase.__init__(self, EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)
         self._calendarURIs = evo.list_calendars()
 
     def _get_object(self, LUID):
@@ -245,33 +244,21 @@ class EvoCalendarTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         
-        self.calendar = evo.open_calendar_source(self.calendarURI, evo.CAL_SOURCE_TYPE_EVENT)
+        self.calendar = evo.open_calendar_source(self.sourceURI, evo.CAL_SOURCE_TYPE_EVENT)
         for i in self.calendar.get_all_objects():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.calendarURI = EvoBase.configure(self, 
+        self.sourceURI = EvoBase.configure(self, 
                                     window, 
-                                    self.calendarURI, 
+                                    self.sourceURI, 
                                     self._calendarURIs,
                                     "Calendar"
                                     )
 
-    def get_configuration(self):
-        return {
-            "calendarURI" : self.calendarURI
-            }
-
-    def set_configuration(self, config):
-        self.calendarURI = config.get("calendarURI", EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)
-
-    def get_UID(self):
-        #return the uri of the evo calendar in use
-        return self.calendarURI
-
 class EvoTasksTwoWay(EvoBase):
 
-    DEFAULT_URI = "default"
+    DEFAULT_TASK_URI = "default"
 
     _name_ = "Evolution Tasks"
     _description_ = "Sync your Tasks"
@@ -282,8 +269,7 @@ class EvoTasksTwoWay(EvoBase):
     _icon_ = "tomboy"
 
     def __init__(self, *args):
-        EvoBase.__init__(self)
-        self.uri = self.DEFAULT_URI
+        EvoBase.__init__(self, EvoTasksTwoWay.DEFAULT_TASK_URI)
         self._uris = evo.list_task_sources()
 
     def _get_object(self, LUID):
@@ -313,33 +299,21 @@ class EvoTasksTwoWay(EvoBase):
 
     def refresh(self):
         EvoBase.refresh(self)
-        self.tasks = evo.open_calendar_source(self.uri, evo.CAL_SOURCE_TYPE_TODO)
+        self.tasks = evo.open_calendar_source(self.sourceURI, evo.CAL_SOURCE_TYPE_TODO)
         for i in self.tasks.get_all_objects():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.uri = EvoBase.configure(self, 
+        self.sourceURI = EvoBase.configure(self, 
                                     window, 
-                                    self.uri, 
+                                    self.sourceURI, 
                                     self._uris,
                                     "Tasks"
                                     )
 
-    def get_configuration(self):
-        return {
-            "tasksURI" : self.uri
-            }
-
-    def set_configuration(self, config):
-        self.uri = config.get("tasksURI", self.DEFAULT_URI)
-
-    def get_UID(self):
-        #return the uri of the evo calendar in use
-        return self.uri
-
 class EvoMemoTwoWay(EvoBase):
 
-    DEFAULT_URI = ""
+    DEFAULT_MEMO_URI = ""
 
     _name_ = "Evolution Memos"
     _description_ = "Sync your Memos"
@@ -350,10 +324,8 @@ class EvoMemoTwoWay(EvoBase):
     _icon_ = "tomboy"
 
     def __init__(self, *args):
-        EvoBase.__init__(self)
+        EvoBase.__init__(self, EvoMemoTwoWay.DEFAULT_MEMO_URI)
         self.source = None
-
-        self.memoSourceURI = self.DEFAULT_URI
         self._memoSources = evo.list_memo_sources()
 
     def _get_object(self, LUID):
@@ -393,26 +365,16 @@ class EvoMemoTwoWay(EvoBase):
 
     def refresh(self):
         EvoBase.refresh(self)
-        self.source = evo.open_calendar_source(self.memoSourceURI, evo.CAL_SOURCE_TYPE_JOURNAL)
+        self.source = evo.open_calendar_source(self.sourceURI, evo.CAL_SOURCE_TYPE_JOURNAL)
         for i in self.source.get_all_objects():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.memoSourceURI = EvoBase.configure(self, 
+        self.sourceURI = EvoBase.configure(self, 
                                     window, 
-                                    self.memoSourceURI, 
+                                    self.sourceURI, 
                                     self._memoSources,
                                     "Memo Source"
                                     )
 
-    def get_configuration(self):
-        return {
-            "memoSourceURI" : self.memoSourceURI
-            }
 
-    def set_configuration(self, config):
-        self.memoSourceURI = config.get("memoSourceURI", self.DEFAULT_URI)
-
-    def get_UID(self):
-        #return the uri of the evo addressbook in use
-        return self.memoSourceURI
