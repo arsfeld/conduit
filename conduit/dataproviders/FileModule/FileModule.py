@@ -745,15 +745,14 @@ class FolderTwoWay(DataProvider.TwoWay):
         """
         DataProvider.TwoWay.put(self, vfsFile, overwrite, LUID)
         newURI = ""
-        if vfsFile.basePath == "":
+        if LUID != None:
+            newURI = LUID
+        elif vfsFile.basePath == "":
             #came from another type of dataprovider such as tomboy
             #where relative path makes no sense. Could also come from
             #the FileSource dp when the user has selected a single file
             logd("FolderTwoWay: No basepath. Going to empty dir")
-            if LUID != None:
-                newURI = LUID
-            else:
-                newURI = self.folder+"/"+vfsFile.get_filename()
+            newURI = self.folder+"/"+vfsFile.get_filename()
         else:
             pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
