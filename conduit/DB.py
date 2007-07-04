@@ -143,7 +143,7 @@ class MappingDB:
             if i["sinkDataLUID"] == sourceDataLUID:
                 return i["sourceDataLUID"]
 
-        logd("No mapping found for LUID: %s" % sourceDataLUID)
+        logd("No mapping found for LUID: %s (source: %s, sink %s)" % (sourceDataLUID, sourceUID, sinkUID))
 
         return None
 

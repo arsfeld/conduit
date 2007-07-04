@@ -471,6 +471,22 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #added data can be put right away
         toput += [(source, i, sink) for i in sourceAdded]
         toput += [(sink, i, source) for i in sinkAdded]
+
+        def modified_and_deleted(dp1, modified, dp2, deleted):
+            found = []
+            for i in modified[:]:
+                matchingUID = conduit.mappingDB.get_matching_UID(dp1.get_UID(), i, dp2.get_UID())
+                logd("%s, %s" % (i, matchingUID))
+                if deleted.count(matchingUID) != 0:
+                    logd("MOD+DEL: %s v %s" % (i, matchingUID))
+                    deleted.remove(matchingUID)
+                    modified.remove(i)
+                    found += [(dp2, matchingUID, dp1)]
+            return found
+
+        todelete += modified_and_deleted(source, sourceModified, sink, sinkDeleted)
+        todelete += modified_and_deleted(sink, sinkModified, source, sourceDeleted)
+
         #as can deleted data
         todelete += [(source, i, sink) for i in sourceDeleted]
         todelete += [(sink, i, source) for i in sinkDeleted]

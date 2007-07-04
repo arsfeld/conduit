@@ -10,6 +10,7 @@ import conduit.Synchronization as Sync
 import conduit.datatypes.File as File
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
+import conduit.datatypes.Note as Note
 
 # import any dp's that we'll need to wrap
 from conduit.dataproviders import iPodModule
@@ -62,6 +63,19 @@ def objset_events():
     ok("Got %d sample events" % len(objs), len(objs) > 0)
     return objs
 
+def objset_notes():
+    """
+    Return a sample of note objects
+    """
+    objs = []
+    notes = get_files_from_data_dir("*.tomboy")
+    for i in range(0, len(notes)):
+        n = Note.Note(title="Note-" + Utils.random_string())
+        n.raw = read_data_file(notes[i])
+        objs.append(n)
+    ok("Got %d sample notes" % len(objs), len(objs) > 0)
+    return objs
+
 def objset_files():
     """
     Return a sample of file objects
@@ -88,15 +102,19 @@ def prep_ipod_calendar(host):
     source_folder = os.path.join(os.environ['TEST_DIRECTORY'], "ipod calendar " + Utils.random_string())
     if not os.path.exists(source_folder):
         os.mkdir(source_folder)
-
     return host.wrap_dataprovider( iPodModule.IPodCalendarTwoWay(source_folder, "") )
 
 def prep_ipod_contacts(host):
     source_folder = os.path.join(os.environ['TEST_DIRECTORY'], "ipod contacts " + Utils.random_string())
     if not os.path.exists(source_folder):
         os.mkdir(source_folder)
-
     return host.wrap_dataprovider( iPodModule.IPodContactsTwoWay(source_folder, "") )
+
+def prep_ipod_notes(host):
+    source_folder = os.path.join(os.environ['TEST_DIRECTORY'], "ipod notes " + Utils.random_string())
+    if not os.path.exists(source_folder):
+        os.mkdir(source_folder)
+    return host.wrap_dataprovider( iPodModule.IPodNoteTwoWay(source_folder, "") )
 
 def prep_folder_calendar(host):
     sink_folder = os.path.join(os.environ['TEST_DIRECTORY'], "folder calendar " + Utils.random_string())
@@ -186,17 +204,28 @@ def test_modify_data(host, dp):
     for uid in uids:
         obj = dp.module.get(uid)
         obj.set_mtime(datetime.datetime.now())
-        dp.module.put(obj, True, obj.get_UID())
+        dp.module.put(obj, True, uid)
     ok("Testing MODIFY Case (Sync Runs)", True)
     test_sync(host, False)
     ok("Testing MODIFY Case (Complete)", True)
 
-def test_delete_data(host, source):
+def test_delete_data(host, dp):
     a = host.get_source_count()
     b = host.get_sink_count()
     ok("Testing DELETE Case (Prepare)", a==b)
 
-    ok("Testing DELETE Case (Complete)", True)
+    dp.module.refresh()
+    uids = dp.module.get_all()
+    for uid in uids:
+        obj = dp.module.get(uid)
+        obj.set_mtime(datetime.datetime.now())
+        dp.module.delete(uid)
+
+    dp.module.refresh()
+    ok("Testing DELETE Case (Prepared)", len(dp.module.get_all()) == 0)
+
+    test_sync(host)
+    # ok("Testing DELETE Case (Complete)", a == 0 and b == 0)
 
 def test_clear(host):
     """
@@ -230,10 +259,11 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     test_add_data(host, host.source, datatype, dataset)
     test_delete_data(host, host.source)
 
-    # Fresh data (source end), delete on sink + sync
-    test_clear(host)
-    test_add_data(host, host.source, datatype, dataset)
-    test_delete_data(host, host.sink)
+    if twoway:
+        # Fresh data (source end), delete on sink + sync
+        test_clear(host)
+        test_add_data(host, host.source, datatype, dataset)
+        test_delete_data(host, host.sink)
 
     # Same tests again, but inject at the sink.
     # Only makes sense in the twoway case
@@ -270,7 +300,7 @@ try:
     rules = {
         "contact":  (5, objset_contacts),
         "event":   (5, objset_events),
-    #    "note":     (5, objset_notes),
+        "note":     (5, objset_notes),
         "file":     (1, objset_files),
     }
 
