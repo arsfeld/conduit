@@ -330,9 +330,9 @@ try:
     count = 0
 
     for source, sink, datatype, dataset in combinations:
-        #if datatype in ("contact", "note"):
-        #    newsource = host.networked_dataprovider(source)
-        #    test_full(host, newsource, sink, datatype, dataset, True, False)
+        if datatype in ("contact", "note"):
+            newsource = host.networked_dataprovider(source)
+            test_full(host, newsource, sink, datatype, dataset, True, False)
 
         # Run all combinations of slow and 1way/2way
         test_full(host, source, sink, datatype, dataset, True, False)
