@@ -52,6 +52,7 @@ for i in (sourceDir, sinkDir):
 config = {}
 config["folderGroupName"] = GROUP
 config["folder"] = "file://"+sourceDir
+config["includeHidden"] = False
 test.configure(source=config)
 
 config["folder"] = "file://"+sinkDir
@@ -65,6 +66,14 @@ ok("Sync: Got all items (%s,%s,%s)" % (a,b,len(FILES)), (a+b)==len(FILES))
 #sync
 test.set_two_way_sync(True)
 test.sync()
+
+#some IO time
+time.sleep(1)
+
+a = test.get_source_count()
+b = test.get_sink_count()
+ok("Sync: Sync all items (%s,%s,%s)" % (a,b,len(FILES)), a==len(FILES) and b==len(FILES))
+
 
 for name,contents in FILES:
     f1 = File.File(os.path.join(sourceDir, name))
@@ -94,11 +103,47 @@ time.sleep(1)
 
 a = test.get_source_count()
 b = test.get_sink_count()
-ok("Delete: Files were deleted (%s,%s,%s)" % (a,b,len(FILES)), a==b and a==len(FILES))
+ok("Delete: Files were deleted (%s,%s,%s)" % (a,b,len(FILES)), a==len(FILES) and b==len(FILES))
 
 for name,contents in FILES:
     f1 = File.File(os.path.join(sourceDir, name))
     f2 = File.File(os.path.join(sinkDir, name))
     comp = f1.compare(f2)
     ok("Delete: checking source/%s == sink/%s" % (name, name),comp == COMPARISON_EQUAL)
+
+#test hidden files and folders
+config["folderGroupName"] = GROUP
+config["folder"] = "file://"+sourceDir
+config["includeHidden"] = True
+test.configure(source=config)
+
+config["folder"] = "file://"+sinkDir
+test.configure(sink=config)
+
+for i in range(0, NUM_FILES):
+    #hidden file
+    name = "."+Utils.random_string()
+    contents = Utils.random_string()
+    f = File.TempFile(contents)
+    f.force_new_filename(name)
+
+    #alternate source or sink
+    newdir = "."+Utils.random_string()
+    if i % 2 == 0:
+        dest = os.path.join(sourceDir,newdir)
+    else:
+        dest = os.path.join(sinkDir,newdir)
+    os.mkdir(dest)
+
+    name = os.path.join(dest,name)
+    f.transfer(dest, True)
+    FILES.append((name,contents))
+
+#SYNC and wait for sync to finish (block)
+test.sync()
+time.sleep(1)
+
+a = test.get_source_count()
+b = test.get_sink_count()
+ok("Hidden: Sync all items (%s,%s,%s)" % (a,b,len(FILES)), a==len(FILES) and b==len(FILES))
 

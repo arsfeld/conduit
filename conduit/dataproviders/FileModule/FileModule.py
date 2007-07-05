@@ -94,23 +94,24 @@ class _FolderScanner(threading.Thread, gobject.GObject):
             try: fileinfo = hdir.next()
             except StopIteration: continue;
             while fileinfo:
-                print fileinfo.name
-                if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                    if fileinfo.name in [".",".."]: 
+                if fileinfo.name in [".","..",CONFIG_FILE_NAME]: 
                         pass
-                    else:
+                else:
+                    if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
                         #Include hidden directories
                         if fileinfo.name[0] != "." or self.includeHidden:
                             self.dirs.append(dir+"/"+fileinfo.name)
                             t += 1
-                else:
-                    try:
-                        uri = gnomevfs.make_uri_canonical(dir+"/"+fileinfo.name)
-                        #Include hidden files                  
-                        if fileinfo.type == gnomevfs.FILE_TYPE_REGULAR or self.includeHidden:
-                            self.URIs.append(uri)
-                    except UnicodeDecodeError:
-                        raise "UnicodeDecodeError",uri
+                    elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
+                        try:
+                            uri = gnomevfs.make_uri_canonical(dir+"/"+fileinfo.name)
+                            #Include hidden files
+                            if fileinfo.name[0] != "." or self.includeHidden:
+                                self.URIs.append(uri)
+                        except UnicodeDecodeError:
+                            raise "UnicodeDecodeError",uri
+                    else:
+                        logd("Unsupported file type: %s (%s)" % (fileinfo.name, fileinfo.type))
                 try: fileinfo = hdir.next()
                 except StopIteration: break;
             #Calculate the estimated complete percentags
