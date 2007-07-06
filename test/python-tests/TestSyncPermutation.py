@@ -286,6 +286,15 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
 
     test_clear(host)
 
+def test_full_set(host, source, sink, datatype, dataset):
+    """
+    Call test_full 4 times to test 1way + 2way (w and w/out slow-sync)
+    """
+    test_full(host, source, sink, datatype, dataset, True, False)
+    # test_full(host, source, sink, datatype, dataset, True, True)
+    test_full(host, source, sink, datatype, dataset, False, False)
+    # test_full(host, source, sink, datatype, dataset, False, True)
+
 try:
     # Intialise sync management framework
     host = SimpleSyncTest()
@@ -330,15 +339,16 @@ try:
     count = 0
 
     for source, sink, datatype, dataset in combinations:
+        test_full_set(host, source, sink, datatype, dataset)
+
         if datatype in ("contact", "note"):
             newsource = host.networked_dataprovider(source)
-            test_full(host, newsource, sink, datatype, dataset, True, False)
+            test_full_set(host, newsource, sink, datatype, dataset)
+            
+            newsink = host.networked_dataprovider(sink)
+            test_full_set(host, source, newsink, datatype, dataset)
 
-        # Run all combinations of slow and 1way/2way
-        test_full(host, source, sink, datatype, dataset, True, False)
-        # test_full(host, source, sink, datatype, dataset, True, True)
-        test_full(host, source, sink, datatype, dataset, False, False)
-        # test_full(host, source, sink, datatype, dataset, False, True)
+            test_full_set(host, newsource, newsink, datatype, dataset)
 
         #conduit.mappingDB.delete()
         count += 1
