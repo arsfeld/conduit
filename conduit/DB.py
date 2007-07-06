@@ -181,7 +181,7 @@ class MappingDB:
         self._db.delete(self._db)
         self._db.commit()
 
-    def debug(self):
+    def debug(self, printMtime=False):
         s = "Contents of MappingDB: %s\n" % self._db.name
         sources = [i["sourceUID"] for i in self._db]
         sources = Utils.distinct_list(sources)
@@ -194,7 +194,10 @@ class MappingDB:
                 #get relationships
                 rels = self.get_mappings_for_dataproviders(sourceUID, sinkUID)
                 for r in rels:
-                    s += "\t\t%s --> %s\n" % (r["sourceDataLUID"], r["sinkDataLUID"])
+                    if printMtime:
+                        s += "\t\t%s (%s) --> %s (%s)\n" % (r["sourceDataLUID"], r["sourceDataMtime"], r["sinkDataLUID"], r["sinkDataMtime"])
+                    else:
+                        s += "\t\t%s --> %s\n" % (r["sourceDataLUID"], r["sinkDataLUID"])
         return s
       
         

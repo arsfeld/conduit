@@ -35,16 +35,19 @@ luid = m.get_matching_UID(sourceUID="source", sourceDataLUID="data3",sinkUID="si
 ok("data3 --> data4 for (source --> sink)", luid == "data4")
 
 
-print m.debug()
-
 #check that we never save more than one relationship per dp and uid
-#m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
-#ok("Duplicate relationships not saved", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
+m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
+ok("Duplicate relationships not saved", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
 
-#check that the updated mtime is saved correctly for both dps
-# now2=datetime.datetime.now()
-# now3=datetime.datetime.now()
-# m.save_mapping(sourceUID="source",sourceDataLUID="data1",sinkUID="sink",sinkDataLUID="data2",mtime=now2)
+#check that the updated mtime is saved correctly for both dps in both directions
+now2=datetime.datetime.now()
+m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now2,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
+now3=datetime.datetime.now()
+m.save_mapping(sourceUID="sink",sourceDataLUID="data1",sourceDataMtime=now2,sinkUID="source",sinkDataLUID="data2",sinkDataMtime=now3)
+
+ok("Mtimes updated correctly", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
+print m.debug(printMtime=True)
+
 # luid, mtime = m.get_mapping(sourceUID="source", sourceDataLUID="data1",sinkUID="sink")
 # ok("Updated mtime saved. data1 --> data2 for (source --> sink)", luid == "data2" and mtime == now2)
 
