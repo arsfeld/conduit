@@ -56,6 +56,11 @@ desktop_in_files = conduit.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 @INTLTOOL_DESKTOP_RULE@
 
+#autostartdir=$(datadir)/gnome/autostart
+#autostart_in_files=conduit.desktop.in
+#autostart_files=$(autostart_in_files:.desktop.in=.desktop)
+#autostart_DATA = $(autostart_files)
+
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = conduit-icon.png
 

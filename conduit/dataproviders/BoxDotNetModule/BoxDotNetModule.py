@@ -18,10 +18,10 @@ Utils.dataprovider_add_dir_to_path(__file__, "BoxDotNetAPI")
 from boxdotnet import BoxDotNet
 
 MODULES = {
-    "BoxDotNetSink" :          { "type": "dataprovider" }
+    "BoxDotNetTwoWay" :          { "type": "dataprovider" }
 }
 
-class BoxDotNetSink(DataProvider.TwoWay):
+class BoxDotNetTwoWay(DataProvider.TwoWay):
 
     _name_ = "Box.net"
     _description_ = "Sync Your Box.net files"
@@ -43,7 +43,7 @@ class BoxDotNetSink(DataProvider.TwoWay):
         self.foldername = ""
         self.folder_id = None
 
-        self.files = []
+        self.files = {}
 
     #------------------------------------------
     # File info related functions
@@ -52,29 +52,28 @@ class BoxDotNetSink(DataProvider.TwoWay):
         """
         Returns the id, if the id is present in the configured folder
         """
-        files = self._get_files()
+        self.files = self._get_files(self.folder_id)
 
-        if self._get_files().count(fileID):
+        if self.files.has_key(fileID):
             logd("File [%s] does exist" % fileID)
             return fileID
         else:
             logd("File [%s] does not exist" % fileID)
             return None
 
-    def _get_files(self):
+    def _get_files(self,folderID):
         """
         Gets a list of files present in the configured folder
         """
-        rsp = self.boxapi.get_account_tree (api_key=BoxDotNetSink.API_KEY,
+        rsp = self.boxapi.get_account_tree (api_key=BoxDotNetTwoWay.API_KEY,
                                             auth_token=self.token,
-                                            folder_id=self.folder_id,
+                                            folder_id=folderID,
                                             params=['nozip'])
-        print rsp
-        files = []
+        files = {}
 
         try:
             for file in rsp.tree[0].folder[0].files[0].file:
-                files.append (file.attrib['id'])
+                files[file.attrib['id']] = file.attrib['file_name']
         finally:
             return files
 
@@ -137,7 +136,7 @@ class BoxDotNetSink(DataProvider.TwoWay):
         Returns a dictionary of name-id representing the upper-level
         folders
         """
-        rsp = self.boxapi.get_account_tree(api_key=BoxDotNetSink.API_KEY,
+        rsp = self.boxapi.get_account_tree(api_key=BoxDotNetTwoWay.API_KEY,
                                            auth_token=self.token,
                                            folder_id=0,
                                            params=['nozip'])
@@ -155,7 +154,7 @@ class BoxDotNetSink(DataProvider.TwoWay):
         """
         Create a top-level folder with the configured name, and return the id
         """
-        rsp = self.boxapi.create_folder(api_key=BoxDotNetSink.API_KEY,
+        rsp = self.boxapi.create_folder(api_key=BoxDotNetTwoWay.API_KEY,
                                         auth_token=self.token,
                                         parent_id=0,
                                         name=self.foldername,
@@ -163,19 +162,22 @@ class BoxDotNetSink(DataProvider.TwoWay):
 
         return rsp.folder[0].folder_id[0].elementText
 
+    def _login(self):
+        if self.boxapi == None:
+            self.boxapi = BoxDotNet(browser="gnome-www-browser -p")
+
+        # login if not done yet, we only login once to prevent
+        # the browser for popping up each time
+        if not self.token:
+            rsp = self.boxapi.login(BoxDotNetTwoWay.API_KEY)
+            self._set_login_info(rsp)
 
     #------------------------------------------
     # Dataprovider Functions
     #------------------------------------------
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-        self.boxapi = BoxDotNet(browser="gnome-www-browser -p")
-
-        # login if not done yet, we only login once to prevent
-        # the browser for popping up each time
-        if not self.token:
-            rsp = self.boxapi.login(BoxDotNetSink.API_KEY)
-            self._set_login_info(rsp)
+        self._login()
 
         # set folder id if not done yet or configuration changed
         folder_id = self._get_folder_id()
@@ -183,8 +185,7 @@ class BoxDotNetSink(DataProvider.TwoWay):
         if not self.folder_id or self.folder_id != folder_id: 
             self.folder_id = folder_id
 
-        self.files = self._get_files()
-
+        self.files = self._get_files(self.folder_id)
 
     def put (self, file, overwrite, LUID=None):
         """
@@ -231,7 +232,7 @@ class BoxDotNetSink(DataProvider.TwoWay):
         """
         Simply call the delete method on the api
         """
-        self.boxapi.delete (api_key=BoxDotNetSink.API_KEY, 
+        self.boxapi.delete (api_key=BoxDotNetTwoWay.API_KEY, 
                             auth_token=self.token,
                             target='file',
                             target_id=LUID)
@@ -283,6 +284,8 @@ class BoxDotNetSink(DataProvider.TwoWay):
                     URI=        url,
                     group=      self.foldername
                     )
+        #FIXME: gnomevfs doesnt like unicode
+        f.force_new_filename(str(self.files[LUID]))
         f.set_open_URI(url)
         f.set_UID(LUID)
 
@@ -290,6 +293,6 @@ class BoxDotNetSink(DataProvider.TwoWay):
                 
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
-        return self.files
+        return self.files.keys()
 
 
