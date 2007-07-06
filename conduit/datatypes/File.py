@@ -39,6 +39,8 @@ class File(DataType.DataType):
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False
+        self._newFilename = None
+        self._newMtime = None
 
     def _get_text_uri(self):
         """
@@ -85,6 +87,22 @@ class File(DataType.DataType):
                 gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
                 )
 
+    def _defer_rename(self, filename):
+        """
+        In the event that the file is on a read-only volume this call defers the 
+        file rename till after the transfer proces
+        """
+        logd("Defering rename till transfer (New name: %s)" % filename)
+        self._newFilename = filename
+
+    def _defer_new_mtime(self, mtime):
+        """
+        In the event that the file is on a read-only volume this call defers the 
+        file mtime modification till after the transfer proces
+        """
+        logd("Defering new mtime till transfer (New mtime: %s)" % mtime)
+        self._newMtime = mtime
+
     def exists(self):
         self._open_file()
         return self.fileExists
@@ -108,31 +126,40 @@ class File(DataType.DataType):
         """
         Renames the file
         """
-        newInfo = gnomevfs.FileInfo()
-        newInfo.name = filename
+        try:
+            newInfo = gnomevfs.FileInfo()
+            newInfo.name = filename
 
-        oldname = self.get_filename()
-        olduri = self._get_text_uri()
-        newuri = olduri.replace(oldname, filename)
+            oldname = self.get_filename()
+            olduri = self._get_text_uri()
+            newuri = olduri.replace(oldname, filename)
 
-        logd("Renaming File %s -> %s" % (olduri, newuri))
-        gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
+            logd("Renaming File %s -> %s" % (olduri, newuri))
+            gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
 
-        #close so the file info is re-read
-        self.URI = gnomevfs.URI(newuri)
-        self._close_file()
+            #close so the file info is re-read
+            self.URI = gnomevfs.URI(newuri)
+            self._close_file()
+        except gnomevfs.NotSupportedError:
+            #file is on readonly filesystem. defer rename
+            self._defer_rename(filename)
 
     def force_new_mtime(self, mtime):
         """
         Changes the mtime of the file
         """
-        timestamp = conduit.Utils.datetime_get_timestamp(mtime)
-        logd("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
-        newInfo = gnomevfs.FileInfo()
-        newInfo.mtime = timestamp
-        gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
-        #close so the file info is re-read
-        self._close_file()
+        try:
+            timestamp = conduit.Utils.datetime_get_timestamp(mtime)
+            logd("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
+            newInfo = gnomevfs.FileInfo()
+            newInfo.mtime = timestamp
+            gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
+            #close so the file info is re-read
+            self._close_file()
+        except gnomevfs.NotSupportedError:
+            #file is on readonly filesystem. defer new mtime
+            self._defer_new_mtime(mtime)
+
 
     def transfer(self, newURIString, overwrite=False):
         """
@@ -141,7 +168,19 @@ class File(DataType.DataType):
 
         @type newURIString: C{string}
         """
-        newURI = gnomevfs.URI(newURIString)
+        if self._newFilename == None:
+            newURI = gnomevfs.URI(newURIString)
+        else:
+            newURI = gnomevfs.URI(newURIString)
+            #if it exists and its a directory then transfer into that dir
+            #with the new filename
+            if gnomevfs.exists(newURI):
+                info = gnomevfs.get_file_info(newURI, gnomevfs.FILE_INFO_DEFAULT)
+                if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
+                    #append the new filename
+                    newURI = newURI.append_file_name(self._newFilename)
+
+                    logd("Using deferred filename in transfer")
 
         if overwrite:
             mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
@@ -163,7 +202,11 @@ class File(DataType.DataType):
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
-        self._close_file()
+        if self._newMtime != None:
+            #force_new_mtime closes the file
+            self.force_new_mtime(self._newMtime)
+        else:
+            self._close_file()
 
     def delete(self):
         logd("Deleting %s" % self.URI)
@@ -187,11 +230,14 @@ class File(DataType.DataType):
         of the file or None on error.
         @rtype: C{datetime}
         """
-        self._get_file_info()
-        try:
-            return datetime.datetime.fromtimestamp(self.fileInfo.mtime)
-        except:
-            return None
+        if self._newMtime == None:
+            self._get_file_info()
+            try:
+                return datetime.datetime.fromtimestamp(self.fileInfo.mtime)
+            except:
+                return None
+        else:
+            return self._newMtime
 
     def set_mtime(self, mtime):
         """
@@ -217,8 +263,11 @@ class File(DataType.DataType):
         """
         Returns the filename of the file
         """
-        self._get_file_info()
-        return self.fileInfo.name
+        if self._newFilename == None:
+            self._get_file_info()
+            return self.fileInfo.name
+        else:
+            return self._newFilename
         
     def get_contents_as_text(self):
         return gnomevfs.read_entire_file(self._get_text_uri())
@@ -318,21 +367,19 @@ class File(DataType.DataType):
         data['uri'] = str(self.URI)
         data['basePath'] = self.basePath
         data['group'] = self.group
+        data['_newFilename'] = self._newFilename
         return data
 
     def __setstate__(self, data):
         self.URI = gnomevfs.URI(data['uri'])
         self.basePath = data['basePath']
         self.group = data['group']
+        self._newFilename = data['_newFilename']
         DataType.DataType.__setstate__(self, data)
-
-        #fd, name = tempfile.mkstemp(prefix="conduit")
-        #os.write(fd, contents)
-        #os.close(fd)
 
 class TempFile(File):
     """
-    A Small extension to a File. This allows new filenames (force_new_filename)
+    A Small extension to a File. This makes new filenames (force_new_filename)
     to be processed in the transfer method, and not immediately, which may
     cause name conflicts in the temp directory. 
 
@@ -346,40 +393,16 @@ class TempFile(File):
 
         File.__init__(self, name)
 
-        self._newFilename = None
         logd("New tempfile created at %s" % name)
             
     def force_new_filename(self, filename):
-        self._newFilename = filename
+        #always defer the rename if its a tempfile to avoid name collisions        
+        self._defer_rename(filename)
 
-    def get_filename(self):
-        if self._newFilename == None:
-            return File.get_filename(self)
-        else:
-            return self._newFilename
-
-    def transfer(self, newURIString, overwrite=False):
-        if self._newFilename == None:
-            File.transfer(self, newURIString, overwrite)
-        else:
-            URI = gnomevfs.URI(newURIString)
-            #if it exists and its a directory then transfer into that dir
-            #with the new filename
-            if gnomevfs.exists(URI):
-                info = gnomevfs.get_file_info(URI, gnomevfs.FILE_INFO_DEFAULT)
-                if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                    #append the new filename
-                    URI = URI.append_file_name(self._newFilename)
-
-            logd("TempFile transferred to %s. filename %s" % (URI, self._newFilename))
-            File.transfer(self, str(URI), overwrite)
-
-    def __getstate__(self):
-        data = File.__getstate__(self)
-        data['_newFilename'] = self._newFilename
-        return data
-
-    def __setstate__(self, data):
-        self._newFilename = data['_newFilename']
-        File.__setstate__(self, data)
+    def force_new_mtime(self, mtime):
+        #changing the file mtime causes the file info to be reread which loses
+        #any deferred rename operations. Save and restore any defered renames
+        filename = self.get_filename()
+        File.force_new_mtime(self, mtime)
+        self._defer_rename(filename)
 
