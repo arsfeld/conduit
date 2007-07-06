@@ -15,14 +15,20 @@ except:
 null = File.File("/foo/bar")
 ok("Base: non-existant file", null.exists() == False)
 
+try:
+    f.get_filename()
+    ok("Base: Cannot get info on non-existant file", False)
+except:
+    ok("Base: Cannot get info on non-existant file", True)
+
 folder = File.File(os.environ["HOME"])
 ok("Base: check if HOME exists", folder.exists() == True)
 ok("Base: check if HOME is folder", folder.is_directory() == True)
 
-localURIs = [   os.path.abspath(os.path.join(my_path,"tests","old","oldest")),
-                os.path.abspath(os.path.join(my_path,"tests","old","older")),
-                os.path.abspath(os.path.join(my_path,"tests","new","newer")),
-                os.path.abspath(os.path.join(my_path,"tests","new","newest"))
+localURIs = [   os.path.abspath(os.path.join(my_path,"..", "test-data","old","oldest")),
+                os.path.abspath(os.path.join(my_path,"..", "test-data","old","older")),
+                os.path.abspath(os.path.join(my_path,"..", "test-data","new","newer")),
+                os.path.abspath(os.path.join(my_path,"..", "test-data","new","newest"))
             ]
 
 #test the comparison of files by mtime
@@ -124,11 +130,11 @@ if is_online():
     ok("Remote Compare: checking roldest w null = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
 
     comp = oldest.compare(rolder)
-    ok("Remote & Local Compare: checking oldest < rolder = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
+    ok("Remote & Local Compare: checking oldest < rolder = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER, False)
     comp = rnewest.compare(newer)
-    ok("Remote & Local Compare: checking rnewest > newer = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER)
+    ok("Remote & Local Compare: checking rnewest > newer = %s" % comp,comp == conduit.datatypes.COMPARISON_NEWER, False)
     comp = rnewest.compare(newest)
-    ok("Remote & Local Compare: checking rnewest == newest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
+    ok("Remote & Local Compare: checking rnewest == newest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL, False)
 
 
 
