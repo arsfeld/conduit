@@ -10,6 +10,9 @@ from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 class File(DataType.DataType):
+    triedOpen = False
+    fileInfo = None
+
     def __init__(self, URI, **kwargs):
         """
         File constructor.
