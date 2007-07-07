@@ -428,6 +428,12 @@ class SyncWorker(threading.Thread, gobject.GObject):
         #get all the data
         added, modified, deleted = self._get_changes(source, sink)
 
+        #handle deleted data
+        for d in deleted:
+            matchingUID = conduit.mappingDB.get_matching_UID(source.get_UID(), d, sink.get_UID())
+            if matchingUID != None:
+                self._apply_deleted_policy(source, d, sink, matchingUID)
+
         #one way sync treats added and modifed the same. Both get transferred
         items = added + modified
         numItems = len(items)
@@ -446,12 +452,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
             #transfer the data
             newdata = self._transfer_data(source, sink, data)
-
-        #handle deleted data
-        for d in deleted:
-            matchingUID = conduit.mappingDB.get_matching_UID(source.get_UID(), d, sink.get_UID())
-            if matchingUID != None:
-                self._apply_deleted_policy(source, d, sink, matchingUID)
        
     def two_way_sync(self, source, sink):
         """
@@ -507,16 +507,16 @@ class SyncWorker(threading.Thread, gobject.GObject):
         toput += [(sink, i, source) for i in sinkModified]
 
         #PHASE TWO: TRANSFER DATA
-        for sourcedp, dataUID, sinkdp in toput:
-            data = sourcedp.module.get(dataUID)
-            logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
-            self._transfer_data(sourcedp, sinkdp, data)
-
         for sourcedp, dataUID, sinkdp in todelete:
             matchingUID = conduit.mappingDB.get_matching_UID(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
             logd("2WAY DEL: %s (%s)" % (sinkdp.name, matchingUID))
             if matchingUID != None:
                 self._apply_deleted_policy(sourcedp, dataUID, sinkdp, matchingUID)
+
+        for sourcedp, dataUID, sinkdp in toput:
+            data = sourcedp.module.get(dataUID)
+            logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
+            self._transfer_data(sourcedp, sinkdp, data)
 
         for dp1, data1UID, dp2, data2UID in tocomp:
             logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
