@@ -332,7 +332,7 @@ class EvoMemoTwoWay(EvoBase):
         """
         Retrieve a specific contact object from evolution
         FIXME: In 0.5 this will replace get(...)
-        """
+        """	
         obj = self.source.get_object(LUID, "")
         mtime = datetime.datetime.fromtimestamp(obj.get_modified())
         note = Note.Note(
@@ -340,6 +340,9 @@ class EvoMemoTwoWay(EvoBase):
                     mtime=mtime,
                     contents=obj.get_description()
                     )
+
+        if note.contents == None:
+            note.contents = ""
 
         note.set_UID(obj.get_uid())
         note.set_mtime(mtime)
@@ -349,7 +352,8 @@ class EvoMemoTwoWay(EvoBase):
     def _create_object(self, note):
         obj = evo.ECalComponent(evo.CAL_COMPONENT_JOURNAL)
         obj.set_summary(note.title)
-        obj.set_description(note.contents)
+        if note.contents != None:
+            obj.set_description(note.contents)
         uid = self.source.add_object(obj)
         
         if uid != None:
@@ -359,7 +363,7 @@ class EvoMemoTwoWay(EvoBase):
 
     def _delete_object(self, uid):
         try:
-            return self.source.remove_object(uid)
+            return self.source.remove_object(self.source.get_object(uid, ""))
         except:
             return False
 
