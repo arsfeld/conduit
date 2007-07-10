@@ -136,17 +136,13 @@ class Uploadr:
             # Build the export interface
             ######
             if DEBUG:
-                self.source = self.conduitApp.GetDataSource("TestSource")
-                self.sink = self.conduitApp.GetDataSink("TestSink")
+                self.conduit, self.source, self.sink = self.conduitApp.BuildOneWaySync("TestSource","TestSink")
             else:
-                self.source = self.conduitApp.GetDataSource("FileSource")
-                self.sink = self.conduitApp.GetDataSink("FlickrSink")
+                self.conduit, self.source, self.sink = self.conduitApp.BuildOneWaySync("FileSource","FlickrSink")
 
-            self.conduit = self.conduitApp.BuildConduit(self.source, self.sink)
-            
             #get an icon for the GUI
-            #key = self.conduitApp.GetDataProviderKey(self.sink)
-            #print self.conduitApp.GetDataProviderInformation(key)
+            key = self.conduitApp.GetDataProviderKey(self.sink)
+            print self.conduitApp.GetDataProviderInformation(key)
 
             self.conduitApp.connect_to_signal("SyncCompleted", self.sync_complete_cb)
             self.conduitApp.connect_to_signal("SyncProgress", self.sync_progress_cb)

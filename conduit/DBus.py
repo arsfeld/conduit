@@ -114,6 +114,17 @@ class DBusView(dbus.service.Object):
                     new.module.connect("change-detected", self._on_data_changed, key)
         return uid
 
+    def _add_conduit(self, sourceUID, sinkUID):
+        uid = ERROR
+        if sourceUID in self.UIDs and sinkUID in self.UIDs:
+            #create new conduit, populate and add to hashmap
+            uid = self._rand()
+            conduit = Conduit()
+            conduit.add_dataprovider_to_conduit(self.UIDs[sourceUID])
+            conduit.add_dataprovider_to_conduit(self.UIDs[sinkUID])
+            self.UIDs[uid] = conduit
+        return uid
+
     def _get_sources(self):
         datasources = self.model.get_modules_by_type("source")
         twoways = self.model.get_modules_by_type("twoway")
@@ -146,6 +157,38 @@ class DBusView(dbus.service.Object):
                                 self._on_sync_conflict,
                                 self._on_sync_progress
                                 )
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='ss', out_signature='iii')
+    def BuildOneWaySync(self, sourceKey, sinkKey):
+        self._print("BuildOneWaySync %s --> %s" % (sourceKey, sinkKey))
+        source = self._add_dataprovider(sourceKey, self._get_sources())
+        sink = self._add_dataprovider(sinkKey, self._get_sinks())
+        conduit = self._add_conduit(source, sink)
+        if conduit != ERROR:
+            self.UIDs[conduit].disable_two_way_sync()
+        return conduit, source, sink
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='ss', out_signature='iii')
+    def BuildTwoWaySync(self, sourceKey, sinkKey):
+        self._print("BuildTwoWaySync %s <-> %s" % (sourceKey, sinkKey))
+        source = self._add_dataprovider(sourceKey, self._get_sources())
+        sink = self._add_dataprovider(sinkKey, self._get_sinks())
+        conduit = self._add_conduit(source, sink)
+        if conduit != ERROR:
+            self.UIDs[conduit].enable_two_way_sync()
+        return conduit, source, sink
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='ss', out_signature='iii')
+    def BuildSimpleExport(self, sinkKey, sinkConfigXml):
+        self._print("BuildSimpleExport --> %s" % sinkKey)
+        source = self._add_dataprovider("FileSource", self._get_sources())
+        sink = self._add_dataprovider(sinkKey, self._get_sinks())
+        if sink != ERROR:
+            self.UIDs[sink].module.set_configuration_xml(sinkConfigXml)
+        conduit = self._add_conduit(source, sink)
+        if conduit != ERROR:
+            self.UIDs[conduit].enable_two_way_sync()
+        return conduit, source, sink
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='i')
     def Quit(self):
@@ -258,15 +301,7 @@ class DBusView(dbus.service.Object):
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='ii', out_signature='i')
     def BuildConduit(self, sourceUID, sinkUID):
         self._print("BuildConduit %s:%s" % (sourceUID, sinkUID))
-        uid = ERROR
-        if sourceUID in self.UIDs and sinkUID in self.UIDs:
-            #create new conduit, populate and add to hashmap
-            uid = self._rand()
-            conduit = Conduit()
-            conduit.add_dataprovider_to_conduit(self.UIDs[sourceUID])
-            conduit.add_dataprovider_to_conduit(self.UIDs[sinkUID])
-            self.UIDs[uid] = conduit
-        return uid
+        return self._add_conduit(sourceUID, sinkUID)
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='ii', out_signature='i')
     def AddSinkToConduit(self, conduitUID, sinkUID):
