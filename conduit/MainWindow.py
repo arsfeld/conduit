@@ -42,7 +42,6 @@ class GtkView:
         the most time consuming pieces
         """
         gnome.init(conduit.APPNAME, conduit.APPVERSION)
-        #FIXME: This causes X errors (async reply??) sometimes in the sync thread???
         gnome.ui.authentication_manager_init()        
 
         self.conduitApplication = conduitApplication
@@ -119,7 +118,7 @@ class GtkView:
         self.conflictResolver = ConflictResolver(self.widgets)
         
         #tracked in self.on_window_state_event
-        self.window_state = 0
+        self.window_state = gtk.gdk.WINDOW_STATE_WITHDRAWN
         
     def set_model(self, model):
         """
@@ -160,14 +159,25 @@ class GtkView:
         Present the main window. Enjoy your window
         """
         logd("Presenting GUI")
+        self.mainWindow.show_all()
         self.mainWindow.present()
         
-    def iconify(self):
+    def minimize_to_tray(self):
         """
         Iconifies the main window
         """
         logd("Iconifying GUI")
         self.mainWindow.hide()
+
+    def is_visible(self):
+        """
+        Returns True if mainWindow is visible
+        (not minimized or withdrawn)
+        """
+        hidden = int(self.window_state) & int(gtk.gdk.WINDOW_STATE_WITHDRAWN)
+        minimized = int(self.window_state) & int(gtk.gdk.WINDOW_STATE_ICONIFIED)
+        print "----------", hidden,minimized
+        return not (hidden or minimized)
 
     def on_sync_started(self, thread):
         logd("GUI got sync started")
@@ -359,6 +369,8 @@ class GtkView:
         save_settings_check.set_active(conduit.settings.get("save_on_exit"))
         status_icon_check = tree.get_widget("status_icon_check")
         status_icon_check.set_active(conduit.settings.get("show_status_icon")) 
+        minimize_to_tray_check = tree.get_widget("minimize_to_tray_check")
+        minimize_to_tray_check.set_active(conduit.settings.get("gui_minimize_to_tray")) 
 
         #get the radiobuttons where the user sets their policy
         conflict_ask_rb = tree.get_widget("conflict_ask_rb")
@@ -378,6 +390,7 @@ class GtkView:
         if response == gtk.RESPONSE_OK:
             conduit.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.settings.set("show_status_icon", status_icon_check.get_active())
+            conduit.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
             policy = {}
             policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
             policy["deleted"] = save_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
@@ -396,6 +409,10 @@ class GtkView:
         
     def on_window_state_event(self, widget, event):
         self.window_state = event.new_window_state
+        print "----------", event.new_window_state
+        if event.new_window_state == gtk.gdk.WINDOW_STATE_ICONIFIED:
+            if conduit.settings.get("gui_minimize_to_tray"):
+                self.minimize_to_tray()
 
     def on_window_closed(self, widget, event=None):
         """
@@ -492,12 +509,6 @@ class GtkView:
         self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
         #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
         
-    def is_iconified(self):
-        """
-        Returns True if mainWindow is iconified (or "hidden")
-        """
-        return self.window_state != 0
-
 class SplashScreen:
     """
     Simple splash screen class which shows an image for a predetermined period
@@ -674,10 +685,10 @@ class ConduitStatusIcon(gtk.StatusIcon):
         
     def on_click(self, status):
         if self.conduitApplication.HasGUI():
-            if self.conduitApplication.gui.is_iconified():
-                self.conduitApplication.gui.present()
+            if self.conduitApplication.gui.is_visible():
+                self.conduitApplication.gui.minimize_to_tray()
             else:
-                self.conduitApplication.gui.iconify()
+                self.conduitApplication.gui.present()
         
 
 class Application(dbus.service.Object):
@@ -750,7 +761,10 @@ class Application(dbus.service.Object):
                 if conduitApp.HasGUI():
                     conduitApp.ShowGUI()
                 else:
+                    conduitApp.ShowSplash()
                     conduitApp.BuildGUI()
+                    conduitApp.ShowGUI()
+                    conduitApp.HideSplash()
             sys.exit(0)
 
         # Initialise dbus stuff here as any earlier will cause breakage
@@ -760,8 +774,8 @@ class Application(dbus.service.Object):
         dbus.service.Object.__init__(self, bus_name, "/activate")
 
         #Throw up a splash screen ASAP. Dont show if launched via --console.
-        if buildGUI:
-            self._show_splash()
+        if buildGUI and not iconify:
+            self.ShowSplash()
 
         #Dynamically load all datasources, datasinks and converters
         dirs_to_search =    [
@@ -781,8 +795,8 @@ class Application(dbus.service.Object):
         #Set the view models
         if buildGUI:
             self.BuildGUI()
-            if iconify:
-                self.IconifyGUI()
+            if not iconify:
+                self.ShowGUI()
         
         #Dbus view...
         if conduit.settings.get("enable_dbus_interface") == True:
@@ -797,13 +811,14 @@ class Application(dbus.service.Object):
                                         None
                                         )
 
-        conduit.memstats(memstats)
-        gtk.main()
+        #hide the splash screen
+        self.HideSplash()
 
-    def _show_splash(self):
-        if conduit.settings.get("show_splashscreen") == True:
-            self.splash = SplashScreen()
-            self.splash.show()
+        conduit.memstats(memstats)
+        try:
+            gtk.main()
+        except KeyboardInterrupt:
+            self.Quit()
 
     def _usage(self):
         print """Conduit: Usage
@@ -813,7 +828,7 @@ OPTIONS:
     -h, --help          Print this help notice.
     -c, --console       Launch Conduit with no GUI) (default=no).
     -s, --settings=FILE Override saving conduit settings to FILE
-    -i, --iconify       Iconify on startup""" % sys.argv[0]
+    -i, --iconify       Iconify on startup (default=no)""" % sys.argv[0]
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='b')
     def HasGUI(self):
@@ -821,17 +836,10 @@ OPTIONS:
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
     def BuildGUI(self):
-        #if the gui is build after the splash then show it, even though it
-        #will be a shorter period of time because the modules have already 
-        #been scanned
-        if self.splash == None:
-            self._show_splash()
-
         self.gui = GtkView(self)
         self.gui.set_model(self.model)
         self.gui.canvas.add_welcome_message()
         self.gui.restore_settings()
-        self.gui.mainWindow.show_all()
 
         if self.statusIcon:
             self.gui.sync_manager.add_syncworker_callbacks(
@@ -841,16 +849,24 @@ OPTIONS:
                                     None
                                     )
 
-        if self.splash != None:
-            self.splash.destroy()
-    
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):
         self.gui.present()
 
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    def ShowSplash(self):
+        if conduit.settings.get("show_splashscreen") == True:
+            self.splash = SplashScreen()
+            self.splash.show()
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    def HideSplash(self):
+        if self.splash != None:
+            self.splash.destroy()
+
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')        
     def IconifyGUI(self):
-        self.gui.iconify()
+        self.gui.minimize_to_tray()
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):

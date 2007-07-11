@@ -46,7 +46,8 @@ class Settings(gobject.GObject):
         'twoway_policy_deleted'     :   "ask",  #ask,replace,skip
         'gui_expanded_columns'      :   [],     #list of expanded column paths in the treeview
         'gui_hpane_postion'         :   250,    #The hpane seperating the canvas and treeview position
-        'gui_window_size'           :   []      #W,H   
+        'gui_window_size'           :   [],     #W,H
+        'gui_minimize_to_tray'      :   False
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names
