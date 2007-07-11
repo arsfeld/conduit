@@ -118,7 +118,7 @@ class GtkView:
         self.conflictResolver = ConflictResolver(self.widgets)
         
         #tracked in self.on_window_state_event
-        self.window_state = gtk.gdk.WINDOW_STATE_WITHDRAWN
+        self.window_state = 0
         
     def set_model(self, model):
         """
@@ -176,7 +176,6 @@ class GtkView:
         """
         hidden = int(self.window_state) & int(gtk.gdk.WINDOW_STATE_WITHDRAWN)
         minimized = int(self.window_state) & int(gtk.gdk.WINDOW_STATE_ICONIFIED)
-        print "----------", hidden,minimized
         return not (hidden or minimized)
 
     def on_sync_started(self, thread):
@@ -409,7 +408,6 @@ class GtkView:
         
     def on_window_state_event(self, widget, event):
         self.window_state = event.new_window_state
-        print "----------", event.new_window_state
         if event.new_window_state == gtk.gdk.WINDOW_STATE_ICONIFIED:
             if conduit.settings.get("gui_minimize_to_tray"):
                 self.minimize_to_tray()
