@@ -1,2 +1,23 @@
 [encoding: UTF-8]
 data/conduit.desktop.in.in
+data/conduit-autostart.desktop.in.in
+conduit/Canvas.py
+conduit/DataProvider.py
+conduit/MainWindow.py
+conduit/TypeConverter.py
+conduit/dataproviders/BackpackModule/BackpackModule.py
+conduit/dataproviders/BackpackModule/config.glade
+conduit/dataproviders/BoxDotNetModule/config.glade
+conduit/dataproviders/EvolutionModule/config.glade
+conduit/dataproviders/FeedModule/FeedModule.py
+conduit/dataproviders/FeedModule/config.glade
+conduit/dataproviders/FileModule/FileModule.py
+conduit/dataproviders/FileModule/config.glade
+conduit/dataproviders/FlickrModule/config.glade
+conduit/dataproviders/FspotModule/config.glade
+conduit/dataproviders/GmailModule/GmailModule.py
+conduit/dataproviders/GmailModule/config.glade
+conduit/dataproviders/PicasaModule/config.glade
+conduit/dataproviders/SettingsModule/config.glade
+conduit/dataproviders/SmugMugModule/config.glade
+data/conduit.glade

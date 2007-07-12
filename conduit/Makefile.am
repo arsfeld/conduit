@@ -3,6 +3,7 @@ SUBDIRS = datatypes dataproviders
 start_conduit: start_conduit.py
 	sed -e "s|\@PYTHONDIR\@|$(pythondir)|" \
 		-e "s|\@VERSION\@|$(VERSION)|" \
+		-e "s|\@DATADIR\@|$(DATADIR)|" \
 		-e "s|\@PKGDATADIR\@|$(PKGDATADIR)|" \
 		-e "s|\@PKGLIBDIR\@|$(PKGLIBDIR)|" \
 	$< > $@

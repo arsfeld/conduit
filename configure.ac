@@ -1,4 +1,4 @@
-AC_INIT([conduit], [0.3.1],[mailto:john.stowers@gmail.com],[conduit])
+AC_INIT([conduit], [0.3.2],[mailto:john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
 AC_CONFIG_SRCDIR(conduit/__init__.py)
 AM_MAINTAINER_MODE
@@ -77,21 +77,6 @@ else
 fi
 
 ################################################################################
-# Check for evolution-python to build the evolution dataprovider
-################################################################################
-#AC_ARG_ENABLE([evolution],
-#              AC_HELP_STRING([--enable-evolution], [Enable support for evolution]),,
-#              [enable_evolution=no])
-#
-#if test "x$enable_evolution" = "xyes"; then
-#	PKG_CHECK_MODULES(EVOLUTION, [evolution-python >= 0.0.1] ,
-#		[have_evolution=yes] , [have_evolution=no])
-#else
-#	have_evolution="no (disabled)"
-#fi
-#AM_CONDITIONAL(ENABLE_EVOLUTION, test "$have_evolution" = "yes")
-
-################################################################################
 # DBus
 ################################################################################
 PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.93 ])
@@ -161,6 +146,7 @@ conduit/dataproviders/SmugMugModule/Makefile
 conduit/dataproviders/SmugMugModule/SmugMugAPI/Makefile
 data/Makefile
 data/conduit.desktop.in
+data/conduit-autostart.desktop.in
 data/conduit.pc
 po/Makefile.in
 )
@@ -171,3 +157,4 @@ echo
 echo Prefix............... : $prefix
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo
+

@@ -17,15 +17,18 @@ import os, os.path
 directory = os.path.join(os.path.dirname(__file__), '..')
 changelog = os.path.join(directory,"ChangeLog")
 if os.path.exists(changelog):
+    #UNINSTALLED
     sys.path.insert(0, os.path.abspath(directory))
     import conduit
 else:
+    #INSTALLED
     #Support alternate install paths   
     if not '@PYTHONDIR@' in sys.path:
         sys.path.insert(0, '@PYTHONDIR@')
     import conduit
     conduit.IS_INSTALLED =          True
     conduit.APPVERSION =            '@VERSION@'
+    conduit.DATA_DIR =              '@DATADIR@'
     conduit.SHARED_DATA_DIR =       os.path.abspath('@PKGDATADIR@')
     conduit.GLADE_FILE =            os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
     conduit.SHARED_MODULE_DIR =     os.path.abspath('@PKGLIBDIR@')
@@ -33,6 +36,14 @@ else:
 
 #Development versions are X.ODD_VERSION.Y
 conduit.IS_DEVELOPMENT_VERSION = int(conduit.APPVERSION.split('.')[1]) % 2 == 1
+
+#set up the gettext system and locales
+from gtk import glade
+import gettext
+
+for module in glade, gettext:
+    module.bindtextdomain('conduit', os.path.join(conduit.DATA_DIR, "locale"))
+    module.textdomain('conduit')
 
 # Start the application
 import conduit.MainWindow

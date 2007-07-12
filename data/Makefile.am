@@ -44,22 +44,23 @@ resources_DATA = \
 	conduit-progress-8.png \
 	picasa.png \
 	smugmug.png \
+	boxdotnet.png \
 	flickr.png
 
 conduitbindir = $(libdir)/conduit
 
 ################################################################################
-# Desktop file
+# Desktop and autostart file
 ################################################################################
 desktopdir = $(datadir)/applications
 desktop_in_files = conduit.desktop.in 
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
-@INTLTOOL_DESKTOP_RULE@
 
-#autostartdir=$(datadir)/gnome/autostart
-#autostart_in_files=conduit.desktop.in
-#autostart_files=$(autostart_in_files:.desktop.in=.desktop)
-#autostart_DATA = $(autostart_files)
+autostartdir = $(datadir)/gnome/autostart
+autostart_in_files = conduit-autostart.desktop.in
+autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
+
+@INTLTOOL_DESKTOP_RULE@
 
 pixmapdir = $(datadir)/pixmaps
 pixmap_DATA = conduit-icon.png
@@ -86,12 +87,14 @@ $(dbusservice_DATA): $(dbusservice_in_files) Makefile
 
 DISTCLEANFILES = \
 	$(pkgconfig_DATA) \
-	$(desktop_DATA)
+	$(desktop_DATA) \
+	$(autostart_DATA)
 
 EXTRA_DIST = \
 	$(resources_DATA) \
 	$(pkgconfig_in_files) \
 	$(dbusservice_in_files) \
-	conduit.desktop.in.in
+	conduit.desktop.in.in \
+	conduit-autostart.desktop.in.in
 	
 CLEANFILES = conduit.desktop org.gnome.Conduit.service
