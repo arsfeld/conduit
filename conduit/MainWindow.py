@@ -98,6 +98,7 @@ class GtkView:
         #start up the canvas
         self.canvas = Canvas()
         self.canvasSW.add(self.canvas)
+        self.canvasSW.show_all()
         #set canvas options
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
@@ -120,6 +121,9 @@ class GtkView:
         #tracked in self.on_window_state_event
         self.window_state = 0
         
+        #FIXME: WITHOUT THIS CALL THE CANVAS SEGFAULTS...
+        self.mainWindow.show_all()
+
     def set_model(self, model):
         """
         In conduit the model manages all available dataproviders. It is shared
@@ -793,8 +797,11 @@ class Application(dbus.service.Object):
         #Set the view models
         if buildGUI:
             self.BuildGUI()
-            if not iconify:
-                self.ShowGUI()
+            #FIXME: Cannot do correct behavior without flashing due to crasher bug
+            if iconify:
+                self.IconifyGUI()
+            #if not iconify:
+            #    self.ShowGUI()
         
         #Dbus view...
         if conduit.settings.get("enable_dbus_interface") == True:
