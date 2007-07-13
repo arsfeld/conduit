@@ -28,7 +28,7 @@ else:
     import conduit
     conduit.IS_INSTALLED =          True
     conduit.APPVERSION =            '@VERSION@'
-    conduit.DATA_DIR =              '@DATADIR@'
+    conduit.LOCALE_DIR =            os.path.abspath('@LOCALEDIR@')
     conduit.SHARED_DATA_DIR =       os.path.abspath('@PKGDATADIR@')
     conduit.GLADE_FILE =            os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
     conduit.SHARED_MODULE_DIR =     os.path.abspath('@PKGLIBDIR@')
@@ -42,7 +42,7 @@ from gtk import glade
 import gettext
 
 for module in glade, gettext:
-    module.bindtextdomain('conduit', os.path.join(conduit.DATA_DIR, "locale"))
+    module.bindtextdomain('conduit', conduit.LOCALE_DIR)
     module.textdomain('conduit')
 
 # Start the application
