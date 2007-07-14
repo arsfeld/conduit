@@ -6,10 +6,10 @@ obj = dbus.SessionBus().get_object('org.freedesktop.DBus', '/org/freedesktop/DBu
 dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus') 
 avail = dbus_iface.ListNames()
 
-#print "AVAILABLE SERVICES:"
-#for a in avail:
-#    print "\t%s" % a
-#print ""
+print "AVAILABLE SERVICES:"
+for a in avail:
+    print "\t%s" % a
+print ""
 
 inspect={
     "org.gnome.Conduit":["/","/activate"],

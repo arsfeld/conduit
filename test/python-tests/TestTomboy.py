@@ -21,12 +21,13 @@ try:
 except Exception, err:
     ok("Refresh Tomboy (%s)" % err, False) 
 
-num = tomboy.get_num_items()
+notes = tomboy.get_all()
+num = len(notes)
 ok("Got all notes (%s)" % num, num > 1)
 
 #Get a note and check its valid
 idx = random.randint(0,num)
-note = tomboy.get(idx)
+note = tomboy.get(notes[idx])
 ok("Got note #%s" % idx, note != None)
 ok("Got note title (%s)" % note.title, len(note.title) > 0)
 ok("Got note contents", len(note.contents) > 0)
