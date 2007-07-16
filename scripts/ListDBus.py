@@ -13,7 +13,8 @@ print ""
 
 inspect={
     "org.gnome.Conduit":["/","/activate"],
-    "org.gnome.Tomboy":["/org/gnome/Tomboy/RemoteControl"]
+    "org.gnome.Tomboy":["/org/gnome/Tomboy/RemoteControl"],
+    "org.gnome.Banshee":["/org/gnome/Banshee/Player"],
     }
       
 
@@ -26,7 +27,7 @@ def enumerate_interface(service, interface):
     print rawxml
 
 for service in inspect:
-    if service in avail:
+#    if service in avail:
         print "################################################################"
         print "# ENUMERATING %s " % service
         print "################################################################"

@@ -215,7 +215,7 @@ class SimpleSyncTest(SimpleTest):
         aborted = self.sync_manager.sync_aborted(self.conduit) 
         ok("Sync completed", aborted != True)
 
-        time.sleep(1)
+        #time.sleep(1)
 
         return (self.get_source_count(), self.get_sink_count())
 

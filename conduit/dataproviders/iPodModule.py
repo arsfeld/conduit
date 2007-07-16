@@ -31,9 +31,11 @@ import conduit.datatypes.File as File
 
 import gnomevfs
 import datetime
+import tempfile
 
 MODULES = {
-        "iPodFactory" :     { "type": "dataprovider-factory" }
+        "iPodFactory" :        { "type": "dataprovider-factory" },
+        "iPodPhotoConverter" : { "type": "converter" },
 }
 
 try:
@@ -353,6 +355,7 @@ class IPodPhotoTwoWay(IPodBase):
 
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
+        self.dataDir = os.path.join(self.mountPoint, 'Photos')
         self.uids = None
 
     def refresh(self):
@@ -367,13 +370,19 @@ class IPodPhotoTwoWay(IPodBase):
         return self.uids
 
     def get(self, LUID):
-        pass
+        photopath = os.path.join(self.dataDir, LUID)
+        f = File.File(URI=photopath)
+        f.set_open_URI(photopath)
+        f.set_UID(photopath)
+        return f
 
     def put(self, obj, overwrite, LUID=None):
-        pass
+        photo = self.db.new_Photo(filename=obj.URI)
+        return photo.id
 
     def delete(self, LUID):
-        pass
+        self.db.remove(self.get(LUID))
 
     def finish(self):
         self.uids = None
+

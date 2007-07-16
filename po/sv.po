@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-06 17:34+0200\n"
-"PO-Revision-Date: 2007-05-06 19:00+0100\n"
+"POT-Creation-Date: 2007-07-16 07:41+0200\n"
+"PO-Revision-Date: 2007-07-16 11:18+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -16,14 +16,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../data/conduit.desktop.in.in.h:1
+#: ../data/conduit-autostart.desktop.in.in.h:1
 msgid "Conduit"
 msgstr "Conduit"
 
 #: ../data/conduit.desktop.in.in.h:2
+#: ../data/conduit-autostart.desktop.in.in.h:2
 msgid "Conduit Synchronizer"
 msgstr "Synkroniseraren Conduit"
 
 #: ../data/conduit.desktop.in.in.h:3
+#: ../data/conduit-autostart.desktop.in.in.h:3
 msgid "Synchronization for GNOME"
 msgstr "Synkronisering för GNOME"
 
@@ -31,59 +34,59 @@ msgstr "Synkronisering för GNOME"
 msgid "Drag a Dataprovider here to continue"
 msgstr "Dra en dataleverantör hit för att fortsätta"
 
-#: ../conduit/DataProvider.py:286
+#: ../conduit/DataProvider.py:295
 msgid "Ready"
 msgstr "Redo"
 
-#: ../conduit/DataProvider.py:288
+#: ../conduit/DataProvider.py:297
 msgid "New data to sync"
 msgstr "Nytt data att synkronisera"
 
-#: ../conduit/DataProvider.py:290
+#: ../conduit/DataProvider.py:299
 msgid "Refreshing..."
 msgstr "Uppdaterar..."
 
-#: ../conduit/DataProvider.py:292
+#: ../conduit/DataProvider.py:301
 msgid "Refreshed OK"
 msgstr "Uppdatering OK"
 
-#: ../conduit/DataProvider.py:294
+#: ../conduit/DataProvider.py:303
 msgid "Error Refreshing"
 msgstr "Fel vid uppdatering"
 
-#: ../conduit/DataProvider.py:296
+#: ../conduit/DataProvider.py:305
 msgid "Synchronizing..."
 msgstr "Synkroniserar..."
 
-#: ../conduit/DataProvider.py:298
+#: ../conduit/DataProvider.py:307
 msgid "Synchronized OK"
 msgstr "Synkronisering OK"
 
-#: ../conduit/DataProvider.py:300
+#: ../conduit/DataProvider.py:309
 msgid "Error Synchronizing"
 msgstr "Fel vid synkronisering"
 
-#: ../conduit/DataProvider.py:302
+#: ../conduit/DataProvider.py:311
 msgid "Synchronization Skipped"
 msgstr "Synkroniseringen hoppades över"
 
-#: ../conduit/DataProvider.py:304
+#: ../conduit/DataProvider.py:313
 msgid "Synchronization Cancelled"
 msgstr "Synkroniseringen avbröts"
 
-#: ../conduit/DataProvider.py:306
+#: ../conduit/DataProvider.py:315
 msgid "Synchronization Conflict"
 msgstr "Konflikt i synkronisering"
 
-#: ../conduit/DataProvider.py:308
+#: ../conduit/DataProvider.py:317
 msgid "Not Configured Correctly"
 msgstr "Inte konfigurerad korrekt"
 
-#: ../conduit/DataProvider.py:605
+#: ../conduit/DataProvider.py:707
 msgid "Configure "
 msgstr "Konfigurera "
 
-#: ../conduit/MainWindow.py:395
+#: ../conduit/MainWindow.py:435
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Synkronisering pågår. Vill du avbryta den?"
 
@@ -95,42 +98,65 @@ msgstr "Konvertera från"
 msgid "into"
 msgstr "till"
 
-#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:49
+#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:47
 msgid "Backpack Notes"
 msgstr "Backpack-anteckningar"
 
-#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:50
+#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:48
 msgid "Store things in Backpack Notes"
 msgstr "Lagra saker i Backpack-anteckningar"
 
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:1
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:1
 #: ../conduit/dataproviders/GmailModule/config.glade.h:1
-msgid "<b>Login Details</b>"
-msgstr "<b>Inloggningsdetaljer</b>"
+#: ../conduit/dataproviders/PicasaModule/config.glade.h:1
+#: ../conduit/dataproviders/SmugMugModule/config.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>Kontodetaljer</b>"
 
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:2
 msgid "<b>Saved Note Settings</b>"
 msgstr "<b>Inställningar för sparad anteckning</b>"
 
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:3
-msgid "API Key:      "
-msgstr "API-nyckel:      "
+msgid "API Key:"
+msgstr "API-nyckel:"
 
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:4
-msgid "Backpack Notes Sink Properties"
-msgstr "Sinkegenskaper för Backpack-anteckningar"
+msgid "Backpack"
+msgstr "Backpack"
 
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:5
 msgid "Save Notes In Page:"
 msgstr "Spara anteckningar i sida:"
 
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:6
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:8
-#: ../conduit/dataproviders/GmailModule/config.glade.h:14
-msgid "Username: "
-msgstr "Användarnamn: "
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:6
+#: ../conduit/dataproviders/GmailModule/config.glade.h:16
+#: ../conduit/dataproviders/PicasaModule/config.glade.h:6
+#: ../conduit/dataproviders/SmugMugModule/config.glade.h:6
+msgid "Username:"
+msgstr "Användarnamn:"
+
+#: ../conduit/dataproviders/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr "Box.net"
+
+#: ../conduit/dataproviders/BoxDotNetModule/config.glade.h:2
+#: ../conduit/dataproviders/FileModule/FileModule.py:681
+msgid "Folder"
+msgstr "Mapp"
+
+#: ../conduit/dataproviders/EvolutionModule/config.glade.h:1
+msgid "Addressbook"
+msgstr "Adressbok"
+
+#: ../conduit/dataproviders/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr "Evolution"
 
 #: ../conduit/dataproviders/FeedModule/FeedModule.py:32
+#: ../conduit/dataproviders/FeedModule/config.glade.h:8
 msgid "RSS Feed"
 msgstr "RSS-kanal"
 
@@ -143,8 +169,8 @@ msgid "<b>Enclosure Settings</b>"
 msgstr "<b>Inställningar för bilagor</b>"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:2
-msgid "<b>Rss Feed Details</b>"
-msgstr "<b>Detaljer för RSS-kanal</b>"
+msgid "<b>Feed Details</b>"
+msgstr "<b>Detaljer för kanal</b>"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:3
 msgid "Download Audio"
@@ -155,9 +181,8 @@ msgid "Download Photos"
 msgstr "Hämta ner foton"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:5
-#: ../conduit/dataproviders/GmailModule/config.glade.h:9
-msgid "Gmail Sink Properties"
-msgstr "Sinkegenskaper för Gmail"
+msgid "Feed Address:"
+msgstr "Kanaladress:"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:6
 msgid ""
@@ -167,35 +192,27 @@ msgstr ""
 "Begränsa antalet bilagor\n"
 "att hämta ner till:"
 
-#: ../conduit/dataproviders/FeedModule/config.glade.h:8
-msgid "Url: "
-msgstr "Url: "
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:401
+#: ../conduit/dataproviders/FileModule/FileModule.py:418
 msgid "Include file ..."
 msgstr "Inkludera fil ..."
 
-#: ../conduit/dataproviders/FileModule/FileModule.py:411
+#: ../conduit/dataproviders/FileModule/FileModule.py:428
 msgid "All files"
 msgstr "Alla filer"
 
-#: ../conduit/dataproviders/FileModule/FileModule.py:424
+#: ../conduit/dataproviders/FileModule/FileModule.py:441
 msgid "Include folder ..."
 msgstr "Inkludera mapp ..."
 
-#: ../conduit/dataproviders/FileModule/FileModule.py:472
+#: ../conduit/dataproviders/FileModule/FileModule.py:489
 msgid "Files"
 msgstr "Filer"
 
-#: ../conduit/dataproviders/FileModule/FileModule.py:473
+#: ../conduit/dataproviders/FileModule/FileModule.py:490
 msgid "Source for synchronizing multiple files"
 msgstr "Källa för synkronisering av flera filer"
 
-#: ../conduit/dataproviders/FileModule/FileModule.py:683
-msgid "Folder"
-msgstr "Mapp"
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:684
+#: ../conduit/dataproviders/FileModule/FileModule.py:682
 msgid "Synchronize folders"
 msgstr "Synkronisera mappar"
 
@@ -212,121 +229,141 @@ msgid "Add File"
 msgstr "Lägg till fil"
 
 #: ../conduit/dataproviders/FileModule/config.glade.h:4
-msgid "File Source Properties"
-msgstr "Egenskaper för filkälla"
+msgid "File Configuration"
+msgstr "Filkonfiguration"
 
 #: ../conduit/dataproviders/FileModule/config.glade.h:5
-msgid "Folder Name "
-msgstr "Mappnamn"
+msgid "Folder Configuration"
+msgstr "Mappkonfiguration"
 
 #: ../conduit/dataproviders/FileModule/config.glade.h:6
-msgid "Folder Properties"
-msgstr "Mappegenskaper"
+msgid "Folder Location:"
+msgstr "Mapplats:"
 
 #: ../conduit/dataproviders/FileModule/config.glade.h:7
+msgid "Folder Name:"
+msgstr "Mappnamn:"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:8
+msgid "Include Hidden Files"
+msgstr "Inkludera dolda filer"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:9
 msgid "Select A Folder"
 msgstr "Välj en mapp"
 
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:1
-msgid "<b>Account Details</b>"
-msgstr "<b>Kontodetaljer</b>"
-
 #: ../conduit/dataproviders/FlickrModule/config.glade.h:2
+#: ../conduit/dataproviders/PicasaModule/config.glade.h:2
+#: ../conduit/dataproviders/SmugMugModule/config.glade.h:2
 msgid "<b>Saved Photo Settings</b>"
 msgstr "<b>Inställningar för sparat foto</b>"
 
 #: ../conduit/dataproviders/FlickrModule/config.glade.h:3
-msgid "Attach Tag to Photo"
-msgstr "Bifoga tagg till foto"
+msgid "Flickr"
+msgstr "Flickr"
 
 #: ../conduit/dataproviders/FlickrModule/config.glade.h:4
-msgid "Flickr Sink Properties"
-msgstr "Sinkegenskaper för Flickr"
-
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:5
 msgid "Photos are Public"
 msgstr "Foton är publika"
 
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:6
-msgid "Photos are Restricted to Family"
-msgstr "Foton är begränsade till familjen"
-
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:7
-msgid "Photos are Restricted to Friends"
-msgstr "Foton är begränsade till vänner"
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:5
+msgid "Tag Photos With:"
+msgstr "Tagga foton med:"
 
 #: ../conduit/dataproviders/FspotModule/config.glade.h:1
 msgid "<b>Return Photos Tagged With</b>"
 msgstr "<b>Returnera foton som är taggade med</b>"
 
 #: ../conduit/dataproviders/FspotModule/config.glade.h:2
-#: ../conduit/dataproviders/GmailModule/config.glade.h:10
-msgid "Gmail Source Properties"
-msgstr "Källegenskaper för Gmail"
+msgid "F-Spot"
+msgstr "F-Spot"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:76
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:75
 msgid "Email"
 msgstr "E-post"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:77
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:76
 msgid "Sync your Gmail Emails"
 msgstr "Synkronisera din e-post på Gmail"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:304
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:303
 msgid "Contacts"
 msgstr "Kontakter"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:305
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:304
 msgid "Sync your Gmail Contacts"
 msgstr "Synkronisera dina Gmail-kontakter"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:391
-msgid "Photos"
-msgstr "Foton"
-
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:392
-msgid "Sync your PicasaWeb photos"
-msgstr "Synkronisera dina PicasaWeb-foton"
-
 #: ../conduit/dataproviders/GmailModule/config.glade.h:2
+msgid "<b>Login Details</b>"
+msgstr "<b>Inloggningsdetaljer</b>"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:3
 msgid "<b>Return Emails Matching</b>"
 msgstr "<b>Returnera e-post som matchar</b>"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:3
+#: ../conduit/dataproviders/GmailModule/config.glade.h:4
 msgid "<b>Saved Email Settings</b>"
 msgstr "<b>Inställningar för sparad e-post</b>"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:4
+#: ../conduit/dataproviders/GmailModule/config.glade.h:5
 msgid "<b>When Saving Emails</b>"
 msgstr "<b>När e-post sparas</b>"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:5
+#: ../conduit/dataproviders/GmailModule/config.glade.h:6
 msgid "All Emails"
 msgstr "All e-post"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:6
+#: ../conduit/dataproviders/GmailModule/config.glade.h:7
 msgid "Attach Label to Email"
 msgstr "Bifoga etikett på e-post"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:7
+#: ../conduit/dataproviders/GmailModule/config.glade.h:8
 msgid "Emails With Label"
 msgstr "E-post med etikett"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:8
+#: ../conduit/dataproviders/GmailModule/config.glade.h:9
 msgid "Emails in Folder"
 msgstr "E-post i mapp"
 
+#: ../conduit/dataproviders/GmailModule/config.glade.h:10
+msgid "Gmail Emails"
+msgstr "Gmail e-post"
+
 #: ../conduit/dataproviders/GmailModule/config.glade.h:11
+msgid "Gmail Sink Properties"
+msgstr "Sinkegenskaper för Gmail"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:12
+#: ../conduit/dataproviders/PicasaModule/config.glade.h:4
+#: ../conduit/dataproviders/SmugMugModule/config.glade.h:4
+msgid "Password:"
+msgstr "Lösenord:"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:13
 msgid "Password:   "
 msgstr "Lösenord:   "
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:12
+#: ../conduit/dataproviders/GmailModule/config.glade.h:14
 msgid "Save With Label"
 msgstr "Spara med etikett"
 
-#: ../conduit/dataproviders/GmailModule/config.glade.h:13
+#: ../conduit/dataproviders/GmailModule/config.glade.h:15
 msgid "Unread Emails"
 msgstr "Oläst e-post"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:17
+msgid "Username: "
+msgstr "Användarnamn: "
+
+#: ../conduit/dataproviders/PicasaModule/config.glade.h:3
+#: ../conduit/dataproviders/SmugMugModule/config.glade.h:3
+msgid "Album:"
+msgstr "Album:"
+
+#: ../conduit/dataproviders/PicasaModule/config.glade.h:5
+msgid "Picasa"
+msgstr "Picasa"
 
 #: ../conduit/dataproviders/SettingsModule/config.glade.h:1
 msgid "<b>Synchronize the Following Application Settings</b>"
@@ -336,13 +373,9 @@ msgstr "<b>Synkronisera följande programinställningar</b>"
 msgid "Settings Configuration"
 msgstr "Konfiguration"
 
-#: ../conduit/dataproviders/TomboyModule.py:39
-msgid "Tomboy Notes"
-msgstr "Tomboy-anteckningar"
-
-#: ../conduit/dataproviders/TomboyModule.py:40
-msgid "Sync your Tomboy notes"
-msgstr "Synkronisera dina Tomboy-anteckningar"
+#: ../conduit/dataproviders/SmugMugModule/config.glade.h:5
+msgid "SmugMug"
+msgstr "SmugMug"
 
 #: ../data/conduit.glade.h:1
 msgid "<b>General</b>"
@@ -421,70 +454,95 @@ msgid "Enable iPod and USB Key Support"
 msgstr "Aktivera stöd för iPod och USB-minne"
 
 #: ../data/conduit.glade.h:20
+msgid "Minimize to Tray Icon"
+msgstr "Minimera till systembricka"
+
+#: ../data/conduit.glade.h:21
 msgid "Refresh Group"
 msgstr "Uppdatera grupp"
 
-#: ../data/conduit.glade.h:21
+#: ../data/conduit.glade.h:22
 msgid "Refresh Item"
 msgstr "Uppdatera objekt"
 
-#: ../data/conduit.glade.h:22
+#: ../data/conduit.glade.h:23
 msgid "Replace the Older Item"
 msgstr "Ersätt det äldre objektet"
 
-#: ../data/conduit.glade.h:23
+#: ../data/conduit.glade.h:24
 msgid "Resolve Conflicts"
 msgstr "Lös konflikter"
 
-#: ../data/conduit.glade.h:24
+#: ../data/conduit.glade.h:25
 msgid "Save Synchronization Settings on Exit."
 msgstr "Spara synkroniseringsinställningar vid avslut."
 
-#: ../data/conduit.glade.h:25
+#: ../data/conduit.glade.h:26
 msgid "Show Status Icon"
 msgstr "Visa statusikon"
 
-#: ../data/conduit.glade.h:26
+#: ../data/conduit.glade.h:27
 msgid "Skip"
 msgstr "Hoppa över"
 
-#: ../data/conduit.glade.h:27
+#: ../data/conduit.glade.h:28
 msgid "Slow Sync"
 msgstr "Långsam synkronisering"
 
-#: ../data/conduit.glade.h:28
+#: ../data/conduit.glade.h:29
 msgid "Synchronize All"
 msgstr "Synkronisera allt"
 
-#: ../data/conduit.glade.h:29
+#: ../data/conduit.glade.h:30
 msgid "Synchronize Group"
 msgstr "Synkronisera grupp"
 
-#: ../data/conduit.glade.h:30
+#: ../data/conduit.glade.h:31
 msgid "Title"
 msgstr "Titel"
 
-#: ../data/conduit.glade.h:31
+#: ../data/conduit.glade.h:32
 msgid "Two Way Sync"
 msgstr "Tvåvägssynkroniering"
 
-#: ../data/conduit.glade.h:32
+#: ../data/conduit.glade.h:33
 msgid "When There is a Conflict"
 msgstr "När en konflikt inträffar"
 
-#: ../data/conduit.glade.h:33
+#: ../data/conduit.glade.h:34
 msgid "When an Item Has Been Deleted"
 msgstr "När ett objekt har tagits bort"
 
-#: ../data/conduit.glade.h:34
+#: ../data/conduit.glade.h:35
 msgid "dialog1"
 msgstr "dialog1"
 
-#: ../doc/ExampleModule.py:74
-msgid "GNOME Wiki"
-msgstr "GNOME Wiki"
-
-#: ../doc/ExampleModule.py:75
-msgid "Get Pages from the GNOME Wiki"
-msgstr "Hämta sidor från GNOME:s wiki"
+#~ msgid "Backpack Notes Sink Properties"
+#~ msgstr "Sinkegenskaper för Backpack-anteckningar"
+#~ msgid "Url: "
+#~ msgstr "Url: "
+#~ msgid "File Source Properties"
+#~ msgstr "Egenskaper för filkälla"
+#~ msgid "Attach Tag to Photo"
+#~ msgstr "Bifoga tagg till foto"
+#~ msgid "Flickr Sink Properties"
+#~ msgstr "Sinkegenskaper för Flickr"
+#~ msgid "Photos are Restricted to Family"
+#~ msgstr "Foton är begränsade till familjen"
+#~ msgid "Photos are Restricted to Friends"
+#~ msgstr "Foton är begränsade till vänner"
+#~ msgid "Gmail Source Properties"
+#~ msgstr "Källegenskaper för Gmail"
+#~ msgid "Photos"
+#~ msgstr "Foton"
+#~ msgid "Sync your PicasaWeb photos"
+#~ msgstr "Synkronisera dina PicasaWeb-foton"
+#~ msgid "Tomboy Notes"
+#~ msgstr "Tomboy-anteckningar"
+#~ msgid "Sync your Tomboy notes"
+#~ msgstr "Synkronisera dina Tomboy-anteckningar"
+#~ msgid "GNOME Wiki"
+#~ msgstr "GNOME Wiki"
+#~ msgid "Get Pages from the GNOME Wiki"
+#~ msgstr "Hämta sidor från GNOME:s wiki"
 

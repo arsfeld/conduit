@@ -71,6 +71,7 @@ def objset_notes():
     notes = get_files_from_data_dir("*.tomboy")
     for i in range(0, len(notes)):
         n = Note.Note(title="Note-" + Utils.random_string())
+        n.content = read_data_file(notes[i])
         n.raw = read_data_file(notes[i])
         objs.append(n)
     ok("Got %d sample notes" % len(objs), len(objs) > 0)
@@ -134,6 +135,10 @@ def prep_folder_contacts(host):
     dp.module.set_configuration( { "folderGroupName": "contacts", "folder": "file://"+sink_folder } )
     return dp
 
+#def prep_tomboy(host):
+#    dp = host.get_dataprovider("TomboyTwoWay")
+#    return dp
+
 def prep_evo_contacts(host):
     dp = host.get_dataprovider("EvoContactTwoWay")
     opts = dict(dp.module._addressBooks)
@@ -143,6 +148,12 @@ def prep_evo_contacts(host):
 #def prep_evo_calendar(host):
 #    dp = host.get_dataprovider("EvoCalendarTwoWay")
 #    opts = dict(dp.module._calendarURIs)
+#    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
+#    return dp
+
+#def prep_evo_memo(host):
+#    dp = host.get_dataprovider("EvoMemoTwoWay")
+#    opts = dict(dp.module._memoSources)
 #    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
 #    return dp
 
@@ -337,10 +348,10 @@ try:
                     combinations.append( (source, sink, in_type2, rules[in_type2][1]) )
 
     count = 0
-
+    
     for source, sink, datatype, dataset in combinations:
         test_full_set(host, source, sink, datatype, dataset)
-
+        
         if datatype in ("contact", "note"):
             newsource = host.networked_dataprovider(source)
             test_full_set(host, newsource, sink, datatype, dataset)
