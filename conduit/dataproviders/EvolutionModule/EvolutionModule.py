@@ -1,7 +1,7 @@
 MODULES = {}
 try:
-    import evolution as evo
-    if evo.__version__ >= (0,0,1):
+    import evolution
+    if evolution.__version__ >= (0,0,3):
         MODULES = {
                 "EvoContactTwoWay"  : { "type": "dataprovider" },
                 "EvoCalendarTwoWay" : { "type": "dataprovider" },
@@ -155,7 +155,7 @@ class EvoContactTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoContactTwoWay.DEFAULT_ADDRESSBOOK_URI)
-        self._addressBooks = evo.list_addressbooks()
+        self._addressBooks = evolution.ebook.list_addressbooks()
 
     def _get_object(self, LUID):
         """
@@ -169,7 +169,7 @@ class EvoContactTwoWay(EvoBase):
         return contact
 
     def _create_object(self, contact):
-        obj = evo.EContact(vcard=contact.get_vcard_string())
+        obj = evoloution.ebook.EContact(vcard=contact.get_vcard_string())
         if self.book.add_contact(obj):
             return obj.get_uid()
         else:
@@ -185,7 +185,7 @@ class EvoContactTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         
-        self.book = evo.open_addressbook(self.sourceURI)
+        self.book = evolutin.ebook.open_addressbook(self.sourceURI)
         for i in self.book.get_all_contacts():
             self.uids.append(i.get_uid())
 
@@ -211,7 +211,7 @@ class EvoCalendarTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)
-        self._calendarURIs = evo.list_calendars()
+        self._calendarURIs = evolution.ecal.list_calendars()
 
     def _get_object(self, LUID):
         """
@@ -229,7 +229,7 @@ class EvoCalendarTwoWay(EvoBase):
         if "UID" in [x.name for x in list(event.iCal.lines())]:
             event.iCal.remove(event.iCal.uid)
 
-        obj = evo.ECalComponent(evo.CAL_COMPONENT_EVENT, event.get_ical_string())
+        obj = evolution.ecal.ECalComponent(evolution.ecal.CAL_COMPONENT_EVENT, event.get_ical_string())
         if self.calendar.add_object(obj):
             return obj.get_uid()
         else:
@@ -244,7 +244,10 @@ class EvoCalendarTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         
-        self.calendar = evo.open_calendar_source(self.sourceURI, evo.CAL_SOURCE_TYPE_EVENT)
+        self.calendar = evolution.ecal.open_calendar_source(
+                            self.sourceURI, 
+                            evolution.ecal.CAL_SOURCE_TYPE_EVENT
+                            )
         for i in self.calendar.get_all_objects():
             self.uids.append(i.get_uid())
 
@@ -270,7 +273,7 @@ class EvoTasksTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoTasksTwoWay.DEFAULT_TASK_URI)
-        self._uris = evo.list_task_sources()
+        self._uris = evolution.ecal.list_task_sources()
 
     def _get_object(self, LUID):
         raw = self.tasks.get_object(LUID, "")
@@ -285,7 +288,10 @@ class EvoTasksTwoWay(EvoBase):
         if "UID" in [x.name for x in list(event.iCal.lines())]:
             event.iCal.remove(event.iCal.uid)
 
-        obj = evo.ECalComponent(evo.CAL_COMPONENT_TODO, event.get_ical_string())
+        obj = evolution.ecal.ECalComponent(
+                    evolution.ecal.CAL_COMPONENT_TODO, 
+                    event.get_ical_string()
+                    )
         if self.tasks.add_object(obj):
             return obj.get_uid()
         else:
@@ -299,7 +305,10 @@ class EvoTasksTwoWay(EvoBase):
 
     def refresh(self):
         EvoBase.refresh(self)
-        self.tasks = evo.open_calendar_source(self.sourceURI, evo.CAL_SOURCE_TYPE_TODO)
+        self.tasks = evolution.ecal.open_calendar_source(
+                        self.sourceURI, 
+                        evolution.ecal.CAL_SOURCE_TYPE_TODO
+                        )
         for i in self.tasks.get_all_objects():
             self.uids.append(i.get_uid())
 
@@ -326,7 +335,7 @@ class EvoMemoTwoWay(EvoBase):
     def __init__(self, *args):
         EvoBase.__init__(self, EvoMemoTwoWay.DEFAULT_MEMO_URI)
         self.source = None
-        self._memoSources = evo.list_memo_sources()
+        self._memoSources = evolution.ecal.list_memo_sources()
 
     def _get_object(self, LUID):
         """
@@ -350,7 +359,7 @@ class EvoMemoTwoWay(EvoBase):
         return note
 
     def _create_object(self, note):
-        obj = evo.ECalComponent(evo.CAL_COMPONENT_JOURNAL)
+        obj = evolution.ecal.ECalComponent(evolution.ecal.CAL_COMPONENT_JOURNAL)
         obj.set_summary(note.title)
         if note.contents != None:
             obj.set_description(note.contents)
@@ -369,7 +378,10 @@ class EvoMemoTwoWay(EvoBase):
 
     def refresh(self):
         EvoBase.refresh(self)
-        self.source = evo.open_calendar_source(self.sourceURI, evo.CAL_SOURCE_TYPE_JOURNAL)
+        self.source = evolution.ecal.open_calendar_source(
+                        self.sourceURI, 
+                        evolution.ecal.CAL_SOURCE_TYPE_JOURNAL
+                        )
         for i in self.source.get_all_objects():
             self.uids.append(i.get_uid())
 
