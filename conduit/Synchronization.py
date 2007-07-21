@@ -97,6 +97,14 @@ class SyncManager:
 
         return thread
 
+    def _cancel_sync_thread(self, conduit):
+        logw("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
+        #If the thread is alive then cancel it
+        if self.syncWorkers[conduit].isAlive():
+            logw("Cancelling thread")
+            self.syncWorkers[conduit].cancel()
+            self.syncWorkers[conduit].join() #Will block
+
     def add_syncworker_callbacks(self, syncStartedCb, syncCompleteCb, syncConflictCb, syncProgressCb):
         """
         Sets the callbacks that are called by the SyncWorker threads
@@ -116,19 +124,12 @@ class SyncManager:
         self.policy = policy
         #It is NOT threadsafe to apply to existing conduits
 
-    def cancel_conduit(self, conduit):
-        """
-        Cancel a conduit. Does not block
-        """
-        self.syncWorkers[conduit].cancel()
-        
     def cancel_all(self):
         """
         Cancels all threads and also joins() them. Will block
         """
         for c in self.syncWorkers:
-            self.cancel_conduit(c)
-            self.syncWorkers[c].join()            
+            self._cancel_sync_thread(c)
              
     def join_all(self, timeout=None):
         """
@@ -141,16 +142,11 @@ class SyncManager:
         """
             """
         if conduit in self.syncWorkers:
-            #If the thread is alive then cancel it
-            if self.syncWorkers[conduit].isAlive():
-                self.syncWorkers[conduit].cancel()
-                self.syncWorkers[conduit].join() #Will block
-            #Thanks mr garbage collector    
-            del(self.syncWorkers[conduit])
+            self._cancel_sync_thread(conduit)
 
         #Create a new thread over top
         newThread = SyncWorker(self.typeConverter, conduit, False, self.policy)
-        self.syncWorkers[conduit] = newThread
+        self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
         self.syncWorkers[conduit].start()
 
     def sync_conduit(self, conduit):
@@ -159,18 +155,10 @@ class SyncManager:
         on the conduit
         """
         if conduit in self.syncWorkers:
-            logw("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
-            #If the thread is alive then cancel it
-            if self.syncWorkers[conduit].isAlive():
-                logw("Cancelling thread")
-                self.syncWorkers[conduit].cancel()
-                self.syncWorkers[conduit].join() #Will block
-            #Thanks mr garbage collector    
-            del(self.syncWorkers[conduit])
+            self._cancel_sync_thread(conduit)
 
         #Create a new thread over top.
         newThread = SyncWorker(self.typeConverter, conduit, True, self.policy)
-        #Connect the callbacks
         self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
         self.syncWorkers[conduit].start()
 
@@ -184,19 +172,12 @@ class SyncManager:
         except KeyError:
             return True
 
-class SyncWorker(threading.Thread, gobject.GObject):
+class _ThreadedWorker(threading.Thread, gobject.GObject):
     """
-    Class designed to be operated within a thread used to perform the
-    synchronization operation. Inherits from GObject because it uses 
-    signals to communcate with the main GUI.
-
-    Operates on a per Conduit basis, so a single SyncWorker may synchronize
-    one source with many sinks within a single conduit
+    A GObject that runs in a python thread, signalling to the gui
+    via signals when it completes. Base class for refresh and syncronization
+    operations
     """
-    CONFIGURE_STATE = 0
-    REFRESH_STATE = 1
-    SYNC_STATE = 2
-    DONE_STATE = 3
 
     __gsignals__ =  { 
                     "sync-conflict": 
@@ -218,6 +199,50 @@ class SyncWorker(threading.Thread, gobject.GObject):
                         gobject.TYPE_FLOAT])        #percent complete
                     }
 
+    def __init__(self):
+        threading.Thread.__init__(self)
+        gobject.GObject.__init__(self)
+
+        #Python threads are not cancellable. Hopefully this will be fixed
+        #in Python 3000
+        self.cancelled = False
+
+    def cancel(self):
+        """
+        Cancels the sync thread. Does not do so immediately but as soon as
+        possible.
+        """
+        self.cancelled = True
+
+    def _get_changes(self, source, sink):
+        """
+        Returns all the data from the source to the sink. If the dataprovider
+        implements get_changes() then this is called. Otherwise the dataprovider
+        is proxied using DeltaProvider
+
+        @returns: added, modified, deleted
+        """
+        if hasattr(source.module, "get_changes"):
+            added, modified, deleted = source.module.get_changes()
+        else:
+            delta = DeltaProvider.DeltaProvider(source, sink)
+            added, modified, deleted = delta.get_changes()
+        return added, modified, deleted
+
+class SyncWorker(_ThreadedWorker):
+    """
+    Class designed to be operated within a thread used to perform the
+    synchronization operation. Inherits from GObject because it uses 
+    signals to communcate with the main GUI.
+
+    Operates on a per Conduit basis, so a single SyncWorker may synchronize
+    one source with many sinks within a single conduit
+    """
+    CONFIGURE_STATE = 0
+    REFRESH_STATE = 1
+    SYNC_STATE = 2
+    DONE_STATE = 3
+
     def __init__(self, typeConverter, conduit, do_sync, policy):
         """
         @param conduit: The conduit to synchronize
@@ -225,8 +250,7 @@ class SyncWorker(threading.Thread, gobject.GObject):
         @param typeConverter: The typeconverter
         @type typeConverter: L{conduit.TypeConverter.TypeConverter}
         """
-        threading.Thread.__init__(self)
-        gobject.GObject.__init__(self)
+        _ThreadedWorker.__init__(self)
         self.typeConverter = typeConverter
         self.conduit = conduit
         self.source = conduit.datasource
@@ -244,7 +268,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
 
         #Start at the beginning
         self.state = SyncWorker.CONFIGURE_STATE
-        self.cancelled = False
 
         if conduit.is_two_way():
             self.setName("%s <--> %s" % (self.source, self.sinks[0]))
@@ -393,21 +416,6 @@ class SyncWorker(threading.Thread, gobject.GObject):
             logw("UNKNOWN COMPARISON\n%s" % traceback.format_exc())
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
-    def _get_changes(self, source, sink):
-        if hasattr(source.module, "get_changes"):
-            added, modified, deleted = source.module.get_changes()
-        else:
-            delta = DeltaProvider.DeltaProvider(source, sink)
-            added, modified, deleted = delta.get_changes()
-        return added, modified, deleted
-
-    def cancel(self):
-        """
-        Cancels the sync thread. Does not do so immediately but as soon as
-        possible.
-        """
-        self.cancelled = True
-        
     def check_thread_not_cancelled(self, dataprovidersToCancel):
         """
         Checks if the thread has been scheduled to be cancelled. If it has
