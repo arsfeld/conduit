@@ -137,7 +137,16 @@ class SyncManager:
         """
         for c in self.syncWorkers:
             self.syncWorkers[c].join(timeout)
-            
+
+    def refresh_dataprovider(self, dataprovider):
+        if dataprovider in self.syncWorkers:
+            self._cancel_sync_thread(dataprovider)
+
+        #Create a new thread over top
+        newThread = RefreshWorker(dataprovider)
+        self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
+        self.syncWorkers[conduit].start()
+
     def refresh_conduit(self, conduit):
         """
             """
@@ -207,6 +216,9 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
         #in Python 3000
         self.cancelled = False
 
+        #true if the sync aborts via an unhandled exception
+        self.aborted = False
+
     def cancel(self):
         """
         Cancels the sync thread. Does not do so immediately but as soon as
@@ -262,9 +274,6 @@ class SyncWorker(_ThreadedWorker):
         #may occur in a data conversion. Needed so that the correct status
         #is shown on the GUI at the end of the sync process
         self.sinkErrors = {}
-
-        #true if the sync aborts via an unhandled exception
-        self.aborted = False
 
         #Start at the beginning
         self.state = SyncWorker.CONFIGURE_STATE
@@ -714,6 +723,60 @@ class SyncWorker(_ThreadedWorker):
 
         conduit.mappingDB.save()
         gobject.idle_add(self.emit, "sync-completed", self.aborted or len(self.sinkErrors) != 0)
+
+class RefreshWorker(_ThreadedWorker):
+    """
+    Refreshes a single dataprovider, handling any errors, etc
+    """
+
+    def __init__(self, dataproviderWrapper):
+        """
+        @param dataproviderWrapper: The dp to refresh
+        """
+        _ThreadedWorker.__init__(self)
+        self.dataproviderWrapper = dataproviderWrapper
+
+        self.setName("%s" % self.dataproviderWrapper)
+
+    def run(self):
+        """
+        The main refresh state machine.
+        
+        Takes the conduit through the init->is_configured->refresh
+        steps, setting its status at the appropriate time and performing
+        nicely in the case of errors. 
+        """
+        try:
+            logd("Refresh %s beginning" % self)
+            gobject.idle_add(self.emit, "sync-started")
+
+
+            if not self.dataproviderWrapper.module.is_configured():
+                self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
+                #Cannot continue if source not configured
+                raise Exceptions.StopSync
+        
+            try:
+                self.dataproviderWrapper.module.refresh()
+                self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
+            except Exceptions.RefreshError:
+                self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
+                logw("RefreshError: %s" % self.dataproviderWrapper)
+                #Cannot continue with no source data
+                raise Exceptions.StopSync
+            except Exception, err:
+                self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
+                logw("UNKNOWN REFRESH ERROR: %s\n%s" % (self.dataproviderWrapper,traceback.format_exc()))
+                #Cannot continue with no source data
+                raise Exceptions.StopSync           
+
+        except Exceptions.StopSync:
+            logw("Sync Aborted")
+            self.aborted = True
+
+        conduit.mappingDB.save()
+        gobject.idle_add(self.emit, "sync-completed", self.aborted)
+
                 
 class DeletedData(DataType.DataType):
     """

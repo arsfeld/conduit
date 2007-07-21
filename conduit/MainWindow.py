@@ -264,16 +264,11 @@ class GtkView:
 
     def on_refresh_item_clicked(self, widget):
         """
-        Calls the initialize method on the selected dataprovider
-        @todo: Delete this is it does not operate async
+        Refreshes a single dataprovider
         """
-        from conduit.DataProvider import STATUS_DONE_REFRESH_OK
-        log(
-                    "Refreshing %s (FIXME: this blocks and will be deleted)" % \
-                    self.canvas.selected_dataprovider_wrapper.get_UID()
-                    )
-        self.canvas.selected_dataprovider_wrapper.module.refresh()
-        self.canvas.selected_dataprovider_wrapper.module.set_status(STATUS_DONE_REFRESH_OK)
+        dp = self.canvas.selected_dataprovider_wrapper
+        if dp != None:
+            self.sync_manager.refresh_dataprovider(dp)
 
     def on_clear_canvas(self, widget):
         """
