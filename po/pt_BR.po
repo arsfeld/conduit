@@ -1,0 +1,490 @@
+# Swedish translation for conduit.
+# Copyright (C) 2007 Free Software Foundation, Inc.
+# This file is distributed under the same license as the conduit package.
+# Daniel Nylander <po@danielnylander.se>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: conduit\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-05-06 17:34+0200\n"
+"PO-Revision-Date: 2007-07-24 16:13-0300\n"
+"Last-Translator: Vladimir Melo <vladimirmelo@foresightlinux.org>\n"
+"Language-Team: Brazilian Portuguese <gnome-l10n-br@listas.cipsga.org.br>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/conduit.desktop.in.in.h:1
+msgid "Conduit"
+msgstr "Conduit"
+
+#: ../data/conduit.desktop.in.in.h:2
+msgid "Conduit Synchronizer"
+msgstr "Sincronizador Conduit"
+
+#: ../data/conduit.desktop.in.in.h:3
+msgid "Synchronization for GNOME"
+msgstr "Sincronização para GNOME"
+
+#: ../conduit/Canvas.py:31
+msgid "Drag a Dataprovider here to continue"
+msgstr "Arraste um Provedor de dados para cá para continuar"
+
+#: ../conduit/DataProvider.py:286
+msgid "Ready"
+msgstr "Pronto"
+
+#: ../conduit/DataProvider.py:288
+msgid "New data to sync"
+msgstr "Novos dados para sincronizar"
+
+#: ../conduit/DataProvider.py:290
+msgid "Refreshing..."
+msgstr "Atualizando..."
+
+#: ../conduit/DataProvider.py:292
+msgid "Refreshed OK"
+msgstr "Atualizado OK"
+
+#: ../conduit/DataProvider.py:294
+msgid "Error Refreshing"
+msgstr "Erro de Atualização"
+
+#: ../conduit/DataProvider.py:296
+msgid "Synchronizing..."
+msgstr "Sincronizando..."
+
+#: ../conduit/DataProvider.py:298
+msgid "Synchronized OK"
+msgstr "Sincronizado OK"
+
+#: ../conduit/DataProvider.py:300
+msgid "Error Synchronizing"
+msgstr "Erro de Sincronização"
+
+#: ../conduit/DataProvider.py:302
+msgid "Synchronization Skipped"
+msgstr "Sincronização Ignorada"
+
+#: ../conduit/DataProvider.py:304
+msgid "Synchronization Cancelled"
+msgstr "Sincronização Cancelada"
+
+#: ../conduit/DataProvider.py:306
+msgid "Synchronization Conflict"
+msgstr "Conflito de Sincronização"
+
+#: ../conduit/DataProvider.py:308
+msgid "Not Configured Correctly"
+msgstr "Configuração Incorreta"
+
+#: ../conduit/DataProvider.py:605
+msgid "Configure "
+msgstr "Configurar "
+
+#: ../conduit/MainWindow.py:395
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr "Sincronização em progresso. Você quer cancelar?"
+
+#: ../conduit/TypeConverter.py:144
+msgid "Convert from"
+msgstr "Converter de"
+
+#: ../conduit/TypeConverter.py:145
+msgid "into"
+msgstr "em"
+
+#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:49
+msgid "Backpack Notes"
+msgstr "Notas do Backpack"
+
+#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:50
+msgid "Store things in Backpack Notes"
+msgstr "Armazenar coisas nas Notas do Backpack"
+
+#: ../conduit/dataproviders/BackpackModule/config.glade.h:1
+#: ../conduit/dataproviders/GmailModule/config.glade.h:1
+msgid "<b>Login Details</b>"
+msgstr "<b>Detalhes de Login</b>"
+
+#: ../conduit/dataproviders/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr "<b>Salvar Preferências das Notas</b>"
+
+#: ../conduit/dataproviders/BackpackModule/config.glade.h:3
+msgid "API Key:      "
+msgstr "Chave API:      "
+
+#: ../conduit/dataproviders/BackpackModule/config.glade.h:4
+msgid "Backpack Notes Sink Properties"
+msgstr "Propriedades de Destino das Notas do Backpack"
+
+#: ../conduit/dataproviders/BackpackModule/config.glade.h:5
+msgid "Save Notes In Page:"
+msgstr "Salvar Notas na Página:"
+
+#: ../conduit/dataproviders/BackpackModule/config.glade.h:6
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:8
+#: ../conduit/dataproviders/GmailModule/config.glade.h:14
+msgid "Username: "
+msgstr "Nome de usuário: "
+
+#: ../conduit/dataproviders/FeedModule/FeedModule.py:32
+msgid "RSS Feed"
+msgstr "Fonte de RSS"
+
+#: ../conduit/dataproviders/FeedModule/FeedModule.py:33
+msgid "Sync data from RSS enclosures"
+msgstr "Sincronizar dados de anexos multimídia de RSS"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr "<b>Preferências de Anexo Multimídia</b>"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:2
+msgid "<b>Rss Feed Details</b>"
+msgstr "<b>Detalhes de Fonte de RSS</b>"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:3
+msgid "Download Audio"
+msgstr "Baixar Áudio"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:4
+msgid "Download Photos"
+msgstr "Baixar Fotos"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:5
+#: ../conduit/dataproviders/GmailModule/config.glade.h:9
+msgid "Gmail Sink Properties"
+msgstr "Propriedades de Destino do Gmail"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:6
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloded to:"
+msgstr ""
+"Limitar o Número de\n"
+"Anexos Multimídia Baixados para:"
+
+#: ../conduit/dataproviders/FeedModule/config.glade.h:8
+msgid "Url: "
+msgstr "Url: "
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:401
+msgid "Include file ..."
+msgstr "Incluir arquivo ..."
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:411
+msgid "All files"
+msgstr "Todos Arquivos"
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:424
+msgid "Include folder ..."
+msgstr "Incluir pasta ..."
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:472
+msgid "Files"
+msgstr "Arquivos"
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:473
+msgid "Source for synchronizing multiple files"
+msgstr "Fonte para sincronização de arquivos múltiplos"
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:683
+msgid "Folder"
+msgstr "Pasta"
+
+#: ../conduit/dataproviders/FileModule/FileModule.py:684
+msgid "Synchronize folders"
+msgstr "Sincronizar pastas"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr "<b>Itens para Sincronizar</b>"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr "Adicionar Diretório"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr "Adicionar Arquivo"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:4
+msgid "File Source Properties"
+msgstr "Propriedades de Fonte de Arquivo"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:5
+msgid "Folder Name "
+msgstr "Nome de Pasta"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:6
+msgid "Folder Properties"
+msgstr "Propriedades de Pasta"
+
+#: ../conduit/dataproviders/FileModule/config.glade.h:7
+msgid "Select A Folder"
+msgstr "Selecione uma Pasta"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>Detalhes da Conta</b>"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr "<b>Preferências de Fotos Salvas</b>"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:3
+msgid "Attach Tag to Photo"
+msgstr "Anexar Etiqueta à Foto"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:4
+msgid "Flickr Sink Properties"
+msgstr "Propriedades de Destino do Flickr"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:5
+msgid "Photos are Public"
+msgstr "Fotos são Públicas"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:6
+msgid "Photos are Restricted to Family"
+msgstr "Fotos são Restritas à Família"
+
+#: ../conduit/dataproviders/FlickrModule/config.glade.h:7
+msgid "Photos are Restricted to Friends"
+msgstr "Fotos são Restritas aos Amigos"
+
+#: ../conduit/dataproviders/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr "<b>Retornar Fotos Etiquetadas com</b>"
+
+#: ../conduit/dataproviders/FspotModule/config.glade.h:2
+#: ../conduit/dataproviders/GmailModule/config.glade.h:10
+msgid "Gmail Source Properties"
+msgstr "Propriedades de Fonte de Gmail"
+
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:76
+msgid "Email"
+msgstr "E-mail"
+
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:77
+msgid "Sync your Gmail Emails"
+msgstr "Sincronizar seus E-mails do Gmail"
+
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:304
+msgid "Contacts"
+msgstr "Contatos"
+
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:305
+msgid "Sync your Gmail Contacts"
+msgstr "Sincronizar seus Contatos do Gmail"
+
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:391
+msgid "Photos"
+msgstr "Fotos"
+
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:392
+msgid "Sync your PicasaWeb photos"
+msgstr "Sincronizar suas fotos do PicasaWeb"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:2
+msgid "<b>Return Emails Matching</b>"
+msgstr "<b>Retornar E-mails que Coincidem com</b>"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:3
+msgid "<b>Saved Email Settings</b>"
+msgstr "<b>Preferência de E-mails Salvos</b>"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:4
+msgid "<b>When Saving Emails</b>"
+msgstr "<b>Quando Salvar E-mails</b>"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:5
+msgid "All Emails"
+msgstr "Todos E-mails"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:6
+msgid "Attach Label to Email"
+msgstr "Anexar Rótulo à E-mail"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:7
+msgid "Emails With Label"
+msgstr "E-mails com Rótulo"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:8
+msgid "Emails in Folder"
+msgstr "E-mails na Pasta"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:11
+msgid "Password:   "
+msgstr "Senha:   "
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:12
+msgid "Save With Label"
+msgstr "Salvar com Rótulo"
+
+#: ../conduit/dataproviders/GmailModule/config.glade.h:13
+msgid "Unread Emails"
+msgstr "E-mails Não lidos"
+
+#: ../conduit/dataproviders/SettingsModule/config.glade.h:1
+msgid "<b>Synchronize the Following Application Settings</b>"
+msgstr "<b>Sincronizar as Preferências da Seguinte Aplicação</b>"
+
+#: ../conduit/dataproviders/SettingsModule/config.glade.h:2
+msgid "Settings Configuration"
+msgstr "Configuração de Preferências"
+
+#: ../conduit/dataproviders/TomboyModule.py:39
+msgid "Tomboy Notes"
+msgstr "Notas do Tomboy"
+
+#: ../conduit/dataproviders/TomboyModule.py:40
+msgid "Sync your Tomboy notes"
+msgstr "Sincronizar suas notas do Tomboy"
+
+#: ../data/conduit.glade.h:1
+msgid "<b>General</b>"
+msgstr "<b>Geral</b>"
+
+#: ../data/conduit.glade.h:2
+msgid "<b>Two Way Synchronisation</b>"
+msgstr "<b>Sincronização Bilateral</b>"
+
+#: ../data/conduit.glade.h:3
+msgid "Ask Me What to Do"
+msgstr "Pergunte-me O Que Fazer"
+
+#: ../data/conduit.glade.h:4
+msgid "Clear Canvas"
+msgstr "Limpar Tela"
+
+#: ../data/conduit.glade.h:5
+msgid "Compare"
+msgstr "Comparar"
+
+#: ../data/conduit.glade.h:6
+msgid "Conduit Properties"
+msgstr "Propriedades do Conduit"
+
+#: ../data/conduit.glade.h:7
+msgid "Configuration"
+msgstr "Configuração"
+
+#: ../data/conduit.glade.h:8
+msgid "Configure Item"
+msgstr "Configurar Item"
+
+#: ../data/conduit.glade.h:9
+msgid "Configure the Synchronization Settings for this Item"
+msgstr "Configurar as Preferências de Sincronização para este Item"
+
+#: ../data/conduit.glade.h:10
+msgid "Conflicts"
+msgstr "Conflitos"
+
+#: ../data/conduit.glade.h:11
+msgid "Contents"
+msgstr "Conteúdos"
+
+#: ../data/conduit.glade.h:12
+msgid "Data Conversions"
+msgstr "Conversões de Dados"
+
+#: ../data/conduit.glade.h:13
+msgid "Data Providers"
+msgstr "Provedores de Dados"
+
+#: ../data/conduit.glade.h:14
+msgid "Dataproviders"
+msgstr "Provedores de dados"
+
+#: ../data/conduit.glade.h:15
+msgid "Delete Group"
+msgstr "Excluir Grupo"
+
+#: ../data/conduit.glade.h:16
+msgid "Delete Item"
+msgstr "Excluir Item"
+
+#: ../data/conduit.glade.h:17
+msgid "Delete from the corresponding Sink"
+msgstr "Excluir do Destino correspondente"
+
+#: ../data/conduit.glade.h:18
+msgid "Editor"
+msgstr "Editor"
+
+#: ../data/conduit.glade.h:19
+msgid "Enable iPod and USB Key Support"
+msgstr "Habilitar Suporte a iPod e USB"
+
+#: ../data/conduit.glade.h:20
+msgid "Refresh Group"
+msgstr "Atualizar Grupo"
+
+#: ../data/conduit.glade.h:21
+msgid "Refresh Item"
+msgstr "Atualizar Item"
+
+#: ../data/conduit.glade.h:22
+msgid "Replace the Older Item"
+msgstr "Substituir o Item mais Antigo"
+
+#: ../data/conduit.glade.h:23
+msgid "Resolve Conflicts"
+msgstr "Resolver Conflitos"
+
+#: ../data/conduit.glade.h:24
+msgid "Save Synchronization Settings on Exit."
+msgstr "Salvar Preferências de Sincronização ao Sair."
+
+#: ../data/conduit.glade.h:25
+msgid "Show Status Icon"
+msgstr "Mostrar Ícone de Status"
+
+#: ../data/conduit.glade.h:26
+msgid "Skip"
+msgstr "Ignorar"
+
+#: ../data/conduit.glade.h:27
+msgid "Slow Sync"
+msgstr "Sincronização Lenta"
+
+#: ../data/conduit.glade.h:28
+msgid "Synchronize All"
+msgstr "Sincronizar Tudo"
+
+#: ../data/conduit.glade.h:29
+msgid "Synchronize Group"
+msgstr "Sincronizar Grupo"
+
+#: ../data/conduit.glade.h:30
+msgid "Title"
+msgstr "Título"
+
+#: ../data/conduit.glade.h:31
+msgid "Two Way Sync"
+msgstr "Sincronização Bilateral"
+
+#: ../data/conduit.glade.h:32
+msgid "When There is a Conflict"
+msgstr "Quando Houver um Conflito"
+
+#: ../data/conduit.glade.h:33
+msgid "When an Item Has Been Deleted"
+msgstr "Quando um Item for Excluído"
+
+#: ../data/conduit.glade.h:34
+msgid "dialog1"
+msgstr "dialog1"
+
+#: ../doc/ExampleModule.py:74
+msgid "GNOME Wiki"
+msgstr "Wiki do GNOME"
+
+#: ../doc/ExampleModule.py:75
+msgid "Get Pages from the GNOME Wiki"
+msgstr "Obter Páginas do Wiki do GNOME"
+
