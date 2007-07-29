@@ -201,8 +201,8 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         """
         rsp = self.boxapi.get_auth_token(api_key=self.API_KEY, ticket=ticket)
 
-        self.user_id = xml.user[0].user_id[0].elementText
-        self.token = xml.auth_token[0].elementText
+        self.user_id = rsp.user[0].user_id[0].elementText
+        self.token = rsp.auth_token[0].elementText
         self.ticket = None
 
     #------------------------------------------
