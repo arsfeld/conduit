@@ -224,3 +224,26 @@ def unescape(s):
     #the urllib implementation seems more reliable than gnomevfs.unescape
     return urllib.unquote(s)
 
+class LoginTester:
+    def __init__ (self, testFunc, timeout=30):
+        self.testFunc = testFunc
+        self.timeout = timeout
+
+    def wait_for_login(self):
+        start_time = time.time()
+
+        while not self._is_timed_out(start_time):
+            try:
+                if self.testFunc():
+                    return
+            except Exception, e:
+                # logw ("testFunc threw an error: %s" % e.message)
+                pass
+
+            time.sleep(2)
+
+        raise Exception("Login timed out")
+
+    def _is_timed_out(self, start):
+        return int(time.time() - start) > self.timeout
+

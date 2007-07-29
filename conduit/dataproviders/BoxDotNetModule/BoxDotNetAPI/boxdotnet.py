@@ -153,9 +153,7 @@ class BoxDotNet(object):
         'delete'            :   's_delete_node'
     }
 
-    def __init__(self, browser="firefox"):
-        self.browser = browser
-
+    def __init__(self):
         self.__handlerCache={}
 
     @classmethod
@@ -179,18 +177,9 @@ class BoxDotNet(object):
 
         raise BoxDotNetError ("Box.net returned [%s] for action [%s]" % (status, method))
 
-    def login(self, api_key):
-        # get ticket
-        rsp = self.get_ticket (api_key=api_key)
-        ticket = rsp.ticket[0].elementText
-        # open url
-        url = "http://www.box.net/api/1.0/auth/%s" % ticket
-        os.system('%s "%s"' % (self.browser, url))
-
-        # get token
-        rsp = self.get_auth_token(api_key=api_key, ticket=ticket)
-
-        return rsp
+    @classmethod
+    def get_login_url(cls, ticket):
+        return "http://www.box.net/api/1.0/auth/%s" % ticket
 
     def __getattr__(self, method, **arg):
         """

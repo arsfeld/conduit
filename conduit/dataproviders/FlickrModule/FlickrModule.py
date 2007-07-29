@@ -3,6 +3,7 @@ Flickr Uploader.
 """
 import os, sys
 import gtk
+import gnome
 import traceback
 import md5
 
@@ -30,7 +31,8 @@ class FlickrSink(DataProvider.ImageSink):
 
     API_KEY="65552e8722b21d299388120c9fa33580"
     SHARED_SECRET="03182987bf7fc4d1"
-    
+    _perms_ = "delete"
+
     def __init__(self, *args):
         DataProvider.ImageSink.__init__(self)
         self.need_configuration(True)
@@ -92,9 +94,39 @@ class FlickrSink(DataProvider.ImageSink):
         
     def refresh(self):
         DataProvider.ImageSink.refresh(self)
+        self._login()
+
+    def _login(self):
+        """
+        Get ourselves a token we can use to perform all calls
+        """
         self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
-        self.token = self.fapi.getToken(self.username, browser="gnome-www-browser -p", perms="delete")
-        
+       
+        # can we get a cached token? 
+        self.token = self.fapi.getCachedToken(self.username, perms=self._perms_)
+
+        # create a new one if not
+        if self.token == None:
+            # get frob and open it
+            self.frob = self.fapi.getFrob()
+            gnome.url_show (self.fapi.getAuthURL(self._perms_, self.frob))
+
+            # wait for user to login
+            login_tester = Utils.LoginTester(self._try_login)
+            login_tester.wait_for_login()
+
+    def _try_login(self):
+        """
+        This function is used by the login tester, we try to get a token,
+        but return None if it does not succeed so the login tester can keep trying
+        """
+        try:
+            self.token = self.fapi.getAuthToken(self.username, self.frob)
+            self.frob = None
+            return self.token
+        except:
+            return None
+
     def delete(self, LUID):
         if self._get_photo_info(LUID) != None:
             ret = self.fapi.photos_delete(

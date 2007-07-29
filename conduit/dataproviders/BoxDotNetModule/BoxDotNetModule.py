@@ -3,6 +3,7 @@ BoxDotNet Module
 """
 import os, sys
 import gtk
+import gnome
 import traceback
 import md5
 
@@ -104,13 +105,6 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
     #------------------------------------------
     # File info related functions
     #------------------------------------------
-    def _set_login_info (self, xml):
-        """
-        Read the user id and the auth_token from the xml node
-        """
-        self.user_id = xml.user[0].user_id[0].elementText
-        self.token = xml.auth_token[0].elementText
-
     def _get_folder_id(self):
         """
         Returns a folder id for the configured folder name, it re-uses existing ones
@@ -162,15 +156,54 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
 
         return rsp.folder[0].folder_id[0].elementText
 
+    #------------------------------------------
+    # Authentication methods
+    #------------------------------------------
     def _login(self):
+        """
+        Logs the user in to box.net
+        """
         if self.boxapi == None:
-            self.boxapi = BoxDotNet(browser="gnome-www-browser -p")
+            self.boxapi = BoxDotNet()
 
         # login if not done yet, we only login once to prevent
         # the browser for popping up each time
         if not self.token:
-            rsp = self.boxapi.login(BoxDotNetTwoWay.API_KEY)
-            self._set_login_info(rsp)
+            # get the ticket and open login url
+            self._set_ticket()
+            gnome.url_show(BoxDotNet.get_login_url(self.ticket))
+
+            # wait for login
+            login_tester = Utils.LoginTester(self._try_login)
+            login_tester.wait_for_login()
+
+    def _try_login (self):
+        """
+        Try to perform a login, return None if it does not succeed
+        so the LoginTester can keep trying
+        """
+        try:
+            self._set_login_info(self.ticket)
+            return self.token
+        except:
+            return None
+
+    def _set_ticket(self):
+        """
+        Get the ticket that can be used for logging in for real
+        """
+        rsp = self.boxapi.get_ticket(api_key=self.API_KEY)
+        self.ticket = rsp.ticket[0].elementText
+
+    def _set_login_info (self, ticket):
+        """
+        Get a token and the user id
+        """
+        rsp = self.boxapi.get_auth_token(api_key=self.API_KEY, ticket=ticket)
+
+        self.user_id = xml.user[0].user_id[0].elementText
+        self.token = xml.auth_token[0].elementText
+        self.ticket = None
 
     #------------------------------------------
     # Dataprovider Functions

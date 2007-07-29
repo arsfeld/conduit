@@ -229,7 +229,6 @@ class FlickrAPI:
 				auth_token=token)
 
 		"""
-
 		if not self.__handlerCache.has_key(method):
 			def handler(_self = self, _method = method, **arg):
 				_method = "flickr." + _method.replace("_", ".")
@@ -254,7 +253,7 @@ class FlickrAPI:
 		return self.__handlerCache[method]
 	
 	#-------------------------------------------------------------------
-	def __getAuthURL(self, perms, frob):
+	def getAuthURL(self, perms, frob):
 		"""Return the authorization URL to get a token.
 
 		This is the URL the app will launch a browser toward if it
@@ -444,7 +443,7 @@ class FlickrAPI:
 
 	#-----------------------------------------------------------------------
 	def validateFrob(self, frob, perms, browser):
-		os.system("%s '%s'" % (browser, self.__getAuthURL(perms, frob)))
+		os.system("%s '%s'" % (browser, self.getAuthURL(perms, frob)))
 
 	#-----------------------------------------------------------------------
 	def getToken(self, username, perms="read", browser="lynx"):
@@ -467,6 +466,29 @@ class FlickrAPI:
 		"""
 		
 		# see if we have a saved token
+		token = self.getCachedToken(username)
+
+		# get a new token if we need one
+		if token == None:
+			# get the frob
+			frob = self.getFrob()
+
+			# validate online
+			self.validateFrob(frob, perms, browser)
+
+			# get a token
+			token = self.getAuthToken(username, frob)
+
+		return token
+
+	#-----------------------------------------------------------------------
+	def getCachedToken(self, username, perms="read"):
+        """
+        Gets a token from the cache if it is still valid for the requested permissions,
+        use this method together with getFrob and getAuthToken if you want more control
+        over the login process than with getToken
+        """
+		# see if we have a saved token
 		token = self.__getCachedToken(username)
 
 		# see if it's valid
@@ -477,28 +499,34 @@ class FlickrAPI:
 			else:
 				# see if we have enough permissions
 				tokenPerms = rsp.auth[0].perms[0].elementText
-				if tokenPerms == "read" and perms != "read": token = None
-				elif tokenPerms == "write" and perms == "delete": token = None
+				if tokenPerms == "read" and perms != "read": 
+					token = None
+				elif tokenPerms == "write" and perms == "delete": 
+					token = None
 
-		# get a new token if we need one
-		if token == None:
-			# get the frob
-			rsp = self.auth_getFrob(api_key=self.apiKey)
-			self.testFailure(rsp)
+		return token
 
-			frob = rsp.frob[0].elementText
+	#-----------------------------------------------------------------------
+	def getFrob(self):
+        """
+        Gets a new frob for authenticating
+        """
+		# get the frob
+		rsp = self.auth_getFrob(api_key=self.apiKey)
+		self.testFailure(rsp)
 
-			# validate online
-			self.validateFrob(frob, perms, browser)
+		return rsp.frob[0].elementText
 
-			# get a token
-			rsp = self.auth_getToken(api_key=self.apiKey, frob=frob)
-			self.testFailure(rsp)
+	#-----------------------------------------------------------------------
+	def getAuthToken(self, username, frob):
+        """
+        Gets the authentication token, and puts it in the cache
+        """
+	   	rsp = self.auth_getToken(api_key=self.apiKey, frob=frob)
+		self.testFailure(rsp)
 
-			token = rsp.auth[0].token[0].elementText
-
-			# store the auth info for next time
-			self.__setCachedToken(username, rsp.xml)
+		token = rsp.auth[0].token[0].elementText
+		self.__setCachedToken(username, rsp.xml)
 
 		return token
 
