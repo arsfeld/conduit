@@ -483,11 +483,11 @@ class FlickrAPI:
 
 	#-----------------------------------------------------------------------
 	def getCachedToken(self, username, perms="read"):
-        """
-        Gets a token from the cache if it is still valid for the requested permissions,
-        use this method together with getFrob and getAuthToken if you want more control
-        over the login process than with getToken
-        """
+		"""
+		Gets a token from the cache if it is still valid for the requested permissions,
+		use this method together with getFrob and getAuthToken if you want more control
+		over the login process than with getToken
+		"""
 		# see if we have a saved token
 		token = self.__getCachedToken(username)
 
@@ -508,9 +508,9 @@ class FlickrAPI:
 
 	#-----------------------------------------------------------------------
 	def getFrob(self):
-        """
-        Gets a new frob for authenticating
-        """
+		"""
+		Gets a new frob for authenticating
+		"""
 		# get the frob
 		rsp = self.auth_getFrob(api_key=self.apiKey)
 		self.testFailure(rsp)
@@ -519,9 +519,9 @@ class FlickrAPI:
 
 	#-----------------------------------------------------------------------
 	def getAuthToken(self, username, frob):
-        """
-        Gets the authentication token, and puts it in the cache
-        """
+		"""
+		Gets the authentication token, and puts it in the cache
+		"""
 	   	rsp = self.auth_getToken(api_key=self.apiKey, frob=frob)
 		self.testFailure(rsp)
 
