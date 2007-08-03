@@ -131,12 +131,14 @@ class SimpleTest(object):
         """
         found = False
 
+        conduit = Conduit.Conduit()
+
         #fixme: need cleaner way to get networked factory..
         for i in range(0, len(self.model.dataproviderFactories)):
             factory = self.model.dataproviderFactories[i]
             if str(factory).find("NetworkServerFactory") != -1:
                 found = True
-                factory.share_dataprovider(dp)
+                factory.share_dataprovider(conduit, dp)
                 break
 
         if found == False:
@@ -192,8 +194,8 @@ class SimpleSyncTest(SimpleTest):
         self.conduit = Conduit.Conduit()
         ok("Conduit created", self.conduit != None)
 
-        self.conduit.add_dataprovider_to_conduit(self.source)
-        self.conduit.add_dataprovider_to_conduit(self.sink)
+        self.conduit.add_dataprovider(self.source)
+        self.conduit.add_dataprovider(self.sink)
 
     def refresh(self):
         #refresh conduit
