@@ -46,6 +46,6 @@ for module in glade, gettext:
     module.textdomain('conduit')
 
 # Start the application
-import conduit.MainWindow
-app = conduit.MainWindow.Application()
+import conduit.Main
+app = conduit.Main.Application()
  
