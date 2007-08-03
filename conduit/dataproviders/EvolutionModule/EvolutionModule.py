@@ -169,7 +169,7 @@ class EvoContactTwoWay(EvoBase):
         return contact
 
     def _create_object(self, contact):
-        obj = evoloution.ebook.EContact(vcard=contact.get_vcard_string())
+        obj = evolution.ebook.EContact(vcard=contact.get_vcard_string())
         if self.book.add_contact(obj):
             return obj.get_uid()
         else:
@@ -185,7 +185,7 @@ class EvoContactTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         
-        self.book = evolutin.ebook.open_addressbook(self.sourceURI)
+        self.book = evolution.ebook.open_addressbook(self.sourceURI)
         for i in self.book.get_all_contacts():
             self.uids.append(i.get_uid())
 
