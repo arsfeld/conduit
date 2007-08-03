@@ -176,14 +176,14 @@ class Conduit(gobject.GObject):
     def enable_two_way_sync(self):
         logd("Enabling Two Way Sync")
         self.twoWaySyncEnabled = True
-        if self.can_do_two_way_sync():
-            self.connectors[self.datasinks[0]].set_two_way(True)
+        #if self.can_do_two_way_sync():
+        #    self.connectors[self.datasinks[0]].set_two_way(True)
                     
     def disable_two_way_sync(self):
         logd("Disabling Two Way Sync")
         self.twoWaySyncEnabled = False
-        if self.can_do_two_way_sync():
-            self.connectors[self.datasinks[0]].set_two_way(False)
+        #if self.can_do_two_way_sync():
+        #    self.connectors[self.datasinks[0]].set_two_way(False)
 
     def is_two_way(self):
         return self.can_do_two_way_sync() and self.twoWaySyncEnabled
