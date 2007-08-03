@@ -9,7 +9,6 @@ import gobject
 
 import conduit
 from conduit import log,logd,logw
-import conduit.Module as Module
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 
@@ -20,7 +19,7 @@ import xmlrpclib
 import threading
 import pickle
 
-class NetworkClientFactory(Module.DataProviderFactory, gobject.GObject):
+class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
     """
     Responsible for making networked Conduit resources available to the user. This includes:
     1) Monitoring Avahi events to detect other Conduit instances on the network

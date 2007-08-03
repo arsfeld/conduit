@@ -57,9 +57,9 @@ def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
     temp.transfer(uri, True)
     return luid
 
-class iPodFactory(Module.DataProviderFactory):
+class iPodFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
-        Module.DataProviderFactory.__init__(self, **kwargs)
+        DataProvider.DataProviderFactory.__init__(self, **kwargs)
 
         if kwargs.has_key("hal"):
             self.hal = kwargs["hal"]

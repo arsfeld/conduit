@@ -21,18 +21,21 @@ class ModuleManager(gobject.GObject):
     it loads all modules in that directory, keeping them in an
     internam array which may be returned via get_modules
 
-    Also manages modules like the ipod which are added and removed at
-    runtime
+    Also manages dataprovider factories which make dataproviders available
+    at runtime
     """
     __gsignals__ = {
         #Fired when a new instantiatable DP becomes available. It is described via 
         #a wrapper because we do not actually instantiate it till later - to save memory
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+        "dataprovider-available" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT]),    #The DPW describing the new DP class
-        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+        "dataprovider-unavailable" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT]),    #The DPW describing the DP class which is now unavailable
         # Fired when load_all has loaded every available modules
-        "all-modules-loaded" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+        "all-modules-loaded" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+        # Fired when a syncset is created
+        "syncset-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT]),    #The syncset that was added
         }
        
     def __init__(self, dirs=None):
@@ -61,35 +64,35 @@ class ModuleManager(gobject.GObject):
             self._load_modules_in_file(f)
 
         for i in self.dataproviderFactories:
-            i.connect("dataprovider-removed", self._on_dynamic_dataprovider_removed)
-            i.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
+            i.connect("dataprovider-unavailable", self._on_dynamic_dataprovider_unavailable)
+            i.connect("dataprovider-available", self._on_dynamic_dataprovider_available)
             i.probe()
 
         self.emit('all-modules-loaded')
 
-    def _on_dynamic_dataprovider_added(self, monitor, dpw, klass):
+    def _on_dynamic_dataprovider_available(self, monitor, dpw, klass):
         """
         Store the ipod so it can be retrieved later by the treeview/model
         emit a signal so it is added to the GUI
         """
-        log("Dynamic dataprovider (%s) added by %s" % (dpw, monitor))
+        log("Dynamic dataprovider (%s) available by %s" % (dpw, monitor))
         self._append_module(dpw, klass)
 
-    def _on_dynamic_dataprovider_removed(self, monitor, key):
-        log("Dynamic dataprovider (%s) removed by %s" % (key, monitor))
+    def _on_dynamic_dataprovider_unavailable(self, monitor, key):
+        log("Dynamic dataprovider (%s) unavailable by %s" % (key, monitor))
         self._remove_module(key)
 
-    def _emit_added(self, dataproviderWrapper):
+    def _emit_available(self, dataproviderWrapper):
         if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
-            self.emit("dataprovider-added", dataproviderWrapper)
+            self.emit("dataprovider-available", dataproviderWrapper)
         else:
             #Dont emit a signal when a datatype of converter is loaded as I dont
             #think signal emission is useful in that case
             pass
 
-    def _emit_removed(self, dataproviderWrapper):
+    def _emit_unavailable(self, dataproviderWrapper):
         if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
-            self.emit("dataprovider-removed", dataproviderWrapper)
+            self.emit("dataprovider-unavailable", dataproviderWrapper)
 
     def _build_filelist_from_directories(self, directories=None):
         """
@@ -155,7 +158,7 @@ class ModuleManager(gobject.GObject):
         if key not in self.moduleWrappers:
             self.moduleWrappers[key] = wrapper
             #Emit a signal because this wrapper is new
-            self._emit_added(wrapper)
+            self._emit_available(wrapper)
         else:
             logw("Wrapper with key %s allready loaded" % key)
     
@@ -171,7 +174,7 @@ class ModuleManager(gobject.GObject):
             return
 
         # notify everything that dp is no longer available
-        self._emit_removed(self.moduleWrappers[key])
+        self._emit_unavailable(self.moduleWrappers[key])
 
         # remove from moduleWrappers...
         del self.moduleWrappers[key]
@@ -321,53 +324,7 @@ class ModuleManager(gobject.GObject):
         for dpf in self.dataproviderFactories:
             dpf.quit()
 
-class DataProviderFactory(gobject.GObject):
-    """
-    Abstract base class for a factory which emits Dataproviders. Users should 
-    inherit from this if they wish to provide a loadable module in which
-    dynamic dataproviders are added and removed at runtime.
-    """
-    __gsignals__ = {
-        #Fired when the module detects a usb key or ipod added
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_PYOBJECT,      #Wrapper
-            gobject.TYPE_PYOBJECT]),    #Class
-        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_STRING])     #Unique key
-    }
 
-    def __init__(self, **kwargs):
-        gobject.GObject.__init__(self)
 
-    def emit_added(self, klass, initargs=(), category=None):
-        if category == None:
-            category = getattr(klass, "_category_", CATEGORY_TEST)
-        dpw = ModuleWrapper (   
-                    getattr(klass, "_name_", ""),
-                    getattr(klass, "_description_", ""),
-                    getattr(klass, "_icon_", ""),
-                    getattr(klass, "_module_type_", ""),
-                    category,
-                    getattr(klass, "_in_type_", ""),
-                    getattr(klass, "_out_type_", ""),
-                    klass.__name__,     #classname
-                    initargs,
-                    )
-        logd("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_key()))
-        self.emit("dataprovider-added", dpw, klass)
-        return dpw.get_key()
-
-    def emit_removed(self, key):
-        logd("DataProviderFactory.emit_removed(): For %s" % key)
-        self.emit("dataprovider-removed", key)
-
-    def probe(self):
-        pass
-
-    def quit(self):
-        """
-        Shutdown cleanup...
-        """
-        pass
 
 

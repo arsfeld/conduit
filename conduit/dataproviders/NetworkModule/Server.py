@@ -9,8 +9,6 @@ import gobject
 
 import conduit
 from conduit import log,logd,logw
-from conduit.ModuleWrapper import ModuleWrapper
-import conduit.Module as Module
 import conduit.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
@@ -23,7 +21,7 @@ import xmlrpclib, pickle, threading
 
 SERVER_PORT = 3400
 
-class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject, threading.Thread):
+class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, threading.Thread):
     """
     Controlls all network related communication aspects. This involves
     1) Advertising dataprovider presence on local network using avahi
@@ -38,44 +36,102 @@ class NetworkServerFactory(Module.DataProviderFactory, gobject.GObject, threadin
             return
 
         self.modules = kwargs['moduleManager']
+        self.modules.connect('syncset-added', self.syncset_added)
         self.start()
 
     def run(self):
+        self.conduits = {}
         self.shared = {}
 
+        # Initiate Avahi stuff & announce our presence
         self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
         self.advertiser.announce()
         
+        # Create a XML-RPC server..
         reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self)))
-        
-        # After a short delay share some services
-        gobject.timeout_add(1000, self.test_cb)
-
         reactor.run(installSignalHandlers=0)
 
     def quit(self):
         reactor.stop()
 
-    def test_cb(self):
-        for wrapper in self.modules.get_modules_by_type(None):
-            if wrapper.get_key() in ("TomboyNoteTwoWay", "EvoContactTwoWay"):
-                instance = self.modules.get_new_module_instance(wrapper.get_key())
-                self.share_dataprovider(instance)
+    def syncset_added(self, mgr, syncset):
+        syncset.connect("conduit-added", self.conduit_added)
+        syncset.connect("conduit-removed", self.conduit_removed)
 
-    def share_dataprovider(self, dataproviderWrapper):
+    def conduit_added(self, syncset, conduit):
+        conduit.connect("dataprovider-added", self.conduit_changed)
+        conduit.connect("dataprovider-removed", self.conduit_changed)
+
+    def conduit_removed(self, syncset, conduit):
+        pass
+
+    def _get_shared(self, conduit):
         """
-        Shares a dataprovider on the network
+        This is a cludgy evil function to determine if a conduit is shared or not
+          If it is, the dp to share is returned
+          If it is not, None is returned
         """
-        self.shared[dataproviderWrapper.get_UID().encode("hex")] = DataproviderResource(dataproviderWrapper)
+        dps = conduit.get_all_dataproviders()
+        ne = None
+        tg = None
+        if len(dps) == 2:
+            for dp in dps:
+                if type(dp.module) == NetworkEndpoint:
+                    ne = dp
+                else:
+                    tg = dp
+            if tg and ne:
+                return tg
+            else:
+                return None
+        return None
+
+    def conduit_changed(self, conduit, dataprovider):
+        """
+        Same event handler for dataprovider-added + removed
+        """
+        shared = self._get_shared(conduit)
+        if shared != None:
+            if not conduit in self.conduits:
+                instance = self.modules.get_new_module_instance(shared.get_key())
+                self.share_dataprovider(conduit, instance)
+        else:
+            if conduit in self.conduits:
+                self.unshare_dataprovider(conduit)
+
+    def share_dataprovider(self, conduit, dataprovider):
+        """
+        Shares a conduit/dp on the network
+        """
+        key = dataprovider.get_UID().encode("hex")
+        self.conduits[conduit] = key
+        self.shared[key] = DataproviderResource(dataprovider)
         self.advertiser.announce()
 
-    def unshare_dataprovider(self, dataproviderWrapper):
+    def unshare_dataprovider(self, conduit):
         """
-        Stop sharing a dataprovider
+        Stop sharing a conduit
         """
-        if self.shared.has_key(dataproviderWrapper.get_key()):
-            self.shared.remove(dataproviderWrapper.get_key())
+        if conduit in self.conduits:
+            del self.shared[self.conduits[conduit]]
+            del self.conduits[conduit]
         self.advertiser.announce()
+
+class NetworkEndpoint(DataProvider.TwoWay):
+
+    _name_ = "Network"
+    _description_ = "Network your desktop"
+    _category_ = DataProvider.CATEGORY_NOTES
+    _module_type_ = "twoway"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "tomboy"
+
+    def is_busy(self):
+        return True
+
+    def get_UID(self):
+        return "NetworkEndpoint"
 
 class RootResource(xmlrpc.XMLRPC):
     isLeaf = False

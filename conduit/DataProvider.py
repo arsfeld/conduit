@@ -7,13 +7,13 @@ License: GPLv2
 
 import gtk, gtk.glade
 import gobject
-import goocanvas
 from gettext import gettext as _
 import xml.dom.minidom
 import traceback
 
 import conduit
 from conduit import log,logd,logw
+import conduit.ModuleWrapper as ModuleWrapper
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
@@ -31,42 +31,6 @@ STATUS_DONE_SYNC_CANCELLED = 9
 STATUS_DONE_SYNC_CONFLICT = 10
 STATUS_DONE_SYNC_NOT_CONFIGURED = 11
 
-#Tango colors taken from 
-#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-TANGO_COLOR_BUTTER_LIGHT = int("fce94fff",16)
-TANGO_COLOR_BUTTER_MID = int("edd400ff",16)
-TANGO_COLOR_BUTTER_DARK = int("c4a000ff",16)
-TANGO_COLOR_ORANGE_LIGHT = int("fcaf3eff",16)
-TANGO_COLOR_ORANGE_MID = int("f57900",16)
-TANGO_COLOR_ORANGE_DARK = int("ce5c00ff",16)
-TANGO_COLOR_CHOCOLATE_LIGHT = int("e9b96eff",16)
-TANGO_COLOR_CHOCOLATE_MID = int("c17d11ff",16)
-TANGO_COLOR_CHOCOLATE_DARK = int("8f5902ff",16)
-TANGO_COLOR_CHAMELEON_LIGHT = int("8ae234ff",16)
-TANGO_COLOR_CHAMELEON_MID = int("73d216ff",16)
-TANGO_COLOR_CHAMELEON_DARK = int("4e9a06ff",16)
-TANGO_COLOR_SKYBLUE_LIGHT = int("729fcfff",16)
-TANGO_COLOR_SKYBLUE_MID = int("3465a4ff",16)
-TANGO_COLOR_SKYBLUE_DARK = int("204a87ff",16)
-TANGO_COLOR_PLUM_LIGHT = int("ad7fa8ff",16)
-TANGO_COLOR_PLUM_MID = int("75507bff",16)
-TANGO_COLOR_PLUM_DARK = int("5c3566ff",16)
-TANGO_COLOR_SCARLETRED_LIGHT = int("ef2929ff",16)
-TANGO_COLOR_SCARLETRED_MID = int("cc0000ff",16)
-TANGO_COLOR_SCARLETRED_DARK = int("a40000ff",16)
-TANGO_COLOR_ALUMINIUM1_LIGHT = int("eeeeecff",16)
-TANGO_COLOR_ALUMINIUM1_MID = int("d3d7cfff",16)
-TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
-TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
-TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
-TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
-
-#Constants affecting how the dataproviders are drawn onto the Canvas 
-LINE_WIDTH = 3
-RECTANGLE_RADIUS = 5
-WIDGET_WIDTH = 120
-WIDGET_HEIGHT = 80
-
 class DataProviderCategory:
     def __init__(self, name, icon="image-missing", key=""):
         self.name = _(name)
@@ -82,18 +46,9 @@ CATEGORY_SETTINGS = DataProviderCategory("Settings", "applications-system")
 CATEGORY_MISC = DataProviderCategory("Miscellanous", "applications-accessories")
 CATEGORY_TEST = DataProviderCategory("Test")
 
-class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
+class DataProviderBase(gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
-    
-    @ivar name: The name of the module
-    @type name: C{string}
-    @ivar description: The name of the module
-    @type description: C{string}
-    @ivar widget: The name of the module
-    @type widget: C{goocanvas.Group}
-    @ivar widget_color: The background color of the base widget
-    @type widget_color: C{string}    
     """
     
     __gsignals__ =  { 
@@ -101,35 +56,19 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
                     "change-detected": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
     
-    def __init__(self, widgetColorRGBA=0):
+    def __init__(self):
         """
-        Handles a lot of the canvas and UI related aspects of a dataprovider
         All sync functionality should be provided by derived classes
-        @param name: The name of the dataprovider to display on canvas
-        @param widgetColorRGBA: RGBA integer color of the box in which the name
-        description, and icon are drawn
-        @type widgerColorRGBA: C{int}
         """
-        goocanvas.Group.__init__(self)
         gobject.GObject.__init__(self)
 
         self.pendingChangeDetected = False
-        
-        self.widgetColorRGBA = widgetColorRGBA
-
         self.icon = None
         self.status = STATUS_NONE
-        #The following can be overridden to customize the appearance
-        #of the basic dataproviders
-        self.widget_width = WIDGET_WIDTH
-        self.widget_height = WIDGET_HEIGHT
 
         #track the state of widget configuration
         self.need_configuration(False)
         self.set_configured(False)
-        
-        #Build the child widgets
-        self._build_widget()
 
     def __emit_status_changed(self):
         """
@@ -150,75 +89,6 @@ class DataProviderBase(goocanvas.GroupModel, gobject.GObject):
         self.set_status(STATUS_CHANGE_DETECTED)
         self.emit("change-detected")
         self.pendingChangeDetected = False
-        
-    def _build_widget(self):
-        """
-        Drawing this widget by drawing all the items which represent a
-        dataprovider, including the icon, text, etc
-        """
-        box = goocanvas.RectModel(   x=0, 
-                                y=0, 
-                                width=self.widget_width, 
-                                height=self.widget_height,
-                                line_width=LINE_WIDTH, 
-                                stroke_color="black",
-                                fill_color_rgba=self.widgetColorRGBA, 
-                                radius_y=RECTANGLE_RADIUS, 
-                                radius_x=RECTANGLE_RADIUS
-                                )
-        name = goocanvas.TextModel(  x=int(2*self.widget_width/5), 
-                                y=int(1*self.widget_height/3), 
-                                width=3*self.widget_width/5, 
-                                text=self._name_, 
-                                anchor=gtk.ANCHOR_WEST, 
-                                font="Sans 8"
-                                )
-        try:
-            pb=gtk.icon_theme_get_default().load_icon(self._icon_, 16, 0)
-            image = goocanvas.ImageModel(pixbuf=pb,
-                                    x=int(  
-                                            (1*self.widget_width/5) - 
-                                            (pb.get_width()/2) 
-                                            ),
-                                    y=int(  
-                                            (1*self.widget_height/3) - 
-                                            (pb.get_height()/2)
-                                            )
-                                                
-                                    )
-        except Exception, err:
-            pass
-        desc = goocanvas.TextModel(  x=int(1*self.widget_width/10), 
-                                y=int(2*self.widget_height/3), 
-                                width=4*self.widget_width/5, 
-                                text=self._description_, 
-                                anchor=gtk.ANCHOR_WEST, 
-                                font="Sans 7",
-                                fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
-                                )                                    
-    
-       
-        #Add all the visual elements which represent a dataprovider    
-        self.add_child(box, -1)
-        self.add_child(name, -1)
-        #FIXME: This block of code does not work if in the above try-except
-        #block. why? Who knows!
-        try:
-            self.add_child(image, -1)
-        except Exception, err:
-            pass
-        self.add_child(desc, -1) 
-            
-    def get_widget_dimensions(self):
-        """
-        Returns the width of the DataProvider canvas widget.
-        Should be overridden by those dataproviders which draw their own
-        custom widgets
-        
-        @rtype: C{int}, C{int}
-        @returns: width, height
-        """
-        return self.widget_width, self.widget_height
         
     def initialize(self):
         """
@@ -487,11 +357,8 @@ class DataSource(DataProviderBase):
     """
     Base Class for DataSources.
     """
-    def __init__(self, widgetColorRGBA=TANGO_COLOR_ALUMINIUM1_MID):
-        """
-        Sets the DataProvider color
-        """
-        DataProviderBase.__init__(self, widgetColorRGBA)
+    def __init__(self):
+        DataProviderBase.__init__(self)
         
     def get(self, LUID):
         """
@@ -538,11 +405,8 @@ class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
     """
-    def __init__(self, widgetColorRGBA=TANGO_COLOR_SKYBLUE_LIGHT):
-        """
-        Sets the DataProvider color
-        """    
-        DataProviderBase.__init__(self, widgetColorRGBA)
+    def __init__(self):
+        DataProviderBase.__init__(self)
 
     def put(self, putData, overwrite, LUID):
         """
@@ -581,12 +445,9 @@ class TwoWay(DataSource, DataSink):
     """
     Abstract Base Class for TwoWay dataproviders
     """
-    def __init__(self, widgetColorRGBA=TANGO_COLOR_BUTTER_MID):
-        """
-        Sets the DataProvider color
-        """
-        DataSource.__init__(self, widgetColorRGBA)
-        DataSink.__init__(self, widgetColorRGBA)
+    def __init__(self):
+        DataSource.__init__(self)
+        DataSink.__init__(self)
 
 class ImageSink(DataSink):
     """
@@ -813,4 +674,66 @@ class DataProviderSimpleConfigurator:
             #pack them all together
             hbox.pack_start(widget)
             self.customSettings.pack_start(hbox)
+
+class DataProviderFactory(gobject.GObject):
+    """
+    Abstract base class for a factory which emits Dataproviders. Users should 
+    inherit from this if they wish to provide a loadable module in which
+    dynamic dataproviders become available at runtime.
+    """
+    __gsignals__ = {
+        "dataprovider-available" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,      #Wrapper
+            gobject.TYPE_PYOBJECT]),    #Class
+        "dataprovider-unavailable" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_STRING])     #Unique key
+    }
+
+    def __init__(self, **kwargs):
+        gobject.GObject.__init__(self)
+
+    def emit_added(self, klass, initargs=(), category=None):
+        if category == None:
+            category = getattr(klass, "_category_", CATEGORY_TEST)
+        dpw = ModuleWrapper.ModuleWrapper (   
+                    getattr(klass, "_name_", ""),
+                    getattr(klass, "_description_", ""),
+                    getattr(klass, "_icon_", ""),
+                    getattr(klass, "_module_type_", ""),
+                    category,
+                    getattr(klass, "_in_type_", ""),
+                    getattr(klass, "_out_type_", ""),
+                    klass.__name__,     #classname
+                    initargs,
+                    )
+        logd("DataProviderFactory %s: Emitting dataprovider-available for %s" % (self, dpw.get_key()))
+        self.emit("dataprovider-available", dpw, klass)
+        return dpw.get_key()
+
+    def emit_removed(self, key):
+        logd("DataProviderFactory %s: Emitting dataprovider-unavailable for %s" % (self, key))
+        self.emit("dataprovider-unavailable", key)
+
+    def probe(self):
+        pass
+
+    def quit(self):
+        """
+        Shutdown cleanup...
+        """
+        pass
+
+    def get_configuration_widget(self):
+        """
+        If the factory needs to offer configuration options then
+        it should return a gtk.widget here.
+        """
+        return None
+
+    def save_configuration(self):
+        """
+        If the user closes the configuration panel with RESPONSE_OK (e.g.
+        doesnt click cancel) then this will be called on all derived classes
+        """
+        pass
         

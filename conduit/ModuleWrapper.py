@@ -1,6 +1,5 @@
 import gtk
 
-
 from conduit import log,logd,logw
 
 class ModuleWrapper: 
@@ -232,3 +231,5 @@ class ModuleWrapper:
         
     def __str__(self):
         return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_UID())
+
+

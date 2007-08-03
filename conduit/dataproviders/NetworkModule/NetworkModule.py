@@ -18,9 +18,11 @@ import Client
 
 NetworkClientFactory = Client.NetworkClientFactory
 NetworkServerFactory = Server.NetworkServerFactory
+NetworkEndpoint = Server.NetworkEndpoint
 
 MODULES = {
         "NetworkServerFactory" :     { "type": "dataprovider-factory" },
         "NetworkClientFactory" :     { "type": "dataprovider-factory" },
+        "NetworkEndpoint"      :     { "type": "dataprovider" },
 }
 

@@ -21,6 +21,7 @@ if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
 import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
+import conduit.SyncSet as SyncSet
 from conduit.DBus import DBusView
 from conduit.Module import ModuleManager
 from conduit.Canvas import Canvas
@@ -28,6 +29,7 @@ from conduit.Synchronization import SyncManager
 from conduit.TypeConverter import TypeConverter
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
+from conduit.SyncSet import SyncSet
 
 import conduit.VolumeMonitor as gnomevfs
 
@@ -36,7 +38,7 @@ class GtkView:
     The main conduit window.
     """
 
-    def __init__(self, conduitApplication):
+    def __init__(self, conduitApplication, moduleManager, typeConverter):
         """
         Constructs the mainwindow. Throws up a splash screen to cover 
         the most time consuming pieces
@@ -61,7 +63,6 @@ class GtkView:
         self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "MainWindow")
         
         dic = { "on_mainwindow_delete" : self.on_window_closed,
-                "on_mainwindow_resized" : self.on_window_resized,
                 "on_mainwindow_state_event" : self.on_window_state_event,
                 "on_synchronize_activate" : self.on_synchronize_all_clicked,      
                 "on_quit_activate" : self.on_window_closed,
@@ -73,6 +74,14 @@ class GtkView:
                 }
          
         self.widgets.signal_autoconnect(dic)
+
+        #type converter and sync manager
+        self.type_converter = typeConverter
+        self.sync_manager = SyncManager(self.type_converter)
+        self.sync_manager.set_twoway_policy({
+                "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
+                "deleted"   :   conduit.settings.get("twoway_policy_deleted")}
+                )
         
         #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("MainWindow")
@@ -87,26 +96,18 @@ class GtkView:
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
-        #Configure popup menus
-        self.canvas_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "ConduitMenu")
-        self.item_popup_widgets = gtk.glade.XML(conduit.GLADE_FILE, "DataProviderMenu") 
-        self.canvas_popup_widgets.signal_autoconnect(self)
-        self.item_popup_widgets.signal_autoconnect(self)        
-
-        #customize some widgets, connect signals, etc
-        self.hpane.set_position(250)
         #start up the canvas
-        self.canvas = Canvas()
+        self.canvas = Canvas(
+                        parentWindow=self.mainWindow,
+                        typeConverter=self.type_converter,
+                        syncManager=self.sync_manager,
+                        dataproviderMenu=gtk.glade.XML(conduit.GLADE_FILE, "DataProviderMenu"),
+                        conduitMenu=gtk.glade.XML(conduit.GLADE_FILE, "ConduitMenu")
+                        )
         self.canvasSW.add(self.canvas)
         self.canvasSW.show_all()
-        #set canvas options
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
-        #Pass both popups to the canvas
-        self.canvas.set_popup_menus( 
-                                self.canvas_popup_widgets,
-                                self.item_popup_widgets
-                                )
         
         # Populate the tree model
         self.dataproviderTreeModel = DataProviderTreeModel() 
@@ -117,47 +118,31 @@ class GtkView:
 
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver(self.widgets)
-        
-        #tracked in self.on_window_state_event
-        self.window_state = 0
-        
-        #FIXME: WITHOUT THIS CALL THE CANVAS SEGFAULTS...
-        self.mainWindow.show_all()
-
-    def set_model(self, model):
-        """
-        In conduit the model manages all available dataproviders. It is shared
-        between the dbus and the Gtk interface.
-        """
-        self.moduleManager = model
-
-        #add the dataproviders to the treemodel
-        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
-        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
-        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("twoway"))
-
-        #furthur from this point all dataproviders are loaded in callback as 
-        #its the easiest way modules which can be added and removed at runtime (like ipods)
-        self.moduleManager.connect("dataprovider-added", self.on_dataprovider_added)
-        self.moduleManager.connect("dataprovider-removed", self.on_dataprovider_removed)
-
-        #initialise the Type Converter
-        self.type_converter = TypeConverter(self.moduleManager)
-        self.canvas.set_type_converter(self.type_converter)
-        #initialise the Synchronisation Manager
-        self.sync_manager = SyncManager(self.type_converter)
-        self.sync_manager.set_twoway_policy({
-                "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
-                "deleted"   :   conduit.settings.get("twoway_policy_deleted")}
-                )
         self.sync_manager.add_syncworker_callbacks(
                                 self.on_sync_started, 
                                 self.on_sync_completed, 
                                 self.conflictResolver.on_conflict,
                                 None    #FIXME: self.canvas.on_conduit_progress
                                 )
+
+        #setup the module manager
+        self.moduleManager = moduleManager
+        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
+        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
+        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("twoway"))
+        self.moduleManager.connect("dataprovider-available", self.on_dataprovider_available)
+        self.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_unavailable)
+
+        #final GUI setup
+        self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
+        #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
         self.dataproviderTreeView.expand_all()
-        
+        self.window_state = 0
+
+    def set_model(self, syncSet):
+         self.syncSet = syncSet
+         self.canvas.set_sync_set(syncSet)
+
     def present(self):
         """
         Present the main window. Enjoy your window
@@ -188,23 +173,19 @@ class GtkView:
     def on_sync_completed(self, thread, error):
         logd("GUI got sync completed")
        
-    def on_dataprovider_added(self, loader, dataprovider):
+    def on_dataprovider_available(self, loader, dataprovider):
         """
-        Called by those classes which only provide dataproviders
-        under some conditions that change while the application is running,
-        for example an Ipod is plugged in or another conduit instance is
-        detected on the network
+        Adds the new dataprovider to the treeview and replaces any pending instances of
+        that dataprovider
         """
         if dataprovider.enabled == True:
             self.dataproviderTreeModel.add_dataprovider(dataprovider)
             new = self.moduleManager.get_new_module_instance(dataprovider.get_key())
             self.canvas.check_pending_dataproviders(new)
 
-    def on_dataprovider_removed(self, unloader, dataprovider):
+    def on_dataprovider_unavailable(self, unloader, dataprovider):
         """
-        Called under some conditions that change while application is running,
-        for example an iPod is unplugged, or a conduit instance is removed
-        from the network
+        Removes the dataprovider from the treeview and replaces it with pending dataproviders
         """
         self.dataproviderTreeModel.remove_dataprovider(dataprovider)
         self.canvas.make_pending_dataproviders(dataprovider)
@@ -213,71 +194,21 @@ class GtkView:
         """
         Synchronize all valid conduits on the canvas
         """
-        for conduit in self.canvas.get_sync_set():
+        for conduit in self.syncSet.get_all_conduits():
             if conduit.datasource is not None and len(conduit.datasinks) > 0:
                 self.sync_manager.sync_conduit(conduit)
             else:
                 log("Conduit must have a datasource and a datasink")        
-
-    def on_delete_group_clicked(self, widget):
-        """
-        Delete a conduit and all its associated dataproviders
-        """
-        self.canvas.delete_conduit(self.canvas.selected_conduit)
-
-    def on_refresh_group_clicked(self, widget):
-        """
-        Call the initialize method on all dataproviders in the conduit
-        """
-        if self.canvas.selected_conduit.datasource is not None and len(self.canvas.selected_conduit.datasinks) > 0:
-            self.sync_manager.refresh_conduit(self.canvas.selected_conduit)
-        else:
-            log("Conduit must have a datasource and a datasink")
-    
-    def on_synchronize_group_clicked(self, widget):
-        """
-        Synchronize the selected conduit
-        """
-        if self.canvas.selected_conduit.datasource is not None and len(self.canvas.selected_conduit.datasinks) > 0:
-            self.sync_manager.sync_conduit(self.canvas.selected_conduit)
-        else:
-            log("Conduit must have a datasource and a datasink")
-        
-    def on_delete_item_clicked(self, widget):
-        """
-        delete item
-        """
-        dp = self.canvas.selected_dataprovider_wrapper
-        for c in self.canvas.conduits:
-            if c.has_dataprovider(dp):
-                c.delete_dataprovider_from_conduit(dp)
-                
-    def on_configure_item_clicked(self, widget):
-        """
-        Calls the C{configure(window)} method on the selected dataprovider
-        """
-        
-        dp = self.canvas.selected_dataprovider_wrapper.module
-        log("Configuring %s" % dp)
-        #May block
-        dp.configure(self.mainWindow)
-
-    def on_refresh_item_clicked(self, widget):
-        """
-        Refreshes a single dataprovider
-        """
-        dp = self.canvas.selected_dataprovider_wrapper
-        if dp != None:
-            self.sync_manager.refresh_dataprovider(dp)
 
     def on_clear_canvas(self, widget):
         """
         Clear the canvas and start a new sync set
         """
         #FIXME: Why does this need to be called in a loop?
-        while len(self.canvas.get_sync_set()) > 0:
-            for c in self.canvas.get_sync_set():
-                self.canvas.delete_conduit(c)
+        #while len(self.canvas.get_sync_set()) > 0:
+        #    for c in self.canvas.get_sync_set():
+        #        self.canvas.delete_conduit(c)
+        raise NotImplementedError
     
     def on_conduit_preferences(self, widget):
         """
@@ -418,7 +349,7 @@ class GtkView:
         """
         busy = False
         quit = False
-        for c in self.canvas.get_sync_set(): 
+        for c in self.syncSet.get_all_conduits(): 
             if c.is_busy():
                 busy = True
                
@@ -451,15 +382,6 @@ class GtkView:
             self.conduitApplication.Quit()
         
         
-    #size-allocate instead of size-request        
-    def on_window_resized(self, widget, req):
-        """
-        Called when window is resized. Tells the canvas to resize itself
-        """
-        rect = self.canvas.get_allocation()
-        self.canvas.resize_canvas(rect.width, rect.height)
-
-        
     def drop_cb(self, wid, context, x, y, time):
         """
         drop cb
@@ -488,24 +410,14 @@ class GtkView:
         Saves the application settings to an XML document.
         Saves the GUI settings (window state, position, etc to gconf)
         """
-        conduit.settings.save_sync_set( conduit.APPVERSION,
-                                        self.canvas.get_sync_set()
-                                        )
+        #save the canvas
+        self.syncSet.save_to_xml()
+
         #GUI settings
         #print "EXPANDED ROWS - ", self.dataproviderTreeView.get_expanded_rows()
         conduit.settings.set("gui_hpane_postion", self.hpane.get_position())
         conduit.settings.set("gui_window_size", self.mainWindow.get_size())
 
-    def restore_settings(self):
-        """
-        Restores the application and gui settings
-        """
-        conduit.settings.restore_sync_set(conduit.APPVERSION, self)
-        
-        #GUI settings
-        self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
-        #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
-        
 class SplashScreen:
     """
     Simple splash screen class which shows an image for a predetermined period
@@ -779,19 +691,20 @@ class Application(dbus.service.Object):
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                             os.path.join(conduit.USER_DIR, "modules")
                             ]
-        self.model = ModuleManager(dirs_to_search)
+        #the moduleManager and typeConverter are shared between DBus and GUI
+        self.moduleManager = ModuleManager(dirs_to_search)
+        self.typeConverter = TypeConverter(self.moduleManager)
 
         #The status icon is shared between the GUI and the Dbus iface
         if conduit.settings.get("show_status_icon") == True:
             self.statusIcon = ConduitStatusIcon(self)
            
         #Set up the application wide defaults
-        conduit.settings.set_settings_file(settingsFile)
         conduit.mappingDB.open_db(dbFile)
 
         #Set the view models
         if buildGUI:
-            self.BuildGUI()
+            self.BuildGUI(settingsFile)
             #FIXME: Cannot do correct behavior without flashing due to crasher bug
             if iconify:
                 self.IconifyGUI()
@@ -800,8 +713,12 @@ class Application(dbus.service.Object):
         
         #Dbus view...
         if conduit.settings.get("enable_dbus_interface") == True:
-            self.dbus = DBusView(self)
-            self.dbus.set_model(self.model)
+            self.dbus = DBusView(
+                            conduitApplication=self,
+                            moduleManager=self.moduleManager,
+                            typeConverter=self.typeConverter
+                            )
+#            self.dbus.set_model(self.model)
 
             if self.statusIcon:
                 self.dbus.sync_manager.add_syncworker_callbacks(
@@ -834,12 +751,24 @@ OPTIONS:
     def HasGUI(self):
         return self.gui != None
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
-    def BuildGUI(self):
-        self.gui = GtkView(self)
-        self.gui.set_model(self.model)
-        self.gui.canvas.add_welcome_message()
-        self.gui.restore_settings()
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='')
+    def BuildGUI(self, settingsFile):
+        self.gui = GtkView(
+                        conduitApplication=self,
+                        moduleManager=self.moduleManager,
+                        typeConverter=self.typeConverter
+                        )
+
+        #FIXME: need to show gui to stop goocanvas crash
+        self.gui.mainWindow.show_all()
+
+        #reload the saved sync set
+        syncSet = SyncSet(
+                        moduleManager=self.moduleManager,
+                        xmlSettingFilePath=settingsFile
+                        )
+        syncSet.restore_from_xml()
+        self.gui.set_model(syncSet)
 
         if self.statusIcon:
             self.gui.sync_manager.add_syncworker_callbacks(
@@ -882,7 +811,8 @@ OPTIONS:
             log("Stopping DBus synchronization threads")
             self.dbus.sync_manager.cancel_all()
 
-        self.model.quit()
+        #give the dataprovider factories time to shut down
+        self.moduleManager.quit()
 
         gtk.main_quit()
 

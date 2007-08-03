@@ -858,9 +858,9 @@ class FolderTwoWay(DataProvider.TwoWay):
         if event in (gnomevfs.MONITOR_EVENT_CREATED, gnomevfs.MONITOR_EVENT_CHANGED, gnomevfs.MONITOR_EVENT_DELETED):
             self.emit_change_detected()
 
-class USBFactory(Module.DataProviderFactory):
+class USBFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
-        Module.DataProviderFactory.__init__(self, **kwargs)
+        DataProvider.DataProviderFactory.__init__(self, **kwargs)
 
         if kwargs.has_key("hal"):
             self.hal = kwargs["hal"]

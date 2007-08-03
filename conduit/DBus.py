@@ -29,7 +29,7 @@ SUCCESS = 0
 #   dbus-send --session --dest=org.gnome.Conduit \
 #       --print-reply / org.gnome.Conduit.Ping
 class DBusView(dbus.service.Object):
-    def __init__(self, conduitApplication):
+    def __init__(self, conduitApplication, moduleManager, typeConverter):
         bus_name = dbus.service.BusName(conduit.DBUS_IFACE, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, "/")
         log("DBus interface initialized")
@@ -45,6 +45,22 @@ class DBusView(dbus.service.Object):
         #a UID which we use to represent them
         self.UIDs = {}
 
+        #setup the module manager
+        self.moduleManager = moduleManager
+        self.moduleManager.connect("dataprovider-available", self._on_dataprovider_available)
+        self.moduleManager.connect("dataprovider-unavailable", self._on_dataprovider_unavailable)
+
+        #type converter and sync manager
+        self.type_converter = typeConverter
+        self.sync_manager = SyncManager(self.type_converter)
+        self.sync_manager.set_twoway_policy({"conflict":"skip","deleted":"skip"})
+        self.sync_manager.add_syncworker_callbacks(
+                                self._on_sync_started, 
+                                self._on_sync_completed, 
+                                self._on_sync_conflict,
+                                self._on_sync_progress
+                                )
+
     def _rand(self):
         rand = random.randint(1, sys.maxint)
         #Guarentee uniqueness
@@ -55,10 +71,10 @@ class DBusView(dbus.service.Object):
     def _print(self, message):
         logd("DBus Message: %s" % message)
 
-    def _on_dataprovider_added(self, loader, dataprovider):
+    def _on_dataprovider_available(self, loader, dataprovider):
         self.DataproviderAvailable(dataprovider.get_key())
 
-    def _on_dataprovider_removed(self, loader, dataprovider):
+    def _on_dataprovider_unavailable(self, loader, dataprovider):
         self.DataproviderUnavailable(dataprovider.get_key())
 
     def _on_data_changed(self, sender, key):
@@ -142,9 +158,7 @@ class DBusView(dbus.service.Object):
         return datasources + datasinks + twoways
 
     def set_model(self, model):
-        self.model = model
-        self.model.connect("dataprovider-added", self._on_dataprovider_added)
-        self.model.connect("dataprovider-removed", self._on_dataprovider_removed)
+        pass
 
         #initialise the Type Converter
         self.type_converter = TypeConverter(self.model)

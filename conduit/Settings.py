@@ -11,9 +11,6 @@ import os, os.path
 import gobject
 import gconf
 import traceback
-import xml.dom.ext
-from xml.dom import minidom
-from xml.dom.minidom import Document
 #import gnomekeyring
 
 from conduit import log,logd,logw
@@ -71,7 +68,7 @@ class Settings(gobject.GObject):
         list    :   lambda x: Settings._list_to_string(x)
     }
         
-    def __init__(self, xmlSettingFilePath="settings.xml"):
+    def __init__(self):
         """
         @param xmlSettingFilePath: The path to the xml file in which to store
         the per-conduit settings
@@ -81,7 +78,6 @@ class Settings(gobject.GObject):
         self.client = gconf.client_get_default()
         # Preload gconf directories
         self.client.add_dir(self.CONDUIT_GCONF_DIR[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)  
-        self.xmlSettingFilePath = xmlSettingFilePath
         self.notifications = []
 
         # Init the keyring
@@ -156,15 +152,6 @@ class Settings(gobject.GObject):
         detailed_signal = 'changed::%s' % key
         self.emit(detailed_signal)
 
-    def set_settings_file(self, xmlSettingFilePath):
-        """
-        Sets the xml settings file to be used in the restore_sync_set
-        and save_sync_set methods
-        @param xmlSettingFilePath: Full locl path to the settings.xml file
-        """
-        logd("Settings stored in %s" % xmlSettingFilePath)
-        self.xmlSettingFilePath = xmlSettingFilePath
-        
     def get(self, key, vtype=None, default=None):
         """
         Returns the value of the key or the default value if the key is 
@@ -235,142 +222,4 @@ class Settings(gobject.GObject):
         """        
         pass
 
-    def save_sync_set(self, version, syncSet):
-        """
-        Saves the synchronisation settings (icluding all dataproviders and how
-        they are connected) to an xml file so that the 'sync set' can
-        be restored later
-        
-        @param version: The version of the saved settings xml file. Necessary
-        when conduit is updated and the xml format may change.
-        @type version: C{string}
-        @param syncSet: A list of conduits to save
-        @type syncSet: L{conduit.Conduit.Conduit}[]
-        """
-        log("Saving Sync Set")
-        #Build the application settings xml document
-        doc = Document()
-        rootxml = doc.createElement("conduit-application")
-        rootxml.setAttribute("version", version)
-        doc.appendChild(rootxml)
-        
-        #Store the conduits
-        for conduit in syncSet:
-            conduitxml = doc.createElement("conduit")
-            #First store conduit specific settings
-            x,y,w,h = conduit.get_conduit_dimensions()
-            conduitxml.setAttribute("x",str(x))
-            conduitxml.setAttribute("y",str(y))
-            conduitxml.setAttribute("w",str(w))
-            conduitxml.setAttribute("h",str(h))
-            conduitxml.setAttribute("twoway",str(conduit.is_two_way()))
-            rootxml.appendChild(conduitxml)
-            
-            #Store the source
-            source = conduit.datasource
-            if source is not None:
-                sourcexml = doc.createElement("datasource")
-                sourcexml.setAttribute("key", source.get_key())
-                conduitxml.appendChild(sourcexml)
-                #Store source settings
-                configxml = xml.dom.minidom.parseString(source.module.get_configuration_xml())
-                sourcexml.appendChild(configxml.documentElement)
-            
-            #Store all sinks
-            sinksxml = doc.createElement("datasinks")
-            for sink in conduit.datasinks:
-                sinkxml = doc.createElement("datasink")
-                sinkxml.setAttribute("key", sink.get_key())
-                sinksxml.appendChild(sinkxml)
-                #Store sink settings
-                configxml = xml.dom.minidom.parseString(sink.module.get_configuration_xml())
-                sinkxml.appendChild(configxml.documentElement)
-            conduitxml.appendChild(sinksxml)        
-
-        #Save to disk
-        try:
-            file_object = open(self.xmlSettingFilePath, "w")
-            xml.dom.ext.PrettyPrint(doc, file_object)
-            file_object.close()        
-        except IOError, err:
-            logw("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
-        
-    def restore_sync_set(self, expectedVersion, mainWindow):
-        """
-        Restores sync settings from the xml file
-        
-        SORRY ABOUT THE UGLYNESS AND COMPLETE LACK OF ROBUSTNESS
-        """
-        log("Restoring Sync Set")
-           
-        def restore_dataprovider(wrapperKey, dpxml, x, y):
-            """
-            Adds the dataprovider back onto the canvas at the specifed
-            location and configures it with the given settings
-            
-            @returns: The conduit the dataprovider was restored to
-            """
-            conduit = None
-
-            logd("Restoring %s to (x=%s,y=%s)" % (wrapperKey,x,y))
-            wrapper = mainWindow.moduleManager.get_new_module_instance(wrapperKey)
-            if wrapper is not None:
-                for i in dpxml.childNodes:
-                    if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
-                        wrapper.module.set_configuration_xml(xmltext="", configxml=i)
-
-            conduit = mainWindow.canvas.add_dataprovider_to_canvas(wrapperKey, wrapper, x, y)
-
-            return conduit
-
-        #Check the file exists
-        if not os.path.isfile(self.xmlSettingFilePath):
-            log("%s not present" % self.xmlSettingFilePath)
-            return
-            
-        try:
-            #Open                
-            doc = minidom.parse(self.xmlSettingFilePath)
-            xmlVersion = doc.documentElement.getAttribute("version")
-            #And check it is the correct version        
-            if expectedVersion != xmlVersion:
-                log("%s xml file is incorrect version" % self.xmlSettingFilePath)
-                os.remove(self.xmlSettingFilePath)
-                return
-            
-            #Parse...    
-            for conds in doc.getElementsByTagName("conduit"):
-                x = conds.getAttribute("x")
-                y = conds.getAttribute("y")
-                twoway = Settings._string_to_bool(conds.getAttribute("twoway"))
-                #each conduit
-                for i in conds.childNodes:
-                    #keep a ref to the dataproider was added to so that we
-                    #can apply settings to it at the end
-                    conduit = None
-                    #one datasource
-                    if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
-                        key = i.getAttribute("key")
-                        #add to canvas
-                        if len(key) > 0:
-                            conduit = restore_dataprovider(key,i,x,y)
-                    #many datasinks
-                    elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
-                        #each datasink
-                        for sink in i.childNodes:
-                            if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
-                                key = sink.getAttribute("key")
-                                #add to canvas
-                                if len(key) > 0:
-                                    conduit = restore_dataprovider(key,sink,x,y)
-
-                    #restore conduit specific settings
-                    if conduit != None:
-                        if twoway == True:
-                            conduit.enable_two_way_sync()
-
-        #FIXME: Should i special case different exceptions here....?
-        except:
-            logw("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
-            os.remove(self.xmlSettingFilePath)
 

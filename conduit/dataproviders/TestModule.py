@@ -342,9 +342,9 @@ class TestDynamicSource(_TestBase, DataProvider.DataSource):
         _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
 
-class TestFactory(Module.DataProviderFactory):
+class TestFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
-        Module.DataProviderFactory.__init__(self, **kwargs)
+        DataProvider.DataProviderFactory.__init__(self, **kwargs)
 
         #callback the GUI in 5 seconds to add a new dataprovider
         gobject.timeout_add(3000, self.make_one)
@@ -371,12 +371,12 @@ class TestFactory(Module.DataProviderFactory):
         self.emit_removed(self.key1)
         return False
 
-class TestFactoryRemoval(Module.DataProviderFactory):
+class TestFactoryRemoval(DataProvider.DataProviderFactory):
     """
     Repeatedly add/remove a DP/Category to stress test framework
     """
     def __init__(self, **kwargs):
-        Module.DataProviderFactory.__init__(self, **kwargs)
+        DataProvider.DataProviderFactory.__init__(self, **kwargs)
         gobject.timeout_add(5000, self.added)
         self.count = 200
         self.stats = None
