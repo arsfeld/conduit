@@ -17,6 +17,8 @@ from conduit.DataProvider import DataSource
 from conduit.DataProvider import DataSink
 from conduit.DataProvider import TwoWay
 
+import conduit.datatypes.Contact as Contact
+
 import opensync
 
 MODULES = {
@@ -88,42 +90,66 @@ class OpenSyncDataprovider(DataProvider.TwoWay):
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         self.ctx = opensync.Context()
-        self.ctx.set_callback_object(Callbacks())
+        self.ctx.set_callback_object(Callbacks(self))
+        self.uids = None
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.sink.connect(self.data, self.info, self.ctx)
-        logd(">>> Connected to opensync dataprovider")
+        self.uids = {}
         self.sink.get_changes(self.data, self.info, self.ctx)
-        logd(">>> Changes were got :D")
 
     def get_all(self):
-        return []
+        return list(self.uids.iterkeys())
 
     def get(self, LUID):
-        return None
+        return self.uids[LUID]
 
     def put(self, obj, overwrite, LUID=None):
-        return ""
+        chg = opensync.Change()
+        if overwrite == True:
+            chg.uid = LUID
+            chg.changetype = opensync.CHANGE_MODIFIED
+        else:
+            chg.changetype = opensync.CHANGE_ADDED
+
+        # change.format = "plain"
+        # change.objtype = "data"
+        # change.data = opensync.Data()
+
+        self.sink.commit(self.data, self.info, chg, self.ctx)
+        return chg.uid
 
     def delete(self, LUID):
-        return
+        chg = opensync.Change()
+        chg.uid = LUID
+        # change.format = "plain"
+        # change.objtype = "data"
+        chg.changetype = opensync.CHANGE_DELETED
+        self.sink.commit(self.data, self.info, chg, self.ctx)
 
     def finish(self):
+        self.uids = None
         self.sink.disconnect(self.data, self.info, self.ctx)
 
     def get_UID(self):
         return "foobar"
 
 class Callbacks(opensync.ContextCallbacks):
+    def __init__(self, dp):
+        self.dp = dp
+
     def callback(self, err):
         pass
 
     def changes(self, change):
-        uid = change.uid
-        data = change.data.data
-#        hash = change.data.hash
-        logd("change: %s, %s\n%s" % (uid,hash,data))
+        # Clearly we only support opensync plugins that return VCARD data :)
+        data = str(change.data.data)[:-1]
+        contact = Contact.Contact(None)
+        contact.set_from_vcard_string(data)
+        # contact.set_mtime(change.data.revision)
+        contact.set_UID(change.uid)
+        self.dp.uids[change.uid] = contact
 
     def warning(self, err):
         logd("warning: %s" % err)
