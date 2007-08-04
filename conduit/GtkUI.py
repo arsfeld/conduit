@@ -15,7 +15,6 @@ from gettext import gettext as _
 
 import conduit
 from conduit import log,logd,logw
-import conduit.Utils as Utils
 from conduit.Canvas import Canvas
 from conduit.Synchronization import SyncManager
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
@@ -191,11 +190,7 @@ class MainWindow:
         """
         Clear the canvas and start a new sync set
         """
-        #FIXME: Why does this need to be called in a loop?
-        #while len(self.canvas.get_sync_set()) > 0:
-        #    for c in self.canvas.get_sync_set():
-        #        self.canvas.delete_conduit(c)
-        raise NotImplementedError
+        self.canvas.clear_canvas()
     
     def on_conduit_preferences(self, widget):
         """

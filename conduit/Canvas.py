@@ -503,21 +503,11 @@ class Canvas(goocanvas.Canvas):
 
             self._remove_overlap()
 
-    def delete_conduit(self, conduit):
-        """
-        Deletes a conduit and all dataproviders contained within from
-        the canvas
-        """
-        #delete all the datasinks from the conduit
-        for s in conduit.datasinks + [conduit.datasource]:
-            if s is not None:
-                conduit.delete_dataprovider_from_conduit(s)
-        #now delete the conduit
-        self.root.remove_child(self.root.find_child(conduit))
-        self.model.remove_conduit(conduit)
-        #Add the welcome message if we have deleted the last conduit
+    def clear_canvas(self):
+        for c in self._get_child_conduit_items():
+            self._delete_conduit_canvas_item(c)
         self._add_welcome_message()
-        
+
 class _CanvasItem(goocanvas.Group):
     def __init__(self, parent, model):
         #FIXME: If parent is None in base constructor then goocanvas segfaults
