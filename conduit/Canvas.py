@@ -305,7 +305,11 @@ class Canvas(goocanvas.Canvas):
             for dp in c.get_all_dataproviders():
                 print "RESTORING DP", dp
                 self._add_dataprovider_to_conduit_canvas_item(conduitCanvasItem, dp)
-	self._add_welcome_message()
+
+        if self.model.num_conduits > 0:
+            self._delete_welcome_message()
+        else:
+            self._add_welcome_message()
         
     def on_drag_motion(self, wid, context, x, y, time):
         """
