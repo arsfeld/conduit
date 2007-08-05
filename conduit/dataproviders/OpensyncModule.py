@@ -72,6 +72,7 @@ class OpenSyncFactory(DataProvider.DataProviderFactory):
             "sink":           sink,
             "data":           data,
             "info":           info,
+            "formats":        self.formats,
         }
         name = "opensync-" + plugin.name + "-" + sink.name
         dataprovider = type(name, (OpenSyncDataprovider, ), fields)
@@ -109,15 +110,17 @@ class OpenSyncDataprovider(DataProvider.TwoWay):
         chg = opensync.Change()
         if overwrite == True:
             chg.uid = LUID
-            chg.changetype = opensync.CHANGE_MODIFIED
+            chg.changetype = opensync.CHANGE_TYPE_MODIFIED
         else:
-            chg.changetype = opensync.CHANGE_ADDED
+            chg.changetype = opensync.CHANGE_TYPE_ADDED
 
-        # change.format = "plain"
-        # change.objtype = "data"
-        # change.data = opensync.Data()
+        chg.format = "vcard30"
+        chg.objtype = "data"
 
-        self.sink.commit(self.data, self.info, chg, self.ctx)
+        objformat = self.formats.find_objformat("vcard30")
+        chg.data = opensync.Data(str(obj.get_vcard_string()), objformat)
+
+        self.sink.commit_change(self.data, self.info, chg, self.ctx)
         return chg.uid
 
     def delete(self, LUID):
@@ -125,8 +128,8 @@ class OpenSyncDataprovider(DataProvider.TwoWay):
         chg.uid = LUID
         # change.format = "plain"
         # change.objtype = "data"
-        chg.changetype = opensync.CHANGE_DELETED
-        self.sink.commit(self.data, self.info, chg, self.ctx)
+        chg.changetype = opensync.CHANGE_TYPE_DELETED
+        self.sink.commit_change(self.data, self.info, chg, self.ctx)
 
     def finish(self):
         self.uids = None
