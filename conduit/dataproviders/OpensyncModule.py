@@ -22,7 +22,7 @@ import conduit.datatypes.Contact as Contact
 import opensync
 
 MODULES = {
-        "OpenSyncFactory" :        { "type": "dataprovider-factory" },
+        "OpenSyncFactory":        { "type": "dataprovider-factory" },
 }
 
 evo_config = """<config>
@@ -66,8 +66,8 @@ class OpenSyncFactory(DataProvider.DataProviderFactory):
             "_name_":         sink.name,
             "_description_":  plugin.description,
             "_module_type_":  "twoway",
-            "_in_type_":      "file",
-            "_out_type_":     "file",
+            "_in_type_":      "contact",
+            "_out_type_":     "contact",
             "_icon_":         "contact-new",
             "sink":           sink,
             "data":           data,
@@ -75,7 +75,7 @@ class OpenSyncFactory(DataProvider.DataProviderFactory):
             "formats":        self.formats,
         }
         name = "opensync-" + plugin.name + "-" + sink.name
-        dataprovider = type(name, (OpenSyncDataprovider, ), fields)
+        dataprovider = type(name, (ContactDataprovider, ), fields)
 
         key = self.emit_added(
                                   dataprovider, 
@@ -83,7 +83,8 @@ class OpenSyncFactory(DataProvider.DataProviderFactory):
                                   category
                              )
 
-class OpenSyncDataprovider(DataProvider.TwoWay):
+
+class BaseDataprovider(DataProvider.TwoWay):
     """
     Generic dataprovider for interfacing with OpenSync plugins
     """
@@ -117,8 +118,7 @@ class OpenSyncDataprovider(DataProvider.TwoWay):
         chg.format = "vcard30"
         chg.objtype = "data"
 
-        objformat = self.formats.find_objformat("vcard30")
-        chg.data = opensync.Data(str(obj.get_vcard_string()), objformat)
+        chg.data = self.object_to_change(obj)
 
         self.sink.commit_change(self.data, self.info, chg, self.ctx)
         return chg.uid
@@ -138,6 +138,15 @@ class OpenSyncDataprovider(DataProvider.TwoWay):
     def get_UID(self):
         return "foobar"
 
+    def change_to_object(self, change):
+        """ Map from an opensync data object to a Conduit data object """
+        raise NotImplementedError
+
+    def object_to_change(self, obj):
+        """ Map from a Conduit data object to an opensync data object """
+        raise NotImplementedError
+
+
 class Callbacks(opensync.ContextCallbacks):
     def __init__(self, dp):
         self.dp = dp
@@ -146,14 +155,54 @@ class Callbacks(opensync.ContextCallbacks):
         pass
 
     def changes(self, change):
-        # Clearly we only support opensync plugins that return VCARD data :)
+        self.dp.uids[change.uid] = self.dp.change_to_object(change)
+
+    def warning(self, err):
+        logd("warning: %s" % err)
+
+
+class ContactDataprovider(BaseDataprovider):
+
+    _in_type_ = "contact"
+    _out_type_ = "contact"
+
+    def change_to_object(self, change):
+        change = obj.change
+        uid = change.uid
+        # FIXME: Shouldn't need to trim the data!
         data = str(change.data.data)[:-1]
+
         contact = Contact.Contact(None)
         contact.set_from_vcard_string(data)
         # contact.set_mtime(change.data.revision)
         contact.set_UID(change.uid)
-        self.dp.uids[change.uid] = contact
+        return contact
 
-    def warning(self, err):
-        logd("warning: %s" % err)
+    def object_to_change(self, obj):
+        format = self.formats.find_objformat("vcard30")
+        vcard = str(obj.get_vcard_string())
+        data = opensync.Data(vcard, format)
+
+
+class EventDataprovider(BaseDataprovider):
+
+    _in_type_ = "event"
+    _out_type_ = "event"
+
+    def change_to_object(self, change):
+        change = obj.change
+        uid = change.uid
+        # FIXME: Shouldn't need to trim the data!
+        data = str(change.data.data)[:-1]
+
+        contact = Contact.Contact(None)
+        contact.set_from_vcard_string(data)
+        # contact.set_mtime(change.data.revision)
+        contact.set_UID(change.uid)
+        return contact
+
+    def object_to_change(self, obj):
+        format = self.formats.find_objformat("vcard30")
+        vcard = str(obj.get_vcard_string())
+        data = opensync.Data(vcard, format)
 
