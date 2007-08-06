@@ -103,9 +103,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, th
         """
         Shares a conduit/dp on the network
         """
-        key = dataprovider.get_UID().encode("hex")
-        self.conduits[conduit] = key
-        self.shared[key] = DataproviderResource(dataprovider)
+        self.shared[conduit.uid] = DataproviderResource(dataprovider, conduit.uid)
         self.advertiser.announce()
 
     def unshare_dataprovider(self, conduit):
@@ -113,8 +111,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, th
         Stop sharing a conduit
         """
         if conduit in self.conduits:
-            del self.shared[self.conduits[conduit]]
-            del self.conduits[conduit]
+            del self.shared[conduit.uid]
         self.advertiser.announce()
 
 class NetworkEndpoint(DataProvider.TwoWay):
@@ -153,8 +150,9 @@ class RootResource(xmlrpc.XMLRPC):
             return self.factory.shared[path]
 
 class DataproviderResource(xmlrpc.XMLRPC):
-    def __init__(self, wrapper):
+    def __init__(self, wrapper, uid):
         xmlrpc.XMLRPC.__init__(self)
+        self.uid = uid
         self.wrapper = wrapper
         self.module = wrapper.module
 
@@ -163,7 +161,7 @@ class DataproviderResource(xmlrpc.XMLRPC):
         Return information about this dataprovider (so that client can show correct icon, name, description etc)
         """
         wrapper = self.wrapper
-        return { "uid":          wrapper.get_UID().encode("hex"),
+        return { "uid":          self.uid,
                  "name":         wrapper.name,
                  "description":  wrapper.description,
                  "icon":         wrapper.icon_name,
