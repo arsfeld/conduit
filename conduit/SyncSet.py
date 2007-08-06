@@ -70,6 +70,7 @@ class SyncSet(gobject.GObject):
         #Store the conduits
         for conduit in self.conduits:
             conduitxml = doc.createElement("conduit")
+            conduitxml.setAttribute("uid",conduit.uid)
             conduitxml.setAttribute("twoway",str(conduit.is_two_way()))
             rootxml.appendChild(conduitxml)
             
@@ -143,7 +144,7 @@ class SyncSet(gobject.GObject):
             for conds in doc.getElementsByTagName("conduit"):
                 print conds.localName
                 #create a new conduit
-                conduit = Conduit()
+                conduit = Conduit(conds.getAttribute("uid"))
                 self.add_conduit(conduit)
 
                 #restore conduit specific settings

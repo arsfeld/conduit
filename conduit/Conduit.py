@@ -6,6 +6,7 @@ License: GPLv2
 """
 from conduit import log,logd,logw
 import gobject
+import uuid
 
 class Conduit(gobject.GObject):
     """
@@ -26,12 +27,17 @@ class Conduit(gobject.GObject):
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
         }
 
-    def __init__(self):
+    def __init__(self, uid=""):
         """
         Makes and empty conduit ready to hold one datasource and many
         datasinks
         """
         gobject.GObject.__init__(self)
+
+        if uid == "":
+            self.uid = str(uuid.uuid4())
+        else:
+            self.uid = uid
 
         #a conduit can hold one datasource and many datasinks (wrappers)
         self.datasource = None
