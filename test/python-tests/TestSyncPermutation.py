@@ -139,11 +139,11 @@ def prep_folder_contacts(host):
 #    dp = host.get_dataprovider("TomboyTwoWay")
 #    return dp
 
-#def prep_evo_contacts(host):
-#    dp = host.get_dataprovider("EvoContactTwoWay")
-#    opts = dict(dp.module._addressBooks)
-#    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
-#    return dp
+def prep_evo_contacts(host):
+    dp = host.get_dataprovider("EvoContactTwoWay")
+    opts = dict(dp.module._addressBooks)
+    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
+    return dp
 
 #def prep_evo_calendar(host):
 #    dp = host.get_dataprovider("EvoCalendarTwoWay")
