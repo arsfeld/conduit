@@ -19,11 +19,13 @@ from conduit.DataProvider import TwoWay
 
 import conduit.datatypes.Contact as Contact
 
-import opensync
-
-MODULES = {
+try:
+    import opensync
+    MODULES = {
         "OpenSyncFactory":        { "type": "dataprovider-factory" },
-}
+    }
+except:
+    pass
 
 evo_config = """<config>
                     <address_path>default</address_path>
