@@ -186,6 +186,8 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return None            
         #Check if this is a toplevel row
         if len(path) == 1:
+            if path[0] > len(self.cats):
+                return None
             if debug:
                 print "on_get_iter: path = %s cat = %s" % (path, self.cats[path[0]])
             return self.cats[path[0]]
