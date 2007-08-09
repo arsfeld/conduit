@@ -681,7 +681,7 @@ class ConduitCanvasItem(_CanvasItem):
         self.bounding_box = goocanvas.Rect(
                                 x=0, 
                                 y=0, 
-                                width=width, 
+                                width=width-(2*LINE_WIDTH),     #account for line width
                                 height=ConduitCanvasItem.WIDGET_HEIGHT,
                                 line_width=LINE_WIDTH, 
                                 stroke_color="black",
@@ -797,12 +797,16 @@ class ConduitCanvasItem(_CanvasItem):
         self.bounding_box.set_property("height",h)
 
     def set_width(self, w):
-        #move righthand dp
-        #resize arrow
-        change = w - self.get_width()
-        self.bounding_box.set_property("width",w)
+        self.bounding_box.set_property("width",w-(2*LINE_WIDTH))
         for d in self.sinkDpItems:
+            desired = w - d.get_width() - SIDE_PADDING
+            actual = d.get_left()
+            change = desired-actual
+            #print "%s v %s" % (desired-actual,w - self.get_width())
+            #move righthand dp
             d.translate(change, 0)
+            #resize arrow
+            self.connectorItems[d].resize_connector_width(change)
 
 class ConnectorCanvasItem(_CanvasItem):
 
