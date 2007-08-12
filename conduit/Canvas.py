@@ -120,7 +120,7 @@ class Canvas(goocanvas.Canvas):
         get in the way.
         """
         if self.welcomeMessage == None:
-                if self.model == None or (self.model == None and self.model.num_conduits == 0):
+                if self.model == None or (self.model != None and self.model.num_conduits() == 0):
                     self.welcomeMessage = goocanvas.Text(  
                                             x=Canvas.CANVAS_WIDTH/2, 
                                             y=Canvas.CANVAS_HEIGHT/3, 
@@ -250,6 +250,7 @@ class Canvas(goocanvas.Canvas):
             self.model.remove_conduit(cond)
         else:
             logw("Error finding item")
+        self._add_welcome_message()
 
     def _add_dataprovider_to_conduit_canvas_item(self, conduitCanvasItem, dataproviderWrapper):
         """
@@ -306,10 +307,9 @@ class Canvas(goocanvas.Canvas):
                 print "RESTORING DP", dp
                 self._add_dataprovider_to_conduit_canvas_item(conduitCanvasItem, dp)
 
-        if self.model.num_conduits > 0:
+        if self.model.num_conduits() > 0:
             self._delete_welcome_message()
-        else:
-            self._add_welcome_message()
+        self._add_welcome_message()
         
     def on_drag_motion(self, wid, context, x, y, time):
         """
@@ -506,7 +506,6 @@ class Canvas(goocanvas.Canvas):
     def clear_canvas(self):
         for c in self._get_child_conduit_items():
             self._delete_conduit_canvas_item(c)
-        self._add_welcome_message()
 
 class _CanvasItem(goocanvas.Group):
     def __init__(self, parent, model):
