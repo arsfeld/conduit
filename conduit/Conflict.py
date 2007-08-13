@@ -459,6 +459,13 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
 
         self.setName("ResolveThread for sink: %s. (Delete: %s)" % (self.sink, self.isDeleted))
 
+    def emit(self, *args):
+        """
+        Override the gobject signal emission so that all signals are emitted 
+        from the main loop on an idle handler
+        """
+        gobject.idle_add(gobject.GObject.emit,self,*args)
+
     def run(self):
         try:
             if self.isDeleted:
@@ -471,7 +478,7 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
             logw("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
 
-        gobject.idle_add(self.emit, "completed")
+        self.emit("completed")
 
 class ConflictResolveThreadManager:
     """

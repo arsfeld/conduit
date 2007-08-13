@@ -219,13 +219,6 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
         #true if the sync aborts via an unhandled exception
         self.aborted = False
 
-    def cancel(self):
-        """
-        Cancels the sync thread. Does not do so immediately but as soon as
-        possible.
-        """
-        self.cancelled = True
-
     def _get_changes(self, source, sink):
         """
         Returns all the data from the source to the sink. If the dataprovider
@@ -240,6 +233,20 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
             delta = DeltaProvider.DeltaProvider(source, sink)
             added, modified, deleted = delta.get_changes()
         return added, modified, deleted
+
+    def cancel(self):
+        """
+        Cancels the sync thread. Does not do so immediately but as soon as
+        possible.
+        """
+        self.cancelled = True
+
+    def emit(self, *args):
+        """
+        Override the gobject signal emission so that all signals are emitted 
+        from the main loop on an idle handler
+        """
+        gobject.idle_add(gobject.GObject.emit,self,*args)
 
 class SyncWorker(_ThreadedWorker):
     """
@@ -373,14 +380,17 @@ class SyncWorker(_ThreadedWorker):
                 #dont support copying back yet
                 #(CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
                 validResolveChoices = (CONFLICT_DELETE, CONFLICT_SKIP) 
-            gobject.idle_add(self.emit,"sync-conflict", 
-                        sourceWrapper,              #datasource wrapper
-                        DeletedData(sourceDataLUID),#from data
-                        sinkWrapper,                #datasink wrapper
-                        DeletedData(sinkDataLUID),  #to data
-                        validResolveChoices,        #valid resolve choices
-                        True                        #This conflict is a deletion
-                        )
+            
+            self.emit(
+                "sync-conflict", 
+                sourceWrapper,              #datasource wrapper
+                DeletedData(sourceDataLUID),#from data
+                sinkWrapper,                #datasink wrapper
+                DeletedData(sinkDataLUID),  #to data
+                validResolveChoices,        #valid resolve choices
+                True                        #This conflict is a deletion
+                )
+
         elif self.policy["deleted"] == "replace":
             _delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
          
@@ -401,14 +411,16 @@ class SyncWorker(_ThreadedWorker):
                 else:
                     avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK)
 
-                gobject.idle_add(self.emit,"sync-conflict", 
-                            sourceWrapper, 
-                            fromData, 
-                            sinkWrapper, 
-                            toData, 
-                            avail,
-                            False
-                            )
+                self.emit(
+                    "sync-conflict", 
+                    sourceWrapper, 
+                    fromData, 
+                    sinkWrapper, 
+                    toData, 
+                    avail,
+                    False
+                    )
+
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
                 try:
@@ -465,7 +477,7 @@ class SyncWorker(_ThreadedWorker):
             #work out the percent complete
             done = idx/(numItems*len(self.sinks)) + \
                     float(self.sinks.index(sink))/len(self.sinks)
-            gobject.idle_add(self.emit, "sync-progress", self.conduit, done)
+            self.emit("sync-progress", self.conduit, done)
 
             #transfer the data
             newdata = self._transfer_data(source, sink, data)
@@ -598,7 +610,7 @@ class SyncWorker(_ThreadedWorker):
             #on the GUI and the user can see them.
             #UNLESS the error is Fatal (causes us to throw a stopsync exceptiion)
             #in which case set the error status immediately.
-            gobject.idle_add(self.emit, "sync-started")
+            self.emit("sync-started")
             while not finished:
                 self.check_thread_not_cancelled([self.source] + self.sinks)
                 logd("Syncworker state %s" % self.state)
@@ -722,7 +734,7 @@ class SyncWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.mappingDB.save()
-        gobject.idle_add(self.emit, "sync-completed", self.aborted or len(self.sinkErrors) != 0)
+        self.emit("sync-completed", self.aborted or len(self.sinkErrors) != 0)
 
 class RefreshWorker(_ThreadedWorker):
     """
@@ -748,7 +760,7 @@ class RefreshWorker(_ThreadedWorker):
         """
         try:
             logd("Refresh %s beginning" % self)
-            gobject.idle_add(self.emit, "sync-started")
+            self.emit("sync-started")
 
 
             if not self.dataproviderWrapper.module.is_configured():
@@ -775,7 +787,7 @@ class RefreshWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.mappingDB.save()
-        gobject.idle_add(self.emit, "sync-completed", self.aborted)
+        self.emit("sync-completed", self.aborted)
 
                 
 class DeletedData(DataType.DataType):

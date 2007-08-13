@@ -77,7 +77,7 @@ class DataProviderBase(gobject.GObject):
         You should connect to this signal if you wish to be notified when
         the derived DataProvider goes through its stages (STATUS_* etc)
         """
-        self.emit ("status-changed")
+        self.emit("status-changed")
         return False
 
     def __emit_change_detected(self):
@@ -89,6 +89,13 @@ class DataProviderBase(gobject.GObject):
         self.set_status(STATUS_CHANGE_DETECTED)
         self.emit("change-detected")
         self.pendingChangeDetected = False
+
+    def emit(self, *args):
+        """
+        Override the gobject signal emission so that all signals are emitted 
+        from the main loop on an idle handler
+        """
+        gobject.idle_add(gobject.GObject.emit,self,*args)
         
     def initialize(self):
         """

@@ -45,6 +45,13 @@ class Conduit(gobject.GObject):
 
         self.twoWaySyncEnabled = False
         self.slowSyncEnabled = False
+
+    def emit(self, *args):
+        """
+        Override the gobject signal emission so that all signals are emitted 
+        from the main loop on an idle handler
+        """
+        gobject.idle_add(gobject.GObject.emit,self,*args)
                                                 
     def add_dataprovider(self, dataprovider_wrapper, isSource=False):
         """
@@ -88,7 +95,7 @@ class Conduit(gobject.GObject):
         if not self.can_do_two_way_sync():
             self.disable_two_way_sync()
 
-        gobject.idle_add(self.emit, "dataprovider-added", dataprovider_wrapper) 
+        self.emit("dataprovider-added", dataprovider_wrapper) 
 
     def get_dataprovider_position(self, dataproviderWrapper):
         """
@@ -156,7 +163,7 @@ class Conduit(gobject.GObject):
         """
         Deletes dataprovider
         """
-        gobject.idle_add(self.emit, "dataprovider-removed", dataprovider)
+        self.emit("dataprovider-removed", dataprovider)
 
         #Sources and sinks are stored seperately so must be deleted from different
         #places. Lucky there is only one source or this would be harder....

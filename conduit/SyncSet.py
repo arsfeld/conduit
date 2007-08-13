@@ -38,14 +38,21 @@ class SyncSet(gobject.GObject):
         self.conduits = []
 
         # FIXME: temporary hack - need to let factories know about this factory :-\!
-        gobject.idle_add(self.moduleManager.emit, "syncset-added", self)
+        self.moduleManager.emit("syncset-added", self)
+
+    def emit(self, *args):
+        """
+        Override the gobject signal emission so that all signals are emitted 
+        from the main loop on an idle handler
+        """
+        gobject.idle_add(gobject.GObject.emit,self,*args)
 
     def add_conduit(self, conduit):
         self.conduits.append(conduit)
-        gobject.idle_add(self.emit, "conduit-added", conduit)
+        self.emit("conduit-added", conduit)
 
     def remove_conduit(self, conduit):
-        gobject.idle_add(self.emit, "conduit-removed", conduit)
+        self.emit("conduit-removed", conduit)
         self.conduits.remove(conduit)
 
     def get_all_conduits(self):
