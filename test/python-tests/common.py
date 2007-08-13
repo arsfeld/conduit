@@ -89,12 +89,10 @@ class SimpleTest(object):
         self.source = None
         if sourceName != None:
             self.source = self.get_dataprovider(sourceName)
-            self.sourceName = sourceName
 
         self.sink = None
         if sinkName != None:
             self.sink = self.get_dataprovider(sinkName)
-            self.sinkName = sinkName
 
     def get_dataprovider(self, name, die=True):
         """
@@ -188,14 +186,33 @@ class SimpleSyncTest(SimpleTest):
         self.source = source
         ok("Source ready", self.source != None)
 
-        self.sink = sink
-        ok("Sink ready", self.sink != None)
+        ok("Sink ready", sink != None)
 
         self.conduit = Conduit.Conduit()
         ok("Conduit created", self.conduit != None)
 
         self.conduit.add_dataprovider(self.source)
-        self.conduit.add_dataprovider(self.sink)
+        self.conduit.add_dataprovider(sink)
+
+    def add_extra_sink(self, sink):
+        if sink != None:
+            i = self.conduit.add_dataprovider(sink)
+            ok("Added extra sink", i)
+
+    def configure(self, source={}, sink={}):
+        if len(source) > 0:
+            try:
+                self.source.module.set_configuration(source)
+                ok("Source configured", True)
+            except:
+                ok("Source configured", False)
+        if len(sink) > 0:
+            for i in xrange(0, len(self.conduit.datasinks)):
+                try:
+                    self.get_sink(i).module.set_configuration(sink)
+                    ok("Sink %s configured" % i, True)
+                except:
+                    ok("Sink %s configured" % i, False)
 
     def refresh(self):
         #refresh conduit
@@ -207,27 +224,36 @@ class SimpleSyncTest(SimpleTest):
 
         return self.get_source_count(), self.get_sink_count()
 
-    def sync(self):
+    def sync(self, debug=True):
         #sync conduit
         self.sync_manager.sync_conduit(self.conduit)
         # wait for sync to finish
         self.sync_manager.join_all()
 
-        print conduit.mappingDB.debug()
+        if debug:
+            print conduit.mappingDB.debug()
+
         aborted = self.sync_manager.sync_aborted(self.conduit) 
         ok("Sync completed", aborted != True)
 
-        #time.sleep(1)
-
         return (self.get_source_count(), self.get_sink_count())
+
+    def get_sink(self, index=0):
+        #support multiple sinks
+        return self.conduit.datasinks[index]
 
     def get_source_count(self):
         self.source.module.refresh()
-        return len(self.source.module.get_all())
+        return self.source.module.get_num_items()
 
     def get_sink_count(self):
-        self.sink.module.refresh()
-        return len(self.sink.module.get_all())
+        self.get_sink().module.refresh()
+        #might not apply if the sink is not two way
+        try:
+            count = self.get_sink().module.get_num_items()
+        except AttributeError:
+            count = 0
+        return count
 
     def set_two_way_sync(self, val):
         if val:
@@ -252,5 +278,7 @@ class SimpleSyncTest(SimpleTest):
 
     def get_slow_sync(self):
         return self.conduit.do_slow_sync()
+
+
 
 

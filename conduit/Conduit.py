@@ -68,13 +68,13 @@ class Conduit(gobject.GObject):
                 self.datasource = dataprovider_wrapper
             else:         
                 logw("Only one datasource allowed per conduit")
-                return
+                return False
 
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
             if dataprovider_wrapper in self.datasinks:
                 logw("This datasink already present in this conduit")
-                return
+                return False
             else:
                 #temp reference for drawing the connector line
                 self.datasinks.append(dataprovider_wrapper)
@@ -89,7 +89,7 @@ class Conduit(gobject.GObject):
                 #Datasinks go on the right
         else:
                 logw("Only sinks, sources or twoway dataproviders may be added")
-                return
+                return False
 
 
         #Check if a two way sync can still be performed
@@ -97,6 +97,7 @@ class Conduit(gobject.GObject):
             self.disable_two_way_sync()
 
         self.emit("dataprovider-added", dataprovider_wrapper) 
+        return True
 
     def get_dataprovider_position(self, dataproviderWrapper):
         """

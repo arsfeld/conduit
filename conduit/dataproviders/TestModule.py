@@ -157,8 +157,8 @@ class TestSource(_TestBase, DataProvider.DataSource):
             time.sleep(2)
         data = TestDataType(index)
         logd("TEST SOURCE: get() returned %s" % data)
-        if index == self.errorAfter:
-            raise Exceptions.SyncronizeError
+        if index >= self.errorAfter:
+            raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
         return data
 
     def add(self, LUID):
@@ -182,8 +182,8 @@ class TestSink(_TestBase, DataProvider.DataSink):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         if self.slow:
             time.sleep(1)    
-        if self.count == self.errorAfter:
-            raise Exceptions.SyncronizeError
+        if self.count >= self.errorAfter:
+            raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, self.count))
         self.count += 1
         logd("TEST SINK: put(): %s (known UID:%s)" % (data,LUID))
         LUID=data.get_UID()+self._name_
