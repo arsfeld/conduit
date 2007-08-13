@@ -1,0 +1,9 @@
+[Eog Plugin]
+Loader=python
+Module=conduit
+IAge=2
+Name=Conduit Uploader
+Description=Upload your photos to a number of photo sites.
+Authors=Lucas Rocha <john.stowers@gmail.com>
+Copyright=Copyright © 2007 John Stowers
+Website=http://www.conduit-project.org
