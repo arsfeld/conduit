@@ -25,6 +25,7 @@ class Conduit(gobject.GObject):
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
         "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
+        "parameters-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
         }
 
     def __init__(self, uid=""):
@@ -189,23 +190,25 @@ class Conduit(gobject.GObject):
     def enable_two_way_sync(self):
         logd("Enabling Two Way Sync")
         self.twoWaySyncEnabled = True
-        #if self.can_do_two_way_sync():
-        #    self.connectors[self.datasinks[0]].set_two_way(True)
+        self.emit("parameters-changed")
                     
     def disable_two_way_sync(self):
         logd("Disabling Two Way Sync")
         self.twoWaySyncEnabled = False
-        #if self.can_do_two_way_sync():
-        #    self.connectors[self.datasinks[0]].set_two_way(False)
+        self.emit("parameters-changed")
 
     def is_two_way(self):
         return self.can_do_two_way_sync() and self.twoWaySyncEnabled
 
     def enable_slow_sync(self):
+        logd("Enabling Slow Sync")
         self.slowSyncEnabled = True
+        self.emit("parameters-changed")
 
     def disable_slow_sync(self):
+        logd("Disabling Slow Sync")
         self.slowSyncEnabled = False
+        self.emit("parameters-changed")
 
     def do_slow_sync(self):
         return self.slowSyncEnabled

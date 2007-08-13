@@ -648,6 +648,8 @@ class ConduitCanvasItem(_CanvasItem):
     def __init__(self, parent, model, width):
         _CanvasItem.__init__(self, parent, model)
 
+        self.model.connect("parameters-changed", self._on_conduit_parameters_changed)
+
         self.sourceItem = None
         self.sinkDpItems = []
         self.connectorItems = {}
@@ -723,6 +725,11 @@ class ConduitCanvasItem(_CanvasItem):
             del(self.connectorItems[item])
         except KeyError: pass
 
+    def _on_conduit_parameters_changed(self, cond):
+        #update the twowayness of the connectors
+        for c in self.connectorItems.values():
+            c.set_two_way(self.model.is_two_way())
+
     def add_dataprovider_canvas_item(self, item):
         self._position_dataprovider(item)
 
@@ -750,7 +757,8 @@ class ConduitCanvasItem(_CanvasItem):
                     fromy-self.get_top(),
                     tox,
                     toy-self.get_top(),
-                    False,False
+                    self.model.is_two_way(),
+                    False
                     )
                 self.connectorItems[s] = c
         else:
@@ -765,11 +773,10 @@ class ConduitCanvasItem(_CanvasItem):
                     fromy-self.get_top(),
                     tox,
                     toy-self.get_top(),
-                    False,False
+                    self.model.is_two_way(),
+                    False
                     )
                 self.connectorItems[item] = c
-
-#                l = goocanvas.polyline_new_line(self,fromx,fromy,tox,toy)
 
     def delete_dataprovider_canvas_item(self, item):
         """
@@ -837,7 +844,7 @@ class ConnectorCanvasItem(_CanvasItem):
                                     fill_color="black", 
                                     line_width=0.0
                                     )
-        points = goocanvas.Points([(self.fromX, self.fromY), (self.fromX-1, self.fromY)])
+        points = goocanvas.Points([(self.fromX-6, self.fromY), (self.fromX-7, self.fromY)])
         self.left_end_arrow = goocanvas.Polyline(
                             points=points,
                             stroke_color="black",
@@ -956,89 +963,6 @@ class ConnectorCanvasItem(_CanvasItem):
         """
         self.twoway = twoway
         self._draw_arrow_ends()
-
-###
-# Items for the Canvas
-###
-class _CustomCanvasItem(gobject.GObject, goocanvas.Item):
-
-    __gproperties__ = {
-        'title': (str, None, None, '', gobject.PARAM_READWRITE),
-        'description': (str, None, None, '', gobject.PARAM_READWRITE),
-        'can-focus': (bool, None, None, False, gobject.PARAM_READWRITE),
-        'visibility-threshold': (float, None, None, 0, 10e6, 0, gobject.PARAM_READWRITE),
-        'visibility': (goocanvas.ItemVisibility, None, None, goocanvas.ITEM_VISIBLE, gobject.PARAM_READWRITE),
-        'pointer-events': (goocanvas.PointerEvents, None, None, goocanvas.EVENTS_NONE, gobject.PARAM_READWRITE),
-        'transform': (goocanvas.TYPE_CAIRO_MATRIX, None, None, gobject.PARAM_READWRITE),
-        'parent': (gobject.GObject, None, None, gobject.PARAM_READWRITE),
-        }
-
-
-    def __init__(self, **kwargs):
-        self.bounds = goocanvas.Bounds()
-        self.view = None
-        self.parent = None
-
-        ## chain to parent constructor
-        gobject.GObject.__init__(self, **kwargs)
-
-    def do_set_parent(self, parent):
-        assert self.parent is None
-        self.parent = parent
-
-    def do_set_property(self, pspec, value):
-        if pspec.name == 'title':
-            self.title = value
-        elif pspec.name == 'description':
-            self.description = value
-        elif pspec.name == 'can-focus':
-            self.can_focus = value
-        elif pspec.name == 'visibility':
-            self.visibility = value
-        elif pspec.name == 'visibility-threshold':
-            self.visibility_threshold = value
-        elif pspec.name == 'pointer-events':
-            self.pointer_events = value
-        elif pspec.name == 'transform':
-            self.transform = value
-        elif pspec.name == 'parent':
-            self.parent = value
-        else:
-            raise AttributeError, 'unknown property %s' % pspec.name
-        
-    def do_get_property(self, pspec):
-        if pspec.name == 'title':
-            return self.title
-        elif pspec.name == 'description':
-            return self.description
-        elif pspec.name == 'can-focus':
-            return self.can_focus
-        elif pspec.name == 'visibility':
-            return self.visibility
-        elif pspec.name == 'visibility-threshold':
-            return self.visibility_threshold
-        elif pspec.name == 'pointer-events':
-            return self.pointer_events
-        elif pspec.name == 'transform':
-            return self.transform
-        elif pspec.name == 'parent':
-            return self.parent
-        else:
-            raise AttributeError, 'unknown property %s' % pspec.name
-
-    ## optional methods
-    def do_get_bounds(self):
-        return self.bounds
-
-    def do_get_item_at(self, x, y, cr, is_pointer_event, parent_is_visible):
-        return None
-
-    ## mandatory methods
-    def do_update(self, entire_tree, cr):
-        raise NotImplementedError
-
-    def do_paint(self, cr, bounds, scale):
-        raise NotImplementedError
 
 class PendingDataproviderWrapper(ModuleWrapper):
     def __init__(self, key):
