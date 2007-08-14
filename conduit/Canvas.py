@@ -159,11 +159,10 @@ class Canvas(goocanvas.Canvas):
         """
         Handle button clicks on conduits
         """
+        #right click
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.selectedConduitItem = view
-            if event.button == 1:
-                return True
-            elif event.button == 3:
+            if event.button == 3:
                 #Preset the two way menu items sensitivity
                 if not self.selectedConduitItem.model.can_do_two_way_sync():
                     self.twoWayMenuItem.set_property("sensitive", False)
@@ -179,7 +178,8 @@ class Canvas(goocanvas.Canvas):
                                                 None, None, 
                                                 None, event.button, event.time
                                                 )
-                return True
+        #dont propogate the event                
+        return True
 
     def _on_dataprovider_button_press(self, view, target, event):
         """
@@ -188,23 +188,27 @@ class Canvas(goocanvas.Canvas):
         @param user_data_dataprovider_wrapper: The dpw that was clicked
         @type user_data_dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
+        #single right click
         if event.type == gtk.gdk.BUTTON_PRESS:
             self.selectedDataproviderItem = view
-            if event.button == 1:
-                return True
-            elif event.button == 3:
-                #Dont show menu if the dp is just a placeholder
-                if self.selectedDataproviderItem.model.enabled == False:
-                    return True
-                #Dont show the menu if the dp is bust
-                elif self.selectedDataproviderItem.model.module.is_busy():
-                    return True
-                else:
+            if event.button == 3:
+                if view.model.enabled and not view.model.module.is_busy():
+                    #show the menu
                     self.dataproviderMenu.popup(
-                                                None, None, 
-                                                None, event.button, event.time
-                                                )
-                    return True
+                                None, None, 
+                                None, event.button, event.time
+                                )
+
+        #double left click
+        elif event.type == gtk.gdk._2BUTTON_PRESS:
+            self.selectedDataproviderItem = view
+            if event.button == 1:
+                if view.model.enabled and not view.model.module.is_busy():
+                    #configure the DP
+                    self.on_configure_item_clicked(None)
+
+        #dont propogate the event
+        return True
 
     def _get_bottom_of_conduits_coord(self):
         """
