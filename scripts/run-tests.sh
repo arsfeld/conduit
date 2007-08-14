@@ -79,6 +79,9 @@ if [ $do_prepare -ne 0 ] ; then
     scp -rpq $TEST_DATA_DIR root@www.greenbirdsystems.com:/root/sync/
 fi
 
+rm $PY_TEST_DIR/TestAuto*.py
+python $PY_TEST_DIR/AutoGenerate.py
+
 #-------------------------------------------------------------------------------
 HEADER="<html><head><title>Conduit Test Results</title></head><body>"
 FOOTER="</body></html>"
