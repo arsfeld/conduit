@@ -121,14 +121,13 @@ a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
 
-#phase two: delete some (delete policy: delete)
+#phase two: delete some (delete policy: replace)
 test.set_two_way_policy({"conflict":"skip","deleted":"replace"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
 
 #phase three: modify both (modify policy: skip)
-ok("---- ONE WAY: SHOULD ABORT (Fail Refresh)", True)
 source.added = []
 source.modified = [1,5]
 source.deleted = []
@@ -150,11 +149,11 @@ a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
 
-#phase three: modify both (modify policy: delete)
+#phase three: modify both (modify policy: replace)
 #FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
 source.modified = [1,5]
 sink.modified = [1,5]
-test.set_two_way_policy({"conflict":"delete","deleted":"skip"})
+test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
