@@ -18,6 +18,7 @@ import conduit.TypeConverter as TypeConverter
 import conduit.Synchronization as Synchronization
 from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Conduit as Conduit
+import conduit.Exceptions as Exceptions
 
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
@@ -219,12 +220,12 @@ class SimpleSyncTest(SimpleTest):
         self.sync_manager.refresh_conduit(self.conduit)
         self.sync_manager.join_all()
 
-        aborted = self.sync_manager.sync_aborted(self.conduit) 
+        aborted = self.sync_aborted() 
         ok("Refresh completed", aborted != True)
 
         return self.get_source_count(), self.get_sink_count()
 
-    def sync(self, debug=True):
+    def sync(self, debug=True, die=True):
         #sync conduit
         self.sync_manager.sync_conduit(self.conduit)
         # wait for sync to finish
@@ -233,8 +234,8 @@ class SimpleSyncTest(SimpleTest):
         if debug:
             print conduit.mappingDB.debug()
 
-        aborted = self.sync_manager.sync_aborted(self.conduit) 
-        ok("Sync completed", aborted != True)
+        aborted = self.sync_aborted() 
+        ok("Sync completed", (aborted != True), die)
 
         return (self.get_source_count(), self.get_sink_count())
 
@@ -243,11 +244,17 @@ class SimpleSyncTest(SimpleTest):
         return self.conduit.datasinks[index]
 
     def get_source_count(self):
-        self.source.module.refresh()
+        try:
+            self.source.module.refresh()
+        except Exception: pass
+
         return self.source.module.get_num_items()
 
     def get_sink_count(self):
-        self.get_sink().module.refresh()
+        try:
+            self.get_sink().module.refresh()
+        except Exception: pass
+
         #might not apply if the sink is not two way
         try:
             count = self.get_sink().module.get_num_items()
@@ -279,6 +286,13 @@ class SimpleSyncTest(SimpleTest):
     def get_slow_sync(self):
         return self.conduit.do_slow_sync()
 
+    def sync_aborted(self):
+        return self.sync_manager.did_sync_abort(self.conduit) 
 
+    def sync_errored(self):
+        return self.sync_manager.did_sync_error(self.conduit) 
+
+    def sync_conflicted(self):
+        return self.sync_manager.did_sync_conflict(self.conduit) 
 
 
