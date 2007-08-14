@@ -13,6 +13,7 @@ USAGE="\
 Usage:\n\
 ./scripts/run-tests.sh [OPTIONS]\n\n\
 Options:\n\
+    -a      Run the automatically generated (SLOW) tests\n\
     -c      Code coverage analysis\n\
     -u      Upload results\n\
     -p      Prepare some files on remote servers\n\
@@ -35,10 +36,12 @@ do_upload=0
 do_prepare=0
 do_single_test="x"
 do_online="TRUE"
+do_auto=0
 do_debug=0
-while getopts "cups:od" options
+while getopts "acups:od" options
 do
     case $options in
+        a )     do_auto=1;;
         c )     do_coverage=1;;
         u )     do_upload=1;;
         p )     do_prepare=1;;
@@ -80,7 +83,9 @@ if [ $do_prepare -ne 0 ] ; then
 fi
 
 rm $PY_TEST_DIR/TestAuto*.py
-python $PY_TEST_DIR/AutoGenerate.py
+if [ $do_auto -ne 0 ] ; then
+    python $PY_TEST_DIR/AutoGenerate.py
+fi
 
 #-------------------------------------------------------------------------------
 HEADER="<html><head><title>Conduit Test Results</title></head><body>"
