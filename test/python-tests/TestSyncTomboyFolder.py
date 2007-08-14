@@ -41,6 +41,8 @@ ok("Got items to sync (%s,%s)" % (a,b), a > 0 and b == len(tomboyFiles))
 #sync
 test.set_two_way_sync(True)
 test.sync()
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 
 #Check the notes were all transferred
 test.refresh()

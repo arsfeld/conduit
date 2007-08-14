@@ -18,6 +18,8 @@ test.configure(source=config, sink=config)
 
 test.set_two_way_sync(False)
 test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 error = test.sync_errored()
 ok("Non fatal error trapped", error == True)
 
@@ -33,7 +35,7 @@ test.prepare(
         )
 
 test.set_two_way_sync(False)
-test.sync(debug=False, die=False)
+test.sync(debug=False)
 aborted = test.sync_aborted()
 ok("Sync aborted due to no refreshing sinks", aborted == True)
 
@@ -50,6 +52,8 @@ test.prepare(
 
 test.set_two_way_sync(False)
 test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 conflict = test.sync_conflicted()
 ok("Conflict trapped", conflict == True)
 
@@ -66,6 +70,8 @@ test.prepare(
 
 test.set_two_way_sync(True)
 test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 
 ###
 #One way, much data, 2 sinks
@@ -88,3 +94,6 @@ test.configure(source=config, sink=config)
 
 test.set_two_way_sync(False)
 test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
+

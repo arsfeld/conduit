@@ -225,7 +225,7 @@ class SimpleSyncTest(SimpleTest):
 
         return self.get_source_count(), self.get_sink_count()
 
-    def sync(self, debug=True, die=True):
+    def sync(self, debug=True):
         #sync conduit
         self.sync_manager.sync_conduit(self.conduit)
         # wait for sync to finish
@@ -233,9 +233,6 @@ class SimpleSyncTest(SimpleTest):
 
         if debug:
             print conduit.mappingDB.debug()
-
-        aborted = self.sync_aborted() 
-        ok("Sync completed", (aborted != True), die)
 
         return (self.get_source_count(), self.get_sink_count())
 

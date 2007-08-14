@@ -66,6 +66,8 @@ ok("Sync: Got all items (%s,%s,%s)" % (a,b,len(FILES)), (a+b)==len(FILES))
 #sync
 test.set_two_way_sync(True)
 test.sync()
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 
 #some IO time
 time.sleep(1)
@@ -100,6 +102,8 @@ time.sleep(1)
 #SYNC and wait for sync to finish (block)
 test.sync()
 time.sleep(1)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 
 a = test.get_source_count()
 b = test.get_sink_count()
@@ -142,6 +146,8 @@ for i in range(0, NUM_FILES):
 #SYNC and wait for sync to finish (block)
 test.sync()
 time.sleep(1)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 
 a = test.get_source_count()
 b = test.get_sink_count()

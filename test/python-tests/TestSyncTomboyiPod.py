@@ -34,5 +34,7 @@ ok("Got all items to sync (%s,%s)" % (a,b), a > 0 and b == 0)
 
 #check they sync ok
 a,b = test.sync()
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
 ok("All notes transferred (%s,%s)" % (a,b), a == b)
 

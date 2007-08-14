@@ -183,10 +183,14 @@ def test_sync(host, should_change=True):
 
     # after the first sync the counts should be the same on both sides
     a2, b2 = host.sync()
+    aborted = host.sync_aborted()
+    ok("Sync completed", aborted == False)
     ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a1, a2, b1, b2), a2==b2)
 
     # after the third sync nothing should have changed
     a3, b3 = host.sync()
+    aborted = host.sync_aborted()
+    ok("Sync completed", aborted == False)
     ok("Sync worked (source had %s, source has %s, sink had %s, sink has %s)" % (a2, a3, b2, b3), a3==b3)
 
     if should_change:
@@ -247,6 +251,8 @@ def test_clear(host):
     test_delete_all(host.sink)
 
     a, b = host.sync()
+    aborted = host.sync_aborted()
+    ok("Sync completed", aborted == False)
     ok("Sync worked (%s, %s)" % (a, b), a == 0 and b == 0)
 
 def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
