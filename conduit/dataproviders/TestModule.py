@@ -14,15 +14,16 @@ from conduit.datatypes import DataType
 import time
 
 MODULES = {
-    "TestSource" :          { "type": "dataprovider" },
-    "TestSink" :            { "type": "dataprovider" },
-    "TestConflict" :        { "type": "dataprovider" },
-    "TestChangeType" :      { "type": "dataprovider" },
-    "TestTwoWay" :          { "type": "dataprovider" },
-    "TestSinkFailRefresh" : { "type": "dataprovider" },
-    "TestFactory" :         { "type": "dataprovider-factory" },
-#    "TestFactoryRemoval" :  { "type": "dataprovider-factory" },
-    "CheeseConverter" :     { "type": "converter" }
+    "TestSource" :              { "type": "dataprovider" },
+    "TestSink" :                { "type": "dataprovider" },
+    "TestConflict" :            { "type": "dataprovider" },
+    "TestChangeType" :          { "type": "dataprovider" },
+    "TestTwoWay" :              { "type": "dataprovider" },
+    "TestSinkFailRefresh" :     { "type": "dataprovider" },
+    "TestSinkNeedConfigure" :   { "type": "dataprovider" },
+    "TestFactory" :             { "type": "dataprovider-factory" },
+#    "TestFactoryRemoval" :     { "type": "dataprovider-factory" },
+    "CheeseConverter" :         { "type": "converter" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
@@ -155,10 +156,12 @@ class TestSource(_TestBase, DataProvider.DataSource):
         DataProvider.DataSource.get(self, index)
         if self.slow:
             time.sleep(2)
-        data = TestDataType(index)
-        logd("TEST SOURCE: get() returned %s" % data)
+
         if index >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
+
+        data = TestDataType(index)
+        logd("TEST SOURCE: get() returned %s" % data)
         return data
 
     def add(self, LUID):
@@ -230,6 +233,27 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         DataProvider.TwoWay.finish(self)
         self.data = None
 
+class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
+
+    _name_ = "Test Need Configure"
+    _description_ = "Test Sink Needs Configuration"
+    _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        _TestBase.__init__(self)
+        DataProvider.DataSink.__init__(self)
+        self.need_configuration(True)
+        
+    def configure(self, window):
+        self.set_configured(True)
+
+    def set_configuration(self, config):
+        self.set_configured(True)
+
 class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Fail Refresh"
@@ -243,14 +267,10 @@ class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
-        self.need_configuration(True)
         
     def refresh(self):
         DataProvider.DataSink.refresh(self)
         raise Exceptions.RefreshError
-
-    def configure(self, window):
-        self.set_configured(True)
 
 class TestConflict(DataProvider.DataSink):
 

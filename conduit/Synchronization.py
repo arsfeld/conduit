@@ -171,15 +171,26 @@ class SyncManager:
         self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
         self.syncWorkers[conduit].start()
 
-    def sync_aborted(self, conduit):
+    def did_sync_abort(self, conduit):
         """
         Returns True if the supplied conduit aborted (the sync did not complete
-        due to an unhandled exception
+        due to an unhandled exception, a SynchronizeFatalError or the conduit was
+        unsyncable (source did not refresh, etc)
         """
-        try:
-            return self.syncWorkers[conduit].aborted
-        except KeyError:
-            return True
+        return self.syncWorkers[conduit].aborted
+
+    def did_sync_error(self, conduit):
+        """
+        Returns True if the supplied conduit raised a non fatal 
+        SynchronizeError during sync
+        """
+        return len(self.syncWorkers[conduit].sinkErrors) != 0
+
+    def did_sync_conflict(self, conduit):
+        """
+        Returns True if the supplied conduit encountered a conflict during processing
+        """
+        return self.syncWorkers[conduit].conflicted
 
 class _ThreadedWorker(threading.Thread, gobject.GObject):
     """
@@ -199,7 +210,9 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
                         gobject.TYPE_BOOLEAN]),     #Is the conflict from a deletion
                     "sync-completed": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_BOOLEAN]),     #True if there was an error
+                        gobject.TYPE_BOOLEAN,       #True if there was a fatal error
+                        gobject.TYPE_BOOLEAN,       #True if there was a non fatal error
+                        gobject.TYPE_BOOLEAN]),     #True if there was a conflict
                     "sync-started": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
                     "sync-progress": 
@@ -218,6 +231,12 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
 
         #true if the sync aborts via an unhandled exception
         self.aborted = False
+        #Keep track of any non fatal errors (or trapped exceptions) in the sync process. 
+        #Class variable because these may occur in a data conversion. 
+        #Needed so that the correct status is shown on the GUI at the end of the sync process
+        self.sinkErrors = {}
+        #true if the sync contained a conflict needing a decision by the user
+        self.conflicted = False
 
     def _get_changes(self, source, sink):
         """
@@ -277,11 +296,6 @@ class SyncWorker(_ThreadedWorker):
         self.do_sync = do_sync
         self.policy = policy
 
-        #Keep track of any errors in the sync process. Class variable because these
-        #may occur in a data conversion. Needed so that the correct status
-        #is shown on the GUI at the end of the sync process
-        self.sinkErrors = {}
-
         #Start at the beginning
         self.state = SyncWorker.CONFIGURE_STATE
 
@@ -308,9 +322,38 @@ class SyncWorker(_ThreadedWorker):
 
         return newdata
 
+    def _get_data(self, source, sink, uid):
+        """
+        Gets the data from source. Handles exceptions, etc.
+
+        @returns: The data that was got or None
+        """
+        data = None
+        try:
+            data = source.module.get(uid)
+        except Exceptions.SyncronizeError, err:
+            logw("%s\n%s" % (err, traceback.format_exc()))                     
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
+            logd("ERROR GETTING DATA")
+        except Exceptions.SyncronizeFatalError, err:
+            logw("%s\n%s" % (err, traceback.format_exc()))
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
+            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
+            #Cannot continue
+            raise Exceptions.StopSync                  
+        except Exception:       
+            #Cannot continue
+            logw("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
+            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+            raise Exceptions.StopSync
+
+        return data
+
+
     def _transfer_data(self, source, sink, data):
         """
-        Transfers the data from source to sink, includes performing any conversions,
+        Puts the data from source to sink, includes performing any conversions,
         handling exceptions, etc.
 
         @returns: The data that was put or None
@@ -370,6 +413,8 @@ class SyncWorker(_ThreadedWorker):
             logd("Deleted Policy: Skipping")
         elif self.policy["deleted"] == "ask":
             logd("Deleted Policy: Ask")
+            self.conflicted = True
+
             #check if the source is visually on the left of the sink
             if self.source == sourceWrapper:
                 #it is on the left
@@ -392,6 +437,9 @@ class SyncWorker(_ThreadedWorker):
                 )
 
         elif self.policy["deleted"] == "replace":
+            logd("Deleted Policy: Delete")
+            self.conflicted = True
+
             _delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
          
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
@@ -405,6 +453,8 @@ class SyncWorker(_ThreadedWorker):
                 logd("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
                 logd("Conflict Policy: Ask")
+                self.conflicted = True
+
                 if sourceWrapper.module_type in ["twoway", "sink"]:
                     #in twoway case the user can copy back
                     avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_COPY_SINK_TO_SOURCE)
@@ -423,6 +473,8 @@ class SyncWorker(_ThreadedWorker):
 
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
+                self.conflicted = True
+
                 try:
                     LUID = conduit.mappingDB.get_matching_UID(
                                             sourceUID=sourceWrapper.get_UID(),
@@ -471,16 +523,16 @@ class SyncWorker(_ThreadedWorker):
             idx += 1.0
             self.check_thread_not_cancelled([source, sink])
 
-            data = source.module.get(i)
-            logd("1WAY PUT: %s (%s) -----> %s" % (source.name,data.get_UID(),sink.name))
-
             #work out the percent complete
             done = idx/(numItems*len(self.sinks)) + \
                     float(self.sinks.index(sink))/len(self.sinks)
             self.emit("sync-progress", self.conduit, done)
 
             #transfer the data
-            newdata = self._transfer_data(source, sink, data)
+            data = self._get_data(source, sink, i)
+            if data != None:
+                logd("1WAY PUT: %s (%s) -----> %s" % (source.name,data.get_UID(),sink.name))
+                newdata = self._transfer_data(source, sink, data)
        
     def two_way_sync(self, source, sink):
         """
@@ -543,31 +595,34 @@ class SyncWorker(_ThreadedWorker):
                 self._apply_deleted_policy(sourcedp, dataUID, sinkdp, matchingUID)
 
         for sourcedp, dataUID, sinkdp in toput:
-            data = sourcedp.module.get(dataUID)
-            logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
-            self._transfer_data(sourcedp, sinkdp, data)
+            data = self._get_data(sourcedp, sinkdp, dataUID)
+            if data != None:
+                logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
+                self._transfer_data(sourcedp, sinkdp, data)
 
         for dp1, data1UID, dp2, data2UID in tocomp:
-            logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
-            data1 = dp1.module.get(data1UID)
-            data2 = dp2.module.get(data2UID)
-            d1mtime = data1.get_mtime()
-            d2mtime = data2.get_mtime()
-            if d1mtime == None and d2mtime == None:
-                self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
-            else:
-                if d1mtime > d2mtime:
-                    sourcedp = dp1
-                    sinkdp = dp2
-                    fromdata = data2
-                    todata = data1
-                else:
-                    sourcedp = dp2
-                    sinkdp = dp1
-                    fromdata = data1
-                    todata = data2
+            data1 = self._get_data(dp1, dp2, data1UID)
+            data2 = self._get_data(dp2, dp1, data2UID)
 
-                self._apply_conflict_policy(sourcedp, sinkdp, COMPARISON_UNKNOWN, fromdata, todata)
+            if data1 != None and data2 != None:
+                logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
+                d1mtime = data1.get_mtime()
+                d2mtime = data2.get_mtime()
+                if d1mtime == None and d2mtime == None:
+                    self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
+                else:
+                    if d1mtime > d2mtime:
+                        sourcedp = dp1
+                        sinkdp = dp2
+                        fromdata = data2
+                        todata = data1
+                    else:
+                        sourcedp = dp2
+                        sinkdp = dp1
+                        fromdata = data1
+                        todata = data2
+
+                    self._apply_conflict_policy(sourcedp, sinkdp, COMPARISON_UNKNOWN, fromdata, todata)
 
     def run(self):
         """
@@ -633,6 +688,7 @@ class SyncWorker(_ThreadedWorker):
                     else:
                         #We are finished
                         logw("Not enough configured datasinks")
+                        self.aborted = True
                         self.state = SyncWorker.DONE_STATE                  
 
                 #refresh state
@@ -680,6 +736,7 @@ class SyncWorker(_ThreadedWorker):
                     else:
                         #We are finished
                         log("Not enough sinks refreshed")
+                        self.aborted = True
                         self.state = SyncWorker.DONE_STATE                        
 
                 #synchronize state
@@ -734,7 +791,7 @@ class SyncWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.mappingDB.save()
-        self.emit("sync-completed", self.aborted or len(self.sinkErrors) != 0)
+        self.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
 class RefreshWorker(_ThreadedWorker):
     """
@@ -762,7 +819,6 @@ class RefreshWorker(_ThreadedWorker):
             logd("Refresh %s beginning" % self)
             self.emit("sync-started")
 
-
             if not self.dataproviderWrapper.module.is_configured():
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
                 #Cannot continue if source not configured
@@ -787,7 +843,7 @@ class RefreshWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.mappingDB.save()
-        self.emit("sync-completed", self.aborted)
+        self.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
                 
 class DeletedData(DataType.DataType):

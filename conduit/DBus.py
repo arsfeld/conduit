@@ -83,14 +83,14 @@ class DBusView(dbus.service.Object):
     def _on_sync_started(self, thread):
         pass
 
-    def _on_sync_completed(self, thread, error):
+    def _on_sync_completed(self, thread, aborted, error, conflict):
         """
         Signal received when a sync finishes
         """
         for i in self.UIDs:
             if self.UIDs[i] == thread.conduit:
                 #Send the DBUS signal
-                self.SyncCompleted(i, bool(error))
+                self.SyncCompleted(i, bool(aborted), bool(error), bool(conflict))
 
     def _on_sync_progress(self, thread, conduit, progress):
         """
@@ -374,9 +374,9 @@ class DBusView(dbus.service.Object):
     def DataproviderChanged(self, key):
         self._print("Emmiting DBus signal DataproviderChanged %s" % key)
 
-    @dbus.service.signal(conduit.DBUS_IFACE, signature='ib')
-    def SyncCompleted(self, conduitUID, error):
-        self._print("Emmiting DBus signal SyncCompleted %s (error: %s)" % (conduitUID,error))
+    @dbus.service.signal(conduit.DBUS_IFACE, signature='ibbb')
+    def SyncCompleted(self, conduitUID, aborted, error, conflict):
+        self._print("Emmiting DBus signal SyncCompleted %s (abort:%s error:%s conflict:%s)" % (conduitUID,aborted,error,conflict))
 
     @dbus.service.signal(conduit.DBUS_IFACE, signature='id')
     def SyncProgress(self, conduitUID, progress):
