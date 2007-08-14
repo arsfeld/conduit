@@ -54,10 +54,6 @@ class DeltaProvider:
                 del(mtimes[i])
                 allItems.remove(i)
 
-        logd("Delta: New %s items\n%s" % (len(allItems), allItems))
-        logd("Delta: Modified %s items\n%s" % (len(modified), modified))
-        logd("Delta: Deleted %s items\n%s" % (len(mtimes), mtimes.keys()))
-
         #now all that remains in mtimes is data which has been deleted,
         #and all that remains in allItems is new data
         return allItems, modified, mtimes.keys()

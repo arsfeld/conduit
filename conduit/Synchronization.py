@@ -251,6 +251,11 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
         else:
             delta = DeltaProvider.DeltaProvider(source, sink)
             added, modified, deleted = delta.get_changes()
+
+        logd("%s Changes: New %s items\n%s" % (source.get_UID(), len(added), added))
+        logd("%s Changes: Modified %s items\n%s" % (source.get_UID(), len(modified), modified))
+        logd("%s Changes: Deleted %s items\n%s" % (source.get_UID(), len(deleted), deleted))
+
         return added, modified, deleted
 
     def cancel(self):
