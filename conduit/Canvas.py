@@ -663,7 +663,7 @@ class ConduitCanvasItem(_CanvasItem):
             #Its a source
             dpCanvasItem.translate(
                         SIDE_PADDING,
-                        SIDE_PADDING
+                        SIDE_PADDING + self.l.get_property("line_width")
                         )
         else:
             #Its a sink
@@ -674,15 +674,22 @@ class ConduitCanvasItem(_CanvasItem):
 
             dpCanvasItem.translate(
                             self.get_width() - dpCanvasItem.get_width() - SIDE_PADDING,
-                            (dpy * dpCanvasItem.get_height()) + i
+                            (dpy * dpCanvasItem.get_height()) + i + self.l.get_property("line_width")
                             )
 
     def _build_widget(self, width):
+        true_width = width-(2*LINE_WIDTH) #account for line width
+
+        #draw a spacer to give some space between conduits
+        points = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
+        self.l = goocanvas.Polyline(points=points, line_width=LINE_WIDTH, stroke_color="white")
+        self.add_child(self.l)
+
         #draw a box which will contain the dataproviders
         self.bounding_box = goocanvas.Rect(
                                 x=0, 
-                                y=0, 
-                                width=width-(2*LINE_WIDTH),     #account for line width
+                                y=5, 
+                                width=true_width,     
                                 height=ConduitCanvasItem.WIDGET_HEIGHT,
                                 line_width=LINE_WIDTH, 
                                 stroke_color="black",
@@ -707,7 +714,7 @@ class ConduitCanvasItem(_CanvasItem):
 
         self.set_height(
                     max(sourceh, sinkh)+    #expand to the largest
-                    (2*SIDE_PADDING)        #padding at the top and bottom
+                    (1.5*SIDE_PADDING)        #padding at the top and bottom
                     )
 
     def _delete_connector(self, item):
@@ -803,7 +810,14 @@ class ConduitCanvasItem(_CanvasItem):
         self.bounding_box.set_property("height",h)
 
     def set_width(self, w):
-        self.bounding_box.set_property("width",w-(2*LINE_WIDTH))
+        true_width = w-(2*LINE_WIDTH)
+
+        #resize the box
+        self.bounding_box.set_property("width",true_width)
+        #resize the spacer
+        p = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
+        self.l.set_property("points",p)
+
         for d in self.sinkDpItems:
             desired = w - d.get_width() - SIDE_PADDING
             actual = d.get_left()
