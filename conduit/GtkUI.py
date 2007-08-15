@@ -156,7 +156,7 @@ class MainWindow:
     def on_sync_started(self, thread):
         logd("GUI got sync started")
 
-    def on_sync_completed(self, thread, error):
+    def on_sync_completed(self, thread, aborted, error, conflict):
         logd("GUI got sync completed")
        
     def on_dataprovider_available(self, loader, dataprovider):
@@ -540,7 +540,7 @@ class StatusIcon(gtk.StatusIcon):
         gobject.timeout_add(100, self._go_to_running_state)
         logd("Icon got sync started")
 
-    def on_sync_completed(self, thread, error):
+    def on_sync_completed(self, thread, aborted, error, conflict):
         self.running -= 1
         logd("Icon got sync completed %s (error: %s)" % (self.running, error))
 
