@@ -136,21 +136,21 @@ class SyncSet(gobject.GObject):
         """
         log("Restoring Sync Set")
            
-        def restore_dataprovider(conduit, wrapperKey, dpxml, isSource):
+        def restore_dataprovider(conduit, wrapperKey, dpxml, trySourceFirst):
             """
             Adds the dataprovider back onto the canvas at the specifed
             location and configures it with the given settings
             
             @returns: The conduit the dataprovider was restored to
             """
-            logd("Restoring %s to (source=%s)" % (wrapperKey,isSource))
+            logd("Restoring %s to (source=%s)" % (wrapperKey,trySourceFirst))
             wrapper = self.moduleManager.get_new_module_instance(wrapperKey)
             if wrapper is not None:
                 for i in dpxml.childNodes:
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
                         wrapper.set_configuration_xml(xmltext=i.toxml())
 
-            conduit.add_dataprovider(wrapper, isSource)
+            conduit.add_dataprovider(wrapper, trySourceFirst)
 
         #Check the file exists
         if not os.path.isfile(self.xmlSettingFilePath):

@@ -57,7 +57,7 @@ class Conduit(gobject.GObject):
         """
         gobject.idle_add(gobject.GObject.emit,self,*args)
                                                 
-    def add_dataprovider(self, dataprovider_wrapper, isSource=False):
+    def add_dataprovider(self, dataprovider_wrapper, trySourceFirst=True):
         """
         Adds a dataprovider to the conduit.
         
@@ -65,7 +65,7 @@ class Conduit(gobject.GObject):
         containing a L{conduit.DataProvider.DataProviderBase} to add
         @type dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
-        if isSource or dataprovider_wrapper.module_type == "source":
+        if dataprovider_wrapper.module_type == "source":
             #only one source is allowed
             if self.datasource == None:
                 self.datasource = dataprovider_wrapper
@@ -84,8 +84,12 @@ class Conduit(gobject.GObject):
 
         elif dataprovider_wrapper.module_type == "twoway":
             if self.datasource == None:
-                logd("Adding twoway dataprovider into source position")
-                self.datasource = dataprovider_wrapper
+                if trySourceFirst:
+                    logd("Adding twoway dataprovider into source position")
+                    self.datasource = dataprovider_wrapper
+                else:
+                    logd("Adding twoway dataprovider into sink position")
+                    self.datasinks.append(dataprovider_wrapper)
             else:
                 logd("Adding twoway dataprovider into sink position")
                 self.datasinks.append(dataprovider_wrapper)
@@ -226,7 +230,7 @@ class Conduit(gobject.GObject):
         self.delete_dataprovider(oldDpw)
         self.add_dataprovider(
                     dataprovider_wrapper=newDpw,
-                    isSource=(x==0)
+                    trySourceFirst=(x==0)
                     )
         self.emit("dataprovider-changed", oldDpw, newDpw) 
 

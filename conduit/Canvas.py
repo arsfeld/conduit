@@ -266,8 +266,8 @@ class Canvas(goocanvas.Canvas):
         item.connect('button-press-event', self._on_dataprovider_button_press)
         conduitCanvasItem.add_dataprovider_canvas_item(item)
 
-    def _add_dataprovider_model_to_conduit_canvas_item_model(self, cond, dataproviderWrapper):
-        cond.add_dataprovider(dataproviderWrapper)
+    def _add_dataprovider_model_to_conduit_canvas_item_model(self, cond, dataproviderWrapper, trySourceFirst):
+        return cond.add_dataprovider(dataproviderWrapper, trySourceFirst)
 
     def _remove_overlap(self):
         """
@@ -284,13 +284,6 @@ class Canvas(goocanvas.Canvas):
                         item.translate(0,overlap)
 
     def get_sync_set(self):
-        """
-        Returns the conduits to be synchronized
-        @todo: Should there be any processing in this function???
-        
-        @returns: A list of conduits to synchronize
-        @rtype: C{Conduit[]}
-        """        
         return self.model
 
     def set_sync_set(self, syncSet):
@@ -307,9 +300,6 @@ class Canvas(goocanvas.Canvas):
         self._add_welcome_message()
         
     def on_drag_motion(self, wid, context, x, y, time):
-        """
-        on_drag_motion
-        """
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
 
@@ -348,7 +338,7 @@ class Canvas(goocanvas.Canvas):
 
     def on_refresh_group_clicked(self, widget):
         """
-        Call the initialize method on all dataproviders in the conduit
+        Refresh the selected conduit
         """
         if self.selectedConduitItem.model.datasource is not None and len(self.selectedConduitItem.model.datasinks) > 0:
             self.sync_manager.refresh_conduit(self.selectedConduitItem.model)
@@ -384,9 +374,8 @@ class Canvas(goocanvas.Canvas):
 
     def on_configure_item_clicked(self, widget):
         """
-        Calls the C{configure(window)} method on the selected dataprovider
+        Calls the configure method on the selected dataprovider
         """
-        
         dp = self.selectedDataproviderItem.model.module
         log("Configuring %s" % dp)
         #May block
@@ -435,6 +424,13 @@ class Canvas(goocanvas.Canvas):
         existing = self.get_item_at(x,y,False)
         c_x,c_y,c_w,c_h = self.get_bounds()
 
+        #if the user dropped on the right half of the canvas try add into the sink position
+        print x,c_x,c_w
+        if x < (c_w/2):
+            trySourceFirst = True
+        else:
+            trySourceFirst = False
+
         if existing == None:
             cond = Conduit()
 
@@ -444,9 +440,9 @@ class Canvas(goocanvas.Canvas):
             item = self._add_conduit_canvas_item(cond)
 
             #add the model
-            self._add_dataprovider_model_to_conduit_canvas_item_model(cond,dataproviderWrapper)
-            #now add a dataprovider to the conduit
-            self._add_dataprovider_to_conduit_canvas_item(item,dataproviderWrapper)
+            if self._add_dataprovider_model_to_conduit_canvas_item_model(cond,dataproviderWrapper, trySourceFirst):
+                #now add a dataprovider to the conduit
+                self._add_dataprovider_to_conduit_canvas_item(item,dataproviderWrapper)
         else:
             parent = existing.get_parent()
             while parent != None and not isinstance(parent, ConduitCanvasItem):
@@ -454,9 +450,9 @@ class Canvas(goocanvas.Canvas):
             
             if parent != None:
                 #add the model
-                self._add_dataprovider_model_to_conduit_canvas_item_model(parent.model,dataproviderWrapper)
-                #now add a dataprovider to the conduit
-                self._add_dataprovider_to_conduit_canvas_item(parent,dataproviderWrapper)
+                if self._add_dataprovider_model_to_conduit_canvas_item_model(parent.model,dataproviderWrapper, trySourceFirst):
+                    #now add a dataprovider to the conduit
+                    self._add_dataprovider_to_conduit_canvas_item(parent,dataproviderWrapper)
 
             self._remove_overlap()
 
@@ -532,7 +528,6 @@ class DataProviderCanvasItem(_CanvasItem):
                 logw("Unknown module type: Cannot get fill color")
 
     def _update_appearance(self):
-
         #the image
         pb = self.model.get_icon()
         pbx = int((1*DataProviderCanvasItem.WIDGET_WIDTH/5) - (pb.get_width()/2))
