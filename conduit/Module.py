@@ -173,11 +173,13 @@ class ModuleManager(gobject.GObject):
             logw("Unable to remove class - it isn't available! (%s)" % key)
             return
 
-        # notify everything that dp is no longer available
-        self._emit_unavailable(self.moduleWrappers[key])
+        #keep a ref for the signal emission
+        dpw = self.moduleWrappers[key]
 
         # remove from moduleWrappers...
         del self.moduleWrappers[key]
+        # notify everything that dp is no longer available
+        self._emit_unavailable(dpw)
 
     def _import_file(self, filename):
         """

@@ -25,6 +25,9 @@ class Conduit(gobject.GObject):
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
         "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
+        "dataprovider-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,      # The old DP
+            gobject.TYPE_PYOBJECT]),    # The new DP
         "parameters-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
         }
 
@@ -62,7 +65,7 @@ class Conduit(gobject.GObject):
         containing a L{conduit.DataProvider.DataProviderBase} to add
         @type dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
-        if dataprovider_wrapper.module_type == "source" or isSource:
+        if isSource or dataprovider_wrapper.module_type == "source":
             #only one source is allowed
             if self.datasource == None:
                 self.datasource = dataprovider_wrapper
@@ -121,22 +124,22 @@ class Conduit(gobject.GObject):
         operaton on one or more of its contained DataProviders
         @rtype: C{bool}
         """
-        for sink in self.datasinks + [self.datasource]:
-            if sink is not None:
-                if sink.module.is_busy():
+        for d in self.get_all_dataproviders():
+            if d.module is not None:
+                if d.module.is_busy():
                     return True
                 
         return False
         
-    def has_dataprovider(self, dataprovider):
+    def has_dataprovider_by_key(self, key):
         """
-        Checks if the conduit containes the specified dataprovider
+        Checks if the conduit containes the specified dataprovider (checks using the key)
         
         @type dataprovider: L{Conduit.Module.ModuleWrapper}
         @returns: True if the conduit contains the dataprovider
         @rtype: C{bool}
         """
-        if dataprovider in self.datasinks + [self.datasource]:
+        if key in [dp.get_key() for dp in self.get_all_dataproviders()]:
             return True
         else:
             return False
@@ -214,4 +217,16 @@ class Conduit(gobject.GObject):
     def do_slow_sync(self):
         return self.slowSyncEnabled
 
+    def change_dataprovider(self, oldDpw, newDpw):
+        """
+        called when dpw becomes unavailable.
+        """
+        print "SWAP: OLD: %s, NEW: %s" % (oldDpw, newDpw)
+        x,y = self.get_dataprovider_position(oldDpw)
+        self.delete_dataprovider(oldDpw)
+        self.add_dataprovider(
+                    dataprovider_wrapper=newDpw,
+                    isSource=(x==0)
+                    )
+        self.emit("dataprovider-changed", oldDpw, newDpw) 
 

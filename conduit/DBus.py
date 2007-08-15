@@ -297,7 +297,7 @@ class DBusView(dbus.service.Object):
         if uid in self.UIDs:
             #create new conduit, populate and add to hashmap
             dataprovider = self.UIDs[uid]
-            xml = dataprovider.module.get_configuration_xml()
+            xml = dataprovider.get_configuration_xml()
         return xml
 
     @dbus.service.method(conduit.DBUS_IFACE, in_signature='is', out_signature='i')

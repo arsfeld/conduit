@@ -161,21 +161,17 @@ class MainWindow:
        
     def on_dataprovider_available(self, loader, dataprovider):
         """
-        Adds the new dataprovider to the treeview and replaces any pending instances of
-        that dataprovider
+        Adds the new dataprovider to the treeview
         """
         if dataprovider.enabled == True:
             self.dataproviderTreeModel.add_dataprovider(dataprovider)
-            new = self.moduleManager.get_new_module_instance(dataprovider.get_key())
-            self.canvas.check_pending_dataproviders(new)
 
     def on_dataprovider_unavailable(self, unloader, dataprovider):
         """
         Removes the dataprovider from the treeview and replaces it with pending dataproviders
         """
         self.dataproviderTreeModel.remove_dataprovider(dataprovider)
-        self.canvas.make_pending_dataproviders(dataprovider)
-
+        
     def on_synchronize_all_clicked(self, widget):
         """
         Synchronize all valid conduits on the canvas

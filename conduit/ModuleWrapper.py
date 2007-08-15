@@ -230,7 +230,7 @@ class ModuleWrapper:
         return self.descriptiveIcon
         
     def __str__(self):
-        return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_UID())
+        return "Wrapper: %s %s (UID: %s)" % (self.name, self.module_type, self.get_UID())
 
     def set_configuration_xml(self, xmltext):
         self.module.set_configuration_xml(xmltext)
@@ -264,5 +264,8 @@ class PendingDataproviderWrapper(ModuleWrapper):
 
     def get_configuration_xml(self):
         return self.xmltext
+
+    def __str__(self):
+        return "PendingWrapper Key: %s" % self.get_key()
 
 

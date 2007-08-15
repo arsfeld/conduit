@@ -37,8 +37,28 @@ class SyncSet(gobject.GObject):
         self.xmlSettingFilePath = xmlSettingFilePath
         self.conduits = []
 
+        self.moduleManager.connect("dataprovider-available", self.on_dataprovider_available_unavailable)
+        self.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_available_unavailable)
+
+
         # FIXME: temporary hack - need to let factories know about this factory :-\!
         self.moduleManager.emit("syncset-added", self)
+
+    def on_dataprovider_available_unavailable(self, loader, dpw):
+        """
+        Removes all PendingWrappers corresponding to dpw and replaces with new dpw instances
+        """
+        print "AVAIL/UNAVAIL"
+        key = dpw.get_key()
+        for c in self.get_all_conduits():
+            for dp in c.get_dataproviders_by_key(key):
+                new = self.moduleManager.get_new_module_instance(key)
+                #retain configuration information
+                new.set_configuration_xml(dp.get_configuration_xml())
+                c.change_dataprovider(
+                                    oldDpw=dp,
+                                    newDpw=new
+                                    )
 
     def emit(self, *args):
         """
@@ -88,7 +108,7 @@ class SyncSet(gobject.GObject):
                 sourcexml.setAttribute("key", source.get_key())
                 conduitxml.appendChild(sourcexml)
                 #Store source settings
-                configxml = xml.dom.minidom.parseString(source.module.get_configuration_xml())
+                configxml = xml.dom.minidom.parseString(source.get_configuration_xml())
                 sourcexml.appendChild(configxml.documentElement)
             
             #Store all sinks
@@ -98,7 +118,7 @@ class SyncSet(gobject.GObject):
                 sinkxml.setAttribute("key", sink.get_key())
                 sinksxml.appendChild(sinkxml)
                 #Store sink settings
-                configxml = xml.dom.minidom.parseString(sink.module.get_configuration_xml())
+                configxml = xml.dom.minidom.parseString(sink.get_configuration_xml())
                 sinkxml.appendChild(configxml.documentElement)
             conduitxml.appendChild(sinksxml)        
 

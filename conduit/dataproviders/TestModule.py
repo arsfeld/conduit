@@ -369,7 +369,9 @@ class TestFactory(DataProvider.DataProviderFactory):
         #callback the GUI in 5 seconds to add a new dataprovider
         gobject.timeout_add(3000, self.make_one)
         gobject.timeout_add(5000, self.make_two)
+        gobject.timeout_add(7000, self.make_three)
         gobject.timeout_add(7000, self.remove_one)
+
         
     def make_one(self, *args):
         self.key1 = self.emit_added(
@@ -386,6 +388,15 @@ class TestFactory(DataProvider.DataProviderFactory):
                              category=DataProvider.CATEGORY_TEST)
         #run once
         return False
+
+    def make_three(self, *args):
+        self.key3 = self.emit_added(
+                             klass=TestTwoWay,
+                             initargs=("Baz","Foo"), 
+                             category=DataProvider.CATEGORY_TEST)
+        #run once
+        return False
+
 
     def remove_one(self, *args):
         self.emit_removed(self.key1)

@@ -99,11 +99,6 @@ class Canvas(goocanvas.Canvas):
         #model is a SyncSet, not set till later because it is loaded from xml
         self.model = None
 
-        #Keep a list of dataproviders that could not be added because they
-        #were unavailable, and should instead be added when they become
-        #available (via callback)
-        self.pendingDataproviderWrappers = {}
-
         self._add_welcome_message()
         self.show()
 
@@ -264,14 +259,6 @@ class Canvas(goocanvas.Canvas):
         Creates a DataProviderCanvasItem and adds it to the conduitCanvasItem
         and model
         """
-        #If module is None we store a reference to the conduit that holds the
-        #dp and replace it later.
-        if dataproviderWrapper == None:
-            log("Dataprovider %s unavailable. Adding pending its availability" % key)
-            dataproviderWrapper = PendingDataproviderWrapper(key)
-            #Store the pending element so it can be removed later            
-            self.pendingDataproviderWrappers[key] = dataproviderWrapper
-
         item = DataProviderCanvasItem(
                             parent=conduitCanvasItem, 
                             model=dataproviderWrapper
@@ -431,58 +418,12 @@ class Canvas(goocanvas.Canvas):
         else:
             self.selectedConduitItem.model.disable_slow_sync()
 
-    def check_pending_dataproviders(self, wrapper):
-        """
-        When a dataprovider is added, replace any active instances 
-        of PendingDataProvider for that type with a real DataProvider
-
-        @param wrapper: The dataprovider wrapper to insert on canvas in 
-        place of a Pending DP
-        @type wrapper: L{conduit.Module.ModuleWrapper}
-        """
-        key = wrapper.get_key()
-        if key in self.pendingDataproviderWrappers:
-            for item in self._get_child_conduit_items():
-                c = item.model
-                pending = self.pendingDataproviderWrappers[key]
-                if c.has_dataprovider(pending):
-                    #delete old one
-                    c.delete_dataprovider(pending)
-
-                    #add new one
-                    c.add_dataprovider(wrapper)
-                    item.sourceItem.set_model(wrapper)
-
-            del self.pendingDataproviderWrappers[key]
-
-    def make_pending_dataproviders(self, wrapper):
-        """
-        When a dataprovider is removed, replace any active instances 
-        with a PendingDataProvider
-
-        @param wrapper: The dataprovider wrapper to replace with a Pending DP
-        @type wrapper: L{conduit.Module.ModuleWrapper} 
-        """
-        log("Replacing all instances of %s with a PendingDataProvider" % wrapper.get_key())
-        for item in self._get_child_conduit_items():
-            c = item.model
-            for dp in c.get_dataproviders_by_key(wrapper.get_key()):
-                logd("Found matching dp (%s), make pending!" % dp)
-                pendingWrapper = PendingDataproviderWrapper(wrapper.get_key())
-                self.pendingDataproviderWrappers[wrapper.get_key()] = pendingWrapper
-
-                c.delete_dataprovider(dp)
-                item.sourceItem.set_model(pendingWrapper)
-
     def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """
         Adds a new dataprovider to the Canvas
         
         @param module: The dataprovider wrapper to add to the canvas
-        @type module: L{conduit.Module.ModuleWrapper}. If this is None then
-        a placeholder should be added (which will get replaced later if/when
-        the actual dataprovider becomes available. 
-        See self.pendingDataproviderWrappers
+        @type module: L{conduit.Module.ModuleWrapper}. 
         @param x: The x location on the canvas to place the module widget
         @type x: C{int}
         @param y: The y location on the canvas to place the module widget
@@ -573,9 +514,9 @@ class DataProviderCanvasItem(_CanvasItem):
 
     def __init__(self, parent, model):
         _CanvasItem.__init__(self, parent, model)
-        self.set_model(model)
 
         self._build_widget()
+        self.set_model(model)
 
     def _get_fill_color(self):
         if self.model.module == None:
@@ -590,14 +531,25 @@ class DataProviderCanvasItem(_CanvasItem):
             else:
                 logw("Unknown module type: Cannot get fill color")
 
-    def _build_widget(self):
+    def _update_appearance(self):
+
+        #the image
+        pb = self.model.get_icon()
+        pbx = int((1*DataProviderCanvasItem.WIDGET_WIDTH/5) - (pb.get_width()/2))
+        pby = int((1*DataProviderCanvasItem.WIDGET_HEIGHT/3) - (pb.get_height()/2))
+        self.image.set_property("pixbuf",pb)
+
+        self.name.set_property("text",self.model.name)
+
         if self.model.module == None:
             statusText = DataProviderCanvasItem.PENDING_MESSAGE
         else:
             statusText = self.model.module.get_status_text()
+        self.statusText.set_property("text",statusText)
 
-        fillColor = self._get_fill_color()
+        self.box.set_property("fill_color_rgba",self._get_fill_color())
 
+    def _build_widget(self):
         self.box = goocanvas.Rect(   
                                 x=0, 
                                 y=0, 
@@ -605,18 +557,18 @@ class DataProviderCanvasItem(_CanvasItem):
                                 height=DataProviderCanvasItem.WIDGET_HEIGHT-(2*LINE_WIDTH),
                                 line_width=LINE_WIDTH, 
                                 stroke_color="black",
-                                fill_color_rgba=fillColor, 
+                                fill_color_rgba=self._get_fill_color(), 
                                 radius_y=RECTANGLE_RADIUS, 
                                 radius_x=RECTANGLE_RADIUS
                                 )
         pb = self.model.get_icon()
         pbx = int((1*DataProviderCanvasItem.WIDGET_WIDTH/5) - (pb.get_width()/2))
         pby = int((1*DataProviderCanvasItem.WIDGET_HEIGHT/3) - (pb.get_height()/2))
-        image = goocanvas.Image(pixbuf=pb,
+        self.image = goocanvas.Image(pixbuf=pb,
                                 x=pbx,
                                 y=pby
                                 )
-        name = goocanvas.Text(  x=pbx + pb.get_width() + DataProviderCanvasItem.IMAGE_TO_TEXT_PADDING, 
+        self.name = goocanvas.Text(  x=pbx + pb.get_width() + DataProviderCanvasItem.IMAGE_TO_TEXT_PADDING, 
                                 y=int(1*DataProviderCanvasItem.WIDGET_HEIGHT/3), 
                                 width=3*DataProviderCanvasItem.WIDGET_WIDTH/5, 
                                 text=self.model.name, 
@@ -627,7 +579,7 @@ class DataProviderCanvasItem(_CanvasItem):
                                 x=int(1*DataProviderCanvasItem.WIDGET_WIDTH/10), 
                                 y=int(2*DataProviderCanvasItem.WIDGET_HEIGHT/3), 
                                 width=4*DataProviderCanvasItem.WIDGET_WIDTH/5, 
-                                text=statusText, 
+                                text="", 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 7",
                                 fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
@@ -636,8 +588,8 @@ class DataProviderCanvasItem(_CanvasItem):
            
         #Add all the visual elements which represent a dataprovider    
         self.add_child(self.box)
-        self.add_child(name)
-        self.add_child(image)
+        self.add_child(self.name)
+        self.add_child(self.image)
         self.add_child(self.statusText) 
 
     def _on_change_detected(self, dataprovider):
@@ -649,6 +601,7 @@ class DataProviderCanvasItem(_CanvasItem):
 
     def set_model(self, model):
         self.model = model
+        self._update_appearance()
         if self.model.module != None:
             self.model.module.connect("change-detected", self._on_change_detected)
             self.model.module.connect("status-changed", self._on_status_changed)
@@ -661,6 +614,7 @@ class ConduitCanvasItem(_CanvasItem):
         _CanvasItem.__init__(self, parent, model)
 
         self.model.connect("parameters-changed", self._on_conduit_parameters_changed)
+        self.model.connect("dataprovider-changed", self._on_conduit_dataprovider_changed)
 
         self.sourceItem = None
         self.sinkDpItems = []
@@ -748,6 +702,11 @@ class ConduitCanvasItem(_CanvasItem):
         #update the twowayness of the connectors
         for c in self.connectorItems.values():
             c.set_two_way(self.model.is_two_way())
+
+    def _on_conduit_dataprovider_changed(self, cond, olddpw, newdpw):
+        for item in [self.sourceItem] + self.sinkDpItems:
+            if item.model.get_key() == olddpw.get_key():
+                item.set_model(newdpw)
 
     def add_dataprovider_canvas_item(self, item):
         self._position_dataprovider(item)
