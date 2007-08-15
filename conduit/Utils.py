@@ -237,7 +237,7 @@ class LoginTester:
                 if self.testFunc():
                     return
             except Exception, e:
-                # logw ("testFunc threw an error: %s" % e.message)
+                logw("testFunc threw an error: %s" % e)
                 pass
 
             time.sleep(2)
