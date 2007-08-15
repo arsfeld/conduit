@@ -5,7 +5,6 @@ import os, sys
 import gtk
 import traceback
 import md5
-import gnome
 
 import conduit
 from conduit import log,logd,logw
@@ -53,7 +52,7 @@ class FacebookSink(DataProvider.ImageSink):
         self.fapi.auth.createToken()
         url = self.fapi.get_login_url()
 
-        gnome.url_show(url)
+        Utils.open_url(url)
 
         # wait for user to login
         login_tester = Utils.LoginTester(self._try_login)
@@ -64,11 +63,9 @@ class FacebookSink(DataProvider.ImageSink):
         This function is used by the login tester, we try to get a token,
         but return None if it does not succeed so the login tester can keep trying
         """
-        try:
-            self.fapi.auth.getSession()
-            return True
-        except:
-            return None
+        print "Trying Login"        
+        rsp = self.fapi.auth.getSession()
+        return rsp.has_key("secret") and rsp.has_key("session_key")
 
     def refresh(self):
         DataProvider.ImageSink.refresh(self)

@@ -163,6 +163,17 @@ def open_URI(uri):
     APP = "gnome-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
 
+def open_url(url):
+    logd("Opening %s" % url)
+
+    import webbrowser
+    webbrowser.open(url,new=1,autoraise=True)
+
+    #import gnome
+    #gnome.open_url(url)
+
+    logd("Opened %s" % url)
+
 def datetime_from_timestamp(t):
     """
     Makes a datetime object from a unix timestamp.
