@@ -6,14 +6,44 @@ from common import *
 
 # This is the python code 
 SimpleTest = """\
+#
+# DO NOT EDIT, AUTOMATICALLY GENERATED
+# 
+
+import sys, thread
+
 from AutoTemplate import *
 from AutoSoup import *
-source = %s().instance(host)
-sink = %s().instance(host)
-data = %s()
-dataset = data.get()
-datatype = data._datatype_
-test_full_set(host, source, sink, datatype, dataset)"""
+
+try:
+    # The dataproviders we are testing
+    source = %s().instance(host)
+    sink = %s().instance(host)
+
+    # The data sample we are using
+    data = %s()
+    dataset = data.get()
+    datatype = str(data._datatype_)
+
+    # Test local <--> local
+    test_full_set(host, source, sink, datatype, dataset)
+
+    if datatype in ("contact", "note"):
+        # Test networked <--> local
+        newsource = host.networked_dataprovider(source)
+        test_full_set(host, newsource, sink, datatype, dataset)
+        
+        # Test local <--> networked
+        newsink = host.networked_dataprovider(sink)
+        test_full_set(host, source, newsink, datatype, dataset)
+
+        # Test networked <--> networked
+        test_full_set(host, newsource, newsink, datatype, dataset)
+
+except:
+    sys.excepthook(*sys.exc_info())
+    ok("Unhandled borkage", False)
+    thread.interrupt_main()"""
 
 # It's hard to pick sane combinations of dps, so heres a little rules table to help out
 # col 1 = weight. in sync folder <--> contact we need to use contact objects over file objects.
@@ -50,13 +80,4 @@ for source in targets:
 for source, sink, datatype, dataset in combinations:
     f = open('test/python-tests/TestAuto_%s_%s.py' % (source, sink), 'w')
     f.write(SimpleTest % (source, sink, dataset))
-
-#        if datatype in ("contact", "note"):
-#            newsource = host.networked_dataprovider(source)
-#            test_full_set(host, newsource, sink, datatype, dataset)
-#            
-#            newsink = host.networked_dataprovider(sink)
-#            test_full_set(host, source, newsink, datatype, dataset)
-#
-#            test_full_set(host, newsource, newsink, datatype, dataset)
 

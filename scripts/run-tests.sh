@@ -34,7 +34,7 @@ fi
 do_coverage=0
 do_upload=0
 do_prepare=0
-do_single_test="x"
+do_single_test="Test*.py"
 do_online="TRUE"
 do_auto=0
 do_debug=0
@@ -95,10 +95,10 @@ indexfile=$LOGDIR/index.html
 
 echo $HEADER > $indexfile
 
-for t in `ls $PY_TEST_DIR/Test*.py`
+for t in `ls $PY_TEST_DIR/$do_single_test`
 do
     fname=`basename $t`
-    if [ $do_single_test == "x" -o $fname == $do_single_test ] ; then
+    #if [ $do_single_test == "x" -o $fname == $do_single_test ] ; then
         echo "RUNNING UNIT TEST: $fname"
 
         #html
@@ -121,7 +121,7 @@ do
             COVERAGE_FILE="$LOGDIR/.coverage" \
             CONDUIT_LOGFILE=$logfile \
             CONDUIT_ONLINE=$do_online \
-            python $t
+            python $EXEC
         else
             #run the test
             TEST_DIRECTORY=$TEST_DATA_DIR \
@@ -134,7 +134,7 @@ do
 
         #html
         echo "</pre></p>" >> $indexfile
-    fi
+    #fi
 done
 
 #include code coverage results in output

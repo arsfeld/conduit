@@ -161,3 +161,8 @@ def prep_folder_contacts(host):
 #    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
 #    return dp
 
+@dataprovider("contact")
+def prep_opensync_evo_contact(host):
+    dp = host.get_dataprovider("opensync-evo2-sync-contact")
+    return dp
+

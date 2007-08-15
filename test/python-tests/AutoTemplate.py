@@ -101,13 +101,13 @@ def test_delete_data(host, dp):
     test_sync(host)
     # ok("Testing DELETE Case (Complete)", a == 0 and b == 0)
 
-def test_clear(host):
+def test_clear(host, source, sink):
     """
     Ensure that both dps are blank
     Run a combination of two way/one way and slow sync
     """
-    test_delete_all(host.source)
-    test_delete_all(host.sink)
+    test_delete_all(source)
+    test_delete_all(sink)
 
     a, b = host.sync()
     ok("Sync worked (%s, %s)" % (a, b), a == 0 and b == 0)
@@ -123,42 +123,42 @@ def test_full(host, source, sink, datatype, dataset, twoway=True, slow=False):
     host.set_slow_sync(slow)
 
     # Fresh data (source end), and try modifying data on both sides
-    test_clear(host)
-    test_add_data(host, host.source, datatype, dataset)
-    test_modify_data(host, host.source)
-    test_modify_data(host, host.sink)
+    test_clear(host, source, sink)
+    test_add_data(host, source, datatype, dataset)
+    test_modify_data(host, source)
+    test_modify_data(host, sink)
 
     # Fresh data (source end), delete on source + sync
-    test_clear(host)
-    test_add_data(host, host.source, datatype, dataset)
-    test_delete_data(host, host.source)
+    test_clear(host, source, sink)
+    test_add_data(host, source, datatype, dataset)
+    test_delete_data(host, source)
 
     if twoway:
         # Fresh data (source end), delete on sink + sync
-        test_clear(host)
-        test_add_data(host, host.source, datatype, dataset)
-        test_delete_data(host, host.sink)
+        test_clear(host, source, sink)
+        test_add_data(host, source, datatype, dataset)
+        test_delete_data(host, sink)
 
     # Same tests again, but inject at the sink.
     # Only makes sense in the twoway case
     if twoway:
         # Fresh data (source end), and try modifying data on both sides
-        test_clear(host)
-        test_add_data(host, host.sink, datatype, dataset)
-        test_modify_data(host, host.source)
-        test_modify_data(host, host.sink)
+        test_clear(host, source, sink)
+        test_add_data(host, sink, datatype, dataset)
+        test_modify_data(host, source)
+        test_modify_data(host, sink)
 
         # Fresh data (source end), delete on source + sync
-        test_clear(host)
-        test_add_data(host, host.sink, datatype, dataset)
+        test_clear(host, source, sink)
+        test_add_data(host, sink, datatype, dataset)
         test_delete_data(host, host.source)
 
         # Fresh data (source end), delete on sink + sync
-        test_clear(host)
-        test_add_data(host, host.sink, datatype, dataset)
-        test_delete_data(host, host.sink)
+        test_clear(host, source, sink)
+        test_add_data(host, sink, datatype, dataset)
+        test_delete_data(host, sink)
 
-    test_clear(host)
+    test_clear(host, source, sink)
 
 def test_full_set(host, source, sink, datatype, dataset):
     """
@@ -176,13 +176,10 @@ def test_full_set(host, source, sink, datatype, dataset):
     except:
         sys.excepthook(*sys.exc_info())
 
-    host.model.quit()
-
-#try:
-#    if os.environ["STRESS_TEST"] != "YES":
-#        sys.exit()
-#except:
-#    sys.exit()
+    try:
+        host.model.quit()
+    except:
+        pass
 
 # Catch exceptions better
 def catch(old_func):
@@ -193,10 +190,12 @@ def catch(old_func):
             raise
         except:
             sys.excepthook(*sys.exc_info())
+            ok("Unhandled borkage in thread or sync logic", False)
             thread.interrupt_main()
 
     func.__doc__ = old_func.__doc__
     return func
+
 threading.Thread.run = catch(threading.Thread.run)
 Sync.SyncWorker.run = catch(Sync.SyncWorker.run)
 
