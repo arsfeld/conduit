@@ -298,16 +298,15 @@ class DataProviderBase(gobject.GObject):
                     callable(getattr(self, c, None)))
                     )
 
-    def set_configuration_xml(self, xmltext, configxml=None):
+    def set_configuration_xml(self, xmltext):
         """
         Restores applications settings from XML
 
         @param xmltext: xml representation of settings
         @type xmltext: C{string}
         """
-        if configxml == None:
-            doc = xml.dom.mnidom.parseString(xmltext)
-            configxml = doc.documentElement
+        doc = xml.dom.minidom.parseString(xmltext)
+        configxml = doc.documentElement
 
         if configxml.nodeType == configxml.ELEMENT_NODE and configxml.localName == "configuration":
             settings = {}

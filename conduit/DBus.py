@@ -198,7 +198,7 @@ class DBusView(dbus.service.Object):
         source = self._add_dataprovider("FileSource", self._get_sources())
         sink = self._add_dataprovider(sinkKey, self._get_sinks())
         if sink != ERROR:
-            self.UIDs[sink].module.set_configuration_xml(sinkConfigXml)
+            self.UIDs[sink].set_configuration_xml(sinkConfigXml)
         conduit = self._add_conduit(source, sink)
         if conduit != ERROR:
             self.UIDs[conduit].enable_two_way_sync()
@@ -307,7 +307,7 @@ class DBusView(dbus.service.Object):
         if uid in self.UIDs:
             #create new conduit, populate and add to hashmap
             dataprovider = self.UIDs[uid]
-            dataprovider.module.set_configuration_xml(xmltext)
+            dataprovider.set_configuration_xml(xmltext)
             ok = SUCCESS
         return ok
 

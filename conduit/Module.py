@@ -11,7 +11,7 @@ import traceback
 import pydoc
 
 from conduit import log,logd,logw
-from conduit.ModuleWrapper import ModuleWrapper
+from conduit.ModuleWrapper import ModuleWrapper, PendingDataproviderWrapper
 from conduit.DataProvider import CATEGORY_TEST
 from conduit.Hal import HalMonitor
 
@@ -286,7 +286,9 @@ class ModuleManager(gobject.GObject):
         @type classname: C{string}
         @returns: An newly instanciated ModuleWrapper
         @rtype: a L{conduit.Module.ModuleWrapper}
-        """    
+        """
+        mod_wrapper = None
+    
         if wrapperKey in self.moduleWrappers:
             #Get the existing wrapper
             m = self.moduleWrappers[wrapperKey]
@@ -306,10 +308,11 @@ class ModuleManager(gobject.GObject):
                                         self._instantiate_class(classname, initargs),
                                         True)
                 
-            return mod_wrapper
         else:
             logw("Could not find module wrapper: %s" % (wrapperKey))
-            return None
+            mod_wrapper = PendingDataproviderWrapper(wrapperKey)
+
+        return mod_wrapper
 
     def make_modules_callable(self, type_filter):
         """

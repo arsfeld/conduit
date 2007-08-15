@@ -232,4 +232,37 @@ class ModuleWrapper:
     def __str__(self):
         return "%s %s wrapper (UID: %s)" % (self.name, self.module_type, self.get_UID())
 
+    def set_configuration_xml(self, xmltext):
+        self.module.set_configuration_xml(xmltext)
+
+    def get_configuration_xml(self):
+        return self.module.get_configuration_xml()
+
+class PendingDataproviderWrapper(ModuleWrapper):
+    def __init__(self, key):
+        ModuleWrapper.__init__(
+                    self,
+                    "name", 
+                    "description",
+                    "gtk-missing",          #use a missing image
+                    "twoway",               #twoway so can placehold as source or sink
+                    "category", 
+                    "in_type",
+                    "out_type",
+                    key.split(':')[0],
+                    (),
+                    None,                   #module is None. 
+                    False)                  #enabled = False so a sync is not performed
+        self.key = key
+        self.xmltext = ""
+
+    def get_key(self):
+        return self.key
+
+    def set_configuration_xml(self, xmltext):
+        self.xmltext = xmltext
+
+    def get_configuration_xml(self):
+        return self.xmltext
+
 

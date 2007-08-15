@@ -128,7 +128,7 @@ class SyncSet(gobject.GObject):
             if wrapper is not None:
                 for i in dpxml.childNodes:
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
-                        wrapper.module.set_configuration_xml(xmltext="", configxml=i)
+                        wrapper.set_configuration_xml(xmltext=i.toxml())
 
             conduit.add_dataprovider(wrapper, isSource)
 

@@ -16,7 +16,7 @@ from gettext import gettext as _
 from conduit import log,logd,logw
 from conduit.Conduit import Conduit
 from conduit.Tree import DND_TARGETS
-from conduit.ModuleWrapper import ModuleWrapper
+from conduit.ModuleWrapper import PendingDataproviderWrapper
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -240,6 +240,9 @@ class Canvas(goocanvas.Canvas):
                 )
         return item
 
+    def _add_to_model_conduit_canvas_item_model(self, cond):
+        self.model.add_conduit(cond)
+
     def _delete_conduit_canvas_item(self, conduitCanvasItem):
         """
         Removes a conduit canvas item from the canvas, and its model 
@@ -274,9 +277,10 @@ class Canvas(goocanvas.Canvas):
                             model=dataproviderWrapper
                             )
         item.connect('button-press-event', self._on_dataprovider_button_press)
-
-        conduitCanvasItem.model.add_dataprovider(dataproviderWrapper)
         conduitCanvasItem.add_dataprovider_canvas_item(item)
+
+    def _add_dataprovider_model_to_conduit_canvas_item_model(self, cond, dataproviderWrapper):
+        cond.add_dataprovider(dataproviderWrapper)
 
     def _remove_overlap(self):
         """
@@ -492,9 +496,14 @@ class Canvas(goocanvas.Canvas):
 
         if existing == None:
             cond = Conduit()
-            self.model.add_conduit(cond)
+
+            #add the model
+            self._add_to_model_conduit_canvas_item_model(cond)
+            #add the conduit to the canvas
             item = self._add_conduit_canvas_item(cond)
 
+            #add the model
+            self._add_dataprovider_model_to_conduit_canvas_item_model(cond,dataproviderWrapper)
             #now add a dataprovider to the conduit
             self._add_dataprovider_to_conduit_canvas_item(item,dataproviderWrapper)
         else:
@@ -503,6 +512,9 @@ class Canvas(goocanvas.Canvas):
                 parent = parent.get_parent()
             
             if parent != None:
+                #add the model
+                self._add_dataprovider_model_to_conduit_canvas_item_model(parent.model,dataproviderWrapper)
+                #now add a dataprovider to the conduit
                 self._add_dataprovider_to_conduit_canvas_item(parent,dataproviderWrapper)
 
             self._remove_overlap()
@@ -640,10 +652,6 @@ class DataProviderCanvasItem(_CanvasItem):
         if self.model.module != None:
             self.model.module.connect("change-detected", self._on_change_detected)
             self.model.module.connect("status-changed", self._on_status_changed)
-        else:
-            self.statusText.set_property("text", DataProviderCanvasItem.PENDING_MESSAGE)
-            fillColor = self._get_fill_color()
-            self.box.set_property("fill_color_rgba", fillColor)
     
 class ConduitCanvasItem(_CanvasItem):
 
@@ -982,23 +990,4 @@ class ConnectorCanvasItem(_CanvasItem):
         self.twoway = twoway
         self._draw_arrow_ends()
 
-class PendingDataproviderWrapper(ModuleWrapper):
-    def __init__(self, key):
-        ModuleWrapper.__init__(
-                    self,
-                    "name", 
-                    "description",
-                    "gtk-missing",          #use a missing image
-                    "twoway",               #twoway so can placehold as source or sink
-                    "category", 
-                    "in_type",
-                    "out_type",
-                    key.split(':')[0],
-                    (),
-                    None,
-                    False)                  #enabled = False so a sync is not performed
-        self.key = key
-
-    def get_key(self):
-        return self.key
 
