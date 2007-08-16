@@ -74,8 +74,11 @@ class DBusItem(dbus.service.Object):
         bus_name = dbus.service.BusName(iface, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, path)
 
+    def get_path(self):
+        return self.__dbus_object_path__
+
     def _print(self, message):
-        logd("DBus Message from %s: %s" % (self.__dbus_object_path__, message))
+        logd("DBus Message from %s: %s" % (self.get_path(), message))
 
 class ConduitDBusItem(DBusItem):
     def __init__(self, sync_manager, conduit, uuid):
@@ -162,7 +165,7 @@ class DBusView(DBusItem):
 
         i = uuid.uuid4().hex
         new = DataProviderDBusItem(dp, i)
-        self.objs[new.__dbus_object_path__] = new
+        self.objs[new.get_path()] = new
         return new
 
     def _add_conduit(self, source=None, sink=None):
@@ -182,7 +185,7 @@ class DBusView(DBusItem):
 
         i = uuid.uuid4().hex
         new = ConduitDBusItem(self.sync_manager, cond, i)
-        self.objs[new.__dbus_object_path__] = new
+        self.objs[new.get_path()] = new
         return new
 
     def _on_dataprovider_available(self, loader, dataprovider):
@@ -225,5 +228,6 @@ class DBusView(DBusItem):
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):
-        self.conduitApplication.Quit()
+        if self.conduitApplication != None:
+            self.conduitApplication.Quit()
 
