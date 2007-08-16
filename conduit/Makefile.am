@@ -23,7 +23,7 @@ conduit_PYTHON = \
 	DeltaProvider.py \
 	Exceptions.py \
 	Hal.py \
-	GtkUI \
+	GtkUI.py \
 	Main.py \
 	Module.py \
 	ModuleWrapper.py \
