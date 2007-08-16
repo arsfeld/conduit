@@ -25,7 +25,7 @@ SUCCESS = 0
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 CONDUIT_DBUS_IFACE="org.conduit.Conduit"
-UPLOADER_DBUS_IFACE="org.conduit.Upload"
+EXPORTER_DBUS_IFACE="org.conduit.Exporter"
 DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 
 ################################################################################
@@ -33,6 +33,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 ################################################################################
 #
 # ==== Main Application ====
+# Service           org.conduit.Application
 # Interface	        org.conduit.Application
 # Object path       /
 #
@@ -40,12 +41,14 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # BuildConduit(source, sink)
 # GetAllDataProviders
 # GetDataProvider
+# Quit
 # 
 # Signals:
 # DataproviderAvailable(key)
 # DataproviderUnavailable(key)
 #
 # ==== Conduit ====
+# Service	        org.conduit.Conduit
 # Interface	        org.conduit.Conduit
 # Object path       /conduit/{some UUID}
 #
@@ -54,14 +57,30 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # Refresh
 # 
 # Signals:
+# SyncStarted
+# SyncCompleted(aborted, error, conflict)
+# SyncConflict
+# SyncProgress(progress)
+#
+# ==== Exporter Conduit ====
+# Service	        org.conduit.Conduit
+# Interface	        org.conduit.Exporter
+# Object path       /conduit/{some UUID}
+#
+# Methods:
+# AddData
+# ConfigureSink
 #
 # ==== DataProvider ====
+# Service	        org.conduit.DataProvider
 # Interface	        org.conduit.DataProvider
 # Object path       /dataprovider/{some UUID}
 #
 # Methods:
 # SetConfigurationXML
 # GetConfigurationXML
+# GetInformation
+# AddData(uri)
 # 
 # Signals:
 
@@ -82,10 +101,36 @@ class DBusItem(dbus.service.Object):
 
 class ConduitDBusItem(DBusItem):
     def __init__(self, sync_manager, conduit, uuid):
-        self.sync_manager = sync_manager
-        self.conduit = conduit
         DBusItem.__init__(self, iface=CONDUIT_DBUS_IFACE, path="/conduit/%s" % uuid)
 
+        self.sync_manager = sync_manager
+        self.conduit = conduit
+        self.sync_manager.add_syncworker_callbacks(
+                                self._on_sync_started, 
+                                self._on_sync_completed, 
+                                self._on_sync_conflict,
+                                self._on_sync_progress
+                                )
+
+    def _on_sync_started(self, thread):
+        if thread.conduit == self.conduit:
+            self.SyncStarted()
+
+    def _on_sync_completed(self, thread, aborted, error, conflict):
+        if thread.conduit == self.conduit:
+            self.SyncCompleted(bool(aborted), bool(error), bool(conflict))
+
+    def _on_sync_progress(self, thread, progress):
+        if thread.conduit == self.conduit:
+            self.SyncProgress(float(progress))
+
+    def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices, isDeleted):
+        if thread.conduit == self.conduit:
+            self.SyncConflict()   
+
+    #
+    # org.conduit.Conduit
+    #
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Sync(self):
         self._print("Sync")
@@ -96,19 +141,66 @@ class ConduitDBusItem(DBusItem):
         self._print("Refresh")
         self.sync_manager.refresh_conduit(self.conduit)
 
-class UploadConduitDBusItem(ConduitDBusItem):
-    def __init__(self, sync_manager, conduit, uuid):
-        ConduitDBusItem.__init__(self, sync_manager, conduit, uuid)
+    @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='')
+    def SyncStarted(self):
+        self._print("SyncStarted")
 
-    @dbus.service.method(UPLOADER_DBUS_IFACE, in_signature='s', out_signature='')
-    def AddData(self, data):
-        self._print("AddData: %s" % data)
-        self.conduit.datasource.module.add(dataLUID)
+    @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='bbb')
+    def SyncCompleted(self, aborted, error, conflict):
+        self._print("SyncCompleted (abort:%s error:%s conflict:%s)" % (aborted,error,conflict))
+
+    @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='')
+    def SyncConflict(self):
+        self._print("SyncConflict")
+
+    @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='d')
+    def SyncProgress(self, progress):
+        self._print("SyncProgress %s%%" % (progress*100.0))
+
+    #
+    # org.conduit.Exporter
+    #
+    @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='s', out_signature='')
+    def ConfigureSink(self, xml):
+        self._print("ConfigureSink: %s" % xml)
+        if len(self.conduit.datasinks) != 0:
+            raise ConduitException("Simple exporter may only have one sink")
+        self.conduit.datasinks[0].set_configuration_xml(xml)
+
+    @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='s', out_signature='')
+    def AddData(self, uri):
+        self._print("AddData: %s" % uri)
+        if self.conduit.datasource == None:
+            raise ConduitException("Simple exporter must have a source")
+
+        self.conduit.datasource.module.add(uri)
 
 class DataProviderDBusItem(DBusItem):
     def __init__(self, dataprovider, uuid):
-        self.dataprovider = dataprovider
         DBusItem.__init__(self, iface=DATAPROVIDER_DBUS_IFACE, path="/dataprovider/%s" % uuid)
+
+        self.dataprovider = dataprovider
+
+    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='a{ss}')
+    def GetInformation(self):
+        self._print("GetInformation")
+        #Need to call get_icon so that the icon_name/path is loaded
+        self.dataprovider.get_icon()
+
+        info = {}
+        info["name"] = self.dataprovider.name
+        info["description"] = self.dataprovider.description
+        info["module_type"] = self.dataprovider.module_type
+        info["category"] = self.dataprovider.category.name
+        info["in_type"] = self.dataprovider.get_in_type()
+        info["out_type"] = self.dataprovider.get_out_type()
+        info["classname"] = self.dataprovider.classname
+        info["key"] = self.dataprovider.get_key()
+        info["enabled"] = str(self.dataprovider.enabled)
+        info["UID"] = self.dataprovider.get_UID()
+        info["icon_name"] = self.dataprovider.icon_name
+        info["icon_path"] = self.dataprovider.icon_path
+        return info
 
     @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='', out_signature='s')
     def GetConfigurationXml(self):
@@ -118,7 +210,12 @@ class DataProviderDBusItem(DBusItem):
     @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='s', out_signature='')
     def SetConfigurationXml(self, xml):
         self._print("SetConfigurationXml: %s" % xml)
-        self.dataprovider.set_configuration_xml(xmltext)
+        self.dataprovider.set_configuration_xml(xml)
+
+    @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='s', out_signature='')
+    def AddData(self, uri):
+        self._print("AddData: %s" % uri)
+        self.dataprovider.module.add(uri)
 
 class DBusView(DBusItem):
     def __init__(self, conduitApplication, moduleManager, typeConverter):
@@ -139,12 +236,6 @@ class DBusView(DBusItem):
         self.type_converter = typeConverter
         self.sync_manager = SyncManager(self.type_converter)
         self.sync_manager.set_twoway_policy({"conflict":"skip","deleted":"skip"})
-        #self.sync_manager.add_syncworker_callbacks(
-        #                        self._on_sync_started, 
-        #                        self._on_sync_completed, 
-        #                        self._on_sync_conflict,
-        #                        self._on_sync_progress
-        #                        )
 
     def _get_all_dps(self):
         datasources = self.moduleManager.get_modules_by_type("source")
@@ -215,7 +306,6 @@ class DBusView(DBusItem):
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='oo', out_signature='o')
     def BuildConduit(self, source, sink):
         self._print("BuildConduit %s --> %s" % (source, sink))
-        print self.objs.keys()
 
         #get the actual dps from their object paths
         try:
@@ -225,6 +315,15 @@ class DBusView(DBusItem):
             raise ConduitException("Could not find dataprovider with key: %s" % e)
 
         return self._add_conduit(source, sink)
+
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='o')
+    def BuildExporter(self, key):
+        self._print("BuildExporter --> %s" % key)
+
+        source = self._add_dataprovider("FileSource")
+        sink = self._add_dataprovider(key)
+
+        return self._add_conduit(source.dataprovider, sink.dataprovider)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):

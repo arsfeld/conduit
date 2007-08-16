@@ -217,7 +217,6 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
                     "sync-progress": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_PYOBJECT,      #conduit,
                         gobject.TYPE_FLOAT])        #percent complete
                     }
 
@@ -531,7 +530,7 @@ class SyncWorker(_ThreadedWorker):
             #work out the percent complete
             done = idx/(numItems*len(self.sinks)) + \
                     float(self.sinks.index(sink))/len(self.sinks)
-            self.emit("sync-progress", self.conduit, done)
+            self.emit("sync-progress", done)
 
             #transfer the data
             data = self._get_data(source, sink, i)

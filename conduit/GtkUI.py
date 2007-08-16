@@ -108,7 +108,7 @@ class MainWindow:
                                 self.on_sync_started, 
                                 self.on_sync_completed, 
                                 self.conflictResolver.on_conflict,
-                                None    #FIXME: self.canvas.on_conduit_progress
+                                None
                                 )
 
         #setup the module manager

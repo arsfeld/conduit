@@ -566,8 +566,15 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
 
     def add(self, LUID):
         f = File.File(URI=LUID)
-        if f.exists() and not f.is_directory():
-            self.items.append((f._get_text_uri(),TYPE_SINGLE_FILE,0,False,"",[]))                
+        if f.exists():
+            if f.is_directory():
+                logd("Adding directory: %s" % LUID)
+                self.items.append((f._get_text_uri(),TYPE_FOLDER,0,False,"",[]))
+            else:
+                logd("Adding file: %s" % LUID)
+                self.items.append((f._get_text_uri(),TYPE_SINGLE_FILE,0,False,"",[]))                
+        else:
+            logw("Could not add: %s" % LUID)
 
     def get_all(self):
         return self.files.keys()
