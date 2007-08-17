@@ -369,6 +369,8 @@ class Canvas(goocanvas.Canvas):
 
         if cond.is_empty():
             self._delete_conduit_canvas_item(conduitCanvasItem)
+        else:
+            conduitCanvasItem.remove_overlap()
             
         self._remove_overlap()
 
@@ -703,6 +705,33 @@ class ConduitCanvasItem(_CanvasItem):
             if item.model.get_key() == olddpw.get_key():
                 item.set_model(newdpw)
 
+    def _get_connector_coordinates(self, fromdp, todp):
+        """
+        Calculates the points a connector shall connect to between fromdp and todp
+        @returns: fromx,fromy,tox,toy
+        """
+        fromx = fromdp.get_right()
+        fromy = fromdp.get_top() + (fromdp.get_height()/2) - self.get_top()
+        tox = todp.get_left()
+        toy = todp.get_top() + (todp.get_height()/2) - self.get_top()
+        return fromx,fromy,tox,toy
+
+    def remove_overlap(self):
+        items = self.sinkDpItems
+        if len(items) > 1:
+            for i in xrange(1, len(items)):
+                overlap = items[i-1].get_bottom() - items[i].get_top()
+                print "Sink Overlap: %s %s ----> %s" % (overlap,i-1,i)
+                #If there is anything more than the normal padding gap between then
+                #the dp must be translated
+                if overlap < -SIDE_PADDING:
+                    #translate all those below, and make their connectors work again
+                    for item in items[i:]:
+                        item.translate(0,overlap+SIDE_PADDING)
+                        fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,item)
+                        self.connectorItems[item].reconnect(fromx,fromy,tox,toy)
+
+
     def add_dataprovider_canvas_item(self, item):
         self._position_dataprovider(item)
 
@@ -719,17 +748,14 @@ class ConduitCanvasItem(_CanvasItem):
         #add a connector. If we just added a source then we need to make all the
         #connectors, otherwise we just need to add a connector for the new item
         if dpx == 0:
-            fromx = self.sourceItem.get_right()
-            fromy = self.sourceItem.get_top() + (self.sourceItem.get_height()/2)
             #make all the connectors
             for s in self.sinkDpItems:
-                tox = s.get_left()
-                toy = s.get_top() + (s.get_height()/2)
+                fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,s)
                 c = ConnectorCanvasItem(self,
                     fromx,
-                    fromy-self.get_top(),
+                    fromy,
                     tox,
-                    toy-self.get_top(),
+                    toy,
                     self.model.is_two_way(),
                     False
                     )
@@ -737,15 +763,12 @@ class ConduitCanvasItem(_CanvasItem):
         else:
             #just make the new connector
             if self.sourceItem != None:
-                fromx = self.sourceItem.get_right()
-                fromy = self.sourceItem.get_top() + (self.sourceItem.get_height()/2)
-                tox = item.get_left()
-                toy = item.get_top() + (item.get_height()/2)
+                fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,item)
                 c = ConnectorCanvasItem(self,
                     fromx,
-                    fromy-self.get_top(),
+                    fromy,
                     tox,
-                    toy-self.get_top(),
+                    toy,
                     self.model.is_two_way(),
                     False
                     )
@@ -924,6 +947,14 @@ class ConnectorCanvasItem(_CanvasItem):
             self.toX += dw
             self._draw_path()
             self._draw_arrow_ends()
+
+    def reconnect(self, fromX, fromY, toX, toY):
+        self.fromX = fromX
+        self.fromY = fromY
+        self.toX = toX
+        self.toY = toY
+        self._draw_path()
+        self._draw_arrow_ends()
 
     def set_color(self, color):
         """
