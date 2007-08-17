@@ -15,44 +15,69 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 
 MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 
+class ConduitWrapper:
+    SUPPORTED_SINKS = ["FlickrSink", "TestSink"]
+
+    def __init__(self):
+        self.app = None
+        self.conduits = {}
+        self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
+
+        #setup the DBus connection
+        self._connect_to_conduit()
+
+    def _connect_to_conduit(self):
+            bus = dbus.SessionBus()
+            try:
+                remote_object = bus.get_object(APPLICATION_DBUS_IFACE,"/")
+                self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
+
+                dps = self.app.GetAllDataProviders()
+                for s in ConduitWrapper.SUPPORTED_SINKS:
+                    if s in dps:
+                        print "Configuring support for %s" % s
+                        path = self.app.BuildExporter(s)
+                        exporter = bus.get_object(CONDUIT_DBUS_IFACE,path)
+                        self.conduits[s] = exporter
+            
+            except dbus.exceptions.DBusException:
+                self.app = None
+                print "Conduit unavailable"
+
+    def upload(self, sinkName, eogImage):
+        print "Upload ",eogImage
+        if self.app != None:
+            if sinkName in self.conduits.keys():
+                uri = eogImage.get_uri_for_display()
+                thumb = eogImage.get_thumbnail()
+
+                print "Adding ", uri
+
+                self.conduits[sinkName].AddData(
+                                            uri,
+                                            dbus_interface=EXPORTER_DBUS_IFACE
+                                            )
+                
+                #img = gtk.gdk.pixbuf_new_from_file(os.path.join(self.dir, "conduit-icon.png"))
+                self.store.append(None,(thumb, uri))
+
+    def sync(self):
+        for c in self.conduits.values():
+            c.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
+
 class ConduitPlugin(eog.Plugin):
     def __init__(self):
         self.dir = os.path.abspath(os.path.join(__file__, ".."))
         self.gladefile = os.path.join(self.dir, "config.glade")
-        self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
-
-        self.act = gtk.Action(
-                        name="RunPostr",
-                        stock_id="internet",
-                        label="Upload to Flickr",
-                        tooltip="Upload your pictures to Flickr"
-                        )
-        self.act.connect("activate",self._on_act)
         
-        self.dlg = None
-        self.app = None
+        self.conduit = ConduitWrapper()
 
-    def _on_act(self, *args):
-        print "CLICK"
+    def _on_act(self, sender, window):
+        currentImage = window.get_image()
+        self.conduit.upload("TestSink", currentImage)
 
-    def _dummy_data(self):
-        img = gtk.gdk.pixbuf_new_from_file(os.path.join(self.dir, "conduit-icon.png"))
-        self.store.append(None,(img, "Text"))
-
-    def _connect_to_conduit(self):
-        #Create an Interface wrapper for the remote object
-        bus = dbus.SessionBus()
-
-        try:
-            remote_object = bus.get_object(APPLICATION_DBUS_IFACE,"/")
-            self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
-
-            dps = self.app.GetAllDataProviders()
-            print "Available DPs"
-            for dp in dps:
-                print " * ",dp
-        except dbus.exceptions.DBusException:
-            print "Conduit unavailable"
+    def _on_sync_clicked(self, *args):
+        self.conduit.sync()
 
     def _prepare_sidebar(self, window):
         #the sidebar is a treeview where 
@@ -61,7 +86,7 @@ class ConduitPlugin(eog.Plugin):
         #a upload button below
 
         box = gtk.VBox()
-        view = gtk.TreeView(self.store)
+        view = gtk.TreeView(self.conduit.store)
         box.pack_start(view,expand=True,fill=True)
         bbox = gtk.HButtonBox()
         box.pack_start(bbox,expand=False)
@@ -75,6 +100,7 @@ class ConduitPlugin(eog.Plugin):
 
         #upload and clear button
         okbtn = gtk.Button(stock=gtk.STOCK_OK)
+        okbtn.connect("clicked",self._on_sync_clicked)
         clearbtn = gtk.Button(stock=gtk.STOCK_CLEAR)
         bbox.pack_start(okbtn)
         bbox.pack_start(clearbtn)
@@ -84,10 +110,18 @@ class ConduitPlugin(eog.Plugin):
         sidebar.show_all()
 
     def _prepare_tools_menu(self, window):
+        action = gtk.Action(
+                        name="RunPostr",
+                        stock_id="internet",
+                        label="Upload to Flickr",
+                        tooltip="Upload your pictures to Flickr"
+                        )
+        action.connect("activate",self._on_act, window)
+
         manager = window.get_ui_manager()
 
         ui_action_group = gtk.ActionGroup("EogPostrPluginActions")
-        ui_action_group.add_action(self.act)
+        ui_action_group.add_action(action)
 
         manager.insert_action_group(ui_action_group,-1)
         mid = manager.new_merge_id()
@@ -99,16 +133,10 @@ class ConduitPlugin(eog.Plugin):
 			    type=gtk.UI_MANAGER_MENUITEM, 
 			    top=False)
 
-    def _prepare_config_dialog(self):
-        if self.dlg == None:
-            xml = gtk.glade.XML(self.gladefile, "ConfigDialog")
-            self.dlg = xml.get_widget("ConfigDialog")
-
     def activate(self, window):
-        self._connect_to_conduit()
+        #the sidebar and menu integration must be done once per eog window instance
         self._prepare_sidebar(window) 
         self._prepare_tools_menu(window)
-        self._dummy_data()       
         print "ACTIVATE"
 
     def deactivate(self, window):
@@ -121,5 +149,6 @@ class ConduitPlugin(eog.Plugin):
         return True
 
     def create_configure_dialog(self):
-        self._prepare_config_dialog()
-        return self.dlg
+        xml = gtk.glade.XML(self.gladefile, "ConfigDialog")
+        dlg = xml.get_widget("ConfigDialog")
+        return dlg
