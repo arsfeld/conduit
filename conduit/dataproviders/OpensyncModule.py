@@ -20,6 +20,8 @@ from conduit.DataProvider import TwoWay
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
+import md5
+
 try:
     import opensync
     MODULES = {
@@ -61,9 +63,9 @@ class BaseDataprovider(DataProvider.TwoWay):
         return self.uids[LUID]
 
     def put(self, obj, overwrite, LUID=None):
-        chg = self.object_to_change(obj)
+        chg = self._object_to_change(obj)
         
-        if overwrite == True:
+        if overwrite == True or LUID != None:
             chg.uid = LUID
             chg.changetype = opensync.CHANGE_TYPE_MODIFIED
         else:
@@ -95,14 +97,18 @@ class BaseDataprovider(DataProvider.TwoWay):
         converter = self.formats.find_converter(formatfrom, formatto)
         return converter.invoke(data, "")
 
-    def change_to_object(self, change):
+    def _change_to_object(self, change):
         """ Map from an opensync data object to a Conduit data object """
         raise NotImplementedError
 
-    def object_to_change(self, obj):
+    def _object_to_change(self, obj):
         """ Map from a Conduit data object to an opensync data object """
         raise NotImplementedError
 
+    def _get_hash(self, change):
+        myhash = change.hash
+        if myhash == None or len(myhash) == 0:
+            return md5.md5(change.data.data).hexdigest()
 
 class Callbacks(opensync.ContextCallbacks):
     def __init__(self, dp):
@@ -112,7 +118,7 @@ class Callbacks(opensync.ContextCallbacks):
         pass
 
     def changes(self, change):
-        self.dp.uids[change.uid] = self.dp.change_to_object(change)
+        self.dp.uids[change.uid] = self.dp._change_to_object(change)
 
     def warning(self, err):
         logd("warning: %s" % err)
@@ -125,18 +131,18 @@ class ContactDataprovider(BaseDataprovider):
     _icon_ = "contact-new"
     _osync_type_ = "vcard30"
 
-    def change_to_object(self, change):
+    def _change_to_object(self, change):
         uid = change.uid
         # FIXME: Shouldn't need to trim the data!
         data = str(change.data.data)[:-1]
-
+        logd(self._get_hash(change))
         contact = Contact.Contact(None)
         contact.set_from_vcard_string(data)
         # contact.set_mtime(...)
         contact.set_UID(change.uid)
         return contact
 
-    def object_to_change(self, obj):
+    def _object_to_change(self, obj):
         chg = opensync.Change()
         chg.format = "vcard30"
         chg.objtype = "data"
@@ -152,7 +158,7 @@ class EventDataprovider(BaseDataprovider):
     _icon_ = "contact-new"
     _osync_type_ = "vevent20"
 
-    def change_to_object(self, change):
+    def _change_to_object(self, change):
         uid = change.uid
         # FIXME: Shouldn't need to trim the data!
         data = str(change.data.data)[:-1]
@@ -163,7 +169,7 @@ class EventDataprovider(BaseDataprovider):
         # event.set_mtime(...)
         return event
 
-    def object_to_change(self, obj):
+    def _object_to_change(self, obj):
         chg = opensync.Change()
         chg.format = "vevent20"
         chg.objtype = "data"
