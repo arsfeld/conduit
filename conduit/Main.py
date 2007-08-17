@@ -139,7 +139,8 @@ class Application(dbus.service.Object):
                             moduleManager=self.moduleManager,
                             typeConverter=self.typeConverter
                             )
-#            self.dbus.set_model(self.model)
+            #Dbus manages its own model per caller
+            self.dbus.set_model(None)
 
             if self.statusIcon:
                 self.dbus.sync_manager.add_syncworker_callbacks(

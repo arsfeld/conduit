@@ -179,11 +179,14 @@ class Conduit(gobject.GObject):
         if dataprovider == self.datasource:
             del(self.datasource)
             self.datasource = None
+            return True
         elif dataprovider in self.datasinks:
             i = self.datasinks.index(dataprovider)
             del(self.datasinks[i])
+            return True
         else:
             logw("Could not remove %s" % dataprovider)
+            return False
 
     def can_do_two_way_sync(self):
         """

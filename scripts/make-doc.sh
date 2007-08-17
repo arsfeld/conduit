@@ -1,5 +1,4 @@
 #!/bin/bash
-PYTHONPATH=/home/john/Programming/src/epydoc/src/ \
 epydoc  -o doc --name conduit --css white \
         --url http://www.conduit-project.org \
         --inheritance listed \
