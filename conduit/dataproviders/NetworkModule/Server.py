@@ -118,11 +118,11 @@ class NetworkEndpoint(DataProvider.TwoWay):
 
     _name_ = "Network"
     _description_ = "Network your desktop"
-    _category_ = DataProvider.CATEGORY_NOTES
+    _category_ = DataProvider.CATEGORY_MISC
     _module_type_ = "twoway"
     _in_type_ = "file"
     _out_type_ = "file"
-    _icon_ = "tomboy"
+    _icon_ = "gnome-nettool"
 
     def is_busy(self):
         return True
