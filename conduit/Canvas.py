@@ -274,14 +274,25 @@ class Canvas(goocanvas.Canvas):
         Moves the ConduitCanvasItems to stop them overlapping visually
         """
         items = self._get_child_conduit_items()
-        if len(items) > 1:
-            for i in xrange(1, len(items)):
-                overlap = items[i-1].get_bottom() - items[i].get_top()
-                print "Overlap: %s %s ----> %s" % (overlap,i-1,i)
-                if overlap != 0.0:
+        if len(items) > 0:
+            #special case where the top one was deleted
+            top = items[0].get_top()-(LINE_WIDTH/2)
+            if top != 0.0:
+                for item in items:
                     #translate all those below
-                    for item in items[i:]:
-                        item.translate(0,overlap)
+                    item.translate(0,-top)
+            else:
+                for i in xrange(0, len(items)):
+                    try:
+                        overlap = items[i].get_bottom() - items[i+1].get_top()
+                        print "Overlap: %s %s ----> %s" % (overlap,i,i+1)
+                        if overlap != 0.0:
+                            #translate all those below
+                            for item in items[i+1:]:
+                                item.translate(0,overlap)
+                    except IndexError: 
+                        break
+
 
     def get_sync_set(self):
         return self.model
@@ -718,18 +729,32 @@ class ConduitCanvasItem(_CanvasItem):
 
     def remove_overlap(self):
         items = self.sinkDpItems
-        if len(items) > 1:
-            for i in xrange(1, len(items)):
-                overlap = items[i-1].get_bottom() - items[i].get_top()
-                print "Sink Overlap: %s %s ----> %s" % (overlap,i-1,i)
-                #If there is anything more than the normal padding gap between then
-                #the dp must be translated
-                if overlap < -SIDE_PADDING:
-                    #translate all those below, and make their connectors work again
-                    for item in items[i:]:
-                        item.translate(0,overlap+SIDE_PADDING)
-                        fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,item)
-                        self.connectorItems[item].reconnect(fromx,fromy,tox,toy)
+        if len(items) > 0:
+            #special case where the top one was deleted
+            top = items[0].get_top()-self.get_top()-SIDE_PADDING-LINE_WIDTH
+            if top != 0.0:
+                for item in items:
+                    #translate all those below
+                    item.translate(0,-top)
+                    if self.sourceItem != None:
+                            fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,item)
+                            self.connectorItems[item].reconnect(fromx,fromy,tox,toy)
+            else:
+                for i in xrange(0, len(items)):
+                    try:
+                        overlap = items[i].get_bottom() - items[i+1].get_top()
+                        print "Sink Overlap: %s %s ----> %s" % (overlap,i,i+1)
+                        #If there is anything more than the normal padding gap between then
+                        #the dp must be translated
+                        if overlap < -SIDE_PADDING:
+                            #translate all those below, and make their connectors work again
+                            for item in items[i+1:]:
+                                item.translate(0,overlap+SIDE_PADDING)
+                                if self.sourceItem != None:
+                                    fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,item)
+                                    self.connectorItems[item].reconnect(fromx,fromy,tox,toy)
+                    except IndexError:
+                        break
 
 
     def add_dataprovider_canvas_item(self, item):
