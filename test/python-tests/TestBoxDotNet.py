@@ -44,3 +44,11 @@ f.transfer(tmpdir)
 ok("Transferred file to %s" % tmpdir, f.exists())
 ok("Filename retained in transfer", f.get_filename() == SAFE_FILENAME)
 
+#Send a remote file
+f = File.File("http://files.conduit-project.org/Conduit-0.1.0-screenshot.png")
+try:
+    uid = boxdotnet.put(f, True)
+    ok("Upload a file (UID:%s) " % uid, True)
+except Exception, err:
+    ok("Upload a file (%s)" % err, False)
+

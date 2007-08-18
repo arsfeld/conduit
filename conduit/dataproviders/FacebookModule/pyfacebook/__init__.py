@@ -38,13 +38,6 @@ try:
     import simplejson
     RESPONSE_FORMAT = 'JSON'
 except:
-    print 'NOTE: PyFacebook can use simplejson if it is installed, which'
-    print 'is much faster than XML and also uses less bandwith. Go to'
-    print 'http://undefined.org/python/#simplejson to download it, or do'
-    print 'apt-get install python-simplejson on a Debian-like system.'
-    print ''
-    print 'Falling back to XML...'
-
     from xml.dom import minidom
     RESPONSE_FORMAT = 'XML'
 

@@ -170,7 +170,7 @@ def open_url(url):
     webbrowser.open(url,new=1,autoraise=True)
 
     #import gnome
-    #gnome.open_url(url)
+    #gnome.url_show(url)
 
     logd("Opened %s" % url)
 

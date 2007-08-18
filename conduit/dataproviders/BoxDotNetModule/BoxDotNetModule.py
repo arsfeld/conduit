@@ -3,7 +3,6 @@ BoxDotNet Module
 """
 import os, sys
 import gtk
-import gnome
 import traceback
 import md5
 
@@ -171,7 +170,7 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         if not self.token:
             # get the ticket and open login url
             self._set_ticket()
-            gnome.url_show(BoxDotNet.get_login_url(self.ticket))
+            Utils.open_url(BoxDotNet.get_login_url(self.ticket))
 
             # wait for login
             login_tester = Utils.LoginTester(self._try_login)

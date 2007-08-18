@@ -3,7 +3,6 @@ Flickr Uploader.
 """
 import os, sys
 import gtk
-import gnome
 import traceback
 import md5
 
@@ -109,7 +108,7 @@ class FlickrSink(DataProvider.ImageSink):
         if self.token == None:
             # get frob and open it
             self.frob = self.fapi.getFrob()
-            gnome.url_show (self.fapi.getAuthURL(self._perms_, self.frob))
+            Utils.open_url(self.fapi.getAuthURL(self._perms_, self.frob))
 
             # wait for user to login
             login_tester = Utils.LoginTester(self._try_login)
