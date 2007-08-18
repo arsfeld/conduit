@@ -82,7 +82,7 @@ if [ $do_prepare -ne 0 ] ; then
     scp -rpq $TEST_DATA_DIR root@www.greenbirdsystems.com:/root/sync/
 fi
 
-rm $PY_TEST_DIR/TestAuto*.py
+rm $PY_TEST_DIR/TestAuto*.py 2> /dev/null
 if [ $do_auto -ne 0 ] ; then
     python $PY_TEST_DIR/AutoGenerate.py
 fi
