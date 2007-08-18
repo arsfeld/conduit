@@ -71,12 +71,11 @@ url = picasa._get_raw_photo_url (info)
 ok ("Got photo url %s" % url, url != None)
 ok ("Photo url is correct", gnomevfs.exists (gnomevfs.URI(url)))
 
-# TODO: find a jpeg to upload    
- #Send a remote file
-# f = File.File("http://files.conduit-project.org/Conduit-0.1.0-screenshot.png")
-# try:
-#     uid = picasa.put(f, True)
-#     ok("Upload a photo (UID:%s) " % uid, True)
-# except Exception, err:
-#     ok("Upload a photo (%s)" % err, False)
+#Send a remote file
+f = File.File("http://files.conduit-project.org/screenshot.jpg")
+try:
+    uid = picasa.put(f, True)
+    ok("Upload a photo (UID:%s) " % uid, True)
+except Exception, err:
+    ok("Upload a photo (%s)" % err, False)
 

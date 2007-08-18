@@ -49,7 +49,7 @@ ok("Got photo url (%s)" % url, url != None)
 ok("Photo url is correct", gnomevfs.exists(gnomevfs.URI(url)))
 
 #Send a remote file
-f = File.File("http://files.conduit-project.org/Conduit-0.1.0-screenshot.png")
+f = File.File("http://files.conduit-project.org/screenshot.png")
 try:
     uid = flickr.put(f, True)
     ok("Upload a photo (UID:%s) " % uid, True)

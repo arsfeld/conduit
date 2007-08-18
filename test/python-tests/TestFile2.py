@@ -17,7 +17,7 @@ tmpdir = tempfile.mkdtemp()
 ok("Created tempdir %s" % tmpdir, True)
 
 #remote file on readonly location
-f = File.File("http://files.conduit-project.org/Conduit-0.1.0-screenshot.png")
+f = File.File("http://files.conduit-project.org/screenshot.png")
 ok("Remote file exists", f.exists() == True)
 
 #make another local file
