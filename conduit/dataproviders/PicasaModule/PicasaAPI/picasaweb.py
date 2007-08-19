@@ -62,10 +62,10 @@ def encode_multipart_formdata(fields, files):
         L.append('Content-Type: application/atom+xml')
         L.append('')
         L.append(value)
-    for (key, filename, value) in files:
+    for (key, filename, mimeType, value) in files:
         L.append('--' + BOUNDARY)
         L.append('Content-Disposition: form-data; name="filename"; filename="%s"' % (filename))
-        L.append('Content-Type: %s' % get_content_type(filename))
+        L.append('Content-Type: %s' % mimeType)
         L.append('')
         L.append(value)
     L.append('--' + BOUNDARY + '--')
@@ -76,8 +76,6 @@ def encode_multipart_formdata(fields, files):
 
     return content_type, body
 
-def get_content_type(filename):
-    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 #-------------------------------------------------------------------------------
 
 
@@ -305,7 +303,7 @@ class PicasaAlbum(object):
 
         return l
 
-    def uploadPhoto(self,filename,description=""):
+    def uploadPhoto(self,filename,mimeType,description=""):
         """ Upload a picture on this album, return the ID of the new picture """
         filename=utf8(filename)
         description=utf8(description)
@@ -321,7 +319,7 @@ class PicasaAlbum(object):
     term="http://schemas.google.com/photos/2007#photo"/>
 </entry>""" % (name,description)
 
-            content_type, body = encode_multipart_formdata([("xml",xml)], [(uid,filename,open(filename,"rb").read() )])
+            content_type, body = encode_multipart_formdata([("xml",xml)], [(uid,filename,mimeType,open(filename,"rb").read() )])
 
             headers = {'Content-Type': content_type,
                        'Content-Length': str(len(body)),

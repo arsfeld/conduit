@@ -76,7 +76,7 @@ class FlickrSink(DataProvider.ImageSink):
         url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(secret)s.jpg" % photo
         return url
 
-    def _upload_photo (self, url, name):
+    def _upload_photo (self, url, mimeType, name):
         tagstr = self.tagWith.replace(","," ")
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,

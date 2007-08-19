@@ -71,9 +71,9 @@ class PicasaSink(DataProvider.ImageSink):
         self.galbum.deletePhoto (self.gphotos[LUID])
         del self.gphotos[LUID]
 
-    def _upload_photo (self, url, name):
+    def _upload_photo (self, url, mimeType, name):
         try:
-            ret = self.galbum.uploadPhoto(url, name)
+            ret = self.galbum.uploadPhoto(url, mimeType, name)
             return ret.id
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")

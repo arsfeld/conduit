@@ -34,7 +34,7 @@ class FacebookSink(DataProvider.ImageSink):
         DataProvider.ImageSink.__init__(self)
         self.fapi = None
 
-    def _upload_photo (self, url, name):
+    def _upload_photo (self, url, mimeType, name):
         """
         Upload to album; and return image id here
         """

@@ -489,13 +489,13 @@ class ImageSink(DataSink):
         """
         return None
 
-    def _upload_photo (self, url, name):
+    def _upload_photo (self, url, mimeType, name):
         """
         Upload a photo
         """
         return None 
 
-    def _replace_photo (self, id, url, name):
+    def _replace_photo (self, id, url, mimeType, name):
         """
         Replace a photo with a new version
         """
@@ -524,7 +524,7 @@ class ImageSink(DataSink):
             if info != None:
                 if overwrite == True:
                     #replace the photo
-                    return self._replace_photo(LUID, photoURI, originalName)
+                    return self._replace_photo(LUID, photoURI, mimeType, originalName)
                 else:
                     #Only upload the photo if it is newer than the Remote one
                     url = self._get_raw_photo_url(info)
@@ -542,7 +542,7 @@ class ImageSink(DataSink):
         logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
 
         #upload the file
-        return self._upload_photo (photoURI, originalName)
+        return self._upload_photo (photoURI, mimeType, originalName)
 
     def delete(self, LUID):
         pass

@@ -46,7 +46,7 @@ class SmugMugSink(DataProvider.ImageSink):
     def _get_raw_photo_url(self, photoInfo):
         return photoInfo['OriginalURL']
         
-    def _upload_photo (self, url, name):
+    def _upload_photo (self, url, mimeType, name):
         """
         Upload to album; and return image id here
         """
