@@ -29,6 +29,7 @@ conduit_PYTHON = \
 	ModuleWrapper.py \
 	Settings.py \
 	Synchronization.py \
+	SyncSet.py \
 	Tree.py \
 	TypeConverter.py \
 	Utils.py \
