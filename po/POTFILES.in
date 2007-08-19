@@ -3,7 +3,7 @@ data/conduit.desktop.in.in
 data/conduit-autostart.desktop.in.in
 conduit/Canvas.py
 conduit/DataProvider.py
-conduit/MainWindow.py
+conduit/GtkUI.py
 conduit/TypeConverter.py
 conduit/dataproviders/BackpackModule/BackpackModule.py
 conduit/dataproviders/BackpackModule/config.glade
