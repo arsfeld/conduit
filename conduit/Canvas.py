@@ -233,6 +233,11 @@ class Canvas(goocanvas.Canvas):
                 LINE_WIDTH,
                 bottom+LINE_WIDTH
                 )
+
+        #FIXME Evilness to fix ConduitCanvasItems ending up too big (scrollbars suck!) 
+        self.set_size_request(Canvas.INITIAL_WIDTH-1, Canvas.INITIAL_HEIGHT-1)
+        self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
+
         return item
 
     def _add_to_model_conduit_canvas_item_model(self, cond):
