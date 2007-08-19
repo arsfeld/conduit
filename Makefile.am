@@ -27,26 +27,17 @@ EXTRA_DIST = \
 	doap.rdf.in
 
 #Update ChangeLog, NEWS and TODO from http://www.conduit-project.org
+#Ugly autofoo to support make distcheck pass
 dist-hook:
-	echo "" > ChangeLog.new
-	if [ -d '.svn' ]; then \
-		svn2cl --output=ChangeLog.new; \
+	@echo "Generating Changelog, NEWS, TODO"
+	@if test -d $(top_srcdir)/.svn ; then \
+		svn2cl --output=$(distdir)/ChangeLog; \
+	    wget -q -O $(distdir)/NEWS "http://www.conduit-project.org/wiki/$(VERSION)?format=txt" ; \
+		wget -q -O $(distdir)/TODO "http://www.conduit-project.org/wiki/TODO?format=txt" ; \
+	else \
+		touch $(distdir)/ChangeLog; \
+		touch $(distdir)/NEWS; \
+		touch $(distdir)/TODO; \
 	fi
-	mv -f ChangeLog.new $(distdir)/ChangeLog;
 
-	wget -q -O NEWS.new \
-		"http://www.conduit-project.org/wiki/$(VERSION)?format=txt"
-	mv -f NEWS.new $(distdir)/NEWS
-
-	wget -q -O TODO.new \
-		"http://www.conduit-project.org/wiki/TODO?format=txt"
-	mv -f TODO.new $(distdir)/TODO
-
-#dist-hook:
-#	echo "FOO" > ChangeLog.new
-#	mv -f ChangeLog.new $(distdir)/ChangeLog
-#	echo "FOO" > NEWS.new
-#	mv -f NEWS.new $(distdir)/NEWS
-#	echo "FOO" > TODO.new
-#	mv -f TODO.new $(distdir)/TODO
 
