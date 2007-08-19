@@ -11,6 +11,7 @@ from conduit import log,logd,logw
 from conduit.Module import ModuleManager
 from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
+from conduit.GtkUI import SplashScreen, MainWindow, StatusIcon, main_loop, main_quit
 
 import conduit.VolumeMonitor as gnomevfs
 
@@ -33,7 +34,6 @@ class Application(dbus.service.Object):
         self.gui = None
         self.statusIcon = None
         self.dbus = None
-        self.uiLib = None
 
         #Default command line values
         if conduit.IS_DEVELOPMENT_VERSION:
@@ -73,9 +73,6 @@ class Application(dbus.service.Object):
         log("Using UI: %s" % ui)
         memstats = conduit.memstats()
         
-        #Dynamically import the GUI
-        self.uiLib = __import__(ui)
-
         #FIXME: attempt workaround for gnomvefs bug...
         #this shouldn't need to be here, but if we call it after 
         #touching the session bus then nothing will work
@@ -119,7 +116,7 @@ class Application(dbus.service.Object):
 
         #The status icon is shared between the GUI and the Dbus iface
         if conduit.settings.get("show_status_icon") == True:
-            self.statusIcon = self.uiLib.StatusIcon(self)
+            self.statusIcon = StatusIcon(self)
            
         #Set up the application wide defaults
         conduit.mappingDB.open_db(dbFile)
@@ -157,7 +154,7 @@ class Application(dbus.service.Object):
 
         conduit.memstats(memstats)
         try:
-            self.uiLib.main_loop()
+            main_loop()
         except KeyboardInterrupt:
             self.Quit()
 
@@ -177,7 +174,7 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='')
     def BuildGUI(self, settingsFile):
-        self.gui = self.uiLib.MainWindow(
+        self.gui = MainWindow(
                         conduitApplication=self,
                         moduleManager=self.moduleManager,
                         typeConverter=self.typeConverter
@@ -209,7 +206,7 @@ OPTIONS:
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowSplash(self):
         if conduit.settings.get("show_splashscreen") == True:
-            self.splash = self.uiLib.SplashScreen()
+            self.splash = SplashScreen()
             self.splash.show()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
@@ -237,8 +234,7 @@ OPTIONS:
 
         #give the dataprovider factories time to shut down
         self.moduleManager.quit()
-
-        self.uiLib.main_quit()
+        main_quit()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Synchronize(self):
