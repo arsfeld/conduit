@@ -14,6 +14,8 @@ from conduit.SyncSet import SyncSet
 
 import conduit.VolumeMonitor as gnomevfs
 
+APPLICATION_DBUS_IFACE="org.conduit.Application"
+
 class Application(dbus.service.Object):
     def __init__(self):
         """
@@ -82,10 +84,10 @@ class Application(dbus.service.Object):
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
         sessionBus = dbus.SessionBus()
-        if Utils.dbus_service_available(sessionBus, conduit.DBUS_IFACE):
+        if Utils.dbus_service_available(sessionBus, APPLICATION_DBUS_IFACE):
             log("Conduit is already running")
-            obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")
-            conduitApp = dbus.Interface(obj, conduit.DBUS_IFACE)
+            obj = sessionBus.get_object(APPLICATION_DBUS_IFACE, "/activate")
+            conduitApp = dbus.Interface(obj, APPLICATION_DBUS_IFACE)
             if buildGUI:
                 if conduitApp.HasGUI():
                     conduitApp.ShowGUI()
@@ -99,7 +101,7 @@ class Application(dbus.service.Object):
         # Initialise dbus stuff here as any earlier will cause breakage
         # 1: Outstanding gnomevfs bug!
         # 2: Interferes with Conduit already running check.
-        bus_name = dbus.service.BusName(conduit.DBUS_IFACE, bus=sessionBus)
+        bus_name = dbus.service.BusName(APPLICATION_DBUS_IFACE, bus=sessionBus)
         dbus.service.Object.__init__(self, bus_name, "/activate")
 
         #Throw up a splash screen ASAP. Dont show if launched via --console.
@@ -169,11 +171,11 @@ OPTIONS:
     -s, --settings=FILE Override saving conduit settings to FILE
     -i, --iconify       Iconify on startup (default=no)""" % sys.argv[0]
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='b')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='b')
     def HasGUI(self):
         return self.gui != None
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='s', out_signature='')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='')
     def BuildGUI(self, settingsFile):
         self.gui = self.uiLib.MainWindow(
                         conduitApplication=self,
@@ -200,26 +202,26 @@ OPTIONS:
                                     None
                                     )
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):
         self.gui.present()
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowSplash(self):
         if conduit.settings.get("show_splashscreen") == True:
             self.splash = self.uiLib.SplashScreen()
             self.splash.show()
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def HideSplash(self):
         if self.splash != None:
             self.splash.destroy()
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')        
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')        
     def IconifyGUI(self):
         self.gui.minimize_to_tray()
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):
         log("Closing application")
         if self.gui != None:
@@ -238,7 +240,7 @@ OPTIONS:
 
         self.uiLib.main_quit()
 
-    @dbus.service.method(conduit.DBUS_IFACE, in_signature='', out_signature='')
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Synchronize(self):
         if self.gui != None:
             self.gui.on_synchronize_all_clicked(None)
