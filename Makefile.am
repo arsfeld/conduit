@@ -30,7 +30,7 @@ EXTRA_DIST = \
 dist-hook:
 	echo "" > ChangeLog.new
 	if [ -d '.svn' ]; then \
-		svn2cl.sh --output=ChangeLog.new; \
+		svn2cl --output=ChangeLog.new; \
 	fi
 	mv -f ChangeLog.new $(distdir)/ChangeLog;
 
