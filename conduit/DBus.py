@@ -167,12 +167,12 @@ class ConduitDBusItem(DBusItem):
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Sync(self):
         self._print("Sync")
-        self.sync_manager.sync_conduit(self.conduit)
+        self.conduit.sync()
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Refresh(self):
         self._print("Refresh")
-        self.sync_manager.refresh_conduit(self.conduit)
+        self.conduit.refresh()
 
     @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='')
     def SyncStarted(self):
@@ -338,7 +338,7 @@ class DBusView(DBusItem):
         if sender == None:
             raise ConduitException("Invalid DBus Caller")
 
-        cond = Conduit.Conduit()
+        cond = Conduit(self.sync_manager)
         if source != None:
             if not cond.add_dataprovider(dataprovider_wrapper=source, trySourceFirst=True):
                 raise ConduitException("Error adding source to conduit")
