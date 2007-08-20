@@ -49,16 +49,16 @@ AC_MSG_CHECKING([for goocanvas module])
 if AC_RUN_LOG([$PYTHON -c '
 try:
     import goocanvas
+    if goocanvas.pygoocanvas_version < (0,8,0):
+        raise
 except ImportError, e:
     if str(e).find("goocanvas") >= 0:
-          raise
-except:
-    pass
+        raise
 ']); then
   AC_MSG_RESULT([yes])
 else
   AC_MSG_RESULT([no])
-  AC_MSG_ERROR([Python module goocanvas required to run conduit])
+  AC_MSG_ERROR([Python module goocanvas >= 0.8.0 required to run conduit])
 fi
 
 AC_MSG_CHECKING([for dateutil module])
@@ -67,9 +67,7 @@ try:
     import dateutil
 except ImportError, e:
     if str(e).find("dateutil") >= 0:
-          raise
-except:
-    pass
+        raise
 ']); then
   AC_MSG_RESULT([yes])
 else
