@@ -5,7 +5,6 @@ functions
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import uuid
 import sys
 import random
 import gtk
@@ -16,9 +15,9 @@ if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
 
 import conduit
 from conduit import log,logd,logw
-from conduit.Synchronization import SyncManager
-from conduit.TypeConverter import TypeConverter
-from conduit.Conduit import Conduit
+import conduit.Utils as Utils
+import conduit.Synchronization as Synchronization
+import conduit.Conduit as Conduit
 
 ERROR = -1
 SUCCESS = 0
@@ -304,7 +303,7 @@ class DBusView(DBusItem):
 
         #type converter and sync manager
         self.type_converter = typeConverter
-        self.sync_manager = SyncManager(self.type_converter)
+        self.sync_manager = Synchronization.SyncManager(self.type_converter)
         self.sync_manager.set_twoway_policy({"conflict":"skip","deleted":"skip"})
 
     def _get_all_dps(self):
@@ -324,7 +323,7 @@ class DBusView(DBusItem):
         if dp == None:
             raise ConduitException("Could not find dataprovider with key: %s" % key)
 
-        i = uuid.uuid4().hex
+        i = Utils.uuid_string()
         new = DataProviderDBusItem(dp, i)
         EXPORTED_OBJECTS[new.get_path()] = new
         return new
@@ -339,7 +338,7 @@ class DBusView(DBusItem):
         if sender == None:
             raise ConduitException("Invalid DBus Caller")
 
-        cond = Conduit()
+        cond = Conduit.Conduit()
         if source != None:
             if not cond.add_dataprovider(dataprovider_wrapper=source, trySourceFirst=True):
                 raise ConduitException("Error adding source to conduit")
@@ -347,7 +346,7 @@ class DBusView(DBusItem):
             if not cond.add_dataprovider(dataprovider_wrapper=sink, trySourceFirst=False):
                 raise ConduitException("Error adding source to conduit")
 
-        i = uuid.uuid4().hex
+        i = Utils.uuid_string()
         new = ConduitDBusItem(self.sync_manager, cond, i)
         EXPORTED_OBJECTS[new.get_path()] = new
         return new

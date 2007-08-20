@@ -4,9 +4,9 @@ Represents a conduit (The joining of one source to one or more sinks)
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-from conduit import log,logd,logw
 import gobject
-import uuid
+from conduit import log,logd,logw
+import conduit.Utils as Utils
 
 class Conduit(gobject.GObject):
     """
@@ -39,7 +39,7 @@ class Conduit(gobject.GObject):
         gobject.GObject.__init__(self)
 
         if uid == "":
-            self.uid = str(uuid.uuid4())
+            self.uid = Utils.uuid_string()
         else:
             self.uid = uid
 

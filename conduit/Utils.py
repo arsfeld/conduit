@@ -133,6 +133,22 @@ def md5_string(string):
     """
     return md5.new(string).hexdigest()
 
+def uuid_string():
+    try:
+        import uuid
+        return uuid.uuid4().hex
+    except ImportError:
+        import time, random, md5, socket
+        t = long( time.time() * 1000 )
+        r = long( random.random()*100000000000000000L )
+        try:
+            a = socket.gethostbyname( socket.gethostname() )
+        except:
+            a = random.random()*100000000000000000L
+        data = str(t)+' '+str(r)+' '+str(a)
+        data = md5.md5(data).hexdigest()
+        return data
+
 def dbus_service_available(bus,interface):
     try: 
         import dbus
