@@ -30,10 +30,11 @@ class SyncSet(gobject.GObject):
             gobject.TYPE_PYOBJECT]),    # The ConduitModel that was removed
         }
 
-    def __init__(self, moduleManager, xmlSettingFilePath="settings.xml"):
+    def __init__(self, moduleManager, syncManager, xmlSettingFilePath="settings.xml"):
         gobject.GObject.__init__(self)
 
         self.moduleManager = moduleManager
+        self.syncManager = syncManager
         self.xmlSettingFilePath = xmlSettingFilePath
         self.conduits = []
 
@@ -171,7 +172,7 @@ class SyncSet(gobject.GObject):
             for conds in doc.getElementsByTagName("conduit"):
                 print conds.localName
                 #create a new conduit
-                conduit = Conduit(conds.getAttribute("uid"))
+                conduit = Conduit(self.syncManager, conds.getAttribute("uid"))
                 self.add_conduit(conduit)
 
                 #restore conduit specific settings

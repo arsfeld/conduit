@@ -356,19 +356,13 @@ class Canvas(goocanvas.Canvas):
         """
         Refresh the selected conduit
         """
-        if self.selectedConduitItem.model.datasource is not None and len(self.selectedConduitItem.model.datasinks) > 0:
-            self.sync_manager.refresh_conduit(self.selectedConduitItem.model)
-        else:
-            log("Conduit must have a datasource and a datasink")
+        self.selectedConduitItem.model.refresh()
     
     def on_synchronize_group_clicked(self, widget):
         """
         Synchronize the selected conduit
         """
-        if self.selectedConduitItem.model.datasource is not None and len(self.selectedConduitItem.model.datasinks) > 0:
-            self.sync_manager.sync_conduit(self.selectedConduitItem.model)
-        else:
-            log("Conduit must have a datasource and a datasink")
+        self.selectedConduitItem.model.sync()
         
     def on_delete_item_clicked(self, widget):
         """
@@ -404,8 +398,7 @@ class Canvas(goocanvas.Canvas):
         Refreshes a single dataprovider
         """
         dp = self.selectedDataproviderItem.model
-        if dp != None:
-            self.sync_manager.refresh_dataprovider(dp)
+        #FIXME
 
     def on_two_way_sync_toggle(self, widget):
         """
@@ -450,7 +443,7 @@ class Canvas(goocanvas.Canvas):
             trySourceFirst = False
 
         if existing == None:
-            cond = Conduit()
+            cond = Conduit(self.sync_manager)
 
             #add the model
             self._add_to_model_conduit_canvas_item_model(cond)

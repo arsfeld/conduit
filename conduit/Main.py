@@ -186,6 +186,7 @@ OPTIONS:
         #reload the saved sync set
         syncSet = SyncSet(
                         moduleManager=self.moduleManager,
+                        syncManager=self.gui.sync_manager,
                         xmlSettingFilePath=settingsFile
                         )
         syncSet.restore_from_xml()

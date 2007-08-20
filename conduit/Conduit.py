@@ -31,12 +31,14 @@ class Conduit(gobject.GObject):
         "parameters-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
         }
 
-    def __init__(self, uid=""):
+    def __init__(self, syncManager, uid=""):
         """
         Makes and empty conduit ready to hold one datasource and many
         datasinks
         """
         gobject.GObject.__init__(self)
+
+        self.syncManager = syncManager
 
         if uid == "":
             self.uid = Utils.uuid_string()
@@ -236,4 +238,20 @@ class Conduit(gobject.GObject):
                     trySourceFirst=(x==0)
                     )
         self.emit("dataprovider-changed", oldDpw, newDpw) 
+
+    def refresh_dataprovider(self, dp):
+        if dp != None:
+            self.syncManager.refresh_dataprovider(dp)
+
+    def refresh(self):
+        if self.datasource is not None and len(self.datasinks) > 0:
+            self.syncManager.refresh_conduit(self)
+        else:
+            log("Conduit must have a datasource and a datasink")
+
+    def sync(self):
+        if self.datasource is not None and len(self.datasinks) > 0:
+            self.syncManager.sync_conduit(self)
+        else:
+            log("Conduit must have a datasource and a datasink")
 
