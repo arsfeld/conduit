@@ -1,8 +1,9 @@
-AC_INIT([conduit], [0.3.3],[mailto:john.stowers@gmail.com],[conduit])
+AC_INIT([conduit], [0.3.3],[john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
 AC_CONFIG_SRCDIR(conduit/__init__.py)
 AC_CONFIG_MACRO_DIR([m4])
 AM_MAINTAINER_MODE
+AC_SUBST(ACLOCAL_AMFLAGS, "$ACLOCAL_FLAGS -I m4")
 
 ################################################################################
 # Translation & i18n
@@ -18,62 +19,19 @@ IT_PROG_INTLTOOL([0.35.0])
 ################################################################################
 AM_PATH_PYTHON(2.4)
 
-#Dont actually need any devel modules at the moment - bindings are out of tree
-PKG_CHECK_MODULES(CONDUIT,
-	gtk+-2.0				>= 2.10
-	pygtk-2.0				>= 2.10
-)
-#AC_SUBST(CONDUIT_CFLAGS)
-#AC_SUBST(CONDUIT_LIBS)
+AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, yes, no)
+if test "x$HAVE_PKGCONFIG" = "xno"; then
+  AC_MSG_ERROR(you need to have pkgconfig installed !)
+fi
 
 ################################################################################
 # Check for neccessary python modules (that dont install pc files)
 ################################################################################
-AC_MSG_CHECKING([for vobject module])
-if AC_RUN_LOG([$PYTHON -c '
-try:
-    import vobject
-except ImportError, e:
-    if str(e).find("vobject") >= 0:
-          raise
-except:
-    pass
-']); then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-  AC_MSG_ERROR([Python module vobject required to run conduit])
-fi
+AM_CHECK_PYMOD([vobject], , , AC_MSG_ERROR([Python module vobject required to run Conduit]))
 
-AC_MSG_CHECKING([for goocanvas module])
-if AC_RUN_LOG([$PYTHON -c '
-try:
-    import goocanvas
-    if goocanvas.pygoocanvas_version < (0,8,0):
-        raise
-except ImportError, e:
-    if str(e).find("goocanvas") >= 0:
-        raise
-']); then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-  AC_MSG_ERROR([Python module goocanvas >= 0.8.0 required to run conduit])
-fi
+AM_CHECK_PYMOD([goocanvas], , , AC_MSG_ERROR([Python module goocanvas >= 0.8.0 required to run Conduit]))
 
-AC_MSG_CHECKING([for dateutil module])
-if AC_RUN_LOG([$PYTHON -c '
-try:
-    import dateutil
-except ImportError, e:
-    if str(e).find("dateutil") >= 0:
-        raise
-']); then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
-  AC_MSG_ERROR([Python module dateutil required to run conduit])
-fi
+AM_CHECK_PYMOD([dateutil], , , AC_MSG_ERROR([Python module dateutil required to run Conduit]))
 
 ################################################################################
 # DBus
@@ -97,25 +55,12 @@ AC_SUBST(VERSION)
 AC_SUBST(PACKAGE)
 
 AS_AC_EXPAND(LOCALEDIR, $localedir)
-AC_SUBST(LOCALEDIR)
-
 AS_AC_EXPAND(PKGDATADIR, $datarootdir/$PACKAGE)
-AC_SUBST(PKGDATADIR)
-
 AS_AC_EXPAND(ICONDIR, $datarootdir/$PACKAGE/icons)
-AC_SUBST(ICONDIR)
-
 AS_AC_EXPAND(LIBDIR, $libdir)
-AC_SUBST(LIBDIR)
-
 AS_AC_EXPAND(PKGLIBDIR, $libdir/$PACKAGE)
-AC_SUBST(PKGLIBDIR)
-
 AS_AC_EXPAND(PYTHONDIR, $pythondir)
-AC_SUBST(PYTHONDIR)
-
 AS_AC_EXPAND(BINDIR, $bindir)
-AC_SUBST(BINDIR)
 
 ################################################################################
 #-------------------------------------------------------------------------------
