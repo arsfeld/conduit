@@ -93,8 +93,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, th
         shared = self._get_shared(conduit)
         if shared != None:
             if not conduit in self.conduits:
-                instance = self.modules.get_new_module_instance(shared.get_key())
-                self.share_dataprovider(conduit, instance)
+                self.share_dataprovider(conduit, shared)
         else:
             if conduit in self.conduits:
                 self.unshare_dataprovider(conduit)

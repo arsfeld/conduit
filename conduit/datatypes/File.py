@@ -370,14 +370,19 @@ class File(DataType.DataType):
         data['uri'] = str(self.URI)
         data['basePath'] = self.basePath
         data['group'] = self.group
-        data['_newFilename'] = self._newFilename
+        data['data'] = open(self.get_local_uri(), 'rb').read()
         return data
 
     def __setstate__(self, data):
         self.URI = gnomevfs.URI(data['uri'])
         self.basePath = data['basePath']
         self.group = data['group']
-        self._newFilename = data['_newFilename']
+
+        fd, name = tempfile.mkstemp(prefix="netsync")
+        os.write(fd, data['data'])
+        os.close(fd)
+        self._newFilename = name
+
         DataType.DataType.__setstate__(self, data)
 
 class TempFile(File):
