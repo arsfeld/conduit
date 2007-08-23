@@ -27,12 +27,13 @@ NAME_IDX = 3
 
 IPOD = "ipod"
 USB_KEY = "usb"
+N800 = "n800"
 
 class HalMonitor(gobject.GObject):
     __gsignals__ = {
         #Fired when an iPod is removed from the system
         "ipod-removed" :    (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                                (gobject.TYPE_STRING,   #UDI   
+                                (gobject.TYPE_STRING,   #UDI
                                 gobject.TYPE_STRING,    #Mount point
                                 gobject.TYPE_STRING)    #Volume label
                             ),
@@ -54,12 +55,27 @@ class HalMonitor(gobject.GObject):
                                 (gobject.TYPE_STRING,   #UDI
                                 gobject.TYPE_STRING,    #Mount point
                                 gobject.TYPE_STRING)    #Volume label
+                            ),
+
+        #Fired when a N800 is added to the system
+        "n800-removed" :    (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                                (gobject.TYPE_STRING,   #UDI
+                                gobject.TYPE_STRING,    #Mount point
+                                gobject.TYPE_STRING)    #Volume label
+                            ),
+
+        #Fired when a N800 is added to the system
+        "n800-added" :       (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
+                                (gobject.TYPE_STRING,   #UDI
+                                gobject.TYPE_STRING,    #Mount point
+                                gobject.TYPE_STRING)    #Volume label
                             )
     }
+
     def __init__(self):
         gobject.GObject.__init__(self)
         self.vol_monitor = gnomevfs.VolumeMonitor()
-        
+
         self.registered_volumes = {}
         self.bus = dbus.SystemBus()
 
@@ -86,14 +102,16 @@ class HalMonitor(gobject.GObject):
                 signal = "ipod-added"
             elif volume_type == USB_KEY:
                 signal = "usb-added"
+            elif volume_type == N800:
+                signal = "n800-added"
             else:
                 logw("Hal: Unknown volume type")
                 return
-            
+
             #emit the signal
             self._emit(signal, device_udi, mount, name)
         else:
-            logw("Hal: Volume allready present. Not adding")
+            logw("Hal: Volume already present. Not adding")
 
     def _remove_volume(self, volume_type, device_udi, mount, name):
         signature = str(device_udi)
@@ -103,10 +121,12 @@ class HalMonitor(gobject.GObject):
                 signal = "ipod-removed"
             elif volume_type == USB_KEY:
                 signal = "usb-removed"
+            elif volume_type == N800:
+                signal = "n800-removed"
             else:
                 logw("Hal: Unknown volume type")
                 return
-            
+
             #emit the signal
             self._emit(signal, device_udi, mount, name)
         else:
@@ -120,17 +140,19 @@ class HalMonitor(gobject.GObject):
             mount, name = self.get_device_information(properties)
             if self._is_ipod(properties):
                 self._add_volume(IPOD, device_udi, mount, name)
-            else:
+            elif self._is_usb_disk(properties):
                 self._add_volume(USB_KEY, device_udi, mount, name)
+            else:
+                self._add_volume(N800, device_udi, mount, name)
         return True
-                
+
     def _volume_pre_unmounted_cb(self,monitor,volume):
         logd("Volume pre-unmount")
         device_udi = volume.get_hal_udi()
         if device_udi :
             pass
         return False
-                
+
     def _volume_unmounted_cb(self,monitor,volume):
         logd("Volume Umounted")
         device_udi = volume.get_hal_udi()
@@ -139,8 +161,10 @@ class HalMonitor(gobject.GObject):
             mount, name = self.get_device_information(properties)
             if self._is_ipod(properties):
                 self._remove_volume(IPOD, device_udi, mount, name)
-            else:
+            elif self._is_usb_disk(properties):
                 self._remove_volume(USB_KEY, device_udi, mount, name)
+            else:
+                self._remove_volume(N800, device_udi, mount, name)
         return False
 
     def _get_properties(self,device_udi):
@@ -155,7 +179,7 @@ class HalMonitor(gobject.GObject):
             prop2 = self._get_properties(properties["info.parent"])
             if prop2.has_key("storage.model") and prop2["storage.model"]=="iPod":
                return True
-        return False  
+        return False
 
     def _is_usb_disk(self,properties):
         if properties.has_key("info.parent") and properties.has_key("info.parent")!="":
@@ -163,7 +187,15 @@ class HalMonitor(gobject.GObject):
             if prop2.has_key("storage.model") and prop2["storage.model"]=="USB Flash Disk":
                 if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
                     return True
-        return False  
+        return False
+
+    def _is_n800(self,properties):
+        if properties.has_key("info.parent") and properties.has_key("info.parent")!="":
+            prop2 = self._get_properties(properties["info.parent"])
+            if prop2.has_key("storage.model") and prop2["storage.model"]=="N800":
+                if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
+                    return True
+        return False
 
     def _scan_hardware(self):
         """
@@ -182,6 +214,10 @@ class HalMonitor(gobject.GObject):
                     mount, name = self.get_device_information(properties)
                     #signature = (USB_KEY, device_udi, mount, name)
                     self._add_volume(USB_KEY, device_udi, mount, name)
+                elif self._is_n800(properties):
+                    mount, name = self.get_device_information(properties)
+                    #signature = (USB_KEY, device_udi, mount, name)
+                    self._add_volume(N800, device_udi, mount, name)
                 else:
                     logd("Hal: Skipping non ipod UDI %s" % device_udi)
 
@@ -208,3 +244,6 @@ class HalMonitor(gobject.GObject):
 
     def get_all_usb_keys(self):
         return [self.registered_volumes[i] for i in self.registered_volumes if self.registered_volumes[i][TYPE_IDX] == USB_KEY]
+
+    def get_all_n800s(self):
+        return [self.registered_volumes[i] for i in self.registered_volumes if self.registered_volumes[i][TYPE_IDX] == N800]
