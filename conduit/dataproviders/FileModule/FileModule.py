@@ -1,9 +1,6 @@
 import gtk
 from gettext import gettext as _
-import traceback
-import threading
 import gobject
-import time
 
 import conduit
 from conduit import log,logd,logw
@@ -50,179 +47,14 @@ def _get_config_file_for_dir(uri):
     config = os.path.join(uri,CONFIG_FILE_NAME)
     return gnomevfs.read_entire_file(config)
 
-class _FolderScanner(threading.Thread, gobject.GObject):
-    """
-    Recursively scans a given folder URI, returning the number of
-    contained files.
-    """
-    __gsignals__ =  { 
-                    "scan-progress": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_INT]),
-                    "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
-                    }
-
-    def __init__(self, baseURI, includeHidden):
-        threading.Thread.__init__(self)
-        gobject.GObject.__init__(self)
-        self.baseURI = baseURI
-        self.includeHidden = includeHidden
-        self.dirs = [baseURI]
-        self.cancelled = False
-        self.URIs = []
-        self.setName("FolderScanner Thread: %s" % baseURI)
-
-    def run(self):
-        """
-        Recursively adds all files in dirs within the given list.
-        
-        Code adapted from Listen (c) 2006 Mehdi Abaakouk
-        (http://listengnome.free.fr/)
-        """
-        delta = 0
-        
-        startTime = time.time()
-        t = 1
-        last_estimated = estimated = 0 
-        while len(self.dirs)>0:
-            if self.cancelled:
-                return
-            dir = self.dirs.pop(0)
-            try:hdir = gnomevfs.DirectoryHandle(dir)
-            except: 
-                logw("Folder %s Not found" % dir)
-                continue
-            try: fileinfo = hdir.next()
-            except StopIteration: continue;
-            while fileinfo:
-                if fileinfo.name in [".","..",CONFIG_FILE_NAME]: 
-                        pass
-                else:
-                    if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                        #Include hidden directories
-                        if fileinfo.name[0] != "." or self.includeHidden:
-                            self.dirs.append(dir+"/"+fileinfo.name)
-                            t += 1
-                    elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
-                        try:
-                            uri = gnomevfs.make_uri_canonical(dir+"/"+fileinfo.name)
-                            #Include hidden files
-                            if fileinfo.name[0] != "." or self.includeHidden:
-                                self.URIs.append(uri)
-                        except UnicodeDecodeError:
-                            raise "UnicodeDecodeError",uri
-                    else:
-                        logd("Unsupported file type: %s (%s)" % (fileinfo.name, fileinfo.type))
-                try: fileinfo = hdir.next()
-                except StopIteration: break;
-            #Calculate the estimated complete percentags
-            estimated = 1.0-float(len(self.dirs))/float(t)
-            estimated *= 100
-            #Enly emit progress signals every 10% (+/- 1%) change to save CPU
-            if delta+10 - estimated <= 1:
-                logd("Folder scan %s%% complete" % estimated)
-                self.emit("scan-progress", len(self.URIs))
-                delta += 10
-            last_estimated = estimated
-
-        i = 0
-        total = len(self.URIs)
-        endTime = time.time()
-        logd("%s files loaded in %s seconds" % (total, (endTime - startTime)))
-        self.emit("scan-completed")
-
-    def cancel(self):
-        """
-        Cancels the thread as soon as possible.
-        """
-        self.cancelled = True
-
-    def get_uris(self):
-        return self.URIs
-
-class _ScannerThreadManager:
-    """
-    Manages many _FolderScanner threads. This involves joining and cancelling
-    said threads, and respecting a maximum num of concurrent threads limit
-    """
-    MAX_CONCURRENT_SCAN_THREADS = 2
-    def __init__(self):
-        self.scanThreads = {}
-        self.pendingScanThreadsURIs = []
-
-    def make_thread(self, folderURI, includeHidden, progressCb, completedCb, rowref):
-        """
-        Makes a thread for scanning folderURI. The thread callsback the model
-        at regular intervals and updates rowref within that model
-        """
-        running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
-
-        if folderURI not in self.scanThreads:
-            thread = _FolderScanner(folderURI, includeHidden)
-            thread.connect("scan-progress",progressCb, rowref)
-            thread.connect("scan-completed",completedCb, rowref)
-            thread.connect("scan-completed", self._register_thread_completed, folderURI)
-            self.scanThreads[folderURI] = thread
-            if running < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
-                logd("Starting thread %s" % folderURI)
-                self.scanThreads[folderURI].start()
-            else:
-                self.pendingScanThreadsURIs.append(folderURI)
-
-    def _register_thread_completed(self, sender, folderURI):
-        """
-        Decrements the count of concurrent threads and starts any 
-        pending threads if there is space
-        """
-        #delete the old thread
-        del(self.scanThreads[folderURI])
-        running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
-
-        logd("Thread %s completed. %s running, %s pending" % (folderURI, running, len(self.pendingScanThreadsURIs)))
-
-        if running < _ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
-            try:
-                uri = self.pendingScanThreadsURIs.pop()
-                logd("Starting pending thread %s" % uri)
-                self.scanThreads[uri].start()
-            except IndexError: pass
-
-    def join_all_threads(self):
-        """
-        Joins all threads (blocks)
-
-        Unfortunately we join all the threads do it in a loop to account
-        for join() a non started thread failing. To compensate I time.sleep()
-        to not smoke CPU
-        """
-        joinedThreads = 0
-        while(joinedThreads < len(self.scanThreads)):
-            for thread in self.scanThreads.values():
-                try:
-                    thread.join()
-                    joinedThreads += 1
-                except AssertionError: 
-                    #deal with not started threads
-                    time.sleep(1)
-
-    def cancel_all_threads(self):
-        """
-        Cancels all threads ASAP. My block for a small period of time
-        because we use our own cancel method
-        """
-        for thread in self.scanThreads.values():
-            if thread.isAlive():
-                logd("Cancelling thread %s" % thread)
-                thread.cancel()
-            thread.join() #May block
-
-class _FileSourceConfigurator(_ScannerThreadManager):
+class _FileSourceConfigurator(Utils.ScannerThreadManager):
     """
     Configuration dialog for the FileTwoway dataprovider
     """
     FILE_ICON = gtk.icon_theme_get_default().load_icon("text-x-generic", 16, 0)
     FOLDER_ICON = gtk.icon_theme_get_default().load_icon("folder", 16, 0)
     def __init__(self, mainWindow, items):
-        _ScannerThreadManager.__init__(self)
+        Utils.ScannerThreadManager.__init__(self)
         self.tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
@@ -484,7 +316,7 @@ class _FileSourceConfigurator(_ScannerThreadManager):
                         warning.destroy()
                         dialog.emit_stop_by_name("response")
 
-class FileSource(DataProvider.DataSource, _ScannerThreadManager):
+class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
 
     _name_ = _("Files")
     _description_ = _("Source for synchronizing multiple files")
@@ -496,7 +328,7 @@ class FileSource(DataProvider.DataSource, _ScannerThreadManager):
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-        _ScannerThreadManager.__init__(self)
+        Utils.ScannerThreadManager.__init__(self)
         
         #list of file and folder URIs
         self.items = gtk.ListStore(
@@ -730,7 +562,7 @@ class FolderTwoWay(DataProvider.TwoWay):
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         #scan the folder
-        scanThread = _FolderScanner(self.folder, self.includeHidden)
+        scanThread = Utils.FolderScanner(self.folder, self.includeHidden)
         scanThread.start()
         scanThread.join()
 
