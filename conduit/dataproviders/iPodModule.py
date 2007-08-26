@@ -35,7 +35,6 @@ import tempfile
 
 MODULES = {
         "iPodFactory" :        { "type": "dataprovider-factory" },
-        "iPodPhotoConverter" : { "type": "converter" },
 }
 
 try:
