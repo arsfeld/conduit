@@ -13,11 +13,11 @@
   <articleinfo>
     <title>&appname; Manual</title>
     <abstract role="description">
-      <para>&appname; is a program that ...</para>
+      <para>&appname; is a program that synchronizes things</para>
     </abstract>
     <copyright>
-      <year>2006</year>
-      <holder>Brent Smith</holder>
+      <year>2007</year>
+      <holder>John Stowers</holder>
     </copyright>
     <publisher>
       <publishername> GNOME Documentation Project </publishername>
@@ -25,9 +25,8 @@
 
     <authorgroup>
       <author role="maintainer">
-        <firstname>Brent</firstname>
-        <surname>Smith</surname>
-        <affiliation><orgname>GNOME Documentation Project</orgname></affiliation>
+        <firstname>John</firstname>
+        <surname>Stowers</surname>
       </author>
     </authorgroup>
 

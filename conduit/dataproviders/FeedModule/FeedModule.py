@@ -35,7 +35,7 @@ class RSSSource(DataProvider.DataSource):
     _module_type_ = "source"
     _in_type_ = ""
     _out_type_ = "file"
-    _icon_ = "feed-icon"
+    _icon_ = "feed"
 
     PHOTO_TYPES = []
     AUDIO_TYPES = []

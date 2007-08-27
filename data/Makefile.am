@@ -30,6 +30,20 @@ update-icon-cache:
 		echo "***   $(gtk_update_icon_cache)"; \
 	fi
 
+resourcesdir = $(pkgdatadir)
+resources_DATA = \
+	conduit.glade \
+	backpack.png \
+	conduit-splash.png \
+	feed.png \
+	f-spot.png \
+	liferea.png \
+	tomboy.png \
+	picasa.png \
+	smugmug.png \
+	boxdotnet.png \
+	flickr.png
+
 conduitbindir = $(libdir)/conduit
 
 ################################################################################
