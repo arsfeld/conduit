@@ -240,8 +240,10 @@ class Conduit(gobject.GObject):
         self.emit("dataprovider-changed", oldDpw, newDpw) 
 
     def refresh_dataprovider(self, dp):
-        if dp != None:
+        if dp in self.get_all_dataproviders():
             self.syncManager.refresh_dataprovider(dp)
+        else:
+            logw("Could not refresh dataprovider: %s" % dp)
 
     def refresh(self):
         if self.datasource is not None and len(self.datasinks) > 0:

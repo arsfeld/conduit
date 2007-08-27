@@ -154,9 +154,10 @@ class Canvas(goocanvas.Canvas):
         """
         Handle button clicks on conduits
         """
+        self.selectedConduitItem = view
+
         #right click
         if event.type == gtk.gdk.BUTTON_PRESS:
-            self.selectedConduitItem = view
             if event.button == 3:
                 #Preset the two way menu items sensitivity
                 if not self.selectedConduitItem.model.can_do_two_way_sync():
@@ -183,9 +184,11 @@ class Canvas(goocanvas.Canvas):
         @param user_data_dataprovider_wrapper: The dpw that was clicked
         @type user_data_dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
+        self.selectedDataproviderItem = view
+        self.selectedConduitItem = view.get_parent()
+
         #single right click
         if event.type == gtk.gdk.BUTTON_PRESS:
-            self.selectedDataproviderItem = view
             if event.button == 3:
                 if view.model.enabled and not view.model.module.is_busy():
                     #show the menu
@@ -196,7 +199,6 @@ class Canvas(goocanvas.Canvas):
 
         #double left click
         elif event.type == gtk.gdk._2BUTTON_PRESS:
-            self.selectedDataproviderItem = view
             if event.button == 1:
                 if view.model.enabled and not view.model.module.is_busy():
                     #configure the DP
@@ -398,7 +400,8 @@ class Canvas(goocanvas.Canvas):
         Refreshes a single dataprovider
         """
         dp = self.selectedDataproviderItem.model
-        #FIXME
+        cond = self.selectedConduitItem.model
+        cond.refresh_dataprovider(dp)
 
     def on_two_way_sync_toggle(self, widget):
         """
