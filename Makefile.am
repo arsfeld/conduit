@@ -1,4 +1,6 @@
-SUBDIRS = conduit data po
+SUBDIRS = conduit data po help
+
+DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper
 
 doap.rdf: doap.rdf.in Makefile.am
 	sed -e s/\@VERSION\@/$(VERSION)/g \
@@ -14,7 +16,8 @@ release: dist doap.rdf
 DISTCLEANFILES = \
 	intltool-extract \
 	intltool-merge \
-	intltool-update
+	intltool-update \
+	gnome-doc-utils.make
 
 EXTRA_DIST = \
 	NEWS \
@@ -24,7 +27,8 @@ EXTRA_DIST = \
 	intltool-extract.in	\
 	intltool-merge.in \
 	doap.rdf \
-	doap.rdf.in
+	doap.rdf.in \
+	gnome-doc-utils.make
 
 #Update ChangeLog, NEWS and TODO from http://www.conduit-project.org
 #Ugly autofoo to support make distcheck pass

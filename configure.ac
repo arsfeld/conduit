@@ -15,6 +15,11 @@ AM_GLIB_GNU_GETTEXT
 IT_PROG_INTLTOOL([0.35.0])
 
 ################################################################################
+# Gnome Doc Utils
+################################################################################
+GNOME_DOC_INIT
+
+################################################################################
 # Requirements
 ################################################################################
 AM_PATH_PYTHON(2.4)
@@ -92,7 +97,21 @@ data/Makefile
 data/conduit.desktop.in
 data/conduit-autostart.desktop.in
 data/conduit.pc
+data/icons/Makefile
+data/icons/16x16/Makefile
+data/icons/16x16/actions/Makefile
+data/icons/16x16/apps/Makefile
+data/icons/16x16/status/Makefile
+data/icons/22x22/Makefile
+data/icons/22x22/apps/Makefile
+data/icons/32x32/Makefile
+data/icons/32x32/apps/Makefile
+data/icons/48x48/apps/Makefile
+data/icons/48x48/Makefile
+data/icons/scalable/Makefile
+data/icons/scalable/apps/Makefile
 po/Makefile.in
+help/Makefile
 )
 
 echo

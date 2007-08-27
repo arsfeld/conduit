@@ -1,11 +1,11 @@
 themedir = $(datadir)/icons/hicolor
-size = 16x16
+size = scalable
 context = apps
 
 iconsdir = $(themedir)/$(size)/$(context)
 
 icons_DATA = \
-	conduit.png
+	conduit.svg
 
 noinst_DATA = 
 

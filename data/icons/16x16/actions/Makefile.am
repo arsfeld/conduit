@@ -1,11 +1,14 @@
 themedir = $(datadir)/icons/hicolor
 size = 16x16
-context = apps
+context = actions
 
 iconsdir = $(themedir)/$(size)/$(context)
 
 icons_DATA = \
-	conduit.png
+	conduit-conflict-delete.png \
+	conduit-conflict-right.png \
+	conduit-conflict-left.png \
+	conduit-conflict-skip.png
 
 noinst_DATA = 
 

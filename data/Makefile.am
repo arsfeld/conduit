@@ -1,3 +1,5 @@
+SUBDIRS = icons
+
 ################################################################################
 # Package Config Stuff
 ################################################################################
@@ -17,21 +19,16 @@ pkgconfig_DATA = $(pkgconfig_in_files:.pc.in=.pc)
 ################################################################################
 # Icons
 ################################################################################
-SUBDIRS = icons
-
-resourcesdir = $(pkgdatadir)
-resources_DATA = \
-	conduit.glade \
-	backpack.png \
-	conduit-splash.png \
-	feed.png \
-	f-spot.png \
-	liferea.png \
-	tomboy.png \
-	picasa.png \
-	smugmug.png \
-	boxdotnet.png \
-	flickr.png
+install-data-hook: update-icon-cache
+uninstall-hook: update-icon-cache
+update-icon-cache:
+	@-if test -z "$(DESTDIR)"; then \
+		echo "Updating Gtk icon cache."; \
+		$(gtk_update_icon_cache); \
+	else \
+		echo "*** Icon cache not updated.  After (un)install, run this:"; \
+		echo "***   $(gtk_update_icon_cache)"; \
+	fi
 
 conduitbindir = $(libdir)/conduit
 
@@ -47,9 +44,6 @@ autostart_in_files = conduit-autostart.desktop.in
 autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
 
 @INTLTOOL_DESKTOP_RULE@
-
-pixmapdir = $(datadir)/pixmaps
-pixmap_DATA = conduit-icon.png
 
 ################################################################################
 # DBus 
