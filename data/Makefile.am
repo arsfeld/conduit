@@ -15,33 +15,19 @@ pkgconfig_DATA = $(pkgconfig_in_files:.pc.in=.pc)
 #@INTLTOOL_SCHEMAS_RULE@
 
 ################################################################################
-# Misc data
+# Icons
 ################################################################################
+SUBDIRS = icons
+
 resourcesdir = $(pkgdatadir)
 resources_DATA = \
 	conduit.glade \
 	backpack.png \
-	conduit-icon.png \
 	conduit-splash.png \
-	conflict-left.png \
-	conflict-right.png \
-	conflict-skip.png \
-	conflict-twoway.png \
-	feed-icon.png \
+	feed.png \
 	f-spot.png \
 	liferea.png \
-	sink-icon.png \
-	source-icon.png \
 	tomboy.png \
-	twoway-icon.png \
-	conduit-progress-1.png \
-	conduit-progress-2.png \
-	conduit-progress-3.png \
-	conduit-progress-4.png \
-	conduit-progress-5.png \
-	conduit-progress-6.png \
-	conduit-progress-7.png \
-	conduit-progress-8.png \
 	picasa.png \
 	smugmug.png \
 	boxdotnet.png \

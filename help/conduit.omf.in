@@ -1,0 +1,9 @@
+<?xml version="1.0" standalone="no"?>
+<omf>
+  <resource>
+    <subject category="GNOME|Accessories"/>
+    <type>manual</type>
+    <relation seriesid="b57e7e48-be78-11d6-85a3-d094906a987c"/>
+    <rights type="GNU FDL" license.version="1.1" holder="Shaun McCance"/>
+  </resource>
+</omf>
