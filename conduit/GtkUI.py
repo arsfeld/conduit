@@ -39,6 +39,7 @@ class MainWindow:
         icon_dirs = [
                     conduit.SHARED_DATA_DIR,
                     conduit.SHARED_MODULE_DIR,
+                    os.path.join(conduit.SHARED_DATA_DIR,"icons"),
                     os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                     os.path.join(conduit.USER_DIR, "modules")
                     ]
@@ -76,7 +77,7 @@ class MainWindow:
         else:
             self.mainWindow.set_title(conduit.APPNAME)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
-        self.mainWindow.set_icon_from_file(os.path.join(conduit.SHARED_DATA_DIR, "conduit-icon.png"))
+        self.mainWindow.set_icon_name("conduit")
         
         #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
@@ -460,7 +461,7 @@ class AboutDialog(gtk.AboutDialog):
         self.set_comments("Synchronisation for GNOME")
         self.set_website("http://www.conduit-project.org")
         self.set_authors(["John Stowers", "John Carr"])
-        self.set_logo_icon_name("conduit-icon")
+        self.set_logo_icon_name("conduit")
 
 class StatusIcon(gtk.StatusIcon):
     def __init__(self, conduitApplication):
@@ -509,7 +510,7 @@ class StatusIcon(gtk.StatusIcon):
         self.animated_icons = range(1,8)
 
     def _go_to_idle_state(self):
-        self.set_from_icon_name("conduit-icon")
+        self.set_from_icon_name("conduit")
         self.set_tooltip("Synchronization Complete")
 
     def _go_to_conflict_state(self):

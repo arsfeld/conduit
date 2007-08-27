@@ -363,17 +363,6 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
     An unfortunately neccessary wrapper around a CellRenderPixbuf because
     said renderer is not activatable
     """
-
-    #Images are 16x16
-    LEFT_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-left.png"))
-    RIGHT_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-right.png"))
-    SKIP_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-skip.png"))
-    DELETE_IMAGE = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(conduit.SHARED_DATA_DIR, "conflict-twoway.png"))
-
     def __init__(self):
         gtk.GenericCellRenderer.__init__(self)
         self.image = None
@@ -409,13 +398,13 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
     def set_direction(self, direction):
         if direction == CONFLICT_COPY_SINK_TO_SOURCE:
-            self.image = ConflictCellRenderer.LEFT_IMAGE
+            self.image = gtk.icon_theme_get_default().load_icon("conflict-left",16,0)
         elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
-            self.image = ConflictCellRenderer.RIGHT_IMAGE
+            self.image = gtk.icon_theme_get_default().load_icon("conflict-right",16,0)
         elif direction == CONFLICT_SKIP:
-            self.image = ConflictCellRenderer.SKIP_IMAGE
+            self.image = gtk.icon_theme_get_default().load_icon("conflict-skip",16,0)
         elif direction == CONFLICT_DELETE:
-            self.image = ConflictCellRenderer.DELETE_IMAGE
+            self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-delete",16,0)
         else:
             self.image = None
 

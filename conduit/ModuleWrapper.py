@@ -179,7 +179,7 @@ class ModuleWrapper:
             if self.module_type in ["source", "sink", "twoway"]:
                 try:
                     icon = self.get_icon(isize)
-                    arrowName = self.module_type+"-icon"
+                    arrowName = "conduit"-self.module_type
                     arrow = gtk.icon_theme_get_default().load_icon(arrowName, asize, 0)
 
                     #Composite the arrow to the right of the icon

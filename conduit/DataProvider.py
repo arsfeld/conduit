@@ -44,6 +44,7 @@ CATEGORY_PHOTOS = DataProviderCategory("Photos", "image-x-generic")
 CATEGORY_OFFICE = DataProviderCategory("Office", "applications-office")
 CATEGORY_SETTINGS = DataProviderCategory("Settings", "applications-system")
 CATEGORY_MISC = DataProviderCategory("Miscellanous", "applications-accessories")
+CATEGORY_MEDIA = DataProviderCategory("Media", "applications-media")
 CATEGORY_TEST = DataProviderCategory("Test")
 
 class DataProviderBase(gobject.GObject):
