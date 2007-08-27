@@ -1,6 +1,7 @@
 import gtk
 
 from conduit import log,logd,logw
+import traceback
 
 class ModuleWrapper: 
     """
@@ -179,7 +180,7 @@ class ModuleWrapper:
             if self.module_type in ["source", "sink", "twoway"]:
                 try:
                     icon = self.get_icon(isize)
-                    arrowName = "conduit"-self.module_type
+                    arrowName = "conduit-"+self.module_type
                     arrow = gtk.icon_theme_get_default().load_icon(arrowName, asize, 0)
 
                     #Composite the arrow to the right of the icon
@@ -222,6 +223,7 @@ class ModuleWrapper:
                                 )
                     self.descriptiveIcon = dest
                 except:
+                    traceback.print_exc()
                     pass
             
             elif self.module_type == "category":

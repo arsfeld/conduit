@@ -398,11 +398,11 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
 
     def set_direction(self, direction):
         if direction == CONFLICT_COPY_SINK_TO_SOURCE:
-            self.image = gtk.icon_theme_get_default().load_icon("conflict-left",16,0)
+            self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-left",16,0)
         elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
-            self.image = gtk.icon_theme_get_default().load_icon("conflict-right",16,0)
+            self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-right",16,0)
         elif direction == CONFLICT_SKIP:
-            self.image = gtk.icon_theme_get_default().load_icon("conflict-skip",16,0)
+            self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-skip",16,0)
         elif direction == CONFLICT_DELETE:
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-delete",16,0)
         else:
