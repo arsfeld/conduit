@@ -39,8 +39,148 @@
 
     <releaseinfo>This manual describes version &appversion; of &appname;</releaseinfo>
   </articleinfo>
+
   <section>
     <title>Introduction</title>
-    <para>Foo</para>
+    <para>
+      Conduit is a synchronization solution for GNOME which allows the
+      user to take their emails, files, bookmarks, and any other type
+      of personal information and synchronize that data with another
+      computer, an online service, or even another electronic device.
+    </para>
+
+    <para>
+      Conduit manages the synchronization and conversion of data into
+      other formats. For example, conduit allows you to;
+    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Synchronize your tomboy notes to a file on a remote computer
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Synchronize your emails to your mobile phone
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  Synchronize your bookmarks to delicious, gmail, or even your
+	  own webserver
+	</para>
+      </listitem>
+
+      <listitem>
+	<para>
+	  and many more... 
+	</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      Any combination you can imagine, Conduit will take care of the
+      conversion and synchronization.
+    </para>
+
+    <section>
+      <title>What Can Conduit Do</title>
+
+      <para>
+	From an end user perspective Conduit has reached the level of
+	being useful. Conduit can currently perform the following sync
+	partnerships;
+      </para>
+      
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Two way file/folder sync on gnomevfs volumes and to/from Box.net
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Two way Tomboy note sync via gnomevfs volumes
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Two way Tomboy note sync via ipod notes
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    One way sync of files/folders of photos to Flickr, Smugmug and Picasa	    
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    One way sync of FSpot tagged photos to Flickr, Smugmug and Picasa	    
+	  </para>
+	</listitem>
+	
+
+	<listitem>
+	  <para>
+	    Sync and export of Evolution memos and tasks to ipod and to a folder.  
+	  </para>
+	</listitem>
+      </itemizedlist>
+      
+      <para>
+	In the one way sync/export case Conduit is smart in the sense that if
+	a piece of data has not been modified then it will not be
+	synchronized/exported again, it will replace the existing data. In
+	addition if data is subsequently removed from a source then its
+	corresponding data will also be deleted.
+      </para>
+      
+      <para>
+	Conduit has a full featured DBus interface to allow other application
+	authors to use Conduit to perform the synchronization and export tasks
+	of their applications.
+      </para>
+    </section>
+    
+    <section>
+      <title>Whats Planned For Future</title>
+      
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    SyncML support
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Google gdata support (Notes, docs, base)
+	  </para>
+	</listitem>
+
+	<listitem>
+	  <para>
+	    Direct PC-PC sync over local LAN using Avahi
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+  </section>
+  
+  <section>
+    <title>How to use the GUI</title>
+    <para>
+      Grab a dataprovider from the left panel and drag it on to the
+      canvas on the right.  Right click on the icon in the canvas to
+      bring up a context menu.  Double click to configure the item.
+    </para>
   </section>
 </article>
+
