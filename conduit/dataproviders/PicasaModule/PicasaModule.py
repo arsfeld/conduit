@@ -21,17 +21,17 @@ MODULES = {
     "PicasaSink" :          { "type": "dataprovider" }        
 }
 
-class PicasaSink(DataProvider.ImageSink):
+class PicasaSink(DataProvider.ImageTwoWay):
 
     _name_ = "Picasa"
     _description_ = "Sync Your Google Picasa Photos"
-    _module_type_ = "sink"
+    _module_type_ = "twoway"
     _icon_ = "picasa"
 
     ALLOWED_MIMETYPES = ["image/jpeg"]
 
     def __init__(self, *args):
-        DataProvider.ImageSink.__init__(self)
+        DataProvider.ImageTwoWay.__init__(self)
         self.need_configuration(True)
         
         self.username = ""
@@ -52,7 +52,7 @@ class PicasaSink(DataProvider.ImageSink):
             return None
         
     def refresh(self):
-        DataProvider.ImageSink.refresh(self)
+        DataProvider.ImageTwoWay.refresh(self)
         self.gapi = PicasaWeb(self.username, self.password)
 
         albums = self.gapi.getAlbums ()
@@ -62,6 +62,21 @@ class PicasaSink(DataProvider.ImageSink):
             self.galbum = albums[self.album]
 
         self.gphotos = self.galbum.getPhotos()
+
+
+    def get_all (self):
+        return self.gphotos.keys()
+
+    def get (self, LUID):
+        DataProvider.ImageTwoWay.get (self, LUID)
+        gphoto = self.gphotos[LUID]
+
+        f = File.File (URI=gphoto.url)
+        f.force_new_mtime(gphoto.timestamp)
+        f.set_open_URI (gphoto.url)
+        f.set_UID(LUID)
+
+        return f
 
     def delete(self, LUID):
         if not self.gphotos.has_key(LUID):

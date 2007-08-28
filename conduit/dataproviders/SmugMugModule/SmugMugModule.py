@@ -21,15 +21,15 @@ MODULES = {
     "SmugMugSink" :          { "type": "dataprovider" }        
 }
 
-class SmugMugSink(DataProvider.ImageSink):
+class SmugMugSink(DataProvider.ImageTwoWay):
 
     _name_ = "SmugMug"
     _description_ = "Sync Your SmugMug.com Photos"
-    _module_type_ = "sink"
+    _module_type_ = "twoway"
     _icon_ = "smugmug"
 
     def __init__(self, *args):
-        DataProvider.ImageSink.__init__(self)
+        DataProvider.ImageTwoWay.__init__(self)
         self.need_configuration(True)
         
         self.password = ""
@@ -57,7 +57,7 @@ class SmugMugSink(DataProvider.ImageSink):
             raise Exceptions.SyncronizeError("SmugMug Upload Error.")
 
     def refresh(self):
-        DataProvider.ImageSink.refresh(self)
+        DataProvider.ImageTwoWay.refresh(self)
 
         # make sure we logout from previous logins
         if self.sapi:
@@ -68,6 +68,22 @@ class SmugMugSink(DataProvider.ImageSink):
             self.sapi = SmugMug(self.username, self.password)
         except SmugMugException, e:
             raise Exceptions.RefreshError (e.get_printable_error())
+
+
+    def get_all (self):
+        return self.sapi.get_images (self._get_album_id())
+
+
+    def get (self, LUID):
+        simage = self.sapi.get_image_info(LUID)
+        url = simage['OriginalURL']
+
+        f = File.File(URI=url)
+        f.force_new_filename(simage['FileName'])
+        f.set_open_URI (url)
+        f.set_UID(LUID)
+
+        return f
 
     def delete(self, LUID):
         """

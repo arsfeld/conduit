@@ -555,6 +555,13 @@ class ImageSink(DataSink):
         DataSink.set_configuration(self, config)
         self.set_configured(self.is_configured())
     
+class ImageTwoWay(DataSource, ImageSink):
+    """
+    Abstract Base Class for ImageTwoWay dataproviders
+    """
+    def __init__(self):
+        DataSource.__init__(self)
+        ImageSink.__init__(self)
 
 class DataProviderSimpleConfigurator:
     """

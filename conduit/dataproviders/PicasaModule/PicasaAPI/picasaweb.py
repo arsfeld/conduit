@@ -348,12 +348,21 @@ class PicasaAlbum(object):
         id = getText(element.getElementsByTagName("gphoto:id")[0])  # gphoto:id
         title = getText(element.getElementsByTagName("title")[0]) # title
         url = element.getElementsByTagName("media:content")[0].getAttribute('url')
+        # we use the update tag as picasa doesn't return the real photo date
+        timestamp = self.__datetime_from_timestamp(getText(element.getElementsByTagName("updated")[0]))
         version = getText(element.getElementsByTagName("gphoto:version")[0]) # gphoto.version
 
-        return PicasaPhoto (id, title, url, version)
+        return PicasaPhoto (id, title, url, timestamp, version)
 
     def __repr__(self):
         return "<album %s : %s>" % (self.__id,self.__name)
+
+    @classmethod
+    def __datetime_from_timestamp(cls, timestamp):
+        """
+        Chops off the millisecond part of a datestring, parses it
+        """
+        return datetime.strptime(timestamp[0: -5], "%Y-%m-%dT%H:%M:%S")
 
 ###############################################################################
 class PicasaPhoto (object):
@@ -361,16 +370,19 @@ class PicasaPhoto (object):
     __id=None
     __title=None
     __url=None
+    __timestamp=None
     __version=None
 
     title = property (lambda s : s.__title)
     id = property (lambda s : s.__id)
     url = property(lambda s : s.__url)
+    timestamp = property(lambda s : s.__timestamp)
     version = property(lambda s: s.__version)
 
-    def __init__ (self, id, title, url, version):
+    def __init__ (self, id, title, url, timestamp, version):
         self.__id = id
         self.__title = title
         self.__url = url
+        self.__timestamp = timestamp
         self.__version = version
 
