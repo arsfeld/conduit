@@ -21,7 +21,7 @@ SAFE_PHOTO_ID="404284530"
 test = SimpleTest(sinkName="FlickrSink")
 config = {
     "username":     os.environ['TEST_USERNAME'],
-    "tagWith" :     "Conduit",
+    "photoSetName": "Conduit",
     "showPublic":   False
 }
 test.configure(sink=config)

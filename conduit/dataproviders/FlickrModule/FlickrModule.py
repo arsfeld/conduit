@@ -21,11 +21,11 @@ MODULES = {
 	"FlickrSink" :          { "type": "dataprovider" }        
 }
 
-class FlickrSink(DataProvider.ImageSink):
+class FlickrSink(DataProvider.ImageTwoWay):
 
     _name_ = "Flickr"
     _description_ = "Sync Your Flickr.com Photos"
-    _module_type_ = "sink"
+    _module_type_ = "twoway"
     _icon_ = "flickr"
 
     API_KEY="65552e8722b21d299388120c9fa33580"
@@ -33,28 +33,30 @@ class FlickrSink(DataProvider.ImageSink):
     _perms_ = "delete"
 
     def __init__(self, *args):
-        DataProvider.ImageSink.__init__(self)
+        DataProvider.ImageTwoWay.__init__(self)
         self.need_configuration(True)
         
         self.fapi = None
         self.token = None
-        self.tagWith = ""
+        self.photoSetName = ""
         self.showPublic = True
+        self.photoSetId = None
 
+    # Helper methods
     def _get_user_quota(self):
         """
         Returs used,total or -1,-1 on error
         """
-        rsp = self.fapi.people_getUploadStatus(
+        ret = self.fapi.people_getUploadStatus(
                                 api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token
                                 )
-        if self.fapi.getRspErrorCode(rsp) != 0:
-            logd("Flickr people_getUploadStatus Error: %s" % self.fapi.getPrintableError(rsp))
+        if self.fapi.getRspErrorCode(ret) != 0:
+            logd("Flickr people_getUploadStatus Error: %s" % self.fapi.getPrintableError(ret))
             return -1,-1
         else:
-            totalkb = rsp.user[0].bandwidth[0]["maxkb"]
-            usedkb = rsp.user[0].bandwidth[0]["usedkb"]
+            totalkb = ret.user[0].bandwidth[0]["maxkb"]
+            usedkb = ret.user[0].bandwidth[0]["usedkb"]
             return int(usedkb),int(totalkb)
 
     def _get_photo_info(self, photoID):
@@ -63,6 +65,7 @@ class FlickrSink(DataProvider.ImageSink):
                                     auth_token=self.token,
                                     photo_id=photoID
                                     )
+
         if self.fapi.getRspErrorCode(info) != 0:
             logd("Flickr photos_getInfo Error: %s" % self.fapi.getPrintableError(info))
             return None
@@ -71,29 +74,94 @@ class FlickrSink(DataProvider.ImageSink):
 
     def _get_raw_photo_url(self, photoInfo):
         photo = photoInfo.photo[0]
-        #photo is a dict so we can use pythons string formatting natively with
-        #the correct keys
+        #photo is a dict so we can use pythons string formatting natively with the correct keys
         url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(secret)s.jpg" % photo
         return url
 
     def _upload_photo (self, url, mimeType, name):
-        tagstr = self.tagWith.replace(","," ")
         ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
                                 auth_token=self.token,
                                 filename=url,
                                 title=name,
-                                is_public="%i" % self.showPublic,
-                                tags=tagstr
+                                is_public="%i" % self.showPublic
                                 )
+
         if self.fapi.getRspErrorCode(ret) != 0:
             raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % self.fapi.getPrintableError(ret))
+
+        # get the id
+        photoId = ret.photoid[0].elementText
+
+        # check if phtotoset exists, create it otherwise add photo to it
+        if not self.photoSetId:
+            # create one with created photoID if not
+            ret = self.fapi.photosets_create(api_key=FlickrSink.API_KEY,
+                                             auth_token=self.token,
+                                             title=self.photoSetName,
+                                             primary_photo_id=photoId)
+
+            if self.fapi.getRspErrorCode(ret) != 0:
+                raise Exceptions.SyncronizeError("Flickr failed to create photoset: %s" % self.fapi.getPrintableError(ret))
+
+            self.photoSetId = ret.photoset[0]['id']
         else:
-            #return the photoID
-            return ret.photoid[0].elementText
+            # add photo to photoset
+            ret = self.fapi.photosets_addPhoto(api_key=FlickrSink.API_KEY,
+                                               auth_token=self.token,
+                                               photoset_id = self.photoSetId,
+                                               photo_id = photoId)
+
+            if self.fapi.getRspErrorCode(ret) != 0:
+                raise Exceptions.SyncronizeError("Flickr failed to add photo to set: %s" % self.fapi.getPrintableError(ret))
+
+        #return the photoID
+        return photoId
         
+    # DataProvider methods
     def refresh(self):
-        DataProvider.ImageSink.refresh(self)
+        DataProvider.ImageTwoWay.refresh(self)
         self._login()
+
+
+    def get_all(self):
+        # return  photos list is filled, raise error if not
+        if not self.photoSetId:
+            return []
+
+        ret = self.fapi.photosets_getPhotos(api_key=FlickrSink.API_KEY,
+                                            auth_token=self.token,
+                                            photoset_id=self.photoSetId)
+
+        if self.fapi.getRspErrorCode (ret) != 0:
+            raise Exceptions.SyncronizeError("Flickr failed to get photos: %s" % self.fapi.getPrintableError(ret))
+
+        photoList = []
+
+        for photo in ret.photoset[0].photo:
+            photoList.append(photo['id'])
+
+        return photoList
+
+
+    def get (self, LUID):
+        # get photo info
+        photoInfo = self._get_photo_info(LUID)
+        # get url
+        url = self._get_raw_photo_url (photoInfo)
+        # get the title
+        title = str(photoInfo.photo[0].title[0].elementText)
+
+        # create the file
+        f = File.File (URI=url)
+        f.set_open_URI(url)
+
+        # try to rename if a title is available
+        if title:
+            f.force_new_filename(title + '.jpg')
+
+        f.set_UID(LUID)
+
+        return f
 
     def _login(self):
         """
@@ -113,6 +181,23 @@ class FlickrSink(DataProvider.ImageSink):
             # wait for user to login
             login_tester = Utils.LoginTester(self._try_login)
             login_tester.wait_for_login()
+
+
+        # try to get the photoSetId
+        ret = self.fapi.photosets_getList(api_key=FlickrSink.API_KEY,
+                                          auth_token=self.token)
+
+        if self.fapi.getRspErrorCode(ret) != 0:
+            raise Exceptions.RefreshError("Flickr Refresh Error: %s" % self.fapi.getPrintableError(ret))
+
+        if not hasattr(ret.photosets[0], 'photoset'):
+            return
+
+        # look up the photo set
+        for set in ret.photosets[0].photoset:
+            if set.title[0].elementText == self.photoSetName:
+                self.photoSetId = set['id']      
+                                                      
 
     def _try_login(self):
         """
@@ -150,12 +235,12 @@ class FlickrSink(DataProvider.ImageSink):
                         "FlickrSinkConfigDialog")
         
         #get a whole bunch of widgets
-        tagEntry = tree.get_widget("tag_entry")
+        photoSetEntry = tree.get_widget("photoset_entry")
         publicCb = tree.get_widget("public_check")
         username = tree.get_widget("username")
         
         #preload the widgets
-        tagEntry.set_text(self.tagWith)
+        photoSetEntry.set_text(self.photoSetName)
         publicCb.set_active(self.showPublic)
         username.set_text(self.username)
         
@@ -165,7 +250,7 @@ class FlickrSink(DataProvider.ImageSink):
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             # get the values from the widgets
-            self.tagWith = tagEntry.get_text()
+            self.photoSetName = photoSetEntry.get_text()
             self.showPublic = publicCb.get_active()
             self.username = username.get_text()
 
@@ -180,7 +265,7 @@ class FlickrSink(DataProvider.ImageSink):
     def get_configuration(self):
         return {
             "username" : self.username,
-            "tagWith" : self.tagWith,
+            "photoSetName" : self.photoSetName,
             "showPublic" : self.showPublic
             }
 
