@@ -29,7 +29,7 @@ class MainWindow:
         Constructs the mainwindow. Throws up a splash screen to cover 
         the most time consuming pieces
         """
-        gnome.init(conduit.APPNAME, conduit.APPVERSION)
+        gnome.init(conduit.APPNAME, conduit.APPVERSION, properties={gnome.PARAM_APP_DATADIR:'/usr/share'})
         gnome.ui.authentication_manager_init()        
 
         self.conduitApplication = conduitApplication
@@ -56,6 +56,7 @@ class MainWindow:
                 "on_clear_canvas_activate" : self.on_clear_canvas,
                 "on_preferences_activate" : self.on_conduit_preferences,
                 "on_about_activate" : self.on_about_conduit,
+                "on_contents_activate" : self.on_help,
                 "on_save1_activate" : self.save_settings,
                 None : None
                 }
@@ -314,7 +315,13 @@ class MainWindow:
         dialog.set_transient_for(self.mainWindow)
         dialog.run()
         dialog.destroy()
-        
+
+    def on_help(self, widget):
+        """
+        Display help
+        """
+        gnome.help_display(conduit.APPNAME, None)
+
     def on_window_state_event(self, widget, event):
         self.window_state = event.new_window_state
         if event.new_window_state == gtk.gdk.WINDOW_STATE_ICONIFIED:

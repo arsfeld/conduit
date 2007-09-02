@@ -7,15 +7,14 @@ import conduit
 from conduit import log,logd,logw
 from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_FILES
 from conduit.datatypes import DataType
-from conduit.datatypes import Text
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 
 import xmlrpclib
 
 MODULES = {
-	"MoinMoinDataSource" :  { "type": "dataprovider" },
-	"WikiPageConverter" :   { "type": "converter" }
+    "MoinMoinDataSource" :  { "type": "dataprovider" },
+    "WikiPageConverter" :   { "type": "converter" }
 }
 
 class MoinMoinDataSource(DataSource):
@@ -27,6 +26,8 @@ class MoinMoinDataSource(DataSource):
     @ivar self.pages: A array of page names
     @type self.pages: C{string}[]
     """
+
+    WIKI_ADDRESS = "http://live.gnome.org/"
 
     _name_ = "GNOME Wiki"
     _description_ = "Get Pages from the GNOME Wiki"
@@ -94,45 +95,52 @@ class MoinMoinDataSource(DataSource):
         DataSource.refresh(self)
         if self.srcwiki is None:
             try:
-                self.srcwiki = xmlrpclib.ServerProxy("http://live.gnome.org/?action=xmlrpc2")
+                #use_datetime tells xmlrpc to return python datetime objects
+                #for the page modification date
+                self.srcwiki = xmlrpclib.ServerProxy(
+                                            uri="http://live.gnome.org/?action=xmlrpc2",
+                                            use_datetime=True
+                                            )
             except:
                 raise Exceptions.RefreshError
 
-    def get_num_items(self):
+    def get_all(self):
         """
-        Returns the number of items to synchronize. This number is used to
-        determine how many times to call get().
-        
-        DataSources should always call the base classes get_num_items() method
+        Returns the LUIDs of all items to synchronize.        
+        DataSources should always call the base classes get_all() method
         """
-        DataSource.get_num_items(self)        
-        return len(self.pages)
+        DataSource.get_all(self)
+        #the LUID for the page is its full url    
+        return [MoinMoinDataSource.WIKI_ADDRESS+p for p in self.pages]
             
-    def get(self, index):
+    def get(self, LUID):
         """
-        Returns the data identified by the supplied index.
-
-        The index will be in the range of 0 to the value returned from the
-        previous call to get_num_items(). DataSources should always call 
-        the base classes get() method.
-
-        @param index: An index which uniquely represents data to return
-        @type index: C{int}
+        Returns the data identified by the supplied LUID.
+        @param LUID: A LUID which uniquely represents data to return
+        @type LUID: C{str}
         """
-        DataSource.get(self, index)
-        #Make a new page data type
-        pagename = self.pages[index]
-        uri = "http://live.gnome.org/"+pagename
+        DataSource.get(self, LUID)
 
-        #get the page
+        #recover the page name from the full LUID string
+        pagename = LUID.replace(MoinMoinDataSource.WIKI_ADDRESS,"")
+
+        #get the page meta info, name, modified, etc
         pageinfo = self.srcwiki.getPageInfo(pagename)
 
-        page = WikiPageDataType(uri,
+        #Make a new page data type
+        page = WikiPageDataType(
+                            uri=LUID,
                             name=pageinfo["name"],
                             modified=pageinfo["lastModified"],
                             contents=self.srcwiki.getPage(pagename)
                             )
 
+        #datatypes can be shared between modules. For this reason it is
+        #always good to explicity set parameters like the LUID
+        #even though in this case (we are the only one using the wikipage datatype)
+        #they are set in the constructor of the dataype itself
+        page.set_UID(LUID)
+        page.set_open_URI(LUID)
         return page
             
     def get_configuration(self):
@@ -147,8 +155,11 @@ class MoinMoinDataSource(DataSource):
         return {"pages" : self.pages}
 
     def get_UID(self):
-        return False
-		
+        """
+        @returns: A string uniquely representing this dataprovider.
+        """
+        return MoinMoinDataSource.WIKI_ADDRESS
+        
 class WikiPageDataType(DataType.DataType):
     """
     A sample L{conduit.DataType.DataType} used to represent a page from
@@ -190,6 +201,12 @@ class WikiPageDataType(DataType.DataType):
         """
         return self.contents
 
+    def get_wikipage_name(self):
+        """
+        Returns the page name
+        """
+        return self.name
+
     def __str__(self):
         """
         The result of str may be shown to the user. It should represent a
@@ -228,16 +245,18 @@ class WikiPageConverter:
                                 }
         """
         self.conversions =  {    
-                            "wikipage,text"   : self.wikipage_to_text
+                            "wikipage,file"   : self.wikipage_to_file
                             }
                             
 
-    def wikipage_to_text(self, page):
+    def wikipage_to_file(self, page):
         """
         The conversion function for converting wikipages to raw text. Does
-        not do anythong particuarly smart
+        not do anythong particuarly smart.
         """
-        text = Text.Text(
-                    text=page.get_wikipage_string()
-                    )
-        return Utils.retain_info_in_conversion(page, text)
+        f = Utils.new_tempfile(
+                        contents=page.get_wikipage_string()
+                        )
+        f.force_new_filename(page.get_wikipage_name())
+        return f
+
