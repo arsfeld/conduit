@@ -94,6 +94,7 @@ conduit/dataproviders/SettingsModule/Makefile
 conduit/dataproviders/SettingsModule/settings/Makefile
 conduit/dataproviders/SmugMugModule/Makefile
 conduit/dataproviders/SmugMugModule/SmugMugAPI/Makefile
+conduit/dataproviders/YouTubeModule/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit-autostart.desktop.in

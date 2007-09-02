@@ -9,7 +9,8 @@ SUBDIRS = \
 	PicasaModule \
 	SettingsModule \
 	SmugMugModule \
-	EvolutionModule
+	EvolutionModule \
+	YouTubeModule
 
 conduit_handlersdir = $(libdir)/conduit/dataproviders
 conduit_handlers_PYTHON = \
