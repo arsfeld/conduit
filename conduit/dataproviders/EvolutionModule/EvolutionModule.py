@@ -1,7 +1,7 @@
 MODULES = {}
 try:
     import evolution
-    if evolution.__version__ >= (0,0,3):
+    if evolution.__version__ >= (0,0,4):
         MODULES = {
                 "EvoContactTwoWay"  : { "type": "dataprovider" },
                 "EvoCalendarTwoWay" : { "type": "dataprovider" },
@@ -219,7 +219,7 @@ class EvoCalendarTwoWay(EvoBase):
         """
         raw = self.calendar.get_object(LUID, "")
         event = Event.Event(None)
-        event.set_from_ical_string(raw.get_as_string())
+        event.set_from_ical_string(self.calendar.get_object_as_string(raw))
         event.set_UID(raw.get_uid())
         event.set_mtime(datetime.datetime.fromtimestamp(raw.get_modified()))
         return event
