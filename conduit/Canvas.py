@@ -871,8 +871,9 @@ class ConduitCanvasItem(_CanvasItem):
             #print "%s v %s" % (desired-actual,w - self.get_width())
             #move righthand dp
             d.translate(change, 0)
-            #resize arrow
-            self.connectorItems[d].resize_connector_width(change)
+            #resize arrow (if exists)
+            if self.sourceItem != None:
+                self.connectorItems[d].resize_connector_width(change)
 
 class ConnectorCanvasItem(_CanvasItem):
 
