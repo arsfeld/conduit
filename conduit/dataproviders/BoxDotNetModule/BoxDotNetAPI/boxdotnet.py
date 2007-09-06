@@ -256,6 +256,7 @@ class BoxDotNet(object):
             "multipart/form-data; boundary=%s" % boundary)
         response = urllib2.urlopen(request)
         rspXML = response.read()
+        response.close()
 
         return XMLNode.parseXML(rspXML)
 
