@@ -4,7 +4,7 @@
 <glade-interface>
 <requires lib="gnome"/>
 
-<widget class="GtkDialog" id="PicasaSinkConfigDialog">
+<widget class="GtkDialog" id="PicasaTwoWayConfigDialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Picasa</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>

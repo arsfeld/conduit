@@ -18,7 +18,7 @@ if not is_online():
 SAFE_PHOTO_ID="404284530"
 
 #setup the test
-test = SimpleTest(sinkName="FlickrSink")
+test = SimpleTest(sinkName="FlickrTwoWay")
 config = {
     "username":     os.environ['TEST_USERNAME'],
     "photoSetName": "Conduit",

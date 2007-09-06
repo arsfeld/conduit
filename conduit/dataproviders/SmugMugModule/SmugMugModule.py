@@ -18,10 +18,10 @@ Utils.dataprovider_add_dir_to_path(__file__, "SmugMugAPI")
 from smugmug import SmugMug, SmugMugException
 
 MODULES = {
-    "SmugMugSink" :          { "type": "dataprovider" }        
+    "SmugMugTwoWay" :          { "type": "dataprovider" }        
 }
 
-class SmugMugSink(DataProvider.ImageTwoWay):
+class SmugMugTwoWay(DataProvider.ImageTwoWay):
 
     _name_ = "SmugMug"
     _description_ = "Sync Your SmugMug.com Photos"
@@ -96,12 +96,12 @@ class SmugMugSink(DataProvider.ImageTwoWay):
  
     def configure(self, window):
         """
-        Configures the SmugMugSink
+        Configures the SmugMugTwoWay
         """
         widget = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade", 
-                        "SmugMugSinkConfigDialog")
+                        "SmugMugTwoWayConfigDialog")
                         
         #get a whole bunch of widgets
         username = widget.get_widget("username")
@@ -113,7 +113,7 @@ class SmugMugSink(DataProvider.ImageTwoWay):
         password.set_text(self.password)
         album.set_text (self.album)
         
-        dlg = widget.get_widget("SmugMugSinkConfigDialog")
+        dlg = widget.get_widget("SmugMugTwoWayConfigDialog")
         dlg.set_transient_for(window)
         
         response = dlg.run()

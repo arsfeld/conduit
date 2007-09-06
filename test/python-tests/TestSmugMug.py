@@ -21,7 +21,7 @@ SAFE_ALBUM_ID = '2944161'
 SAFE_IMAGE_ID = '158962651'
 
 #setup the test
-test = SimpleTest(sinkName="SmugMugSink")
+test = SimpleTest(sinkName="SmugMugTwoWay")
 config = {
     "username":     os.environ['TEST_USERNAME'],
     "password":     os.environ['TEST_PASSWORD'],

@@ -18,10 +18,10 @@ Utils.dataprovider_add_dir_to_path(__file__, "PicasaAPI")
 from picasaweb import PicasaWeb
 
 MODULES = {
-    "PicasaSink" :          { "type": "dataprovider" }        
+    "PicasaTwoWay" :          { "type": "dataprovider" }        
 }
 
-class PicasaSink(DataProvider.ImageTwoWay):
+class PicasaTwoWay(DataProvider.ImageTwoWay):
 
     _name_ = "Picasa"
     _description_ = "Sync Your Google Picasa Photos"
@@ -95,12 +95,12 @@ class PicasaSink(DataProvider.ImageTwoWay):
         
     def configure(self, window):
         """
-        Configures the PicasaSink
+        Configures the PicasaTwoWay
         """
         widget = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade", 
-                        "PicasaSinkConfigDialog")
+                        "PicasaTwoWayConfigDialog")
                         
         #get a whole bunch of widgets
         username = widget.get_widget("username")
@@ -112,7 +112,7 @@ class PicasaSink(DataProvider.ImageTwoWay):
         password.set_text(self.password)
         album.set_text (self.album)
         
-        dlg = widget.get_widget("PicasaSinkConfigDialog")
+        dlg = widget.get_widget("PicasaTwoWayConfigDialog")
         dlg.set_transient_for(window)
         
         response = dlg.run()

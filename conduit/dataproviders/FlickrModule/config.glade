@@ -4,7 +4,7 @@
 <glade-interface>
 <requires lib="gnome"/>
 
-<widget class="GtkDialog" id="FlickrSinkConfigDialog">
+<widget class="GtkDialog" id="FlickrTwoWayConfigDialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">Flickr</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>

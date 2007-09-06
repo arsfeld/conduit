@@ -4,7 +4,7 @@
 <glade-interface>
 <requires lib="gnome"/>
 
-<widget class="GtkDialog" id="SmugMugSinkConfigDialog">
+<widget class="GtkDialog" id="SmugMugTwoWayConfigDialog">
   <property name="visible">True</property>
   <property name="title" translatable="yes">SmugMug</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>

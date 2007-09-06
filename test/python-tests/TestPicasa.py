@@ -21,7 +21,7 @@ SAFE_ALBUM_ID = "5073563135802702689"
 SAFE_PHOTO_ID = "5073564926804065138"
 
 #setup the test
-test = SimpleTest(sinkName="PicasaSink")
+test = SimpleTest(sinkName="PicasaTwoWay")
 config = {
     "username":     os.environ['TEST_USERNAME'],
     "password":     os.environ['TEST_PASSWORD'],

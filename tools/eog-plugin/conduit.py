@@ -16,7 +16,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 
 class ConduitWrapper:
-    SUPPORTED_SINKS = ["FlickrSink", "TestSink"]
+    SUPPORTED_SINKS = ["FlickrTwoWay", "TestSink"]
 
     def __init__(self):
         self.app = None

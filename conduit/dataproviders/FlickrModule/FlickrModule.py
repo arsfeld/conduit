@@ -18,10 +18,10 @@ Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI")
 from flickrapi import FlickrAPI
 
 MODULES = {
-	"FlickrSink" :          { "type": "dataprovider" }        
+	"FlickrTwoWay" :          { "type": "dataprovider" }        
 }
 
-class FlickrSink(DataProvider.ImageTwoWay):
+class FlickrTwoWay(DataProvider.ImageTwoWay):
 
     _name_ = "Flickr"
     _description_ = "Sync Your Flickr.com Photos"
@@ -48,7 +48,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         Returs used,total or -1,-1 on error
         """
         ret = self.fapi.people_getUploadStatus(
-                                api_key=FlickrSink.API_KEY, 
+                                api_key=FlickrTwoWay.API_KEY, 
                                 auth_token=self.token
                                 )
         if self.fapi.getRspErrorCode(ret) != 0:
@@ -61,7 +61,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
 
     def _get_photo_info(self, photoID):
         info = self.fapi.photos_getInfo(
-                                    api_key=FlickrSink.API_KEY,
+                                    api_key=FlickrTwoWay.API_KEY,
                                     auth_token=self.token,
                                     photo_id=photoID
                                     )
@@ -79,7 +79,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         return url
 
     def _upload_photo (self, url, mimeType, name):
-        ret = self.fapi.upload( api_key=FlickrSink.API_KEY, 
+        ret = self.fapi.upload( api_key=FlickrTwoWay.API_KEY, 
                                 auth_token=self.token,
                                 filename=url,
                                 title=name,
@@ -95,7 +95,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         # check if phtotoset exists, create it otherwise add photo to it
         if not self.photoSetId:
             # create one with created photoID if not
-            ret = self.fapi.photosets_create(api_key=FlickrSink.API_KEY,
+            ret = self.fapi.photosets_create(api_key=FlickrTwoWay.API_KEY,
                                              auth_token=self.token,
                                              title=self.photoSetName,
                                              primary_photo_id=photoId)
@@ -106,7 +106,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
             self.photoSetId = ret.photoset[0]['id']
         else:
             # add photo to photoset
-            ret = self.fapi.photosets_addPhoto(api_key=FlickrSink.API_KEY,
+            ret = self.fapi.photosets_addPhoto(api_key=FlickrTwoWay.API_KEY,
                                                auth_token=self.token,
                                                photoset_id = self.photoSetId,
                                                photo_id = photoId)
@@ -128,7 +128,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         if not self.photoSetId:
             return []
 
-        ret = self.fapi.photosets_getPhotos(api_key=FlickrSink.API_KEY,
+        ret = self.fapi.photosets_getPhotos(api_key=FlickrTwoWay.API_KEY,
                                             auth_token=self.token,
                                             photoset_id=self.photoSetId)
 
@@ -167,7 +167,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         """
         Get ourselves a token we can use to perform all calls
         """
-        self.fapi = FlickrAPI(FlickrSink.API_KEY, FlickrSink.SHARED_SECRET)
+        self.fapi = FlickrAPI(FlickrTwoWay.API_KEY, FlickrTwoWay.SHARED_SECRET)
        
         # can we get a cached token? 
         self.token = self.fapi.getCachedToken(self.username, perms=self._perms_)
@@ -184,7 +184,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
 
 
         # try to get the photoSetId
-        ret = self.fapi.photosets_getList(api_key=FlickrSink.API_KEY,
+        ret = self.fapi.photosets_getList(api_key=FlickrTwoWay.API_KEY,
                                           auth_token=self.token)
 
         if self.fapi.getRspErrorCode(ret) != 0:
@@ -214,7 +214,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
     def delete(self, LUID):
         if self._get_photo_info(LUID) != None:
             ret = self.fapi.photos_delete(
-                            api_key=FlickrSink.API_KEY,
+                            api_key=FlickrTwoWay.API_KEY,
                             auth_token=self.token,
                             photo_id=LUID
                             )
@@ -232,7 +232,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade", 
-                        "FlickrSinkConfigDialog")
+                        "FlickrTwoWayConfigDialog")
         
         #get a whole bunch of widgets
         photoSetEntry = tree.get_widget("photoset_entry")
@@ -244,7 +244,7 @@ class FlickrSink(DataProvider.ImageTwoWay):
         publicCb.set_active(self.showPublic)
         username.set_text(self.username)
         
-        dlg = tree.get_widget("FlickrSinkConfigDialog")
+        dlg = tree.get_widget("FlickrTwoWayConfigDialog")
         dlg.set_transient_for(window)
         
         response = dlg.run()
