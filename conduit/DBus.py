@@ -338,7 +338,7 @@ class DBusView(DBusItem):
         if sender == None:
             raise ConduitException("Invalid DBus Caller")
 
-        cond = Conduit(self.sync_manager)
+        cond = Conduit.Conduit(self.sync_manager)
         if source != None:
             if not cond.add_dataprovider(dataprovider_wrapper=source, trySourceFirst=True):
                 raise ConduitException("Error adding source to conduit")
