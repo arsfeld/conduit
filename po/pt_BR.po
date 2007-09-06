@@ -2,6 +2,7 @@
 # Copyright (C) 2007 Free Software Foundation, Inc.
 # This file is distributed under the same license as the conduit package.
 # Daniel Nylander <po@danielnylander.se>, 2007.
+# Vladimir Melo <vladimirmelo@foresightlinux.org>, 2007.
 #
 msgid ""
 msgstr ""
@@ -136,11 +137,11 @@ msgstr "Fonte de RSS"
 
 #: ../conduit/dataproviders/FeedModule/FeedModule.py:33
 msgid "Sync data from RSS enclosures"
-msgstr "Sincronizar dados de anexos multimídia de RSS"
+msgstr "Sincronizar dados de recipientes de RSS"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:1
 msgid "<b>Enclosure Settings</b>"
-msgstr "<b>Preferências de Anexo Multimídia</b>"
+msgstr "<b>Preferências de Recipiente</b>"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:2
 msgid "<b>Rss Feed Details</b>"
@@ -165,7 +166,7 @@ msgid ""
 "Enclosures Downloded to:"
 msgstr ""
 "Limitar o Número de\n"
-"Anexos Multimídia Baixados para:"
+"Recipientes Baixados para:"
 
 #: ../conduit/dataproviders/FeedModule/config.glade.h:8
 msgid "Url: "
@@ -177,7 +178,7 @@ msgstr "Incluir arquivo ..."
 
 #: ../conduit/dataproviders/FileModule/FileModule.py:411
 msgid "All files"
-msgstr "Todos Arquivos"
+msgstr "Todos os Arquivos"
 
 #: ../conduit/dataproviders/FileModule/FileModule.py:424
 msgid "Include folder ..."
@@ -302,7 +303,7 @@ msgstr "<b>Quando Salvar E-mails</b>"
 
 #: ../conduit/dataproviders/GmailModule/config.glade.h:5
 msgid "All Emails"
-msgstr "Todos E-mails"
+msgstr "Todos os E-mails"
 
 #: ../conduit/dataproviders/GmailModule/config.glade.h:6
 msgid "Attach Label to Email"
