@@ -245,9 +245,8 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
         username.set_text(self.username)
         
         dlg = tree.get_widget("FlickrTwoWayConfigDialog")
-        dlg.set_transient_for(window)
-        
-        response = dlg.run()
+        response = Utils.run_dialog(dlg, window)
+
         if response == gtk.RESPONSE_OK:
             # get the values from the widgets
             self.photoSetName = photoSetEntry.get_text()

@@ -108,9 +108,8 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         pagenameEntry.set_text(self.storeInPage)        
         
         dlg = tree.get_widget("BackpackNotesSinkConfigDialog")
-        dlg.set_transient_for(window)
-        
-        response = dlg.run()
+
+        response = Utils.run_dialog(dlg, window)
         if response == gtk.RESPONSE_OK:
             self.username = usernameEntry.get_text()
             self.storeInPage = pagenameEntry.get_text()

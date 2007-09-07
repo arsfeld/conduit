@@ -144,9 +144,8 @@ class FspotSource(DataProvider.DataSource):
                                     )
 
         dlg = tree.get_widget("FspotConfigDialog")
-        dlg.set_transient_for(window)
-
-        response = dlg.run()
+        
+        response = Utils.run_dialog (dlg, winodw)
         if response == gtk.RESPONSE_OK:
             self.set_configured(True)
         dlg.destroy()

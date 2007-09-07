@@ -96,8 +96,7 @@ class YouTubeSource(DataProvider.DataSource):
         logging.debug(self.max)
         maxdownloads.set_value(self.max)
 
-        dlg.set_transient_for(window)
-        response = dlg.run()
+        response = Utils.run_dialog(dlg, window)
         if response == gtk.RESPONSE_OK:
             if mostviewedRb.get_active():
                 self.filter_type = 0

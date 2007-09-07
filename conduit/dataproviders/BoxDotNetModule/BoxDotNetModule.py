@@ -286,9 +286,8 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         foldername.set_text(self.foldername)
 
         dlg = tree.get_widget("BoxDotNetConfigDialog")
-        dlg.set_transient_for(window)
 
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
         if response == gtk.RESPONSE_OK:
             # get the values from the widgets
             self.foldername = foldername.get_text()

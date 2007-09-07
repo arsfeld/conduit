@@ -120,9 +120,8 @@ class EvoBase(DataProvider.TwoWay):
                 sourceComboBox.set_active_iter(rowref)
         
         dlg = tree.get_widget("EvolutionConfigDialog")
-        dlg.set_transient_for(window)
         
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
         if response == gtk.RESPONSE_OK:
             selected = store.get_value(sourceComboBox.get_active_iter(), 1)
 

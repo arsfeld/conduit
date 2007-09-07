@@ -143,8 +143,7 @@ class Settings(DataProvider.DataSource):
         self._build_view(view)
         view.set_model(self.model)
 
-        dlg.set_transient_for(window)
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
         if response == gtk.RESPONSE_OK:
             pass
         dlg.destroy()    

@@ -55,6 +55,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # Methods:
 # AddDataprovider
 # DeleteDataprovider
+# ConfigureDataprovider
 # Sync
 # Refresh
 # 
@@ -163,6 +164,23 @@ class ConduitDBusItem(DBusItem):
 
         if not self.conduit.delete_dataprovider(dpw):
             raise ConduitException("Could not delete dataprovider: %s" % e)
+
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='o', out_signature='')
+    def ConfigureDataprovider(self, dp):
+        self._print("ConfigureDataprovider: %s" % dp)
+
+        #get the actual dps from their object paths
+        try:
+            dpw = EXPORTED_OBJECTS[str(dp)].dataprovider
+        except KeyError, e:
+            raise ConduitException("Could not locate dataprovider: %s" % e)
+
+        # check if dataprovider is available in conduit
+        if not self.conduit.has_dataprovider_by_key (dpw.get_key()):
+            raise ConduitException("Could not locate dataprovider in conduit: %s" % dp)
+
+        # configure with no parent window
+        dpw.configure(None)
 
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Sync(self):

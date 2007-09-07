@@ -400,12 +400,11 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
             sourceComboBox.set_active_iter(rowref)
 
         dlg = tree.get_widget("GoogleCalendarConfigDialog")
-        dlg.set_transient_for(window)
         
         signalConnections = { "on_loadCalendarsBtn_clicked" : (self._loadCalendars, tree) }
         tree.signal_autoconnect( signalConnections )
         
-        response = dlg.run()
+        response = Utils.run_dialog(dlg, window)
         if response == gtk.RESPONSE_OK:
             self.google.SetCalendar( store.get_value(sourceComboBox.get_active_iter(), 1) )
             self.set_configured(True)

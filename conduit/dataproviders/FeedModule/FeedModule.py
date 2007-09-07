@@ -96,9 +96,8 @@ class RSSSource(DataProvider.DataSource):
         audioCb.set_active(self.downloadAudio)
         
         dlg = tree.get_widget("RSSSourceConfigDialog")
-        dlg.set_transient_for(window)
         
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
         if response == gtk.RESPONSE_OK:
             self.feedUrl = url.get_text()
             if limitCb.get_active():

@@ -127,6 +127,18 @@ def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
     path = os.path.abspath(path)
     return gtk.glade.XML(path, widget)
 
+def run_dialog(dialog, window=None):
+    """
+    Runs a given dialog, and makes it transient for
+    the given window if any
+    @param dialog: dialog 
+    @param window: gtk window
+    """
+    if window:
+        dialog.set_transient_for(window)
+
+    return dialog.run()
+
 def md5_string(string):
     """
     Returns the md5 of the supplied string in readable hexdigest string format

@@ -176,9 +176,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         usernameEntry.set_text(self.username)
         
         dlg = tree.get_widget("GmailSourceConfigDialog")
-        dlg.set_transient_for(window)
         
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
         if response == gtk.RESPONSE_OK:
             self.set_configured(True)
             if searchAllEmailsCb.get_active():

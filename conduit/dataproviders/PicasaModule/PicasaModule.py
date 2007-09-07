@@ -113,9 +113,8 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
         album.set_text (self.album)
         
         dlg = widget.get_widget("PicasaTwoWayConfigDialog")
-        dlg.set_transient_for(window)
         
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
 
         if response == gtk.RESPONSE_OK:
             self.username = username.get_text()
