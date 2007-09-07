@@ -1,0 +1,15 @@
+Conduit.py is a small nautilus extension that allows you to use
+conduit to directly upload files in a folder to a remote location.
+Currently flickr, picasa and box.net are supported, but this can easily
+be extended.
+
+What you need:
+* conduit trunk or anything beyond 0.3.4
+* python-nautilus; to enable nautilus python extensions
+* put the conduit.py file under ~/.nautilus/python-extensions
+* restart nautilus
+
+If you want to debug, help, ...  It is easier to do the following
+1. mkdir ~/test
+2. export TMPDIR=~/test
+3. nautilus --no-desktop
