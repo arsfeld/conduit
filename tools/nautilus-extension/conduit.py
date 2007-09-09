@@ -27,7 +27,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os
-import gtk, gtk.glade
 
 import nautilus
 import dbus, dbus.glib
@@ -52,13 +51,21 @@ FOLDER_TWOWAY="FolderTwoWay"
 FOLDER_TWOWAY_CONFIG ="<configuration><folder type='string'>%s</folder><folderGroupName type='string'>Home</folderGroupName><includeHidden type='bool'>False</includeHidden></configuration>"
 CONFIG_PATH='~/.conduit/nautilus-extension'
 
+def _get_conduit_app ():
+    bus = dbus.SessionBus()
+
+    try:
+        remote_object = bus.get_object(APPLICATION_DBUS_IFACE,"/")
+        return dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
+    except dbus.exceptions.DBusException:
+        return None
+
 class ItemCallbackHandler:
     """
     This class can be used to create a callback method
     for a given conduit sink
     """
-    def __init__ (self, app, sink_name):
-        self.app = app
+    def __init__ (self, sink_name):
         self.sink_name = sink_name
 
     def activate_cb(self, menu, folder):
@@ -66,53 +73,52 @@ class ItemCallbackHandler:
         This is the callback method that can be attached to the
         activate signal of a nautilus menu
         """
+        # get conduit app
+        app = _get_conduit_app()
+
+        if not app:
+            return
+
         # it has got to be there
         if folder.is_gone ():
             return
-
+        
         # get uri
         uri = folder.get_uri()
-
+        
         # check if they needed providers are available
-        dps = self.app.GetAllDataProviders()
+        dps = app.GetAllDataProviders()
 
         if not FOLDER_TWOWAY in dps and not self.sink_name in dps:
             return
 
         # create dataproviders
-        folder_twoway_path = self.app.GetDataProvider(FOLDER_TWOWAY)
-        sink_path = self.app.GetDataProvider(self.sink_name)
+        folder_twoway_path = app.GetDataProvider(FOLDER_TWOWAY)
+        sink_path = app.GetDataProvider(self.sink_name)
 
         bus = dbus.SessionBus()
 
         # set up folder config
         folder_twoway = bus.get_object(DATAPROVIDER_DBUS_IFACE, folder_twoway_path)
         folder_twoway.SetConfigurationXml(FOLDER_TWOWAY_CONFIG % uri)
-
+        
         # get flickr dbus object
-        sink = bus.get_object(DATAPROVIDER_DBUS_IFACE, sink_path)
-
+        self.sink = bus.get_object(DATAPROVIDER_DBUS_IFACE, sink_path)
+        
         # now create conduit
-        conduit_path = self.app.BuildConduit (folder_twoway_path, sink_path)
-        conduit = bus.get_object(CONDUIT_DBUS_IFACE, conduit_path)
+        conduit_path = app.BuildConduit (folder_twoway_path, sink_path)
+        self.conduit = bus.get_object(CONDUIT_DBUS_IFACE, conduit_path)
 
         # check if we have configuration on disk; set it on dataprovider
         xml = self.get_configuration(self.sink_name)
 
         if xml:
-            sink.SetConfigurationXml(xml)
+            self.sink.SetConfigurationXml(xml)
 
-        # configure the sink
-        conduit.ConfigureDataprovider(sink_path)
-
-        # get out configuration xml
-        xml = sink.GetConfigurationXml()
-
-        # write it to disk
-        self.save_configuration(self.sink_name, xml)
-
-        # do it to me, baby, real good!
-        conduit.Sync()
+        # configure the sink; and perform the actual synchronisation
+        # when the configuration is finished
+        self.sink.Configure(reply_handler=self._configure_reply_handler,
+                            error_handler=self._configure_error_handler)
 
     def get_configuration(self, sink_name):
         """
@@ -143,24 +149,38 @@ class ItemCallbackHandler:
         f.write(xml)
         f.close()
 
+    def _configure_reply_handler(self):
+        """
+        Finish the setup: save existing configuration
+        and perform synchronise
+        """
+        # get out configuration xml
+        xml = self.sink.GetConfigurationXml()
+
+        # write it to disk
+        self.save_configuration(self.sink_name, xml)
+
+        # do it to me, baby, real good!
+        self.conduit.Sync()
+
+    def _configure_error_handler(self, error):
+        """
+        Nothing to do anymore
+        """
+        pass
+
 class ConduitExtension(nautilus.MenuProvider):
     """
     This is the actual extension
     """
-    app = None
-
     def __init__(self):
-        bus = dbus.SessionBus()
-
-        try:
-            remote_object = bus.get_object(APPLICATION_DBUS_IFACE,"/")
-            self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
-        except dbus.exceptions.DBusException:
-            print "Conduit unavailable"
+        pass
 
     def get_file_items(self, window, files):
         # no conduit
-        if not self.app:
+        app = _get_conduit_app()
+
+        if not app:
             return
 
         # more than one selected?
@@ -182,7 +202,7 @@ class ConduitExtension(nautilus.MenuProvider):
                                         'Synchronize to Flickr',
                                         'Synchronize folder with Flickr')
 
-        cb = ItemCallbackHandler(self.app, FLICKR_TWOWAY)
+        cb = ItemCallbackHandler(FLICKR_TWOWAY)
         flickr_item.connect('activate', cb.activate_cb, file)
 
         # add picasa
@@ -190,7 +210,7 @@ class ConduitExtension(nautilus.MenuProvider):
                                         'Synchronize to Picasa',
                                         'Synchronize folder with Picasa')
 
-        cb = ItemCallbackHandler(self.app, PICASA_TWOWAY)
+        cb = ItemCallbackHandler(PICASA_TWOWAY)
         picasa_item.connect('activate', cb.activate_cb, file)
 
         # add box.net
@@ -198,7 +218,7 @@ class ConduitExtension(nautilus.MenuProvider):
                                      'Synchronize to Box.net',
                                      'Synchronize folder with Box.net')
 
-        cb = ItemCallbackHandler(self.app, BOXDOTNET_TWOWAY)
+        cb = ItemCallbackHandler(BOXDOTNET_TWOWAY)
         box_item.connect('activate', cb.activate_cb, file)
 
         # return all items

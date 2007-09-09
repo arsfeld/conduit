@@ -55,7 +55,6 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # Methods:
 # AddDataprovider
 # DeleteDataprovider
-# ConfigureDataprovider
 # Sync
 # Refresh
 # 
@@ -85,6 +84,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # IsPending
 # SetConfigurationXML
 # GetConfigurationXML
+# Configure
 # GetInformation
 # AddData(uri)
 # 
@@ -165,23 +165,7 @@ class ConduitDBusItem(DBusItem):
         if not self.conduit.delete_dataprovider(dpw):
             raise ConduitException("Could not delete dataprovider: %s" % e)
 
-    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='o', out_signature='')
-    def ConfigureDataprovider(self, dp):
-        self._print("ConfigureDataprovider: %s" % dp)
-
-        #get the actual dps from their object paths
-        try:
-            dpw = EXPORTED_OBJECTS[str(dp)].dataprovider
-        except KeyError, e:
-            raise ConduitException("Could not locate dataprovider: %s" % e)
-
-        # check if dataprovider is available in conduit
-        if not self.conduit.has_dataprovider_by_key (dpw.get_key()):
-            raise ConduitException("Could not locate dataprovider in conduit: %s" % dp)
-
-        # configure with no parent window
-        dpw.configure(None)
-
+    
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
     def Sync(self):
         self._print("Sync")
@@ -287,6 +271,7 @@ class DataProviderDBusItem(DBusItem):
         info["UID"] = self.dataprovider.get_UID()
         info["icon_name"] = self.dataprovider.icon_name
         info["icon_path"] = self.dataprovider.icon_path
+
         return info
 
     @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='', out_signature='s')
@@ -298,6 +283,11 @@ class DataProviderDBusItem(DBusItem):
     def SetConfigurationXml(self, xml):
         self._print("SetConfigurationXml: %s" % xml)
         self.dataprovider.set_configuration_xml(xml)
+
+    @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='', out_signature='')
+    def Configure(self):
+        self._print("Configure")       
+        self.dataprovider.configure(None)
 
     @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='s', out_signature='')
     def AddData(self, uri):
