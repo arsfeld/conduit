@@ -1,7 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 0.3.3\n"
-"POT-Creation-Date: 2007-09-06 00:22+0300\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-09-11 16:39+0100\n"
 "PO-Revision-Date: 2007-09-06 09:22+0300\n"
 "Last-Translator: Alexandre Prokoudine <alexandre.prokoudine@gmail.com>\n"
 "Language-Team: \n"
@@ -103,6 +104,7 @@ msgstr ""
 #: ../conduit/dataproviders/BackpackModule/config.glade.h:1
 #: ../conduit/dataproviders/FlickrModule/config.glade.h:1
 #: ../conduit/dataproviders/GmailModule/config.glade.h:1
+#: ../conduit/dataproviders/GoogleModule/config.glade.h:1
 #: ../conduit/dataproviders/PicasaModule/config.glade.h:1
 #: ../conduit/dataproviders/SmugMugModule/config.glade.h:1
 msgid "<b>Account Details</b>"
@@ -280,11 +282,11 @@ msgstr "Электронная почта"
 msgid "Sync your Gmail Emails"
 msgstr "Синхронизировать почту из Gmail"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:303
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:302
 msgid "Contacts"
 msgstr "Контакты"
 
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:304
+#: ../conduit/dataproviders/GmailModule/GmailModule.py:303
 msgid "Sync your Gmail Contacts"
 msgstr "Синхронизировать контакты из Gmail"
 
@@ -329,6 +331,7 @@ msgid "Gmail Sink Properties"
 msgstr "Свойства синхронизации Gmail"
 
 #: ../conduit/dataproviders/GmailModule/config.glade.h:12
+#: ../conduit/dataproviders/GoogleModule/config.glade.h:6
 #: ../conduit/dataproviders/PicasaModule/config.glade.h:4
 #: ../conduit/dataproviders/SmugMugModule/config.glade.h:4
 msgid "Password:"
@@ -350,6 +353,23 @@ msgstr "Непрочитанные письма"
 msgid "Username: "
 msgstr "Имя пользователя: "
 
+#: ../conduit/dataproviders/GoogleModule/config.glade.h:2
+msgid "Calendar:"
+msgstr ""
+
+#: ../conduit/dataproviders/GoogleModule/config.glade.h:3
+#, fuzzy
+msgid "Email:"
+msgstr "Электронная почта"
+
+#: ../conduit/dataproviders/GoogleModule/config.glade.h:4
+msgid "Google Calendar"
+msgstr ""
+
+#: ../conduit/dataproviders/GoogleModule/config.glade.h:5
+msgid "Load Calendars"
+msgstr ""
+
 #: ../conduit/dataproviders/PicasaModule/config.glade.h:3
 #: ../conduit/dataproviders/SmugMugModule/config.glade.h:3
 msgid "Album:"
@@ -370,6 +390,52 @@ msgstr "Настройка параметров"
 #: ../conduit/dataproviders/SmugMugModule/config.glade.h:5
 msgid "SmugMug"
 msgstr "SmugMug"
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:1
+msgid "<b>Donwload Videos</b>"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:2
+msgid "By user"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:3
+msgid "Favorites of"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:5
+msgid "Most viewed"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:6
+msgid "Top rated"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:7
+msgid "Uploaded by"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:8
+#, fuzzy
+msgid "User: "
+msgstr "Имя пользователя: "
+
+#: ../conduit/dataproviders/YouTubeModule/config.glade.h:9
+msgid "YouTube Source"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/YouTubeModule.py:34
+msgid "YouTube"
+msgstr ""
+
+#: ../conduit/dataproviders/YouTubeModule/YouTubeModule.py:35
+#, fuzzy
+msgid "Sync data from YouTube"
+msgstr "Синхронизировать данные из вложений в RSS"
 
 #: ../data/conduit.glade.h:1
 msgid "<b>General</b>"
@@ -510,4 +576,3 @@ msgstr "Когда объект уже удалён"
 #: ../data/conduit.glade.h:35
 msgid "dialog1"
 msgstr "dialog1"
-

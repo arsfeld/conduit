@@ -17,7 +17,10 @@ conduit/dataproviders/FlickrModule/config.glade
 conduit/dataproviders/FspotModule/config.glade
 conduit/dataproviders/GmailModule/GmailModule.py
 conduit/dataproviders/GmailModule/config.glade
+conduit/dataproviders/GoogleModule/config.glade
 conduit/dataproviders/PicasaModule/config.glade
 conduit/dataproviders/SettingsModule/config.glade
 conduit/dataproviders/SmugMugModule/config.glade
+conduit/dataproviders/YouTubeModule/config.glade
+conduit/dataproviders/YouTubeModule/YouTubeModule.py
 data/conduit.glade
