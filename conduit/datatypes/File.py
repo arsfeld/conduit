@@ -10,8 +10,8 @@ from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 class File(DataType.DataType):
-    triedOpen = False
-    fileInfo = None
+    
+    _name_ = "file"
 
     def __init__(self, URI, **kwargs):
         """
@@ -23,7 +23,7 @@ class File(DataType.DataType):
           - basepath: The files basepath
           - group: A named group to which this file belongs
         """
-        DataType.DataType.__init__(self,"file")
+        DataType.DataType.__init__(self)
         self._close_file()
         
         #compulsory args

@@ -8,8 +8,11 @@ class Event(DataType.DataType):
     """
     Very basic calendar event representation
     """
+
+    _name_ = "event"
+
     def __init__(self, URI, **kwargs):
-        DataType.DataType.__init__(self, "event")
+        DataType.DataType.__init__(self)
         self.iCal = vobject.iCalendar()
 
         self.set_open_URI(URI)

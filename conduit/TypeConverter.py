@@ -10,6 +10,7 @@ from gettext import gettext as _
 
 from conduit import log,logd,logw
 import conduit.Exceptions as Exceptions
+import conduit.Utils as Utils
 
 class TypeConverter: 
     """
@@ -73,12 +74,9 @@ class TypeConverter:
                         else:
                             self.convertables[fromtype][totype] = conv[c]
                     except IndexError:
-                        logw(  "Conversion dict (%s) wrong format. "\
-                                        "Should be fromtype,totype" % c)
+                        logw("Conversion dict (%s) wrong format. Should be fromtype,totype" % c)
                     except KeyError, err:
-                        logw(  "Could not add conversion function " \
-                                        "from %s to %s" % (fromtype,totype))
-                        logw("KeyError was %s" % err)
+                        logw("Could not add conversion function from %s to %s\n%s" % (fromtype,totype,err))
                     except Exception:
                         logw("BAD PROGRAMMER")
 
@@ -95,11 +93,79 @@ class TypeConverter:
         todata.set_open_URI(fromdata.get_open_URI())
         todata.set_UID(fromdata.get_UID())
         return todata
-                    
+
+    def _get_conversion(self, from_type, to_type):
+        """
+        Returns the conversion required fromtype -> totype. Considers if fromtype and/or
+        totype are super/subclasses of each other. The args string is always taken from the 
+        destination, i.e. the totype.
+
+        Does not check if the conversion actually exists.
+
+        @returns: fromtype, totype, args
+        """
+        args = {}
+        fromType = from_type
+        toType = to_type
+
+        #remove the args string of present at source
+        try:
+            fromType = from_type.split("?")[0]
+        except ValueError: pass
+
+        #args string is only considered for the destination
+        try:
+            toType,argString = to_type.split("?")
+            args = Utils.decode_conversion_args(argString)
+        except ValueError: pass            
+
+        if fromType != toType:
+            froms = fromType.split("/")
+            tos = toType.split("/")
+            
+            #same base type (e.g. file -> file/music or vice-versa)
+            if froms[0] == tos[0]:
+                #different sub type
+                if len(froms) == len(tos):
+                    fromType = froms[-1]
+                    toType = tos[-1]
+                #one is parent class of the other
+                else:
+                    #file -> file/music
+                    if len(tos) > len(froms):
+                        fromType = froms[0]
+                        toType = tos[-1]
+                    #file/music -> file
+                    else:
+                        fromType = froms[0]
+                        toType = tos[0]
+
+        return fromType, toType, args
+
+    def _conversion_exists(self, from_type, to_type):
+        """
+        Checks if a conversion exists 
+        @param from_type: Type to convert from
+        @type from_type: C{str}
+        @param to_type: Type to convert into
+        @type to_type: C{str}                
+        """
+        from_type, to_type, args = self._get_conversion(from_type, to_type)
+
+        if self.convertables.has_key(from_type):
+            #from_type exists
+            if self.convertables[from_type].has_key(to_type):
+                return True
+            else:
+                return False
+        else:
+            return False
+
     def convert(self, from_type, to_type, data):
         """
         Converts a L{conduit.DataType.DataType} (or derived) of type 
-        from_type into to_type and returns that newly converted type
+        from_type into to_type and returns that newly converted type. If no
+        conversion is needed, the original data is returned.
         
         @param from_type: The name of the type converted from
         @type from_type: C{string}
@@ -107,30 +173,41 @@ class TypeConverter:
         @type to_type: C{string}
         @param data: The DataType to convert
         @type data: L{conduit.DataType.DataType}
-        @raise Exceptions.ConversionError: If the conversion fails
-        @todo: Make this use conversion_exists first.
         """
-        try:
-            logd("Converting %s -> %s" % (from_type, to_type))
-            to = self.convertables[from_type][to_type](data)
-            return self._retain_info_in_conversion(fromdata=data, todata=to)
-        except TypeError, err:
-            extra="Could not call conversion function\n%s" % traceback.format_exc()
-            raise Exceptions.ConversionError(from_type, to_type, extra)
-        except KeyError:
-            logw("Conversion from %s -> %s does not exist " % (from_type, to_type))
-            logw("Trying conversion from %s -> text & text -> %s" % (from_type, to_type))
+        from_type, to_type, args = self._get_conversion(from_type, to_type)
+
+        conversionExists = self._conversion_exists(from_type, to_type)
+        #print "------------------ %s -> %s (args: %s) (exists: %s)" % (from_type, to_type, args, conversionExists)
+
+        #if fromtype and totype differ only through args, then check if that
+        #datatype has a transcode function (a convert function whose in and
+        #out types are the same)
+        if from_type == to_type:
+            if args == {}:
+                return data
+            elif conversionExists == True:
+                try:
+                    logd("Transcoding %s (args: %s)" % (from_type, args))
+                    to = self.convertables[from_type][to_type](data, **args)
+                    return self._retain_info_in_conversion(fromdata=data, todata=to)
+                except Exception, err:
+                    extra="Error calling conversion/transcode function\n%s" % traceback.format_exc()
+                    raise Exceptions.ConversionError(from_type, to_type, extra)
+            else:
+                return data
+        #perform the conversion
+        elif conversionExists == True:
             try:
-                intermediate = self.convertables[from_type]["text"](data)
-                to = self.convertables["text"][to_type](intermediate)
+                logd("Converting %s -> %s (args: %s)" % (from_type, to_type, args))
+                to = self.convertables[from_type][to_type](data, **args)
                 return self._retain_info_in_conversion(fromdata=data, todata=to)
             except Exception, err:
-                #This is the normal case where the conversion just doesnt exist
-                raise Exceptions.ConversionError(from_type, to_type, err)
-        except Exception, err:
-            extra="Unknown error calling conversion function\n%s" % traceback.format_exc()
-            raise Exceptions.ConversionError(from_type, to_type, extra)
-            
+                extra="Error calling conversion function\n%s" % traceback.format_exc()
+                raise Exceptions.ConversionError(from_type, to_type, extra)
+        else:
+            logw("Conversion from %s -> %s does not exist " % (from_type, to_type))
+            raise Exceptions.ConversionDoesntExistError(from_type, to_type, err)
+
     def get_convertables_descriptive_list(self):
         """
         Returns an array of C{string}s in the form 
@@ -154,61 +231,4 @@ class TypeConverter:
                 l.append(msg)
         return l
                 
-                                        
-        
-        
-    def print_convertables(self):
-        """
-        Prints a nice textual representation of all types in the system
-        and what those can be converted to. 
-        """
-        for froms in self.convertables:
-            for tos in self.convertables[froms]:
-                method = self.convertables[froms][tos]
-                log("Convert from %s to %s using %s" % (froms, tos, method))
-                
-    def conversion_exists(self, from_type, to_type, throughTextAllowed=True):
-        """
-        Checks if a conversion exists 
-        
-        Conversions through text are allowed if calling this function and
-        not specifying the throughTextAllowed parameter
-        @todo: Null check self.convertables??
-        
-        @param from_type: Type to convert from
-        @type from_type: C{str}
-        @param to_type: Type to convert into
-        @type to_type: C{str}                
-        @param throughTextAllowed: Are conversions through text allowed?
-        @type throughTextAllowed: C{bool}
-        """
-        if self.convertables.has_key(from_type):
-            #from_type exists
-            if self.convertables[from_type].has_key(to_type):
-                #conversion exists
-                return True
-            elif self.convertables[from_type].has_key("text") and self.convertables["text"].has_key(to_type):
-                #can convert via text
-                if throughTextAllowed:
-                    return True
-                else:
-                    return False
-            else:
-                #to_type doesnt exists
-                return False
-        else:
-            #from_type doesnt exist
-            return False
-            
-    def direct_conversion_exists(self, fromType, toType):
-        """
-        Checks if a direct conversion exists (conversions through text are 
-        not direct allowed)
-        
-        @param fromType: Type to convert from
-        @type fromType: C{str}
-        @param toType: Type to convert into
-        @type toType: C{str}        
-        """
-        return self.conversion_exists(fromType, toType, False)
-            
+          

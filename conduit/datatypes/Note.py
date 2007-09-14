@@ -6,6 +6,9 @@ class Note(DataType.DataType):
     """
     Represents a Note
     """
+
+    _name_ = "note"
+
     def __init__(self, **kwargs):
         """
         Note constructor.
@@ -18,7 +21,7 @@ class Note(DataType.DataType):
           - raw: Raw note XML. This should probbably be removed and put into
           - a dedicated TomboyNote datatype at some point.
         """
-        DataType.DataType.__init__(self,"note")
+        DataType.DataType.__init__(self)
         self.title = kwargs["title"]
         self.contents = kwargs.get("contents","")
         self.raw = kwargs.get("raw", "")

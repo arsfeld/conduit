@@ -15,6 +15,7 @@ import conduit
 from conduit import log,logd,logw
 import conduit.ModuleWrapper as ModuleWrapper
 import conduit.Exceptions as Exceptions
+import conduit.Utils as Utils
 import conduit.datatypes.File as File
 
 #Constants used in the sync state machine
@@ -345,19 +346,47 @@ class DataProviderBase(gobject.GObject):
         """
         raise NotImplementedError
 
-    def get_in_type(self):
+    def get_input_conversion_args(self):
         """
-        Provides a way for dataproviders to configure what format they want 
-        at runtime.
+        Provides a way to pass arguments to conversion functions. For example when 
+        transcoding a music file the dataprovider may return a dictionary specifying the
+        conversion encoding, quality, etc
+        @returns: a C{dict} of conversion arguments
         """
-        return self._in_type_
+        return {}
 
-    def get_out_type(self):
+    def get_input_type(self):
         """
-        Provides a way for dataproviders to configure what format they want 
-        at runtime.
+        Provides a way for dataproviders to change the datatype they accept. In most cases
+        implementing get_in_conversion args is recommended and will let you acomplish what you want.
+        @returs: A C{string} in the form "type_name?arg_name=foo&arg_name2=bar"
         """
-        return self._out_type_
+        args = self.get_input_conversion_args()
+        if len(args) == 0:
+            return self._in_type_
+        else:
+            return "%s?%s" % (self._in_type_, Utils.encode_conversion_args(args))
+
+    def get_output_conversion_args(self):
+        """
+        Provides a way to pass arguments to conversion functions. For example when 
+        transcoding a music file the dataprovider may return a dictionary specifying the
+        conversion encoding, quality, etc
+        @returns: a C{dict} of conversion arguments
+        """
+        return {}
+
+    def get_output_type(self):
+        """
+        Provides a way for dataproviders to change the datatype they emit. In most cases
+        implementing get_out_conversion args is recommended and will let you acomplish what you want.
+        @returs: A C{string} in the form "type_name?arg_name=foo&arg_name2=bar"
+        """
+        args = self.get_output_conversion_args()
+        if len(args) == 0:
+            return self._out_type_
+        else:
+            return "%s?%s" % (self._out_type_, Utils.encode_conversion_args(args))
 
 
 class DataSource(DataProviderBase):

@@ -225,11 +225,11 @@ class MainWindow:
             converterListStore.append( [i] )
         dataProviderListStore = gtk.ListStore( str, bool )
         for i in self.moduleManager.get_modules_by_type("sink"):
-            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_in_type(), i.get_out_type()), i.enabled))
+            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
         for i in self.moduleManager.get_modules_by_type("source"):
-            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_in_type(), i.get_out_type()), i.enabled))
+            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
         for i in self.moduleManager.get_modules_by_type("twoway"):
-            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_in_type(), i.get_out_type()), i.enabled))
+            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
 
         #construct the dialog
         tree = gtk.glade.XML(conduit.GLADE_FILE, "PreferencesDialog")

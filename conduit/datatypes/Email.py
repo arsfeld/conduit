@@ -9,8 +9,11 @@ class Email(DataType.DataType):
     """
     Basic email representation
     """
+
+    _name_ = "email"
+
     def __init__(self, URI, **kwargs):
-        DataType.DataType.__init__(self,"email")
+        DataType.DataType.__init__(self)
 
         self.email = None
         self.attachments = []

@@ -130,7 +130,7 @@ class SimpleTest(object):
         """
         found = False
 
-        conduit = Conduit.Conduit()
+        conduit = Conduit.Conduit(self.sync_manager)
 
         #fixme: need cleaner way to get networked factory..
         for i in range(0, len(self.model.dataproviderFactories)):
@@ -189,7 +189,7 @@ class SimpleSyncTest(SimpleTest):
 
         ok("Sink ready", sink != None)
 
-        self.conduit = Conduit.Conduit()
+        self.conduit = Conduit.Conduit(self.sync_manager)
         ok("Conduit created", self.conduit != None)
 
         self.conduit.add_dataprovider(self.source)

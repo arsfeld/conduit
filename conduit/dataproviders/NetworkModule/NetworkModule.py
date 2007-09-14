@@ -21,8 +21,8 @@ NetworkServerFactory = Server.NetworkServerFactory
 NetworkEndpoint = Server.NetworkEndpoint
 
 MODULES = {
-        "NetworkServerFactory" :     { "type": "dataprovider-factory" },
-        "NetworkClientFactory" :     { "type": "dataprovider-factory" },
-        "NetworkEndpoint"      :     { "type": "dataprovider" },
+#        "NetworkServerFactory" :     { "type": "dataprovider-factory" },
+#        "NetworkClientFactory" :     { "type": "dataprovider-factory" },
+#        "NetworkEndpoint"      :     { "type": "dataprovider" },
 }
 

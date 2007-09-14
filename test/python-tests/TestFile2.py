@@ -11,7 +11,9 @@ import datetime
 import gnomevfs
 import tempfile
 
-#Tests renaming and setting file mtimes
+if not is_online():
+    print "SKIPPING"
+    sys.exit()
 
 tmpdir = tempfile.mkdtemp()
 ok("Created tempdir %s" % tmpdir, True)

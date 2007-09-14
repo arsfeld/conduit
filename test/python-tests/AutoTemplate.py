@@ -8,18 +8,7 @@ import conduit.Synchronization as Sync
 import conduit.Exceptions as Exceptions
 
 def convert(host, fromType, toType, data):
-    newdata = None
-
-    if fromType != toType:
-        if host.type_converter.conversion_exists(fromType, toType):
-            newdata = host.type_converter.convert(fromType, toType, data)
-        else:
-            newdata = None
-            raise Exceptions.ConversionDoesntExistError
-    else:
-        newdata = data
-
-    return newdata
+    return host.type_converter.convert(fromType, toType, data)
 
 def test_delete_all(dp):
     """

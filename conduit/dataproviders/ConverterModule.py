@@ -27,13 +27,13 @@ class EmailConverter:
                             }
                             
                             
-    def email_to_text(self, email):
+    def email_to_text(self, email, **kwargs):
         t = Text.Text(
                     text=email.get_email_string()
                     )
         return t
 
-    def file_to_email(self, thefile):
+    def file_to_email(self, thefile, **kwargs):
         """
         If the file is non binary then include it as the
         Subject of the message. Otherwise include it as an attachment
@@ -59,7 +59,7 @@ class EmailConverter:
 
         return email
             
-    def text_to_email(self, text):
+    def text_to_email(self, text, **kwargs):
         email = Email.Email(
                         None,
                         content=text.get_string()
@@ -75,20 +75,20 @@ class NoteConverter:
                             "note,file"     : self.note_to_file
                             }
 
-    def text_to_note(self, text):
+    def text_to_note(self, text, **kwargs):
         n = Note.Note(
                     title="Note-"+Utils.random_string(),
                     contents=text
                     )
         return n
                             
-    def note_to_text(self, note):
+    def note_to_text(self, note, **kwargs):
         t = Text.Text(
                     text=note.get_note_string()
                     )
         return t
 
-    def note_to_file(self, note):
+    def note_to_file(self, note, **kwargs):
         f = File.TempFile(note.raw)
         f.force_new_filename(note.title)
         return f
@@ -101,19 +101,19 @@ class ContactConverter:
                             "file,contact"    : self.file_to_contact,
                             }
                             
-    def contact_to_file(self, contact):
+    def contact_to_file(self, contact, **kwargs):
         #get vcard data
         f = Utils.new_tempfile(contact.get_vcard_string())
         return f
 
-    def contact_to_text(self, contact):
+    def contact_to_text(self, contact, **kwargs):
         #get vcard data
         t = Text.Text(
                     text=contact.get_vcard_string()
                     )
         return t
 
-    def file_to_contact(self, f):
+    def file_to_contact(self, f, **kwargs):
         c = Contact.Contact(None)
         c. set_from_vcard_string(f.get_contents_as_text())
         return c
@@ -127,23 +127,23 @@ class EventConverter:
                             "text,event"    : self.text_to_event,
                             }
                             
-    def event_to_file(self, event):
+    def event_to_file(self, event, **kwargs):
         #get ical data
         f = Utils.new_tempfile(event.get_ical_string())
         return f
 
-    def event_to_text(self, event):
+    def event_to_text(self, event, **kwargs):
         t = Text.Text(
                     text=event.get_ical_string()
                     )
         return t
 
-    def file_to_event(self, f):
+    def file_to_event(self, f, **kwargs):
         e = Event.Event(None)
         e.set_from_ical_string(f.get_contents_as_text())
         return e
 
-    def text_to_event(self, text):
+    def text_to_event(self, text, **kwargs):
         e = Event.Event(None)
         e.set_from_ical_string(text.get_string())
         return e
@@ -156,10 +156,10 @@ class FileConverter:
                             "file,note" : self.file_to_note
                             }
         
-    def text_to_file(self, theText):
+    def text_to_file(self, theText, **kwargs):
         return Utils.new_tempfile(str(theText))
 
-    def file_to_text(self, theFile):
+    def file_to_text(self, theFile, **kwargs):
         mime = theFile.get_mimetype()
         try:
             #check its a text type
@@ -173,7 +173,7 @@ class FileConverter:
                     theFile._get_text_uri()
                     )
 
-    def file_to_note(self, theFile):
+    def file_to_note(self, theFile, **kwargs):
         mime = theFile.get_mimetype()
         try:
             #check its a text type

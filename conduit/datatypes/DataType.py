@@ -10,21 +10,30 @@ class DataType(object):
     Base DataType which represents any thing 
     which can be synchronized between two DataProviders
 
-    @ivar type_name: The name of the type
-    @type type_name: C{string}
+    @cvar _name_: The name of the type
+    @type _name_: C{string}
     @ivar URI: A URI which uniquely represents the location of the datatype. 
     @type URI: C{string}
     @ivar UID: A Unique identifier for this type. This is particuarly 
     neccessary on types that are used in two-way sync.
     @type UID: C{string}
     """
-    def __init__(self,type_name):
-        self.type_name = type_name
+
+    _name_ = ""
+
+    def __init__(self):
         self.change_type = CHANGE_UNMODIFIED
 
         self._original_URI = None
         self._mtime = None
         self._UID = None
+
+    def get_type(self):
+        """
+        @returns: The type (name) of this datatype
+        @rtype: C{string}
+        """
+        return self._name_
 
     def compare(self, B):
         """

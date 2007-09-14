@@ -7,7 +7,8 @@ License: GPLv2
 
 class ConversionError(Exception):
     """
-    Exception thrown by TypeConverter when it could not convert stuff
+    Exception thrown by TypeConverter when it could not convert stuff due to an
+    error in the conversion function
     """
     def __init__(self, fromType, toType, extraMsg=None):
         """
@@ -29,10 +30,14 @@ class ConversionError(Exception):
 
 class ConversionDoesntExistError(Exception):
     """
-    Thrown in sync statemachine if a conversion doesnt exist. 
-    USually discovered after calling TypeConverter.conversion_exists()
+    Thrown when the typeconverter tries a conversion that does not exist
     """
-    pass
+    def __init__(self, fromType, toType):
+        self.fromType = fromType
+        self.toType = toType
+        
+    def __str__(self):
+        return "ConversionDoesntExistError: Could not convert %s -> %s" % (self.fromType, self.toType)
 
 class RefreshError(Exception):
     """

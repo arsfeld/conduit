@@ -175,6 +175,9 @@ class WikiPageDataType(DataType.DataType):
     @ivar self.modified: The date the page was modified
     @type self.modified: C{string}
     """
+    
+    _name_ = "wikipage"
+
     def __init__(self, uri, **kwargs):
         """
         Derived DataTypes should always call the base constructor 
@@ -182,7 +185,7 @@ class WikiPageDataType(DataType.DataType):
 
         This name shoud should correspond to that specified in the MODULES dict
         """
-        DataType.DataType.__init__(self, "wikipage")
+        DataType.DataType.__init__(self)
                             
         #Instance variables
         self.contents = kwargs.get("contents","")
@@ -249,7 +252,7 @@ class WikiPageConverter:
                             }
                             
 
-    def wikipage_to_file(self, page):
+    def wikipage_to_file(self, page, **kwargs):
         """
         The conversion function for converting wikipages to raw text. Does
         not do anythong particuarly smart.

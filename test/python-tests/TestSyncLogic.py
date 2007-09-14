@@ -8,8 +8,9 @@ from conduit.DataProvider import TwoWay
 import datetime
 
 class TestDataType(conduit.datatypes.DataType.DataType):
+    _name_ = "test"
     def __init__(self, **kwargs):
-        DataType.DataType.__init__(self,"test")
+        DataType.DataType.__init__(self)
         self.set_UID(
                 kwargs.get("data",0)
                 )
@@ -91,7 +92,7 @@ sink.added = [4,5]
 
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase one: add different data to each side", aborted == False)
 
 #phase two: modify some
 source.added = []
@@ -101,7 +102,7 @@ sink.modified = [1,2]
 
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase two: modify some", aborted == False)
 
 #phase two: delete some (delete policy: skip)
 source.added = []
@@ -113,19 +114,19 @@ sink.deleted = [2]
 
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase two: delete some (delete policy: skip)", aborted == False)
 
 #phase two: delete some (delete policy: ask)
 test.set_two_way_policy({"conflict":"skip","deleted":"ask"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase two: delete some (delete policy: ask)", aborted == False)
 
 #phase two: delete some (delete policy: replace)
 test.set_two_way_policy({"conflict":"skip","deleted":"replace"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase two: delete some (delete policy: replace)", aborted == False)
 
 #phase three: modify both (modify policy: skip)
 source.added = []
@@ -138,7 +139,7 @@ sink.deleted = []
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase three: modify both (modify policy: skip)", aborted == False)
 
 #phase three: modify both (modify policy: ask)
 #FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
@@ -147,7 +148,7 @@ sink.modified = [1,5]
 test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase three: modify both (modify policy: ask)", aborted == False)
 
 #phase three: modify both (modify policy: replace)
 #FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
@@ -156,4 +157,4 @@ sink.modified = [1,5]
 test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+ok("Sync completed: phase three: modify both (modify policy: replace)", aborted == False)

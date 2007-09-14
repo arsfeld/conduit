@@ -8,8 +8,11 @@ class Contact(DataType.DataType):
     """
     Very basic contact representation
     """
+
+    _name_ = "contact"
+
     def __init__(self, URI, **kwargs):
-        DataType.DataType.__init__(self, "contact")
+        DataType.DataType.__init__(self)
         self.vCard = vobject.vCard()
 
         self.set_open_URI(URI)

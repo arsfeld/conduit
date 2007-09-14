@@ -154,8 +154,9 @@ class Settings(DataProvider.DataSource):
 
 
 class Setting(DataType.DataType):
+    _name_ = "setting"
     def __init__(self, name, backup):
-        DataType.DataType.__init__(self,"setting")
+        DataType.DataType.__init__(self)
 
         self.name = name
         self.GConfKeys = []

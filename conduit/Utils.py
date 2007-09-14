@@ -17,7 +17,6 @@ import gnomevfs
 import socket
 import datetime
 import time
-import urllib
 
 from conduit import log,logd,logw
 import conduit.datatypes.File as File
@@ -240,6 +239,14 @@ def escape(s):
     """
     return gnomevfs.escape_host_and_path_string(s)
 
+def unescape(s):
+    """
+    Unescapes a quoted string presumably created by above
+    """
+    #urllib seems more reliable than the gnomevfs equivilent
+    import urllib
+    return urllib.unquote(s)
+
 def escape_html(s):
     """
     Escapes html special chars (&, <, >) for webservice dps
@@ -256,12 +263,24 @@ def escape_html(s):
         L.append(html_escape_table.get(c,c))
     return "".join(L)
 
-def unescape(s):
+def encode_conversion_args(args):
     """
-    Unescapes a quoted string presumably created by above
+    encodes an args dictionary to a url string in the form
+    param=value&param2=val2
     """
-    #the urllib implementation seems more reliable than gnomevfs.unescape
-    return urllib.unquote(s)
+    import urllib
+    return urllib.urlencode(args)
+
+def decode_conversion_args(argString):
+    """
+    FIXME: dont import cgi for just one function. Also it doesnt
+    even handle lists
+    """
+    import cgi
+    args = {}
+    for key,val in cgi.parse_qsl(argString):
+        args[key] = val
+    return args
 
 class LoginTester:
     def __init__ (self, testFunc, timeout=30):

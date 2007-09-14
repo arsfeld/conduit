@@ -224,8 +224,8 @@ class ConduitDBusItem(DBusItem):
         info["description"] =  self.conduit.datasinks[0].description
         info["module_type"] =  self.conduit.datasinks[0].module_type
         info["category"] =  self.conduit.datasinks[0].category.name
-        info["in_type"] =  self.conduit.datasinks[0].get_in_type()
-        info["out_type"] =  self.conduit.datasinks[0].get_out_type()
+        info["in_type"] =  self.conduit.datasinks[0].get_input_type()
+        info["out_type"] =  self.conduit.datasinks[0].get_output_type()
         info["classname"] =  self.conduit.datasinks[0].classname
         info["key"] =  self.conduit.datasinks[0].get_key()
         info["enabled"] = str( self.conduit.datasinks[0].enabled)
@@ -263,8 +263,8 @@ class DataProviderDBusItem(DBusItem):
         info["description"] = self.dataprovider.description
         info["module_type"] = self.dataprovider.module_type
         info["category"] = self.dataprovider.category.name
-        info["in_type"] = self.dataprovider.get_in_type()
-        info["out_type"] = self.dataprovider.get_out_type()
+        info["in_type"] = self.dataprovider.get_input_type()
+        info["out_type"] = self.dataprovider.get_output_type()
         info["classname"] = self.dataprovider.classname
         info["key"] = self.dataprovider.get_key()
         info["enabled"] = str(self.dataprovider.enabled)

@@ -105,18 +105,15 @@ for i in TYPES:
         if i == j:
             conversions.append("N/A")
         else:
-            if type_converter.conversion_exists(i,j,False):
+            if type_converter._conversion_exists(i,j):
                 conversions.append("Y")
                 tests.append((i,j))
-            elif type_converter.conversion_exists(i,j,True):
-                conversions.append("Y*")
             else:
                 conversions.append("N")
     print row(conversions)
 
 print "Key"
-print "%s: Direct conversion possible" % pad("Y")
-print "%s: Conversion goes via text (some info may be lost)" % pad("Y*")
+print "%s: Conversion possible" % pad("Y")
 print "%s: No conversion possible" % pad("N")
 
 #now test all the conversions

@@ -4,12 +4,12 @@ import random
 import datetime
 
 import conduit
-from conduit import log,logd,logw
+from conduit import logd
 import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
-from conduit.datatypes import DataType
+from conduit.datatypes import DataType, Text
 
 import time
 
@@ -17,29 +17,30 @@ MODULES = {
     "TestSource" :              { "type": "dataprovider" },
     "TestSink" :                { "type": "dataprovider" },
     "TestConflict" :            { "type": "dataprovider" },
-    "TestChangeType" :          { "type": "dataprovider" },
+    "TestConversionArgs" :      { "type": "dataprovider" },
     "TestTwoWay" :              { "type": "dataprovider" },
     "TestSinkFailRefresh" :     { "type": "dataprovider" },
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
-#    "TestFactoryRemoval" :     { "type": "dataprovider-factory" },
-    "CheeseConverter" :         { "type": "converter" }
+#    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
+    "TestConverter" :           { "type": "converter" }
 }
 
 #Test datatype is a thin wrapper around an integer string in the form
 #"xy" where x is supplied at construction time, and y is a random integer
 #in the range 0-9. 
 class TestDataType(DataType.DataType):
+    _name_ = "test_type"
     def __init__(self, integerData):
-        DataType.DataType.__init__(self,"text")
-        self.UID = integerData
+        DataType.DataType.__init__(self)
+        self.integerData = integerData
 
         self.set_open_URI("file:///home/")
-        self.set_UID(str(self.UID))
+        self.set_UID(str(self.integerData))
         self.set_mtime(datetime.datetime(2003,8,16))
         
     def __str__(self):
-        return "testData %s" % self.UID
+        return "testData %s" % self.integerData
 
     def get_snippet(self):
         return str(self) + "\nI am a piece of test data"
@@ -133,8 +134,8 @@ class TestSource(_TestBase, DataProvider.DataSource):
     _description_ = "Prints Debug Messages"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "source"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
@@ -161,7 +162,6 @@ class TestSource(_TestBase, DataProvider.DataSource):
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
 
         data = TestDataType(index)
-        logd("TEST SOURCE: get() returned %s" % data)
         return data
 
     def add(self, LUID):
@@ -173,8 +173,8 @@ class TestSink(_TestBase, DataProvider.DataSink):
     _description_ = "Prints Debug Messages"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "sink"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
@@ -188,7 +188,6 @@ class TestSink(_TestBase, DataProvider.DataSink):
         if self.count >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, self.count))
         self.count += 1
-        logd("TEST SINK: put(): %s (known UID:%s)" % (data,LUID))
         LUID=data.get_UID()+self._name_
         return LUID
 
@@ -198,8 +197,8 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
     _description_ = "Prints Debug Messages"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "twoway"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     NUM_DATA = 10
@@ -239,8 +238,8 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
     _description_ = "Test Sink Needs Configuration"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "sink"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
@@ -260,8 +259,8 @@ class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
     _description_ = "Test Sink Fails Refresh"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "sink"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
@@ -278,8 +277,8 @@ class TestConflict(DataProvider.DataSink):
     _description_ = "Test Sink Conflict"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "sink"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
@@ -298,29 +297,29 @@ class TestConflict(DataProvider.DataSink):
     def get_UID(self):
         return Utils.random_string()
 
-class TestChangeType(DataProvider.DataSink):
+class TestConversionArgs(DataProvider.DataSink):
 
-    _name_ = "Test Change Type"
-    _description_ = "Test Sink ChangeType"
+    _name_ = "Test Conversion Args"
+    _description_ = "Pass args to converters"
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "sink"
-    _in_type_ = "text"
-    _out_type_ = ""
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
-        self.use_cheese = False
+        self.conversionArgs = ""
 
     def configure(self, window):
-        def setCheese(param):
-            self.use_cheese = bool(param)
+        def setArgs(param):
+            self.conversionArgs = str(param)
         items = [
                     {
-                    "Name" : "Convert Test Data to Cheese?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setCheese,
-                    "InitialValue" : self.use_cheese
+                    "Name" : "Conversion Args (string)",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setArgs,
+                    "InitialValue" : self.conversionArgs
                     }
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
@@ -333,29 +332,46 @@ class TestChangeType(DataProvider.DataSink):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         return None
 
+    def get_input_conversion_args(self):
+        if self.conversionArgs == "":
+            args = {}
+        else:
+            args = {
+                "foo"   :   self.conversionArgs,
+                "bar"   :   "baz"
+                }
+        return args
+
     def get_UID(self):
         return Utils.random_string()
 
-    def get_in_type(self):
-        if self.use_cheese:
-            return "cheese"
-        else:
-            return self._in_type_
-
-class CheeseConverter:
+class TestConverter:
     def __init__(self):
-        self.conversions =  {"text,cheese"   : self.convert}
+        self.conversions =  {
+                "test_type,test_type"   : self.transcode,
+                "text,test_type"        : self.convert_to_test,
+                "test_type,text"        : self.convert_to_text,}
                             
-    def convert(self, text):
-        return TestDataType(0)
+    def transcode(self, test, **kwargs):
+        logd("TEST CONVERTER: Transcode %s (args: %s)" % (test, kwargs))
+        return test
 
+    def convert_to_test(self, text, **kwargs):
+        #only keep the first char
+        char = text.get_string()[0]
+        t = TestDataType(char)
+        return t
+
+    def convert_to_text(self, test, **kwargs):
+        t = Text.Text(text=test.integerData)
+        return t
 
 class TestDynamicSource(_TestBase, DataProvider.DataSource):
     _name_ = "Test Dynamic Source"
     _description_ = "Prints Debug Messages"
     _module_type_ = "source"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
@@ -437,5 +453,8 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
         else:
             conduit.memstats(self.stats)
         return False
+
+    def quit(self):
+        self.count = 0
 
 

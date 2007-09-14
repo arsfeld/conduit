@@ -308,24 +308,6 @@ class SyncWorker(_ThreadedWorker):
         else:
             self.setName("%s |--> %s" % (self.source, self.sinks))
 
-    def _convert_data(self, sink, fromType, toType, data):
-        """
-        Converts and returns data from fromType to toType.
-        Handles all errors nicely and returns none on error
-        """
-        newdata = None
-
-        if fromType != toType:
-            if self.typeConverter.conversion_exists(fromType, toType):
-                newdata = self.typeConverter.convert(fromType, toType, data)
-            else:
-                newdata = None
-                raise Exceptions.ConversionDoesntExistError
-        else:
-            newdata = data
-
-        return newdata
-
     def _get_data(self, source, sink, uid):
         """
         Gets the data from source. Handles exceptions, etc.
@@ -359,29 +341,27 @@ class SyncWorker(_ThreadedWorker):
         """
         Puts the data from source to sink, includes performing any conversions,
         handling exceptions, etc.
-
-        @returns: The data that was put or None
         """
-        newdata = None
         try:
             #convert data type if necessary
-            newdata = self._convert_data(sink, source.get_out_type(), sink.get_in_type(), data)
-            try:
-                #Get existing mapping
-                LUID = conduit.mappingDB.get_matching_UID(
-                                        sourceUID=source.get_UID(),
-                                        sourceDataLUID=newdata.get_UID(),
-                                        sinkUID=sink.get_UID()
-                                        )
-                _put_data(source, sink, newdata, LUID, False)
-            except Exceptions.SynchronizeConflictError, err:
-                comp = err.comparison
-                if comp == COMPARISON_OLDER:
-                    log("Skipping %s (Older)" % newdata)
-                elif comp == COMPARISON_EQUAL:
-                    log("Skipping %s (Equal)" % newdata)
-                else:
-                    self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
+            newdata = self.typeConverter.convert(source.get_output_type(), sink.get_input_type(), data)
+            if newdata != None:
+                try:
+                    #Get existing mapping
+                    LUID = conduit.mappingDB.get_matching_UID(
+                                            sourceUID=source.get_UID(),
+                                            sourceDataLUID=newdata.get_UID(),
+                                            sinkUID=sink.get_UID()
+                                            )
+                    _put_data(source, sink, newdata, LUID, False)
+                except Exceptions.SynchronizeConflictError, err:
+                    comp = err.comparison
+                    if comp == COMPARISON_OLDER:
+                        log("Skipping %s (Older)" % newdata)
+                    elif comp == COMPARISON_EQUAL:
+                        log("Skipping %s (Equal)" % newdata)
+                    else:
+                        self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
 
         except Exceptions.ConversionDoesntExistError:
             logw("ConversionDoesntExistError")
@@ -404,8 +384,6 @@ class SyncWorker(_ThreadedWorker):
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             raise Exceptions.StopSync
-
-        return newdata
 
     def _apply_deleted_policy(self, sourceWrapper, sourceDataLUID, sinkWrapper, sinkDataLUID):
         """
@@ -536,7 +514,7 @@ class SyncWorker(_ThreadedWorker):
             data = self._get_data(source, sink, i)
             if data != None:
                 logd("1WAY PUT: %s (%s) -----> %s" % (source.name,data.get_UID(),sink.name))
-                newdata = self._transfer_data(source, sink, data)
+                self._transfer_data(source, sink, data)
        
     def two_way_sync(self, source, sink):
         """

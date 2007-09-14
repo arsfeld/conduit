@@ -9,8 +9,11 @@ class Text(DataType.DataType):
     Wrapper around a text string. Use this as a datatype instead of the
     plain string object
     """
+
+    _name_ = "text"
+
     def __init__(self, **kwargs):
-        DataType.DataType.__init__(self,"text")
+        DataType.DataType.__init__(self)
         
         self.text = kwargs.get("text","")
 
