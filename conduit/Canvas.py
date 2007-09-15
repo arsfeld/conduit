@@ -649,13 +649,34 @@ class ConduitCanvasItem(_CanvasItem):
 
         self.model.connect("parameters-changed", self._on_conduit_parameters_changed)
         self.model.connect("dataprovider-changed", self._on_conduit_dataprovider_changed)
+        self.model.connect("sync-progress", self._on_conduit_progress)
 
         self.sourceItem = None
         self.sinkDpItems = []
         self.connectorItems = {}
 
+        self.bounding_box = None
+        self.l = None
+        self.progressText = None
+
         #Build the widget
         self._build_widget(width)
+
+    def _add_progress_text(self):
+        if self.sourceItem != None and len(self.sinkDpItems) > 0:
+            if self.progressText == None:
+                fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,self.sinkDpItems[0])
+                self.progressText = goocanvas.Text(  
+                                    x=fromx+5, 
+                                    y=fromy-15, 
+                                    width=100, 
+                                    text="", 
+                                    anchor=gtk.ANCHOR_WEST,
+                                    alignment=pango.ALIGN_LEFT,
+                                    font="Sans 7",
+                                    fill_color="black",
+                                    )
+                self.add_child(self.progressText) 
 
     def _position_dataprovider(self, dpCanvasItem):
         dpx, dpy = self.model.get_dataprovider_position(dpCanvasItem.model)
@@ -742,6 +763,9 @@ class ConduitCanvasItem(_CanvasItem):
             if item.model.get_key() == olddpw.get_key():
                 item.set_model(newdpw)
 
+    def _on_conduit_progress(self, cond, percent):
+        self.progressText.set_property("text","%2.1d%% complete" % int(percent*100.0))
+
     def _get_connector_coordinates(self, fromdp, todp):
         """
         Calculates the points a connector shall connect to between fromdp and todp
@@ -823,6 +847,7 @@ class ConduitCanvasItem(_CanvasItem):
                 self.connectorItems[item] = c
 
         self._resize_height()
+        self._add_progress_text()
 
 
     def delete_dataprovider_canvas_item(self, item):

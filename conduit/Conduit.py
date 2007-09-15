@@ -21,14 +21,21 @@ class Conduit(gobject.GObject):
     __gsignals__ = {
         #Fired when a new instantiatable DP becomes available. It is described via 
         #a wrapper because we do not actually instantiate it till later - to save memory
-        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+        "dataprovider-added" : (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
-        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+        "dataprovider-removed" : (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
-        "dataprovider-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+        "dataprovider-changed" : (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT,      # The old DP
             gobject.TYPE_PYOBJECT]),    # The new DP
-        "parameters-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+        "parameters-changed" : (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+        "sync-progress": (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_FLOAT])        #percent complete
         }
 
     def __init__(self, syncManager, uid=""):

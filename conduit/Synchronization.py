@@ -92,8 +92,8 @@ class SyncManager:
             thread.connect("sync-completed", cb)
         for cb in self.syncConflictCbs:
             thread.connect("sync-conflict", cb)
-        for cb in self.syncProgressCbs:
-            thread.connect("sync-progress", cb)
+        #for cb in self.syncProgressCbs:
+        #    thread.connect("sync-progress", cb)
 
         return thread
 
@@ -209,10 +209,7 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
                         gobject.TYPE_BOOLEAN,       #True if there was a non fatal error
                         gobject.TYPE_BOOLEAN]),     #True if there was a conflict
                     "sync-started": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
-                    "sync-progress": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_FLOAT])        #percent complete
+                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
     def __init__(self):
@@ -503,7 +500,7 @@ class SyncWorker(_ThreadedWorker):
             #work out the percent complete
             done = idx/(numItems*len(self.sinks)) + \
                     float(self.sinks.index(sink))/len(self.sinks)
-            self.emit("sync-progress", done)
+            self.conduit.emit("sync-progress", done)
 
             #transfer the data
             data = self._get_data(source, sink, i)
@@ -564,6 +561,9 @@ class SyncWorker(_ThreadedWorker):
         toput += [(source, i, sink) for i in sourceModified]
         toput += [(sink, i, source) for i in sinkModified]
 
+        total = len(toput) + len(todelete) + len(tocomp)
+        cnt = 0
+
         #PHASE TWO: TRANSFER DATA
         for sourcedp, dataUID, sinkdp in todelete:
             matchingUID = conduit.mappingDB.get_matching_UID(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
@@ -571,15 +571,25 @@ class SyncWorker(_ThreadedWorker):
             if matchingUID != None:
                 self._apply_deleted_policy(sourcedp, dataUID, sinkdp, matchingUID)
 
+            #progress
+            cnt = cnt+1
+            self.conduit.emit("sync-progress", float(cnt)/total)
+
         for sourcedp, dataUID, sinkdp in toput:
             data = self._get_data(sourcedp, sinkdp, dataUID)
             if data != None:
                 logd("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
                 self._transfer_data(sourcedp, sinkdp, data)
 
+            cnt = cnt+1
+            self.conduit.emit("sync-progress", float(cnt)/total)
+
         for dp1, data1UID, dp2, data2UID in tocomp:
             data1 = self._get_data(dp1, dp2, data1UID)
             data2 = self._get_data(dp2, dp1, data2UID)
+
+            cnt = cnt+1
+            self.conduit.emit("sync-progress", float(cnt)/total)
 
             if data1 != None and data2 != None:
                 logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))

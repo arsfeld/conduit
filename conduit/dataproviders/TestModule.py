@@ -220,10 +220,14 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         return self.data
 
     def get(self, LUID):
+        if self.slow:
+            time.sleep(1)    
         DataProvider.TwoWay.get(self, LUID)
         return LUID
 
     def put(self, data, overwrite, LUID=None):
+        if self.slow:
+            time.sleep(1)    
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
         LUID=data.get_UID()+self._name_
         return LUID
