@@ -310,28 +310,32 @@ class ConflictResolver:
                         logd("Resolving conflict. Putting %s --> %s" % (data, sink))
                         conduit.Synchronization._put_data(source, sink, data, None, True)
 
-                    self.model.remove(rowref)
+                    resolved.append(rowref)
                 except Exception:
                     logw("Could not resolve conflict\n%s" % traceback.format_exc())
 
         self.model.foreach(_resolve_func)
+        for r in resolved:
+            self.model.remove(r)
 
         if not IHaveMadeItersPersist:
             #now look for any sync partnerships with no children
-            empty = False
+            empty = []
             for source,sink in self.partnerships:
                 rowref = self.partnerships[(source,sink)]
                 numChildren = self.model.iter_n_children(rowref)
                 if numChildren == 0:
-                    empty = True
+                    sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                    empty.append( (rowref, source, sink) )
+                else:
+                    sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
 
-            #do in two loops so as to not change the dict while iterating
-            if empty:
-                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-                del(self.partnerships[(source,sink)])
+            #do in two loops so as to not change the model while iterating
+            for rowref, source, sink in empty:
                 self.model.remove(rowref)
-            else:
-                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+                try:
+                    del(self.partnerships[(source,sink)])
+                except KeyError: pass
 
     def on_cancel_conflicts(self, sender):
         self.model.clear()
