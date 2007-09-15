@@ -347,6 +347,8 @@ class Canvas(goocanvas.Canvas):
 
         self.model.connect("conduit-added", self.on_conduit_added)
         self.model.connect("conduit-removed", self.on_conduit_removed)
+
+        self._show_welcome_message()
         
     def on_drag_motion(self, wid, context, x, y, time):
         context.drag_status(gtk.gdk.ACTION_COPY, time)
