@@ -82,6 +82,10 @@ class SyncSet(gobject.GObject):
     def num_conduits(self):
         return len(self.conduits)
 
+    def clear(self):
+        for c in self.conduits[:]:
+            self.remove_conduit(c)
+
     def save_to_xml(self):
         """
         Saves the synchronisation settings (icluding all dataproviders and how
