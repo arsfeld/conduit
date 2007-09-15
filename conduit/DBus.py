@@ -132,7 +132,7 @@ class ConduitDBusItem(DBusItem):
         if thread.conduit == self.conduit:
             self.SyncProgress(float(progress))
 
-    def _on_sync_conflict(self, thread, source, sourceData, sink, sinkData, validChoices, isDeleted):
+    def _on_sync_conflict(self, thread, conflict):
         if thread.conduit == self.conduit:
             self.SyncConflict()   
 

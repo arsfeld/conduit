@@ -18,7 +18,7 @@ import conduit.DB as DB
 import conduit.Utils as Utils
 import conduit.DeltaProvider as DeltaProvider
 
-from conduit.Conflict import CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
+from conduit.Conflict import Conflict, CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
 
 def _put_data(source, sink, data, LUID, overwrite):
@@ -202,12 +202,7 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
     __gsignals__ =  { 
                     "sync-conflict": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_PYOBJECT,      #datasource wrapper
-                        gobject.TYPE_PYOBJECT,      #from data
-                        gobject.TYPE_PYOBJECT,      #datasink wrapper
-                        gobject.TYPE_PYOBJECT,      #to data
-                        gobject.TYPE_PYOBJECT,      #valid resolve choices
-                        gobject.TYPE_BOOLEAN]),     #Is the conflict from a deletion
+                        gobject.TYPE_PYOBJECT]),    #Conflict object
                     "sync-completed": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
                         gobject.TYPE_BOOLEAN,       #True if there was a fatal error
@@ -408,15 +403,15 @@ class SyncWorker(_ThreadedWorker):
                 #(CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
                 validResolveChoices = (CONFLICT_DELETE, CONFLICT_SKIP) 
             
-            self.emit(
-                "sync-conflict", 
-                sourceWrapper,              #datasource wrapper
-                DeletedData(sourceDataLUID),#from data
-                sinkWrapper,                #datasink wrapper
-                DeletedData(sinkDataLUID),  #to data
-                validResolveChoices,        #valid resolve choices
-                True                        #This conflict is a deletion
-                )
+            c = Conflict(
+                    sourceWrapper,              #datasource wrapper
+                    DeletedData(sourceDataLUID),#from data
+                    sinkWrapper,                #datasink wrapper
+                    DeletedData(sinkDataLUID),  #to data
+                    validResolveChoices,        #valid resolve choices
+                    True                        #This conflict is a deletion
+                    )
+            self.emit("sync-conflict", c)
 
         elif self.policy["deleted"] == "replace":
             logd("Deleted Policy: Delete")
@@ -443,15 +438,15 @@ class SyncWorker(_ThreadedWorker):
                 else:
                     avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK)
 
-                self.emit(
-                    "sync-conflict", 
-                    sourceWrapper, 
-                    fromData, 
-                    sinkWrapper, 
-                    toData, 
-                    avail,
-                    False
-                    )
+                c = Conflict(
+                        sourceWrapper, 
+                        fromData, 
+                        sinkWrapper, 
+                        toData, 
+                        avail,
+                        False
+                        )
+                self.emit("sync-conflict", c)
 
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")

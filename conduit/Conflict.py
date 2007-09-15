@@ -24,16 +24,25 @@ CONFLICT_COPY_SOURCE_TO_SINK = 1    #right drawn arrow
 CONFLICT_COPY_SINK_TO_SOURCE = 2    #left drawn arrow
 CONFLICT_DELETE = 3                 #double headed arrow
 
-#Indexes into the conflict tree model in which 
-#conflict data is stored
-SOURCE_IDX = 0              #The datasource
-SOURCE_DATA_IDX = 1         #The datasource data
-SINK_IDX = 2                #The datasink
-SINK_DATA_IDX = 3           #The datasink data
-DIRECTION_IDX = 4           #The current user decision re: the conflict (-->, <-- or -x-)
-AVAILABLE_DIRECTIONS_IDX= 5 #Available user decisions
-IS_DELETED_CONFLICT_IDX = 6 #Is the conflict actually a result of an item being deleted
+#Indexes into the conflict tree model in which conflict data is stored
+CONFLICT_IDX = 0            #The conflict object
+DIRECTION_IDX = 1           #The current user decision re: the conflict (-->, <-- or -x-)
 
+class Conflict:
+    """
+    Represents a conflict
+    """
+    def __init__(self, sourceWrapper, sourceData, sinkWrapper, sinkData, validResolveChoices, isDeletion):
+        self.sourceWrapper = sourceWrapper
+        self.sourceData = sourceData
+        self.sinkWrapper = sinkWrapper
+        self.sinkData = sinkData
+        self.choices = validResolveChoices
+        self.isDeletion = isDeletion
+
+class ConflictHeader(Conflict):
+    def __init__(self, sourceWrapper, sinkWrapper):
+        Conflict.__init__(self, sourceWrapper, None, sinkWrapper, None, (), False)
 
 class ConflictResolver:
     """
@@ -41,13 +50,8 @@ class ConflictResolver:
     wish to do in the case of a conflict
     """
     def __init__(self, widgets):
-        self.model = gtk.TreeStore( gobject.TYPE_PYOBJECT,  #Datasource
-                                    gobject.TYPE_PYOBJECT,  #Source Data
-                                    gobject.TYPE_PYOBJECT,  #Datasink
-                                    gobject.TYPE_PYOBJECT,  #Sink Data
-                                    gobject.TYPE_INT,       #Resolved direction
-                                    gobject.TYPE_PYOBJECT,  #Tuple of valid states for direction
-                                    gobject.TYPE_BOOLEAN    #Tuple of valid states for direction  
+        self.model = gtk.TreeStore( gobject.TYPE_PYOBJECT,  #Conflict
+                                    gobject.TYPE_INT        #Resolved direction
                                     )
         #In the conflict treeview, group by sink <-> source partnership 
         self.partnerships = {}
@@ -134,27 +138,29 @@ class ConflictResolver:
         uri (modified)
         snippet
         """
+        conflict = tree_model.get_value(rowref, CONFLICT_IDX)
         #render the headers different to the data
         if tree_model.iter_depth(rowref) == 0:
             if is_source:
-                text = tree_model.get_value(rowref, SOURCE_IDX).name
+                text = conflict.sourceWrapper.name
             else:
-                text = tree_model.get_value(rowref, SINK_IDX).name
+                text = conflict.sinkWrapper.name
         else:
             if is_source:
-                text = tree_model.get_value(rowref, SOURCE_DATA_IDX).get_snippet()
+                text = conflict.sourceData.get_snippet()
             else:
-                text = tree_model.get_value(rowref, SINK_DATA_IDX).get_snippet()
+                text = conflict.sinkData.get_snippet()
 
         cell_renderer.set_property("text", text)
 
     def _icon_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
+        conflict = tree_model.get_value(rowref, CONFLICT_IDX)
         #Only the headers have icons
         if tree_model.iter_depth(rowref) == 0:
             if is_source:
-                icon = tree_model.get_value(rowref, SOURCE_IDX).get_icon()
+                icon = conflict.sourceWrapper.get_icon()
             else:
-                icon = tree_model.get_value(rowref, SINK_IDX).get_icon()
+                icon = conflict.sinkWrapper.get_icon()
         else:
             icon = None
 
@@ -207,20 +213,22 @@ class ConflictResolver:
         self.numConflicts -= 1
         self._set_conflict_titles()
 
-    def on_conflict(self, thread, source, sourceData, sink, sinkData, validChoices, isDeleted):
+    def on_conflict(self, thread, conflict):
         #We start with the expander disabled. Make sure we only enable it once
         if len(self.model) == 0:
             self.expander.set_sensitive(True)
 
         self.numConflicts += 1
-        rowdata = ( source, sourceData, sink, sinkData, CONFLICT_SKIP, validChoices, isDeleted)
+        source = conflict.sourceWrapper
+        sink = conflict.sinkWrapper
         if (source,sink) not in self.partnerships:
             #create a header row
-            headerdata = (source, None, sink, None, CONFLICT_SKIP, (), False)
-            self.partnerships[(source,sink)] = self.model.append(None, headerdata)
+            header = ConflictHeader(source, sink)
+            self.partnerships[(source,sink)] = self.model.append(None, (header, CONFLICT_SKIP) )
 
-        self.model.append(self.partnerships[(source,sink)], rowdata)  
+        self.model.append(self.partnerships[(source,sink)], (conflict, CONFLICT_SKIP) )  
 
+        #FIXME: Do this properly with model signals and a count function
         #update the expander label and the standalone window title
         #self._set_conflict_titles()
 
@@ -261,29 +269,33 @@ class ConflictResolver:
             #skip header rows
             if model.iter_depth(rowref) == 0:
                 return
+
+            direction = model[path][DIRECTION_IDX]
+            conflict = model[path][CONFLICT_IDX]
+
             #do as the user inducated with the arrow
-            if model[path][DIRECTION_IDX] == CONFLICT_SKIP:
+            if direction == CONFLICT_SKIP:
                 logd("Not resolving")
                 return
-            elif model[path][DIRECTION_IDX] == CONFLICT_COPY_SOURCE_TO_SINK:
+            elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
                 logd("Resolving source data --> sink")
-                data = model[path][SOURCE_DATA_IDX]
-                source = model[path][SOURCE_IDX]                
-                sink = model[path][SINK_IDX]
-            elif model[path][DIRECTION_IDX] == CONFLICT_COPY_SINK_TO_SOURCE:
+                data = conflict.sourceData
+                source = conflict.sourceWrapper
+                sink = conflict.sinkWrapper
+            elif direction == CONFLICT_COPY_SINK_TO_SOURCE:
                 logd("Resolving source <-- sink data")
-                data = model[path][SINK_DATA_IDX]
-                source = model[path][SINK_IDX]
-                sink = model[path][SOURCE_IDX]
-            elif model[path][DIRECTION_IDX] == CONFLICT_DELETE:
+                data = conflict.sinkData
+                source = conflict.sinkWrapper
+                sink = conflict.sourceWrapper
+            elif direction == CONFLICT_DELETE:
                 logd("Resolving deletion  --->")
-                data = model[path][SINK_DATA_IDX]
-                source = model[path][SOURCE_IDX]
-                sink = model[path][SINK_IDX]
+                data = conflict.sinkData
+                source = conflict.sourceWrapper
+                sink = conflict.sinkWrapper
             else:
                 logw("Unknown resolution")
 
-            deleted = model[path][IS_DELETED_CONFLICT_IDX]
+            deleted = conflict.isDeletion
 
             #add to resolve thread
             #FIXME: Think of a way to make rowrefs persist through signals
@@ -321,22 +333,18 @@ class ConflictResolver:
             else:
                 sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
 
-    #Connect to cancel button
     def on_cancel_conflicts(self, sender):
         self.model.clear()
         self.partnerships = {}
         self.numConflicts = 0
         self._set_conflict_titles()
 
-    #Connect to cancel button
     def on_compare_conflicts(self, sender):
         model, rowref = self.view.get_selection().get_selected()
-        sourceURI = model.get_value(rowref, SOURCE_DATA_IDX).get_open_URI()
-        sinkURI = model.get_value(rowref, SINK_DATA_IDX).get_open_URI()
-        Utils.open_URI(sourceURI)
-        Utils.open_URI(sinkURI)
+        conflict = model.get_value(rowref, CONFLICT_IDX)
+        Utils.open_URI(conflict.sourceData.get_open_URI())
+        Utils.open_URI(conflict.sinkData.get_open_URI())
 
-    #selection related callbacks
     def on_selection_changed(self, treeSelection):
         """
         Makes the compare button active only if an open_URI for the data
@@ -348,12 +356,11 @@ class ConflictResolver:
         if rowref == None:
             self.compareButton.set_sensitive(False)
         else:
-            sourceData = model.get_value(rowref, SOURCE_DATA_IDX)
-            sinkData = model.get_value(rowref, SINK_DATA_IDX)
+            conflict = model.get_value(rowref, CONFLICT_IDX)
             if model.iter_depth(rowref) == 0:
                 self.compareButton.set_sensitive(False)
             #both must have an open_URI set to work
-            elif sourceData.get_open_URI() != None and sinkData.get_open_URI() != None:
+            elif conflict.sourceData.get_open_URI() != None and conflict.sinkData.get_open_URI() != None:
                 self.compareButton.set_sensitive(True)
             else:
                 self.compareButton.set_sensitive(False)
@@ -412,12 +419,13 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
         model = widget.get_model()
         #Click toggles between --> and <-- and -x- but only within the list
         #of valid choices
-        curIdx = list(model[path][AVAILABLE_DIRECTIONS_IDX]).index(model[path][DIRECTION_IDX])
+        conflict = model[path][CONFLICT_IDX]
+        curIdx = list(conflict.choices).index(model[path][DIRECTION_IDX])
 
-        if curIdx == len(model[path][AVAILABLE_DIRECTIONS_IDX]) - 1:
-            model[path][DIRECTION_IDX] = model[path][AVAILABLE_DIRECTIONS_IDX][0]
+        if curIdx == len(conflict.choices) - 1:
+            model[path][DIRECTION_IDX] = conflict.choices[0]
         else:
-            model[path][DIRECTION_IDX] = model[path][AVAILABLE_DIRECTIONS_IDX][curIdx+1]
+            model[path][DIRECTION_IDX] = conflict.choices[curIdx+1]
 
         return True
 

@@ -552,7 +552,7 @@ class StatusIcon(gtk.StatusIcon):
         self.running -= 1
         logd("Icon got sync completed %s (error: %s)" % (self.running, error))
 
-    def on_sync_conflict(self, thread, *args):
+    def on_sync_conflict(self, thread, conflict):
         self.conflict = True
         logd("Icon got sync conflict")
 
