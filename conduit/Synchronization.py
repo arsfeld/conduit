@@ -75,27 +75,8 @@ class SyncManager:
         self.syncWorkers = {}
         self.typeConverter = typeConverter
 
-        #Callback functions that syncworkers call. Saves having to make this
-        #inherit from gobject and re-pass all the signals
-        self.syncStartedCbs = []
-        self.syncCompleteCbs = []
-        self.syncConflictCbs = []
-        self.syncProgressCbs = []
-
         #Two way sync policy
         self.policy = {"conflict":"ask","deleted":"ask"}
-
-    def _connect_sync_thread_callbacks(self, thread):
-        for cb in self.syncStartedCbs:
-            thread.connect("sync-started", cb)
-        for cb in self.syncCompleteCbs:
-            thread.connect("sync-completed", cb)
-        for cb in self.syncConflictCbs:
-            thread.connect("sync-conflict", cb)
-        #for cb in self.syncProgressCbs:
-        #    thread.connect("sync-progress", cb)
-
-        return thread
 
     def _cancel_sync_thread(self, conduit):
         logw("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
@@ -104,20 +85,6 @@ class SyncManager:
             logw("Cancelling thread")
             self.syncWorkers[conduit].cancel()
             self.syncWorkers[conduit].join() #Will block
-
-    def add_syncworker_callbacks(self, syncStartedCb, syncCompleteCb, syncConflictCb, syncProgressCb):
-        """
-        Sets the callbacks that are called by the SyncWorker threads
-        upon the specified conditions
-        """
-        if syncStartedCb != None and syncStartedCb not in self.syncStartedCbs:
-            self.syncStartedCbs.append(syncStartedCb)
-        if syncCompleteCb != None and syncCompleteCb not in self.syncCompleteCbs:
-            self.syncCompleteCbs.append(syncCompleteCb)
-        if syncConflictCb != None and syncConflictCb not in self.syncConflictCbs:
-            self.syncConflictCbs.append(syncConflictCb)
-        if syncProgressCb != None and syncProgressCb not in self.syncProgressCbs:
-            self.syncProgressCbs.append(syncProgressCb)
 
     def set_twoway_policy(self, policy):
         logd("Setting sync policy: %s" % policy)
@@ -130,7 +97,13 @@ class SyncManager:
         """
         for c in self.syncWorkers:
             self._cancel_sync_thread(c)
-             
+
+    def join_one(self, cond, timeout=None):
+        """
+        Blocks until the thread associated with the supplied conduit finishes
+        """
+        self.syncWorkers[cond].join(timeout)
+
     def join_all(self, timeout=None):
         """
         Joins all threads. This function will block the calling thread
@@ -144,7 +117,7 @@ class SyncManager:
 
         #Create a new thread over top
         newThread = RefreshWorker(dataprovider)
-        self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
+        self.syncWorkers[conduit] = newThread
         self.syncWorkers[conduit].start()
 
     def refresh_conduit(self, conduit):
@@ -155,7 +128,7 @@ class SyncManager:
 
         #Create a new thread over top
         newThread = SyncWorker(self.typeConverter, conduit, False, self.policy)
-        self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
+        self.syncWorkers[conduit] = newThread
         self.syncWorkers[conduit].start()
 
     def sync_conduit(self, conduit):
@@ -168,7 +141,7 @@ class SyncManager:
 
         #Create a new thread over top.
         newThread = SyncWorker(self.typeConverter, conduit, True, self.policy)
-        self.syncWorkers[conduit] = self._connect_sync_thread_callbacks(newThread)
+        self.syncWorkers[conduit] = newThread
         self.syncWorkers[conduit].start()
 
     def did_sync_abort(self, conduit):
@@ -192,29 +165,13 @@ class SyncManager:
         """
         return self.syncWorkers[conduit].conflicted
 
-class _ThreadedWorker(threading.Thread, gobject.GObject):
+class _ThreadedWorker(threading.Thread):
     """
-    A GObject that runs in a python thread, signalling to the gui
-    via signals when it completes. Base class for refresh and syncronization
+    Aa python thread, Base class for refresh and syncronization
     operations
     """
-
-    __gsignals__ =  { 
-                    "sync-conflict": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_PYOBJECT]),    #Conflict object
-                    "sync-completed": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_BOOLEAN,       #True if there was a fatal error
-                        gobject.TYPE_BOOLEAN,       #True if there was a non fatal error
-                        gobject.TYPE_BOOLEAN]),     #True if there was a conflict
-                    "sync-started": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
-                    }
-
     def __init__(self):
         threading.Thread.__init__(self)
-        gobject.GObject.__init__(self)
 
         #Python threads are not cancellable. Hopefully this will be fixed
         #in Python 3000
@@ -255,13 +212,6 @@ class _ThreadedWorker(threading.Thread, gobject.GObject):
         possible.
         """
         self.cancelled = True
-
-    def emit(self, *args):
-        """
-        Override the gobject signal emission so that all signals are emitted 
-        from the main loop on an idle handler
-        """
-        gobject.idle_add(gobject.GObject.emit,self,*args)
 
 class SyncWorker(_ThreadedWorker):
     """
@@ -408,7 +358,7 @@ class SyncWorker(_ThreadedWorker):
                     validResolveChoices,        #valid resolve choices
                     True                        #This conflict is a deletion
                     )
-            self.emit("sync-conflict", c)
+            self.conduit.emit("sync-conflict", c)
 
         elif self.policy["deleted"] == "replace":
             logd("Deleted Policy: Delete")
@@ -443,7 +393,7 @@ class SyncWorker(_ThreadedWorker):
                         avail,
                         False
                         )
-                self.emit("sync-conflict", c)
+                self.conduit.emit("sync-conflict", c)
 
             elif self.policy["conflict"] == "replace":
                 logd("Conflict Policy: Replace")
@@ -652,7 +602,7 @@ class SyncWorker(_ThreadedWorker):
             #on the GUI and the user can see them.
             #UNLESS the error is Fatal (causes us to throw a stopsync exceptiion)
             #in which case set the error status immediately.
-            self.emit("sync-started")
+            self.conduit.emit("sync-started")
             while not finished:
                 self.check_thread_not_cancelled([self.source] + self.sinks)
                 logd("Syncworker state %s" % self.state)
@@ -778,7 +728,7 @@ class SyncWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.mappingDB.save()
-        self.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
+        self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
 class RefreshWorker(_ThreadedWorker):
     """
@@ -804,7 +754,7 @@ class RefreshWorker(_ThreadedWorker):
         """
         try:
             logd("Refresh %s beginning" % self)
-            self.emit("sync-started")
+            self.conduit.emit("sync-started")
 
             if not self.dataproviderWrapper.module.is_configured():
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
@@ -830,7 +780,7 @@ class RefreshWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.mappingDB.save()
-        self.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
+        self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
                 
 class DeletedData(DataType.DataType):

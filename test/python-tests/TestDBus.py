@@ -9,6 +9,7 @@ SENDER="TestDBus.py"
 
 test = SimpleTest()
 dbus = DBusView(None, test.model, test.type_converter)
+dbus.set_model(test.sync_set)
 
 alldps = dbus.GetAllDataProviders()
 ok("Got all DPs", len(alldps) > 0)

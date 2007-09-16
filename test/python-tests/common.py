@@ -19,6 +19,7 @@ import conduit.Synchronization as Synchronization
 from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Conduit as Conduit
 import conduit.Exceptions as Exceptions
+import conduit.SyncSet as SyncSet
 
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
@@ -102,6 +103,11 @@ class SimpleTest(object):
         self.sink = None
         if sinkName != None:
             self.sink = self.get_dataprovider(sinkName)
+
+        self.sync_set = SyncSet.SyncSet(
+                        moduleManager=self.model,
+                        syncManager=self.sync_manager
+                        )
 
     def get_dataprovider(self, name, die=True):
         """
@@ -225,8 +231,7 @@ class SimpleSyncTest(SimpleTest):
 
     def refresh(self):
         #refresh conduit
-        self.sync_manager.refresh_conduit(self.conduit)
-        self.sync_manager.join_all()
+        self.conduit.refresh(block=True)
 
         aborted = self.sync_aborted() 
         ok("Refresh completed", aborted != True)
@@ -235,9 +240,7 @@ class SimpleSyncTest(SimpleTest):
 
     def sync(self, debug=True):
         #sync conduit
-        self.sync_manager.sync_conduit(self.conduit)
-        # wait for sync to finish
-        self.sync_manager.join_all()
+        self.conduit.sync(block=True)
 
         if debug:
             print conduit.mappingDB.debug()

@@ -33,6 +33,16 @@ class Conduit(gobject.GObject):
             gobject.TYPE_PYOBJECT]),    # The new DP
         "parameters-changed" : (
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
+        "sync-conflict": (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT]),    #Conflict object
+        "sync-completed": (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_BOOLEAN,       #True if there was a fatal error
+            gobject.TYPE_BOOLEAN,       #True if there was a non fatal error
+            gobject.TYPE_BOOLEAN]),     #True if there was a conflict
+        "sync-started": (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
         "sync-progress": (
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_FLOAT])        #percent complete
@@ -252,15 +262,19 @@ class Conduit(gobject.GObject):
         else:
             logw("Could not refresh dataprovider: %s" % dp)
 
-    def refresh(self):
+    def refresh(self, block=False):
         if self.datasource is not None and len(self.datasinks) > 0:
             self.syncManager.refresh_conduit(self)
+            if block == True:
+                self.syncManager.join_one(self)
         else:
             log("Conduit must have a datasource and a datasink")
 
-    def sync(self):
+    def sync(self, block=False):
         if self.datasource is not None and len(self.datasinks) > 0:
             self.syncManager.sync_conduit(self)
+            if block == True:
+                self.syncManager.join_one(self)
         else:
             log("Conduit must have a datasource and a datasink")
 

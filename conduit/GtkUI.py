@@ -106,12 +106,6 @@ class MainWindow:
 
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver(self.widgets)
-        self.sync_manager.add_syncworker_callbacks(
-                                self.on_sync_started, 
-                                self.on_sync_completed, 
-                                self.conflictResolver.on_conflict,
-                                None
-                                )
 
         #setup the module manager
         self.moduleManager = moduleManager
@@ -127,9 +121,19 @@ class MainWindow:
         self.dataproviderTreeView.expand_all()
         self.window_state = 0
 
+    def on_conduit_added(self, syncset, cond):
+        cond.connect("sync-started", self.on_sync_started)
+        cond.connect("sync-completed", self.on_sync_completed)
+        cond.connect("sync-conflict", self.conflictResolver.on_conflict)
+
+    def on_conduit_removed(self, syncset, cond):
+        pass
+
     def set_model(self, syncSet):
-         self.syncSet = syncSet
-         self.canvas.set_sync_set(syncSet)
+        self.syncSet = syncSet
+        self.syncSet.connect("conduit-added", self.on_conduit_added)
+        self.syncSet.connect("conduit-removed", self.on_conduit_removed)
+        self.canvas.set_sync_set(syncSet)
 
     def present(self):
         """
@@ -543,16 +547,25 @@ class StatusIcon(gtk.StatusIcon):
         else:
             return True
 
-    def on_sync_started(self, thread):
+    def on_conduit_added(self, syncset, cond):
+        cond.connect("sync-started", self._on_sync_started)
+        cond.connect("sync-completed", self._on_sync_completed)
+        cond.connect("sync-conflict", self._on_sync_conflict)
+        #cond.connect("sync-progress", self._on_sync_progress)
+
+    def on_conduit_removed(self, syncset, cond):
+        pass
+
+    def _on_sync_started(self, cond):
         self.running += 1
         gobject.timeout_add(100, self._go_to_running_state)
         logd("Icon got sync started")
 
-    def on_sync_completed(self, thread, aborted, error, conflict):
+    def _on_sync_completed(self, cond, aborted, error, conflict):
         self.running -= 1
         logd("Icon got sync completed %s (error: %s)" % (self.running, error))
 
-    def on_sync_conflict(self, thread, conflict):
+    def _on_sync_conflict(self, cond, conflict):
         self.conflict = True
         logd("Icon got sync conflict")
 

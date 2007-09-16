@@ -138,16 +138,16 @@ class Application(dbus.service.Object):
                             moduleManager=self.moduleManager,
                             typeConverter=self.typeConverter
                             )
-            #Dbus manages its own model per caller
-            self.dbus.set_model(None)
+        
+            syncSet = SyncSet(
+                        moduleManager=self.moduleManager,
+                        syncManager=self.dbus.sync_manager
+                        )
+            self.dbus.set_model(syncSet)
 
             if self.statusIcon:
-                self.dbus.sync_manager.add_syncworker_callbacks(
-                                        self.statusIcon.on_sync_started,
-                                        self.statusIcon.on_sync_completed,
-                                        self.statusIcon.on_sync_conflict,
-                                        None
-                                        )
+                syncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
+                syncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
 
         #hide the splash screen
         self.HideSplash()
@@ -193,12 +193,8 @@ OPTIONS:
         self.gui.set_model(syncSet)
 
         if self.statusIcon:
-            self.gui.sync_manager.add_syncworker_callbacks(
-                                    self.statusIcon.on_sync_started,
-                                    self.statusIcon.on_sync_completed,
-                                    self.statusIcon.on_sync_conflict,
-                                    None
-                                    )
+            syncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
+            syncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):

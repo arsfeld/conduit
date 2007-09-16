@@ -113,12 +113,11 @@ class ConduitDBusItem(DBusItem):
 
         self.sync_manager = sync_manager
         self.conduit = conduit
-        self.sync_manager.add_syncworker_callbacks(
-                                self._on_sync_started, 
-                                self._on_sync_completed, 
-                                self._on_sync_conflict,
-                                self._on_sync_progress
-                                )
+
+        self.conduit.connect("sync-started", self._on_sync_started)
+        self.conduit.connect("sync-completed", self._on_sync_completed)
+        self.conduit.connect("sync-conflict", self._on_sync_conflict)
+        self.conduit.connect("sync-progress", self._on_sync_progress)
 
     def _on_sync_started(self, thread):
         if thread.conduit == self.conduit:
@@ -300,10 +299,6 @@ class DBusView(DBusItem):
 
         self.conduitApplication = conduitApplication
         
-        #We keep a ref of all callers using the interface, and each one gets
-        #its own sync set
-        self.models = {}
-
         #setup the module manager
         self.moduleManager = moduleManager
         self.moduleManager.connect("dataprovider-available", self._on_dataprovider_available)
@@ -354,6 +349,9 @@ class DBusView(DBusItem):
             if not cond.add_dataprovider(dataprovider_wrapper=sink, trySourceFirst=False):
                 raise ConduitException("Error adding source to conduit")
 
+        #add to the syncset
+        self.syncSet.add_conduit(cond)
+
         i = Utils.uuid_string()
         new = ConduitDBusItem(self.sync_manager, cond, i)
         EXPORTED_OBJECTS[new.get_path()] = new
@@ -366,7 +364,7 @@ class DBusView(DBusItem):
         self.DataproviderUnavailable(dataprovider.get_key())
 
     def set_model(self, model):
-        pass
+        self.syncSet = model
 
     @dbus.service.signal(APPLICATION_DBUS_IFACE, signature='s')
     def DataproviderAvailable(self, key):
