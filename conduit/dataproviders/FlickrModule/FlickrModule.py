@@ -156,8 +156,12 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
         f.set_open_URI(url)
 
         # try to rename if a title is available
+        # FIXME: this is far from optimal, also there should be 
+        # a way to get out the originals
         if title:
-            f.force_new_filename(title + '.jpg')
+            if not title.endswith('jpg'):
+                title = title + '.jpg'
+            f.force_new_filename(title)
 
         f.set_UID(LUID)
 
