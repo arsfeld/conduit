@@ -5,8 +5,7 @@ import conduit.Utils as Utils
 import conduit.datatypes.File as File
 
 if not is_online():
-    print "SKIPPING"
-    sys.exit()
+    skip()
 
 #A Reliable file that will note be deleted
 SAFE_FILENAME="conduit-icon.png"
@@ -51,4 +50,6 @@ try:
     ok("Upload a file (UID:%s) " % uid, True)
 except Exception, err:
     ok("Upload a file (%s)" % err, False)
+
+finished()
 

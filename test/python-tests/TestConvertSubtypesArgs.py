@@ -43,4 +43,6 @@ args = {"foo":"bar","baz":"bob"}
 f, t, a = tc._get_conversion("file", "file?%s" % Utils.encode_conversion_args(args))
 ok("Multiple args: %s" % args, f == "file" and t == "file" and a == args)
 
+finished()
+
 

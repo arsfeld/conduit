@@ -10,8 +10,7 @@ import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
 if not is_online():
-    print "SKIPPING"
-    sys.exit()
+    skip()
 
 #A Reliable album name
 SAFE_ALBUM_NAME = "Conduit Test"
@@ -79,3 +78,4 @@ try:
 except Exception, err:
     ok("Upload a photo (%s)" % err, False)
 
+finished()

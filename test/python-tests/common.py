@@ -47,6 +47,14 @@ def ok(message, code, die=True):
             print "[PASS] %s" % message
             return True
 
+def skip():
+    print "[SKIPPED]"
+    sys.exit()
+
+def finished():
+    print "[FINISHED]"
+    sys.exit()
+
 #returns list of files that match the glob in the data dir
 def get_files_from_data_dir(glob_str):
     files = []

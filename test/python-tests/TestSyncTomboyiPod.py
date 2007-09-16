@@ -38,3 +38,4 @@ aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
 ok("All notes transferred (%s,%s)" % (a,b), a == b)
 
+finished()

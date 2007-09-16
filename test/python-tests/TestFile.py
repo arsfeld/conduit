@@ -136,6 +136,6 @@ if is_online():
     comp = rnewest.compare(newest)
     ok("Remote & Local Compare: checking rnewest == newest = %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL, False)
 
-
+finished()
 
 

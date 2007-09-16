@@ -72,3 +72,4 @@ try:
 except Exception, err:
     ok("Could not get number of notes on ipod (%s)" % err, False) 
 
+finished()

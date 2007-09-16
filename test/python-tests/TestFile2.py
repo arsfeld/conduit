@@ -12,8 +12,7 @@ import gnomevfs
 import tempfile
 
 if not is_online():
-    print "SKIPPING"
-    sys.exit()
+    skip()
 
 tmpdir = tempfile.mkdtemp()
 ok("Created tempdir %s" % tmpdir, True)
@@ -59,3 +58,4 @@ local.transfer(tmpdir)
 ok("Transferred R/O file correctly (%s)" % fNewName, f.get_filename() == fNewName)
 ok("Transferred correctly (%s)" % localNewName, local.get_filename() == localNewName)
 
+finished()

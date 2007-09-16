@@ -26,4 +26,4 @@ for i in vcards:
     except:
         ok("Created contact from file %s\n%s" % (i,traceback.format_exc()), False, False)
 
-    
+finished()

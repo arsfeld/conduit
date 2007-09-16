@@ -81,3 +81,5 @@ try:
     ok("Deleted note (%s)" % uid, tomboy.remoteTomboy.NoteExists(uid) == False)
 except:
     ok("Deleted note (%s)" % uid, False)
+
+finished()

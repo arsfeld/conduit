@@ -51,3 +51,5 @@ b = test.get_sink_count()
 ok("All notes transferred (%s,%s)" % (a,b), a == b)
 
 #test.print_mapping_db()
+
+finished()

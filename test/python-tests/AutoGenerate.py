@@ -43,7 +43,9 @@ try:
 except:
     sys.excepthook(*sys.exc_info())
     ok("Unhandled borkage", False)
-    thread.interrupt_main()"""
+    thread.interrupt_main()
+
+finished()"""
 
 # It's hard to pick sane combinations of dps, so heres a little rules table to help out
 # col 1 = weight. in sync folder <--> contact we need to use contact objects over file objects.

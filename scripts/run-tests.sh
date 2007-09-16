@@ -89,52 +89,65 @@ fi
 
 #-------------------------------------------------------------------------------
 HEADER="<html><head><title>Conduit Test Results</title></head><body>"
+STYLE="<style type=\"text/css\"> pre.abort { background-color: #f99; } pre.fail { background-color: #fcc; } pre.normal { background-color: white; } pre.skip { color: #999; }</style>"
 FOOTER="</body></html>"
+
 #test results go to index.html
 indexfile=$LOGDIR/index.html
+tempfile=`tempfile`
 
 echo $HEADER > $indexfile
+echo $STYLE >> $indexfile
 
 for t in `ls $PY_TEST_DIR/$do_single_test`
 do
     fname=`basename $t`
-    #if [ $do_single_test == "x" -o $fname == $do_single_test ] ; then
-        echo "RUNNING UNIT TEST: $fname"
+    echo "RUNNING UNIT TEST: $fname"
 
-        #html
-        echo "<p><h1>RUNNING UNIT TEST: <a href=$fname.txt>$fname</a></h1><pre>" >> $indexfile
+    #conduit debug output goes to individual log files
+    logfile=$LOGDIR/$fname.txt
 
-        #conduit debug output goes to individual log files
-        logfile=$LOGDIR/$fname.txt
+    #code coverage analysis?
+    if [ $do_coverage -ne 0 ] ; then
+        EXEC="$COVERAGE_APP -x $t"
+    else
+        EXEC="$t"
+    fi
 
-        #code coverage analysis?
-        if [ $do_coverage -ne 0 ] ; then
-            EXEC="$COVERAGE_APP -x $t"
+    #code coverage analysis?
+    if [ $do_debug -eq 1 ] ; then
+        #run the test
+        TEST_DIRECTORY=$TEST_DATA_DIR \
+        COVERAGE_FILE="$LOGDIR/.coverage" \
+        CONDUIT_LOGFILE=$logfile \
+        CONDUIT_ONLINE=$do_online \
+        python $EXEC
+    else
+        #run the test
+        TEST_DIRECTORY=$TEST_DATA_DIR \
+        COVERAGE_FILE="$LOGDIR/.coverage" \
+        CONDUIT_LOGFILE=$logfile \
+        CONDUIT_ONLINE=$do_online \
+        python $EXEC 2> /dev/null | \
+        tee $tempfile
+    fi
+
+    #html. Look for [SKIPPED], [FINISHED] or [FAIL]
+    if grep -q "\[SKIPPED\]" $tempfile ; then 
+        style="skip"
+    else
+        if ! grep -q "\[FINISHED\]" $tempfile ; then 
+            style="abort"
+        elif grep -q "\[FAIL\]" $tempfile ; then 
+            style="fail"
         else
-            EXEC="$t"
+            style="normal"
         fi
-
-        #code coverage analysis?
-        if [ $do_debug -eq 1 ] ; then
-            #run the test
-            TEST_DIRECTORY=$TEST_DATA_DIR \
-            COVERAGE_FILE="$LOGDIR/.coverage" \
-            CONDUIT_LOGFILE=$logfile \
-            CONDUIT_ONLINE=$do_online \
-            python $EXEC
-        else
-            #run the test
-            TEST_DIRECTORY=$TEST_DATA_DIR \
-            COVERAGE_FILE="$LOGDIR/.coverage" \
-            CONDUIT_LOGFILE=$logfile \
-            CONDUIT_ONLINE=$do_online \
-            python $EXEC 2> /dev/null | \
-            tee --append $indexfile
-        fi
-
-        #html
-        echo "</pre></p>" >> $indexfile
-    #fi
+    fi
+    
+    echo "<p><h1>RUNNING UNIT TEST: <a href=$fname.txt>$fname</a></h1><pre class=\"$style\">" >> $indexfile
+    cat $tempfile >> $indexfile
+    echo "</pre></p>" >> $indexfile
 done
 
 #include code coverage results in output
@@ -164,4 +177,3 @@ if [ $do_upload -ne 0 ] ; then
     rsync -tzr $LOGDIR/ root@greenbirdsystems.com:/var/www/conduit-project.org/tests
 fi
 
-echo "FINISHED"

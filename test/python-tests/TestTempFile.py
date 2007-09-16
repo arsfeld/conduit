@@ -21,3 +21,5 @@ ok("Transferred -> %s" % newPath, os.path.isfile(newPath))
 
 f = File.File(newPath)
 ok("File contents = %s" % contents, f.get_contents_as_text() == contents)
+
+finished()

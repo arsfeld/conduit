@@ -10,8 +10,7 @@ import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
 
 if not is_online():
-    print "SKIPPING"
-    sys.exit()
+    skip()
 
 #setup the test
 test = SimpleTest(sinkName="BackpackNoteSink")
@@ -70,3 +69,5 @@ try:
 except Exception, err:
     traceback.print_exc()
     ok("Update a note (%s)" % err, False)
+
+finished()

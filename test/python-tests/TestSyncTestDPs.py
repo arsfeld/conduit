@@ -97,3 +97,4 @@ test.sync(debug=False)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
 
+finished()

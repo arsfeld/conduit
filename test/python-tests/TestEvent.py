@@ -26,3 +26,4 @@ for i in icals:
     except:
         ok("Created event from file %s\n%s" % (i,traceback.format_exc()), False, False)
 
+finished()

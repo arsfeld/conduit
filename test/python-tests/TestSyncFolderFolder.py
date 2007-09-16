@@ -153,3 +153,4 @@ a = test.get_source_count()
 b = test.get_sink_count()
 ok("Hidden: Sync all items (%s,%s,%s)" % (a,b,len(FILES)), a==len(FILES) and b==len(FILES))
 
+finished()

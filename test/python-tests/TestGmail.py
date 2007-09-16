@@ -8,8 +8,7 @@ import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
 if not is_online():
-    print "SKIPPING"
-    sys.exit()
+    skip()
 
 #Dynamically load all datasources, datasinks and converters
 dirs_to_search =    [
@@ -54,3 +53,5 @@ try:
 except Exception, err:
     ok("Sent Email (%s)" % err, False)
                 
+finished()
+

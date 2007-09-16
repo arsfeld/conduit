@@ -40,5 +40,5 @@ fdt = Utils.datetime_from_timestamp(f)
 fts = Utils.datetime_get_timestamp(fdt)
 ok("Ignore fractional timestamps (%s -> %s -> %s)" % (f,fts,dt), dt == fdt and ts == fts)
 
-
+finished()
 

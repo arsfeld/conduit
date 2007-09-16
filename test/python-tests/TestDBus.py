@@ -82,4 +82,4 @@ try:
 except:
     ok("Sync conduit", False)
 
-
+finished()

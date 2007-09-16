@@ -146,3 +146,6 @@ for fromtype,totype in tests:
         ok("[%s] Open URI retained (%s vs. %s)" % (conv,frominstance.get_open_URI(),toinstance.get_open_URI()), retained, False)
     except Exception:
         ok("[%s] Conversion Failed\n%s" % (conv,traceback.format_exc()), False, False)
+
+finished()
+

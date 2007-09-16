@@ -158,3 +158,5 @@ test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
 ok("Sync completed: phase three: modify both (modify policy: replace)", aborted == False)
+
+finished()
