@@ -18,6 +18,9 @@ import urllib,urllib2,urlparse,mimetypes,mimetools
 from datetime import datetime
 from xml.dom.minidom import parseString
 
+# time format
+FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
+
 #===============================================================================
 # functions helpers ...
 #===============================================================================
@@ -362,7 +365,12 @@ class PicasaAlbum(object):
         """
         Chops off the millisecond part of a datestring, parses it
         """
-        return datetime.strptime(timestamp[0: -5], "%Y-%m-%dT%H:%M:%S")
+        timestamp = timestamp[0:-5]
+        try:
+            return datetime.strptime(timestamp, FORMAT_STRING)
+        except AttributeError:
+            import time
+            return datetime(*(time.strptime(timestamp, FORMAT_STRING)[0:6]))
 
 ###############################################################################
 class PicasaPhoto (object):
