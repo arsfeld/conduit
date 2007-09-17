@@ -76,7 +76,7 @@ class SyncManager:
         self.typeConverter = typeConverter
 
         #Two way sync policy
-        self.policy = {"conflict":"ask","deleted":"ask"}
+        self.policy = {"conflict":"skip","deleted":"skip"}
 
     def _cancel_sync_thread(self, conduit):
         logw("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
