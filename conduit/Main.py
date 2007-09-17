@@ -11,6 +11,7 @@ from conduit import log,logd,logw
 from conduit.Module import ModuleManager
 from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
+from conduit.Synchronization import SyncManager
 from conduit.GtkUI import SplashScreen, MainWindow, StatusIcon, main_loop, main_quit
 
 import conduit.VolumeMonitor as gnomevfs
@@ -34,6 +35,15 @@ class Application(dbus.service.Object):
         self.gui = None
         self.statusIcon = None
         self.dbus = None
+        
+        #FIXME:We should move all syncsets to conduit.Globals along with
+        #typeconverter and modulemanager
+        self.guiSyncSet = None
+        self.dbusSyncSet = None
+        #FIXME:We only need these for cancellation. Move syncManager inside 
+        #the syncsets, and call cancel on them ^
+        self.dbusSyncManager = None
+        self.guiSyncManager = None
 
         #Default command line values
         if conduit.IS_DEVELOPMENT_VERSION:
@@ -132,22 +142,24 @@ class Application(dbus.service.Object):
         
         #Dbus view...
         if conduit.settings.get("enable_dbus_interface") == True:
-            from conduit.DBus import DBusView
-            self.dbus = DBusView(
+            from conduit.DBus import DBusInterface
+            self.dbusSyncManager = SyncManager(self.typeConverter)
+            self.dbusSyncSet = SyncSet(
+                        moduleManager=self.moduleManager,
+                        syncManager=self.dbusSyncManager
+                        )
+            self.dbus = DBusInterface(
                             conduitApplication=self,
                             moduleManager=self.moduleManager,
-                            typeConverter=self.typeConverter
+                            typeConverter=self.typeConverter,
+                            syncManager=self.dbusSyncManager,
+                            guiSyncSet=self.guiSyncSet,
+                            dbusSyncSet=self.dbusSyncSet
                             )
         
-            syncSet = SyncSet(
-                        moduleManager=self.moduleManager,
-                        syncManager=self.dbus.sync_manager
-                        )
-            self.dbus.set_model(syncSet)
-
             if self.statusIcon:
-                syncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
-                syncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
+                self.dbusSyncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
+                self.dbusSyncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
 
         #hide the splash screen
         self.HideSplash()
@@ -174,27 +186,29 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='')
     def BuildGUI(self, settingsFile):
+        self.guiSyncManager = SyncManager(self.typeConverter)
+        self.guiSyncSet = SyncSet(
+                        moduleManager=self.moduleManager,
+                        syncManager=self.guiSyncManager,
+                        xmlSettingFilePath=settingsFile
+                        )
         self.gui = MainWindow(
                         conduitApplication=self,
                         moduleManager=self.moduleManager,
-                        typeConverter=self.typeConverter
+                        typeConverter=self.typeConverter,
+                        syncManager=self.guiSyncManager
                         )
 
         #FIXME: need to show gui to stop goocanvas crash
         self.gui.mainWindow.show_all()
 
         #reload the saved sync set
-        syncSet = SyncSet(
-                        moduleManager=self.moduleManager,
-                        syncManager=self.gui.sync_manager,
-                        xmlSettingFilePath=settingsFile
-                        )
-        syncSet.restore_from_xml()
-        self.gui.set_model(syncSet)
+        self.guiSyncSet.restore_from_xml()
+        self.gui.set_model(self.guiSyncSet)
 
         if self.statusIcon:
-            syncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
-            syncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
+            self.guiSyncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
+            self.guiSyncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):
@@ -223,11 +237,11 @@ OPTIONS:
             if conduit.settings.get("save_on_exit") == True:
                 self.gui.save_settings(None)
             log("Stopping GUI synchronization threads")
-            self.gui.sync_manager.cancel_all()
+            self.guiSyncManager.cancel_all()
 
         if self.dbus != None:
             log("Stopping DBus synchronization threads")
-            self.dbus.sync_manager.cancel_all()
+            self.dbusSyncManager.cancel_all()
 
         #give the dataprovider factories time to shut down
         self.moduleManager.quit()
