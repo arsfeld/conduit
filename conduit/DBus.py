@@ -23,6 +23,7 @@ ERROR = -1
 SUCCESS = 0
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
+SYNCSET_DBUS_IFACE="org.conduit.SyncSet"
 CONDUIT_DBUS_IFACE="org.conduit.Conduit"
 EXPORTER_DBUS_IFACE="org.conduit.Exporter"
 DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
@@ -32,14 +33,14 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 ################################################################################
 #
 # ==== Main Application ====
-# Service           org.conduit.Application
-# Interface	        org.conduit.Application
-# Object path       /
+# Service               org.conduit.Application
+# Interface             org.conduit.Application
+# Object path           /
 #
 # Methods:
 # BuildConduit(source, sink)
 # BuildExporter(self, sinkKey)
-# GetAllDataProviders
+# ListAllDataProviders
 # GetDataProvider
 # Quit
 # 
@@ -47,10 +48,23 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # DataproviderAvailable(key)
 # DataproviderUnavailable(key)
 #
+# ==== SyncSet ====
+# Service               org.conduit.SyncSet
+# Interface             org.conduit.SyncSet
+# Object path           /syncset/{dbus, gui}
+#
+# Methods:
+# AddConduit
+# DeleteConduit
+# 
+# Signals:
+# ConduitAdded(key)
+# ConduitRemoved(key)
+#
 # ==== Conduit ====
-# Service	        org.conduit.Conduit
-# Interface	        org.conduit.Conduit
-# Object path       /conduit/{some UUID}
+# Service               org.conduit.Conduit
+# Interface             org.conduit.Conduit
+# Object path           /conduit/{some UUID}
 #
 # Methods:
 # AddDataprovider
@@ -63,11 +77,13 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # SyncCompleted(aborted, error, conflict)
 # SyncConflict
 # SyncProgress(progress)
+# DataproviderAdded
+# DataproviderRemoved
 #
 # ==== Exporter Conduit ====
-# Service	        org.conduit.Conduit
-# Interface	        org.conduit.Exporter
-# Object path       /conduit/{some UUID}
+# Service               org.conduit.Conduit
+# Interface             org.conduit.Exporter
+# Object path           /conduit/{some UUID}
 #
 # Methods:
 # AddData
@@ -76,9 +92,9 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # GetSinkConfiguration
 #
 # ==== DataProvider ====
-# Service	        org.conduit.DataProvider
-# Interface	        org.conduit.DataProvider
-# Object path       /dataprovider/{some UUID}
+# Service               org.conduit.DataProvider
+# Interface             org.conduit.DataProvider
+# Object path           /dataprovider/{some UUID}
 #
 # Methods:
 # IsPending
@@ -100,6 +116,8 @@ class DBusItem(dbus.service.Object):
     def __init__(self, iface, path):
         bus_name = dbus.service.BusName(iface, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, path)
+        
+        logd("DBus Exported: %s" % self.get_path())
 
     def get_path(self):
         return self.__dbus_object_path__
@@ -119,20 +137,20 @@ class ConduitDBusItem(DBusItem):
         self.conduit.connect("sync-conflict", self._on_sync_conflict)
         self.conduit.connect("sync-progress", self._on_sync_progress)
 
-    def _on_sync_started(self, thread):
-        if thread.conduit == self.conduit:
+    def _on_sync_started(self, cond):
+        if cond == self.conduit:
             self.SyncStarted()
 
-    def _on_sync_completed(self, thread, aborted, error, conflict):
-        if thread.conduit == self.conduit:
+    def _on_sync_completed(self, cond, aborted, error, conflict):
+        if cond == self.conduit:
             self.SyncCompleted(bool(aborted), bool(error), bool(conflict))
 
     def _on_sync_progress(self, thread, progress):
-        if thread.conduit == self.conduit:
+        if cond == self.conduit:
             self.SyncProgress(float(progress))
 
     def _on_sync_conflict(self, thread, conflict):
-        if thread.conduit == self.conduit:
+        if cond == self.conduit:
             self.SyncConflict()   
 
     #
@@ -293,8 +311,64 @@ class DataProviderDBusItem(DBusItem):
         self._print("AddData: %s" % uri)
         self.dataprovider.module.add(uri)
 
-class DBusView(DBusItem):
-    def __init__(self, conduitApplication, moduleManager, typeConverter):
+class SyncSetDBusItem(DBusItem):
+    def __init__(self, syncSet, name):
+        DBusItem.__init__(self, iface=SYNCSET_DBUS_IFACE, path="/syncset/%s" % name)
+
+        self.syncSet = syncSet
+        self.syncSet.connect("conduit-added", self._on_conduit_added)
+        self.syncSet.connect("conduit-removed", self._on_conduit_removed)
+        
+    def _on_conduit_added(self, syncset, cond):
+        self.ConduitAdded()
+
+    def _on_conduit_removed(self, syncset, cond):
+        self.ConduitRemoved()
+
+    @dbus.service.signal(SYNCSET_DBUS_IFACE, signature='')
+    def ConduitAdded(self):
+        self._print("Emmiting DBus signal ConduitAdded")
+
+    @dbus.service.signal(SYNCSET_DBUS_IFACE, signature='')
+    def ConduitRemoved(self):
+        self._print("Emmiting DBus signal ConduitRemoved")
+
+    @dbus.service.method(SYNCSET_DBUS_IFACE, in_signature='o', out_signature='')
+    def AddConduit(self, cond):
+        self._print("AddConduit: %s" % cond)
+
+        try:
+            c = EXPORTED_OBJECTS[str(cond)].conduit
+        except KeyError, e:
+            raise ConduitException("Could not locate Conduit: %s" % e)
+
+        self.syncSet.add_conduit(c)
+        
+    @dbus.service.method(SYNCSET_DBUS_IFACE, in_signature='o', out_signature='')
+    def DeleteConduit(self, cond):
+        self._print("DeleteConduit: %s" % cond)
+
+        try:
+            c = EXPORTED_OBJECTS[str(cond)].conduit
+        except KeyError, e:
+            raise ConduitException("Could not locate Conduit: %s" % e)
+
+        self.syncSet.remove_conduit(c)
+        
+    @dbus.service.method(SYNCSET_DBUS_IFACE, in_signature='s', out_signature='')
+    def SaveToXml(self, path):
+        self._print("SaveToXml: %s" % path)
+        self.syncSet.xmlSettingFilePath = os.path.abspath(path)
+        self.syncSet.save_to_xml()
+        
+    @dbus.service.method(SYNCSET_DBUS_IFACE, in_signature='s', out_signature='')
+    def RestoreFromXml(self, path):
+        self._print("RestoreFromXml: %s" % path)
+        self.syncSet.xmlSettingFilePath = os.path.abspath(path)
+        self.syncSet.restore_to_xml()
+
+class DBusInterface(DBusItem):
+    def __init__(self, conduitApplication, moduleManager, typeConverter, syncManager, guiSyncSet, dbusSyncSet):
         DBusItem.__init__(self, iface=APPLICATION_DBUS_IFACE, path="/")
 
         self.conduitApplication = conduitApplication
@@ -306,8 +380,20 @@ class DBusView(DBusItem):
 
         #type converter and sync manager
         self.type_converter = typeConverter
-        self.sync_manager = Synchronization.SyncManager(self.type_converter)
-        self.sync_manager.set_twoway_policy({"conflict":"skip","deleted":"skip"})
+        self.sync_manager = syncManager
+
+        
+        #export the syncsets
+        if guiSyncSet != None:
+            new = SyncSetDBusItem(guiSyncSet, "gui")
+            EXPORTED_OBJECTS[new.get_path()] = new
+
+        if dbusSyncSet != None:
+            new = SyncSetDBusItem(dbusSyncSet, "dbus")
+            EXPORTED_OBJECTS[new.get_path()] = new
+            
+        #export myself
+        EXPORTED_OBJECTS[self.get_path()] = self
 
     def _get_all_dps(self):
         datasources = self.moduleManager.get_modules_by_type("source")
@@ -315,7 +401,7 @@ class DBusView(DBusItem):
         twoways = self.moduleManager.get_modules_by_type("twoway")
         return datasources + datasinks + twoways
 
-    def _add_dataprovider(self, key):
+    def _get_dataprovider(self, key):
         """
         Instantiates a new dataprovider (source or sink), storing it
         appropriately.
@@ -331,7 +417,7 @@ class DBusView(DBusItem):
         EXPORTED_OBJECTS[new.get_path()] = new
         return new
 
-    def _add_conduit(self, source=None, sink=None, sender=None):
+    def _get_conduit(self, source=None, sink=None, sender=None):
         """
         Instantiates a new dataprovider (source or sink), storing it
         appropriately.
@@ -349,9 +435,6 @@ class DBusView(DBusItem):
             if not cond.add_dataprovider(dataprovider_wrapper=sink, trySourceFirst=False):
                 raise ConduitException("Error adding source to conduit")
 
-        #add to the syncset
-        self.syncSet.add_conduit(cond)
-
         i = Utils.uuid_string()
         new = ConduitDBusItem(self.sync_manager, cond, i)
         EXPORTED_OBJECTS[new.get_path()] = new
@@ -362,9 +445,6 @@ class DBusView(DBusItem):
 
     def _on_dataprovider_unavailable(self, loader, dataprovider):
         self.DataproviderUnavailable(dataprovider.get_key())
-
-    def set_model(self, model):
-        self.syncSet = model
 
     @dbus.service.signal(APPLICATION_DBUS_IFACE, signature='s')
     def DataproviderAvailable(self, key):
@@ -382,7 +462,7 @@ class DBusView(DBusItem):
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='o')
     def GetDataProvider(self, key):
         self._print("GetDataProvider: %s" % key)
-        return self._add_dataprovider(key)
+        return self._get_dataprovider(key)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='oo', out_signature='o', sender_keyword='sender')
     def BuildConduit(self, source, sink, sender=None):
@@ -395,19 +475,20 @@ class DBusView(DBusItem):
         except KeyError, e:
             raise ConduitException("Could not find dataprovider with key: %s" % e)
 
-        return self._add_conduit(source, sink, sender)
+        return self._get_conduit(source, sink, sender)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='o', sender_keyword='sender')
     def BuildExporter(self, key, sender=None):
         self._print("BuildExporter (sender: %s:) --> %s" % (sender,key))
 
-        source = self._add_dataprovider("FileSource")
-        sink = self._add_dataprovider(key)
+        source = self._get_dataprovider("FileSource")
+        sink = self._get_dataprovider(key)
 
-        return self._add_conduit(source.dataprovider, sink.dataprovider, sender)
+        return self._get_conduit(source.dataprovider, sink.dataprovider, sender)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):
         if self.conduitApplication != None:
             self.conduitApplication.Quit()
+
 

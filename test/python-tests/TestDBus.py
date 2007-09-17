@@ -7,9 +7,23 @@ from conduit.DBus import *
 #Note: A few small hacks are needed to acomplish this, get_path() and SENDER
 SENDER="TestDBus.py"
 
+#Hack to simulate getting a DBus object at a given path (ignores iface)
+# remote_object = bus.get_object(IFACE_IGNORED,"/path/to/obj")
+# obj = dbus.Interface(remote_object, IFACE_IGNORED)
+# return obj
+def get_dbus_object(path):
+    return EXPORTED_OBJECTS[path]
+
 test = SimpleTest()
-dbus = DBusView(None, test.model, test.type_converter)
-dbus.set_model(test.sync_set)
+DBusInterface(
+        conduitApplication=None,
+        moduleManager=test.model,
+        typeConverter=test.type_converter,
+        syncManager=test.sync_manager,
+        guiSyncSet=test.sync_set,
+        dbusSyncSet=None)
+        
+dbus = get_dbus_object("/")
 
 alldps = dbus.GetAllDataProviders()
 ok("Got all DPs", len(alldps) > 0)
@@ -82,5 +96,14 @@ try:
     ok("Sync conduit", True)
 except:
     ok("Sync conduit", False)
+
+#test the syncset interface
+ss = get_dbus_object("/syncset/gui")
+ss.AddConduit(cond.get_path())
+ok("Add Conduit to SyncSet", True)
+
+ss.DeleteConduit(cond.get_path())
+ok("Delete Conduit from SyncSet", True)
+
 
 finished()

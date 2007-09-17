@@ -24,7 +24,7 @@ class MainWindow:
     """
     The main conduit window.
     """
-    def __init__(self, conduitApplication, moduleManager, typeConverter):
+    def __init__(self, conduitApplication, moduleManager, typeConverter, syncManager):
         """
         Constructs the mainwindow. Throws up a splash screen to cover 
         the most time consuming pieces
@@ -65,7 +65,7 @@ class MainWindow:
 
         #type converter and sync manager
         self.type_converter = typeConverter
-        self.sync_manager = SyncManager(self.type_converter)
+        self.sync_manager = syncManager
         self.sync_manager.set_twoway_policy({
                 "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
                 "deleted"   :   conduit.settings.get("twoway_policy_deleted")}
