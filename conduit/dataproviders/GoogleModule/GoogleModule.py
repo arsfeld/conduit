@@ -27,7 +27,7 @@ import gdata.calendar
 import atom
 
 
-class GoogleConnection():
+class GoogleConnection(object):
     def __init__(self):
         self.calService = gdata.calendar.service.CalendarService()
         self.calService.email = ""
@@ -84,7 +84,7 @@ class GoogleConnection():
             yield GoogleCalendar.FromGoogleFormat(calendarFeed)
 
 
-class GoogleCalendar():
+class GoogleCalendar(object):
     def __init__(self, name, uri):
         self.uri = uri
         self.name = name
@@ -172,7 +172,7 @@ def ParseGoogleRecur(recurString, args):
         args['vtimezone'] = vobjICal.vtimezone
 
          
-class GoogleEvent():
+class GoogleEvent(object):
     def __init__(self, **kwargs):
         self.uid = kwargs.get('uid', None)
         self.mTime = kwargs.get('mTime', None)
