@@ -117,8 +117,8 @@ class SyncManager:
 
         #Create a new thread over top
         newThread = RefreshWorker(dataprovider)
-        self.syncWorkers[conduit] = newThread
-        self.syncWorkers[conduit].start()
+        self.syncWorkers[dataprovider] = newThread
+        self.syncWorkers[dataprovider].start()
 
     def refresh_conduit(self, conduit):
         """
