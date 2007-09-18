@@ -145,11 +145,11 @@ class ConduitDBusItem(DBusItem):
         if cond == self.conduit:
             self.SyncCompleted(bool(aborted), bool(error), bool(conflict))
 
-    def _on_sync_progress(self, thread, progress):
+    def _on_sync_progress(self, cond, progress):
         if cond == self.conduit:
             self.SyncProgress(float(progress))
 
-    def _on_sync_conflict(self, thread, conflict):
+    def _on_sync_conflict(self, cond, conflict):
         if cond == self.conduit:
             self.SyncConflict()   
 

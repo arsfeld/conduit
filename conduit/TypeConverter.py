@@ -206,7 +206,7 @@ class TypeConverter:
                 raise Exceptions.ConversionError(from_type, to_type, extra)
         else:
             logw("Conversion from %s -> %s does not exist " % (from_type, to_type))
-            raise Exceptions.ConversionDoesntExistError(from_type, to_type, err)
+            raise Exceptions.ConversionDoesntExistError(from_type, to_type)
 
     def get_convertables_descriptive_list(self):
         """
