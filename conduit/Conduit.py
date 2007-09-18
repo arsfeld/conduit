@@ -258,7 +258,7 @@ class Conduit(gobject.GObject):
 
     def refresh_dataprovider(self, dp):
         if dp in self.get_all_dataproviders():
-            self.syncManager.refresh_dataprovider(dp)
+            self.syncManager.refresh_dataprovider(self, dp)
         else:
             logw("Could not refresh dataprovider: %s" % dp)
 

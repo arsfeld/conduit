@@ -111,12 +111,12 @@ class SyncManager:
         for c in self.syncWorkers:
             self.syncWorkers[c].join(timeout)
 
-    def refresh_dataprovider(self, dataprovider):
+    def refresh_dataprovider(self, conduit, dataprovider):
         if dataprovider in self.syncWorkers:
             self._cancel_sync_thread(dataprovider)
 
         #Create a new thread over top
-        newThread = RefreshWorker(dataprovider)
+        newThread = RefreshDataProviderWorker(conduit, dataprovider)
         self.syncWorkers[dataprovider] = newThread
         self.syncWorkers[dataprovider].start()
 
@@ -730,17 +730,18 @@ class SyncWorker(_ThreadedWorker):
         conduit.mappingDB.save()
         self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
-class RefreshWorker(_ThreadedWorker):
+class RefreshDataProviderWorker(_ThreadedWorker):
     """
     Refreshes a single dataprovider, handling any errors, etc
     """
 
-    def __init__(self, dataproviderWrapper):
+    def __init__(self, cond, dataproviderWrapper):
         """
         @param dataproviderWrapper: The dp to refresh
         """
         _ThreadedWorker.__init__(self)
         self.dataproviderWrapper = dataproviderWrapper
+        self.conduit = cond
 
         self.setName("%s" % self.dataproviderWrapper)
 
