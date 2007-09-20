@@ -34,8 +34,8 @@ fi
 ################################################################################
 AM_CHECK_PYMOD([vobject], , , AC_MSG_ERROR([Python module vobject required to run Conduit]))
 
-# TODO Does not check for >= 0.8.0.
-AM_CHECK_PYMOD([goocanvas], , , AC_MSG_ERROR([Python module goocanvas >= 0.8.0 required to run Conduit]))
+AM_CHECK_PYMOD([goocanvas], , , AC_MSG_ERROR([Python module goocanvas required to run Conduit]))
+AM_CHECK_PYMOD_VERSION([goocanvas], [pygoocanvas_version], [0.8.0], , AC_MSG_ERROR([Python module goocanvas >= 0.8.0 required to run Conduit]))
 
 AM_CHECK_PYMOD([dateutil], , , AC_MSG_ERROR([Python module dateutil required to run Conduit]))
 

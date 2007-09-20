@@ -204,3 +204,28 @@ else
 ])dnl
 fi
 ])
+
+dnl AM_CHECK_PYMOD_VERSION(MODNAME, MEMBER-THAT-GIVES-VERSION, MINIMUM-VERSION [,ACTION-IF-SATISFIED [,ACTION-IF-NOT-SATISFIED]])
+dnl Imports the module MODNAME, looks at MODNAME.MEMBER-THAT-GIVES-VERSION and makes sure it is not less than MINIMUM-VERSION
+dnl Note: This assumes the version is a tuple like (0,8,0). MINIMUM-VERSION should be in human form though. E.g. "0.8.0".
+dnl Originally written to check pygoocanvas' version.
+AC_DEFUN([AM_CHECK_PYMOD_VERSION],
+[AC_REQUIRE([AM_CHECK_PYMOD])
+v=`echo $3 | sed -e "s/\./,/g"`
+AC_MSG_CHECKING(for $3 of $1)
+prog="
+import $1
+if $1.$2 < ($v):
+	print 'no'
+"
+out=`$PYTHON -c "$prog"`
+if test "x$out" != xno; then
+  AC_MSG_RESULT([yes])
+  ifelse([$4], [],, [$4
+])dnl
+else
+  AC_MSG_RESULT([no])
+  ifelse([$5], [],, [$5
+])dnl
+fi
+])
