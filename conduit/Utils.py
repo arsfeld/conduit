@@ -282,6 +282,22 @@ def decode_conversion_args(argString):
         args[key] = val
     return args
 
+def get_pixbuf_capabilities():
+    """
+    Returns the list of image mimetypes that
+    gtk.gdk.Pixbuf knows, and the list of writable
+    image types
+    """
+    import gtk.gdk
+    mime_types = []
+    writable_formats = []
+    for t in gtk.gdk.pixbuf_get_formats():
+        if t["is_writable"] == True:
+            writable_formats.append(t["extensions"][0])
+        mime_types = mime_types + t["mime_types"]
+    return mime_types, writable_formats
+        
+
 class LoginTester:
     def __init__ (self, testFunc, timeout=30):
         self.testFunc = testFunc
