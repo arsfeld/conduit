@@ -39,8 +39,14 @@ class GmailBase(DataProvider.DataProviderBase):
 
     def refresh(self):
         if self.loggedIn == False:
+            if "@" in self.username:
+                user, domain = self.username.split("@")
+            else:
+                user = self.username
+                domain = None
+
             try:
-                self.ga = libgmail.GmailAccount(self.username, self.password)
+                self.ga = libgmail.GmailAccount(user, self.password, domain=domain)
                 self.ga.login()
                 self.loggedIn = True
             except:
@@ -193,11 +199,10 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                 else:
                     self.getWithLabel = ""
                 self.getInFolder = folderComboBox.get_active_text()
+
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
-        print usernameEntry.get_text()
-        print self.password
         dlg.destroy()
 
     def refresh(self):
@@ -292,7 +297,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         return {
             "username" : self.username,
             "password" : self.password,
-            "getAllEmals" : self.getAllEmail,
+            "getAllEmails" : self.getAllEmail,
             "getUnreadEmail" : self.getUnreadEmail,
             "getWithLabel" : self.getWithLabel,
             "getInFolder" : self.getInFolder
