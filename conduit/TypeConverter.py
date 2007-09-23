@@ -89,9 +89,12 @@ class TypeConverter:
           - original UID
         Call this function from a typeconverter
         """
-        todata.set_mtime(fromdata.get_mtime())
-        todata.set_open_URI(fromdata.get_open_URI())
-        todata.set_UID(fromdata.get_UID())
+        if todata == None:
+            logw("Conversion from %s returned None" % (fromdata))
+        else:
+            todata.set_mtime(fromdata.get_mtime())
+            todata.set_open_URI(fromdata.get_open_URI())
+            todata.set_UID(fromdata.get_UID())
         return todata
 
     def _get_conversion(self, from_type, to_type):

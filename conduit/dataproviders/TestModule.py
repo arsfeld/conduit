@@ -16,6 +16,7 @@ import time
 MODULES = {
     "TestSource" :              { "type": "dataprovider" },
     "TestSink" :                { "type": "dataprovider" },
+    "TestImageSink" :           { "type": "dataprovider" },
     "TestConflict" :            { "type": "dataprovider" },
     "TestConversionArgs" :      { "type": "dataprovider" },
     "TestTwoWay" :              { "type": "dataprovider" },
@@ -190,6 +191,70 @@ class TestSink(_TestBase, DataProvider.DataSink):
         self.count += 1
         LUID=data.get_UID()+self._name_
         return LUID
+
+class TestImageSink(DataProvider.DataSink):
+
+    _name_ = "Test Image Sink"
+    _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "file/photo"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+        self.format = "image/jpeg"
+        self.defaultFormat = "image/jpeg"
+        self.size = "640x480"
+
+    def configure(self, window):
+        def setFormat(param):
+            self.format = str(param)
+        def setDefaultFormat(param):
+            self.defaultFormat = str(param)
+        def setSize(param):
+            self.size = str(param)
+
+        items = [
+                    {
+                    "Name" : "Format",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setFormat,
+                    "InitialValue" : self.format
+                    },
+                    {
+                    "Name" : "Default Format",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setDefaultFormat,
+                    "InitialValue" : self.defaultFormat
+                    },
+                    {
+                    "Name" : "Size",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setSize,
+                    "InitialValue" : self.size
+                    }
+                ]
+        dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
+        dialog.run()
+
+    def refresh(self):
+        DataProvider.DataSink.refresh(self)
+
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        return None
+
+    def get_input_conversion_args(self):
+        args = {
+                "format" :              self.format,
+                "default-format" :      self.defaultFormat,
+                "size" :                self.size,
+                }
+        return args
+
+    def get_UID(self):
+        return Utils.random_string()
+
 
 class TestTwoWay(_TestBase, DataProvider.TwoWay):
 

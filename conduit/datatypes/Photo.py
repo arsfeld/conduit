@@ -21,7 +21,7 @@ class Photo(File.File):
         conversion
         """
         if self.pb == None:
-            self.pb = gtk.gdk.pixbuf_new_from_file(self.get_local_filename())
+            self.pb = gtk.gdk.pixbuf_new_from_file(self.get_local_uri())
         return self.pb
 
     def get_size(self):
@@ -31,5 +31,29 @@ class Photo(File.File):
         self.get_pixbuf()
         return self.pb.get_width(),self.pb.get_height()
 
+    def convert(self, format, size):
+        """
+        Basically we defer the conversion until as late as possible, or 
+        not at all.
+        """
+        if format == None and size == None:
+            return
 
+        #copy the folder to the temp dir
+        tmpfilename = self._to_tempfile()
+        self.pb = gtk.gdk.pixbuf_new_from_file(tmpfilename)
+        
+        #resize if necessary
+        if size != None:
+            try:
+                width,height = size.split('x')
+                self.pb = self.pb.scale_simple(int(width),int(height),gtk.gdk.INTERP_HYPER)
+            except Exception, err:
+                print "BUGGER", size, err
+        
+        #save to new format if necessary
+        if format != None:
+            print "Save %s.%s" % (tmpfilename,format)
+            self.pb.save("%s.%s" % (tmpfilename,format), format)
+        
         

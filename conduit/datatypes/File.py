@@ -105,6 +105,24 @@ class File(DataType.DataType):
         """
         logd("Defering new mtime till transfer (New mtime: %s)" % mtime)
         self._newMtime = mtime
+        
+    def _to_tempfile(self):
+        """
+        Copies this file to a temporary file in the system tempdir
+        @returns: The local file path
+        """
+        #Get a temporary file name
+        tempname = tempfile.mkstemp(prefix="conduit")[1]
+        toURI = gnomevfs.URI(tempname)
+        #Xfer to the temp file. 
+        gnomevfs.xfer_uri( self.URI, toURI,
+                           gnomevfs.XFER_DEFAULT,
+                           gnomevfs.XFER_ERROR_MODE_ABORT,
+                           gnomevfs.XFER_OVERWRITE_MODE_REPLACE)
+        #now overwrite ourselves with the new local copy
+        self._close_file()
+        self.URI = toURI
+        return tempname
 
     def exists(self):
         self._open_file()
@@ -296,18 +314,7 @@ class File(DataType.DataType):
             #u = self.URI[len("file://"):]
             return u
         else:
-            #Get a temporary file name
-            tempname = tempfile.mkstemp(prefix="conduit")[1]
-            toURI = gnomevfs.URI(tempname)
-            #Xfer to the temp file. 
-            gnomevfs.xfer_uri( self.URI, toURI,
-                               gnomevfs.XFER_DEFAULT,
-                               gnomevfs.XFER_ERROR_MODE_ABORT,
-                               gnomevfs.XFER_OVERWRITE_MODE_REPLACE)
-            #now overwrite ourselves with the new local copy
-            self._close_file()
-            self.URI = toURI
-            return tempname
+            return self._to_tempfile()
 
     def compare(self, B, sizeOnly=False):
         """
