@@ -5,25 +5,12 @@
 ## To get the version number of the available libgmail version.
 ## Reminder: add date before next release. This attribute is also
 ## used in the setup script.
-Version = '0.1.5.1' # (Aug 2006)
+Version = '0.1.6.2' # (Sep 2007)
 
 # Original author: follower@myrealbox.com
 # Maintainers: Waseem (wdaher@mit.edu) and Stas Z (stas@linux.isbeter.nl)
 #
-# Contacts support added by wdaher@mit.edu and Stas Z
-# (with massive initial help from 
-#  Adrian Holovaty's 'gmail.py' 
-#  and the Johnvey Gmail API)
-#
 # License: GPL 2.0
-#
-# Thanks:
-#   * Live HTTP Headers <http://livehttpheaders.mozdev.org/>
-#   * Gmail <http://gmail.google.com/>
-#   * Google Blogoscoped <http://blog.outer-court.com/>
-#   * ClientCookie <http://wwwsearch.sourceforge.net/ClientCookie/>
-#     (There when I needed it...)
-#   * The *first* big G. :-)
 #
 # NOTE:
 #   You should ensure you are permitted to use this script before using it
@@ -52,8 +39,8 @@ from email.MIMEBase import MIMEBase
 from email.MIMEText import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 
-URL_LOGIN = "https://www.google.com/accounts/ServiceLoginBoxAuth"
-URL_GMAIL = "https://mail.google.com/mail/"
+GMAIL_URL_LOGIN = "https://www.google.com/accounts/ServiceLoginBoxAuth"
+GMAIL_URL_GMAIL = "https://mail.google.com/mail/"
 
 # TODO: Get these on the fly?
 STANDARD_FOLDERS = [U_INBOX_SEARCH, U_STARRED_SEARCH,
@@ -150,6 +137,22 @@ def _splitBunches(infoItems):# Is this still needed ?? Stas
             result.append(group)
     return result
 
+class SmartRedirectHandler(urllib2.HTTPRedirectHandler):
+    def __init__(self, cookiejar):
+        self.cookiejar = cookiejar
+
+    def http_error_302(self, req, fp, code, msg, headers):
+        # The location redirect doesn't seem to change
+        # the hostname header appropriately, so we do
+        # by hand. (Is this a bug in urllib2?)
+        new_host = re.match(r'http[s]*://(.*?\.google\.com)',
+                            headers.getheader('Location'))
+        if new_host:
+            req.add_header("Host", new_host.groups()[0])
+        result = urllib2.HTTPRedirectHandler.http_error_302(
+            self, req, fp, code, msg, headers)              
+        return result
+
 class CookieJar:
     """
     A rough cookie handler, intended to only refer to one domain.
@@ -167,16 +170,20 @@ class CookieJar:
         self._cookies = {}
 
 
-    def extractCookies(self, response, nameFilter = None):
+    def extractCookies(self, headers, nameFilter = None):
         """
         """
         # TODO: Do this all more nicely?
-        for cookie in response.headers.getheaders('Set-Cookie'):
+        for cookie in headers.getheaders('Set-Cookie'):
             name, value = (cookie.split("=", 1) + [""])[:2]
             if LG_DEBUG: print "Extracted cookie `%s`" % (name)
             if not nameFilter or name in nameFilter:
                 self._cookies[name] = value.split(";")[0]
                 if LG_DEBUG: print "Stored cookie `%s` value `%s`" % (name, self._cookies[name])
+                if self._cookies[name] == "EXPIRED":
+                    if LG_DEBUG:
+                        print "We got an expired cookie: %s:%s, deleting." % (name, self._cookies[name])
+                    del self._cookies[name]
 
 
     def addCookie(self, name, value):
@@ -273,14 +280,25 @@ class GmailAccount:
     """
     """
 
-    def __init__(self, name = "", pw = "", state = None):
+    def __init__(self, name = "", pw = "", state = None, domain = None):
+        global URL_LOGIN, URL_GMAIL
         """
         """
-        # TODO: Change how all this is handled?
+        self.domain = domain
+        if self.domain:
+            URL_LOGIN = "https://www.google.com/a/" + self.domain + "/LoginAction"
+            URL_GMAIL = "http://mail.google.com/a/" + self.domain + "/"
+        else:
+            URL_LOGIN = GMAIL_URL_LOGIN
+            URL_GMAIL = GMAIL_URL_GMAIL
         if name and pw:
             self.name = name
             self._pw = pw
             self._cookieJar = CookieJar()
+            self.opener = urllib2.build_opener(
+                                urllib2.HTTPHandler(debuglevel=0),
+                                urllib2.HTTPSHandler(debuglevel=0),
+                                SmartRedirectHandler(self._cookieJar))
         elif state:
             # TODO: Check for stale state cookies?
             self.name, self._cookieJar = state.state
@@ -297,52 +315,67 @@ class GmailAccount:
         """
         """
         # TODO: Throw exception if we were instantiated with state?
-        data = urllib.urlencode({'continue': URL_GMAIL,
-                                 'Email': self.name,
-                                 'Passwd': self._pw,
-                                 })
-    
+        if self.domain:
+            data = urllib.urlencode({'continue': URL_GMAIL,
+                                     'at'      : 'null',
+                                     'service' : 'mail',
+                                     'userName': self.name,
+                                     'password': self._pw,
+                                     })
+        else:
+            data = urllib.urlencode({'continue': URL_GMAIL,
+                                     'Email': self.name,
+                                     'Passwd': self._pw,
+                                     })
+                                           
         headers = {'Host': 'www.google.com',
-                   'User-Agent': 'User-Agent: Mozilla/5.0 (compatible;)'}
-        
+                   'User-Agent': 'Mozilla/5.0 (Compatible; libgmail-python)'}
+
         req = urllib2.Request(URL_LOGIN, data=data, headers=headers)
         pageData = self._retrievePage(req)
         
-        # TODO: Tidy this up?
-        # This requests the page that provides the required "GV" cookie.
-        RE_PAGE_REDIRECT = 'CheckCookie\?continue=([^"\']+)'
-
-
-        # TODO: Catch more failure exceptions here...?
-        try:
-            link = re.search(RE_PAGE_REDIRECT, pageData).group(1)
-            redirectURL = urllib.unquote(link)
-            
-        except AttributeError:
-            raise GmailLoginFailure("Login failed. (Wrong username/password?)")
-        # We aren't concerned with the actual content of this page,
-        # just the cookie that is returned with it.
-        pageData = self._retrievePage(redirectURL)
+        if not self.domain:
+        # The GV cookie no longer comes in this page for
+        # "Apps", so this bottom portion is unnecessary for it.
+            # This requests the page that provides the required "GV" cookie.
+            RE_PAGE_REDIRECT = 'CheckCookie\?continue=([^"\']+)' 
         
+            # TODO: Catch more failure exceptions here...?
+            try:
+                link = re.search(RE_PAGE_REDIRECT, pageData).group(1)
+                redirectURL = urllib2.unquote(link)
+                redirectURL = redirectURL.replace('\\x26', '&')
+            
+            except AttributeError:
+                raise GmailLoginFailure("Login failed. (Wrong username/password?)")
+            # We aren't concerned with the actual content of this page,
+            # just the cookie that is returned with it.
+            pageData = self._retrievePage(redirectURL)
 
     def _retrievePage(self, urlOrRequest):
         """
         """
+        if self.opener is None:
+            raise "Cannot find urlopener"
+        
         if not isinstance(urlOrRequest, urllib2.Request):
             req = urllib2.Request(urlOrRequest)
         else:
             req = urlOrRequest
             
         self._cookieJar.setCookies(req)
+        req.add_header('User-Agent',
+                       'Mozilla/5.0 (Compatible; libgmail-python)')
+        
         try:
-            resp = urllib2.urlopen(req)
+            resp = self.opener.open(req)
         except urllib2.HTTPError,info:
             print info
             return None
         pageData = resp.read()
 
         # Extract cookies here
-        self._cookieJar.extractCookies(resp)
+        self._cookieJar.extractCookies(resp.headers)
 
         # TODO: Enable logging of page data for debugging purposes?
 
@@ -607,7 +640,6 @@ class GmailAccount:
                                       _account = self)
         else:
             raise GmailSendError, resultInfo[SM_MSG]
-            
         return result
 
 
@@ -1280,6 +1312,7 @@ class GmailThread(_LabelHandlerMixin):
         """
         """
         _LabelHandlerMixin.__init__(self)
+        
         # TODO Handle this better?
         self._parent = parent
         self._account = self._parent._account
@@ -1398,7 +1431,7 @@ class GmailMessageStub(_LabelHandlerMixin):
     def __init__(self, id = None, _account = None):
         """
         """
-        _LabelHandlerMixin.__init__(self)        
+        _LabelHandlerMixin.__init__(self)
         self.id = id
         self._account = _account
     
@@ -1538,8 +1571,9 @@ if __name__ == "__main__":
         name = raw_input("Gmail account name: ")
         
     pw = getpass("Password: ")
+    domain = raw_input("Domain? [leave blank for Gmail]: ")
 
-    ga = GmailAccount(name, pw)
+    ga = GmailAccount(name, pw, domain=domain)
 
     print "\nPlease wait, logging in..."
 

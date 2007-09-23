@@ -15,6 +15,7 @@ class Email(DataType.DataType):
     def __init__(self, URI, **kwargs):
         DataType.DataType.__init__(self)
 
+        self.raw = ""
         self.email = None
         self.attachments = []
 
@@ -45,6 +46,8 @@ class Email(DataType.DataType):
         self.email = email.message_from_string(text_source)
         
         if self.email is not None:
+            self.raw = text_source
+
             if self.email.is_multipart():
                 self.content = self.email.get_payload(0)
             else:

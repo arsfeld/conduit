@@ -1,3 +1,25 @@
+== Version 0.1.6.1 ==
+libgmail.py
+    * Bugfix for attachment problems --WD--
+      (SF Bug #1793026, Patch #1799605 by 'stephster')
+archive.py
+    * Protect messages with a "from" line in them --WD--
+      (SF Patch #1790809 by 'scop')
+
+== Version 0.1.6.1 == 
+libgmail.py
+    * Bugfix for login problems --WD--
+
+== Version 0.1.6 == 
+libgmail.py
+    * Added support for "Gmail Apps" aka "Gmail For Your Domain" --WD--
+
+== Version 0.1.5.1 ==
+libgmail.py
+    * Minor bugfix release -- logging in with the wrong
+      username and password caused a crash instead of
+      the appropriate thrown exception --WD--
+
 == Version 0.1.5 ==
 libgmail.py
     * Fixed exception in the testcode (SF bug #1486703) --SZ--

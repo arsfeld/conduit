@@ -13,7 +13,7 @@ import conduit.Exceptions as Exceptions
 import conduit.datatypes.Email as Email
 import conduit.datatypes.Contact as Contact
 
-Utils.dataprovider_add_dir_to_path(__file__, "libgmail-0.1.5")
+Utils.dataprovider_add_dir_to_path(__file__, "libgmail-0.1.6.2")
 import libgmail
 
 MODULES = {
@@ -76,8 +76,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
     _description_ = _("Sync your Gmail Emails")
     _category_ = GOOGLE_CAT
     _module_type_ = "twoway"
-    _in_type = "email"
-    _out_type = "email"
+    _in_type_ = "email"
+    _out_type_ = "email"
     _icon_ = "internet-mail"
 
     def __init__(self, *args):
@@ -196,6 +196,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
+        print usernameEntry.get_text()
+        print self.password
         dlg.destroy()
 
     def refresh(self):

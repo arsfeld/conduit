@@ -22,8 +22,9 @@ class EmailConverter:
     def __init__(self):
         self.conversions =  {    
                             "email,text"    : self.email_to_text,
+                            "text,email"    : self.text_to_email,
+                            "email,file"    : self.email_to_file,
                             "file,email"    : self.file_to_email,
-                            "text,email"    : self.text_to_email
                             }
                             
                             
@@ -32,6 +33,17 @@ class EmailConverter:
                     text=email.get_email_string()
                     )
         return t
+
+    def text_to_email(self, text, **kwargs):
+        email = Email.Email(
+                        None,
+                        content=text.get_string()
+                        )
+        return email
+
+    def email_to_file(self, email, **kwargs):
+        f = File.TempFile(email.raw)
+        return f        
 
     def file_to_email(self, thefile, **kwargs):
         """
@@ -57,13 +69,6 @@ class EmailConverter:
                             )
             email.add_attachment(thefile.get_local_uri())
 
-        return email
-            
-    def text_to_email(self, text, **kwargs):
-        email = Email.Email(
-                        None,
-                        content=text.get_string()
-                        )
         return email
 
 
