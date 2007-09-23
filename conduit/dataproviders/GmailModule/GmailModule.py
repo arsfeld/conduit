@@ -84,7 +84,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
     _module_type_ = "twoway"
     _in_type_ = "email"
     _out_type_ = "email"
-    _icon_ = "internet-mail"
+    _icon_ = "emblem-mail"
 
     def __init__(self, *args):
         GmailBase.__init__(self, *args)
