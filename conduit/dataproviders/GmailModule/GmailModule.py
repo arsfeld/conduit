@@ -297,7 +297,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         return {
             "username" : self.username,
             "password" : self.password,
-            "getAllEmails" : self.getAllEmail,
+            "getAllEmail" : self.getAllEmail,
             "getUnreadEmail" : self.getUnreadEmail,
             "getWithLabel" : self.getWithLabel,
             "getInFolder" : self.getInFolder
