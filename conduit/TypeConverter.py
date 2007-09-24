@@ -128,18 +128,10 @@ class TypeConverter:
             
             #same base type (e.g. file -> file/music or vice-versa)
             if froms[0] == tos[0]:
-                #different sub type
-                if len(froms) == len(tos):
-                    fromType = froms[-1]
-                    toType = tos[-1]
                 #one is parent class of the other
-                else:
-                    #file -> file/music
-                    if len(tos) > len(froms):
-                        fromType = froms[0]
-                        toType = tos[-1]
-                    #file/music -> file
-                    else:
+                if len(froms) != len(tos):
+                    #file/music -> file = file -> file
+                    if len(froms) > len(tos):
                         fromType = froms[0]
                         toType = tos[0]
 

@@ -31,8 +31,7 @@ class PixbufPhotoConverter:
     def __init__(self):
         self.conversions =  {
                             "file/photo,file/photo"     :   self.transcode,    
-                            "file,file/photo"           :   self.file_to_photo,
-                            "file,photo"           :   self.file_to_photo
+                            "file,file/photo"           :   self.file_to_photo
                             }
                             
     def transcode(self, photo, **kwargs):

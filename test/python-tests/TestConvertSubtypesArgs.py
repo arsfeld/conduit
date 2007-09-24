@@ -16,13 +16,13 @@ ok("file -> file = file -> file (respect dest args)", f == "file" and t == "file
 
 # file -> file/music
 f, t, a = tc._get_conversion("file", "file/music")
-ok("file -> file/music = file -> music", f == "file" and t == "music" and a == {})
+ok("file -> file/music = file -> file/music", f == "file" and t == "file/music" and a == {})
 
 f, t, a = tc._get_conversion("file?foo=bar", "file/music")
-ok("file -> file/music = file -> music (ignore source args)", f == "file" and t == "music" and a == {})
+ok("file -> file/music = file -> file/music (ignore source args)", f == "file" and t == "file/music" and a == {})
 
 f, t, a = tc._get_conversion("file", "file/music?foo=bar")
-ok("file -> file/music = file -> music (respect dest args)", f == "file" and t == "music" and a == {"foo":"bar"})
+ok("file -> file/music = file -> file/music (respect dest args)", f == "file" and t == "file/music" and a == {"foo":"bar"})
 
 # file/music -> file
 f, t, a = tc._get_conversion("file/music", "file")
@@ -36,7 +36,11 @@ ok("file/music -> file = file -> file (respect dest args)", f == "file" and t ==
 
 # file/photo -> file/music
 f, t, a = tc._get_conversion("file/photo", "file/music")
-ok("file/photo -> file/music = photo -> music", f == "photo" and t == "music" and a == {})
+ok("file/photo -> file/music = file/photo -> file/music", f == "file/photo" and t == "file/music" and a == {})
+
+# transcode file/music -> file/music
+f, t, a = tc._get_conversion("file/music", "file/music?foo=bar")
+ok("file/music -> file/music = file/music -> file/music (respect dest args)", f == "file/music" and t == "file/music" and a == {"foo":"bar"})
 
 # lots of args
 args = {"foo":"bar","baz":"bob"}
