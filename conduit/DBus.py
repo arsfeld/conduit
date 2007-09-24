@@ -18,6 +18,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.Synchronization as Synchronization
 import conduit.Conduit as Conduit
+import conduit.SyncSet as SyncSet
 
 ERROR = -1
 SUCCESS = 0
@@ -42,6 +43,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # BuildExporter(self, sinkKey)
 # ListAllDataProviders
 # GetDataProvider
+# NewSyncSet
 # Quit
 # 
 # Signals:
@@ -400,7 +402,17 @@ class DBusInterface(DBusItem):
         datasinks = self.moduleManager.get_modules_by_type("sink")
         twoways = self.moduleManager.get_modules_by_type("twoway")
         return datasources + datasinks + twoways
-
+        
+    def _new_syncset(self):
+        ss = SyncSet.SyncSet(
+                    moduleManager=self.moduleManager,
+                    syncManager=self.sync_manager
+                    )
+        i = Utils.uuid_string()
+        new = SyncSetDBusItem(ss, i)
+        EXPORTED_OBJECTS[new.get_path()] = new
+        return new    
+    
     def _get_dataprovider(self, key):
         """
         Instantiates a new dataprovider (source or sink), storing it
@@ -453,6 +465,11 @@ class DBusInterface(DBusItem):
     @dbus.service.signal(APPLICATION_DBUS_IFACE, signature='s')
     def DataproviderUnavailable(self, key):
         self._print("Emiting DBus signal DataproviderUnavailable %s" % key)
+
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='o')
+    def NewSyncSet(self):
+        self._print("NewSyncSet")
+        return self._new_syncset()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='as')
     def GetAllDataProviders(self):

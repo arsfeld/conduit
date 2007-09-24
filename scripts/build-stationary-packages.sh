@@ -31,7 +31,7 @@ PUBLISHDIR=/tmp/conduit/packages
 
 # Magic continues below.
 
-mkdir $TMPDIR
+mkdir -p $TMPDIR
 cd $TMPDIR
 
 # First checkout trunk so that the SVN version can be determined.
