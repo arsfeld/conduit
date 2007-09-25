@@ -66,7 +66,7 @@ autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
 # DBus 
 ################################################################################
 dbusservicedir=$(DBUS_SERVICES_DIR)
-dbusservice_in_files=org.gnome.Conduit.service.in
+dbusservice_in_files=org.conduit.service.in
 dbusservice_DATA=$(dbusservice_in_files:.service.in=.service)
 
 $(dbusservice_DATA): $(dbusservice_in_files) Makefile
@@ -94,4 +94,4 @@ EXTRA_DIST = \
 	conduit.desktop.in.in \
 	conduit-autostart.desktop.in.in
 	
-CLEANFILES = conduit.desktop org.gnome.Conduit.service
+CLEANFILES = conduit.desktop org.conduit.service

@@ -1,3 +1,3 @@
 [D-BUS Service]
-Name=org.gnome.Conduit
+Name=org.conduit.Application
 Exec=@bindir@/start_conduit -c

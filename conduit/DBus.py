@@ -53,7 +53,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # ==== SyncSet ====
 # Service               org.conduit.SyncSet
 # Interface             org.conduit.SyncSet
-# Object path           /syncset/{dbus, gui}
+# Object path           /syncset/{dbus, gui, UUID}
 #
 # Methods:
 # AddConduit

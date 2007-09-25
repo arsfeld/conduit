@@ -12,7 +12,7 @@ for a in avail:
 print ""
 
 inspect={
-    "org.gnome.Conduit":["/","/activate"],
+    "org.conduit.Application":["/"],
     "org.gnome.Tomboy":["/org/gnome/Tomboy/RemoteControl"],
     "org.gnome.Banshee":["/org/gnome/Banshee/Player"],
     }
