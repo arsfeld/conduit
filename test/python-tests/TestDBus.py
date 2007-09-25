@@ -50,13 +50,13 @@ ok("Got TestSink", not sink.IsPending())
 cond = dbus.BuildExporter("TestSink", SENDER)
 ok("Exporter iface: Got conduit", cond != None)
 
-config = cond.GetSinkConfiguration()
+config = cond.SinkGetConfigurationXml()
 ok("Exporter iface: Got sink config", config != "")
 
-cond.ConfigureSink(config)
+cond.SinkSetConfigurationXml(config)
 ok("Exporter iface: Set sink config", True)
 
-info = cond.GetSinkInformation()
+info = cond.SinkGetInformation()
 ok("Exporter iface: Got sink info", info != "")
 
 cond.AddData("Foo")

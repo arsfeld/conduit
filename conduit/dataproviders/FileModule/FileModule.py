@@ -12,7 +12,6 @@ import conduit.datatypes.Text as Text
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 import conduit.Settings as Settings
-import conduit.DB as DB
 
 import gnomevfs
 import os.path
@@ -399,6 +398,11 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
     def add(self, LUID):
         f = File.File(URI=LUID)
         if f.exists():
+            for item in self.items:
+                if item[URI_IDX] == f._get_text_uri():
+                    logd("Could not add (already added): %s" % LUID)
+                    return False
+
             if f.is_directory():
                 logd("Adding directory: %s" % LUID)
                 self.items.append((f._get_text_uri(),TYPE_FOLDER,0,False,"",[]))
@@ -407,6 +411,9 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
                 self.items.append((f._get_text_uri(),TYPE_SINGLE_FILE,0,False,"",[]))                
         else:
             logw("Could not add: %s" % LUID)
+            return False
+            
+        return True
 
     def get_all(self):
         return self.files.keys()

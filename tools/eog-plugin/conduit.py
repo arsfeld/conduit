@@ -16,8 +16,10 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 
 SUPPORTED_SINKS = {
-    "FlickrTwoWay"  :   "Upload to Flickr",
-    "PicasaTwoWay"  :   "Upload to Picasa"
+    "FlickrTwoWay"      :   "Upload to Flickr",
+#    "PicasaTwoWay"      :   "Upload to Picasa",
+#    "SmugMugTwoWay"     :   "Uploat to SmugMug",
+#    "BoxDotNetTwoWay"   :   "Upload to Box.net"
 }
 
 ICON_SIZE = 24
@@ -32,7 +34,9 @@ class ConduitApplicationWrapper:
         self.conduits = {}
         #rowrefs of parents in the store.
         self.storeConduits = {}
-
+        #record if the conduit has been configured or not
+        self.configured = {}
+        
         self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
 
         #setup the DBus connection
@@ -88,10 +92,21 @@ class ConduitApplicationWrapper:
         #top level items in the list store are icons for the dataprovider in use
         #this function creates them if needed otherwise returns their rowref
         if dp not in self.storeConduits:
-            info = self.conduits[dp].GetSinkInformation(dbus_interface=EXPORTER_DBUS_IFACE)
+            info = self.conduits[dp].SinkGetInformation(dbus_interface=EXPORTER_DBUS_IFACE)
             pb = gtk.gdk.pixbuf_new_from_file_at_size(info['icon_path'], ICON_SIZE, ICON_SIZE)
             #store the rowref
             self.storeConduits[dp] = self.store.append(None,(pb, SUPPORTED_SINKS[dp]))
+
+    def _configure_reply_handler(self):            
+        #save the configuration
+        #xml = self.conduits[c].SinkGetConfigurationXml()
+        #self._save_configuration(c, xml)
+        #self.configured:
+        self.configured["FlickrTwoWay"] = True
+        print "Configured"
+
+    def _configure_error_handler(self, error):
+        pass
 
     def upload(self, sinkName, eogImage):
         print "Upload ", sinkName, eogImage
@@ -102,20 +117,33 @@ class ConduitApplicationWrapper:
             uri = eogImage.get_uri_for_display()
             thumb = eogImage.get_thumbnail()
 
-            self.conduits[sinkName].AddData(
+            ok = self.conduits[sinkName].AddData(
                                         uri,
                                         dbus_interface=EXPORTER_DBUS_IFACE
                                         )
-
-            #add to the rowstore
-            rowref = self._get_store_parent(sinkName)
-            pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
-            filename = uri.split("/")[-1]
-            self.store.append(rowref,(pb, filename))
+            print "OK ",ok
+            if ok == True:
+                #add to the rowstore
+                rowref = self._get_store_parent(sinkName)
+                pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
+                filename = uri.split("/")[-1]
+                self.store.append(rowref,(pb, filename))
 
     def sync(self):
-        for c in self.conduits.values():
-            c.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
+        for c in self.conduits:
+            if c in self.configured:
+                self.conduits[c].Sync(dbus_interface=CONDUIT_DBUS_IFACE)
+            else:
+                # configure the sink; and perform the actual synchronisation
+                # when the configuration is finished, this way the eog gui doesnt
+                # block on the call
+                self.conduits[c].SinkConfigure(
+                                    reply_handler=self._configure_reply_handler,
+                                    error_handler=self._configure_error_handler,
+                                    dbus_interface=EXPORTER_DBUS_IFACE
+                                    )
+               
+
 
 class ConduitPlugin(eog.Plugin):
     def __init__(self):
@@ -204,7 +232,7 @@ class ConduitPlugin(eog.Plugin):
         print "UPDATE"
 
     def is_configurable(self):
-        return True
+        return False
 
     def create_configure_dialog(self):
         xml = gtk.glade.XML(self.gladefile, "ConfigDialog")

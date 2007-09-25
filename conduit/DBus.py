@@ -89,9 +89,10 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 #
 # Methods:
 # AddData
-# ConfigureSink
-# GetSinkInformation
-# GetSinkConfiguration
+# SinkConfigure
+# SinkGetInformation
+# SinkGetConfigurationXml
+# SinkSetConfigurationXml
 #
 # ==== DataProvider ====
 # Service               org.conduit.DataProvider
@@ -104,7 +105,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # GetConfigurationXML
 # Configure
 # GetInformation
-# AddData(uri)
+# AddData
 # 
 # Signals:
 
@@ -215,23 +216,30 @@ class ConduitDBusItem(DBusItem):
     # org.conduit.Exporter
     #
     @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='s', out_signature='')
-    def ConfigureSink(self, xml):
-        self._print("ConfigureSink: %s" % xml)
+    def SinkSetConfigurationXml(self, xml):
+        self._print("SinkSetConfigurationXml: %s" % xml)
         if len(self.conduit.datasinks) != 1:
             raise ConduitException("Simple exporter must only have one sink")
         self.conduit.datasinks[0].set_configuration_xml(xml)
+        
+    @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='', out_signature='')
+    def SinkConfigure(self):
+        self._print("SinkConfigure")
+        if len(self.conduit.datasinks) != 1:
+            raise ConduitException("Simple exporter must only have one sink")
+        self.conduit.datasinks[0].configure(None)
 
-    @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='s', out_signature='')
+    @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='s', out_signature='b')
     def AddData(self, uri):
         self._print("AddData: %s" % uri)
         if self.conduit.datasource == None:
             raise ConduitException("Simple exporter must have a source")
 
-        self.conduit.datasource.module.add(uri)
+        return self.conduit.datasource.module.add(uri)
 
     @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='', out_signature='a{ss}')
-    def GetSinkInformation(self):
-        self._print("GetSinkInformation")
+    def SinkGetInformation(self):
+        self._print("SinkGetInformation")
         if len(self.conduit.datasinks) != 1:
             raise ConduitException("Simple exporter must only have one sink")
 
@@ -254,8 +262,8 @@ class ConduitDBusItem(DBusItem):
         return info
 
     @dbus.service.method(EXPORTER_DBUS_IFACE, in_signature='', out_signature='s')
-    def GetSinkConfiguration(self):
-        self._print("GetSinkConfiguration")
+    def SinkGetConfigurationXml(self):
+        self._print("SinkGetConfigurationXml")
         if len(self.conduit.datasinks) != 1:
             raise ConduitException("Simple exporter must only have one sink")
         return self.conduit.datasinks[0].get_configuration_xml()
@@ -308,10 +316,10 @@ class DataProviderDBusItem(DBusItem):
         self._print("Configure")       
         self.dataprovider.configure(None)
 
-    @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='s', out_signature='')
+    @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='s', out_signature='b')
     def AddData(self, uri):
         self._print("AddData: %s" % uri)
-        self.dataprovider.module.add(uri)
+        return self.dataprovider.module.add(uri)
 
 class SyncSetDBusItem(DBusItem):
     def __init__(self, syncSet, name):
