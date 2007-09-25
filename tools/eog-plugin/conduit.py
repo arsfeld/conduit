@@ -15,51 +15,103 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 
 MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 
-class ConduitWrapper:
-    SUPPORTED_SINKS = ["FlickrTwoWay", "TestSink"]
+SUPPORTED_SINKS = {
+    "FlickrTwoWay"  :   "Upload to Flickr",
+    "PicasaTwoWay"  :   "Upload to Picasa"
+}
 
+ICON_SIZE = 24
+
+CONFIG_PATH='~/.conduit/eog-plugin'
+
+class ConduitApplicationWrapper:
     def __init__(self):
         self.app = None
+
+        #the conduit dbus objects
         self.conduits = {}
+        #rowrefs of parents in the store.
+        self.storeConduits = {}
+
         self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
 
         #setup the DBus connection
         self._connect_to_conduit()
 
-    def _connect_to_conduit(self):
-            bus = dbus.SessionBus()
-            try:
-                remote_object = bus.get_object(APPLICATION_DBUS_IFACE,"/")
-                self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
+    def _get_configuration(self, sink_name):
+        """
+        Gets the latest configuration for a given
+        dataprovider
+        """
+        config_path = os.path.expanduser(CONFIG_PATH)
 
-                dps = self.app.GetAllDataProviders()
-                for s in ConduitWrapper.SUPPORTED_SINKS:
-                    if s in dps:
-                        print "Configuring support for %s" % s
-                        path = self.app.BuildExporter(s)
-                        exporter = bus.get_object(CONDUIT_DBUS_IFACE,path)
-                        self.conduits[s] = exporter
-            
+        if not os.path.exists(os.path.join(config_path, sink_name)):
+           return
+
+        f = open(os.path.join(config_path, sink_name), 'r')
+        xml = f.read ()
+        f.close()
+
+        return xml
+           
+    def _save_configuration(self, sink_name, xml):
+        """
+        Saves the configuration xml from a given dataprovider again
+        """
+        config_path = os.path.expanduser(CONFIG_PATH)
+
+        if not os.path.exists(config_path):
+           os.mkdir(config_path)
+
+        f = open(os.path.join(config_path, sink_name), 'w')
+        f.write(xml)
+        f.close()
+
+    def _connect_to_conduit(self):
+            try:
+                remote_object = dbus.SessionBus().get_object(APPLICATION_DBUS_IFACE,"/")
+                self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
+                self.dps = self.app.GetAllDataProviders() 
+
             except dbus.exceptions.DBusException:
                 self.app = None
                 print "Conduit unavailable"
 
+    def _build_exporter(self, dp):
+        if dp in self.dps:
+            print "Configuring support for %s" % dp
+            path = self.app.BuildExporter(dp)
+            exporter = dbus.SessionBus().get_object(CONDUIT_DBUS_IFACE,path)
+            self.conduits[dp] = exporter
+
+    def _get_store_parent(self, dp):
+        #top level items in the list store are icons for the dataprovider in use
+        #this function creates them if needed otherwise returns their rowref
+        if dp not in self.storeConduits:
+            info = self.conduits[dp].GetSinkInformation(dbus_interface=EXPORTER_DBUS_IFACE)
+            pb = gtk.gdk.pixbuf_new_from_file_at_size(info['icon_path'], ICON_SIZE, ICON_SIZE)
+            #store the rowref
+            self.storeConduits[dp] = self.store.append(None,(pb, SUPPORTED_SINKS[dp]))
+
     def upload(self, sinkName, eogImage):
-        print "Upload ",eogImage
+        print "Upload ", sinkName, eogImage
         if self.app != None:
-            if sinkName in self.conduits.keys():
-                uri = eogImage.get_uri_for_display()
-                thumb = eogImage.get_thumbnail()
+            if sinkName not in self.conduits:
+                self._build_exporter(sinkName)
 
-                print "Adding ", uri
+            uri = eogImage.get_uri_for_display()
+            thumb = eogImage.get_thumbnail()
 
-                self.conduits[sinkName].AddData(
-                                            uri,
-                                            dbus_interface=EXPORTER_DBUS_IFACE
-                                            )
-                
-                #img = gtk.gdk.pixbuf_new_from_file(os.path.join(self.dir, "conduit-icon.png"))
-                self.store.append(None,(thumb, uri))
+            self.conduits[sinkName].AddData(
+                                        uri,
+                                        dbus_interface=EXPORTER_DBUS_IFACE
+                                        )
+
+            #add to the rowstore
+            rowref = self._get_store_parent(sinkName)
+            pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
+            filename = uri.split("/")[-1]
+            self.store.append(rowref,(pb, filename))
 
     def sync(self):
         for c in self.conduits.values():
@@ -70,11 +122,12 @@ class ConduitPlugin(eog.Plugin):
         self.dir = os.path.abspath(os.path.join(__file__, ".."))
         self.gladefile = os.path.join(self.dir, "config.glade")
         
-        self.conduit = ConduitWrapper()
+        self.conduit = ConduitApplicationWrapper()
 
     def _on_act(self, sender, window):
         currentImage = window.get_image()
-        self.conduit.upload("TestSink", currentImage)
+        dpname = sender.get_property("name")
+        self.conduit.upload(dpname, currentImage)
 
     def _on_sync_clicked(self, *args):
         self.conduit.sync()
@@ -110,28 +163,33 @@ class ConduitPlugin(eog.Plugin):
         sidebar.show_all()
 
     def _prepare_tools_menu(self, window):
-        action = gtk.Action(
-                        name="RunPostr",
-                        stock_id="internet",
-                        label="Upload to Flickr",
-                        tooltip="Upload your pictures to Flickr"
-                        )
-        action.connect("activate",self._on_act, window)
-
+        ui_action_group = gtk.ActionGroup("ConduitPluginActions")
         manager = window.get_ui_manager()
 
-        ui_action_group = gtk.ActionGroup("EogPostrPluginActions")
-        ui_action_group.add_action(action)
+        #make an action for each sink
+        for dp in SUPPORTED_SINKS:
+            desc = SUPPORTED_SINKS[dp]
+            action = gtk.Action(
+                            name=dp,
+                            stock_id="internet",
+                            label=desc,
+                            tooltip=""
+                        )
+            action.connect("activate",self._on_act, window)
+            ui_action_group.add_action(action)
 
         manager.insert_action_group(ui_action_group,-1)
-        mid = manager.new_merge_id()
-        manager.add_ui(
-                merge_id=mid,
-                path=MENU_PATH,
-			    name="RunPostr", 
-			    action="RunPostr",
-			    type=gtk.UI_MANAGER_MENUITEM, 
-			    top=False)
+
+        #add each action to the menu
+        for dp in SUPPORTED_SINKS:
+            mid = manager.new_merge_id()
+            manager.add_ui(
+                    merge_id=mid,
+                    path=MENU_PATH,
+    			    name=dp, 
+    			    action=dp,
+    			    type=gtk.UI_MANAGER_MENUITEM, 
+    			    top=False)
 
     def activate(self, window):
         #the sidebar and menu integration must be done once per eog window instance
