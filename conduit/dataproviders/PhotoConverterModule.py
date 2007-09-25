@@ -62,6 +62,5 @@ class PixbufPhotoConverter:
                             **kwargs
                             )
         else:
-            print "NONE"
             return None
             

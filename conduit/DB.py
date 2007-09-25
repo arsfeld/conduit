@@ -83,7 +83,7 @@ class MappingDB:
         items sourceeDataLUID and sinkDataLUID are synchronized
         """
         if None in [sourceUID, sourceDataLUID, sinkUID, sinkDataLUID]:
-            logw("Could not save mapping")
+            logw("Could not save mapping (%s,%s,%s,%s)" % (sourceUID, sourceDataLUID, sinkUID, sinkDataLUID))
             return
 
         existing = self._get_mapping(sourceUID, sourceDataLUID, sinkUID)

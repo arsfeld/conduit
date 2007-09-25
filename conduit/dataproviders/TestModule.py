@@ -242,7 +242,8 @@ class TestImageSink(DataProvider.DataSink):
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        return None
+        LUID=data.get_UID()+self._name_
+        return LUID
 
     def get_input_conversion_args(self):
         args = {
@@ -399,7 +400,8 @@ class TestConversionArgs(DataProvider.DataSink):
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        return None
+        LUID=data.get_UID()+self._name_
+        return LUID
 
     def get_input_conversion_args(self):
         if self.conversionArgs == "":
