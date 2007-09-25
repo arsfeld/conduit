@@ -54,6 +54,27 @@ else
 fi
 AC_SUBST(DBUS_SERVICES_DIR)
 
+####################################################################
+# Nautilus Extension
+####################################################################
+
+AC_ARG_ENABLE([nautilus_extension],
+              AC_HELP_STRING([--enable-nautilus-extension], [Enable support for nautilus extension]),,
+              [enable_nautilus_extension=no])
+AC_ARG_WITH([nautilus_extension_dir],
+            AC_HELP_STRING([--with-nautilus-extension-dir], [Path to nautilus extension dir]))
+
+
+AM_CONDITIONAL(ENABLE_NAUTILUS_EXTENSION, test "$enable-nautilus_extension" != "no")
+if test "x$with_nautilus_extension_dir" = "x" ; then
+	ext_dir="~/.nautilus/python-extensions/"
+else
+	ext_dir="$with_nautilus_extension_dir"
+fi
+
+NAUTILUS_EXTENSION_DIR="$ext_dir"
+AC_SUBST(NAUTILUS_EXTENSION_DIR)
+
 ################################################################################
 # Write the values of various paths for start_conduit.py
 ################################################################################
@@ -116,6 +137,8 @@ data/icons/hicolor/scalable/Makefile
 data/icons/hicolor/scalable/apps/Makefile
 po/Makefile.in
 help/Makefile
+tools/Makefile
+tools/nautilus-extension/Makefile
 )
 
 echo
@@ -123,5 +146,6 @@ echo $PACKAGE v$VERSION
 echo
 echo Prefix............... : $prefix
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
+echo Nautilus Extension... : $enable_nautilus_extension
 echo
 

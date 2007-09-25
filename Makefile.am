@@ -1,6 +1,6 @@
-SUBDIRS = conduit data po help
+SUBDIRS = conduit data po help tools
 
-DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper
+DISTCHECK_CONFIGURE_FLAGS = --disable-scrollkeeper --disable-nautilus-extension
 
 doap.rdf: doap.rdf.in Makefile.am
 	sed -e s/\@VERSION\@/$(VERSION)/g \
