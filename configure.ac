@@ -65,7 +65,7 @@ AC_ARG_WITH([nautilus_extension_dir],
             AC_HELP_STRING([--with-nautilus-extension-dir], [Path to nautilus extension dir]))
 
 
-AM_CONDITIONAL(ENABLE_NAUTILUS_EXTENSION, test "$enable-nautilus_extension" != "no")
+AM_CONDITIONAL(ENABLE_NAUTILUS_EXTENSION, test "$enable_nautilus_extension" != "no")
 if test "x$with_nautilus_extension_dir" = "x" ; then
 	ext_dir="~/.nautilus/python-extensions/"
 else
@@ -74,6 +74,28 @@ fi
 
 NAUTILUS_EXTENSION_DIR="$ext_dir"
 AC_SUBST(NAUTILUS_EXTENSION_DIR)
+
+####################################################################
+# EOG Plugin
+####################################################################
+
+AC_ARG_ENABLE([eog_plugin],
+              AC_HELP_STRING([--enable-eog-plugin], [Enable support for eog plugin]),,
+              [enable_eog_plugin=no])
+AC_ARG_WITH([eog_plugin_dir],
+            AC_HELP_STRING([--with-eog-plugin-dir], [Path to eog plugin dir]))
+
+
+AM_CONDITIONAL(ENABLE_EOG_PLUGIN, test "$enable_eog_plugin" != "no")
+if test "x$with_eog_plugin_dir" = "x" ; then
+	plug_dir="~/.gnome2/eog/plugins/"
+else
+	plug_dir="$with_eog_plugin_dir"
+fi
+
+EOG_PLUGIN_DIR="$plug_dir"
+AC_SUBST(EOG_PLUGIN_DIR)
+
 
 ################################################################################
 # Write the values of various paths for start_conduit.py
@@ -139,6 +161,7 @@ po/Makefile.in
 help/Makefile
 tools/Makefile
 tools/nautilus-extension/Makefile
+tools/eog-plugin/Makefile
 )
 
 echo
@@ -147,5 +170,6 @@ echo
 echo Prefix............... : $prefix
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo Nautilus Extension... : $enable_nautilus_extension
+echo EOG Plugin........... : $enable_eog_plugin
 echo
 

@@ -1,1 +1,1 @@
-SUBDIRS = nautilus-extension
+SUBDIRS = nautilus-extension eog-plugin
