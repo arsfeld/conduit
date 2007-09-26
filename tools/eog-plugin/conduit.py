@@ -71,7 +71,7 @@ class ConduitWrapper:
             info = self.conduit.SinkGetInformation(dbus_interface=EXPORTER_DBUS_IFACE)
             pb = gtk.gdk.pixbuf_new_from_file_at_size(info['icon_path'], ICON_SIZE, ICON_SIZE)
             desc = SUPPORTED_SINKS[self.name]
-            self.rowref = self.store.append(None,(pb, desc))
+            self.rowref = self.store.append(None,(pb, desc, ""))
         return self.rowref
 
     def _configure_reply_handler(self):            
@@ -95,7 +95,7 @@ class ConduitWrapper:
             #add to the store
             rowref = self._get_rowref()
             filename = uri.split("/")[-1]
-            self.store.append(rowref,(pixbuf, filename))
+            self.store.append(rowref,(pixbuf, filename, uri))
 
     def sync(self):
         if self.configured == True:
@@ -119,7 +119,11 @@ class ConduitApplicationWrapper:
         #the conduit dbus objects
         self.conduits = {}
         #the liststore with icons of the images to be uploaded        
-        self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
+        self.store = gtk.TreeStore(
+                            gtk.gdk.Pixbuf,     #thumb
+                            str,                #filename
+                            str                 #uri
+                            )
 
         #setup the DBus connection
         self._connect_to_conduit_application()
@@ -142,7 +146,7 @@ class ConduitApplicationWrapper:
             self.conduits[sinkName] = ConduitWrapper(conduit=exporter, name=sinkName, store=self.store)
 
     def upload(self, name, eogImage):
-        if self.app != None:
+        if self.connected():
             if name not in self.conduits:
                 self._build_conduit(name)
 
@@ -160,20 +164,36 @@ class ConduitApplicationWrapper:
         for c in self.conduits:
             self.conduits[c].sync()
 
+    def connected(self):
+        #are we connected to conduit dbus interface
+        return self.app != None
+
 class ConduitPlugin(eog.Plugin):
     def __init__(self):
         self.dir = os.path.abspath(os.path.join(__file__, ".."))
         self.gladefile = os.path.join(self.dir, "config.glade")
         
+        self.window = None
         self.conduit = ConduitApplicationWrapper()
 
-    def _on_act(self, sender, window):
+    def _on_upload_clicked(self, sender, window):
         currentImage = window.get_image()
         name = sender.get_property("name")
         self.conduit.upload(name, currentImage)
 
     def _on_sync_clicked(self, *args):
         self.conduit.sync()
+
+    def _on_row_activated(self, treeview, path, view_column):
+        #check the user didnt click a header row
+        rowref = treeview.get_model().get_iter(path)
+        if treeview.get_model().iter_depth(rowref) == 0:
+            return
+
+        #open eog to show the image
+        clickedUri = treeview.get_model()[path][2]
+        app = eog.eog_application_get_instance()
+        app.open_uri_list((clickedUri,))
 
     def _prepare_sidebar(self, window):
         #the sidebar is a treeview where 
@@ -183,6 +203,9 @@ class ConduitPlugin(eog.Plugin):
 
         box = gtk.VBox()
         view = gtk.TreeView(self.conduit.store)
+        view.connect("row-activated", self._on_row_activated)
+
+
         box.pack_start(view,expand=True,fill=True)
         bbox = gtk.HButtonBox()
         box.pack_start(bbox,expand=False)
@@ -218,7 +241,7 @@ class ConduitPlugin(eog.Plugin):
                             label=desc,
                             tooltip=""
                         )
-            action.connect("activate",self._on_act, window)
+            action.connect("activate",self._on_upload_clicked, window)
             ui_action_group.add_action(action)
 
         manager.insert_action_group(ui_action_group,-1)
@@ -236,9 +259,12 @@ class ConduitPlugin(eog.Plugin):
 
     def activate(self, window):
         #the sidebar and menu integration must be done once per eog window instance
-        self._prepare_sidebar(window) 
-        self._prepare_tools_menu(window)
         print "ACTIVATE"
+        self.window = window
+        if self.conduit.connected() == True:
+            self._prepare_sidebar(window) 
+            self._prepare_tools_menu(window)
+
 
     def deactivate(self, window):
         print "DEACTIVATE"
