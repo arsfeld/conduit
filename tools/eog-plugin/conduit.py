@@ -17,48 +17,42 @@ MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 
 SUPPORTED_SINKS = {
     "FlickrTwoWay"      :   "Upload to Flickr",
-#    "PicasaTwoWay"      :   "Upload to Picasa",
-#    "SmugMugTwoWay"     :   "Uploat to SmugMug",
-#    "BoxDotNetTwoWay"   :   "Upload to Box.net"
+    "PicasaTwoWay"      :   "Upload to Picasa",
+    "SmugMugTwoWay"     :   "Uploat to SmugMug",
+    "BoxDotNetTwoWay"   :   "Upload to Box.net"
 }
 
 ICON_SIZE = 24
 
 CONFIG_PATH='~/.conduit/eog-plugin'
 
-class ConduitApplicationWrapper:
-    def __init__(self):
-        self.app = None
+class ConduitWrapper:
+    def __init__(self, conduit, name, store):
+        self.conduit = conduit
+        self.name = name
+        self.store = store
+        self.rowref = None
+        self.configured = False
 
-        #the conduit dbus objects
-        self.conduits = {}
-        #rowrefs of parents in the store.
-        self.storeConduits = {}
-        #record if the conduit has been configured or not
-        self.configured = {}
-        
-        self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
+        self.pendingSync = False
 
-        #setup the DBus connection
-        self._connect_to_conduit()
-
-    def _get_configuration(self, sink_name):
+    def _get_configuration(self):
         """
         Gets the latest configuration for a given
         dataprovider
         """
         config_path = os.path.expanduser(CONFIG_PATH)
 
-        if not os.path.exists(os.path.join(config_path, sink_name)):
+        if not os.path.exists(os.path.join(config_path, self.name)):
            return
 
-        f = open(os.path.join(config_path, sink_name), 'r')
+        f = open(os.path.join(config_path, self.name), 'r')
         xml = f.read ()
         f.close()
 
         return xml
            
-    def _save_configuration(self, sink_name, xml):
+    def _save_configuration(self, xml):
         """
         Saves the configuration xml from a given dataprovider again
         """
@@ -67,11 +61,70 @@ class ConduitApplicationWrapper:
         if not os.path.exists(config_path):
            os.mkdir(config_path)
 
-        f = open(os.path.join(config_path, sink_name), 'w')
+        f = open(os.path.join(config_path, self.name), 'w')
         f.write(xml)
         f.close()
 
-    def _connect_to_conduit(self):
+    def _get_rowref(self):
+        if self.rowref == None:
+            #store the rowref in the store with the icon conduit gave us
+            info = self.conduit.SinkGetInformation(dbus_interface=EXPORTER_DBUS_IFACE)
+            pb = gtk.gdk.pixbuf_new_from_file_at_size(info['icon_path'], ICON_SIZE, ICON_SIZE)
+            desc = SUPPORTED_SINKS[self.name]
+            self.rowref = self.store.append(None,(pb, desc))
+        return self.rowref
+
+    def _configure_reply_handler(self):            
+        #save the configuration
+        xml = self.conduit.SinkGetConfigurationXml()
+        self._save_configuration(xml)
+        self.configured = True
+        print "Configured"
+
+        #check if a sync was waiting for the conduit (sink) to be configured
+        if self.pendingSync == True:
+            self.pendingSync = False
+            self.conduit.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
+
+    def _configure_error_handler(self, error):
+        pass
+
+    def add_photo(self, pixbuf, uri):
+        ok = self.conduit.AddData(uri,dbus_interface=EXPORTER_DBUS_IFACE)
+        if ok == True:
+            #add to the store
+            rowref = self._get_rowref()
+            filename = uri.split("/")[-1]
+            self.store.append(rowref,(pixbuf, filename))
+
+    def sync(self):
+        if self.configured == True:
+            self.conduit.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
+        else:
+            #defer the sync until the conduit has been configured
+            self.pendingSync = True
+            # configure the sink; and perform the actual synchronisation
+            # when the configuration is finished, this way the eog gui doesnt
+            # block on the call
+            self.conduit.SinkConfigure(
+                                reply_handler=self._configure_reply_handler,
+                                error_handler=self._configure_error_handler,
+                                dbus_interface=EXPORTER_DBUS_IFACE
+                                )
+
+class ConduitApplicationWrapper:
+    def __init__(self):
+        #conduit dbus application
+        self.app = None
+        #the conduit dbus objects
+        self.conduits = {}
+        #the liststore with icons of the images to be uploaded        
+        self.store = gtk.TreeStore(gtk.gdk.Pixbuf,str)
+
+        #setup the DBus connection
+        self._connect_to_conduit_application()
+
+    def _connect_to_conduit_application(self):
             try:
                 remote_object = dbus.SessionBus().get_object(APPLICATION_DBUS_IFACE,"/")
                 self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
@@ -81,69 +134,31 @@ class ConduitApplicationWrapper:
                 self.app = None
                 print "Conduit unavailable"
 
-    def _build_exporter(self, dp):
-        if dp in self.dps:
-            print "Configuring support for %s" % dp
-            path = self.app.BuildExporter(dp)
+    def _build_conduit(self, sinkName):
+        if sinkName in self.dps:
+            print "Building exporter conduit %s" % sinkName
+            path = self.app.BuildExporter(sinkName)
             exporter = dbus.SessionBus().get_object(CONDUIT_DBUS_IFACE,path)
-            self.conduits[dp] = exporter
+            self.conduits[sinkName] = ConduitWrapper(conduit=exporter, name=sinkName, store=self.store)
 
-    def _get_store_parent(self, dp):
-        #top level items in the list store are icons for the dataprovider in use
-        #this function creates them if needed otherwise returns their rowref
-        if dp not in self.storeConduits:
-            info = self.conduits[dp].SinkGetInformation(dbus_interface=EXPORTER_DBUS_IFACE)
-            pb = gtk.gdk.pixbuf_new_from_file_at_size(info['icon_path'], ICON_SIZE, ICON_SIZE)
-            #store the rowref
-            self.storeConduits[dp] = self.store.append(None,(pb, SUPPORTED_SINKS[dp]))
-
-    def _configure_reply_handler(self):            
-        #save the configuration
-        #xml = self.conduits[c].SinkGetConfigurationXml()
-        #self._save_configuration(c, xml)
-        #self.configured:
-        self.configured["FlickrTwoWay"] = True
-        print "Configured"
-
-    def _configure_error_handler(self, error):
-        pass
-
-    def upload(self, sinkName, eogImage):
-        print "Upload ", sinkName, eogImage
+    def upload(self, name, eogImage):
         if self.app != None:
-            if sinkName not in self.conduits:
-                self._build_exporter(sinkName)
+            if name not in self.conduits:
+                self._build_conduit(name)
 
-            uri = eogImage.get_uri_for_display()
+            imageuri = eogImage.get_uri_for_display()
+            
+            #proportionally scale the pixbuf            
             thumb = eogImage.get_thumbnail()
+            pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
 
-            ok = self.conduits[sinkName].AddData(
-                                        uri,
-                                        dbus_interface=EXPORTER_DBUS_IFACE
-                                        )
-            print "OK ",ok
-            if ok == True:
-                #add to the rowstore
-                rowref = self._get_store_parent(sinkName)
-                pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
-                filename = uri.split("/")[-1]
-                self.store.append(rowref,(pb, filename))
+            #add the photo to the remote condui and the liststore
+            print "Upload ", name, eogImage
+            self.conduits[name].add_photo(pixbuf=pb,uri=imageuri)
 
     def sync(self):
         for c in self.conduits:
-            if c in self.configured:
-                self.conduits[c].Sync(dbus_interface=CONDUIT_DBUS_IFACE)
-            else:
-                # configure the sink; and perform the actual synchronisation
-                # when the configuration is finished, this way the eog gui doesnt
-                # block on the call
-                self.conduits[c].SinkConfigure(
-                                    reply_handler=self._configure_reply_handler,
-                                    error_handler=self._configure_error_handler,
-                                    dbus_interface=EXPORTER_DBUS_IFACE
-                                    )
-               
-
+            self.conduits[c].sync()
 
 class ConduitPlugin(eog.Plugin):
     def __init__(self):
@@ -154,8 +169,8 @@ class ConduitPlugin(eog.Plugin):
 
     def _on_act(self, sender, window):
         currentImage = window.get_image()
-        dpname = sender.get_property("name")
-        self.conduit.upload(dpname, currentImage)
+        name = sender.get_property("name")
+        self.conduit.upload(name, currentImage)
 
     def _on_sync_clicked(self, *args):
         self.conduit.sync()
@@ -195,10 +210,10 @@ class ConduitPlugin(eog.Plugin):
         manager = window.get_ui_manager()
 
         #make an action for each sink
-        for dp in SUPPORTED_SINKS:
-            desc = SUPPORTED_SINKS[dp]
+        for sinkName in SUPPORTED_SINKS:
+            desc = SUPPORTED_SINKS[sinkName]
             action = gtk.Action(
-                            name=dp,
+                            name=sinkName,
                             stock_id="internet",
                             label=desc,
                             tooltip=""
@@ -209,13 +224,13 @@ class ConduitPlugin(eog.Plugin):
         manager.insert_action_group(ui_action_group,-1)
 
         #add each action to the menu
-        for dp in SUPPORTED_SINKS:
+        for sinkName in SUPPORTED_SINKS:
             mid = manager.new_merge_id()
             manager.add_ui(
                     merge_id=mid,
                     path=MENU_PATH,
-    			    name=dp, 
-    			    action=dp,
+    			    name=sinkName, 
+    			    action=sinkName,
     			    type=gtk.UI_MANAGER_MENUITEM, 
     			    top=False)
 
