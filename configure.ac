@@ -39,6 +39,8 @@ AM_CHECK_PYMOD_VERSION([goocanvas], [pygoocanvas_version], [0.8.0], , AC_MSG_ERR
 
 AM_CHECK_PYMOD([dateutil], , , AC_MSG_ERROR([Python module dateutil required to run Conduit]))
 
+#AM_CHECK_PYMOD_VERSION([pysqlite2.dbapi2], [version], [2.3.0], , AC_MSG_ERROR([Python module pysqlite2 >= 2.3.0 required to run Conduit]))
+
 ################################################################################
 # DBus
 ################################################################################
