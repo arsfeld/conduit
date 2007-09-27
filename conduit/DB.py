@@ -20,8 +20,9 @@ class MappingDB:
     will make it easier to swap out database layers at a later date. 
     @todo: Add thread locks around all DB calls
     """
-    def __init__(self):
+    def __init__(self, filename=None):
         self._db = None
+        self.open_db(filename)
 
     def _open_db(self,f):
         """
@@ -66,6 +67,9 @@ class MappingDB:
         """
         Opens the mapping DB at the location @ filename
         """
+        if f == None:
+            return
+
         filename = os.path.abspath(f)
         try:
             self._open_db(filename)

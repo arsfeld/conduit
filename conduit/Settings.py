@@ -17,11 +17,11 @@ from conduit import log,logd,logw
 
 class Settings(gobject.GObject):
     """
-    Class for storing conduit settings. 
+    Class for storing conduit.GLOBALS.settings. 
     
     Settings come in two categories.
     1) Preferences which are application specific and get stored in gconf
-    2) Per conduit settings which describe the way dataproviders are connected
+    2) Per conduit.GLOBALS.settings.which describe the way dataproviders are connected
     and the specific per dataprovider sync settings.
     
     Keys of type str, bool, int, and list of strings supported at this stage

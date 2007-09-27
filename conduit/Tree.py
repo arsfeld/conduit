@@ -345,7 +345,7 @@ class DataProviderTreeView(gtk.TreeView):
         self.append_column(tvcolumn0)
 
         # Second column is a description
-        if conduit.settings.get("show_dp_description") == True:
+        if conduit.GLOBALS.settings.get("show_dp_description") == True:
             tvcolumn1 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
             self.append_column(tvcolumn1)
             self.set_headers_visible(True)

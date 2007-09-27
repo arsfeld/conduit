@@ -9,6 +9,7 @@ import conduit
 import conduit.Utils as Utils
 from conduit import log,logd,logw
 from conduit.Module import ModuleManager
+from conduit.DB import MappingDB
 from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
 from conduit.Synchronization import SyncManager
@@ -35,12 +36,9 @@ class Application(dbus.service.Object):
         self.gui = None
         self.statusIcon = None
         self.dbus = None
-        
-        #FIXME:We should move all syncsets to conduit.Globals along with
-        #typeconverter and modulemanager
+
         self.guiSyncSet = None
         self.dbusSyncSet = None
-        self.syncManager = None
 
         #Default command line values
         if conduit.IS_DEVELOPMENT_VERSION:
@@ -112,23 +110,21 @@ class Application(dbus.service.Object):
         if buildGUI and not iconify:
             self.ShowSplash()
 
+        #The status icon is shared between the GUI and the Dbus iface
+        if conduit.GLOBALS.settings.get("show_status_icon") == True:
+            self.statusIcon = StatusIcon(self)
+
         #Dynamically load all datasources, datasinks and converters
         dirs_to_search =    [
                             os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                             os.path.join(conduit.USER_DIR, "modules")
                             ]
-        #FIXME: Move these to global
-		#the moduleManager and typeConverter are shared between DBus and GUI
-        self.moduleManager = ModuleManager(dirs_to_search)
-        self.typeConverter = TypeConverter(self.moduleManager)
-        self.syncManager = SyncManager(self.typeConverter)
 
-        #The status icon is shared between the GUI and the Dbus iface
-        if conduit.settings.get("show_status_icon") == True:
-            self.statusIcon = StatusIcon(self)
-           
-        #Set up the application wide defaults
-        conduit.mappingDB.open_db(dbFile)
+        #Initialize all globals variables
+        conduit.GLOBALS.moduleManager = ModuleManager(dirs_to_search)
+        conduit.GLOBALS.typeConverter = TypeConverter(conduit.GLOBALS.moduleManager)
+        conduit.GLOBALS.syncManager = SyncManager(conduit.GLOBALS.typeConverter)
+        conduit.GLOBALS.mappingDB = MappingDB(dbFile)
 
         #Set the view models
         if buildGUI:
@@ -140,17 +136,17 @@ class Application(dbus.service.Object):
             #    self.ShowGUI()
         
         #Dbus view...
-        if conduit.settings.get("enable_dbus_interface") == True:
+        if conduit.GLOBALS.settings.get("enable_dbus_interface") == True:
             from conduit.DBus import DBusInterface
             self.dbusSyncSet = SyncSet(
-                        moduleManager=self.moduleManager,
-                        syncManager=self.syncManager
+                        moduleManager=conduit.GLOBALS.moduleManager,
+                        syncManager=conduit.GLOBALS.syncManager
                         )
             self.dbus = DBusInterface(
                             conduitApplication=self,
-                            moduleManager=self.moduleManager,
-                            typeConverter=self.typeConverter,
-                            syncManager=self.syncManager,
+                            moduleManager=conduit.GLOBALS.moduleManager,
+                            typeConverter=conduit.GLOBALS.typeConverter,
+                            syncManager=conduit.GLOBALS.syncManager,
                             guiSyncSet=self.guiSyncSet,
                             dbusSyncSet=self.dbusSyncSet
                             )
@@ -185,15 +181,15 @@ OPTIONS:
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='')
     def BuildGUI(self, settingsFile):
         self.guiSyncSet = SyncSet(
-                        moduleManager=self.moduleManager,
-                        syncManager=self.syncManager,
+                        moduleManager=conduit.GLOBALS.moduleManager,
+                        syncManager=conduit.GLOBALS.syncManager,
                         xmlSettingFilePath=settingsFile
                         )
         self.gui = MainWindow(
                         conduitApplication=self,
-                        moduleManager=self.moduleManager,
-                        typeConverter=self.typeConverter,
-                        syncManager=self.syncManager
+                        moduleManager=conduit.GLOBALS.moduleManager,
+                        typeConverter=conduit.GLOBALS.typeConverter,
+                        syncManager=conduit.GLOBALS.syncManager
                         )
 
         #FIXME: need to show gui to stop goocanvas crash
@@ -213,7 +209,7 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowSplash(self):
-        if conduit.settings.get("show_splashscreen") == True:
+        if conduit.GLOBALS.settings.get("show_splashscreen") == True:
             self.splash = SplashScreen()
             self.splash.show()
 
@@ -231,14 +227,14 @@ OPTIONS:
         log("Closing application")
         if self.gui != None:
             self.gui.mainWindow.hide()
-            if conduit.settings.get("save_on_exit") == True:
+            if conduit.GLOBALS.settings.get("save_on_exit") == True:
                 self.gui.save_settings(None)
 
         log("Stopping Synchronization threads")
-        self.syncManager.cancel_all()
+        conduit.GLOBALS.syncManager.cancel_all()
 
         #give the dataprovider factories time to shut down
-        self.moduleManager.quit()
+        conduit.GLOBALS.moduleManager.quit()
         main_quit()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')

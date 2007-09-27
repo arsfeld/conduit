@@ -35,9 +35,9 @@ class DeltaProvider:
         #In order to detect deletions we need to fetch all the existing relationships.
         #we also get the mtimes because we need those to detect if something has changed
         mtimes = {}
-        for i in conduit.mappingDB.get_mappings_for_dataproviders(self.me.get_UID(), self.other.get_UID()):
+        for i in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.me.get_UID(), self.other.get_UID()):
             mtimes[ i["sourceDataLUID"] ] = i["sourceDataMtime"]
-        for i in conduit.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
+        for i in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
             mtimes[ i["sinkDataLUID"] ] = i["sinkDataMtime"]
 
         logd("Delta: Expecting %s items\n%s" % (len(mtimes), mtimes.keys()))

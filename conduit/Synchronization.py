@@ -32,7 +32,7 @@ def _put_data(source, sink, data, LUID, overwrite):
     #Now store the mapping of the original URI to the new one. We only
     #get here if the put was successful, so the mtime of the putted
     #data wll be the same as the original data
-    conduit.mappingDB.save_mapping(
+    conduit.GLOBALS.mappingDB.save_mapping(
                             sourceUID=source.get_UID(),
                             sourceDataLUID=data.get_UID(),
                             sourceDataMtime=mtime,
@@ -47,13 +47,13 @@ def _delete_data(source, sink, dataLUID):
     """
     log("Deleting %s from %s" % (dataLUID, sink.get_UID()))
     sink.module.delete(dataLUID)
-    conduit.mappingDB.delete_mapping(
+    conduit.GLOBALS.mappingDB.delete_mapping(
                         sourceUID=source.get_UID(),
                         dataLUID=dataLUID,
                         sinkUID=sink.get_UID()
                         )
     #FIXME: Is this necessary or refective of bad design?
-    conduit.mappingDB.delete_mapping(
+    conduit.GLOBALS.mappingDB.delete_mapping(
                         sourceUID=sink.get_UID(),
                         dataLUID=dataLUID,
                         sinkUID=source.get_UID()
@@ -290,7 +290,7 @@ class SyncWorker(_ThreadedWorker):
             if newdata != None:
                 try:
                     #Get existing mapping
-                    LUID = conduit.mappingDB.get_matching_UID(
+                    LUID = conduit.GLOBALS.mappingDB.get_matching_UID(
                                             sourceUID=source.get_UID(),
                                             sourceDataLUID=newdata.get_UID(),
                                             sinkUID=sink.get_UID()
@@ -400,7 +400,7 @@ class SyncWorker(_ThreadedWorker):
                 self.conflicted = True
 
                 try:
-                    LUID = conduit.mappingDB.get_matching_UID(
+                    LUID = conduit.GLOBALS.mappingDB.get_matching_UID(
                                             sourceUID=sourceWrapper.get_UID(),
                                             sourceDataLUID=toData.get_UID(),
                                             sinkUID=sinkWrapper.get_UID()
@@ -435,7 +435,7 @@ class SyncWorker(_ThreadedWorker):
 
         #handle deleted data
         for d in deleted:
-            matchingUID = conduit.mappingDB.get_matching_UID(source.get_UID(), d, sink.get_UID())
+            matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(source.get_UID(), d, sink.get_UID())
             if matchingUID != None:
                 self._apply_deleted_policy(source, d, sink, matchingUID)
 
@@ -480,7 +480,7 @@ class SyncWorker(_ThreadedWorker):
         def modified_and_deleted(dp1, modified, dp2, deleted):
             found = []
             for i in modified[:]:
-                matchingUID = conduit.mappingDB.get_matching_UID(dp1.get_UID(), i, dp2.get_UID())
+                matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(dp1.get_UID(), i, dp2.get_UID())
                 logd("%s, %s" % (i, matchingUID))
                 if deleted.count(matchingUID) != 0:
                     logd("MOD+DEL: %s v %s" % (i, matchingUID))
@@ -500,7 +500,7 @@ class SyncWorker(_ThreadedWorker):
         #been modified at the same time. First find items in both lists and seperate
         #them out as they need to be compared.
         for i in sourceModified[:]:
-            matchingUID = conduit.mappingDB.get_matching_UID(source.get_UID(), i, sink.get_UID())
+            matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(source.get_UID(), i, sink.get_UID())
             if sinkModified.count(matchingUID) != 0:
                 logw("BOTH MODIFIED: %s v %s" % (i, matchingUID))
                 sourceModified.remove(i)
@@ -516,7 +516,7 @@ class SyncWorker(_ThreadedWorker):
 
         #PHASE TWO: TRANSFER DATA
         for sourcedp, dataUID, sinkdp in todelete:
-            matchingUID = conduit.mappingDB.get_matching_UID(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
+            matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(sourcedp.get_UID(), dataUID, sinkdp.get_UID())
             logd("2WAY DEL: %s (%s)" % (sinkdp.name, matchingUID))
             if matchingUID != None:
                 self._apply_deleted_policy(sourcedp, dataUID, sinkdp, matchingUID)
@@ -727,7 +727,7 @@ class SyncWorker(_ThreadedWorker):
             logw("Sync Aborted")
             self.aborted = True
 
-        conduit.mappingDB.save()
+        conduit.GLOBALS.mappingDB.save()
         self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
 class RefreshDataProviderWorker(_ThreadedWorker):
@@ -780,7 +780,7 @@ class RefreshDataProviderWorker(_ThreadedWorker):
             logw("Sync Aborted")
             self.aborted = True
 
-        conduit.mappingDB.save()
+        conduit.GLOBALS.mappingDB.save()
         self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
 
                 

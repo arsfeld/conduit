@@ -67,8 +67,8 @@ class MainWindow:
         self.type_converter = typeConverter
         self.sync_manager = syncManager
         self.sync_manager.set_twoway_policy({
-                "conflict"  :   conduit.settings.get("twoway_policy_conflict"),
-                "deleted"   :   conduit.settings.get("twoway_policy_deleted")}
+                "conflict"  :   conduit.GLOBALS.settings.get("twoway_policy_conflict"),
+                "deleted"   :   conduit.GLOBALS.settings.get("twoway_policy_deleted")}
                 )
         
         #Initialize the mainWindow
@@ -116,8 +116,8 @@ class MainWindow:
         self.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_unavailable)
 
         #final GUI setup
-        self.hpane.set_position(conduit.settings.get("gui_hpane_postion"))
-        #print "GUI POSITION - ",conduit.settings.get("gui_window_size")
+        self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
+        #print "GUI POSITION - ",conduit.GLOBALS.settings.get("gui_window_size")
         self.dataproviderTreeView.expand_all()
         self.window_state = 0
 
@@ -200,7 +200,7 @@ class MainWindow:
         Edit the sync specific properties
         """
         def restore_policy_state(policy, ask_rb, replace_rb, skip_rb):
-            pref = conduit.settings.get("twoway_policy_%s" % policy)
+            pref = conduit.GLOBALS.settings.get("twoway_policy_%s" % policy)
             if pref == "skip":
                 skip_rb.set_active(True)
             elif pref == "replace":
@@ -215,12 +215,12 @@ class MainWindow:
                 i = "replace"
             else:            
                 i = "ask"
-            conduit.settings.set("twoway_policy_%s" % policy, i)
+            conduit.GLOBALS.settings.set("twoway_policy_%s" % policy, i)
             return i
 
         def on_clear_button_clicked(sender, textview):
-            conduit.mappingDB.delete()
-            textview.get_buffer().set_text(conduit.mappingDB.debug())
+            conduit.GLOBALS.mappingDB.delete()
+            textview.get_buffer().set_text(conduit.GLOBALS.mappingDB.debug())
 
         #Build some liststores to display
         convertables = self.type_converter.get_convertables_descriptive_list()
@@ -246,7 +246,7 @@ class MainWindow:
 
             textView = gtk.TextView()
             textView.set_editable(False)
-            textView.get_buffer().set_text(conduit.mappingDB.debug())
+            textView.get_buffer().set_text(conduit.GLOBALS.mappingDB.debug())
             sw = gtk.ScrolledWindow()
             sw.add(textView)
             vbox.pack_start(sw,True,True)
@@ -277,13 +277,13 @@ class MainWindow:
                                         
         #fill out the configuration tab
         removable_devices_check = tree.get_widget("removable_devices_check")
-        removable_devices_check.set_active(conduit.settings.get("enable_removable_devices"))
+        removable_devices_check.set_active(conduit.GLOBALS.settings.get("enable_removable_devices"))
         save_settings_check = tree.get_widget("save_settings_check")
-        save_settings_check.set_active(conduit.settings.get("save_on_exit"))
+        save_settings_check.set_active(conduit.GLOBALS.settings.get("save_on_exit"))
         status_icon_check = tree.get_widget("status_icon_check")
-        status_icon_check.set_active(conduit.settings.get("show_status_icon")) 
+        status_icon_check.set_active(conduit.GLOBALS.settings.get("show_status_icon")) 
         minimize_to_tray_check = tree.get_widget("minimize_to_tray_check")
-        minimize_to_tray_check.set_active(conduit.settings.get("gui_minimize_to_tray")) 
+        minimize_to_tray_check.set_active(conduit.GLOBALS.settings.get("gui_minimize_to_tray")) 
 
         #get the radiobuttons where the user sets their policy
         conflict_ask_rb = tree.get_widget("conflict_ask_rb")
@@ -301,9 +301,9 @@ class MainWindow:
         dialog.set_transient_for(self.mainWindow)
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
-            conduit.settings.set("save_on_exit", save_settings_check.get_active())
-            conduit.settings.set("show_status_icon", status_icon_check.get_active())
-            conduit.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
+            conduit.GLOBALS.settings.set("save_on_exit", save_settings_check.get_active())
+            conduit.GLOBALS.settings.set("show_status_icon", status_icon_check.get_active())
+            conduit.GLOBALS.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
             policy = {}
             policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
             policy["deleted"] = save_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
@@ -329,7 +329,7 @@ class MainWindow:
     def on_window_state_event(self, widget, event):
         self.window_state = event.new_window_state
         if event.new_window_state == gtk.gdk.WINDOW_STATE_ICONIFIED:
-            if conduit.settings.get("gui_minimize_to_tray"):
+            if conduit.GLOBALS.settings.get("gui_minimize_to_tray"):
                 self.minimize_to_tray()
 
     def on_window_closed(self, widget, event=None):
@@ -405,8 +405,8 @@ class MainWindow:
 
         #GUI settings
         #print "EXPANDED ROWS - ", self.dataproviderTreeView.get_expanded_rows()
-        conduit.settings.set("gui_hpane_postion", self.hpane.get_position())
-        conduit.settings.set("gui_window_size", self.mainWindow.get_size())
+        conduit.GLOBALS.settings.set("gui_hpane_postion", self.hpane.get_position())
+        conduit.GLOBALS.settings.set("gui_window_size", self.mainWindow.get_size())
 
 class SplashScreen:
     """
