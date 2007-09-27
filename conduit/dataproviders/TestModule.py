@@ -9,6 +9,7 @@ import conduit.Utils as Utils
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
+import conduit.Web as Web
 from conduit.datatypes import DataType, Text
 
 import time
@@ -16,6 +17,7 @@ import time
 MODULES = {
     "TestSource" :              { "type": "dataprovider" },
     "TestSink" :                { "type": "dataprovider" },
+    "TestWebSink" :             { "type": "dataprovider" },
     "TestImageSink" :           { "type": "dataprovider" },
     "TestConflict" :            { "type": "dataprovider" },
     "TestConversionArgs" :      { "type": "dataprovider" },
@@ -252,6 +254,47 @@ class TestImageSink(DataProvider.DataSink):
                 "size" :                self.size,
                 }
         return args
+
+    def get_UID(self):
+        return Utils.random_string()
+
+class TestWebSink(DataProvider.DataSink):
+
+    _name_ = "Test Web Sink"
+    _description_ = "Prints Debug Messages"
+    _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+        self.url = "http://www.google.com"
+
+    def configure(self, window):
+        def setUrl(param):
+            self.url = str(param)
+
+        items = [
+                    {
+                    "Name" : "Url",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setUrl,
+                    "InitialValue" : self.url
+                    }
+                ]
+        dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
+        dialog.run()
+
+    def refresh(self):
+        DataProvider.DataSink.refresh(self)
+        Web.LoginMagic(self._name_, self.url)
+
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        LUID=data.get_UID()+self._name_
+        return LUID
 
     def get_UID(self):
         return Utils.random_string()

@@ -10,6 +10,7 @@ import md5
 import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
+import conduit.Web as Web
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
@@ -170,16 +171,14 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         if not self.token:
             # get the ticket and open login url
             self._set_ticket()
-            Utils.open_url(BoxDotNet.get_login_url(self.ticket))
+            url = BoxDotNet.get_login_url(self.ticket)
 
-            # wait for login
-            login_tester = Utils.LoginTester(self._try_login)
-            login_tester.wait_for_login()
+            #wait for log in
+            Web.LoginMagic("Log into Box.net", url, login_function=self._try_login)
 
     def _try_login (self):
         """
         Try to perform a login, return None if it does not succeed
-        so the LoginTester can keep trying
         """
         try:
             self._set_login_info(self.ticket)

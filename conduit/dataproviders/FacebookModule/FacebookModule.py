@@ -9,6 +9,7 @@ import md5
 import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
+import conduit.Web as Web
 import conduit.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
@@ -52,11 +53,8 @@ class FacebookSink(DataProvider.ImageSink):
         self.fapi.auth.createToken()
         url = self.fapi.get_login_url()
 
-        Utils.open_url(url)
-
-        # wait for user to login
-        login_tester = Utils.LoginTester(self._try_login)
-        login_tester.wait_for_login()
+        #wait for log in
+        Web.LoginMagic("Log into Facebook", url, login_function=self._try_login)
 
     def _try_login(self):
         """

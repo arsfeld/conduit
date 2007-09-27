@@ -32,19 +32,20 @@ class Settings(gobject.GObject):
 
     #Default values for conduit settings
     DEFAULTS = {
-        'show_splashscreen'         :   True,   #The splashscreen can be quite useful on slow computers
-        'show_dp_description'       :   False,  #Should the treeview show the dataprovider description
-        'show_status_icon'          :   True,   #Show an icon in the notification area indicating if a sync is running
-        'save_on_exit'              :   False,  #Is the sync set saved on exit automatically?
-        'enable_network'            :   True,   #Should conduit look for other conduits on the local network
-        'enable_removable_devices'  :   True,   #Should conduit support iPods, USB keys, etc
-        'enable_dbus_interface'     :   True,   #Should conduit present a full dbus interface to let remote apps use it
-        'twoway_policy_conflict'    :   "ask",  #ask,replace,skip
-        'twoway_policy_deleted'     :   "ask",  #ask,replace,skip
-        'gui_expanded_columns'      :   [],     #list of expanded column paths in the treeview
-        'gui_hpane_postion'         :   250,    #The hpane seperating the canvas and treeview position
-        'gui_window_size'           :   [],     #W,H
-        'gui_minimize_to_tray'      :   False
+        'show_splashscreen'         :   True,       #The splashscreen can be quite useful on slow computers
+        'show_dp_description'       :   False,      #Should the treeview show the dataprovider description
+        'show_status_icon'          :   True,       #Show an icon in the notification area indicating if a sync is running
+        'save_on_exit'              :   False,      #Is the sync set saved on exit automatically?
+        'enable_network'            :   True,       #Should conduit look for other conduits on the local network
+        'enable_removable_devices'  :   True,       #Should conduit support iPods, USB keys, etc
+        'enable_dbus_interface'     :   True,       #Should conduit present a full dbus interface to let remote apps use it
+        'twoway_policy_conflict'    :   "ask",      #ask,replace,skip
+        'twoway_policy_deleted'     :   "ask",      #ask,replace,skip
+        'gui_expanded_columns'      :   [],         #list of expanded column paths in the treeview
+        'gui_hpane_postion'         :   250,        #The hpane seperating the canvas and treeview position
+        'gui_window_size'           :   [],         #W,H
+        'gui_minimize_to_tray'      :   False,      #Behaviour when one minimizes the main window, should it iconify?
+        'web_login_browser'         :   "system"    #When loggin into websites use: "system","gtkmozembed","webkit","gtkhtml"
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
     #these dicts are used for mapping config setting types to type names

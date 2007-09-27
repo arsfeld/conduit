@@ -190,17 +190,6 @@ def open_URI(uri):
     APP = "gnome-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
 
-def open_url(url):
-    logd("Opening %s" % url)
-
-    import webbrowser
-    webbrowser.open(url,new=1,autoraise=True)
-
-    #import gnome
-    #gnome.url_show(url)
-
-    logd("Opened %s" % url)
-
 def datetime_from_timestamp(t):
     """
     Makes a datetime object from a unix timestamp.
@@ -281,29 +270,6 @@ def decode_conversion_args(argString):
     for key,val in cgi.parse_qsl(argString):
         args[key] = val
     return args
-
-class LoginTester:
-    def __init__ (self, testFunc, timeout=30):
-        self.testFunc = testFunc
-        self.timeout = timeout
-
-    def wait_for_login(self):
-        start_time = time.time()
-
-        while not self._is_timed_out(start_time):
-            try:
-                if self.testFunc():
-                    return
-            except Exception, e:
-                logw("testFunc threw an error: %s" % e)
-                pass
-
-            time.sleep(2)
-
-        raise Exception("Login timed out")
-
-    def _is_timed_out(self, start):
-        return int(time.time() - start) > self.timeout
 
 class ScannerThreadManager:
     """
@@ -475,6 +441,4 @@ class FolderScanner(threading.Thread, gobject.GObject):
 
     def get_uris(self):
         return self.URIs
-
-
 
