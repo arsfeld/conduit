@@ -32,9 +32,7 @@ conduit_PYTHON = \
 	SyncSet.py \
 	Tree.py \
 	TypeConverter.py \
-	Utils.py \
-	VolumeMonitor.py
-
+	Utils.py
 	
 BUILT_SOURCES = \
 	start_conduit

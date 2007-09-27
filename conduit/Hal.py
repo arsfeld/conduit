@@ -10,15 +10,13 @@ http://listengnome.free.fr
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import gnomevfs
 import gobject
+import dbus
+import dbus.glib
 
 from conduit import log,logd,logw
 import conduit.Utils as Utils
-import conduit.VolumeMonitor as gnomevfs
-
-import dbus
-if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
-    import dbus.glib
 
 TYPE_IDX = 0
 UDI_IDX = 1

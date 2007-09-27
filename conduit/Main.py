@@ -1,9 +1,7 @@
 import os
 import getopt
 import sys
-import dbus, dbus.service
-if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
-    import dbus.glib
+import dbus, dbus.service, dbus.glib
 
 import conduit
 import conduit.Utils as Utils
@@ -14,8 +12,6 @@ from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
 from conduit.Synchronization import SyncManager
 from conduit.GtkUI import SplashScreen, MainWindow, StatusIcon, main_loop, main_quit
-
-import conduit.VolumeMonitor as gnomevfs
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 
@@ -78,11 +74,6 @@ class Application(dbus.service.Object):
         log("Using UI: %s" % ui)
         memstats = conduit.memstats()
         
-        #FIXME: attempt workaround for gnomvefs bug...
-        #this shouldn't need to be here, but if we call it after 
-        #touching the session bus then nothing will work
-        gnomevfs.VolumeMonitor()
-
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
         sessionBus = dbus.SessionBus()
