@@ -422,6 +422,7 @@ class Canvas(goocanvas.Canvas):
         Refreshes a single dataprovider
         """
         dp = self.selectedDataproviderItem.model
+        #dp.module.refresh()
         cond = self.selectedConduitItem.model
         cond.refresh_dataprovider(dp)
 
