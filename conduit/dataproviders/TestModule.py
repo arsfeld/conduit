@@ -271,10 +271,13 @@ class TestWebSink(DataProvider.DataSink):
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
         self.url = "http://www.google.com"
+        self.browser = "gtkhtml"
 
     def configure(self, window):
         def setUrl(param):
             self.url = str(param)
+        def setBrowser(param):
+            self.browser = str(param)
 
         items = [
                     {
@@ -282,14 +285,21 @@ class TestWebSink(DataProvider.DataSink):
                     "Widget" : gtk.Entry,
                     "Callback" : setUrl,
                     "InitialValue" : self.url
+                    },
+                    {
+                    "Name" : "Browser",
+                    "Widget" : gtk.Entry,
+                    "Callback" : setBrowser,
+                    "InitialValue" : self.browser
                     }
+
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
         dialog.run()
 
     def refresh(self):
         DataProvider.DataSink.refresh(self)
-        Web.LoginMagic(self._name_, self.url)
+        Web.LoginMagic(self._name_, self.url, browser=self.browser)
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
