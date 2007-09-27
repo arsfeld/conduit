@@ -76,6 +76,11 @@ def is_online():
     except KeyError:
         return False
 
+def init_gnomevfs_authentication():
+    import gnome.ui
+    gnome.init(conduit.APPNAME, conduit.APPVERSION)
+    gnome.ui.authentication_manager_init()     
+
 class SimpleTest(object):
     """
     Helper class to make testing dataproviders easy as possible

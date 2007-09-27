@@ -7,6 +7,9 @@ import conduit.Utils as Utils
 
 import os
 
+#so conduit asks me for my password
+init_gnomevfs_authentication()
+
 try:
     f = File.File()
 except:
