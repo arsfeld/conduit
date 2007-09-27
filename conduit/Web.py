@@ -354,9 +354,27 @@ class _ConduitLoginSingleton(object):
             self.notebook = gtk.Notebook()
             self.window.add(self.notebook)
             
+    def _on_tab_closed(self, button):
+        pass
+            
     def _append_page(self, name, url, browserWidget):
-        label = gtk.Label(name)
-        idx = self.notebook.append_page(child=browserWidget, tab_label=label)
+        tab_button = gtk.Button()
+        tab_button.connect('clicked', self._on_tab_closed)
+        tab_label = gtk.Label(name)
+        tab_box = gtk.HBox(False, 2)
+        #Add icon to button
+        icon_box = gtk.HBox(False, 0)
+        image = gtk.Image()
+        image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
+        tab_button.set_relief(gtk.RELIEF_NONE)
+        icon_box.pack_start(image, True, False, 0)
+        #pack
+        tab_button.add(icon_box)
+        tab_box.pack_start(tab_label, False)
+        tab_box.pack_start(tab_button, False)
+        tab_box.show_all()
+        #add to notebook
+        idx = self.notebook.append_page(child=browserWidget, tab_label=tab_box)
         self.pages[url] = idx
         
     def _build_browser(self, browserName):
