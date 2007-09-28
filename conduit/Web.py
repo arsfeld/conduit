@@ -398,7 +398,10 @@ class _ConduitLoginSingleton(object):
         self.finished[url] = True
 
     def _create_page(self, name, url, browserName):
-        print "CREATE PAGE ----------------------------", thread.get_ident()
+        print "CREATE PAGE ----------------------------", thread.get_ident(), url
+        if url in self.pages:
+            return False
+
         #lazy init the notebook to save a bit of time
         if self.notebook == None:
             self.notebook = gtk.Notebook()
@@ -407,7 +410,7 @@ class _ConduitLoginSingleton(object):
         #create object and connect signals
         browser = self._build_browser(browserName)
         browser.connect("open_uri",self._on_open_uri)
-        #FIXME: connect all signals, and work out how to detect login
+        #FIXME: connect other signals?
         
         #create the tab label
         tab_button = gtk.Button()
@@ -430,8 +433,11 @@ class _ConduitLoginSingleton(object):
         self.notebook.append_page(child=browserWidget, tab_label=tab_box)
         self.pages[url] = browser
 
+        browserWidget.show()
         self.window.show_all()
         browser.load_url(url)
+
+        return False
 
     def _raise_page(self, url):
         print "RAISE PAGE ----------------------------", thread.get_ident()
@@ -446,6 +452,8 @@ class _ConduitLoginSingleton(object):
         #show            
         browserWidget.show()
         self.window.show_all()
+
+        return False
 
     def wait_for_login(self, name, url, **kwargs):
         print "LOGIN ----------------------------", thread.get_ident()
