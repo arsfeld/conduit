@@ -338,6 +338,7 @@ class _ConduitLoginSingleton(object):
         self.window = None
         self.notebook = None
         self.pages = {}
+        self.finished = {}
 
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title("Conduit Login Manager")
@@ -347,39 +348,13 @@ class _ConduitLoginSingleton(object):
         self.window.connect('delete-event', self._on_window_closed)
 
     def _on_window_closed(self, *args):
-        #dont distroy the window
-        self.window.hide()
+        for url in self.pages.keys():
+            self._delete_page(url)
         return True
             
-    def _on_tab_closed(self, button):
-        pass
+    def _on_tab_close_clicked(self, button, url):
+        self._delete_page(url)
             
-    def _append_page(self, name, url, browser):
-        #lazy init the notebook to save a bit of time
-        if self.notebook == None:
-            self.notebook = gtk.Notebook()
-            self.window.add(self.notebook)
-
-        browserWidget = browser.widget()
-        tab_button = gtk.Button()
-        tab_button.connect('clicked', self._on_tab_closed)
-        tab_label = gtk.Label(name)
-        tab_box = gtk.HBox(False, 2)
-        #Add icon to button
-        icon_box = gtk.HBox(False, 0)
-        image = gtk.Image()
-        image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
-        tab_button.set_relief(gtk.RELIEF_NONE)
-        icon_box.pack_start(image, True, False, 0)
-        #pack
-        tab_button.add(icon_box)
-        tab_box.pack_start(tab_label, False)
-        tab_box.pack_start(tab_button, False)
-        tab_box.show_all()
-        #add to notebook
-        self.notebook.append_page(child=browserWidget, tab_label=tab_box)
-        self.pages[url] = browser
-        
     def _build_browser(self, browserName):
         if browserName == "gtkmozembed":
             browser = _MozEmbedWebBrowser(self._get_profile_subdir('mozilla'))
@@ -391,9 +366,6 @@ class _ConduitLoginSingleton(object):
             raise Exception("Unknown browser: %s" % browserName)
 
         return browser
-
-    def _on_close_clicked(self):
-        print "CLOSE TAB CLICKED"
 
     def _get_profile_subdir(self,subdir=''):
         """
@@ -408,14 +380,56 @@ class _ConduitLoginSingleton(object):
     def _on_open_uri(self, *args):
         print "LINK CLICKED"
 
+    def _delete_page(self, url):
+        print "DELETE PAGE ----------------------------", thread.get_ident()
+        #get the original objects
+        browser = self.pages[url]
+        browserWidget = browser.widget()
+
+        #remove the page and any refs
+        idx = self.notebook.page_num(browserWidget)
+        self.notebook.remove_page(idx)
+        del(self.pages[url])
+
+        if self.notebook.get_n_pages() == 0:
+            self.window.hide()
+
+        #notify 
+        self.finished[url] = True
+
     def _create_page(self, name, url, browserName):
         print "CREATE PAGE ----------------------------", thread.get_ident()
+        #lazy init the notebook to save a bit of time
+        if self.notebook == None:
+            self.notebook = gtk.Notebook()
+            self.window.add(self.notebook)
 
+        #create object and connect signals
         browser = self._build_browser(browserName)
-        #FIXME: connect all signals, and work out how to detect login
         browser.connect("open_uri",self._on_open_uri)
-        #FIXME: in append page store the child widget becaue ids are not unique
-        self._append_page(name, url, browser)
+        #FIXME: connect all signals, and work out how to detect login
+        
+        #create the tab label
+        tab_button = gtk.Button()
+        tab_button.connect('clicked', self._on_tab_close_clicked, url)
+        tab_label = gtk.Label(name)
+        tab_box = gtk.HBox(False, 2)
+        #Add icon to button
+        icon_box = gtk.HBox(False, 0)
+        image = gtk.Image()
+        image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU)
+        tab_button.set_relief(gtk.RELIEF_NONE)
+        icon_box.pack_start(image, True, False, 0)
+        tab_button.add(icon_box)
+        tab_box.pack_start(tab_label, False)
+        tab_box.pack_start(tab_button, False)
+        tab_box.show_all()
+
+        #add to notebook
+        browserWidget = browser.widget()
+        self.notebook.append_page(child=browserWidget, tab_label=tab_box)
+        self.pages[url] = browser
+
         self.window.show_all()
         browser.load_url(url)
 
@@ -441,8 +455,22 @@ class _ConduitLoginSingleton(object):
         else:
             browserName = kwargs.get("browser",conduit.GLOBALS.settings.get("web_login_browser"))
             gobject.idle_add(self._create_page, name, url, browserName)
-            
+            self.finished[url] = False
+
+        while not self.finished[url]:
+            #We can sleep here because all the GUI work
+            #is going on in the main thread
+            time.sleep(0.5)
+            print '. ', thread.get_ident()
+
         print "FINISHED LOGIN ----------------------------", thread.get_ident()
+
+        #call the test function
+        testFunc = kwargs.get("login_function",None)
+        if testFunc != None and testFunc():
+            return
+        else:
+            raise Exception("Login failure")
             
 #The ConduitLogin object needs to be a singleton so that we
 #only have one window with multiple tabs, and so we can guarentee
