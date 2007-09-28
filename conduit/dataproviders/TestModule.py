@@ -3,6 +3,8 @@ import gobject
 import random
 import datetime
 
+import thread
+
 import conduit
 from conduit import logd
 import conduit.Utils as Utils
@@ -271,7 +273,7 @@ class TestWebSink(DataProvider.DataSink):
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
         self.url = "http://www.google.com"
-        self.browser = "gtkhtml"
+        self.browser = "gtkmozembed"
 
     def configure(self, window):
         def setUrl(param):
@@ -298,6 +300,7 @@ class TestWebSink(DataProvider.DataSink):
         dialog.run()
 
     def refresh(self):
+        print "REFRESH ----------------------------", thread.get_ident()
         DataProvider.DataSink.refresh(self)
         Web.LoginMagic(self._name_, self.url, browser=self.browser)
 

@@ -13,6 +13,8 @@ import gtk
 import pango
 from gettext import gettext as _
 
+import thread
+
 from conduit import log,logd,logw
 from conduit.Conduit import Conduit
 from conduit.Tree import DND_TARGETS
@@ -421,6 +423,7 @@ class Canvas(goocanvas.Canvas):
         """
         Refreshes a single dataprovider
         """
+        print "UI ----------------------------", thread.get_ident()
         dp = self.selectedDataproviderItem.model
         #dp.module.refresh()
         cond = self.selectedConduitItem.model

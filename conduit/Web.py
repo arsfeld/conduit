@@ -8,10 +8,10 @@ import gobject
 import webbrowser
 import time
 
+import thread
+
 import conduit
 from conduit import logd
-
-DEFAULT_CONDUIT_BROWSER = "gtkhtml"
 
 def open_url(url):
     logd("Opening %s" % url)
@@ -271,7 +271,6 @@ class _MozEmbedWebBrowser(_WebBrowser):
         if self.url_load_request: return False # proceed as requested
         # otherwise, this is from the page
         # print uri
-        import gobject
         if uri.__class__ == gobject.GPointer:
             print "The gpointer bug, guessing...",
             uri = self.moz.get_link_message()
@@ -340,19 +339,12 @@ class _ConduitLoginSingleton(object):
         self.notebook = None
         self.pages = {}
 
-    def _build_login_window(self):
-        if self.window == None:
-            #build the gui and connect the close button
-            self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-            self.window.set_title("Conduit Login Manager")
-            self.window.set_border_width(12)
-            self.window.set_default_size(700, 600)
-            self.window.set_position(gtk.WIN_POS_CENTER)
-            self.window.connect('delete-event', self._on_window_closed)
-            
-            #add a notebook to hold the tabs waiting to log in
-            self.notebook = gtk.Notebook()
-            self.window.add(self.notebook)
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_title("Conduit Login Manager")
+        self.window.set_border_width(12)
+        self.window.set_default_size(700, 600)
+        self.window.set_position(gtk.WIN_POS_CENTER)
+        self.window.connect('delete-event', self._on_window_closed)
 
     def _on_window_closed(self, *args):
         #dont distroy the window
@@ -363,6 +355,11 @@ class _ConduitLoginSingleton(object):
         pass
             
     def _append_page(self, name, url, browser):
+        #lazy init the notebook to save a bit of time
+        if self.notebook == None:
+            self.notebook = gtk.Notebook()
+            self.window.add(self.notebook)
+
         browserWidget = browser.widget()
         tab_button = gtk.Button()
         tab_button.connect('clicked', self._on_tab_closed)
@@ -396,7 +393,7 @@ class _ConduitLoginSingleton(object):
         return browser
 
     def _on_close_clicked(self):
-        pass
+        print "CLOSE TAB CLICKED"
 
     def _get_profile_subdir(self,subdir=''):
         """
@@ -409,37 +406,47 @@ class _ConduitLoginSingleton(object):
         return profdir
 
     def _on_open_uri(self, *args):
-        print "CLICKED"
+        print "LINK CLICKED"
+
+    def _create_page(self, name, url, browserName):
+        print "CREATE PAGE ----------------------------", thread.get_ident()
+
+        browser = self._build_browser(browserName)
+        #FIXME: connect all signals, and work out how to detect login
+        browser.connect("open_uri",self._on_open_uri)
+        #FIXME: in append page store the child widget becaue ids are not unique
+        self._append_page(name, url, browser)
+        self.window.show_all()
+        browser.load_url(url)
+
+    def _raise_page(self, url):
+        print "RAISE PAGE ----------------------------", thread.get_ident()
+        #get the original objects
+        browser = self.pages[url]
+        browserWidget = browser.widget()
+
+        #make page current
+        idx = self.notebook.page_num(browserWidget)
+        self.notebook.set_current_page(idx)
+
+        #show            
+        browserWidget.show()
+        self.window.show_all()
 
     def wait_for_login(self, name, url, **kwargs):
-        #lazily build/init the login window
-        self._build_login_window()
+        print "LOGIN ----------------------------", thread.get_ident()
     
         if url in self.pages:
-            #get the original objects
-            browser = self.pages[url]
-            browserWidget = browser.widget()
-
-            #make page current
-            idx = self.notebook.page_num(browserWidget)
-            self.notebook.set_current_page(idx)
-
-            #show            
-            browserWidget.show()
-            self.window.show_all()
+            gobject.idle_add(self._raise_page, url)
         else:
             browserName = kwargs.get("browser",conduit.GLOBALS.settings.get("web_login_browser"))
+            gobject.idle_add(self._create_page, name, url, browserName)
             
-            browser = self._build_browser(browserName)
-            #FIXME: connect all signals, and work out how to detect login
-            browser.connect("open_uri",self._on_open_uri)
-            #FIXME: in append page store the child widget becaue ids are not unique
-            self._append_page(name, url, browser)
-            self.window.show_all()
-            browser.load_url(url)
+        print "FINISHED LOGIN ----------------------------", thread.get_ident()
             
 #The ConduitLogin object needs to be a singleton so that we
-#only have one window with multiple tabs
+#only have one window with multiple tabs, and so we can guarentee
+#that it runs in the GUI thread
 _ConduitLogin = _ConduitLoginSingleton()
 
 class LoginMagic(object):
