@@ -25,7 +25,7 @@ variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
 login information in the relevant dataproviders\n\
 "
 
-if [ ! -f "conduit/start_conduit.py" ] ; then
+if [ ! -f "conduit/conduit" ] ; then
     echo "ERROR: Must be run from top directory\n$USAGE"
     exit 1
 fi

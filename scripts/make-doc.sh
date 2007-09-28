@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP="conduit/start_conduit.py"
+APP="conduit/conduit"
 if [ ! -f $APP ] ; then
     echo "ERROR: Must be run from top directory"
     exit 1
