@@ -114,20 +114,20 @@ def memstats(prev=(0.0,0.0,0.0)):
 # Global Constants
 ################################################################################
 _dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-try:
+IS_INSTALLED = not os.path.exists(os.path.join(_dirname,"ChangeLog"))
+IS_DEVELOPMENT_VERSION = True
+
+if IS_INSTALLED:
     from defs import *
     if not PYTHONDIR in sys.path:
         sys.path.insert(0, PYTHONDIR)
-except ImportError:
+else:
     APPNAME =                   "Conduit"
     APPVERSION =                "0.3.3"
     LOCALE_DIR =                os.path.join(_dirname, "po")
     SHARED_DATA_DIR =           os.path.join(_dirname, "data")
     GLADE_FILE =                os.path.join(_dirname, "data","conduit.glade")
     SHARED_MODULE_DIR =         os.path.join(_dirname, "conduit")
-
-IS_INSTALLED = not os.path.exists(os.path.join(_dirname,"ChangeLog"))
-IS_DEVELOPMENT_VERSION = True
 
 import Globals
 GLOBALS = Globals.Globals()

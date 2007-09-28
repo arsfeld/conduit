@@ -15,14 +15,12 @@ import os.path
 
 
 #support running uninstalled
-try:
-    import conduit
-except ImportError:
-    _filename = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    sys.path.insert(0, _filename)
-    import conduit
+_dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if os.path.exists(os.path.join(_dirname,"ChangeLog")):
+    sys.path.insert(0, _dirname)
 
 # Start the application
+import conduit
 import conduit.Main
 app = conduit.Main.Application()
  
