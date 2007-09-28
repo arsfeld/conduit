@@ -141,7 +141,7 @@ class TestSource(_TestBase, DataProvider.DataSource):
     _module_type_ = "source"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "go-next"
 
     def __init__(self, *args):
         _TestBase.__init__(self)
@@ -180,7 +180,7 @@ class TestSink(_TestBase, DataProvider.DataSink):
     _module_type_ = "sink"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "edit-redo"
 
     def __init__(self, *args):
         _TestBase.__init__(self)
@@ -202,7 +202,7 @@ class TestImageSink(DataProvider.DataSink):
     _category_ = DataProvider.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "file/photo"
-    _icon_ = "emblem-system"
+    _icon_ = "image-x-generic"
 
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
@@ -268,7 +268,7 @@ class TestWebSink(DataProvider.DataSink):
     _module_type_ = "sink"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "applications-internet"
 
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
@@ -299,10 +299,13 @@ class TestWebSink(DataProvider.DataSink):
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
         dialog.run()
 
+    def _login(self):
+        return True
+
     def refresh(self):
         print "REFRESH ----------------------------", thread.get_ident()
         DataProvider.DataSink.refresh(self)
-        Web.LoginMagic(self._name_, self.url, browser=self.browser)
+        Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=self._login)
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
@@ -321,7 +324,7 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
     _module_type_ = "twoway"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "view-refresh"
 
     NUM_DATA = 10
     def __init__(self, *args):
@@ -366,7 +369,7 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
     _module_type_ = "sink"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "preferences-system"
 
     def __init__(self, *args):
         _TestBase.__init__(self)
@@ -387,7 +390,7 @@ class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
     _module_type_ = "sink"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "dialog-error"
 
     def __init__(self, *args):
         _TestBase.__init__(self)
@@ -405,7 +408,7 @@ class TestConflict(DataProvider.DataSink):
     _module_type_ = "sink"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
-    _icon_ = "emblem-system"
+    _icon_ = "dialog-warning"
 
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
