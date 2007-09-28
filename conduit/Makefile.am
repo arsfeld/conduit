@@ -1,15 +1,9 @@
 SUBDIRS = datatypes dataproviders
 
-start_conduit: start_conduit.py
-	sed -e "s|\@PYTHONDIR\@|$(pythondir)|" \
-		-e "s|\@VERSION\@|$(VERSION)|" \
-		-e "s|\@LOCALEDIR\@|$(LOCALEDIR)|" \
-		-e "s|\@PKGDATADIR\@|$(PKGDATADIR)|" \
-		-e "s|\@PKGLIBDIR\@|$(PKGLIBDIR)|" \
-	$< > $@
-
 conduitbindir = $(bindir)
-conduitbin_SCRIPTS = start_conduit
+conduitbin_SCRIPTS = \
+	conduit.real \
+	conduit
 
 conduitdir = $(pythondir)/conduit
 conduit_PYTHON = \
@@ -20,9 +14,11 @@ conduit_PYTHON = \
 	DataProvider.py \
 	DB.py \
 	DBus.py \
+	defs.py \
 	DeltaProvider.py \
 	Exceptions.py \
 	Hal.py \
+	Globals.py \
 	GtkUI.py \
 	Main.py \
 	Module.py \
@@ -32,19 +28,20 @@ conduit_PYTHON = \
 	SyncSet.py \
 	Tree.py \
 	TypeConverter.py \
-	Utils.py
-	
-BUILT_SOURCES = \
-	start_conduit
+	Utils.py \
+	Web.py
 	
 CLEANFILES = \
+	defs.py \
 	$(BUILT_SOURCES)
 	
 DISTCLEANFILES = \
 	$(CLEANFILES)
 	
 EXTRA_DIST = \
-	start_conduit.py
+	defs.py.in \
+	conduit.real \
+	conduit
 
 clean-local:
 	rm -rf *.pyc *.pyo

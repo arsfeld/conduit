@@ -7,11 +7,11 @@ if [ $? == 0 ]; then
   # we have LSB support
   if [ "$F" = "Ubuntu" ]; then
     # we are Ubuntu, so work around the bug
-    LD_LIBRARY_PATH=/usr/lib/firefox MOZILLA_FIVE_HOME=/usr/lib/firefox python $(dirname $0)/conduit/start_conduit.py
+    LD_LIBRARY_PATH=/usr/lib/firefox MOZILLA_FIVE_HOME=/usr/lib/firefox python $(dirname $0)/conduit.real $1 $2 $3 $4 $5 $6
     exit
   fi
 fi
 
 # Not Ubuntu, so run it normally
-python $(dirname $0)/conduit/start_conduit.py
+python $(dirname $0)/conduit.real $1 $2 $3 $4 $5 $6
 

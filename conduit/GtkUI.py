@@ -20,6 +20,14 @@ from conduit.Synchronization import SyncManager
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 
+#import gtk.glade
+#import gettext
+#set up the gettext system and locales
+#for module in gtk.glade, gettext:
+#    module.bindtextdomain('conduit', conduit.LOCALE_DIR)
+#    module.textdomain('conduit')
+
+
 class MainWindow:
     """
     The main conduit window.
@@ -47,7 +55,8 @@ class MainWindow:
             gtk.icon_theme_get_default().prepend_search_path(i)
             logd("Adding %s to icon theme search path" % (i))
 
-        self.widgets = gtk.glade.XML(conduit.GLADE_FILE, "MainWindow")
+        self.gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
+        self.widgets = gtk.glade.XML(self.gladeFile, "MainWindow")
         
         dic = { "on_mainwindow_delete" : self.on_window_closed,
                 "on_mainwindow_state_event" : self.on_window_state_event,
@@ -89,8 +98,8 @@ class MainWindow:
                         parentWindow=self.mainWindow,
                         typeConverter=self.type_converter,
                         syncManager=self.sync_manager,
-                        dataproviderMenu=gtk.glade.XML(conduit.GLADE_FILE, "DataProviderMenu"),
-                        conduitMenu=gtk.glade.XML(conduit.GLADE_FILE, "ConduitMenu")
+                        dataproviderMenu=gtk.glade.XML(self.gladeFile, "DataProviderMenu"),
+                        conduitMenu=gtk.glade.XML(self.gladeFile, "ConduitMenu")
                         )
         self.canvasSW.add(self.canvas)
         self.canvasSW.show_all()
@@ -236,7 +245,7 @@ class MainWindow:
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
 
         #construct the dialog
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "PreferencesDialog")
+        tree = gtk.glade.XML(self.gladeFile, "PreferencesDialog")
         #Show the DB contents to help debugging
         if conduit.IS_DEVELOPMENT_VERSION:
             notebook = tree.get_widget("prop_notebook")

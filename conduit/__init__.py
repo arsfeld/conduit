@@ -24,6 +24,7 @@ License: GPLv2
 import logging
 import os
 import gobject
+import sys
 gobject.threads_init()
 
 # Check the profile directory to prevent crashes when saving settings, etc
@@ -112,17 +113,21 @@ def memstats(prev=(0.0,0.0,0.0)):
 ################################################################################
 # Global Constants
 ################################################################################
-name = os.path.join(os.path.dirname(__file__), '..')
+_dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+try:
+    from defs import *
+    if not PYTHONDIR in sys.path:
+        sys.path.insert(0, PYTHONDIR)
+except ImportError:
+    APPNAME =                   "Conduit"
+    APPVERSION =                "0.3.3"
+    LOCALE_DIR =                os.path.join(_dirname, "po")
+    SHARED_DATA_DIR =           os.path.join(_dirname, "data")
+    GLADE_FILE =                os.path.join(_dirname, "data","conduit.glade")
+    SHARED_MODULE_DIR =         os.path.join(_dirname, "conduit")
 
-APPNAME =                   "Conduit"
-APPVERSION =                "0.3.3"
-IS_INSTALLED =              False
-IS_DEVELOPMENT_VERSION =    True
-LOCALE_DIR =                os.path.join(os.path.abspath(name),"po")
-SHARED_DATA_DIR =           os.path.join(os.path.abspath(name),"data")
-GLADE_FILE =                os.path.join(os.path.abspath(name),"data","conduit.glade")
-SHARED_MODULE_DIR =         os.path.join(os.path.abspath(name),"conduit")
-EXTRA_LIB_DIR =             os.path.join(os.path.abspath(name),"contrib")
+IS_INSTALLED = not os.path.exists(os.path.join(_dirname,"ChangeLog"))
+IS_DEVELOPMENT_VERSION = True
 
 import Globals
 GLOBALS = Globals.Globals()

@@ -1,0 +1,28 @@
+#!/usr/bin/python
+"""
+This module tests whether conduit appears 
+to be running from the source directory.
+
+If this is the case it will modify the conduit
+constants such as SHARED_DATA_DIR to reflect this
+environment.
+
+Copyright: John Stowers, 2006
+License: GPLv2
+"""
+import sys
+import os.path
+
+
+#support running uninstalled
+try:
+    import conduit
+except ImportError:
+    _filename = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.insert(0, _filename)
+    import conduit
+
+# Start the application
+import conduit.Main
+app = conduit.Main.Application()
+ 

@@ -100,7 +100,7 @@ AC_SUBST(EOG_PLUGIN_DIR)
 
 
 ################################################################################
-# Write the values of various paths for start_conduit.py
+# Write the values of various paths for defs.py
 ################################################################################
 AC_SUBST(VERSION)
 AC_SUBST(PACKAGE)
@@ -118,6 +118,7 @@ AS_AC_EXPAND(BINDIR, $bindir)
 ################################################################################
 AC_OUTPUT(
 Makefile
+conduit/defs.py
 conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile

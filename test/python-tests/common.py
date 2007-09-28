@@ -25,9 +25,7 @@ import conduit.DB as DB
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
 conduit.SHARED_DATA_DIR =       os.path.join(base_path,"data")
-conduit.GLADE_FILE =            os.path.join(base_path,"data","conduit.glade")
 conduit.SHARED_MODULE_DIR =     os.path.join(base_path,"conduit")
-conduit.EXTRA_LIB_DIR =         os.path.join(base_path,"contrib")
 
 def ok(message, code, die=True):
     if type(code) == int:

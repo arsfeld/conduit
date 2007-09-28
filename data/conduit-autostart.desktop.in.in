@@ -7,6 +7,6 @@ _Name=Conduit
 _GenericName=Conduit Synchronizer
 _Comment=Synchronization for GNOME
 Icon=conduit
-Exec=@BINDIR@/start_conduit -i
+Exec=@BINDIR@/conduit -i
 Categories=GNOME;GTK;Utility;
 

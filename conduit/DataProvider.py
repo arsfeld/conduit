@@ -10,6 +10,7 @@ import gobject
 from gettext import gettext as _
 import xml.dom.minidom
 import traceback
+import os.path
 
 import conduit
 from conduit import log,logd,logw
@@ -627,7 +628,8 @@ class DataProviderSimpleConfigurator:
         self.customSettings = gtk.VBox(False, 5)
         
         #The dialog is loaded from a glade file
-        widgets = gtk.glade.XML(conduit.GLADE_FILE, "DataProviderConfigDialog")
+        gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
+        widgets = gtk.glade.XML(gladeFile, "DataProviderConfigDialog")
         callbacks = {
                     "on_okbutton_clicked" : self.on_ok_clicked,
                     "on_cancelbutton_clicked" : self.on_cancel_clicked,
