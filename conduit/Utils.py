@@ -271,6 +271,43 @@ def decode_conversion_args(argString):
         args[key] = val
     return args
 
+
+def memstats(prev=(0.0,0.0,0.0)):
+    #Memory analysis functions taken from
+    #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286222
+
+    _proc_status = '/proc/%d/status' % os.getpid()
+    _scale = {'kB': 1024.0, 'mB': 1024.0*1024.0,
+              'KB': 1024.0, 'MB': 1024.0*1024.0}
+
+    def _VmB(VmKey):
+         # get pseudo file  /proc/<pid>/status
+        try:
+            t = open(_proc_status)
+            v = t.read()
+            t.close()
+        except Exception, err:
+            print err
+            return 0.0  # non-Linux?
+         # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
+        i = v.index(VmKey)
+        v = v[i:].split(None, 3)  # whitespace
+        if len(v) < 3:
+            return 0.0  # invalid format?
+         # convert Vm value to bytes
+        return float(v[1]) * _scale[v[2]]
+
+    VmSize = _VmB('VmSize:') - prev[0]
+    VmRSS = _VmB('VmRSS:') - prev [1]
+    VmStack = _VmB('VmStk:') - prev [2]
+
+    logd("Memory Stats: VM=%sMB RSS=%sMB STACK=%sMB" %(
+                                    VmSize  / _scale["MB"],
+                                    VmRSS   / _scale["MB"],
+                                    VmStack / _scale["MB"],
+                                    ))
+    return VmSize,VmRSS,VmStack 
+
 class ScannerThreadManager:
     """
     Manages many FolderScanner threads. This involves joining and cancelling
