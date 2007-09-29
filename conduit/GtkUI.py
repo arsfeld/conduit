@@ -11,6 +11,7 @@ import gtk
 import gtk.glade
 import gnome.ui
 import os.path
+import gettext
 from gettext import gettext as _
 
 import conduit
@@ -20,13 +21,10 @@ from conduit.Synchronization import SyncManager
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 
-#import gtk.glade
-#import gettext
 #set up the gettext system and locales
-#for module in gtk.glade, gettext:
-#    module.bindtextdomain('conduit', conduit.LOCALE_DIR)
-#    module.textdomain('conduit')
-
+for module in gtk.glade, gettext:
+    module.bindtextdomain('conduit', conduit.LOCALE_DIR)
+    module.textdomain('conduit')
 
 class MainWindow:
     """
@@ -102,7 +100,6 @@ class MainWindow:
                         conduitMenu=gtk.glade.XML(self.gladeFile, "ConduitMenu")
                         )
         self.canvasSW.add(self.canvas)
-        self.canvasSW.show_all()
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
         
@@ -111,7 +108,6 @@ class MainWindow:
         dataproviderScrolledWindow = self.widgets.get_widget("scrolledwindow2")
         self.dataproviderTreeView = DataProviderTreeView(self.dataproviderTreeModel)
         dataproviderScrolledWindow.add(self.dataproviderTreeView)
-        dataproviderScrolledWindow.show_all()
 
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver(self.widgets)
@@ -164,9 +160,8 @@ class MainWindow:
         Returns True if mainWindow is visible
         (not minimized or withdrawn)
         """
-        hidden = int(self.window_state) & int(gtk.gdk.WINDOW_STATE_WITHDRAWN)
-        minimized = int(self.window_state) & int(gtk.gdk.WINDOW_STATE_ICONIFIED)
-        return not (hidden or minimized)
+        minimized = self.window_state & gtk.gdk.WINDOW_STATE_ICONIFIED
+        return (not minimized) and self.mainWindow.get_property('visible')
 
     def on_sync_started(self, thread):
         logd("GUI got sync started")
@@ -336,8 +331,9 @@ class MainWindow:
         gnome.help_display(conduit.APPNAME, None)
 
     def on_window_state_event(self, widget, event):
+        visible = self.is_visible()
         self.window_state = event.new_window_state
-        if event.new_window_state == gtk.gdk.WINDOW_STATE_ICONIFIED:
+        if self.window_state & gtk.gdk.WINDOW_STATE_ICONIFIED and visible:
             if conduit.GLOBALS.settings.get("gui_minimize_to_tray"):
                 self.minimize_to_tray()
 
@@ -606,6 +602,9 @@ class StatusIcon(gtk.StatusIcon):
                 self.conduitApplication.gui.minimize_to_tray()
             else:
                 self.conduitApplication.gui.present()
+        else:
+            self.conduitApplication.BuildGUI()
+            self.conduitApplication.ShowGUI()
 
 def main_loop():
     gtk.main()

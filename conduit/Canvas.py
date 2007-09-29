@@ -103,8 +103,6 @@ class Canvas(goocanvas.Canvas):
         #model is a SyncSet, not set till later because it is loaded from xml
         self.model = None
 
-        self.show()
-
     def _show_welcome_message(self):
         """
         Adds a friendly welcome message to the canvas.

@@ -11,6 +11,7 @@ from conduit.DB import MappingDB
 from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
 from conduit.Synchronization import SyncManager
+from conduit.DBus import DBusInterface
 from conduit.GtkUI import SplashScreen, MainWindow, StatusIcon, main_loop, main_quit
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
@@ -38,10 +39,10 @@ class Application(dbus.service.Object):
 
         #Default command line values
         if conduit.IS_DEVELOPMENT_VERSION:
-            settingsFile = os.path.join(conduit.USER_DIR, "settings-dev.xml")
+            self.settingsFile = os.path.join(conduit.USER_DIR, "settings-dev.xml")
             dbFile = os.path.join(conduit.USER_DIR, "mapping-dev.db")
         else:
-            settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+            self.settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
             dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
 
         buildGUI = True
@@ -56,7 +57,7 @@ class Application(dbus.service.Object):
                     self._usage()
                     sys.exit(0)
                 if o in ("-s", "--settings"):
-                     settingsFile = os.path.join(os.getcwd(), a)
+                     self.settingsFile = os.path.join(os.getcwd(), a)
                 if o in ("-c", "--console"):
                    buildGUI = False
                 if o in ("-i", "--iconify"):
@@ -72,7 +73,6 @@ class Application(dbus.service.Object):
         log("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
         log("Log Level: %s" % conduit.LOG_LEVEL)
         log("Using UI: %s" % ui)
-        memstats = conduit.memstats()
         
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
@@ -86,7 +86,7 @@ class Application(dbus.service.Object):
                     conduitApp.ShowGUI()
                 else:
                     conduitApp.ShowSplash()
-                    conduitApp.BuildGUI(settingsFile)
+                    conduitApp.BuildGUI(self.settingsFile)
                     conduitApp.ShowGUI()
                     conduitApp.HideSplash()
             sys.exit(0)
@@ -112,6 +112,7 @@ class Application(dbus.service.Object):
                             ]
 
         #Initialize all globals variables
+        conduit.GLOBALS.app = self
         conduit.GLOBALS.moduleManager = ModuleManager(dirs_to_search)
         conduit.GLOBALS.typeConverter = TypeConverter(conduit.GLOBALS.moduleManager)
         conduit.GLOBALS.syncManager = SyncManager(conduit.GLOBALS.typeConverter)
@@ -119,37 +120,30 @@ class Application(dbus.service.Object):
 
         #Set the view models
         if buildGUI:
-            self.BuildGUI(settingsFile)
-            #FIXME: Cannot do correct behavior without flashing due to crasher bug
-            if iconify:
-                self.IconifyGUI()
-            #if not iconify:
-            #    self.ShowGUI()
+            self.BuildGUI()
+            if not iconify:
+                self.ShowGUI()
         
         #Dbus view...
-        if conduit.GLOBALS.settings.get("enable_dbus_interface") == True:
-            from conduit.DBus import DBusInterface
-            self.dbusSyncSet = SyncSet(
+        self.dbusSyncSet = SyncSet(
+                    moduleManager=conduit.GLOBALS.moduleManager,
+                    syncManager=conduit.GLOBALS.syncManager
+                    )
+        self.dbus = DBusInterface(
+                        conduitApplication=self,
                         moduleManager=conduit.GLOBALS.moduleManager,
-                        syncManager=conduit.GLOBALS.syncManager
+                        typeConverter=conduit.GLOBALS.typeConverter,
+                        syncManager=conduit.GLOBALS.syncManager,
+                        guiSyncSet=self.guiSyncSet,
+                        dbusSyncSet=self.dbusSyncSet
                         )
-            self.dbus = DBusInterface(
-                            conduitApplication=self,
-                            moduleManager=conduit.GLOBALS.moduleManager,
-                            typeConverter=conduit.GLOBALS.typeConverter,
-                            syncManager=conduit.GLOBALS.syncManager,
-                            guiSyncSet=self.guiSyncSet,
-                            dbusSyncSet=self.dbusSyncSet
-                            )
         
-            if self.statusIcon:
-                self.dbusSyncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
-                self.dbusSyncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
+        if self.statusIcon:
+            self.dbusSyncSet.connect("conduit-added", self.statusIcon.on_conduit_added)
+            self.dbusSyncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
 
         #hide the splash screen
         self.HideSplash()
-
-        conduit.memstats(memstats)
         try:
             main_loop()
         except KeyboardInterrupt:
@@ -169,12 +163,12 @@ OPTIONS:
     def HasGUI(self):
         return self.gui != None
 
-    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='s', out_signature='')
-    def BuildGUI(self, settingsFile):
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
+    def BuildGUI(self):
         self.guiSyncSet = SyncSet(
                         moduleManager=conduit.GLOBALS.moduleManager,
                         syncManager=conduit.GLOBALS.syncManager,
-                        xmlSettingFilePath=settingsFile
+                        xmlSettingFilePath=self.settingsFile
                         )
         self.gui = MainWindow(
                         conduitApplication=self,
@@ -182,9 +176,6 @@ OPTIONS:
                         typeConverter=conduit.GLOBALS.typeConverter,
                         syncManager=conduit.GLOBALS.syncManager
                         )
-
-        #FIXME: need to show gui to stop goocanvas crash
-        self.gui.mainWindow.show_all()
 
         #reload the saved sync set
         self.guiSyncSet.restore_from_xml()
