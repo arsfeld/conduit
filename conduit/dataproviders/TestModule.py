@@ -565,7 +565,7 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
 
     def added(self):
         if self.stats == None:
-            self.stats = conduit.memstats()
+            self.stats = Utils.memstats()
 
         self.key = self.emit_added(
                            klass=TestDynamicSource,
@@ -581,7 +581,7 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
             gobject.timeout_add(500, self.added)
             self.count -= 1
         else:
-            conduit.memstats(self.stats)
+            Utils.memstats(self.stats)
         return False
 
     def quit(self):
