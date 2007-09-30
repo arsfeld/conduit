@@ -86,7 +86,7 @@ class Application(dbus.service.Object):
                     conduitApp.ShowGUI()
                 else:
                     conduitApp.ShowSplash()
-                    conduitApp.BuildGUI(self.settingsFile)
+                    conduitApp.BuildGUI()
                     conduitApp.ShowGUI()
                     conduitApp.HideSplash()
             sys.exit(0)

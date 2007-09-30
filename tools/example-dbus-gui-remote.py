@@ -44,11 +44,11 @@ if __name__ == "__main__":
 
     # now create conduit
     conduit_path = app.BuildConduit (folder_twoway_path, sink_path)
-    conduit = bus.get_object(CONDUIT_DBUS_IFACE, conduit_path)
+    conduit_obj = bus.get_object(CONDUIT_DBUS_IFACE, conduit_path)
     
     # syncset
-    ss = bus.get_object(CONDUIT_DBUS_IFACE, "/syncset/gui")
-    ss.AddConduit(conduit)
+    ss = bus.get_object(SYNCSET_DBUS_IFACE, "/syncset/gui")
+    ss.AddConduit(conduit_obj, dbus_interface=SYNCSET_DBUS_IFACE)
     
     
 

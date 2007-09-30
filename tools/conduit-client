@@ -1,0 +1,175 @@
+#!/usr/bin/env python
+import os, os.path
+import sys
+import getopt
+import dbus, dbus.glib
+import gobject
+
+APPLICATION_DBUS_IFACE="org.conduit.Application"
+SYNCSET_DBUS_IFACE="org.conduit.SyncSet"
+CONDUIT_DBUS_IFACE="org.conduit.Conduit"
+EXPORTER_DBUS_IFACE="org.conduit.Exporter"
+DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
+
+SOURCE_DATAPROVIDER = "FileSource"
+
+class Conduit(object):
+    def __init__(self, start):
+        self.bus = dbus.SessionBus()
+        self.loop = gobject.MainLoop()
+        if start:
+            self.get_conduit_app()
+        else:
+            obj = self.bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
+            dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus')
+            if dbus_iface.NameHasOwner(APPLICATION_DBUS_IFACE):
+                self.get_conduit_app()
+            else:
+                raise Exception("Could not connect to conduit")
+        
+    def get_conduit_app(self):
+        try:
+            remote_object = self.bus.get_object(APPLICATION_DBUS_IFACE,"/")
+            self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
+        except dbus.exceptions.DBusException:
+            raise Exception("Could not connect to conduit")
+            
+    def list_dataproviders(self):
+        print "Available Dataproviders"
+        for dp in self.app.GetAllDataProviders():
+            print " *\t%s" % dp
+            
+    def on_sync_progress(self, progress):
+        print "Synchronization %2.2f%% complete" % (progress*100.0)
+        
+    def on_sync_completed(self, abort, error, conflict):
+        if self.deleteConduitWhenFinished:
+            self.ss.DeleteConduit(self.conduit, dbus_interface=SYNCSET_DBUS_IFACE)
+        self.loop.quit()
+        print "Finished"
+            
+    def do_sync(self):
+        print "Refreshing"
+        #and the normal iface to sync
+        self.conduit.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
+        self.loop.run()
+            
+    def sync(self, syncSet, sink, config, files,deleteConduitWhenFinished):
+        #options
+        self.deleteConduitWhenFinished = deleteConduitWhenFinished
+
+        # create dataproviders
+        source_path = self.app.GetDataProvider(SOURCE_DATAPROVIDER)
+        source_obj = self.bus.get_object(DATAPROVIDER_DBUS_IFACE, source_path)
+        sink_path = self.app.GetDataProvider(sink)
+        sink_obj = self.bus.get_object(DATAPROVIDER_DBUS_IFACE, sink_path)
+        self.sink = dbus.Interface(sink_obj, DATAPROVIDER_DBUS_IFACE)
+
+        if self.sink.IsPending():
+            raise Exception("Could not find dataprovider: %s" % sink)
+
+        #configure
+        if config != None:
+            self.sink.SetConfigurationXml(config)
+        if not self.sink.IsConfigured():
+            self.sink.Configure()
+
+        # now create conduit
+        conduit_path = self.app.BuildConduit (source_path, sink_path)
+        self.conduit = self.bus.get_object(CONDUIT_DBUS_IFACE, conduit_path)
+        self.conduit.connect_to_signal("SyncProgress", self.on_sync_progress, dbus_interface=CONDUIT_DBUS_IFACE)
+        self.conduit.connect_to_signal("SyncCompleted", self.on_sync_completed, dbus_interface=CONDUIT_DBUS_IFACE)
+    
+        #add the data
+        for f in files:
+            source_obj.AddData(f, dbus_interface=DATAPROVIDER_DBUS_IFACE)
+
+        #add the conduit to the syncset
+        self.ss = self.bus.get_object(SYNCSET_DBUS_IFACE, syncSet)
+        self.ss.AddConduit(self.conduit, dbus_interface=SYNCSET_DBUS_IFACE)
+    
+        self.do_sync()
+        
+def usage():
+    print   "Synchronizes files with a conduit dataprovider\n" + \
+            "Usage:\n\n" + \
+            "conduit-client -s SinkName [OPTIONS] files...\n\n" + \
+            "Options:\n\n" + \
+            "   -c, --sink-configuration    Display Help\n" + \
+            "   -k, --keep                  Dont delete conduit after sync\n" + \
+            "   -l, --list-dataproviders    List available dataprovders\n" + \
+            "   -x, --dont-start            Dont start conduit (must be running)\n" + \
+            "   -g, --gui                   Display in GUI"
+            
+def error(msg):
+    print "ERROR : %s" % msg
+            
+################################################################################
+# Main
+################################################################################
+if __name__ == "__main__":
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "s:c:klxgh", ["sink=", "sink-configuration=", "keep", "list-dataproviders", "dont-start", "gui", "help"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(1)
+
+    #Defaults
+    sinkName = None
+    sinkConfig = None
+    gui = False
+    keep = False
+    listDps = False
+    startConduit = True
+    syncSetPath = "/syncset/dbus"
+
+    for o, a in opts:
+        if o in ("-s", "--sink"):
+            sinkName = a
+        if o in ("-c", "--sink-configuration"):
+            sinkConfig = a
+        if o in ("-k", "--keep"):
+            keep = True
+        if o in ("-l", "--list-dataproviders"):
+            listDps = True
+        if o in ("-x", "--dont-start"):
+            startConduit = False
+        if o in ("-g", "--gui"):
+            syncSetPath = "/syncset/gui"
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
+
+    if not listDps:
+        if None in [sinkName]:
+            error("Please specify all compulsory arguments")
+            sys.exit(1)
+
+        files = []        
+        for a in args:
+            path = os.path.abspath(a)
+            if os.path.exists(path):
+                files.append(os.path.expanduser(path))
+            
+        if len(files) == 0:
+            error("Please specify files to sync")
+            sys.exit(1)
+
+    #Connect to conduit
+    try:
+        conduit = Conduit(start=startConduit)
+        if listDps == True:
+            conduit.list_dataproviders()
+            sys.exit()
+        else:
+            conduit.sync(
+                    syncSet=syncSetPath, 
+                    sink=sinkName, 
+                    config=sinkConfig,
+                    files=files,
+                    deleteConduitWhenFinished=not keep
+                    )
+    except Exception, err:
+        error(err.message)
+        sys.exit(1)
+

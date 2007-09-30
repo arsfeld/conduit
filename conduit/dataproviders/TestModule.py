@@ -20,6 +20,7 @@ MODULES = {
     "TestSource" :              { "type": "dataprovider" },
     "TestSink" :                { "type": "dataprovider" },
     "TestWebSink" :             { "type": "dataprovider" },
+    "TestFileSink" :             { "type": "dataprovider" },
     "TestImageSink" :           { "type": "dataprovider" },
     "TestConflict" :            { "type": "dataprovider" },
     "TestConversionArgs" :      { "type": "dataprovider" },
@@ -308,6 +309,28 @@ class TestWebSink(DataProvider.DataSink):
         Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=self._login)
 
     def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        LUID=data.get_UID()+self._name_
+        return LUID
+
+    def get_UID(self):
+        return Utils.random_string()
+
+class TestFileSink(DataProvider.DataSink):
+
+    _name_ = "Test File Sink"
+    _description_ = "Prints Debug Messages"
+    _category_ = DataProvider.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+
+    def put(self, data, overwrite, LUID=None):
+        logd("Putting file: %s" % data._get_text_uri())
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         LUID=data.get_UID()+self._name_
         return LUID
