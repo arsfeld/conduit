@@ -30,6 +30,19 @@ class Photo(File.File):
         """
         self.get_pixbuf()
         return self.pb.get_width(),self.pb.get_height()
+        
+    def _get_proportional_resize(self, newWidth, newHeight):
+        w,h = self.get_size()
+        # resize to fit in frame
+        if h < w:
+            width = newWidth
+            height = float(newWidth) / w * h
+        else:
+            height = newHeight
+            width = float(newHeight) / h * w
+
+        return int(width), int(height)
+
 
     def convert(self, format, size):
         """
@@ -47,7 +60,8 @@ class Photo(File.File):
         if size != None:
             try:
                 width,height = size.split('x')
-                self.pb = self.pb.scale_simple(int(width),int(height),gtk.gdk.INTERP_HYPER)
+                width,height = self._get_proportional_resize(int(width), int(height))
+                self.pb = self.pb.scale_simple(width,height,gtk.gdk.INTERP_HYPER)
             except Exception, err:
                 print "BUGGER", size, err
         
