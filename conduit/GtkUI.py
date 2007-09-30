@@ -21,11 +21,13 @@ from conduit.Synchronization import SyncManager
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 
+DEFAULT_CONDUIT_BROWSER = "gtkmozembed"
+
 #set up the gettext system and locales
 for module in gtk.glade, gettext:
     module.bindtextdomain('conduit', conduit.LOCALE_DIR)
     module.textdomain('conduit')
-
+    
 class MainWindow:
     """
     The main conduit window.
@@ -280,14 +282,15 @@ class MainWindow:
                                         )                                        
                                         
         #fill out the configuration tab
-        removable_devices_check = tree.get_widget("removable_devices_check")
-        removable_devices_check.set_active(conduit.GLOBALS.settings.get("enable_removable_devices"))
         save_settings_check = tree.get_widget("save_settings_check")
         save_settings_check.set_active(conduit.GLOBALS.settings.get("save_on_exit"))
         status_icon_check = tree.get_widget("status_icon_check")
         status_icon_check.set_active(conduit.GLOBALS.settings.get("show_status_icon")) 
         minimize_to_tray_check = tree.get_widget("minimize_to_tray_check")
         minimize_to_tray_check.set_active(conduit.GLOBALS.settings.get("gui_minimize_to_tray")) 
+        web_browser_check = tree.get_widget("web_check")
+        web_browser_check.set_active(conduit.GLOBALS.settings.get("web_login_browser") != "system")
+
 
         #get the radiobuttons where the user sets their policy
         conflict_ask_rb = tree.get_widget("conflict_ask_rb")
@@ -308,6 +311,10 @@ class MainWindow:
             conduit.GLOBALS.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.GLOBALS.settings.set("show_status_icon", status_icon_check.get_active())
             conduit.GLOBALS.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
+            if not save_settings_check.get_active():
+                conduit.GLOBALS.settings.set("web_login_browser", DEFAULT_CONDUIT_BROWSER)
+            else:
+                conduit.GLOBALS.settings.set("web_login_browser", "system")
             policy = {}
             policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
             policy["deleted"] = save_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
