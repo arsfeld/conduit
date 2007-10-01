@@ -18,7 +18,7 @@ MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 SUPPORTED_SINKS = {
     "FlickrTwoWay"      :   "Upload to Flickr",
     "PicasaTwoWay"      :   "Upload to Picasa",
-    "SmugMugTwoWay"     :   "Uploat to SmugMug",
+    "SmugMugTwoWay"     :   "Upload to SmugMug",
     "BoxDotNetTwoWay"   :   "Upload to Box.net"
 }
 
