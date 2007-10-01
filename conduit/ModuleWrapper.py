@@ -101,6 +101,18 @@ class ModuleWrapper:
             return self.classname + ":" + ":".join(self.initargs)
         else:
             return self.classname
+            
+    def get_name(self):
+        """
+        @returns: The dataproviders user readable name
+        """
+        return self.name
+        
+    def set_name(self, name):
+        """
+        Sets the dataproviders user readable name
+        """
+        self.name = name
        
     def get_UID(self):
         """
@@ -247,13 +259,13 @@ class PendingDataproviderWrapper(ModuleWrapper):
     def __init__(self, key):
         ModuleWrapper.__init__(
                     self,
-                    "name", 
-                    "description",
+                    "", 
+                    "",
                     "gtk-missing",          #use a missing image
                     "twoway",               #twoway so can placehold as source or sink
-                    "category", 
-                    "in_type",
-                    "out_type",
+                    "", 
+                    "",
+                    "",
                     key.split(':')[0],
                     (),
                     None,                   #module is None. 

@@ -56,6 +56,7 @@ class SyncSet(gobject.GObject):
                 new = self.moduleManager.get_new_module_instance(key)
                 #retain configuration information
                 new.set_configuration_xml(dp.get_configuration_xml())
+                new.set_name(dp.get_name())
                 c.change_dataprovider(
                                     oldDpw=dp,
                                     newDpw=new
@@ -111,6 +112,7 @@ class SyncSet(gobject.GObject):
             if source is not None:
                 sourcexml = doc.createElement("datasource")
                 sourcexml.setAttribute("key", source.get_key())
+                sourcexml.setAttribute("name", source.get_name())
                 conduitxml.appendChild(sourcexml)
                 #Store source settings
                 configxml = xml.dom.minidom.parseString(source.get_configuration_xml())
@@ -121,6 +123,7 @@ class SyncSet(gobject.GObject):
             for sink in conduit.datasinks:
                 sinkxml = doc.createElement("datasink")
                 sinkxml.setAttribute("key", sink.get_key())
+                sinkxml.setAttribute("name", sink.get_name())
                 sinksxml.appendChild(sinkxml)
                 #Store sink settings
                 configxml = xml.dom.minidom.parseString(sink.get_configuration_xml())
@@ -141,7 +144,7 @@ class SyncSet(gobject.GObject):
         """
         log("Restoring Sync Set")
            
-        def restore_dataprovider(conduit, wrapperKey, dpxml, trySourceFirst):
+        def restore_dataprovider(conduit, wrapperKey, dpName, dpxml, trySourceFirst):
             """
             Adds the dataprovider back onto the canvas at the specifed
             location and configures it with the given settings
@@ -150,6 +153,7 @@ class SyncSet(gobject.GObject):
             """
             logd("Restoring %s to (source=%s)" % (wrapperKey,trySourceFirst))
             wrapper = self.moduleManager.get_new_module_instance(wrapperKey)
+            wrapper.set_name(dpName)
             if wrapper is not None:
                 for i in dpxml.childNodes:
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
@@ -191,18 +195,20 @@ class SyncSet(gobject.GObject):
                     #one datasource
                     if i.nodeType == i.ELEMENT_NODE and i.localName == "datasource":
                         key = i.getAttribute("key")
+                        name = i.getAttribute("name")
                         #add to canvas
                         if len(key) > 0:
-                            restore_dataprovider(conduit, key,i , True)
+                            restore_dataprovider(conduit, key, name, i, True)
                     #many datasinks
                     elif i.nodeType == i.ELEMENT_NODE and i.localName == "datasinks":
                         #each datasink
                         for sink in i.childNodes:
                             if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
                                 key = sink.getAttribute("key")
+                                name = i.getAttribute("name")
                                 #add to canvas
                                 if len(key) > 0:
-                                    restore_dataprovider(conduit, key,sink, False)
+                                    restore_dataprovider(conduit, key, name, sink, False)
 
         except:
             logw("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))

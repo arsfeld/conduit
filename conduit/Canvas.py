@@ -575,7 +575,7 @@ class DataProviderCanvasItem(_CanvasItem):
         pby = int((1*DataProviderCanvasItem.WIDGET_HEIGHT/3) - (pb.get_height()/2))
         self.image.set_property("pixbuf",pb)
 
-        self.name.set_property("text",self.model.name)
+        self.name.set_property("text",self.model.get_name())
 
         if self.model.module == None:
             statusText = DataProviderCanvasItem.PENDING_MESSAGE
@@ -607,7 +607,7 @@ class DataProviderCanvasItem(_CanvasItem):
         self.name = goocanvas.Text(  x=pbx + pb.get_width() + DataProviderCanvasItem.IMAGE_TO_TEXT_PADDING, 
                                 y=int(1*DataProviderCanvasItem.WIDGET_HEIGHT/3), 
                                 width=3*DataProviderCanvasItem.WIDGET_WIDTH/5, 
-                                text=self.model.name, 
+                                text=self.model.get_name(), 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font="Sans 8"
                                 )
