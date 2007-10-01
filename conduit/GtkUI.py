@@ -311,7 +311,7 @@ class MainWindow:
             conduit.GLOBALS.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.GLOBALS.settings.set("show_status_icon", status_icon_check.get_active())
             conduit.GLOBALS.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
-            if not save_settings_check.get_active():
+            if web_browser_check.get_active():
                 conduit.GLOBALS.settings.set("web_login_browser", DEFAULT_CONDUIT_BROWSER)
             else:
                 conduit.GLOBALS.settings.set("web_login_browser", "system")

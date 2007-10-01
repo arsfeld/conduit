@@ -492,11 +492,9 @@ class ImageSink(DataSink):
     """
     _category_ = CATEGORY_PHOTOS
     _module_type_ = "sink"
-    _in_type_ = "file"
-    _out_type_ = "file"
+    _in_type_ = "file/photo"
+    _out_type_ = "file/photo"
 
-    ALLOWED_MIMETYPES = ["image/jpeg", "image/png"]
-    
     def __init__(self, *args):
         DataSink.__init__(self)
         self.need_configuration(True)
@@ -531,6 +529,24 @@ class ImageSink(DataSink):
         Replace a photo with a new version
         """
         return id
+        
+    def _get_photo_formats (self):
+        """
+        This should return the allowed photo mimetypes
+        """
+        return ("image/jpeg", "image/png")
+        
+    def _get_default_format (self):
+        """
+        This should return the preferred format of images the sink accepts
+        """
+        return "image/jpeg"
+        
+    def _get_photo_size (self):
+        """
+        Return the preferred photo size string for rescaling, or None
+        """
+        return None        
 
     def put(self, photo, overwrite, LUID=None):
         """
@@ -543,11 +559,8 @@ class ImageSink(DataSink):
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
         photoURI = photo.get_local_uri()
-
         mimeType = photo.get_mimetype()
-        if mimeType not in self.ALLOWED_MIMETYPES:
-            raise Exceptions.SyncronizeError("%s does not allow uploading %s Files" % (self._name_, mimeType))
-        
+       
         #Check if we have already uploaded the photo
         if LUID != None:
             info = self._get_photo_info(LUID)
@@ -581,6 +594,14 @@ class ImageSink(DataSink):
     def is_configured (self):
         return False
         
+    def get_input_conversion_args(self):
+        args = {
+                "formats" :             ','.join(self._get_photo_formats()),
+                "default-format" :      self._get_default_format(),
+                "size" :                self._get_photo_size(),
+                }
+        return args
+        
     def set_configuration(self, config):
         DataSink.set_configuration(self, config)
         self.set_configured(self.is_configured())
@@ -589,6 +610,9 @@ class ImageTwoWay(DataSource, ImageSink):
     """
     Abstract Base Class for ImageTwoWay dataproviders
     """
+    
+    _module_type_ = "twoway"
+    
     def __init__(self):
         DataSource.__init__(self)
         ImageSink.__init__(self)

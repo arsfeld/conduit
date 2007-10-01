@@ -25,10 +25,7 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
 
     _name_ = "Picasa"
     _description_ = "Sync Your Google Picasa Photos"
-    _module_type_ = "twoway"
     _icon_ = "picasa"
-
-    ALLOWED_MIMETYPES = ["image/jpeg"]
 
     def __init__(self, *args):
         DataProvider.ImageTwoWay.__init__(self)
@@ -50,6 +47,9 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
             return self.gphotos[id]
         else:
             return None
+            
+    def _get_photo_formats (self):
+        return ("image/jpeg", )
         
     def refresh(self):
         DataProvider.ImageTwoWay.refresh(self)

@@ -197,20 +197,35 @@ class TestSink(_TestBase, DataProvider.DataSink):
         LUID=data.get_UID()+self._name_
         return LUID
 
-class TestImageSink(DataProvider.DataSink):
+class TestImageSink(DataProvider.ImageSink):
 
     _name_ = "Test Image Sink"
-    _category_ = DataProvider.CATEGORY_TEST
-    _module_type_ = "sink"
-    _in_type_ = "file/photo"
     _icon_ = "image-x-generic"
 
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
+        DataProvider.ImageSink.__init__(self)
+
         self.format = "image/jpeg"
         self.defaultFormat = "image/jpeg"
         self.size = "640x480"
 
+    #ImageSink Methods
+    def _upload_photo(self, uri, mimeType, originalName):
+        return originalName+self._name_
+
+    def _get_photo_info(self, luid):
+        return None
+
+    def _get_photo_formats (self):
+        return (self.format, )
+        
+    def _get_default_format (self):
+        return self.defaultFormat
+        
+    def _get_photo_size (self):
+        return self.size
+
+    #DataProvider Methods
     def configure(self, window):
         def setFormat(param):
             self.format = str(param)
@@ -241,22 +256,9 @@ class TestImageSink(DataProvider.DataSink):
                 ]
         dialog = DataProvider.DataProviderSimpleConfigurator(window, self._name_, items)
         dialog.run()
-
-    def refresh(self):
-        DataProvider.DataSink.refresh(self)
-
-    def put(self, data, overwrite, LUID=None):
-        DataProvider.DataSink.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return LUID
-
-    def get_input_conversion_args(self):
-        args = {
-                "format" :              self.format,
-                "default-format" :      self.defaultFormat,
-                "size" :                self.size,
-                }
-        return args
+        
+    def is_configured (self):
+        return True
 
     def get_UID(self):
         return Utils.random_string()
