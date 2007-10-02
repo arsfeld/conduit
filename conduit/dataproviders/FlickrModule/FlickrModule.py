@@ -42,6 +42,7 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
         self.photoSetName = ""
         self.showPublic = True
         self.photoSetId = None
+        self.imageSize = "None"
 
     # Helper methods
     def _get_user_quota(self):
@@ -117,6 +118,10 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
 
         #return the photoID
         return photoId
+
+    
+    def _get_photo_size (self):
+        return self.imageSize
         
     # DataProvider methods
     def refresh(self):
@@ -240,6 +245,9 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
         photoSetEntry = tree.get_widget("photoset_entry")
         publicCb = tree.get_widget("public_check")
         username = tree.get_widget("username")
+
+        resizecombobox = tree.get_widget("resizecombobox")
+        self._resize_combobox_build(resizecombobox, self.imageSize)
         
         #preload the widgets
         photoSetEntry.set_text(self.photoSetName)
@@ -254,6 +262,7 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
             self.photoSetName = photoSetEntry.get_text()
             self.showPublic = publicCb.get_active()
             self.username = username.get_text()
+            self.imageSize = self._resize_combobox_get_active(resizecombobox)
 
             #user must enter their username
             self.set_configured(self.is_configured())
@@ -265,6 +274,7 @@ class FlickrTwoWay(DataProvider.ImageTwoWay):
         
     def get_configuration(self):
         return {
+            "imageSize" : self.imageSize,
             "username" : self.username,
             "photoSetName" : self.photoSetName,
             "showPublic" : self.showPublic

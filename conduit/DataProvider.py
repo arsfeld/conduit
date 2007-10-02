@@ -5,6 +5,8 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
+#FIXME: The only deps on gtk in this file are configuration related,
+#which ideally should be in utils.gtk
 import gtk, gtk.glade
 import gobject
 from gettext import gettext as _
@@ -495,6 +497,9 @@ class ImageSink(DataSink):
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"
 
+    IMAGE_SIZES = ["640x480", "800x600", "1024x768"]
+    NO_RESIZE = ["None"]
+
     def __init__(self, *args):
         DataSink.__init__(self)
         self.need_configuration(True)
@@ -504,6 +509,30 @@ class ImageSink(DataSink):
     def initialize(self):
         return True
 
+    def _resize_combobox_build(self, combobox, selected):
+        store = gtk.ListStore(str)
+        cell = gtk.CellRendererText()
+        combobox.pack_start(cell, True)
+        combobox.add_attribute(cell, 'text', 0)  
+        combobox.set_model(store)
+
+        for s in self.NO_RESIZE + self.IMAGE_SIZES:
+            rowref = store.append( (s,) )
+            if s == selected:
+                combobox.set_active_iter(rowref)
+
+    def _resize_combobox_get_active(self, combobox):
+        model = combobox.get_model()
+        active = combobox.get_active()
+        if active < 0:
+            return self.NO_RESIZE
+
+        size = model[active][0]
+        if size not in self.IMAGE_SIZES:
+            return self.NO_RESIZE
+
+        return size
+        
     def _get_photo_info(self, photoID):
         """
         This should return the info for a given photo id,
