@@ -57,7 +57,7 @@ FOLDER_TWOWAY_CONFIG ="<configuration><folder type='string'>%s</folder><folderGr
 CONFIG_PATH='~/.conduit/nautilus-extension'
 
 # add to gui or dbus
-SYNCSET_PATH = '/syncset/dbus'
+SYNCSET_PATH = '/syncset/gui'
 
 class ItemCallbackHandler:
     """
