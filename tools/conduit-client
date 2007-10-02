@@ -11,8 +11,6 @@ CONDUIT_DBUS_IFACE="org.conduit.Conduit"
 EXPORTER_DBUS_IFACE="org.conduit.Exporter"
 DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 
-SOURCE_DATAPROVIDER = "FileSource"
-
 class Conduit(object):
     def __init__(self, start):
         self.bus = dbus.SessionBus()
@@ -54,12 +52,15 @@ class Conduit(object):
         self.conduit.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
         self.loop.run()
             
-    def sync(self, syncSet, sink, config, files,deleteConduitWhenFinished):
+    def sync(self, syncSet, sink, config, files, deleteConduitWhenFinished, twoWay):
         #options
         self.deleteConduitWhenFinished = deleteConduitWhenFinished
 
         # create dataproviders
-        source_path = self.app.GetDataProvider(SOURCE_DATAPROVIDER)
+        if twoWay:
+            source_path = self.app.GetDataProvider("FolderTwoWay")
+        else:
+            source_path = self.app.GetDataProvider("FileSource")
         source_obj = self.bus.get_object(DATAPROVIDER_DBUS_IFACE, source_path)
         sink_path = self.app.GetDataProvider(sink)
         sink_obj = self.bus.get_object(DATAPROVIDER_DBUS_IFACE, sink_path)
@@ -79,6 +80,10 @@ class Conduit(object):
         self.conduit = self.bus.get_object(CONDUIT_DBUS_IFACE, conduit_path)
         self.conduit.connect_to_signal("SyncProgress", self.on_sync_progress, dbus_interface=CONDUIT_DBUS_IFACE)
         self.conduit.connect_to_signal("SyncCompleted", self.on_sync_completed, dbus_interface=CONDUIT_DBUS_IFACE)
+
+        #two way or not?
+        if twoWay:
+            self.conduit.EnableTwoWaySync(dbus_interface=CONDUIT_DBUS_IFACE)
     
         #add the data
         for f in files:
@@ -99,17 +104,18 @@ def usage():
             "   -k, --keep                  Dont delete conduit after sync\n" + \
             "   -l, --list-dataproviders    List available dataprovders\n" + \
             "   -x, --dont-start            Dont start conduit (must be running)\n" + \
-            "   -g, --gui                   Display in GUI"
+            "   -g, --gui                   Display in GUI\n" + \
+            "   -t, --two-way               Twoway Sync"
             
 def error(msg):
-    print "ERROR : %s" % msg
+    print "\nERROR : %s" % msg
             
 ################################################################################
 # Main
 ################################################################################
 if __name__ == "__main__":
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:c:klxgh", ["sink=", "sink-configuration=", "keep", "list-dataproviders", "dont-start", "gui", "help"])
+        opts, args = getopt.getopt(sys.argv[1:], "s:c:klxgth", ["sink=", "sink-configuration=", "keep", "list-dataproviders", "dont-start", "gui", "two-way", "help"])
     except getopt.GetoptError:
         usage()
         sys.exit(1)
@@ -122,6 +128,7 @@ if __name__ == "__main__":
     listDps = False
     startConduit = True
     syncSetPath = "/syncset/dbus"
+    twoWay = False
 
     for o, a in opts:
         if o in ("-s", "--sink"):
@@ -136,12 +143,15 @@ if __name__ == "__main__":
             startConduit = False
         if o in ("-g", "--gui"):
             syncSetPath = "/syncset/gui"
+        if o in ("-t", "--two-way"):
+            twoWay = True
         if o in ("-h", "--help"):
             usage()
             sys.exit()
 
     if not listDps:
         if None in [sinkName]:
+            usage()
             error("Please specify all compulsory arguments")
             sys.exit(1)
 
@@ -152,8 +162,17 @@ if __name__ == "__main__":
                 files.append(os.path.expanduser(path))
             
         if len(files) == 0:
+            usage()
             error("Please specify files to sync")
             sys.exit(1)
+
+        if twoWay:
+            if len(files) == 1 and os.path.isdir(files[0]):
+                pass
+            else:
+                usage()
+                error("Twoway sync expects a folder as its only argument")
+                sys.exit(1)
 
     #Connect to conduit
     try:
@@ -167,7 +186,8 @@ if __name__ == "__main__":
                     sink=sinkName, 
                     config=sinkConfig,
                     files=files,
-                    deleteConduitWhenFinished=not keep
+                    deleteConduitWhenFinished=not keep,
+                    twoWay=twoWay
                     )
     except Exception, err:
         error(err.message)

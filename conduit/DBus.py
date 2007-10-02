@@ -69,6 +69,9 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # Object path           /conduit/{some UUID}
 #
 # Methods:
+# EnableTwoWaySync
+# DisableTwoWaySync
+# IsTwoWay
 # AddDataprovider
 # DeleteDataprovider
 # Sync
@@ -160,6 +163,21 @@ class ConduitDBusItem(DBusItem):
     #
     # org.conduit.Conduit
     #
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+    def EnableTwoWaySync(self):
+        self._print("EnableTwoWaySync")
+        self.conduit.enable_two_way_sync()
+
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='')
+    def DisableTwoWaySync(self):
+        self._print("DisableTwoWaySync")
+        self.conduit.disable_two_way_sync()
+
+    @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='', out_signature='b')
+    def IsTwoWay(self):
+        self._print("IsTwoWay")
+        return self.conduit.is_two_way()
+
     @dbus.service.method(CONDUIT_DBUS_IFACE, in_signature='ob', out_signature='')
     def AddDataprovider(self, dp, trySource):
         self._print("AddDataprovider: %s" % dp)

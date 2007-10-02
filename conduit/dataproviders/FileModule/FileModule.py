@@ -643,6 +643,14 @@ class FolderTwoWay(DataProvider.TwoWay):
         DataProvider.TwoWay.finish(self)
         self.files = []
 
+    def add(self, LUID):
+        f = File.File(URI=LUID)
+        if f.exists() and f.is_directory():
+            self.folder = f._get_text_uri()
+            self.set_configured(True)
+            return True
+        return False
+
     def set_configuration(self, config):
         self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
         self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
