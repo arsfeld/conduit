@@ -34,6 +34,7 @@ class SmugMugTwoWay(DataProvider.ImageTwoWay):
         
         self.password = ""
         self.album = ""
+        self.imageSize = "None"
         self.sapi = None
 
     def _get_photo_info (self, photoId):
@@ -93,6 +94,9 @@ class SmugMugTwoWay(DataProvider.ImageTwoWay):
             self.sapi.delete_image(LUID)
         except SmugMugException, e:
             logw('Delete error: %s' % e.get_printable_error())
+
+    def _get_photo_size (self):
+        return self.imageSize
  
     def configure(self, window):
         """
@@ -112,6 +116,9 @@ class SmugMugTwoWay(DataProvider.ImageTwoWay):
         username.set_text(self.username)
         password.set_text(self.password)
         album.set_text (self.album)
+
+        resizecombobox = widget.get_widget("combobox1")
+        self._resize_combobox_build(resizecombobox, self.imageSize)
         
         dlg = widget.get_widget("SmugMugTwoWayConfigDialog")
 
@@ -123,13 +130,14 @@ class SmugMugTwoWay(DataProvider.ImageTwoWay):
             self.username = username.get_text()
             self.password = password.get_text()
             self.album = album.get_text()
-
+            self.imageSize = self._resize_combobox_get_active(resizecombobox)
             self.set_configured(self.is_configured())
 
         dlg.destroy()    
         
     def get_configuration(self):
         return {
+            "imageSize" : self.imageSize,
             "username" : self.username,
             "password" : self.password,
             "album" : self.album
