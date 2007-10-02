@@ -34,8 +34,9 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
         self.username = ""
         self.password = ""
         self.album = ""
-        self.gapi = None
+        self.imageSize = "None"
 
+        self.gapi = None
         self.galbum = None
         self.gphotos = None
 
@@ -92,6 +93,9 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
             return ret.id
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")
+
+    def _get_photo_size (self):
+        return self.imageSize
         
     def configure(self, window):
         """
@@ -111,6 +115,9 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
         username.set_text(self.username)
         password.set_text(self.password)
         album.set_text (self.album)
+
+        resizecombobox = widget.get_widget("combobox1")
+        self._resize_combobox_build(resizecombobox, self.imageSize)
         
         dlg = widget.get_widget("PicasaTwoWayConfigDialog")
         
@@ -121,12 +128,15 @@ class PicasaTwoWay(DataProvider.ImageTwoWay):
             self.password = password.get_text()
             self.album = album.get_text()
 
+            self.imageSize = self._resize_combobox_get_active(resizecombobox)
+
             self.set_configured(self.is_configured())
 
         dlg.destroy()    
         
     def get_configuration(self):
         return {
+            "imageSize" : self.imageSize,
             "username" : self.username,
             "password" : self.password,
             "album" : self.album
