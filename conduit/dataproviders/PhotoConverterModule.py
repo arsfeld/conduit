@@ -37,7 +37,7 @@ class PixbufPhotoConverter:
     def transcode(self, photo, **kwargs):
         conduit.log("Transcode Photo: %s" % kwargs)
         formats = kwargs.get("formats","").split(',')
-        newSize = kwargs.get("size",None)
+        newSize = kwargs.get("size","")
 
         #check if the photo is in the allowed format
         if photo.get_mimetype() not in formats:

@@ -43,7 +43,6 @@ class Photo(File.File):
 
         return int(width), int(height)
 
-
     def convert(self, format, size):
         """
         Basically we defer the conversion until as late as possible, or 
@@ -61,13 +60,15 @@ class Photo(File.File):
             try:
                 width,height = size.split('x')
                 width,height = self._get_proportional_resize(int(width), int(height))
+                print "SCALING TO %sx%s" % (width,height)
                 self.pb = self.pb.scale_simple(width,height,gtk.gdk.INTERP_HYPER)
+                self.pb.save(tmpfilename , "jpeg")
             except Exception, err:
                 print "BUGGER", size, err
         
         #save to new format if necessary
         if format != None:
             print "Save %s.%s" % (tmpfilename,format)
-            self.pb.save("%s.%s" % (tmpfilename,format), format)
+            self.pb.save(tmpfilename, format)
         
         
