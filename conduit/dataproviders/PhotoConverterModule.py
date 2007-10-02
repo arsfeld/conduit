@@ -4,7 +4,6 @@ import conduit
 import conduit.Utils as Utils
 import conduit.datatypes.File as File
 import conduit.datatypes.Photo as Photo
-import conduit.datatypes.Music as Music
 
 MODULES = {
         "PixbufPhotoConverter" :  { "type": "converter" }

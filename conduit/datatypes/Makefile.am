@@ -7,6 +7,7 @@ conduit_PYTHON = \
 	File.py \
 	__init__.py \
 	Note.py \
+	Photo.py \
 	Text.py
 
 clean-local:
