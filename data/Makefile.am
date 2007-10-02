@@ -37,6 +37,7 @@ resources_DATA = \
 	conduit.glade \
 	backpack.png \
 	conduit-splash.png \
+	facebook.png \
 	feed.png \
 	f-spot.png \
 	liferea.png \

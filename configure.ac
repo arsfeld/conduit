@@ -131,6 +131,8 @@ conduit/dataproviders/FileModule/Makefile
 conduit/dataproviders/FeedModule/Makefile
 conduit/dataproviders/FlickrModule/Makefile
 conduit/dataproviders/FlickrModule/FlickrAPI/Makefile
+conduit/dataproviders/FacebookModule/Makefile
+conduit/dataproviders/FacebookModule/pyfacebook/Makefile
 conduit/dataproviders/FspotModule/Makefile
 conduit/dataproviders/GmailModule/Makefile
 conduit/dataproviders/GmailModule/libgmail-0.1.6.2/Makefile

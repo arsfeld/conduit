@@ -54,7 +54,7 @@ class FacebookSink(DataProvider.ImageSink):
         url = self.fapi.get_login_url()
 
         #wait for log in
-        Web.LoginMagic("Log into Facebook", url, login_function=self._try_login)
+        Web.LoginMagic("Log into Facebook", url, login_function=self._try_login, browser="gtkmozembed")
 
     def _try_login(self):
         """
