@@ -91,12 +91,11 @@ class Application(dbus.service.Object):
                     conduitApp.HideSplash()
             sys.exit(0)
 
-        # Initialise dbus stuff here as any earlier will cause breakage
-        # 1: Outstanding gnomevfs bug!
-        # 2: Interferes with Conduit already running check.
+        # Initialise dbus stuff here as any earlier will interfere
+        # with Conduit already running check.
         bus_name = dbus.service.BusName(APPLICATION_DBUS_IFACE, bus=sessionBus)
         dbus.service.Object.__init__(self, bus_name, "/activate")
-
+        
         #Throw up a splash screen ASAP. Dont show if launched via --console.
         if buildGUI and not iconify:
             self.ShowSplash()
@@ -117,6 +116,17 @@ class Application(dbus.service.Object):
         conduit.GLOBALS.typeConverter = TypeConverter(conduit.GLOBALS.moduleManager)
         conduit.GLOBALS.syncManager = SyncManager(conduit.GLOBALS.typeConverter)
         conduit.GLOBALS.mappingDB = MappingDB(dbFile)
+        
+        #Build both syncsets and put on the bus as early as possible
+        self.guiSyncSet = SyncSet(
+                        moduleManager=conduit.GLOBALS.moduleManager,
+                        syncManager=conduit.GLOBALS.syncManager,
+                        xmlSettingFilePath=self.settingsFile
+                        )
+        self.dbusSyncSet = SyncSet(
+                    moduleManager=conduit.GLOBALS.moduleManager,
+                    syncManager=conduit.GLOBALS.syncManager
+                    )
 
         #Set the view models
         if buildGUI:
@@ -125,10 +135,6 @@ class Application(dbus.service.Object):
                 self.ShowGUI()
         
         #Dbus view...
-        self.dbusSyncSet = SyncSet(
-                    moduleManager=conduit.GLOBALS.moduleManager,
-                    syncManager=conduit.GLOBALS.syncManager
-                    )
         self.dbus = DBusInterface(
                         conduitApplication=self,
                         moduleManager=conduit.GLOBALS.moduleManager,
@@ -165,11 +171,6 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def BuildGUI(self):
-        self.guiSyncSet = SyncSet(
-                        moduleManager=conduit.GLOBALS.moduleManager,
-                        syncManager=conduit.GLOBALS.syncManager,
-                        xmlSettingFilePath=self.settingsFile
-                        )
         self.gui = MainWindow(
                         conduitApplication=self,
                         moduleManager=conduit.GLOBALS.moduleManager,
