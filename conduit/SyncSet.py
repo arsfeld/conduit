@@ -205,7 +205,7 @@ class SyncSet(gobject.GObject):
                         for sink in i.childNodes:
                             if sink.nodeType == sink.ELEMENT_NODE and sink.localName == "datasink":
                                 key = sink.getAttribute("key")
-                                name = i.getAttribute("name")
+                                name = sink.getAttribute("name")
                                 #add to canvas
                                 if len(key) > 0:
                                     restore_dataprovider(conduit, key, name, sink, False)
