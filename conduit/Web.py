@@ -285,11 +285,10 @@ class _ConduitLoginSingleton(object):
             gobject.idle_add(self._create_page, name, url, browserName)
             self.finished[url] = False
 
-        while not self.finished[url]:
-            #We can sleep here because all the GUI work
-            #is going on in the main thread
-            time.sleep(0.5)
-            print '. ', thread.get_ident()
+        while not self.finished[url] and not conduit.GLOBALS.cancelled:
+            #We can/need to sleep here because the GUI work is going on in the main thread
+            #and gtk.main needs to iterate
+            time.sleep(0.1)
 
         print "FINISHED LOGIN ----------------------------", thread.get_ident()
 

@@ -213,10 +213,16 @@ OPTIONS:
             if conduit.GLOBALS.settings.get("save_on_exit") == True:
                 self.gui.save_settings(None)
 
+        #flag the global cancellation object
+        log("Setting global cancel flag")
+        conduit.GLOBALS.cancelled = True
+
+        #cancel all conduits
         log("Stopping Synchronization threads")
         conduit.GLOBALS.syncManager.cancel_all()
 
         #give the dataprovider factories time to shut down
+        log("Closing dataprovider factories")
         conduit.GLOBALS.moduleManager.quit()
         main_quit()
 

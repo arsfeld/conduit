@@ -16,5 +16,8 @@ class Globals(object):
         self.syncManager = None
 
         #the main application
-        self.app = None        
+        self.app = None
+
+        #Global cancellation flag
+        self.cancelled = False
 
