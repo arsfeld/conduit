@@ -228,6 +228,7 @@ class _ConduitLoginSingleton(object):
 
         self.window.set_default_size(700, 600)
         self.window.set_position(gtk.WIN_POS_CENTER)
+        self.window.show_all()
 
         #create object and connect signals
         browser = self._build_browser(browserName)
@@ -255,13 +256,13 @@ class _ConduitLoginSingleton(object):
         self.pages[url] = browser
 
         browserWidget.show_now()
-        self.window.show_all()
         browser.load_url(url)
-
         return False
 
     def _raise_page(self, url):
         print "RAISE PAGE ----------------------------", thread.get_ident()
+        self.window.show_all()
+
         #get the original objects
         browser = self.pages[url]
         browserWidget = browser.widget()
@@ -272,8 +273,6 @@ class _ConduitLoginSingleton(object):
 
         #show            
         browserWidget.show_now()
-        self.window.show_all()
-
         return False
 
     def wait_for_login(self, name, url, **kwargs):
