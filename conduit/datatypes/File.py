@@ -45,6 +45,20 @@ class File(DataType.DataType):
         self._newFilename = None
         self._newMtime = None
 
+    def _xfer_check_global_cancel_flag(self):
+        return conduit.GLOBALS.cancelled
+
+    def _xfer_progress_callback(self, info, cancel_func):
+        #check if cancelled
+        try:
+            if cancel_func():
+                log("Transfer of %s -> %s cancelled" % (info.source_name, info.target_name))
+                return 0
+        except Exception, ex:
+            logw("Could not call gnomevfs cancel function")
+            return 0
+        return True
+
     def _get_text_uri(self):
         """
         The mixing of text_uri and gnomevfs.URI in the gnomevfs api is very
@@ -113,15 +127,12 @@ class File(DataType.DataType):
         """
         #Get a temporary file name
         tempname = tempfile.mkstemp(prefix="conduit")[1]
-        toURI = gnomevfs.URI(tempname)
-        #Xfer to the temp file. 
-        gnomevfs.xfer_uri( self.URI, toURI,
-                           gnomevfs.XFER_DEFAULT,
-                           gnomevfs.XFER_ERROR_MODE_ABORT,
-                           gnomevfs.XFER_OVERWRITE_MODE_REPLACE)
-        #now overwrite ourselves with the new local copy
-        self._close_file()
-        self.URI = toURI
+        # FIXME: Should we save the filename here? is that why resizing photos
+        # loses the name?
+        self.transfer(
+                newURIString=tempname,
+                overwrite=True
+                )
         return tempname
 
     def exists(self):
@@ -182,13 +193,18 @@ class File(DataType.DataType):
             self._defer_new_mtime(mtime)
 
 
-    def transfer(self, newURIString, overwrite=False):
+    def transfer(self, newURIString, overwrite=False, cancel_function=None):
         """
         Transfers the file to newURI. Thin wrapper around go_gnomevfs_transfer
-        because it also sets the new info of the file.
+        because it also sets the new info of the file. By wrapping the xfer_uri
+        funtion it gives the ability to cancel transfers
 
         @type newURIString: C{string}
         """
+        #the default cancel function just checks conduit.GLOBALS.cancelled
+        if cancel_function == None:
+            cancel_function = self._xfer_check_global_cancel_flag
+
         if self._newFilename == None:
             newURI = gnomevfs.URI(newURIString)
         else:
@@ -216,10 +232,15 @@ class File(DataType.DataType):
             self._make_directory_and_parents(parent)
 
         #Copy the file
-        result = gnomevfs.xfer_uri( self.URI, newURI,
-                            gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                            gnomevfs.XFER_ERROR_MODE_ABORT,
-                            mode)
+        result = gnomevfs.xfer_uri(
+                    source_uri=self.URI,
+                    target_uri=newURI,
+                    xfer_options=gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                    error_mode=gnomevfs.XFER_ERROR_MODE_ABORT,
+                    overwrite_mode=mode,
+                    progress_callback=self._xfer_progress_callback,
+                    data=cancel_function
+                    )
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
