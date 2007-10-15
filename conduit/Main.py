@@ -7,7 +7,7 @@ import conduit
 import conduit.Utils as Utils
 from conduit import log,logd,logw
 from conduit.Module import ModuleManager
-from conduit.DB import MappingDB
+from conduit.MappingDB import MappingDB
 from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
 from conduit.Synchronization import SyncManager
