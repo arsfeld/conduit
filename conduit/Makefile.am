@@ -21,6 +21,7 @@ conduit_PYTHON = \
 	Globals.py \
 	GtkUI.py \
 	Main.py \
+	MappingDB.py \
 	Module.py \
 	ModuleWrapper.py \
 	Settings.py \
