@@ -82,10 +82,12 @@ class MainWindow:
         
         #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("MainWindow")
+        title = "%s" % conduit.APPNAME
         if conduit.IS_DEVELOPMENT_VERSION:
-            self.mainWindow.set_title("%s %s - DEVELOPMENT RELEASE" % (conduit.APPNAME, conduit.APPVERSION))
-        else:
-            self.mainWindow.set_title(conduit.APPNAME)
+            title = title + " - %s (Development Version)" % conduit.APPVERSION
+        if not conduit.IS_INSTALLED:
+            title = title + " - Running Uninstalled"
+        self.mainWindow.set_title(title)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_name("conduit")
         
