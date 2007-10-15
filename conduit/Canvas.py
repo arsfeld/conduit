@@ -49,6 +49,7 @@ TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
 TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
 TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
 TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
+TRANSPARENT_COLOR = int("00000000",16)
 
 #Style elements common to ConduitCanvasItem and DPCanvasItem
 SIDE_PADDING = 10.0
@@ -705,7 +706,7 @@ class ConduitCanvasItem(_CanvasItem):
 
         #draw a spacer to give some space between conduits
         points = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
-        self.l = goocanvas.Polyline(points=points, line_width=LINE_WIDTH, stroke_color="white")
+        self.l = goocanvas.Polyline(points=points, line_width=LINE_WIDTH, stroke_color_rgba=TRANSPARENT_COLOR)
         self.add_child(self.l)
 
         #draw a box which will contain the dataproviders
