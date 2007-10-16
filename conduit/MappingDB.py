@@ -1,9 +1,39 @@
 import os, os.path
+import UserDict
 
 import conduit
 import conduit.Utils as Utils
 import conduit.DB as DB
 from conduit import log,logd,logw
+
+class Mapping(UserDict.DictMixin):
+    """
+    Manages a mapping of source -> sink
+    """
+    REQUIRED_ATTRIBUTES = ["sourceUID","sourceDataLUID","sourceDataMtime","sinkUID","sinkDataLUID","sinkDataMtime"]
+    def __init__(self, oid, **values):
+        self.oid = oid
+        self._attributes = {}
+        for k in Mapping.REQUIRED_ATTRIBUTES:
+            self._attributes[k] = values[k]
+    
+    def __getitem__(self, key):
+        if key not in Mapping.REQUIRED_ATTRIBUTES:
+            raise KeyError
+        return self._attributes[key]
+
+    def __setitem__(self, key, value):
+        if key not in Mapping.REQUIRED_ATTRIBUTES:
+            raise KeyError
+        self._attributes[key] = value
+
+    def __delitem__(self, key):
+        if key not in Mapping.REQUIRED_ATTRIBUTES:
+            raise KeyError
+        del(self._attributes[key])
+
+    def keys(self):
+        return Mapping.REQUIRED_ATTRIBUTES
    
 class MappingDB:
     """

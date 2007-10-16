@@ -20,7 +20,7 @@ from conduit.ModuleWrapper import ModuleWrapper
 import conduit.Conduit as Conduit
 import conduit.Exceptions as Exceptions
 import conduit.SyncSet as SyncSet
-import conduit.DB as DB
+import conduit.MappingDB as MappingDB
 
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
@@ -87,7 +87,7 @@ class SimpleTest(object):
     def __init__(self, sourceName=None, sinkName=None):
         #Set up our own mapping DB so we dont pollute the global one
         dbFile = os.path.join(os.environ['TEST_DIRECTORY'],Utils.random_string()+".db")
-        conduit.GLOBALS.mappingDB = DB.MappingDB(dbFile)
+        conduit.GLOBALS.mappingDB = MappingDB.MappingDB(dbFile)
 
         #Dynamically load all datasources, datasinks and converters
         dirs_to_search =    [
