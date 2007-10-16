@@ -187,7 +187,7 @@ class Canvas(goocanvas.Canvas):
                 else:
                     self.twoWayMenuItem.set_property("sensitive", True)
                 #Set item ticked if two way sync enabled
-                self.twoWayMenuItem.set_active(self.selectedConduitItem.model.twoWaySyncEnabled)
+                self.twoWayMenuItem.set_active(self.selectedConduitItem.model.is_two_way())
                 #Set item ticked if two way sync enabled
                 self.slowSyncMenuItem.set_active(self.selectedConduitItem.model.slowSyncEnabled)
                 #Show the menu                
