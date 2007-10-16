@@ -337,13 +337,16 @@ class File(DataType.DataType):
         else:
             return self._to_tempfile()
 
-    def compare(self, B, sizeOnly=False):
+    def compare(self, B, sizeOnly=False, existOnly=False):
         """
         Compare me with B based upon their modification times, or optionally
         based on size only
         """
         if not gnomevfs.exists(B.URI):
             return conduit.datatypes.COMPARISON_NEWER
+        else:
+            if existOnly:
+                return conduit.datatypes.COMPARISON_OLDER
 
         #Compare based on size only?
         if sizeOnly:
@@ -360,7 +363,7 @@ class File(DataType.DataType):
         #Else look at the modification times
         meTime = self.get_mtime()
         bTime = B.get_mtime()
-        #logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.URI, meTime, B.URI, bTime))
+        logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.URI, meTime, B.URI, bTime))
         if meTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            

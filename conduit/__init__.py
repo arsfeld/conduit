@@ -78,7 +78,7 @@ def logw(message):
 # Global Constants
 ################################################################################
 _dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-IS_INSTALLED = False
+IS_INSTALLED = not os.path.exists(os.path.join(_dirname,"ChangeLog"))
 IS_DEVELOPMENT_VERSION = True
 
 if IS_INSTALLED:

@@ -381,8 +381,6 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
                     for i in item[CONTAINS_ITEMS_IDX]:
                         self.files[i] = ( item[URI_IDX], item[GROUP_NAME_IDX] )
 
-        print self.files
-
     def get(self, LUID):
         DataProvider.DataSource.get(self, LUID)
         basepath, group = self.files[LUID]
@@ -470,10 +468,11 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
             except gnomevfs.NotFoundError: pass
 
 class _FolderTwoWayConfigurator:
-    def __init__(self, mainWindow, folder, folderGroupName, includeHidden):
+    def __init__(self, mainWindow, folder, folderGroupName, includeHidden, compareIgnoreMtime):
         self.folder = folder
         self.includeHidden = includeHidden
         self.folderGroupName = folderGroupName
+        self.compareIgnoreMtime = compareIgnoreMtime
 
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -486,6 +485,8 @@ class _FolderTwoWayConfigurator:
         self.folderEntry.set_text(self.folderGroupName)
         self.hiddenCb = tree.get_widget("hidden")
         self.hiddenCb.set_active(includeHidden)
+        self.mtimeCb = tree.get_widget("ignoreMtime")
+        self.mtimeCb.set_active(self.compareIgnoreMtime)
 
         self.dlg = tree.get_widget("FolderTwoWayConfigDialog")
         self.dlg.connect("response",self.on_response)
@@ -511,12 +512,13 @@ class _FolderTwoWayConfigurator:
                 uri = self.folderChooser.get_uri()
                 self.folder = gnomevfs.make_uri_canonical(uri)
                 self.includeHidden = self.hiddenCb.get_active()
+                self.compareIgnoreMtime = self.mtimeCb.get_active()
 
     def show_dialog(self):
         self.dlg.show_all()
         self.dlg.run()
         self.dlg.destroy()
-        return self.folder, self.folderGroupName, self.includeHidden
+        return self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime
 
 
 class FolderTwoWay(DataProvider.TwoWay):
@@ -535,6 +537,7 @@ class FolderTwoWay(DataProvider.TwoWay):
     DEFAULT_FOLDER = os.path.expanduser("~")
     DEFAULT_GROUP = "Home"
     DEFAULT_HIDDEN = False
+    DEFAULT_COMPARE_IGNORE_MTIME = False
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
@@ -543,6 +546,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.folder = FolderTwoWay.DEFAULT_FOLDER
         self.folderGroupName = FolderTwoWay.DEFAULT_GROUP
         self.includeHidden = FolderTwoWay.DEFAULT_HIDDEN
+        self.compareIgnoreMtime = FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME
         self.files = []
 
         self._monitor_folder_id = None
@@ -561,11 +565,11 @@ class FolderTwoWay(DataProvider.TwoWay):
             self.folderGroupName = _get_config_file_for_dir(self.folder)
         except gnomevfs.NotFoundError: pass
 
-        f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName, self.includeHidden)
-        self.folder, self.folderGroupName, self.includeHidden = f.show_dialog()
+        f = _FolderTwoWayConfigurator(window, self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime)
+        self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime = f.show_dialog()
         self.set_configured(True)
         self._monitor_folder()
-
+        
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         #scan the folder
@@ -613,7 +617,10 @@ class FolderTwoWay(DataProvider.TwoWay):
                 newURI = self.folder+"/"+vfsFile.group+pathFromBase
 
         destFile = File.File(URI=newURI)
-        comp = vfsFile.compare(destFile)
+        comp = vfsFile.compare(
+                        destFile, 
+                        sizeOnly=self.compareIgnoreMtime
+                        )
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
@@ -655,6 +662,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
         self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
         self.includeHidden = config.get("includeHidden", FolderTwoWay.DEFAULT_HIDDEN)
+        self.compareIgnoreMtime = config.get("compareIgnoreMtime", FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME)
 
         self.set_configured(True)
         self._monitor_folder()
@@ -664,7 +672,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         return {
             "folder" : self.folder,
             "folderGroupName" : self.folderGroupName,
-            "includeHidden" : self.includeHidden
+            "includeHidden" : self.includeHidden,
+            "compareIgnoreMtime" : self.compareIgnoreMtime
             }
 
     def get_UID(self):
