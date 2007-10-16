@@ -117,11 +117,6 @@ class Conduit(gobject.GObject):
                 logw("Only sinks, sources or twoway dataproviders may be added")
                 return False
 
-
-        #Check if a two way sync can still be performed
-        if not self.can_do_two_way_sync():
-            self.disable_two_way_sync()
-
         self.emit("dataprovider-added", dataprovider_wrapper) 
         return True
 
