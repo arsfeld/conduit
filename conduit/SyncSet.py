@@ -8,8 +8,8 @@ from conduit import log,logd,logw, APPVERSION
 
 import traceback
 import os
-import xml.dom
-import xml.dom.ext
+#import xml.dom
+#import xml.dom.ext
 import xml.dom.minidom
 
 import gobject
@@ -133,7 +133,8 @@ class SyncSet(gobject.GObject):
         #Save to disk
         try:
             file_object = open(self.xmlSettingFilePath, "w")
-            xml.dom.ext.PrettyPrint(doc, file_object)
+            file_object.write(doc.toxml())
+            #file_object.write(doc.toprettyxml())
             file_object.close()        
         except IOError, err:
             logw("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
