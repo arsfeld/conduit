@@ -3,16 +3,19 @@
 
 # Work around https://bugs.launchpad.net/ubuntu/+source/firefox/+bug/26436
 # Note: This bug is also present in Mandriva and Fedora, for this reason, 
-# We will modify the paths in all cases
+# We will use run-mozilla in all cases
 
+# Run mozilla takes care of settin up the appropriate environment variables
+# to run a program using mozilla libs
 FF_PATH=`ls -d /usr/lib/firefox* | tail -n 1`
+RUN_MOZILLA=$FF_PATH/run-mozilla.sh
 
-if [ -z $FF_PATH ]; then
+if [ -x $RUN_MOZILLA ]; then
+    $RUN_MOZILLA $(dirname $0)/conduit.real $*
+else
     echo "WARNING: COULD NOT FIND FIREFOX LIBRARIES"
     echo "WARNING: CONDUIT MAY CRASH UNEXPECTEDLY"
     echo "WARNING: PLEASE TALK TO THE PERSON WHO PACKAGED CONDUIT"
-    python $(dirname $0)/conduit.real $*
-else
-    LD_LIBRARY_PATH=$FF_PATH MOZILLA_FIVE_HOME=$FF_PATH python $(dirname $0)/conduit.real $*
+    $(dirname $0)/conduit.real $*
 fi
 
