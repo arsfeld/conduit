@@ -222,36 +222,6 @@ def datetime_get_timestamp(d):
 
     return long(f)
 
-def escape(s):
-    """
-    Escapes a path or filename of special characters
-    """
-    return gnomevfs.escape_host_and_path_string(s)
-
-def unescape(s):
-    """
-    Unescapes a quoted string presumably created by above
-    """
-    #urllib seems more reliable than the gnomevfs equivilent
-    import urllib
-    return urllib.unquote(s)
-
-def escape_html(s):
-    """
-    Escapes html special chars (&, <, >) for webservice dps
-    """
-    html_escape_table = {
-        "&": "&amp;",
-        '"': "&quot;",
-        "'": "&apos;",
-        ">": "&gt;",
-        "<": "&lt;",
-    }
-    L=[]
-    for c in s:
-        L.append(html_escape_table.get(c,c))
-    return "".join(L)
-
 def encode_conversion_args(args):
     """
     encodes an args dictionary to a url string in the form
@@ -434,7 +404,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             try: fileinfo = hdir.next()
             except StopIteration: continue;
             while fileinfo:
-		filename = gnomevfs.escape_path_string(fileinfo.name)
+                filename = gnomevfs.escape_path_string(fileinfo.name)
                 if filename in [".","..",CONFIG_FILE_NAME]: 
                         pass
                 else:
