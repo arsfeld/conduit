@@ -5,7 +5,7 @@
 # Note: This bug is also present in Mandriva and Fedora, for this reason, 
 # We will modify the paths in all cases
 
-FF_PATH=`ls -d /usr/lib/firefox* | head -n 1`
+FF_PATH=`ls -d /usr/lib/firefox* | tail -n 1`
 
 if [ -z $FF_PATH ]; then
     echo "WARNING: COULD NOT FIND FIREFOX LIBRARIES"
