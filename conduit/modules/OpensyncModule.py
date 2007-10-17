@@ -8,6 +8,7 @@ import md5
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
@@ -190,7 +191,7 @@ class OpenSyncFactory(DataProvider.DataProviderFactory):
             self.plugin_available(plugin)
 
     def plugin_available(self, plugin):
-        category = DataProvider.DataProviderCategory(plugin.name)
+        category = DataProviderCategory.DataProviderCategory(plugin.name)
 
         info = opensync.PluginInfo()
         info.set_config(evo_config)
