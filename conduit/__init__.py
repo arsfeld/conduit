@@ -87,11 +87,11 @@ if IS_INSTALLED:
         sys.path.insert(0, PYTHONDIR)
 else:
     APPNAME =                   "Conduit"
-    APPVERSION =                "0.3.4"
+    APPVERSION =                "0.3.5"
     LOCALE_DIR =                os.path.join(_dirname, "po")
     SHARED_DATA_DIR =           os.path.join(_dirname, "data")
     GLADE_FILE =                os.path.join(_dirname, "data","conduit.glade")
-    SHARED_MODULE_DIR =         os.path.join(_dirname, "conduit")
+    SHARED_MODULE_DIR =         os.path.join(_dirname, "conduit", "modules")
 
 import Globals
 GLOBALS = Globals.Globals()

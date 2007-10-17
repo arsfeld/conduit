@@ -1,8 +1,7 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-libdir=@libdir@
-dataprovidersdir=@libdir@/conduit/dataproviders
-artdir=@datadir@/conduit/art
+libdir=@LIBDIR@
+dataprovidersdir=@MODULEDIR@
 
 Name: Conduit DataProviders Location
 Description: Providing the location of Conduit system-wide DataProviders.

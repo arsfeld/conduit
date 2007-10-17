@@ -7,18 +7,14 @@ dragged onto.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import gobject
 import goocanvas
 import gtk
 import pango
 from gettext import gettext as _
 
-import thread
-
 from conduit import log,logd,logw
 from conduit.Conduit import Conduit
 from conduit.Tree import DND_TARGETS
-from conduit.ModuleWrapper import PendingDataproviderWrapper
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -422,7 +418,6 @@ class Canvas(goocanvas.Canvas):
         """
         Refreshes a single dataprovider
         """
-        print "UI ----------------------------", thread.get_ident()
         dp = self.selectedDataproviderItem.model
         #dp.module.refresh()
         cond = self.selectedConduitItem.model

@@ -6,7 +6,6 @@ License: GPLv2
 """
 
 import traceback
-from gettext import gettext as _
 
 from conduit import log,logd,logw
 import conduit.Exceptions as Exceptions
@@ -203,27 +202,14 @@ class TypeConverter:
             logw("Conversion from %s -> %s does not exist " % (from_type, to_type))
             raise Exceptions.ConversionDoesntExistError(from_type, to_type)
 
-    def get_convertables_descriptive_list(self):
+    def get_convertables_list(self):
         """
-        Returns an array of C{string}s in the form 
-        "Convert from BLA to BLA"
-        
-        Used for display in the GUI and in debugging
-        
-        @returns: List of descriptive strings
-        @rtype: C{string[]}
+        Returns a list of 2-tuples specifying conversions (from->to)
         """
-        CONVERT_FROM_MESSAGE = _("Convert from")
-        CONVERT_INTO_MESSAGE = _("into")        
-        
         l = []
         for froms in self.convertables:
             for tos in self.convertables[froms]:
-                msg = "%s %s %s %s" % ( CONVERT_FROM_MESSAGE,
-                                        froms,
-                                        CONVERT_INTO_MESSAGE,
-                                        tos)
-                l.append(msg)
+                l.append( (froms, tos) )
         return l
                 
           

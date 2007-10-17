@@ -25,7 +25,7 @@ import conduit.MappingDB as MappingDB
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
 conduit.SHARED_DATA_DIR =       os.path.join(base_path,"data")
-conduit.SHARED_MODULE_DIR =     os.path.join(base_path,"conduit")
+conduit.SHARED_MODULE_DIR =     os.path.join(base_path,"conduit","modules")
 
 def ok(message, code, die=True):
     if type(code) == int:
@@ -91,7 +91,7 @@ class SimpleTest(object):
 
         #Dynamically load all datasources, datasinks and converters
         dirs_to_search =    [
-                            os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
+                            conduit.SHARED_MODULE_DIR,
                             os.path.join(conduit.USER_DIR, "modules")
                             ]
 

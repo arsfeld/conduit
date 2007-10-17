@@ -11,12 +11,7 @@ if not is_online():
     skip()
 
 #Dynamically load all datasources, datasinks and converters
-dirs_to_search =    [
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
-                    os.path.join(conduit.USER_DIR, "modules")
-                    ]
-model = ModuleManager(dirs_to_search)
-type_converter = TypeConverter(model)
+type_converter = SimpleTest().type_converter
 
 gmail = model.get_new_module_instance("GmailEmailTwoWay").module
 gmail.username = "%s@gmail.com" % os.environ['TEST_USERNAME']

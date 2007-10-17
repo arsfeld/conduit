@@ -1,4 +1,4 @@
-AC_INIT([conduit], [0.3.4],[john.stowers@gmail.com],[conduit])
+AC_INIT([conduit], [0.3.5],[john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
 AC_CONFIG_SRCDIR(conduit/__init__.py)
 AC_CONFIG_MACRO_DIR([m4])
@@ -109,7 +109,7 @@ AS_AC_EXPAND(LOCALEDIR, $localedir)
 AS_AC_EXPAND(PKGDATADIR, $datarootdir/$PACKAGE)
 AS_AC_EXPAND(ICONDIR, $datarootdir/$PACKAGE/icons)
 AS_AC_EXPAND(LIBDIR, $libdir)
-AS_AC_EXPAND(PKGLIBDIR, $libdir/$PACKAGE)
+AS_AC_EXPAND(MODULEDIR, $libdir/$PACKAGE/modules)
 AS_AC_EXPAND(PYTHONDIR, $pythondir)
 AS_AC_EXPAND(BINDIR, $bindir)
 
@@ -122,28 +122,29 @@ conduit/defs.py
 conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
-conduit/dataproviders/BackpackModule/Makefile
-conduit/dataproviders/BackpackModule/backpack-1.1/Makefile
-conduit/dataproviders/BoxDotNetModule/Makefile
-conduit/dataproviders/BoxDotNetModule/BoxDotNetAPI/Makefile
-conduit/dataproviders/EvolutionModule/Makefile
-conduit/dataproviders/FileModule/Makefile
-conduit/dataproviders/FeedModule/Makefile
-conduit/dataproviders/FlickrModule/Makefile
-conduit/dataproviders/FlickrModule/FlickrAPI/Makefile
-conduit/dataproviders/FacebookModule/Makefile
-conduit/dataproviders/FacebookModule/pyfacebook/Makefile
-conduit/dataproviders/FspotModule/Makefile
-conduit/dataproviders/GmailModule/Makefile
-conduit/dataproviders/GmailModule/libgmail-0.1.6.2/Makefile
-conduit/dataproviders/PicasaModule/Makefile
-conduit/dataproviders/PicasaModule/PicasaAPI/Makefile
-conduit/dataproviders/SettingsModule/Makefile
-conduit/dataproviders/SettingsModule/settings/Makefile
-conduit/dataproviders/SmugMugModule/Makefile
-conduit/dataproviders/SmugMugModule/SmugMugAPI/Makefile
-conduit/dataproviders/YouTubeModule/Makefile
-conduit/dataproviders/GoogleModule/Makefile
+conduit/modules/Makefile
+conduit/modules/BackpackModule/Makefile
+conduit/modules/BackpackModule/backpack-1.1/Makefile
+conduit/modules/BoxDotNetModule/Makefile
+conduit/modules/BoxDotNetModule/BoxDotNetAPI/Makefile
+conduit/modules/EvolutionModule/Makefile
+conduit/modules/FileModule/Makefile
+conduit/modules/FeedModule/Makefile
+conduit/modules/FlickrModule/Makefile
+conduit/modules/FlickrModule/FlickrAPI/Makefile
+conduit/modules/FacebookModule/Makefile
+conduit/modules/FacebookModule/pyfacebook/Makefile
+conduit/modules/FspotModule/Makefile
+conduit/modules/GmailModule/Makefile
+conduit/modules/GmailModule/libgmail-0.1.6.2/Makefile
+conduit/modules/PicasaModule/Makefile
+conduit/modules/PicasaModule/PicasaAPI/Makefile
+conduit/modules/SettingsModule/Makefile
+conduit/modules/SettingsModule/settings/Makefile
+conduit/modules/SmugMugModule/Makefile
+conduit/modules/SmugMugModule/SmugMugAPI/Makefile
+conduit/modules/YouTubeModule/Makefile
+conduit/modules/GoogleModule/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit-autostart.desktop.in

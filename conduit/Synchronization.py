@@ -7,19 +7,16 @@ License: GPLv2
 
 import traceback
 import threading
-import gobject
 
 import conduit
 from conduit import log,logd,logw
 
-import conduit.DataProvider as DataProvider
+import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
-import conduit.DB as DB
-import conduit.Utils as Utils
 import conduit.DeltaProvider as DeltaProvider
 
 from conduit.Conflict import Conflict, CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
-from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_OLDER, COMPARISON_UNKNOWN
+from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_UNKNOWN
 
 def _put_data(source, sink, data, LUID, overwrite):
     """

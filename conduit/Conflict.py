@@ -7,15 +7,13 @@ License: GPLv2
 import traceback
 import threading
 import time
-import random
-import os.path
 import gobject
 import gtk, gtk.gdk
 import pango
 
 import conduit
 from conduit import log,logd,logw
-import conduit.DataProvider as DataProvider
+import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 
 #ENUM of directions when resolving a conflict

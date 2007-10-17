@@ -19,7 +19,7 @@ if wrapper != None:
     ipod = wrapper.module
 else:
     #grossness, simulate an ipod
-    from conduit.dataproviders import iPodModule
+    from conduit.modules import iPodModule
     fakeIpodDir = os.path.join(os.environ['TEST_DIRECTORY'],"iPod")
     ipod = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
     ok("Created fake ipod at %s" % ipod.mountPoint, ipod.mountPoint != "")

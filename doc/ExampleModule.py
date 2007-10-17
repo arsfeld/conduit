@@ -1,23 +1,21 @@
 """
 An Example DataSource and DataType implementation.
 """
-import gtk
+import xmlrpclib
 
 import conduit
-from conduit import log,logd,logw
-from conduit.DataProvider import DataSource, DataProviderSimpleConfigurator, CATEGORY_FILES
-from conduit.datatypes import DataType
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
-
-import xmlrpclib
+import conduit.datatypes.DataType as DataType
+import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.SimpleConfigurator as SimpleConfigurator
 
 MODULES = {
     "MoinMoinDataSource" :  { "type": "dataprovider" },
     "WikiPageConverter" :   { "type": "converter" }
 }
 
-class MoinMoinDataSource(DataSource):
+class MoinMoinDataSource(DataProvider.DataSource):
     """
     This datasource fetches pages from the GNOME wiki.
     DataSources are presumed to be one-way, that is they are a source
@@ -31,7 +29,7 @@ class MoinMoinDataSource(DataSource):
 
     _name_ = "GNOME Wiki"
     _description_ = "Get Pages from the GNOME Wiki"
-    _category_ = CATEGORY_FILES
+    _category_ = conduit.dataproviders.CATEGORY_FILES
     _module_type_ = "source"
     _in_type_ = "wikipage"
     _out_type_ = "wikipage"
@@ -47,9 +45,9 @@ class MoinMoinDataSource(DataSource):
         The name and description are typically the same values as specified
         in the MODULES dict at the top of the file
         """
-        DataSource.__init__(self)
+        DataProvider.DataSource.__init__(self)
 
-        log("Hello World!")
+        conduit.log("Hello World!")
         
         #class specific
         self.srcwiki = None
@@ -65,6 +63,11 @@ class MoinMoinDataSource(DataSource):
         @param window: The parent window (used for modal dialogs)
         @type window: C{gtk.Window}
         """
+        #lazy import gtk so if conduit is run from command line arg, or
+        #a non gtk system, this dp will still load. There should be no need
+        #to use gtk outside of this function
+        import gtk
+        
         def set_pages(param):
             self.pages = param.split(',')
         
@@ -80,7 +83,7 @@ class MoinMoinDataSource(DataSource):
                     }                    
                 ]
         #We just use a simple configuration dialog
-        dialog = DataProviderSimpleConfigurator(window, self._name_, items)
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
         #This call blocks
         dialog.run()
         
@@ -92,7 +95,7 @@ class MoinMoinDataSource(DataSource):
         The refresh method is always called before the sync step. DataSources 
         should always call the base classes refresh() method
         """
-        DataSource.refresh(self)
+        DataProvider.DataSource.refresh(self)
         if self.srcwiki is None:
             try:
                 #use_datetime tells xmlrpc to return python datetime objects
@@ -109,7 +112,7 @@ class MoinMoinDataSource(DataSource):
         Returns the LUIDs of all items to synchronize.        
         DataSources should always call the base classes get_all() method
         """
-        DataSource.get_all(self)
+        DataProvider.DataSource.get_all(self)
         #the LUID for the page is its full url    
         return [MoinMoinDataSource.WIKI_ADDRESS+p for p in self.pages]
             
@@ -119,7 +122,7 @@ class MoinMoinDataSource(DataSource):
         @param LUID: A LUID which uniquely represents data to return
         @type LUID: C{str}
         """
-        DataSource.get(self, LUID)
+        DataProvider.DataSource.get(self, LUID)
 
         #recover the page name from the full LUID string
         pagename = LUID.replace(MoinMoinDataSource.WIKI_ADDRESS,"")

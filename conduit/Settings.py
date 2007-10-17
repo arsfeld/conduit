@@ -6,14 +6,11 @@ Part of this code copied from Gimmie (c) Alex Gravely
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import os, os.path
 import gobject
 import gconf
-import traceback
 #import gnomekeyring
 
-from conduit import log,logd,logw
+import conduit
 
 class Settings(gobject.GObject):
     """
@@ -207,7 +204,7 @@ class Settings(gobject.GObject):
             strvalues = [str(i) for i in value]
             self.client.set_list(key, gconf.VALUE_STRING, strvalues)
         else:
-            logw("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
+            conduit.logw("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
 
     def get_username_and_password(self, classname):
         """

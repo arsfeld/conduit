@@ -13,16 +13,13 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import conduit
-from conduit import logd, logw, log
-import conduit.DataProvider as DataProvider
-import conduit.datatypes.DataType as DataType
 
 class DeltaProvider:
     def __init__(self, dpw, otherdpw):
         self.me = dpw
         self.other = otherdpw
 
-        log("Delta: Source (%s) does not implement get_changes(). Proxying..." % self.me.get_UID())
+        conduit.log("Delta: Source (%s) does not implement get_changes(). Proxying..." % self.me.get_UID())
 
     def get_changes(self):
         """
@@ -30,7 +27,7 @@ class DeltaProvider:
         """
         #Copy (slice) list for in case there are other sinks to follow
         allItems = self.me.module.get_all()[:]
-        logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
+        conduit.logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
         #we also get the mtimes because we need those to detect if something has changed
@@ -40,7 +37,7 @@ class DeltaProvider:
         for i in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
             mtimes[ i["sinkDataLUID"] ] = i["sinkDataMtime"]
 
-        logd("Delta: Expecting %s items\n%s" % (len(mtimes), mtimes.keys()))
+        conduit.logd("Delta: Expecting %s items\n%s" % (len(mtimes), mtimes.keys()))
 
         #now classify all my items relative to the expected data from the previous
         #sync with the supplied other dataprovider. Copy (slice) the list because we

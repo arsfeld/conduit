@@ -7,8 +7,7 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import gobject
-import gtk
-import gtk.glade
+import gtk, gtk.glade
 import gnome.ui
 import os.path
 import gettext
@@ -17,7 +16,6 @@ from gettext import gettext as _
 import conduit
 from conduit import log,logd,logw
 from conduit.Canvas import Canvas
-from conduit.Synchronization import SyncManager
 from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.Conflict import ConflictResolver
 
@@ -48,7 +46,6 @@ class MainWindow:
                     conduit.SHARED_DATA_DIR,
                     conduit.SHARED_MODULE_DIR,
                     os.path.join(conduit.SHARED_DATA_DIR,"icons"),
-                    os.path.join(conduit.SHARED_MODULE_DIR,"dataproviders"),
                     os.path.join(conduit.USER_DIR, "modules")
                     ]
         for i in icon_dirs:                    
@@ -231,10 +228,14 @@ class MainWindow:
             textview.get_buffer().set_text(conduit.GLOBALS.mappingDB.debug())
 
         #Build some liststores to display
-        convertables = self.type_converter.get_convertables_descriptive_list()
+        CONVERT_FROM_MESSAGE = _("Convert from")
+        CONVERT_INTO_MESSAGE = _("into") 
+        
+        convertables = self.type_converter.get_convertables_list()
         converterListStore = gtk.ListStore( str )
-        for i in convertables:
-            converterListStore.append( [i] )
+        for froms,tos in convertables:
+            string = "%s %s %s %s" % (CONVERT_FROM_MESSAGE, froms, CONVERT_INTO_MESSAGE, tos)
+            converterListStore.append( (string,) )
         dataProviderListStore = gtk.ListStore( str, bool )
         for i in self.moduleManager.get_modules_by_type("sink"):
             dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))

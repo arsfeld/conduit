@@ -11,8 +11,8 @@ import traceback
 import pydoc
 
 from conduit import log,logd,logw
+from conduit.dataproviders import CATEGORY_TEST
 from conduit.ModuleWrapper import ModuleWrapper, PendingDataproviderWrapper
-from conduit.DataProvider import CATEGORY_TEST
 from conduit.Hal import HalMonitor
 
 class ModuleManager(gobject.GObject):

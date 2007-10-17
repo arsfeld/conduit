@@ -1,7 +1,6 @@
 import os
 import tempfile
 import datetime
-import time
 import traceback
 import gnomevfs
 

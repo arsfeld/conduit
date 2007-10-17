@@ -1,4 +1,4 @@
-SUBDIRS = datatypes dataproviders
+SUBDIRS = datatypes dataproviders modules
 
 conduitbindir = $(bindir)
 conduitbin_SCRIPTS = \
@@ -11,7 +11,6 @@ conduit_PYTHON = \
 	Canvas.py \
 	Conduit.py \
 	Conflict.py \
-	DataProvider.py \
 	DB.py \
 	DBus.py \
 	defs.py \
