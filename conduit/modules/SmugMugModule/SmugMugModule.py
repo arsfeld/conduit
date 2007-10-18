@@ -10,7 +10,7 @@ import md5
 import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
-import conduit.dataproviders.ImageSink as ImageSink
+import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
@@ -21,7 +21,7 @@ MODULES = {
     "SmugMugTwoWay" :          { "type": "dataprovider" }        
 }
 
-class SmugMugTwoWay(ImageSink.ImageTwoWay):
+class SmugMugTwoWay(Image.ImageTwoWay):
 
     _name_ = "SmugMug"
     _description_ = "Sync Your SmugMug.com Photos"
@@ -29,7 +29,7 @@ class SmugMugTwoWay(ImageSink.ImageTwoWay):
     _icon_ = "smugmug"
 
     def __init__(self, *args):
-        ImageSink.ImageTwoWay.__init__(self)
+        Image.ImageTwoWay.__init__(self)
         self.need_configuration(True)
         
         self.password = ""
@@ -58,7 +58,7 @@ class SmugMugTwoWay(ImageSink.ImageTwoWay):
             raise Exceptions.SyncronizeError("SmugMug Upload Error.")
 
     def refresh(self):
-        ImageSink.ImageTwoWay.refresh(self)
+        Image.ImageTwoWay.refresh(self)
 
         # make sure we logout from previous logins
         if self.sapi:

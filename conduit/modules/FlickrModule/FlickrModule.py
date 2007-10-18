@@ -11,7 +11,7 @@ import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.Web as Web
-import conduit.dataproviders.ImageSink as ImageSink
+import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
@@ -22,7 +22,7 @@ MODULES = {
 	"FlickrTwoWay" :          { "type": "dataprovider" }        
 }
 
-class FlickrTwoWay(ImageSink.ImageTwoWay):
+class FlickrTwoWay(Image.ImageTwoWay):
 
     _name_ = "Flickr"
     _description_ = "Sync Your Flickr.com Photos"
@@ -34,7 +34,7 @@ class FlickrTwoWay(ImageSink.ImageTwoWay):
     _perms_ = "delete"
 
     def __init__(self, *args):
-        ImageSink.ImageTwoWay.__init__(self)
+        Image.ImageTwoWay.__init__(self)
         self.need_configuration(True)
         
         self.fapi = None
@@ -125,7 +125,7 @@ class FlickrTwoWay(ImageSink.ImageTwoWay):
         
     # DataProvider methods
     def refresh(self):
-        ImageSink.ImageTwoWay.refresh(self)
+        Image.ImageTwoWay.refresh(self)
         self._login()
 
 

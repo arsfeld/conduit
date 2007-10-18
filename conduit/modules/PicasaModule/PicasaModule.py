@@ -10,7 +10,7 @@ import md5
 import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
-import conduit.dataproviders.ImageSink as ImageSink
+import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
@@ -21,14 +21,14 @@ MODULES = {
     "PicasaTwoWay" :          { "type": "dataprovider" }        
 }
 
-class PicasaTwoWay(ImageSink.ImageTwoWay):
+class PicasaTwoWay(Image.ImageTwoWay):
 
     _name_ = "Picasa"
     _description_ = "Sync Your Google Picasa Photos"
     _icon_ = "picasa"
 
     def __init__(self, *args):
-        ImageSink.ImageTwoWay.__init__(self)
+        Image.ImageTwoWay.__init__(self)
         self.need_configuration(True)
         
         self.username = ""
@@ -53,7 +53,7 @@ class PicasaTwoWay(ImageSink.ImageTwoWay):
         return ("image/jpeg", )
         
     def refresh(self):
-        ImageSink.ImageTwoWay.refresh(self)
+        Image.ImageTwoWay.refresh(self)
         self.gapi = PicasaWeb(self.username, self.password)
 
         albums = self.gapi.getAlbums ()
@@ -69,7 +69,7 @@ class PicasaTwoWay(ImageSink.ImageTwoWay):
         return self.gphotos.keys()
 
     def get (self, LUID):
-        ImageSink.ImageTwoWay.get (self, LUID)
+        Image.ImageTwoWay.get (self, LUID)
         gphoto = self.gphotos[LUID]
 
         f = File.File (URI=gphoto.url)

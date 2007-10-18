@@ -3,7 +3,7 @@ conduit_PYTHON = \
 	__init__.py \
 	DataProvider.py \
 	DataProviderCategory.py \
-	ImageSink.py \
+	Image.py \
 	SimpleConfigurator.py
 
 clean-local:

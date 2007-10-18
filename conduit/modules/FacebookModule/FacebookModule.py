@@ -10,7 +10,7 @@ import conduit
 from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.Web as Web
-import conduit.dataproviders.ImageSink as ImageSink
+import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 
@@ -21,7 +21,7 @@ MODULES = {
     "FacebookSink" :          { "type": "dataprovider" }        
 }
 
-class FacebookSink(ImageSink.ImageSink):
+class FacebookSink(Image.ImageSink):
 
     _name_ = "Facebook"
     _description_ = "Sync Your Facebook Photos"
@@ -32,7 +32,7 @@ class FacebookSink(ImageSink.ImageSink):
     SECRET="20e2c82829f1884e40efc616a44e5d1f"
 
     def __init__(self, *args):
-        ImageSink.ImageSink.__init__(self)
+        Image.ImageSink.__init__(self)
         self.fapi = None
 
     def _upload_photo (self, url, mimeType, name):
@@ -66,7 +66,7 @@ class FacebookSink(ImageSink.ImageSink):
         return rsp.has_key("secret") and rsp.has_key("session_key")
 
     def refresh(self):
-        ImageSink.ImageSink.refresh(self)
+        Image.ImageSink.refresh(self)
         if self.fapi == None:
             self._login()
 

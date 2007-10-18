@@ -10,7 +10,7 @@ from conduit import logd
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.SimpleConfigurator as SimpleConfigurator
-import conduit.dataproviders.ImageSink as ImageSink
+import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
 import conduit.Web as Web
@@ -199,13 +199,13 @@ class TestSink(_TestBase, DataProvider.DataSink):
         LUID=data.get_UID()+self._name_
         return LUID
 
-class TestImageSink(ImageSink.ImageSink):
+class TestImageSink(Image.ImageSink):
 
     _name_ = "Test Image Sink"
     _icon_ = "image-x-generic"
 
     def __init__(self, *args):
-        ImageSink.ImageSink.__init__(self)
+        Image.ImageSink.__init__(self)
 
         self.format = "image/jpeg"
         self.defaultFormat = "image/jpeg"
