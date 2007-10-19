@@ -85,7 +85,7 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         return the list of photo id's
         """
         DataProvider.TwoWay.get_all(self)
-        return self.photos
+        return list (str(photo_id) for photo_id in self.photos)
 
     def get(self, LUID):
         """
@@ -111,19 +111,20 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         if LUID != None:
             return
 
+        # Check if remote is read only
+        if self.photo_remote.IsReadOnly ():
+            raise conduit.Exceptions.SyncronizeError ('F-Spot DBus interface is operating in read only mode')
+
         # create roll if necessary
         if not self.has_roll:
             self.prepare_roll ()
 
         # import the photo
-        id = self.photo_remote.ImportPhoto (file.get_local_uri(), True, self.enabledTags)
-
-        # check the return value
-        if id == -1:
-            raise SynchroniseError ()
-
-        # return id (cast to string for pickle)
-        return str(id)
+        try:
+            id = self.photo_remote.ImportPhoto (file.get_local_uri(), True, self.enabledTags)
+            return str(id)
+        except:
+            raise conduit.Exceptions.SynchronizeError ('Import Failed')
 
     def delete(self, LUID):
         """
