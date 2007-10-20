@@ -95,6 +95,12 @@ class DataProviderBase(gobject.GObject):
         @rtype: C{bool}
         """
         return True
+
+    def uninitialize(self):
+        """
+        Called just before the application quits.
+        """
+        pass
         
     def refresh(self):
         """

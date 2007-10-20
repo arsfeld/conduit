@@ -224,6 +224,12 @@ OPTIONS:
         #give the dataprovider factories time to shut down
         log("Closing dataprovider factories")
         conduit.GLOBALS.moduleManager.quit()
+        
+        #unitialize all dataproviders
+        log("Unitializing dataproviders")
+        self.guiSyncSet.quit()
+        self.dbusSyncSet.quit()
+
         main_quit()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')

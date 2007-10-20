@@ -215,3 +215,12 @@ class SyncSet(gobject.GObject):
             logw("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
             os.remove(self.xmlSettingFilePath)
 
+    def quit(self):
+        """
+        Calls unitialize on all dataproviders
+        """
+        for c in self.conduits:
+            for dp in c.get_all_dataproviders():
+                if dp.module:
+                    dp.module.uninitialize()
+
