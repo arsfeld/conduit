@@ -288,17 +288,17 @@ class ScannerThreadManager:
         self.scanThreads = {}
         self.pendingScanThreadsURIs = []
 
-    def make_thread(self, folderURI, includeHidden, progressCb, completedCb, rowref):
+    def make_thread(self, folderURI, includeHidden, progressCb, completedCb, *args):
         """
         Makes a thread for scanning folderURI. The thread callsback the model
-        at regular intervals and updates rowref within that model
+        at regular intervals with the supplied args
         """
         running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
 
         if folderURI not in self.scanThreads:
             thread = FolderScanner(folderURI, includeHidden)
-            thread.connect("scan-progress",progressCb, rowref)
-            thread.connect("scan-completed",completedCb, rowref)
+            thread.connect("scan-progress",progressCb, *args)
+            thread.connect("scan-completed",completedCb, *args)
             thread.connect("scan-completed", self._register_thread_completed, folderURI)
             self.scanThreads[folderURI] = thread
             if running < ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
@@ -374,12 +374,13 @@ class FolderScanner(threading.Thread, gobject.GObject):
     def __init__(self, baseURI, includeHidden):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
-        self.baseURI = baseURI
+        self.baseURI = str(baseURI)
         self.includeHidden = includeHidden
-        self.dirs = [baseURI]
+
+        self.dirs = [self.baseURI]
         self.cancelled = False
         self.URIs = []
-        self.setName("FolderScanner Thread: %s" % baseURI)
+        self.setName("FolderScanner Thread: %s" % self.baseURI)
 
     def run(self):
         """
