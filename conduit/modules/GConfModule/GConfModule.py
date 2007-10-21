@@ -2,27 +2,45 @@ import gconf
 
 import conduit
 from conduit import log,logd,logw
+
 import conduit.dataproviders.DataProvider as DataProvider
+from conduit.datatypes import DataType
+import conduit.datatypes.Text as Text
 
 MODULES = {
     "GConfTwoWay"     : { "type": "dataprovider"  },
+    "GConfConverter"  : { "type": "converter" },
 }
 
-class GConfSetting(object):
+class GConfSetting(DataType.DataType):
+    _name_ = "gconf-setting"
+
     def __init__(self, key, value=""):
+        DataType.DataType.__init__(self)
         self.key = key
         self.value = value
 
     def get_UID(self):
         return self.key
 
+
+class GConfConverter(object):
+    def __init__(self):
+        self.conversions =  {    
+                            "gconf-setting,text"    : self.to_text,
+                            }
+                            
+    def to_text(self, setting):
+        val = "%s, %s" % (setting.key, setting.value)
+        return Text.Text(None, text=val)
+
 class GConfTwoWay(DataProvider.TwoWay):
     _name_ = "GConf Settings"
     _description_ = "Sync your desktop preferences"
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
-    _in_type_ = "setting"
-    _out_type_ = "setting"
+    _in_type_ = "gconf-setting"
+    _out_type_ = "gconf-setting"
     _icon_ = "preferences-desktop"
 
     def __init__(self, *args):
