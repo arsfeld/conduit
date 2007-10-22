@@ -20,12 +20,19 @@ import datetime
 import dateutil.parser
 from dateutil.tz import tzutc, tzlocal
 
-import vobject
-import gdata.calendar.service
-import gdata.service
-import gdata.calendar
-import atom
-
+try:
+    import vobject
+    import gdata.calendar.service
+    import gdata.service
+    import gdata.calendar
+    import atom
+    MODULES = {
+        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
+    }
+except ImportError:
+    MODULES = {
+    }
+    logw("Skipping GoogleCalendarTwoWay - GDATA is not available")
 
 class GoogleConnection(object):
     def __init__(self):
