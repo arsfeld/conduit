@@ -12,13 +12,20 @@ import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
+from conduit import log,logd,logw
+
 try:
     import opensync
+    ContextCallbacks = opensync.ContextCallbacks
     MODULES = {
         "OpenSyncFactory":        { "type": "dataprovider-factory" },
     }
 except:
-    pass
+    class ContextCallbacks:
+        pass
+    MODULES = {
+    }
+    logw("Skipping OpenSync. Please install OpenSync bindings!")
 
 evo_config = """<config>
                     <address_path>default</address_path>
@@ -100,7 +107,7 @@ class BaseDataprovider(DataProvider.TwoWay):
         if myhash == None or len(myhash) == 0:
             return md5.md5(change.data.data).hexdigest()
 
-class Callbacks(opensync.ContextCallbacks):
+class Callbacks(ContextCallbacks):
     def __init__(self, dp):
         self.dp = dp
 
