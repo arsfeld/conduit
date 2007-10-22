@@ -9,7 +9,7 @@ import conduit.TypeConverter as TypeConverter
 import conduit.Synchronization as Synchronization
 
 from conduit.datatypes import COMPARISON_EQUAL
-from conduit.dataproviders import iPodModule
+from conduit.modules import iPodModule
 from conduit.ModuleWrapper import ModuleWrapper
 
 #setup the test

@@ -14,7 +14,7 @@ import conduit.datatypes.Event as Event
 import conduit.datatypes.Note as Note
 
 # import any dp's that we'll need to wrap
-from conduit.dataproviders import iPodModule
+from conduit.modules import iPodModule
 
 def dataprovider(datatype, **kwargs):
     """ Encapsulate a prep_... function in a class """
@@ -161,8 +161,8 @@ def prep_folder_contacts(host):
 #    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
 #    return dp
 
-@dataprovider("contact")
-def prep_opensync_evo_contact(host):
-    dp = host.get_dataprovider("opensync-evo2-sync-contact")
-    return dp
+#@dataprovider("contact")
+#def prep_opensync_evo_contact(host):
+#    dp = host.get_dataprovider("opensync-evo2-sync-contact")
+#    return dp
 
