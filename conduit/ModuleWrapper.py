@@ -1,5 +1,3 @@
-import gtk
-
 from conduit import log,logd,logw
 import traceback
 
@@ -156,6 +154,7 @@ class ModuleWrapper:
         Wrappers derived from this class (such as the CategoryWrapper)
         may override this function
         """
+        import gtk
         if not self.icon.has_key(size) or self.icon[size] is None:
             if self.module_type in ["source", "sink", "twoway", "category"]:
                 try:
@@ -174,15 +173,17 @@ class ModuleWrapper:
         return self.icon[size]
 
     def get_descriptive_icon(self):
+        """
+        The descriptive icon is two icons composited side by side. On the left
+        is the dataprovider icon, on the right an arrow indicating its type
+        size of each icon
+        """
+        import gtk
 
         #  _____
         # |     |___
         # |  i  | a |
         # |_____|___|
-
-        #The descriptive icon is two icons composited side by side. On the left
-        #is the dataprovider icon, on the right an arrow indicating its type
-        #size of each icon
         isize = 24
         asize = 16
         bwidth = isize + asize

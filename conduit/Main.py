@@ -2,6 +2,7 @@ import os
 import getopt
 import sys
 import dbus, dbus.service, dbus.glib
+import gobject
 
 import conduit
 import conduit.Utils as Utils
@@ -12,7 +13,6 @@ from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
 from conduit.Synchronization import SyncManager
 from conduit.DBus import DBusInterface
-from conduit.GtkUI import SplashScreen, MainWindow, StatusIcon, main_loop, main_quit
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 
@@ -36,6 +36,8 @@ class Application(dbus.service.Object):
 
         self.guiSyncSet = None
         self.dbusSyncSet = None
+        
+        self.uiLib = None
 
         #Default command line values
         if conduit.IS_DEVELOPMENT_VERSION:
@@ -47,7 +49,7 @@ class Application(dbus.service.Object):
 
         buildGUI = True
         iconify = False
-        ui = "GtkUI"
+        self.ui = "gtk"
         try:
             opts, args = getopt.getopt(sys.argv[1:], "hs:ciu:", 
                 ["help", "settings=", "console", "iconify", "ui="])
@@ -63,7 +65,7 @@ class Application(dbus.service.Object):
                 if o in ("-i", "--iconify"):
                     iconify = True
                 if o in ("-u", "--ui"):
-                     ui = a
+                     self.ui = a
         except getopt.GetoptError:
             # print help information and exit:
             logw("Unknown command line option")
@@ -72,7 +74,7 @@ class Application(dbus.service.Object):
 
         log("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
         log("Log Level: %s" % conduit.LOG_LEVEL)
-        log("Using UI: %s" % ui)
+        log("Using UI: %s" % self.ui)
         
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
@@ -85,7 +87,9 @@ class Application(dbus.service.Object):
                 if conduitApp.HasGUI():
                     conduitApp.ShowGUI()
                 else:
+                    conduitApp.ImportGUI()
                     conduitApp.ShowSplash()
+                    conduitApp.ShowStatusIcon()
                     conduitApp.BuildGUI()
                     conduitApp.ShowGUI()
                     conduitApp.HideSplash()
@@ -96,13 +100,12 @@ class Application(dbus.service.Object):
         bus_name = dbus.service.BusName(APPLICATION_DBUS_IFACE, bus=sessionBus)
         dbus.service.Object.__init__(self, bus_name, "/activate")
         
-        #Throw up a splash screen ASAP. Dont show if launched via --console.
-        if buildGUI and not iconify:
-            self.ShowSplash()
-
-        #The status icon is shared between the GUI and the Dbus iface
-        if conduit.GLOBALS.settings.get("show_status_icon") == True:
-            self.statusIcon = StatusIcon(self)
+        #Throw up a splash screen ASAP. Dont show anything if launched via --console.
+        if buildGUI:
+            self.ImportGUI()
+            if not iconify:
+                self.ShowSplash()
+            self.ShowStatusIcon()
 
         #Dynamically load all datasources, datasinks and converters
         dirs_to_search =    [
@@ -116,6 +119,7 @@ class Application(dbus.service.Object):
         conduit.GLOBALS.typeConverter = TypeConverter(conduit.GLOBALS.moduleManager)
         conduit.GLOBALS.syncManager = SyncManager(conduit.GLOBALS.typeConverter)
         conduit.GLOBALS.mappingDB = MappingDB(dbFile)
+        conduit.GLOBALS.mainloop = gobject.MainLoop()
         
         #Build both syncsets and put on the bus as early as possible
         self.guiSyncSet = SyncSet(
@@ -151,7 +155,7 @@ class Application(dbus.service.Object):
         #hide the splash screen
         self.HideSplash()
         try:
-            main_loop()
+            conduit.GLOBALS.mainloop.run()
         except KeyboardInterrupt:
             self.Quit()
 
@@ -171,12 +175,12 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def BuildGUI(self):
-        self.gui = MainWindow(
-                        conduitApplication=self,
-                        moduleManager=conduit.GLOBALS.moduleManager,
-                        typeConverter=conduit.GLOBALS.typeConverter,
-                        syncManager=conduit.GLOBALS.syncManager
-                        )
+        self.gui = self.uiLib.MainWindow(
+                                conduitApplication=self,
+                                moduleManager=conduit.GLOBALS.moduleManager,
+                                typeConverter=conduit.GLOBALS.typeConverter,
+                                syncManager=conduit.GLOBALS.syncManager
+                                )
 
         #reload the saved sync set
         self.guiSyncSet.restore_from_xml()
@@ -187,13 +191,24 @@ OPTIONS:
             self.guiSyncSet.connect("conduit-removed", self.statusIcon.on_conduit_removed)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
+    def ImportGUI(self):
+        if self.uiLib == None:
+            self.uiLib = __import__("conduit.%sui.UI" % self.ui, fromlist=['UI'])
+
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):
         self.gui.present()
+        
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
+    def ShowStatusIcon(self):
+        #The status icon is shared between the GUI and the Dbus iface
+        if conduit.GLOBALS.settings.get("show_status_icon") == True:
+            self.statusIcon = self.uiLib.StatusIcon(self)
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowSplash(self):
         if conduit.GLOBALS.settings.get("show_splashscreen") == True:
-            self.splash = SplashScreen()
+            self.splash = self.uiLib.SplashScreen()
             self.splash.show()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
@@ -230,7 +245,7 @@ OPTIONS:
         self.guiSyncSet.quit()
         self.dbusSyncSet.quit()
 
-        main_quit()
+        conduit.GLOBALS.mainloop.quit()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Synchronize(self):

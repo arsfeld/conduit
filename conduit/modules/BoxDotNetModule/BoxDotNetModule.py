@@ -2,10 +2,8 @@
 BoxDotNet Module
 """
 import os, sys
-import gtk
 import traceback
 import md5
-
 
 import conduit
 from conduit import log,logd,logw
@@ -287,7 +285,7 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         dlg = tree.get_widget("BoxDotNetConfigDialog")
 
         response = Utils.run_dialog (dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             # get the values from the widgets
             self.foldername = foldername.get_text()
 

@@ -1,6 +1,5 @@
 import os
 import sys
-import gtk
 from gettext import gettext as _
 import traceback
 
@@ -110,6 +109,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         option is mutually exclusive with all the others (which may be
         mixed according to the users preferences
         """
+        import gtk
         def invalidate_options():
             if searchAllEmailsCb.get_active():
                 searchUnreadEmailsCb.set_active(False)
@@ -360,7 +360,10 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         self.contacts = None
 
     def configure(self, window):
-        tree = gtk.glade.XML(conduit.GLADE_FILE, "GmailSinkConfigDialog")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade", 
+                        "FlickrTwoWayConfigDialog")
         
         #get a whole bunch of widgets
         searchLabelEmailsCb = tree.get_widget("searchLabelEmails")
@@ -375,7 +378,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         dlg.set_transient_for(window)
         
         response = dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()

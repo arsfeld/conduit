@@ -4,7 +4,7 @@ from gettext import gettext as _
 
 import conduit
 import conduit.Utils as Utils
-import conduit.GtkDatabase as DB
+import conduit.gtkui.Database as DB
 
 TYPE_FILE = 0
 TYPE_FOLDER = 1

@@ -1,9 +1,7 @@
 import os
 from os.path import abspath, expanduser
 import sys
-import gtk
 from gettext import gettext as _
-
 
 import conduit
 from conduit import log,logd,logw
@@ -98,7 +96,7 @@ class RSSSource(DataProvider.DataSource):
         dlg = tree.get_widget("RSSSourceConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.feedUrl = url.get_text()
             if limitCb.get_active():
                 #Need to cast to a float cause it returns an int

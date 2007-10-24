@@ -1,5 +1,4 @@
 import os
-import gtk
 import gobject
 
 try:
@@ -104,6 +103,7 @@ class FspotSource(DataProvider.DataSource):
         self.photos = []
 
     def configure(self, window):
+        import gtk
         def col1_toggled_cb(cell, path, model ):
             #not because we get this cb before change state
             checked = not cell.get_active()
@@ -152,7 +152,7 @@ class FspotSource(DataProvider.DataSource):
         dlg = tree.get_widget("FspotConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.set_configured(True)
         dlg.destroy()
 

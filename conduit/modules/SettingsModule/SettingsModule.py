@@ -1,5 +1,4 @@
 import os
-import gtk
 import gconf
 import gobject
 import tarfile
@@ -43,7 +42,7 @@ class Settings(DataProvider.DataSource):
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-
+        import gtk
         self.model = gtk.ListStore( gobject.TYPE_BOOLEAN,   #Enabled
                                     gobject.TYPE_STRING,    #Filename
                                     gobject.TYPE_STRING,    #Name
@@ -85,6 +84,7 @@ class Settings(DataProvider.DataSource):
         return filename,name,backups
 
     def _build_view(self, view):
+        import gtk
         #column0 is a checkbox with the number of enabled backups
         renderer = gtk.CellRendererToggle()
         renderer.set_property('activatable', True)
@@ -144,7 +144,7 @@ class Settings(DataProvider.DataSource):
         view.set_model(self.model)
 
         response = Utils.run_dialog (dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             pass
         dlg.destroy()    
 

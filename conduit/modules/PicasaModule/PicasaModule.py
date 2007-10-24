@@ -2,7 +2,6 @@
 Picasa Uploader.
 """
 import os, sys
-import gtk
 import traceback
 import md5
 
@@ -123,7 +122,7 @@ class PicasaTwoWay(Image.ImageTwoWay):
         
         response = Utils.run_dialog (dlg, window)
 
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.username = username.get_text()
             self.password = password.get_text()
             self.album = album.get_text()

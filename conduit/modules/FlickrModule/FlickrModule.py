@@ -2,10 +2,8 @@
 Flickr Uploader.
 """
 import os, sys
-import gtk
 import traceback
 import md5
-
 
 import conduit
 from conduit import log,logd,logw
@@ -257,7 +255,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         dlg = tree.get_widget("FlickrTwoWayConfigDialog")
         response = Utils.run_dialog(dlg, window)
 
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             # get the values from the widgets
             self.photoSetName = photoSetEntry.get_text()
             self.showPublic = publicCb.get_active()

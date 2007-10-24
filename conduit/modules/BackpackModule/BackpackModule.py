@@ -1,9 +1,7 @@
 import os
 import sys
 import traceback
-import gtk
 from gettext import gettext as _
-
 
 import conduit
 from conduit import log,logd,logw
@@ -110,7 +108,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         dlg = tree.get_widget("BackpackNotesSinkConfigDialog")
 
         response = Utils.run_dialog(dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.username = usernameEntry.get_text()
             self.storeInPage = pagenameEntry.get_text()
             if apikeyEntry.get_text() != self.apikey:

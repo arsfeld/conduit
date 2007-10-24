@@ -1,7 +1,6 @@
 import os
 from os.path import abspath, expanduser
 import sys
-import gtk
 import re
 from gettext import gettext as _
 
@@ -97,7 +96,7 @@ class YouTubeSource(DataProvider.DataSource):
         maxdownloads.set_value(self.max)
 
         response = Utils.run_dialog(dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             if mostviewedRb.get_active():
                 self.filter_type = 0
             elif topratedRb.get_active():

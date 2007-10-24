@@ -15,9 +15,9 @@ from gettext import gettext as _
 
 import conduit
 from conduit import log,logd,logw
-from conduit.Canvas import Canvas
-from conduit.Tree import DataProviderTreeModel, DataProviderTreeView
-from conduit.Conflict import ConflictResolver
+from conduit.gtkui.Canvas import Canvas
+from conduit.gtkui.Tree import DataProviderTreeModel, DataProviderTreeView
+from conduit.gtkui.ConflictResolver import ConflictResolver
 
 DEFAULT_CONDUIT_BROWSER = "gtkmozembed"
 

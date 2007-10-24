@@ -21,3 +21,6 @@ class Globals(object):
         #Global cancellation flag
         self.cancelled = False
 
+        #the application main loop
+        self.mainloop = None
+

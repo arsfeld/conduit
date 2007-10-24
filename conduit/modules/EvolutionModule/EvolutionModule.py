@@ -11,8 +11,7 @@ try:
 except:
     pass
     
-
-import gtk
+import datetime
 import gobject
 
 import conduit
@@ -24,8 +23,6 @@ import conduit.Exceptions as Exceptions
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Note as Note
-
-import datetime
 
 class EvoBase(DataProvider.TwoWay):
     def __init__(self, sourceURI, *args):
@@ -94,6 +91,7 @@ class EvoBase(DataProvider.TwoWay):
         self.uids = None
 
     def configure(self, window, selected, sources, name):
+        import gtk
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
@@ -122,7 +120,7 @@ class EvoBase(DataProvider.TwoWay):
         dlg = tree.get_widget("EvolutionConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             selected = store.get_value(sourceComboBox.get_active_iter(), 1)
 
         dlg.destroy()  

@@ -1,12 +1,9 @@
-import gtk
-
 try:
     import elementtree.ElementTree as ET
 except:
     import xml.etree.ElementTree as ET
 
 import dbus
-
 
 import conduit
 from conduit import log,logd,logw

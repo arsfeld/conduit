@@ -1,15 +1,12 @@
-import gtk
 import gobject
 import random
 import datetime
-
 import thread
 
 import conduit
 from conduit import logd
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.dataproviders.SimpleConfigurator as SimpleConfigurator
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
@@ -85,6 +82,9 @@ class _TestBase:
         return True
 
     def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
         def setError(param):
             self.errorAfter = int(param)
         def setSlow(param):
@@ -229,6 +229,9 @@ class TestImageSink(Image.ImageSink):
 
     #DataProvider Methods
     def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
         def setFormat(param):
             self.format = str(param)
         def setDefaultFormat(param):
@@ -281,6 +284,9 @@ class TestWebSink(DataProvider.DataSink):
         self.browser = "gtkmozembed"
 
     def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
         def setUrl(param):
             self.url = str(param)
         def setBrowser(param):
@@ -468,6 +474,9 @@ class TestConversionArgs(DataProvider.DataSink):
         self.conversionArgs = ""
 
     def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
         def setArgs(param):
             self.conversionArgs = str(param)
         items = [

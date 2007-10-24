@@ -1,4 +1,3 @@
-import gtk.gdk
 import conduit
 
 from conduit.datatypes import File
@@ -20,6 +19,7 @@ class Photo(File.File):
         late as possible, as it is really only needed for
         conversion
         """
+        import gtk.gdk
         if self.pb == None:
             self.pb = gtk.gdk.pixbuf_new_from_file(self.get_local_uri())
         return self.pb
@@ -48,6 +48,7 @@ class Photo(File.File):
         Basically we defer the conversion until as late as possible, or 
         not at all.
         """
+        import gtk.gdk
         if format == None and size == None:
             return
 

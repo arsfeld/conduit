@@ -2,7 +2,6 @@
 Facebook Photo Uploader.
 """
 import os, sys
-import gtk
 import traceback
 import md5
 

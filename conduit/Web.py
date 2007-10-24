@@ -74,13 +74,17 @@ class _MozEmbedWebBrowser(_WebBrowser):
     """
     Wraps the GTK embeddable Mozilla in the WebBrowser interface
     """
-    import gtkmozembed
-    global gtkmozembed
-    #set_profile_path is here so it only gets called once
-    gtkmozembed.set_profile_path(get_profile_subdir('mozilla'), 'default')
-
     def __init__(self):
         _WebBrowser.__init__(self)
+
+        #lazy import
+        try:
+            gtkmozembed
+        except NameError:
+            import gtkmozembed
+            global gtkmozembed
+            gtkmozembed.set_profile_path(get_profile_subdir('mozilla'), 'default')
+
         self.url_load_request = False # flag to break load_url recursion
         self.location = ""
 

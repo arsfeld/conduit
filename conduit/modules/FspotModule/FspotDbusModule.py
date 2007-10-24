@@ -1,5 +1,4 @@
 import os
-import gtk
 import gobject
 import dbus
 
@@ -153,6 +152,8 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         self.has_roll = False
 
     def configure(self, window):
+        import gtk
+
         def col1_toggled_cb(cell, path, model ):
             #not because we get this cb before change state
             checked = not cell.get_active()
@@ -203,7 +204,7 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         dlg.set_transient_for(window)
 
         response = dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.set_configured(True)
         dlg.destroy()
 

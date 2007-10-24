@@ -1,24 +1,14 @@
-
-MODULES = {
-        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
-}
-
-import gtk
 import gobject
+import datetime
+import dateutil.parser
+from dateutil.tz import tzutc, tzlocal
 
 import conduit
 from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
-
-import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
-import conduit.datatypes.Note as Note
-
-import datetime
-import dateutil.parser
-from dateutil.tz import tzutc, tzlocal
 
 try:
     import vobject
@@ -353,6 +343,7 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         self.set_configured(False)
         
     def _loadCalendars(self, widget, tree):
+        import gtk, gtk.gdk
         dlg = tree.get_widget("GoogleCalendarConfigDialog")
         oldCursor = dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         gtk.gdk.flush()
@@ -383,6 +374,7 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         dlg.window.set_cursor(oldCursor)
         
     def configure(self, window):
+        import gtk
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
@@ -412,7 +404,7 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         tree.signal_autoconnect( signalConnections )
         
         response = Utils.run_dialog(dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.google.SetCalendar( store.get_value(sourceComboBox.get_active_iter(), 1) )
             self.set_configured(True)
         dlg.destroy()  

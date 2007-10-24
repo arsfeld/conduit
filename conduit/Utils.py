@@ -12,7 +12,6 @@ import os, os.path
 import tempfile
 import random
 import md5
-import gtk, gtk.glade
 import gnomevfs
 import socket
 import datetime
@@ -122,6 +121,7 @@ def dataprovider_add_dir_to_path(dataproviderfile, directory=""):
     sys.path.insert(0,path)
 
 def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
+    import gtk.glade
     path = os.path.join(dataproviderfile, "..", gladefilename)
     path = os.path.abspath(path)
     return gtk.glade.XML(path, widget)
@@ -132,11 +132,14 @@ def run_dialog(dialog, window=None):
     the given window if any
     @param dialog: dialog 
     @param window: gtk window
+    @returns: True if the user clicked OK to exit the dialog
     """
+    import gtk
+
     if window:
         dialog.set_transient_for(window)
 
-    return dialog.run()
+    return dialog.run() == gtk.RESPONSE_OK
 
 def md5_string(string):
     """
