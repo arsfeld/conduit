@@ -160,11 +160,8 @@ if [ $do_coverage -ne 0 ] ; then
     conduit/*.py \
     conduit/datatypes/*.py \
     conduit/dataproviders/*.py \
-    conduit/dataproviders/BackpackModule/BackpackModule.py \
-    conduit/dataproviders/FileModule/FileModule.py \
-    conduit/dataproviders/FlickrModule/FlickrModule.py \
-    conduit/dataproviders/GmailModule/GmailModule.py | \
-    tee --append $indexfile
+    conduit/modules/*/*.py \
+    | tee --append $indexfile
 
     echo "</pre></p>" >> $indexfile
 fi

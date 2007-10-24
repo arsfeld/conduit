@@ -8,7 +8,6 @@ import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 import conduit.datatypes.DataType as DataType
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.dataproviders.SimpleConfigurator as SimpleConfigurator
 
 MODULES = {
     "MoinMoinDataSource" :  { "type": "dataprovider" },
@@ -67,6 +66,7 @@ class MoinMoinDataSource(DataProvider.DataSource):
         #a non gtk system, this dp will still load. There should be no need
         #to use gtk outside of this function
         import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
         
         def set_pages(param):
             self.pages = param.split(',')

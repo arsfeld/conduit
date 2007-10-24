@@ -122,6 +122,7 @@ conduit/defs.py
 conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
+conduit/gtkui/Makefile
 conduit/modules/Makefile
 conduit/modules/BackpackModule/Makefile
 conduit/modules/BackpackModule/backpack-1.1/Makefile

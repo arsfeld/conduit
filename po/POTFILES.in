@@ -2,6 +2,6 @@
 data/conduit.desktop.in.in
 data/conduit-autostart.desktop.in.in
 data/conduit.glade
-conduit/Canvas.py
-conduit/GtkUI.py
+conduit/gtkui/Canvas.py
+conduit/gtkui/UI.py
 conduit/dataproviders/DataProvider.py

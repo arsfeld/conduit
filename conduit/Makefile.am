@@ -1,4 +1,4 @@
-SUBDIRS = datatypes dataproviders modules
+SUBDIRS = datatypes dataproviders modules gtkui
 
 conduitbindir = $(bindir)
 conduitbin_SCRIPTS = \
@@ -8,17 +8,16 @@ conduitbin_SCRIPTS = \
 conduitdir = $(pythondir)/conduit
 conduit_PYTHON = \
 	__init__.py \
-	Canvas.py \
 	Conduit.py \
 	Conflict.py \
 	DB.py \
+	Database.py \
 	DBus.py \
 	defs.py \
 	DeltaProvider.py \
 	Exceptions.py \
 	Hal.py \
 	Globals.py \
-	GtkUI.py \
 	Main.py \
 	MappingDB.py \
 	Module.py \
@@ -26,7 +25,6 @@ conduit_PYTHON = \
 	Settings.py \
 	Synchronization.py \
 	SyncSet.py \
-	Tree.py \
 	TypeConverter.py \
 	Utils.py \
 	Web.py
