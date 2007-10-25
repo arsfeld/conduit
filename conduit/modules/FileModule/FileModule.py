@@ -5,6 +5,7 @@ from gettext import gettext as _
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.File as FileDataProvider
+import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Utils as Utils
 
 MODULES = {
@@ -55,7 +56,7 @@ class FileSource(FileDataProvider.FileSource):
     def get_UID(self):
         return Utils.get_user_string()
 
-class FolderTwoWay(FileDataProvider.FolderTwoWay):
+class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
     """
     TwoWay dataprovider for synchronizing a folder
     """
@@ -75,6 +76,7 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay):
                 FolderTwoWay.DEFAULT_HIDDEN,
                 FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME
                 )
+        AutoSync.AutoSync.__init__(self)
         self.need_configuration(True)
 
         self._monitor_folder_id = None
@@ -117,7 +119,6 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay):
         if self._monitor_folder_id != None:
             gnomevfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
-
         try:
             self._monitor_folder_id = gnomevfs.monitor_add(self.folder, gnomevfs.MONITOR_DIRECTORY, self._monitor_folder_cb)
         except gnomevfs.NotSupportedError:
@@ -129,8 +130,12 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay):
         Called when a file in the current folder is changed, added or deleted
         """
         # supported events = CHANGED, DELETED, STARTEXECUTING, STOPEXECUTING, CREATED, METADATA_CHANGED
-        if event in (gnomevfs.MONITOR_EVENT_CREATED, gnomevfs.MONITOR_EVENT_CHANGED, gnomevfs.MONITOR_EVENT_DELETED):
-            self.emit_change_detected()
+        if event == gnomevfs.MONITOR_EVENT_CREATED:
+            self.handle_added(event_uri)
+        elif event == gnomevfs.MONITOR_EVENT_CHANGED:
+            self.handle_modified(event_uri)
+        elif event == gnomevfs.MONITOR_EVENT_DELETED:
+            self.handle_deleted(event_uri)
 
 class USBFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
@@ -174,6 +179,4 @@ class USBFactory(DataProvider.DataProviderFactory):
             self.emit_removed(key)
 
         del self.usb[udi]
-
-
 

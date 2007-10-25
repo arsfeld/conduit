@@ -4,6 +4,7 @@ import conduit
 from conduit import log,logd,logw
 
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.AutoSync as AutoSync
 from conduit.datatypes import DataType
 import conduit.datatypes.Text as Text
 
@@ -34,7 +35,7 @@ class GConfConverter(object):
         val = "%s, %s" % (setting.key, setting.value)
         return Text.Text(None, text=val)
 
-class GConfTwoWay(DataProvider.TwoWay):
+class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _name_ = "GConf Settings"
     _description_ = "Sync your desktop preferences"
     _category_ = conduit.dataproviders.CATEGORY_MISC
@@ -45,6 +46,7 @@ class GConfTwoWay(DataProvider.TwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
+        AutoSync.AutoSync.__init__(self)
         self.gconf = gconf.client_get_default()
         self.gconf.add_dir('/', gconf.CLIENT_PRELOAD_NONE)
         self.gconf.notify_add('/', self.on_change)
@@ -130,7 +132,7 @@ class GConfTwoWay(DataProvider.TwoWay):
         self.gconf.unset(uid)
 
     def on_change(self, client, id, entry, data):
-        print "CHG:", dir(entry), data
+        self.handle_modified(entry.key)
         
     def get_UID(self):
         return self.__class__.__name__
