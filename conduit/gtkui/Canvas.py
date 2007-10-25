@@ -14,7 +14,7 @@ from gettext import gettext as _
 
 from conduit import log,logd,logw
 from conduit.Conduit import Conduit
-from conduit.Tree import DND_TARGETS
+from conduit.gtkui.Tree import DND_TARGETS
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
