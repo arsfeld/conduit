@@ -23,7 +23,11 @@ along with main.c.  If not, write to:
 import gobject
 
 #for generic db
-from sqlite3 import dbapi2 as sqlite
+try:
+    from sqlite3 import dbapi2 as sqlite
+except ImportError:
+    from pysqlite2 import dbapi2 as sqlite
+
 #for threadsafe db
 from threading import Thread
 from Queue import Queue
