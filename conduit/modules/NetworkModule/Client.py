@@ -9,7 +9,8 @@ import gobject
 
 import conduit
 from conduit import log,logd,logw
-import conduit.dataproviders.DataProvider as DataProvider
+from conduit.dataproviders import DataProvider
+from conduit.dataproviders import DataProviderCategory
 import conduit.Exceptions as Exceptions
 
 import Peers
@@ -45,7 +46,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
 
         # Create a categories group for this host?
         if not self.categories.has_key(url):
-            self.categories[url] = DataProvider.DataProviderCategory("On %s" % host, "computer", host)
+            self.categories[url] = DataProviderCategory.DataProviderCategory("On %s" % host, "computer", host)
         
         # Create a dataproviders list for this host
         self.dataproviders[url] = {}
