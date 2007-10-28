@@ -193,7 +193,7 @@ OPTIONS:
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ImportGUI(self):
         if self.uiLib == None:
-            self.uiLib = __import__("conduit.%sui.UI" % self.ui, fromlist=['UI'])
+            self.uiLib = __import__("conduit.%sui.UI" % self.ui, {}, {}, ['UI'])
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def ShowGUI(self):
