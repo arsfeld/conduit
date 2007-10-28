@@ -1,4 +1,5 @@
 import gconf
+import fnmatch
 
 import conduit
 from conduit import log,logd,logw
@@ -47,19 +48,32 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
+
+        self.whitelist = [
+            '/apps/metacity/*',
+            '/desktop/gnome/applications/*',
+            '/desktop/gnome/background/*',
+            '/desktop/gnome/interface/*',
+            '/desktop/gnome/url-handlers/*'
+        ]
+
         self.gconf = gconf.client_get_default()
         self.gconf.add_dir('/', gconf.CLIENT_PRELOAD_NONE)
         self.gconf.notify_add('/', self.on_change)
 
-    def refresh(self):
-        pass
+    def _onthelist(self, key):
+        for pattern in self.whitelist:
+            if fnmatch.fnmatch(key, pattern):
+                return True
+        return False
 
     def _get_all(self, path):
         entries = []
         for x in self.gconf.all_dirs(path):
             entries += self._get_all(x)
         for x in self.gconf.all_entries(path):
-            entries.append(x.key)
+            if self._onthelist(x.key):
+                entries.append(x.key)
         return entries
 
     def _gconf_type(self, key):
@@ -111,6 +125,9 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         elif t == gconf.VALUE_LIST:
             pass # val = [self._from_gconf(x) for x in item.get_list()]
 
+    def refresh(self):
+        pass
+
     def get_all(self):
         """ loop through all gconf keys and see which ones match our whitelist """
         return self._get_all("/")
@@ -132,7 +149,8 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         self.gconf.unset(uid)
 
     def on_change(self, client, id, entry, data):
-        self.handle_modified(entry.key)
+        if self._onthelist(entry.key):
+            self.handle_modified(entry.key)
         
     def get_UID(self):
         return self.__class__.__name__
