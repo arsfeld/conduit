@@ -35,18 +35,6 @@ from Queue import Queue
 #for lru decorator
 from collections import deque
 
-def unique_list(seq):
-    # The fastes way to unique-ify a list while retaining its order, from
-    # http://www.peterbe.com/plog/uniqifiers-benchmark
-    def _f10(listy):
-        seen = set()
-        for x in listy:
-            if x in seen:
-                continue
-            seen.add(x)
-            yield x
-    return list(_f10(seq))
-
 def lru_cache(maxsize):
     """
     Decorator applying a least-recently-used cache with the given maximum size.

@@ -217,11 +217,11 @@ class MappingDB:
     def debug(self, printMtime=False):
         s = "Contents of MappingDB: %s\n" % self._db.name
         sources = [i["sourceUID"] for i in self._db]
-        sources = Utils.distinct_list(sources)
+        sources = Utils.unique_list(sources)
         for sourceUID in sources:
             #all matching sinkUIDs for sourceUID
             sinks = [i["sinkUID"] for i in self._db if i["sourceUID"] == sourceUID]
-            sinks = Utils.distinct_list(sinks)
+            sinks = Utils.unique_list(sinks)
             for sinkUID in sinks:
                 s += "\t%s --> %s\n" % (sourceUID, sinkUID)
                 #get relationships

@@ -92,12 +92,17 @@ def flatten_list(x):
             result.append(el)
     return result
 
-def distinct_list(l):
-    """
-    Makes sure the items in l only appear once. l must be a 1D list of
-    hashable items (i.e. not contain other lists)
-    """
-    return dict.fromkeys(l).keys()
+def unique_list(seq):
+    # The fastes way to unique-ify a list while retaining its order, from
+    # http://www.peterbe.com/plog/uniqifiers-benchmark
+    def _f10(listy):
+        seen = set()
+        for x in listy:
+            if x in seen:
+                continue
+            seen.add(x)
+            yield x
+    return list(_f10(seq))
 
 def random_string(length=5):
     """

@@ -2,6 +2,7 @@ import gobject
 import gtk
 
 import conduit.Database as DB
+import conduit.Utils as Utils
 
 class SqliteListStore(gtk.GenericTreeModel):
     """
@@ -112,7 +113,7 @@ class SqliteListStore(gtk.GenericTreeModel):
                 sql = "SELECT oid FROM %s WHERE oid > %d LIMIT 1024" % (self.table, oid or -1)
                 oids = [oid for (oid,) in self.db.select(sql)]
                 self.oidcache.extend(oids)
-                self.oidcache = unique_list(self.oidcache)
+                self.oidcache = Utils.unique_list(self.oidcache)
             oid = oids[0] if len(oids) > 0 else None        
         else:
             try:
