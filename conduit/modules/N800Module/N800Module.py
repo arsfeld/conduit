@@ -2,7 +2,7 @@
 Provides a number of dataproviders which are associated with
 a N800 device.
 
-Copyright: Jaime Frutos Morales , 2007
+Copyright 2007: Jaime Frutos Morales, John Stowers
 License: GPLv2
 """
 import os
@@ -18,6 +18,15 @@ import conduit.Exceptions as Exceptions
 MODULES = {
     "N800Factory" : { "type": "dataprovider-factory" },
 }
+
+PRESET_VIDEO_ENCODINGS = {
+    "smallest":{"abitrate":32,"vbitrate":80,"width":240,"fps":15},
+    "small":{"abitrate":96,"vbitrate":96,"width":240,"fps":15},
+    "average":{"abitrate":96,"vbitrate":200,"width":320,"fps":15},
+    "good":{"abitrate":128,"vbitrate":240,"width":320,"fps":15},
+    "best":{"abitrate":128,"vbitrate":400,"width":352,"fps":25},
+    "mplayer":{"abitrate":128,"vbitrate":420,"width":400,"height":240,"fps":30}
+    }
 
 class N800Factory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
@@ -63,8 +72,8 @@ class N800FolderTwoWay(FileDataProvider.FolderTwoWay):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "N800 Folder"
-    _description_ = "Synchronize data to a N800 device"
+    _name_ = "Files"
+    _description_ = "Synchronize files/folders to a N800 device"
 
     DEFAULT_FOLDER = "Backups"
     DEFAULT_GROUP = "N800"

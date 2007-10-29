@@ -27,6 +27,31 @@ class FFmpegConverter:
                             "file/audio,file/audio"     :   self.transcode_audio,    
                             "file,file/audio"           :   self.file_to_audio
                             }
+
+    def _build_command(self, **kwargs):
+        command = "ffmpeg -i %(in_file)s "
+        #video options
+        if kwargs.get('vcodec', None):      command += "-vcodec %(vcodec)s "
+        if kwargs.get('vbitrate', None):    command += "-b %(vbitrate)s "
+        if kwargs.get('fps', None):         command += "-r %(fps)s " 
+        if kwargs.get('vtag', None):        command += "-vtag %(vtag)s "
+        if kwargs.get('width', None) and kwargs.get('height', None):
+            command += "-s %(width)sx%(height)s "
+        #audio options
+        if kwargs.get('acodec', None):      command += "-acodec %(acodec)s "
+        if kwargs.get('arate', None):       command += "-ar %(arate)s "
+        if kwargs.get('abitrate', None):
+            if kwargs.get('acodec', None) != 'ac3':
+                command += "-ab %(abitrate)s "  
+                if kwargs['abitrate'] < 64:
+                    command += "-ac 1 "
+                else:
+                    command += "-ac 2 "
+        #output file, overwrite and container format
+        if kwargs.get('format', None):      command += "-f %(format)s "
+        command += "-y %(out_file)s"
+
+        return command % kwargs
                             
     def transcode_video(self, video, **kwargs):
         if not video.get_mimetype().startswith("video/"):
@@ -52,53 +77,29 @@ class FFmpegConverter:
         except AttributeError:
             conduit.logd("Error parsing ffmpeg output")
             return None
-            
         conduit.logd("Input Video %s: size=%swx%sh, duration=%ss" % (input_file,w,h,duration))
 
-        #get conversion options
-        abitrate = kwargs.get('abitrate',96)
-        vbitrate = kwargs.get('vbitrate',200)
-        width = kwargs.get('width',None)
-        height = kwargs.get('height',None)
-        fps = kwargs.get('fps',15)
-        vcodec = kwargs.get('vcodec','mpeg4')
-        acodec = kwargs.get('acodec','ac3')
-        format = kwargs.get('format','avi')
-
-        #build command line args
-        command = "ffmpeg -i %(in_file)s "
-        #video options
-        command += "-f %(format)s -vcodec %(vcodec)s -b %(vbitrate)s -r %(fps)s " #-vtag DIVX
-        if width != None and height != None:
-            width,height = Utils.get_proportional_resize(
-                            desiredW=int(width),
-                            desiredH=int(height),
+        #build converstion options with defaults
+        convargs = {
+            'abitrate':kwargs.get('abitrate',200),
+            'vbitrate':kwargs.get('vbitrate',200),
+            'fps':kwargs.get('fps',15),
+            'vcodec':kwargs.get('vcodec','mpeg4'),
+            'acodec':kwargs.get('acodec','ac3'),
+            'format':kwargs.get('format','avi'),
+            'in_file':'"%s"',
+            'out_file':'"%s"',
+            }
+        if kwargs.get('width',None) != None and kwargs.get('height',None) != None:
+            convargs['width'],convargs['height'] = Utils.get_proportional_resize(
+                            desiredW=int(kwargs['width']),
+                            desiredH=int(kwargs['height']),
                             currentW=int(w),
                             currentH=int(h)
                             )
-            command += "-s %(width)sx%(height)s "
-        #audio options
-        command += "-acodec %(acodec)s -ar 44100 "
-        if acodec != "ac3":
-            command += "-ab %(abitrate)s "
-        #downmix to mono if low audio rate
-        if abitrate < 64:
-            command += "-ac 1 "
 
-        command += "-y %(out_file)s"
-        command = command % {
-                    'abitrate':abitrate,
-                    'vbitrate':vbitrate,
-                    'width':width,
-                    'height':height,
-                    'fps':fps,
-                    'vcodec':vcodec,
-                    'acodec':acodec,
-                    'format':format,
-                    'in_file':'"%s"',
-                    'out_file':'"%s"'
-                    }
-
+        #convert the video
+        command = self._build_command(**convargs)
         c = FFmpegCommandLineConverter(command, duration=duration)
         ok = c.convert(input_file,"/tmp/foo",callback=lambda x: conduit.logd(x))
 
@@ -128,32 +129,20 @@ class FFmpegConverter:
         except AttributeError:
             conduit.logd("Error parsing ffmpeg output")
             return None
-            
         conduit.logd("Input Audio %s: duration=%ss" % (input_file,duration))
         
-        #get conversion options
-        arate = kwargs.get('arate',44100)
-        abitrate = kwargs.get('abitrate',96)
-        acodec = kwargs.get('acodec','vorbis')
-        format = kwargs.get('format','ogg')
+        #build converstion options with defaults
+        convargs = {
+            'arate':kwargs.get('arate',44100),
+            'abitrate':kwargs.get('abitrate',96),
+            'acodec':kwargs.get('acodec','vorbis'),
+            'format':kwargs.get('format','ogg'),
+            'in_file':'"%s"',
+            'out_file':'"%s"',
+            }
 
-        #build command line args
-        command = "ffmpeg -i %(in_file)s "
-        #audio options
-        command += "-acodec %(acodec)s -ar %(arate)s -ab %(abitrate)s -f %(format)s "
-        #downmix to mono if low audio rate
-        if abitrate < 64:
-            command += "-ac 1 "
-        command += "-y %(out_file)s"
-        command = command % {
-                    'arate':arate,
-                    'abitrate':abitrate,
-                    'acodec':acodec,
-                    'format':format,
-                    'in_file':'"%s"',
-                    'out_file':'"%s"'
-                    }
-
+        #convert audio
+        command = self._build_command(**convargs)
         c = FFmpegCommandLineConverter(command, duration=duration)
         ok = c.convert(input_file,"/tmp/foo",callback=lambda x: conduit.logd(x))
 
@@ -177,11 +166,15 @@ if __name__ == "__main__":
     import conduit.datatypes.File as File
     c = FFmpegConverter()
 
-    #f = File.File("/home/john/Videos/House/house.312.hdtv-lol.avi")
-    #c.transcode_video(f)
+    try:
+        f = File.File("/home/john/Downloads/1002 - Smug Alert!.avi")
+        c.transcode_video(f)
+    except KeyboardInterrupt: pass
 
-    f = File.File("/media/media/MusicToSort/Baitercell & Schumacher - Whats Down Low (Original Mix).mp3")
-    c.transcode_audio(f)
+    try:
+        f = File.File("/home/john/Music/Salmonella Dub/Inside The Dub Plates/01 - Problems.mp3")
+        c.transcode_audio(f)
+    except KeyboardInterrupt: pass
 
     
         
