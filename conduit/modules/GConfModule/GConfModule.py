@@ -142,7 +142,7 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
 
     def put(self, setting, overwrite, uid=None):
         logd("%s: %s" % (setting.key, setting.value))
-        self._to_gonf(setting.key, setting.value)
+        self._to_gconf(setting.key, setting.value)
         return setting.key
 
     def delete(self, uid):
