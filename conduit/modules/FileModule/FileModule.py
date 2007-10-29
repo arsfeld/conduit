@@ -35,18 +35,19 @@ class FileSource(FileDataProvider.FileSource):
         for f in config.get("files",[]):
             self._add_file(f)
         for f in config.get("folders",[]):
+            f,group = f.split("---FIXME---")
             if Utils.get_protocol(f) != "":
-                self._add_folder(f,"FIXME")
+                self._add_folder(f,group)
         self.db.debug(200,True)
 
     def get_configuration(self):
         files = []
         folders = []
-        for uri,ftype in self.db.select("SELECT URI,TYPE FROM config"):
+        for uri,ftype,group in self.db.select("SELECT URI,TYPE,GROUP_NAME FROM config"):
             if ftype == TYPE_FILE:
                 files.append(uri)
             else:
-                folders.append(uri)
+                folders.append("%s---FIXME---%s" % (uri,group))
 
         self.db.save()
 

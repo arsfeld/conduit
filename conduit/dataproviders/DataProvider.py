@@ -247,7 +247,6 @@ class DataProviderBase(gobject.GObject):
         @rtype: C{string}
         """
         doc = xml.dom.minidom.Element("configuration")
-
         configDict = self.get_configuration()
         for config in configDict:
                 configxml = xml.dom.minidom.Element(str(config))
