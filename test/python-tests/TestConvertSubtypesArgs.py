@@ -14,33 +14,33 @@ ok("file -> file = file -> file (ignore source args)", f == "file" and t == "fil
 f, t, a = tc._get_conversion("file", "file?foo=bar")
 ok("file -> file = file -> file (respect dest args)", f == "file" and t == "file" and a == {"foo":"bar"})
 
-# file -> file/music
-f, t, a = tc._get_conversion("file", "file/music")
-ok("file -> file/music = file -> file/music", f == "file" and t == "file/music" and a == {})
+# file -> file/audio
+f, t, a = tc._get_conversion("file", "file/audio")
+ok("file -> file/audio = file -> file/audio", f == "file" and t == "file/audio" and a == {})
 
-f, t, a = tc._get_conversion("file?foo=bar", "file/music")
-ok("file -> file/music = file -> file/music (ignore source args)", f == "file" and t == "file/music" and a == {})
+f, t, a = tc._get_conversion("file?foo=bar", "file/audio")
+ok("file -> file/audio = file -> file/audio (ignore source args)", f == "file" and t == "file/audio" and a == {})
 
-f, t, a = tc._get_conversion("file", "file/music?foo=bar")
-ok("file -> file/music = file -> file/music (respect dest args)", f == "file" and t == "file/music" and a == {"foo":"bar"})
+f, t, a = tc._get_conversion("file", "file/audio?foo=bar")
+ok("file -> file/audio = file -> file/audio (respect dest args)", f == "file" and t == "file/audio" and a == {"foo":"bar"})
 
-# file/music -> file
-f, t, a = tc._get_conversion("file/music", "file")
-ok("file/music -> file = file -> file", f == "file" and t == "file" and a == {})
+# file/audio -> file
+f, t, a = tc._get_conversion("file/audio", "file")
+ok("file/audio -> file = file -> file", f == "file" and t == "file" and a == {})
 
-f, t, a = tc._get_conversion("file/music?foo=bar", "file")
-ok("file/music -> file = file -> file (ignore source args)", f == "file" and t == "file" and a == {})
+f, t, a = tc._get_conversion("file/audio?foo=bar", "file")
+ok("file/audio -> file = file -> file (ignore source args)", f == "file" and t == "file" and a == {})
 
-f, t, a = tc._get_conversion("file/music", "file?foo=bar")
-ok("file/music -> file = file -> file (respect dest args)", f == "file" and t == "file" and a == {"foo":"bar"})
+f, t, a = tc._get_conversion("file/audio", "file?foo=bar")
+ok("file/audio -> file = file -> file (respect dest args)", f == "file" and t == "file" and a == {"foo":"bar"})
 
-# file/photo -> file/music
-f, t, a = tc._get_conversion("file/photo", "file/music")
-ok("file/photo -> file/music = file/photo -> file/music", f == "file/photo" and t == "file/music" and a == {})
+# file/photo -> file/audio
+f, t, a = tc._get_conversion("file/photo", "file/audio")
+ok("file/photo -> file/audio = file/photo -> file/audio", f == "file/photo" and t == "file/audio" and a == {})
 
-# transcode file/music -> file/music
-f, t, a = tc._get_conversion("file/music", "file/music?foo=bar")
-ok("file/music -> file/music = file/music -> file/music (respect dest args)", f == "file/music" and t == "file/music" and a == {"foo":"bar"})
+# transcode file/audio -> file/audio
+f, t, a = tc._get_conversion("file/audio", "file/audio?foo=bar")
+ok("file/audio -> file/audio = file/audio -> file/audio (respect dest args)", f == "file/audio" and t == "file/audio" and a == {"foo":"bar"})
 
 # lots of args
 args = {"foo":"bar","baz":"bob"}

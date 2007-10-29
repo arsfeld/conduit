@@ -125,11 +125,11 @@ class TypeConverter:
             froms = fromType.split("/")
             tos = toType.split("/")
             
-            #same base type (e.g. file -> file/music or vice-versa)
+            #same base type (e.g. file -> file/audio or vice-versa)
             if froms[0] == tos[0]:
                 #one is parent class of the other
                 if len(froms) != len(tos):
-                    #file/music -> file = file -> file
+                    #file/audio -> file = file -> file
                     if len(froms) > len(tos):
                         fromType = froms[0]
                         toType = tos[0]

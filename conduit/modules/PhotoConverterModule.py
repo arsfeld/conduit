@@ -54,7 +54,7 @@ class PixbufPhotoConverter:
 
     def file_to_photo(self, f, **kwargs):
         t = f.get_mimetype()
-        if t in _get_pixbuf_capabilities().keys():
+        if t in self._get_pixbuf_capabilities().keys():
             return self.transcode(
                             Photo.Photo(URI=f._get_text_uri()),
                             **kwargs
