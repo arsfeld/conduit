@@ -6,8 +6,8 @@ import conduit
 import conduit.Utils as Utils
 import conduit.gtkui.Database as DB
 
-TYPE_FILE = 0
-TYPE_FOLDER = 1
+TYPE_FILE = "0"
+TYPE_FOLDER = "1"
 
 #Indexes of data in the list store
 OID_IDX = 0
@@ -60,7 +60,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.dlg.show_all()
 
         #Now go an background scan some folders to populate the UI estimates.
-        for oid,uri in self.db.select("SELECT oid,URI_IDX FROM config WHERE TYPE_IDX=? and SCAN_COMPLETE_IDX=?",(TYPE_FOLDER,False,)):
+        for oid,uri in self.db.select("SELECT oid,URI FROM config WHERE TYPE=? and SCAN_COMPLETE=?",(TYPE_FOLDER,False,)):
             self.make_thread(
                     uri, 
                     False,
@@ -113,6 +113,10 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         folder or a file. We only show single files in the GUI anyway
         """
         path = self.model.get_path(rowref)
+
+        print "--------------------%s %s" % (self.model[path][TYPE_IDX],type(self.model[path][TYPE_IDX]))
+        print "--------------------%s %s" % (self.model[path][URI_IDX],type(self.model[path][URI_IDX]))
+
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             icon = _FileSourceConfigurator.FILE_ICON
         else:
@@ -160,7 +164,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.db.update(
             table="config",
             oid=self.model[path][OID_IDX],
-            GROUP_NAME_IDX=new_text
+            GROUP_NAME=new_text
             )
 
     def _on_scan_folder_progress(self, folderScanner, numItems, oid):
@@ -171,7 +175,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.db.update(
             table="config",
             oid=oid,
-            CONTAINS_NUM_ITEMS_IDX=numItems
+            CONTAINS_NUM_ITEMS=numItems
             )
 
     def _on_scan_folder_completed(self, folderScanner, oid):
@@ -182,7 +186,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.db.update(
             table="config",
             oid=oid,
-            SCAN_COMPLETE_IDX=True
+            SCAN_COMPLETE=True
             )
 
     def _add_folder(self, folderURI):
@@ -275,7 +279,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         """
         if response_id == gtk.RESPONSE_OK:
             #check the user has specified a named group for all folders
-            count, = self.db.select_one("SELECT COUNT(oid) FROM config WHERE TYPE_IDX=? and GROUP_NAME_IDX=?", (TYPE_FOLDER,""))
+            count, = self.db.select_one("SELECT COUNT(oid) FROM config WHERE TYPE=? and GROUP_NAME=?", (TYPE_FOLDER,""))
             if count > 0:
                 #stop this dialog from closing, and show a warning to the
                 #user indicating that all folders must be named

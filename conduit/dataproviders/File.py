@@ -8,16 +8,8 @@ import conduit.datatypes.File as File
 import conduit.Utils as Utils
 import conduit.Database as DB
 
-TYPE_FILE = 0
-TYPE_FOLDER = 1
-
-#Indexes of data in the list store
-OID_IDX = 0
-URI_IDX = 1                     #URI of the file/folder
-TYPE_IDX = 2                    #TYPE_FILE/FOLDER/etc
-CONTAINS_NUM_ITEMS_IDX = 3      #(folder only) How many items in the folder
-SCAN_COMPLETE_IDX = 4           #(folder only) HAs the folder been recursively scanned
-GROUP_NAME_IDX = 5              #(folder only) The visible identifier for the folder
+TYPE_FILE = "0"
+TYPE_FOLDER = "1"
 
 class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
 
@@ -36,11 +28,11 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         self.db = DB.ThreadSafeGenericDB()
         self.db.create(
                 table="config",
-                fields=("URI_IDX","TYPE_IDX","CONTAINS_NUM_ITEMS_IDX","SCAN_COMPLETE_IDX","GROUP_NAME_IDX")
+                fields=("URI","TYPE","CONTAINS_NUM_ITEMS","SCAN_COMPLETE","GROUP_NAME")
                 )
         self.db.create(
                 table="files",
-                fields=("URI_IDX","BASEPATH_IDX","GROUPNAME_IDX")
+                fields=("URI","BASEPATH","GROUPNAME")
                 )
 
     def _add_file(self, f):
@@ -64,7 +56,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
     def refresh(self):
         DataProvider.DataSource.refresh(self)
         #Make a whole bunch of threads to go and scan the directories
-        for oid,uri,groupname in self.db.select("SELECT oid,URI_IDX,GROUP_NAME_IDX FROM config WHERE TYPE_IDX = ?",(TYPE_FOLDER,)):
+        for oid,uri,groupname in self.db.select("SELECT oid,URI,GROUP_NAME FROM config WHERE TYPE = ?",(TYPE_FOLDER,)):
             self.make_thread(
                     uri, 
                     False,  #FIXME: Dont include hidden?
@@ -78,7 +70,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         self.join_all_threads()
 
         #now add the single files to the list
-        for uri, in self.db.select("SELECT URI_IDX FROM config WHERE TYPE_IDX = ?",(TYPE_FILE,)):
+        for uri, in self.db.select("SELECT URI FROM config WHERE TYPE = ?",(TYPE_FILE,)):
             self.db.insert(
                         table="files",
                         values=(uri,"","")    #single files dont have basepath and groupname
@@ -86,7 +78,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
 
     def get(self, LUID):
         DataProvider.DataSource.get(self, LUID)
-        basepath,group = self.db.select_one("SELECT BASEPATH_IDX,GROUPNAME_IDX FROM files WHERE URI_IDX = ?", (LUID,))
+        basepath,group = self.db.select_one("SELECT BASEPATH,GROUPNAME FROM files WHERE URI = ?", (LUID,))
         f = File.File(
                     URI=        LUID,
                     basepath=   basepath,
@@ -99,7 +91,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
     def add(self, LUID):
         f = File.File(URI=LUID)
         if f.exists():
-            oid = self.db.select_one("SELECT oid FROM files WHERE URI_IDX = ?", (LUID,))
+            oid = self.db.select_one("SELECT oid FROM files WHERE URI = ?", (LUID,))
             if oid != None:
                     logd("Could not add (already added): %s" % LUID)
                     return False
@@ -117,7 +109,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
 
     def get_all(self):
         #combine the files contained inside dirs with those the user specified
-        files = [f for f, in self.db.select("SELECT URI_IDX FROM files")]
+        files = [f for f, in self.db.select("SELECT URI FROM files")]
         return files
 
     def finish(self):
@@ -132,7 +124,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         self.db.update(
                     table="config",
                     oid=oid,
-                    CONTAINS_NUM_ITEMS_IDX=numItems
+                    CONTAINS_NUM_ITEMS=numItems
                     )
 
     def _on_scan_folder_completed(self, folderScanner, oid, groupname):
@@ -141,8 +133,8 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         self.db.update(
                     table="config",
                     oid=oid,
-                    SCAN_COMPLETE_IDX=True,
-                    GROUP_NAME_IDX=groupname
+                    SCAN_COMPLETE=True,
+                    GROUP_NAME=groupname
                     )
         #Put all files into files
         for f in folderScanner.get_uris():

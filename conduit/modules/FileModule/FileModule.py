@@ -14,8 +14,8 @@ MODULES = {
 #    "USBFactory" :      { "type": "dataprovider-factory" }
 }
 
-TYPE_FILE = 0
-TYPE_FOLDER = 1
+TYPE_FILE = "0"
+TYPE_FOLDER = "1"
 
 class FileSource(FileDataProvider.FileSource):
 
@@ -42,7 +42,7 @@ class FileSource(FileDataProvider.FileSource):
     def get_configuration(self):
         files = []
         folders = []
-        for uri,ftype in self.db.select("SELECT URI_IDX,TYPE_IDX FROM config"):
+        for uri,ftype in self.db.select("SELECT URI,TYPE FROM config"):
             if ftype == TYPE_FILE:
                 files.append(uri)
             else:
