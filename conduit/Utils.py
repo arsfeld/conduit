@@ -16,9 +16,20 @@ import gnomevfs
 import socket
 import datetime
 import time
+import re
+import popen2
 
 from conduit import log,logd,logw
 import conduit.datatypes.File as File
+
+def program_installed(app):
+    path = os.environ['PATH'] 
+    paths = path.split(os.pathsep)
+    for dir in paths:
+        if os.path.isdir(dir):
+            if os.path.isfile(os.path.join(dir,app)):
+                return True
+    return False
 
 #Filename Manipulation
 def get_protocol(uri):
@@ -458,4 +469,31 @@ class FolderScanner(threading.Thread, gobject.GObject):
 
     def get_uris(self):
         return self.URIs
+
+class CommandLineConverter:
+    percentage_match = re.compile('(\d+)%')
+
+    def __init__( self, command):
+        self.command = command
+
+    def convert( self, input_filename, output_filename, callback=None,save_output=False):
+        command = self.command % (input_filename, output_filename)
+        output = ""
+
+        logd("Executing %s" % command)
+
+        process = popen2.Popen4( command)
+        stdout = process.fromchild
+        s = stdout.read( 80)
+        if save_output:
+            output += s
+        while s:
+            if callback:
+                for str in self.percentage_match.finditer( s):
+                    callback( str.group( 1).strip())
+            s = stdout.read( 80)
+            if save_output:
+                output += s
+
+        return process.wait() == 0, output
 
