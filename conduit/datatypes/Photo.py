@@ -1,6 +1,7 @@
 import conduit
 
-from conduit.datatypes import File
+import conduit.datatypes.File as File
+import conduit.Utils as Utils
 
 class Photo(File.File):
     """
@@ -34,14 +35,13 @@ class Photo(File.File):
     def _get_proportional_resize(self, newWidth, newHeight):
         w,h = self.get_size()
         # resize to fit in frame
-        if h < w:
-            width = newWidth
-            height = float(newWidth) / w * h
-        else:
-            height = newHeight
-            width = float(newHeight) / h * w
-
-        return int(width), int(height)
+        width,height = Utils.get_proportional_resize(
+                                desiredW=newWidth,
+                                desiredH=newHeight,
+                                currentW=w,
+                                currentH=h
+                                )
+        return width,height
 
     def convert(self, format, size):
         """
