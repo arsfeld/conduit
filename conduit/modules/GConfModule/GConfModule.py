@@ -22,6 +22,17 @@ class GConfSetting(DataType.DataType):
         self.key = key
         self.value = value
 
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data["key"] = self.key
+        data["value"] = self.value
+        return data
+
+    def __setstate__(self, data):
+        self.key = data["key"]
+        self.value = data["value"]
+        DataType.DataType.__setstate__(self, data)
+
     def get_UID(self):
         return self.key
 
