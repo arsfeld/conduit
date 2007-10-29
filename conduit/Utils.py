@@ -22,6 +22,16 @@ import popen2
 from conduit import log,logd,logw
 import conduit.datatypes.File as File
 
+def get_proportional_resize(desiredW, desiredH, currentW, currentH):
+        if currentH < currentW:
+            width = desiredW
+            height = float(desiredW) / currentW * currentH
+        else:
+            height = desiredH
+            width = float(desiredH) / currentH * currentW
+
+        return int(width), int(height)
+
 def program_installed(app):
     path = os.environ['PATH'] 
     paths = path.split(os.pathsep)
@@ -471,29 +481,36 @@ class FolderScanner(threading.Thread, gobject.GObject):
         return self.URIs
 
 class CommandLineConverter:
-    percentage_match = re.compile('(\d+)%')
-
     def __init__( self, command):
         self.command = command
+        self.percentage_match = re.compile('(\d+)%')
+        
+    def calculate_percentage(self, val):
+        return float(val)
 
     def convert( self, input_filename, output_filename, callback=None,save_output=False):
         command = self.command % (input_filename, output_filename)
-        output = ""
-
         logd("Executing %s" % command)
 
-        process = popen2.Popen4( command)
+        output = ""
+        process = popen2.Popen4(command)
         stdout = process.fromchild
-        s = stdout.read( 80)
+        s = stdout.read(80)
         if save_output:
             output += s
         while s:
             if callback:
-                for str in self.percentage_match.finditer( s):
-                    callback( str.group( 1).strip())
-            s = stdout.read( 80)
+                for i in self.percentage_match.finditer(s):
+                    val = self.calculate_percentage(i.group(1).strip())
+                    callback(val)
+            s = stdout.read(80)
             if save_output:
                 output += s
 
-        return process.wait() == 0, output
+        ok = process.wait() == 0
+        if save_output:
+            return ok, output
+        else:
+            return ok
+            
 
