@@ -6,7 +6,7 @@ import conduit.datatypes.File as File
 
 if Utils.program_installed("ffmpeg"):
     MODULES = {
-        "FFmpegConverter" :  { "type": "converter" }
+        "AudioVideoConverter" :  { "type": "converter" }
         }
 else:
     MODULES = {}
@@ -34,11 +34,8 @@ class FFmpegCommandLineConverter(Utils.CommandLineConverter):
         if kwargs.get('arate', None):       command += "-ar %(arate)s "
         if kwargs.get('abitrate', None):
             if kwargs.get('acodec', None) != 'ac3':
-                command += "-ab %(abitrate)s "  
-                if kwargs['abitrate'] < 64:
-                    command += "-ac 1 "
-                else:
-                    command += "-ac 2 "
+                command += "-ab %(abitrate)s "
+        if kwargs.get('achannels', None):   command += "-ac %(achannels) "
         #output file, overwrite and container format
         if kwargs.get('format', None):      command += "-f %(format)s "
         command += "-y %(out_file)s"
@@ -50,8 +47,46 @@ class FFmpegCommandLineConverter(Utils.CommandLineConverter):
 
     def check_cancelled(self):
         return conduit.GLOBALS.cancelled
+
+class MencoderCommandLineConverter(Utils.CommandLineConverter):
+    def __init__(self):
+        Utils.CommandLineConverter.__init__(self)
+        self.percentage_match = re.compile('(\d+)%')
+
+    def build_command(self, **kwargs):
+        kwargs['in_file'] = '"%s"'
+        kwargs['out_file'] = '"%s"'
+
+        command = "mencoder %(in_file)s -o %(out_file)s "
+        #audio options
+        if kwargs.get('arate', None):       command += "-srate %(arate)s "
+        if kwargs.get('achannels', None):   command += "-channels %(achannels) "
+        #only support lavc atm
+        command += "-oac lavc "
+        if kwargs.has_key('acodec') and kwargs.has_key('abitrate'):
+            command += "-lavcopts acodec=%(acodec)s:abitrate=%(abitrate)s "
+        if kwargs.get('achannels', None):
+            command += "-af volnorm,channels=%(achannels) "
+        else:
+            command += "-af volnorm "
+        #video options (only support lavc atm)
+        command += "-ovc lavc "
+        if kwargs.has_key('vcodec') and kwargs.has_key('vbitrate'):
+            command += "-ovc lavc -lavcopts vcodec=%(vcodec)s:vbitrate=%(vbitrate)s "
+        if kwargs.get('width', None) and kwargs.get('height', None):
+            command += "-vf-add scale=%(width)s:%(height)s "
+        if kwargs.get('fps', None):         command += "-ofps %(fps)s "
+        if kwargs.get('vtag', None):        command += "-ffourcc %(vtag)s "
+
+        self.command = command % kwargs
+
+    def calculate_percentage(self, val):
+        return float(val)
+
+    def check_cancelled(self):
+        return conduit.GLOBALS.cancelled
             
-class FFmpegConverter:
+class AudioVideoConverter:
     def __init__(self):
         self.conversions =  {
                             "file/video,file/video"     :   self.transcode_video,    
@@ -80,8 +115,8 @@ class FFmpegConverter:
         try:
             duration_string,w,h = re.search(pat,output).groups()
             #make duration into seconds
-            h,m,s = duration_string.split(':')
-            duration = (60.0*60.0*float(h)) + (60*float(m)) + float(s)
+            ho,m,s = duration_string.split(':')
+            duration = (60.0*60.0*float(ho)) + (60*float(m)) + float(s)
         except AttributeError:
             conduit.logd("Error parsing ffmpeg output")
             return None
@@ -101,12 +136,20 @@ class FFmpegConverter:
         output_file = out.get_local_uri()
 
         #convert the video
-        c = FFmpegCommandLineConverter(duration=duration)
+        if kwargs.get("mencoder", False) and Utils.program_installed("mencoder"):
+            c = MencoderCommandLineConverter()
+        else:    
+            c = FFmpegCommandLineConverter(duration=duration)
         c.build_command(**kwargs)
-        ok = c.convert(input_file,output_file,callback=lambda x: conduit.logd(x))
+        ok,output = c.convert(
+                        input_file,
+                        output_file,
+                        callback=lambda x: conduit.logd("Trancoding video %s%% complete" % x),
+                        save_output=True
+                        )
 
         if not ok:
-            conduit.logd("Error transcoding video")
+            conduit.logd("Error transcoding video\b%s" % output)
             return None
 
         return out
@@ -146,10 +189,15 @@ class FFmpegConverter:
         #convert audio
         c = FFmpegCommandLineConverter(duration=duration)
         c.build_command(**kwargs)
-        ok = c.convert(input_file,output_file,callback=lambda x: conduit.logd(x))
+        ok,output = c.convert(
+                        input_file,
+                        output_file,
+                        callback=lambda x: conduit.logd("Trancoding audio %s%% complete" % x),
+                        save_output=True
+                        )
 
         if not ok:
-            conduit.logd("Error transcoding audio")
+            conduit.logd("Error transcoding audio\n%s" % output)
             return None
 
         return out
@@ -172,13 +220,22 @@ class FFmpegConverter:
         
 if __name__ == "__main__":
     import conduit.datatypes.File as File
-    c = FFmpegConverter()
+    c = AudioVideoConverter()
 
     try:
         f = File.File("/home/john/Downloads/1002 - Smug Alert!.avi")
-        args = {'abitrate':128,'vbitrate':200,'fps':15,'vcodec':'theora','acodec':'vorbis','format':'ogg'}
+        args = {'abitrate':128,'vbitrate':200,'fps':15,'vcodec':'theora','acodec':'vorbis','format':'ogg',"width":640,"height":480}
         c.transcode_video(f,**args)
     except KeyboardInterrupt: pass
+
+    try:
+        f = File.File("/home/john/Downloads/1002 - Smug Alert!.avi")
+        args = {'arate':44100,'acodec':'mp3','abitrate':128,'vcodec':'mpeg4','vbitrate':420,"fps":15,"vtag":"DIVX","width":320,"height":240}
+        #use mencoder not ffmpef
+        args["mencoder"] = True
+        c.transcode_video(f,**args)
+    except KeyboardInterrupt: pass
+
 
     try:
         f = File.File("/home/john/Music/Salmonella Dub/Inside The Dub Plates/01 - Problems.mp3")

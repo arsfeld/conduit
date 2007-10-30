@@ -484,7 +484,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
 
 class CommandLineConverter:
     def __init__(self):
-        self.percentage_match = re.compile('(\d+)%')
+        self.percentage_match = re.compile('.*')
 
     def _kill(self, process):
         logd("Killing process")
