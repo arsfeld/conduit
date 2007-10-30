@@ -451,6 +451,8 @@ class TempFile(File):
         self.set_UID(f.get_UID())
         self.force_new_mtime(f.get_mtime())
         self.force_new_filename(f.get_filename())
+        self.basePath = f.basePath
+        self.group = f.group
 
 
 

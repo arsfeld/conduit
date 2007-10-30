@@ -10,8 +10,8 @@ class Audio(File.File):
 
     _name_ = "file/audio"
 
-    def __init__(self, URI):
-        File.File.__init__(self, URI=URI)
+    def __init__(self, URI, **kwargs):
+        File.File.__init__(self, URI, **kwargs)
 
     def get_artist(self):
         return None

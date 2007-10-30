@@ -12,3 +12,11 @@ COMPARISON_NEWER = 1
 COMPARISON_OLDER = 2
 COMPARISON_UNKNOWN = 3
 
+def compare_mtimes_and_hashes(data1, data2):
+    """
+    Compares data based upon its mtime and hashes only
+    """
+    mtime1 = data1.get_mtime()
+    mtime2 = data2.get_mtime()
+    hash1 = data1.get_hash()
+    hash2 = data2.get_hash()

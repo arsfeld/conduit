@@ -74,7 +74,7 @@ class N800Base(FileDataProvider.FolderTwoWay):
                             N800Base.DEFAULT_HIDDEN,
                             N800Base.DEFAULT_COMPARE_IGNORE_MTIME
                             )
-        self.need_configuration(True)
+        self.need_configuration(False)
 
     def refresh(self):
         if not os.path.exists(self.folder):
@@ -84,16 +84,6 @@ class N800Base(FileDataProvider.FolderTwoWay):
                 raise Exceptions.RefreshError("Error Creating Directory")
 
         FileDataProvider.FolderTwoWay.refresh(self)
-
-    def set_configuration(self, config):
-        self.folder = config.get("folder", None)
-        self.folderGroupName = config.get("folderGroupName", N800Base.DEFAULT_GROUP)
-        self.includeHidden = config.get("includeHidden", N800Base.DEFAULT_HIDDEN)
-        self.compareIgnoreMtime = config.get("compareIgnoreMtime", N800Base.DEFAULT_COMPARE_IGNORE_MTIME)
-
-        if self.folder != None:
-            self.set_configured(True)
-
 
     def get_configuration(self):
         return {

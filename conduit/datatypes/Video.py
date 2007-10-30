@@ -12,8 +12,8 @@ class Video(File.File):
 
     _name_ = "file/video"
 
-    def __init__(self, URI):
-        File.File.__init__(self, URI=URI)
+    def __init__(self, URI, **kwargs):
+        File.File.__init__(self, URI, **kwargs)
 
     def get_duration(self):
         return None

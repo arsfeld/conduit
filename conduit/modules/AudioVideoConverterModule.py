@@ -207,7 +207,12 @@ class AudioVideoConverter:
     def file_to_audio(self, f, **kwargs):
         t = f.get_mimetype()
         if t.startswith("audio/"):
-            a = Audio.Audio(URI=f._get_text_uri())
+            a = Audio.Audio(
+                    URI=f._get_text_uri(),
+                    basepath=f.basePath,
+                    group=f.group
+                    )
+
             if len(kwargs) > 0:
                 return self.transcode_audio(a,**kwargs)
             else:
@@ -218,7 +223,11 @@ class AudioVideoConverter:
     def file_to_video(self, f, **kwargs):
         t = f.get_mimetype()
         if t.startswith("video/"):
-            v = Video.Video(URI=f._get_text_uri())
+            v = Video.Video(
+                    URI=f._get_text_uri(),
+                    basepath=f.basePath,
+                    group=f.group
+                    )
             if len(kwargs) > 0:
                 return self.transcode_video(v,**kwargs)
             else:
