@@ -10,6 +10,8 @@ import os.path
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.datatypes.Video as Video
+import conduit.datatypes.Audio as Audio
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
 import conduit.Utils as Utils
@@ -146,6 +148,34 @@ class N800AudioTwoWay(N800Base):
                     udi,
                     os.path.join(mount,N800AudioTwoWay.DEFAULT_FOLDER)
                     )
+        self.encoding = "ogg"
+         
+    def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        def setEnc(param):
+            self.encoding = str(param)
+
+        items = [
+                    {
+                    "Name" : "Format (%s,unchanged)" % ",".join(Audio.PRESET_ENCODINGS.keys()),
+                    "Widget" : gtk.Entry,
+                    "Callback" : setEnc,
+                    "InitialValue" : self.encoding
+                    }
+                ]
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
+        dialog.run()
+        
+    def get_configuration(self):
+        return {'encoding':self.encoding}
+        
+    def get_input_conversion_args(self):
+        try:
+            return Audio.PRESET_ENCODINGS[self.encoding]
+        except KeyError:
+            return {}
 
 class N800VideoTwoWay(N800Base):
     """
@@ -154,8 +184,8 @@ class N800VideoTwoWay(N800Base):
 
     _name_ = "Video"
     _description_ = "Synchronizes Video to a N800 device"
-    _in_type_ = "file/audio"
-    _out_type_ = "file/audio"
+    _in_type_ = "file/video"
+    _out_type_ = "file/video"
     _icon_ = "video-x-generic"
 
     DEFAULT_FOLDER = "Video"
@@ -168,4 +198,33 @@ class N800VideoTwoWay(N800Base):
                     udi,
                     os.path.join(mount,N800VideoTwoWay.DEFAULT_FOLDER)
                     )
+        self.encoding = "ogg"
+                    
+    def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        def setEnc(param):
+            self.encoding = str(param)
+
+        items = [
+                    {
+                    "Name" : "Format (%s,unchanged)" % ",".join(Video.PRESET_ENCODINGS.keys()),
+                    "Widget" : gtk.Entry,
+                    "Callback" : setEnc,
+                    "InitialValue" : self.encoding
+                    }
+                ]
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
+        dialog.run()
+        
+    def get_configuration(self):
+        return {'encoding':self.encoding}
+        
+    def get_input_conversion_args(self):
+        try:
+            return Video.PRESET_ENCODINGS[self.encoding]
+        except KeyError:
+            return {}
+        
 

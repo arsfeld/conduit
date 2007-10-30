@@ -291,7 +291,7 @@ class TestVideoSink(DataProvider.DataSink):
 
         items = [
                     {
-                    "Name" : "Encoding (%s)" % ",".join(Video.PRESET_ENCODINGS.keys()),
+                    "Name" : "Format (%s,unchanged)" % ",".join(Video.PRESET_ENCODINGS.keys()),
                     "Widget" : gtk.Entry,
                     "Callback" : setEnc,
                     "InitialValue" : self.encoding
@@ -336,7 +336,7 @@ class TestAudioSink(DataProvider.DataSink):
 
         items = [
                     {
-                    "Name" : "Encoding (%s)" % ",".join(Audio.PRESET_ENCODINGS.keys()),
+                    "Name" : "Format (%s,unchanged)" % ",".join(Audio.PRESET_ENCODINGS.keys()),
                     "Widget" : gtk.Entry,
                     "Callback" : setEnc,
                     "InitialValue" : self.encoding
