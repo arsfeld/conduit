@@ -43,7 +43,7 @@ class N800Factory(DataProvider.DataProviderFactory):
                     mount)
 
         keys = []
-        for klass in [N800FolderTwoWay]:
+        for klass in [N800FolderTwoWay, N800AudioTwoWay, N800VideoTwoWay]:
             key = self.emit_added(
                            klass,            # Dataprovider class
                            (mount,udi,),     # Init args
@@ -58,30 +58,20 @@ class N800Factory(DataProvider.DataProviderFactory):
 
         del self.n800s[udi]
 
-class N800FolderTwoWay(FileDataProvider.FolderTwoWay):
+class N800Base(FileDataProvider.FolderTwoWay):
     """
     TwoWay dataprovider for synchronizing a folder on a N800
     """
-
-    _name_ = "Files"
-    _description_ = "Synchronize files/folders to a N800 device"
-
-    DEFAULT_FOLDER = "Backups"
     DEFAULT_GROUP = "N800"
     DEFAULT_HIDDEN = False
     DEFAULT_COMPARE_IGNORE_MTIME = False
-
-    def __init__(self, *args):
-        self.mount,self.udi = args
-        self.folder = os.path.join(self.mount,N800FolderTwoWay.DEFAULT_FOLDER)
-
+    def __init__(self, mount, udi, folder):
         FileDataProvider.FolderTwoWay.__init__(self,
-                self.folder,
-                N800FolderTwoWay.DEFAULT_GROUP,
-                N800FolderTwoWay.DEFAULT_HIDDEN,
-                N800FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME
-                )
-
+                            folder,
+                            N800Base.DEFAULT_GROUP,
+                            N800Base.DEFAULT_HIDDEN,
+                            N800Base.DEFAULT_COMPARE_IGNORE_MTIME
+                            )
         self.need_configuration(True)
 
     def refresh(self):
@@ -95,9 +85,9 @@ class N800FolderTwoWay(FileDataProvider.FolderTwoWay):
 
     def set_configuration(self, config):
         self.folder = config.get("folder", None)
-        self.folderGroupName = config.get("folderGroupName", N800FolderTwoWay.DEFAULT_GROUP)
-        self.includeHidden = config.get("includeHidden", N800FolderTwoWay.DEFAULT_HIDDEN)
-        self.compareIgnoreMtime = config.get("compareIgnoreMtime", N800FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME)
+        self.folderGroupName = config.get("folderGroupName", N800Base.DEFAULT_GROUP)
+        self.includeHidden = config.get("includeHidden", N800Base.DEFAULT_HIDDEN)
+        self.compareIgnoreMtime = config.get("compareIgnoreMtime", N800Base.DEFAULT_COMPARE_IGNORE_MTIME)
 
         if self.folder != None:
             self.set_configured(True)
@@ -114,4 +104,68 @@ class N800FolderTwoWay(FileDataProvider.FolderTwoWay):
     def get_UID(self):
         return "%s:%s" % (self.folder, self.folderGroupName)
 
+class N800FolderTwoWay(N800Base):
+    """
+    TwoWay dataprovider for synchronizing a folder on a N800
+    """
+
+    _name_ = "Files"
+    _description_ = "Synchronize files/folders o a N800 device"
+    _in_type_ = "file"
+    _out_type_ = "file"
+
+    DEFAULT_FOLDER = "Backups"
+
+    def __init__(self, *args):
+        mount,udi = args
+        N800Base.__init__(
+                    self,
+                    mount,
+                    udi,
+                    os.path.join(mount,N800FolderTwoWay.DEFAULT_FOLDER)
+                    )
+        
+class N800AudioTwoWay(N800Base):
+    """
+    TwoWay dataprovider for synchronizing a folder on a N800
+    """
+
+    _name_ = "Music"
+    _description_ = "Synchronizes Music to a N800 device"
+    _in_type_ = "file/audio"
+    _out_type_ = "file/audio"
+    _icon_ = "audio-x-generic"
+
+    DEFAULT_FOLDER = "Music"
+
+    def __init__(self, *args):
+        mount,udi = args
+        N800Base.__init__(
+                    self,
+                    mount,
+                    udi,
+                    os.path.join(mount,N800AudioTwoWay.DEFAULT_FOLDER)
+                    )
+
+class N800VideoTwoWay(N800Base):
+    """
+    TwoWay dataprovider for synchronizing a folder on a N800
+    """
+
+    _name_ = "Video"
+    _description_ = "Synchronizes Video to a N800 device"
+    _in_type_ = "file/audio"
+    _out_type_ = "file/audio"
+    _icon_ = "video-x-generic"
+
+    DEFAULT_FOLDER = "Video"
+
+    def __init__(self, *args):
+        mount,udi = args
+        N800Base.__init__(
+                    self,
+                    mount,
+                    udi,
+                    os.path.join(mount,N800VideoTwoWay.DEFAULT_FOLDER)
+                    )
 
