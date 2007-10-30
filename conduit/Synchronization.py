@@ -538,25 +538,11 @@ class SyncWorker(_ThreadedWorker):
             cnt = cnt+1
             self.conduit.emit("sync-progress", float(cnt)/total)
 
-            if data1 != None and data2 != None:
-                logd("2WAY CMP: %s (%s) <----> %s (%s)" % (dp1.name,data1UID,dp2.name,data2UID))
-                d1mtime = data1.get_mtime()
-                d2mtime = data2.get_mtime()
-                if d1mtime == None and d2mtime == None:
-                    self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
-                else:
-                    if d1mtime > d2mtime:
-                        sourcedp = dp1
-                        sinkdp = dp2
-                        fromdata = data2
-                        todata = data1
-                    else:
-                        sourcedp = dp2
-                        sinkdp = dp1
-                        fromdata = data1
-                        todata = data2
-
-                    self._apply_conflict_policy(sourcedp, sinkdp, COMPARISON_UNKNOWN, fromdata, todata)
+            comparison = data1.compare(data2)
+            if comparison == conduit.datatypes.OLDER:
+                self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data1)
+            else:
+                self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
 
     def run(self):
         """

@@ -46,14 +46,28 @@ class DataType(object):
          - C{conduit.datatypes.NEWER} This means the I am newer than B
          - C{conduit.datatypes.EQUAL} This means the we are equal
          - L{conduit.datatypes.OLDER} This means the I am older than B
+         - L{conduit.datatypes.UNEQUAL} This means that I know I am different, but I don't know wny
          - L{conduit.datatypes.UNKNOWN} This means we were unable to determine
-           which was newer than the other so its up to the user to decide
-        
+           which was newer than the other so its up to the user to decide        
         """
-        return conduit.datatypes.UNKNOWN
+        logd("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid())
+
+        if self.get_hash() == B.get_hash():
+            return conduit.datatypes.EQUAL
+
+        mtime1 = self.get_mtime()
+        mtime2 = B.get_mtime()
+
+        if not mtime1 or not mtime2:
+            return conduit.datatypes.UNEQUAL
+
+        if mtime1 > mtime2:
+            return conduit.datatypes.NEWER
+        else:
+            return conduit.datatypes.OLDER
 
     def get_hash(self):
-        return ""
+        return self.get_mtime()
 
     def get_UID(self):
         """
