@@ -423,7 +423,7 @@ class TempFile(File):
 
     USE VERY CAREFULLY
     """
-    def __init__(self, contents):
+    def __init__(self, contents=""):
         #create the file containing contents
         fd, name = tempfile.mkstemp(prefix="conduit")
         os.write(fd, contents)
@@ -443,4 +443,14 @@ class TempFile(File):
         filename = self.get_filename()
         File.force_new_mtime(self, mtime)
         self._defer_rename(filename)
+
+    def pretend_to_be(self, f):
+        """
+        Makes this tempfile appear to be f, by retaining its UID,mtime,name,etc
+        """
+        self.set_UID(f.get_UID())
+        self.force_new_mtime(f.get_mtime())
+        self.force_new_filename(f.get_filename())
+
+
 

@@ -307,6 +307,7 @@ class TestVideoSink(DataProvider.DataSink):
             return {}
 
     def put(self, data, overwrite, LUID=None):
+        logd("Put Video File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         LUID=data.get_UID()+self._name_
         return LUID
@@ -351,6 +352,7 @@ class TestAudioSink(DataProvider.DataSink):
             return {}
 
     def put(self, data, overwrite, LUID=None):
+        logd("Put Audio File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         LUID=data.get_UID()+self._name_
         return LUID

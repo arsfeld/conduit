@@ -2,6 +2,7 @@ import re
 
 import conduit
 import conduit.Utils as Utils
+import conduit.datatypes.File as File
 
 if Utils.program_installed("ffmpeg"):
     MODULES = {
@@ -98,16 +99,21 @@ class FFmpegConverter:
                             currentH=int(h)
                             )
 
+        #create output file
+        out = File.TempFile()
+        out.pretend_to_be(video)
+        output_file = out.get_local_uri()
+
         #convert the video
         command = self._build_command(**convargs)
         c = FFmpegCommandLineConverter(command, duration=duration)
-        ok = c.convert(input_file,"/tmp/foo",callback=lambda x: conduit.logd(x))
+        ok = c.convert(input_file,output_file,callback=lambda x: conduit.logd(x))
 
         if not ok:
             conduit.logd("Error transcoding video")
             return None
 
-        return video
+        return out
         
     def transcode_audio(self, audio, **kwargs):
         if not audio.get_mimetype().startswith("audio/"):
@@ -145,20 +151,26 @@ class FFmpegConverter:
             'out_file':'"%s"',
             }
 
+        #create output file
+        out = File.TempFile()
+        out.pretend_to_be(audio)
+        output_file = out.get_local_uri()
+
         #convert audio
         command = self._build_command(**convargs)
         c = FFmpegCommandLineConverter(command, duration=duration)
-        ok = c.convert(input_file,"/tmp/foo",callback=lambda x: conduit.logd(x))
+        ok = c.convert(input_file,output_file,callback=lambda x: conduit.logd(x))
 
         if not ok:
             conduit.logd("Error transcoding audio")
             return None
 
-        return audio
+        return out
         
     def file_to_audio(self, f, **kwargs):
         t = f.get_mimetype()
         if t.startswith("audio/"):
+            #FIXME: Only transcode if necessary
             return self.transcode_audio(f,**kwargs)
         else:
             return None
@@ -166,6 +178,7 @@ class FFmpegConverter:
     def file_to_video(self, f, **kwargs):
         t = f.get_mimetype()
         if t.startswith("video/"):
+            #FIXME: Only transcode if necessary
             return self.transcode_video(f,**kwargs)
         else:
             return None
