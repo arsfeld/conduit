@@ -31,13 +31,16 @@ class File(DataType.DataType):
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
-
+        
     def _open_file(self):
         if self.triedOpen == False:
             self.triedOpen = True
             self.fileExists = gnomevfs.exists(self.URI)
 
     def _close_file(self):
+        import traceback
+        logd("Closing file")
+        traceback.print_stack()
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False
@@ -110,6 +113,9 @@ class File(DataType.DataType):
         """
         logd("Defering rename till transfer (New name: %s)" % filename)
         self._newFilename = filename
+        
+    def _is_deferred_rename(self):
+        return self._newFilename != None
 
     def _defer_new_mtime(self, mtime):
         """
@@ -119,19 +125,33 @@ class File(DataType.DataType):
         logd("Defering new mtime till transfer (New mtime: %s)" % mtime)
         self._newMtime = mtime
         
-    def _to_tempfile(self):
+    def _is_deferred_new_mtime(self):
+        return self._newMtime != None
+        
+    def _is_tempfile(self):
+        tmpdir = tempfile.gettempdir()
+        if self.is_local() and self.URI.path.startswith(tmpdir):
+            return True
+        else:
+            return False
+
+    def to_tempfile(self):
         """
         Copies this file to a temporary file in the system tempdir
         @returns: The local file path
         """
         #Get a temporary file name
         tempname = tempfile.mkstemp(prefix="conduit")[1]
-        # FIXME: Should we save the filename here? is that why resizing photos
-        # loses the name?
+        logd("Tempfile %s -> %s" % (self.URI, tempname))
+        filename = self.get_filename()
+        mtime = self.get_mtime()
         self.transfer(
                 newURIString=tempname,
                 overwrite=True
                 )
+        #retain all original information
+        self.force_new_filename(filename)
+        self.force_new_mtime(mtime)
         return tempname
 
     def exists(self):
@@ -157,39 +177,57 @@ class File(DataType.DataType):
         """
         Renames the file
         """
-        try:
-            newInfo = gnomevfs.FileInfo()
-            newInfo.name = filename
-
-            oldname = self.get_filename()
-            olduri = self._get_text_uri()
-            newuri = olduri.replace(oldname, filename)
-
-            logd("Renaming File %s -> %s" % (olduri, newuri))
-            gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
-
-            #close so the file info is re-read
-            self.URI = gnomevfs.URI(newuri)
-            self._close_file()
-        except gnomevfs.NotSupportedError:
-            #file is on readonly filesystem. defer rename
+        if self._is_tempfile():
             self._defer_rename(filename)
+        else:
+            try:
+                newInfo = gnomevfs.FileInfo()
+                newInfo.name = filename
+
+                oldname = self.get_filename()
+                olduri = self._get_text_uri()
+                newuri = olduri.replace(oldname, filename)
+
+                logd("Renaming File %s -> %s" % (olduri, newuri))
+                gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
+
+                #close so the file info is re-read
+                self.URI = gnomevfs.URI(newuri)
+                self._close_file()
+            except gnomevfs.NotSupportedError:
+                #dunno what this is
+                self._defer_rename(filename)
+            except gnomevfs.AccessDeniedError:
+                #file is on readonly filesystem
+                self._defer_rename(filename)
+            except gnomevfs.NotPermittedError:
+                #file is on readonly filesystem
+                self._defer_rename(filename)
 
     def force_new_mtime(self, mtime):
         """
         Changes the mtime of the file
         """
-        try:
-            timestamp = conduit.Utils.datetime_get_timestamp(mtime)
-            logd("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
-            newInfo = gnomevfs.FileInfo()
-            newInfo.mtime = timestamp
-            gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
-            #close so the file info is re-read
-            self._close_file()
-        except gnomevfs.NotSupportedError:
-            #file is on readonly filesystem. defer new mtime
+        if self._is_tempfile():
             self._defer_new_mtime(mtime)
+        else:
+            try:
+                timestamp = conduit.Utils.datetime_get_timestamp(mtime)
+                logd("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
+                newInfo = gnomevfs.FileInfo()
+                newInfo.mtime = timestamp
+                gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
+                #close so the file info is re-read
+                self._close_file()
+            except gnomevfs.NotSupportedError:
+                #dunno what this is
+                self._defer_new_mtime(mtime)
+            except gnomevfs.AccessDeniedError:
+                #file is on readonly filesystem
+                self._defer_new_mtime(mtime)
+            except gnomevfs.NotPermittedError:
+                #file is on readonly filesystem
+                self._defer_new_mtime(mtime)
 
 
     def transfer(self, newURIString, overwrite=False, cancel_function=None):
@@ -204,9 +242,7 @@ class File(DataType.DataType):
         if cancel_function == None:
             cancel_function = self._xfer_check_global_cancel_flag
 
-        if self._newFilename == None:
-            newURI = gnomevfs.URI(newURIString)
-        else:
+        if self._is_deferred_rename():
             newURI = gnomevfs.URI(newURIString)
             #if it exists and its a directory then transfer into that dir
             #with the new filename
@@ -217,7 +253,9 @@ class File(DataType.DataType):
                     newURI = newURI.append_file_name(self._newFilename)
 
                     logd("Using deferred filename in transfer")
-
+        else:
+            newURI = gnomevfs.URI(newURIString)
+            
         if overwrite:
             mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
         else:
@@ -243,11 +281,10 @@ class File(DataType.DataType):
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
-        if self._newMtime != None:
-            #force_new_mtime closes the file
+        if self._is_deferred_new_mtime():
             self.force_new_mtime(self._newMtime)
-        else:
-            self._close_file()
+        
+        self._close_file()
 
     def delete(self):
         logd("Deleting %s" % self.URI)
@@ -271,14 +308,14 @@ class File(DataType.DataType):
         of the file or None on error.
         @rtype: C{datetime}
         """
-        if self._newMtime == None:
+        if self._is_deferred_new_mtime():
+            return self._newMtime
+        else:
             self._get_file_info()
             try:
                 return datetime.datetime.fromtimestamp(self.fileInfo.mtime)
             except:
                 return None
-        else:
-            return self._newMtime
 
     def set_mtime(self, mtime):
         """
@@ -304,11 +341,11 @@ class File(DataType.DataType):
         """
         Returns the filename of the file
         """
-        if self._newFilename == None:
+        if self._is_deferred_rename():
+            return self._newFilename
+        else:
             self._get_file_info()
             return self.fileInfo.name
-        else:
-            return self._newFilename
         
     def get_contents_as_text(self):
         return gnomevfs.read_entire_file(self._get_text_uri())
@@ -334,7 +371,7 @@ class File(DataType.DataType):
             #u = self.URI[len("file://"):]
             return u
         else:
-            return self._to_tempfile()
+            return self.to_tempfile()
 
     def compare(self, B, sizeOnly=False, existOnly=False):
         """
@@ -404,14 +441,14 @@ class File(DataType.DataType):
         return data
 
     def __setstate__(self, data):
-        self.URI = gnomevfs.URI(data['uri'])
-        self.basePath = data['basePath']
-        self.group = data['group']
-
         fd, name = tempfile.mkstemp(prefix="netsync")
         os.write(fd, data['data'])
         os.close(fd)
-        self._newFilename = name
+        
+        self.URI = gnomevfs.URI(data['uri'])
+        self.basePath = data['basePath']
+        self.group = data['group']
+        self._defer_rename(name)
 
         DataType.DataType.__setstate__(self, data)
 
@@ -420,39 +457,12 @@ class TempFile(File):
     A Small extension to a File. This makes new filenames (force_new_filename)
     to be processed in the transfer method, and not immediately, which may
     cause name conflicts in the temp directory. 
-
-    USE VERY CAREFULLY
     """
     def __init__(self, contents=""):
         #create the file containing contents
         fd, name = tempfile.mkstemp(prefix="conduit")
         os.write(fd, contents)
         os.close(fd)
-
         File.__init__(self, name)
-
         logd("New tempfile created at %s" % name)
-            
-    def force_new_filename(self, filename):
-        #always defer the rename if its a tempfile to avoid name collisions        
-        self._defer_rename(filename)
-
-    def force_new_mtime(self, mtime):
-        #changing the file mtime causes the file info to be reread which loses
-        #any deferred rename operations. Save and restore any defered renames
-        filename = self.get_filename()
-        File.force_new_mtime(self, mtime)
-        self._defer_rename(filename)
-
-    def pretend_to_be(self, f):
-        """
-        Makes this tempfile appear to be f, by retaining its UID,mtime,name,etc
-        """
-        self.set_UID(f.get_UID())
-        self.force_new_mtime(f.get_mtime())
-        self.force_new_filename(f.get_filename())
-        self.basePath = f.basePath
-        self.group = f.group
-
-
 

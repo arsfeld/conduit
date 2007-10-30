@@ -133,9 +133,7 @@ class AudioVideoConverter:
                             )
 
         #create output file
-        out = File.TempFile()
-        out.pretend_to_be(video)
-        output_file = out.get_local_uri()
+        output_file = video.to_tempfile()
 
         #convert the video
         if kwargs.get("mencoder", False) and Utils.program_installed("mencoder"):
@@ -154,7 +152,7 @@ class AudioVideoConverter:
             conduit.logd("Error transcoding video\b%s" % output)
             return None
 
-        return out
+        return video
         
     def transcode_audio(self, audio, **kwargs):
         if not audio.get_mimetype().startswith("audio/"):
@@ -184,9 +182,7 @@ class AudioVideoConverter:
         conduit.logd("Input Audio %s: duration=%ss" % (input_file,duration))
         
         #create output file
-        out = File.TempFile()
-        out.pretend_to_be(audio)
-        output_file = out.get_local_uri()
+        output_file = audio.to_tempfile()
 
         #convert audio
         c = FFmpegCommandLineConverter(duration=duration)
@@ -202,7 +198,7 @@ class AudioVideoConverter:
             conduit.logd("Error transcoding audio\n%s" % output)
             return None
 
-        return out
+        return audio
         
     def file_to_audio(self, f, **kwargs):
         t = f.get_mimetype()
