@@ -3,6 +3,11 @@ import conduit
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
+PRESET_ENCODINGS = {
+    "jpg":{'formats':'image/jpeg','default-format':'image/jpeg'},
+    "png":{'formats':'image/png','default-format':'image/png'}
+    }
+
 class Photo(File.File):
     """
     A Small wrapper around a Pixbuf

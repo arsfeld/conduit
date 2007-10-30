@@ -12,6 +12,7 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Video as Video
 import conduit.datatypes.Audio as Audio
+import conduit.datatypes.Photo as Photo
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
 import conduit.Utils as Utils
@@ -45,7 +46,7 @@ class N800Factory(DataProvider.DataProviderFactory):
                     mount)
 
         keys = []
-        for klass in [N800FolderTwoWay, N800AudioTwoWay, N800VideoTwoWay]:
+        for klass in [N800FolderTwoWay, N800AudioTwoWay, N800VideoTwoWay, N800PhotoTwoWay]:
             key = self.emit_added(
                            klass,            # Dataprovider class
                            (mount,udi,),     # Init args
@@ -75,6 +76,24 @@ class N800Base(FileDataProvider.FolderTwoWay):
                             N800Base.DEFAULT_COMPARE_IGNORE_MTIME
                             )
         self.need_configuration(False)
+
+    def _simple_configure(self, window, encodings):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        def setEnc(param):
+            self.encoding = str(param)
+
+        items = [
+                    {
+                    "Name" : "Format (%s,unchanged)" % ",".join(encodings),
+                    "Widget" : gtk.Entry,
+                    "Callback" : setEnc,
+                    "InitialValue" : self.encoding
+                    }
+                ]
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
+        dialog.run()
 
     def refresh(self):
         if not os.path.exists(self.folder):
@@ -116,7 +135,7 @@ class N800FolderTwoWay(N800Base):
                     udi,
                     os.path.join(mount,N800FolderTwoWay.DEFAULT_FOLDER)
                     )
-        
+
 class N800AudioTwoWay(N800Base):
     """
     TwoWay dataprovider for synchronizing a folder on a N800
@@ -141,23 +160,8 @@ class N800AudioTwoWay(N800Base):
         self.encoding = "ogg"
          
     def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+        self._simple_configure(window, Audio.PRESET_ENCODINGS.keys())
 
-        def setEnc(param):
-            self.encoding = str(param)
-
-        items = [
-                    {
-                    "Name" : "Format (%s,unchanged)" % ",".join(Audio.PRESET_ENCODINGS.keys()),
-                    "Widget" : gtk.Entry,
-                    "Callback" : setEnc,
-                    "InitialValue" : self.encoding
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-        
     def get_configuration(self):
         return {'encoding':self.encoding}
         
@@ -191,22 +195,7 @@ class N800VideoTwoWay(N800Base):
         self.encoding = "ogg"
                     
     def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setEnc(param):
-            self.encoding = str(param)
-
-        items = [
-                    {
-                    "Name" : "Format (%s,unchanged)" % ",".join(Video.PRESET_ENCODINGS.keys()),
-                    "Widget" : gtk.Entry,
-                    "Callback" : setEnc,
-                    "InitialValue" : self.encoding
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
+        self._simple_configure(window, Video.PRESET_ENCODINGS.keys())
         
     def get_configuration(self):
         return {'encoding':self.encoding}
@@ -217,4 +206,38 @@ class N800VideoTwoWay(N800Base):
         except KeyError:
             return {}
         
+class N800PhotoTwoWay(N800Base):
+    """
+    TwoWay dataprovider for synchronizing a folder on a N800
+    """
+
+    _name_ = "Photo"
+    _description_ = "Synchronizes Video to a N800 device"
+    _in_type_ = "file/photo"
+    _out_type_ = "file/photo"
+    _icon_ = "image-x-generic"
+
+    DEFAULT_FOLDER = "Photo"
+
+    def __init__(self, *args):
+        mount,udi = args
+        N800Base.__init__(
+                    self,
+                    mount,
+                    udi,
+                    os.path.join(mount,N800PhotoTwoWay.DEFAULT_FOLDER)
+                    )
+        self.encoding = "jpg"
+                    
+    def configure(self, window):
+        self._simple_configure(window, Photo.PRESET_ENCODINGS.keys())
+        
+    def get_configuration(self):
+        return {'encoding':self.encoding}
+        
+    def get_input_conversion_args(self):
+        try:
+            return Photo.PRESET_ENCODINGS[self.encoding]
+        except KeyError:
+            return {}
 

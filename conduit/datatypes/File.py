@@ -38,9 +38,7 @@ class File(DataType.DataType):
             self.fileExists = gnomevfs.exists(self.URI)
 
     def _close_file(self):
-        import traceback
         logd("Closing file")
-        traceback.print_stack()
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False

@@ -68,7 +68,7 @@ class PixbufPhotoConverter:
             #convert photo to default format
             mimeType = kwargs.get("default-format","image/jpeg")
             try:
-                newFormat = self._get_pixbuf_capabilities()["mimeType"]
+                newFormat = self._get_pixbuf_capabilities()[mimeType]
             except KeyError:
                 newFormat = "jpeg"
         else:
