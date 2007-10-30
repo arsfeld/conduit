@@ -8,7 +8,9 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import sys
-import os, os.path
+import os
+import os.path
+import signal
 import tempfile
 import random
 import md5
@@ -481,12 +483,21 @@ class FolderScanner(threading.Thread, gobject.GObject):
         return self.URIs
 
 class CommandLineConverter:
-    def __init__( self, command):
-        self.command = command
+    def __init__(self):
         self.percentage_match = re.compile('(\d+)%')
+
+    def _kill(self, process):
+        logd("Killing process")
+        os.kill(process.pid, signal.SIGKILL)
+
+    def build_command(self, command, **params):
+        self.command = command
         
     def calculate_percentage(self, val):
         return float(val)
+
+    def check_cancelled(self):
+        return False
 
     def convert( self, input_filename, output_filename, callback=None,save_output=False):
         command = self.command % (input_filename, output_filename)
@@ -503,9 +514,11 @@ class CommandLineConverter:
                 for i in self.percentage_match.finditer(s):
                     val = self.calculate_percentage(i.group(1).strip())
                     callback(val)
-            s = stdout.read(80)
             if save_output:
                 output += s
+            if self.check_cancelled():
+                self._kill(process)
+            s = stdout.read(80)
 
         ok = process.wait() == 0
         if save_output:

@@ -12,24 +12,15 @@ else:
     MODULES = {}
 
 class FFmpegCommandLineConverter(Utils.CommandLineConverter):
-    def __init__(self, command, duration=None):
-        Utils.CommandLineConverter.__init__(self,command)
+    def __init__(self, duration=None):
+        Utils.CommandLineConverter.__init__(self)
         self.duration = duration
         self.percentage_match = re.compile('time=?(\d+\.\d+)')
 
-    def calculate_percentage(self, val):
-        return float(val)/self.duration*100.0
-            
-class FFmpegConverter:
-    def __init__(self):
-        self.conversions =  {
-                            "file/video,file/video"     :   self.transcode_video,    
-                            "file,file/video"           :   self.file_to_video,
-                            "file/audio,file/audio"     :   self.transcode_audio,    
-                            "file,file/audio"           :   self.file_to_audio
-                            }
+    def build_command(self, **kwargs):
+        kwargs['in_file'] = '"%s"'
+        kwargs['out_file'] = '"%s"'
 
-    def _build_command(self, **kwargs):
         command = "ffmpeg -i %(in_file)s "
         #video options
         if kwargs.get('vcodec', None):      command += "-vcodec %(vcodec)s "
@@ -52,16 +43,32 @@ class FFmpegConverter:
         if kwargs.get('format', None):      command += "-f %(format)s "
         command += "-y %(out_file)s"
 
-        return command % kwargs
-                            
+        self.command = command % kwargs
+
+    def calculate_percentage(self, val):
+        return float(val)/self.duration*100.0
+
+    def check_cancelled(self):
+        return conduit.GLOBALS.cancelled
+            
+class FFmpegConverter:
+    def __init__(self):
+        self.conversions =  {
+                            "file/video,file/video"     :   self.transcode_video,    
+                            "file,file/video"           :   self.file_to_video,
+                            "file/audio,file/audio"     :   self.transcode_audio,    
+                            "file,file/audio"           :   self.file_to_audio
+                            }
+
     def transcode_video(self, video, **kwargs):
         if not video.get_mimetype().startswith("video/"):
             conduit.logd("File is not video type")
             return None
-            
         input_file = video.get_local_uri()
+        
         #run ffmpeg over the video to work out its format, and duration
-        c = FFmpegCommandLineConverter('ffmpeg -fs 1 -y -i "%s" -f avi "%s" 2>&1')
+        c = Utils.CommandLineConverter()
+        c.build_command('ffmpeg -fs 1 -y -i "%s" -f avi "%s" 2>&1')
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
@@ -80,19 +87,8 @@ class FFmpegConverter:
             return None
         conduit.logd("Input Video %s: size=%swx%sh, duration=%ss" % (input_file,w,h,duration))
 
-        #build converstion options with defaults
-        convargs = {
-            'abitrate':kwargs.get('abitrate',128),
-            'vbitrate':kwargs.get('vbitrate',200),
-            'fps':kwargs.get('fps',29),
-            'vcodec':kwargs.get('vcodec','theora'),
-            'acodec':kwargs.get('acodec','vorbis'),
-            'format':kwargs.get('format','ogg'),
-            'in_file':'"%s"',
-            'out_file':'"%s"',
-            }
         if kwargs.get('width',None) != None and kwargs.get('height',None) != None:
-            convargs['width'],convargs['height'] = Utils.get_proportional_resize(
+            kwargs['width'],kwargs['height'] = Utils.get_proportional_resize(
                             desiredW=int(kwargs['width']),
                             desiredH=int(kwargs['height']),
                             currentW=int(w),
@@ -105,8 +101,8 @@ class FFmpegConverter:
         output_file = out.get_local_uri()
 
         #convert the video
-        command = self._build_command(**convargs)
-        c = FFmpegCommandLineConverter(command, duration=duration)
+        c = FFmpegCommandLineConverter(duration=duration)
+        c.build_command(**kwargs)
         ok = c.convert(input_file,output_file,callback=lambda x: conduit.logd(x))
 
         if not ok:
@@ -119,10 +115,11 @@ class FFmpegConverter:
         if not audio.get_mimetype().startswith("audio/"):
             conduit.logd("File is not audio type")
             return None
-            
         input_file = audio.get_local_uri()
-        #run ffmpeg over the video to work out its duration
-        c = FFmpegCommandLineConverter('ffmpeg -fs 1 -y -i "%s" -target vcd "%s" 2>&1')
+
+        #run ffmpeg over the video to work out its format, and duration
+        c = Utils.CommandLineConverter()
+        c.build_command('ffmpeg -fs 1 -y -i "%s" -f wav "%s" 2>&1')
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
@@ -141,24 +138,14 @@ class FFmpegConverter:
             return None
         conduit.logd("Input Audio %s: duration=%ss" % (input_file,duration))
         
-        #build converstion options with defaults
-        convargs = {
-            'arate':kwargs.get('arate',44100),
-            'abitrate':kwargs.get('abitrate',96),
-            'acodec':kwargs.get('acodec','vorbis'),
-            'format':kwargs.get('format','ogg'),
-            'in_file':'"%s"',
-            'out_file':'"%s"',
-            }
-
         #create output file
         out = File.TempFile()
         out.pretend_to_be(audio)
         output_file = out.get_local_uri()
 
         #convert audio
-        command = self._build_command(**convargs)
-        c = FFmpegCommandLineConverter(command, duration=duration)
+        c = FFmpegCommandLineConverter(duration=duration)
+        c.build_command(**kwargs)
         ok = c.convert(input_file,output_file,callback=lambda x: conduit.logd(x))
 
         if not ok:
@@ -189,12 +176,14 @@ if __name__ == "__main__":
 
     try:
         f = File.File("/home/john/Downloads/1002 - Smug Alert!.avi")
-        c.transcode_video(f)
+        args = {'abitrate':128,'vbitrate':200,'fps':15,'vcodec':'theora','acodec':'vorbis','format':'ogg'}
+        c.transcode_video(f,**args)
     except KeyboardInterrupt: pass
 
     try:
         f = File.File("/home/john/Music/Salmonella Dub/Inside The Dub Plates/01 - Problems.mp3")
-        c.transcode_audio(f)
+        args = {'arate':44100,'abitrate':96,'acodec':'vorbis','format':'ogg'}
+        c.transcode_audio(f,**args)
     except KeyboardInterrupt: pass
 
     
