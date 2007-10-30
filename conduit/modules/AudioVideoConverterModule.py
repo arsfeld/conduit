@@ -3,6 +3,8 @@ import re
 import conduit
 import conduit.Utils as Utils
 import conduit.datatypes.File as File
+import conduit.datatypes.Audio as Audio
+import conduit.datatypes.Video as Video
 
 if Utils.program_installed("ffmpeg"):
     MODULES = {
@@ -35,7 +37,7 @@ class FFmpegCommandLineConverter(Utils.CommandLineConverter):
         if kwargs.get('abitrate', None):
             if kwargs.get('acodec', None) != 'ac3':
                 command += "-ab %(abitrate)s "
-        if kwargs.get('achannels', None):   command += "-ac %(achannels) "
+        if kwargs.get('achannels', None):   command += "-ac %(achannels)s "
         #output file, overwrite and container format
         if kwargs.get('format', None):      command += "-f %(format)s "
         command += "-y %(out_file)s"
@@ -205,31 +207,38 @@ class AudioVideoConverter:
     def file_to_audio(self, f, **kwargs):
         t = f.get_mimetype()
         if t.startswith("audio/"):
-            #FIXME: Only transcode if necessary
-            return self.transcode_audio(f,**kwargs)
+            a = Audio.Audio(URI=f._get_text_uri())
+            if len(kwargs) > 0:
+                return self.transcode_audio(a,**kwargs)
+            else:
+                return a
         else:
             return None
 
     def file_to_video(self, f, **kwargs):
         t = f.get_mimetype()
         if t.startswith("video/"):
-            #FIXME: Only transcode if necessary
-            return self.transcode_video(f,**kwargs)
+            v = Video.Video(URI=f._get_text_uri())
+            if len(kwargs) > 0:
+                return self.transcode_video(v,**kwargs)
+            else:
+                return v
         else:
             return None
         
 if __name__ == "__main__":
     import conduit.datatypes.File as File
+    import conduit.datatypes.Video as Video
     c = AudioVideoConverter()
 
     try:
-        f = File.File("/home/john/Downloads/1002 - Smug Alert!.avi")
-        args = {'abitrate':128,'vbitrate':200,'fps':15,'vcodec':'theora','acodec':'vorbis','format':'ogg',"width":640,"height":480}
+        f = File.File("/home/john/Videos/Me/spyplane_080506_300k.avi")
+        args = Video.PRESET_ENCODINGS['flv']
         c.transcode_video(f,**args)
     except KeyboardInterrupt: pass
 
     try:
-        f = File.File("/home/john/Downloads/1002 - Smug Alert!.avi")
+        f = File.File("/home/john/Videos/Me/spyplane_080506_300k.avi")
         args = {'arate':44100,'acodec':'mp3','abitrate':128,'vcodec':'mpeg4','vbitrate':420,"fps":15,"vtag":"DIVX","width":320,"height":240}
         #use mencoder not ffmpef
         args["mencoder"] = True
@@ -238,7 +247,7 @@ if __name__ == "__main__":
 
 
     try:
-        f = File.File("/home/john/Music/Salmonella Dub/Inside The Dub Plates/01 - Problems.mp3")
+        f = File.File("/media/media/MusicToSort/Baitercell & Schumacher - Whats Down Low (Original Mix).mp3")
         args = {'arate':44100,'abitrate':96,'acodec':'vorbis','format':'ogg'}
         c.transcode_audio(f,**args)
     except KeyboardInterrupt: pass
