@@ -50,7 +50,7 @@ class DataType(object):
          - L{conduit.datatypes.UNKNOWN} This means we were unable to determine
            which was newer than the other so its up to the user to decide        
         """
-        logd("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid())
+        logd("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid()))
 
         if self.get_hash() == B.get_hash():
             return conduit.datatypes.EQUAL
@@ -58,7 +58,7 @@ class DataType(object):
         mtime1 = self.get_mtime()
         mtime2 = B.get_mtime()
 
-        if not mtime1 or not mtime2:
+        if mtime1 == None or mtime2 == None:
             return conduit.datatypes.UNEQUAL
 
         if mtime1 > mtime2:
