@@ -17,7 +17,7 @@ except:
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
-import conduit.datatypes.File as File
+import conduit.datatypes.Audio as Audio
 
 MODULES = {
     "RhythmboxSource" :              { "type": "dataprovider" },
@@ -158,7 +158,7 @@ class RhythmboxSource(DataProvider.DataSource):
 
     def get(self, songuri):
         DataProvider.DataSource.get(self, songuri)
-        f = File.File(URI=songuri)
+        f = Audio.Audio(URI=songuri)
         f.set_UID(songuri)
         f.set_open_URI(songuri)
 

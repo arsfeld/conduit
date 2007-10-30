@@ -60,11 +60,11 @@ class FFmpegConverter:
             
         input_file = video.get_local_uri()
         #run ffmpeg over the video to work out its format, and duration
-        c = FFmpegCommandLineConverter('ffmpeg -fs 1 -y -i "%s" -target vcd "%s" 2>&1')
+        c = FFmpegCommandLineConverter('ffmpeg -fs 1 -y -i "%s" -f avi "%s" 2>&1')
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
-            conduit.logd("Error getting video information")
+            conduit.logd("Error getting video information\n%s" % output)
             return None
 
         #extract the video parameters    
@@ -81,12 +81,12 @@ class FFmpegConverter:
 
         #build converstion options with defaults
         convargs = {
-            'abitrate':kwargs.get('abitrate',200),
+            'abitrate':kwargs.get('abitrate',128),
             'vbitrate':kwargs.get('vbitrate',200),
-            'fps':kwargs.get('fps',15),
-            'vcodec':kwargs.get('vcodec','mpeg4'),
-            'acodec':kwargs.get('acodec','ac3'),
-            'format':kwargs.get('format','avi'),
+            'fps':kwargs.get('fps',29),
+            'vcodec':kwargs.get('vcodec','theora'),
+            'acodec':kwargs.get('acodec','vorbis'),
+            'format':kwargs.get('format','ogg'),
             'in_file':'"%s"',
             'out_file':'"%s"',
             }
@@ -103,6 +103,10 @@ class FFmpegConverter:
         c = FFmpegCommandLineConverter(command, duration=duration)
         ok = c.convert(input_file,"/tmp/foo",callback=lambda x: conduit.logd(x))
 
+        if not ok:
+            conduit.logd("Error transcoding video")
+            return None
+
         return video
         
     def transcode_audio(self, audio, **kwargs):
@@ -116,7 +120,7 @@ class FFmpegConverter:
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
-            conduit.logd("Error getting audio information")
+            conduit.logd("Error getting audio information\n%s" % output)
             return None
 
         #extract the video parameters    
@@ -146,19 +150,23 @@ class FFmpegConverter:
         c = FFmpegCommandLineConverter(command, duration=duration)
         ok = c.convert(input_file,"/tmp/foo",callback=lambda x: conduit.logd(x))
 
+        if not ok:
+            conduit.logd("Error transcoding audio")
+            return None
+
         return audio
         
     def file_to_audio(self, f, **kwargs):
-        t = f.get_mime_type()
+        t = f.get_mimetype()
         if t.startswith("audio/"):
-            return f
+            return self.transcode_audio(f,**kwargs)
         else:
             return None
 
     def file_to_video(self, f, **kwargs):
-        t = f.get_mime_type()
+        t = f.get_mimetype()
         if t.startswith("video/"):
-            return Music.Music(URI=f._get_text_uri())
+            return self.transcode_video(f,**kwargs)
         else:
             return None
         

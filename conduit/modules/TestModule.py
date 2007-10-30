@@ -11,7 +11,7 @@ import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
 import conduit.Web as Web
-from conduit.datatypes import DataType, Text
+from conduit.datatypes import DataType, Text, Video, Audio
 
 import time
 
@@ -21,6 +21,8 @@ MODULES = {
     "TestWebSink" :             { "type": "dataprovider" },
     "TestFileSink" :             { "type": "dataprovider" },
     "TestImageSink" :           { "type": "dataprovider" },
+    "TestVideoSink" :           { "type": "dataprovider" },
+    "TestAudioSink" :           { "type": "dataprovider" },
     "TestConflict" :            { "type": "dataprovider" },
     "TestConversionArgs" :      { "type": "dataprovider" },
     "TestTwoWay" :              { "type": "dataprovider" },
@@ -264,6 +266,94 @@ class TestImageSink(Image.ImageSink):
         
     def is_configured (self):
         return True
+
+    def get_UID(self):
+        return Utils.random_string()
+
+class TestVideoSink(DataProvider.DataSink):
+
+    _name_ = "Test Video Sink"
+    _module_type_ = "sink"
+    _in_type_ = "file/video"
+    _out_type_ = "file/video"
+    _icon_ = "video-x-generic"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+        self.encoding = "ogg"
+
+    def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        def setEnc(param):
+            self.encoding = str(param)
+
+        items = [
+                    {
+                    "Name" : "Encoding (%s)" % ",".join(Video.PRESET_ENCODINGS.keys()),
+                    "Widget" : gtk.Entry,
+                    "Callback" : setEnc,
+                    "InitialValue" : self.encoding
+                    }
+                ]
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
+        dialog.run()
+
+    def get_input_conversion_args(self):
+        try:
+            return Video.PRESET_ENCODINGS[self.encoding]
+        except KeyError:
+            return {}
+
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        LUID=data.get_UID()+self._name_
+        return LUID
+
+    def get_UID(self):
+        return Utils.random_string()
+
+class TestAudioSink(DataProvider.DataSink):
+
+    _name_ = "Test Audio Sink"
+    _module_type_ = "sink"
+    _in_type_ = "file/audio"
+    _out_type_ = "file/audio"
+    _icon_ = "audio-x-generic"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+        self.encoding = "ogg"
+
+    def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        def setEnc(param):
+            self.encoding = str(param)
+
+        items = [
+                    {
+                    "Name" : "Encoding (%s)" % ",".join(Audio.PRESET_ENCODINGS.keys()),
+                    "Widget" : gtk.Entry,
+                    "Callback" : setEnc,
+                    "InitialValue" : self.encoding
+                    }
+                ]
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
+        dialog.run()
+
+    def get_input_conversion_args(self):
+        try:
+            return Audio.PRESET_ENCODINGS[self.encoding]
+        except KeyError:
+            return {}
+
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        LUID=data.get_UID()+self._name_
+        return LUID
 
     def get_UID(self):
         return Utils.random_string()

@@ -19,15 +19,6 @@ MODULES = {
     "N800Factory" : { "type": "dataprovider-factory" },
 }
 
-PRESET_VIDEO_ENCODINGS = {
-    "smallest":{"abitrate":32,"vbitrate":80,"width":240,"fps":15},
-    "small":{"abitrate":96,"vbitrate":96,"width":240,"fps":15},
-    "average":{"abitrate":96,"vbitrate":200,"width":320,"fps":15},
-    "good":{"abitrate":128,"vbitrate":240,"width":320,"fps":15},
-    "best":{"abitrate":128,"vbitrate":400,"width":352,"fps":25},
-    "mplayer":{"abitrate":128,"vbitrate":420,"width":400,"height":240,"fps":30}
-    }
-
 class N800Factory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
         DataProvider.DataProviderFactory.__init__(self, **kwargs)

@@ -1,6 +1,11 @@
 import conduit
 import conduit.datatypes.File as File
 
+PRESET_ENCODINGS = {
+    "divx":{"vcodec":"mpeg4","acodec":"ac3","format":"avi","vtag":"DIVX"},
+    "ogg":{"vcodec":"theora","acodec":"vorbis","format":"ogg"}
+    }
+
 class Video(File.File):
 
     _name_ = "file/video"
