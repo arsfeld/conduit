@@ -44,6 +44,11 @@ class SyncSet(gobject.GObject):
 
         # FIXME: temporary hack - need to let factories know about this factory :-\!
         self.moduleManager.emit("syncset-added", self)
+        
+    def _unitialize_dataproviders(self, conduit):
+        for dp in conduit.get_all_dataproviders():
+            if dp.module:
+                dp.module.uninitialize()
 
     def on_dataprovider_available_unavailable(self, loader, dpw):
         """
@@ -75,6 +80,7 @@ class SyncSet(gobject.GObject):
 
     def remove_conduit(self, conduit):
         self.emit("conduit-removed", conduit)
+        self._unitialize_dataproviders(conduit)
         self.conduits.remove(conduit)
 
     def get_all_conduits(self):
@@ -220,7 +226,5 @@ class SyncSet(gobject.GObject):
         Calls unitialize on all dataproviders
         """
         for c in self.conduits:
-            for dp in c.get_all_dataproviders():
-                if dp.module:
-                    dp.module.uninitialize()
+            self._unitialize_dataproviders(c)
 

@@ -187,6 +187,10 @@ class Conduit(gobject.GObject):
         Deletes dataprovider
         """
         self.emit("dataprovider-removed", dataprovider)
+        
+        #needed to close the db in file dataproviders
+        if dataprovider.module != None:
+            dataprovider.module.unitialize()
 
         #Sources and sinks are stored seperately so must be deleted from different
         #places. Lucky there is only one source or this would be harder....
