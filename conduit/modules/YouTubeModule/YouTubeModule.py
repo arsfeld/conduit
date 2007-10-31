@@ -11,7 +11,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
-import conduit.datatypes.File as File
+import conduit.datatypes.Video as Video
 
 import traceback
 import gnomevfs
@@ -34,8 +34,7 @@ class YouTubeSource(DataProvider.DataSource):
     _description_ = _("Sync data from YouTube")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "source"
-    _in_type_ = ""
-    _out_type_ = "file"
+    _out_type_ = "file/video"
     _icon_ = "youtube"
 
     #feeds_url
@@ -159,11 +158,12 @@ class YouTubeSource(DataProvider.DataSource):
         logging.debug("Title: '%s', Url: '%s'"%(LUID, url))
         video_url = self._extract_video_url (url)
         logging.debug ("URL: %s" % video_url)
+        logging.debug ("LUID: %s" % LUID)
 
-        f = File.File (URI=video_url)
-        f.set_open_URI (video_url)
+        f = Video.Video(URI=video_url)
+        f.set_open_URI(video_url)
         f.set_UID(LUID)
-        f.force_new_filename (LUID + ".flv")
+        f.force_new_filename (str(LUID) + ".flv")
 
         return f
 

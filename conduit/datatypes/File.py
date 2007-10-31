@@ -23,7 +23,11 @@ class File(DataType.DataType):
           - group: A named group to which this file belongs
         """
         DataType.DataType.__init__(self)
-        self._close_file()
+        self.fileInfo = None
+        self.fileExists = False
+        self.triedOpen = False
+        self._newFilename = None
+        self._newMtime = None
         
         #compulsory args
         self.URI = gnomevfs.URI(URI)
@@ -42,8 +46,14 @@ class File(DataType.DataType):
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False
-        self._newFilename = None
-        self._newMtime = None
+
+        #check to see if we have applied the rename/mtimes yet
+        if self.get_filename() == self._newFilename:
+            logd("Clearing pending rename")
+            self._newFilename = None
+        if self.get_mtime() == self._newMtime:
+            logd("Clearing pending mtime")
+            self._newMtime = None
 
     def _xfer_check_global_cancel_flag(self):
         return conduit.GLOBALS.cancelled
@@ -186,7 +196,7 @@ class File(DataType.DataType):
                 olduri = self._get_text_uri()
                 newuri = olduri.replace(oldname, filename)
 
-                logd("Renaming File %s -> %s" % (olduri, newuri))
+                logd("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
                 gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
 
                 #close so the file info is re-read
@@ -279,11 +289,14 @@ class File(DataType.DataType):
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
-        if self._is_deferred_new_mtime():
-            self.force_new_mtime(self._newMtime)
-        
         self._close_file()
 
+        #apply any pending renames
+        if self._is_deferred_rename():
+            self.force_new_filename(self._newFilename)
+        if self._is_deferred_new_mtime():
+            self.force_new_mtime(self._newMtime)
+      
     def delete(self):
         logd("Deleting %s" % self.URI)
         result = gnomevfs.unlink(self.URI)

@@ -120,7 +120,7 @@ class N800FolderTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "Files"
+    _name_ = "N800 Files"
     _description_ = "Synchronize files/folders o a N800 device"
     _in_type_ = "file"
     _out_type_ = "file"
@@ -141,7 +141,7 @@ class N800AudioTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "Music"
+    _name_ = "N800 Music"
     _description_ = "Synchronizes Music to a N800 device"
     _in_type_ = "file/audio"
     _out_type_ = "file/audio"
@@ -176,7 +176,7 @@ class N800VideoTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "Video"
+    _name_ = "N800 Videos"
     _description_ = "Synchronizes Video to a N800 device"
     _in_type_ = "file/video"
     _out_type_ = "file/video"
@@ -211,7 +211,7 @@ class N800PhotoTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "Photo"
+    _name_ = "N800 Photos"
     _description_ = "Synchronizes Video to a N800 device"
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"

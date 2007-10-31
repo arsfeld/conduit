@@ -205,6 +205,7 @@ class TestImageSink(Image.ImageSink):
 
     _name_ = "Test Image Sink"
     _icon_ = "image-x-generic"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
 
     def __init__(self, *args):
         Image.ImageSink.__init__(self)

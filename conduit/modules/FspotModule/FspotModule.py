@@ -11,7 +11,7 @@ except ImportError:
 import conduit
 from conduit import logd
 import conduit.Utils as Utils
-import conduit.Exceptions
+import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.File as File
 
