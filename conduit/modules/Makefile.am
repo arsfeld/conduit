@@ -1,5 +1,6 @@
 SUBDIRS = \
 	BackpackModule \
+	BansheeModule \
 	BoxDotNetModule \
 	FacebookModule \
 	FileModule \
