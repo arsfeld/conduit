@@ -23,18 +23,22 @@ class File(DataType.DataType):
           - group: A named group to which this file belongs
         """
         DataType.DataType.__init__(self)
-        self.fileInfo = None
-        self.fileExists = False
-        self.triedOpen = False
-        self._newFilename = None
-        self._newMtime = None
-        
         #compulsory args
         self.URI = gnomevfs.URI(URI)
 
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
+        
+        #calculate the relative path
+        self.relpath = self._get_text_uri().replace(self.basePath,"")
+
+        #instance
+        self.fileInfo = None
+        self.fileExists = False
+        self.triedOpen = False
+        self._newFilename = None
+        self._newMtime = None
         
     def _open_file(self):
         if self.triedOpen == False:
@@ -142,6 +146,23 @@ class File(DataType.DataType):
             return True
         else:
             return False
+            
+    def set_from_instance(self, f):
+        """
+        Function to give this file all the properties of the
+        supplied instance. This is important in converters where there
+        might be pending renames etc on the file that you
+        do not want to lose
+        """
+        self.URI = f.URI
+        self.basePath = f.basePath
+        self.group = f.group
+        self.relpath = f.relpath
+        self.fileInfo = f.fileInfo
+        self.fileExists = f.fileExists
+        self.triedOpen = f.triedOpen
+        self._newFilename = f._newFilename
+        self._newMtime = f._newMtime
 
     def to_tempfile(self):
         """

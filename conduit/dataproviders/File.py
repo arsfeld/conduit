@@ -1,3 +1,4 @@
+import os.path
 import gnomevfs
 
 import conduit
@@ -18,7 +19,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
     _in_type_ = "file"
     _out_type_ = "file"
     _icon_ = "text-x-generic"
-
+    
     def __init__(self):
         DataProvider.DataSource.__init__(self)
         Utils.ScannerThreadManager.__init__(self)
@@ -203,18 +204,17 @@ class FolderTwoWay(DataProvider.TwoWay):
             #where relative path makes no sense. Could also come from
             #the FileSource dp when the user has selected a single file
             logd("FolderTwoWay: No basepath. Going to empty dir")
-            newURI = self.folder+"/"+vfsFile.get_filename()
+            newURI = self.folder+os.sep+vfsFile.get_filename()
         else:
-            pathFromBase = vfsFile._get_text_uri().replace(vfsFile.basePath,"")
             #Look for corresponding groups
             if self.folderGroupName == vfsFile.group:
                 logd("FolderTwoWay: Found corresponding group")
                 #put in the folder
-                newURI = self.folder+pathFromBase
+                newURI = self.folder+vfsFile.relpath
             else:
                 logd("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
                 #unknown. Store in the dir but recreate the group
-                newURI = self.folder+"/"+vfsFile.group+pathFromBase
+                newURI = self.folder+os.sep+os.path.join(vfsFile.group+vfsFile.relpath)
 
         destFile = File.File(URI=newURI)
         comp = vfsFile.compare(

@@ -102,8 +102,12 @@ class PixbufPhotoConverter:
     def file_to_photo(self, f, **kwargs):
         t = f.get_mimetype()
         if t in self._get_pixbuf_capabilities().keys():
+            p = Photo.Photo(
+                        URI=f._get_text_uri()
+                        )
+            p.set_from_instance(f)
             return self.transcode(
-                            Photo.Photo(URI=f._get_text_uri()),
+                            p,
                             **kwargs
                             )
         else:

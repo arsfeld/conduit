@@ -204,11 +204,9 @@ class AudioVideoConverter:
         t = f.get_mimetype()
         if t.startswith("audio/"):
             a = Audio.Audio(
-                    URI=f._get_text_uri(),
-                    basepath=f.basePath,
-                    group=f.group
-                    )
-
+                        URI=f._get_text_uri()
+                        )
+            a.set_from_instance(f)
             if len(kwargs) > 0:
                 return self.transcode_audio(a,**kwargs)
             else:
@@ -220,42 +218,14 @@ class AudioVideoConverter:
         t = f.get_mimetype()
         if t.startswith("video/"):
             v = Video.Video(
-                    URI=f._get_text_uri(),
-                    basepath=f.basePath,
-                    group=f.group
-                    )
+                        URI=f._get_text_uri()
+                        )
+            v.set_from_instance(f)
             if len(kwargs) > 0:
                 return self.transcode_video(v,**kwargs)
             else:
                 return v
         else:
             return None
-        
-if __name__ == "__main__":
-    import conduit.datatypes.File as File
-    import conduit.datatypes.Video as Video
-    c = AudioVideoConverter()
-
-    try:
-        f = File.File("/home/john/Videos/Me/spyplane_080506_300k.avi")
-        args = Video.PRESET_ENCODINGS['flv']
-        c.transcode_video(f,**args)
-    except KeyboardInterrupt: pass
-
-    try:
-        f = File.File("/home/john/Videos/Me/spyplane_080506_300k.avi")
-        args = {'arate':44100,'acodec':'mp3','abitrate':128,'vcodec':'mpeg4','vbitrate':420,"fps":15,"vtag":"DIVX","width":320,"height":240}
-        #use mencoder not ffmpef
-        args["mencoder"] = True
-        c.transcode_video(f,**args)
-    except KeyboardInterrupt: pass
-
-
-    try:
-        f = File.File("/media/media/MusicToSort/Baitercell & Schumacher - Whats Down Low (Original Mix).mp3")
-        args = {'arate':44100,'abitrate':96,'acodec':'vorbis','format':'ogg'}
-        c.transcode_audio(f,**args)
-    except KeyboardInterrupt: pass
-
-    
+   
         
