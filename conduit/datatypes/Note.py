@@ -51,7 +51,7 @@ class Note(DataType.DataType):
             elif meTime < bTime:
                 return conduit.datatypes.COMPARISON_OLDER
             else:
-                return conduit.datatypes.COMPARISON_UNKNOWN
+                return conduit.datatypes.COMPARISON_UNEQUAL
 
         #look at raw xml
         elif self.raw != "" and B.raw != "":
@@ -59,14 +59,14 @@ class Note(DataType.DataType):
             if self.raw == B.raw:
                 return conduit.datatypes.COMPARISON_EQUAL
             else:
-                return conduit.datatypes.COMPARISON_UNKNOWN
+                return conduit.datatypes.COMPARISON_UNEQUAL
 
         #else look at text (title + content)
         elif self.get_note_string() == B.get_note_string():
             return conduit.datatypes.COMPARISON_EQUAL
 
         else:
-            return conduit.datatypes.COMPARISON_UNKNOWN
+            return conduit.datatypes.COMPARISON_UNEQUAL
 
     def set_from_note_string(self, string):
         raise NotImplementedError

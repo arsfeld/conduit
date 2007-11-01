@@ -43,28 +43,28 @@ class DataType(object):
         This funcion should compare self with B. All answers 
         are from the perspective of the me (the instance)
         
-         - C{conduit.datatypes.NEWER} This means the I am newer than B
-         - C{conduit.datatypes.EQUAL} This means the we are equal
-         - L{conduit.datatypes.OLDER} This means the I am older than B
-         - L{conduit.datatypes.UNEQUAL} This means that I know I am different, but I don't know wny
-         - L{conduit.datatypes.UNKNOWN} This means we were unable to determine
+         - C{conduit.datatypes.COMPARISON_NEWER} This means the I am newer than B
+         - C{conduit.datatypes.COMPARISON_EQUAL} This means the we are equal
+         - L{conduit.datatypes.COMPARISON_OLDER} This means the I am older than B
+         - L{conduit.datatypes.COMPARISON_UNEQUAL} This means that I know I am different, but I don't know wny
+         - L{conduit.datatypes.COMPARISON_UNKNOWN} This means we were unable to determine
            which was newer than the other so its up to the user to decide        
         """
         logd("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid()))
 
         if self.get_hash() == B.get_hash():
-            return conduit.datatypes.EQUAL
+            return conduit.datatypes.COMPARISON_EQUAL
 
         mtime1 = self.get_mtime()
         mtime2 = B.get_mtime()
 
         if mtime1 == None or mtime2 == None:
-            return conduit.datatypes.UNEQUAL
+            return conduit.datatypes.COMPARISON_UNEQUAL
 
         if mtime1 > mtime2:
-            return conduit.datatypes.NEWER
+            return conduit.datatypes.COMPARISON_NEWER
         else:
-            return conduit.datatypes.OLDER
+            return conduit.datatypes.COMPARISON_OLDER
 
     def get_hash(self):
         return self.get_mtime()

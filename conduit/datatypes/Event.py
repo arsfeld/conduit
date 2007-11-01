@@ -23,9 +23,6 @@ class Event(DataType.DataType):
     def get_ical_string(self, version=1.0):
         return self.iCal.serialize()
 
-    def compare(self, B):
-        return conduit.datatypes.COMPARISON_UNKNOWN
-
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
         data['ical'] = self.get_ical_string()

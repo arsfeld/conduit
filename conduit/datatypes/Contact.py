@@ -23,9 +23,6 @@ class Contact(DataType.DataType):
     def get_vcard_string(self, version=2.1):
         return self.vCard.serialize()
 
-    def compare(self, B):
-        return conduit.datatypes.COMPARISON_UNKNOWN
-
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
         data['vcard'] = self.get_vcard_string()

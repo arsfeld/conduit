@@ -539,7 +539,7 @@ class SyncWorker(_ThreadedWorker):
             self.conduit.emit("sync-progress", float(cnt)/total)
 
             comparison = data1.compare(data2)
-            if comparison == conduit.datatypes.OLDER:
+            if comparison == conduit.datatypes.COMPARISON_OLDER:
                 self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data1)
             else:
                 self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
