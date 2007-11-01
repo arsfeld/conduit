@@ -10,7 +10,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
-import conduit.datatypes.File as File
+import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "SmugMugAPI")
 from smugmug import SmugMug, SmugMugException
@@ -77,9 +77,9 @@ class SmugMugTwoWay(Image.ImageTwoWay):
         simage = self.sapi.get_image_info(LUID)
         url = simage['OriginalURL']
 
-        f = File.File(URI=url)
+        f = Photo.Photo(URI=url)
         f.force_new_filename(simage['FileName'])
-        f.set_open_URI (url)
+        f.set_open_URI(url)
         f.set_UID(LUID)
 
         return f

@@ -11,7 +11,7 @@ import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
-import conduit.datatypes.File as File
+import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI")
 from flickrapi import FlickrAPI
@@ -156,7 +156,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         title = str(photoInfo.photo[0].title[0].elementText)
 
         # create the file
-        f = File.File (URI=url)
+        f = Photo.Photo (URI=url)
         f.set_open_URI(url)
 
         # try to rename if a title is available

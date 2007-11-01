@@ -11,7 +11,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
-import conduit.datatypes.File as File
+import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "PicasaAPI")
 from picasaweb import PicasaWeb
@@ -71,9 +71,9 @@ class PicasaTwoWay(Image.ImageTwoWay):
         Image.ImageTwoWay.get (self, LUID)
         gphoto = self.gphotos[LUID]
 
-        f = File.File (URI=gphoto.url)
+        f = Photo.Photo (URI=gphoto.url)
         f.force_new_mtime(gphoto.timestamp)
-        f.set_open_URI (gphoto.url)
+        f.set_open_URI(gphoto.url)
         f.set_UID(LUID)
 
         return f

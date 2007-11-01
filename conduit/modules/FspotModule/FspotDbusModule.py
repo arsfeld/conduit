@@ -7,7 +7,7 @@ from conduit import logd
 import conduit.Utils as Utils
 import conduit.Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.datatypes.File as File
+import conduit.datatypes.Photo as Photo
 
 MODULES = {
 	"FSpotFactory" : { "type": "dataprovider-factory" }
@@ -45,8 +45,8 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
     _description_ = "Sync your F-Spot photos over DBus"
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _module_type_ = "twoway"
-    _in_type_ = "file"
-    _out_type_ = "file"
+    _in_type_ = "file/photo"
+    _out_type_ = "file/photo"
     _icon_ = "f-spot"
 
     def __init__(self, *args):
@@ -96,7 +96,7 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
 
         photouri = properties['Uri']
 
-        f = File.File(URI=photouri)
+        f = Photo.Photo(URI=photouri)
         f.set_UID(LUID)
         f.set_open_URI(photouri)
 

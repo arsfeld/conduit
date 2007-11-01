@@ -13,7 +13,7 @@ from conduit import logd
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.datatypes.File as File
+import conduit.datatypes.Audio as Audio
 
 MODULES = {
 	"BansheeSource" : { "type": "dataprovider" }
@@ -84,7 +84,7 @@ class BansheeSource(DataProvider.DataSource):
         return self.tracks
 
     def get(self, LUID):
-        f = File.File(URI=LUID)
+        f = Audio.Audio(URI=LUID)
         f.set_UID(LUID)
         f.set_open_URI(LUID)
 
