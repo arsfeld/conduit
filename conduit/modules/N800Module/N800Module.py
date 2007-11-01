@@ -218,6 +218,10 @@ class N800PhotoTwoWay(N800Base):
     _icon_ = "image-x-generic"
 
     DEFAULT_FOLDER = "Photo"
+    PRESET_ENCODINGS = {
+        "jpg":{'formats':'image/jpeg','default-format':'image/jpeg','size':'800x480'},
+        "png":{'formats':'image/png','default-format':'image/png','size':'800x480'}
+        }
 
     def __init__(self, *args):
         mount,udi = args
@@ -230,14 +234,14 @@ class N800PhotoTwoWay(N800Base):
         self.encoding = "jpg"
                     
     def configure(self, window):
-        self._simple_configure(window, Photo.PRESET_ENCODINGS.keys())
+        self._simple_configure(window, N800PhotoTwoWay.PRESET_ENCODINGS.keys())
         
     def get_configuration(self):
         return {'encoding':self.encoding}
         
     def get_input_conversion_args(self):
         try:
-            return Photo.PRESET_ENCODINGS[self.encoding]
+            return N800PhotoTwoWay.PRESET_ENCODINGS[self.encoding]
         except KeyError:
             return {}
 
