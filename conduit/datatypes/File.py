@@ -232,6 +232,15 @@ class File(DataType.DataType):
             except gnomevfs.NotPermittedError:
                 #file is on readonly filesystem
                 self._defer_rename(filename)
+                
+    def force_new_file_extension(self, ext):
+        """
+        Changes the file extension to ext. 
+        @param ext: The new file extension (including the dot)
+        """
+        curname,curext = os.path.splitext(self.get_filename())
+        if curext != ext:
+            self.force_new_filename(curname+ext)
 
     def force_new_mtime(self, mtime):
         """
