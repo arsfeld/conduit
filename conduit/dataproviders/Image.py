@@ -3,6 +3,18 @@ import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 import conduit.dataproviders.DataProvider as DataProvider
 
+class UploadInfo:
+    """
+    Upload information container, this way we can add info
+    and keep the _upload_info method on the ImageSink retain
+    its api
+    """
+    def __init__ (self, url, mimeType, name=None, tags=None):
+        self.url = url
+        self.mimeType = mimeType
+        self.name = name
+        self.tags = tags
+
 class ImageSink(DataProvider.DataSink):
     """
     Abstract Base class for Image DataSinks
@@ -13,7 +25,7 @@ class ImageSink(DataProvider.DataSink):
     _out_type_ = "file/photo"
 
     IMAGE_SIZES = ["640x480", "800x600", "1024x768"]
-    NO_RESIZE = ["None"]
+    NO_RESIZE = "None"
 
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
@@ -32,7 +44,7 @@ class ImageSink(DataProvider.DataSink):
         combobox.add_attribute(cell, 'text', 0)  
         combobox.set_model(store)
 
-        for s in self.NO_RESIZE + self.IMAGE_SIZES:
+        for s in [self.NO_RESIZE] + self.IMAGE_SIZES:
             rowref = store.append( (s,) )
             if s == selected:
                 combobox.set_active_iter(rowref)
@@ -63,13 +75,13 @@ class ImageSink(DataProvider.DataSink):
         """
         return None
 
-    def _upload_photo (self, url, mimeType, name):
+    def _upload_photo (self, uploadInfo):
         """
         Upload a photo
         """
         return None 
 
-    def _replace_photo (self, id, url, mimeType, name):
+    def _replace_photo (self, id, uploadInfo):
         """
         Replace a photo with a new version
         """
@@ -105,6 +117,9 @@ class ImageSink(DataProvider.DataSink):
         #it is first transferred to the local filesystem
         photoURI = photo.get_local_uri()
         mimeType = photo.get_mimetype()
+        tags = photo.get_tags ()
+
+        uploadInfo = UploadInfo(photoURI, mimeType, originalName, tags)
        
         #Check if we have already uploaded the photo
         if LUID != None:
@@ -113,7 +128,7 @@ class ImageSink(DataProvider.DataSink):
             if info != None:
                 if overwrite == True:
                     #replace the photo
-                    return self._replace_photo(LUID, photoURI, mimeType, originalName)
+                    return self._replace_photo(LUID, uploadInfo)
                 else:
                     #Only upload the photo if it is newer than the Remote one
                     url = self._get_raw_photo_url(info)
@@ -131,7 +146,7 @@ class ImageSink(DataProvider.DataSink):
         conduit.logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
 
         #upload the file
-        return self._upload_photo (photoURI, mimeType, originalName)
+        return self._upload_photo (uploadInfo)
 
     def delete(self, LUID):
         pass

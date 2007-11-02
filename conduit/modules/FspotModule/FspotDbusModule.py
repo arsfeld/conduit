@@ -7,6 +7,7 @@ from conduit import logd
 import conduit.Utils as Utils
 import conduit.Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.Image as Image
 import conduit.datatypes.Photo as Photo
 
 MODULES = {
@@ -40,17 +41,14 @@ def _get_tagremote():
     except dbus.exceptions.DBusException:
         return None
 
-class FSpotDbusTwoWay(DataProvider.TwoWay):
+class FSpotDbusTwoWay(Image.ImageTwoWay):
     _name_ = "F-Spot DBus Photos"
     _description_ = "Sync your F-Spot photos over DBus"
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
-    _module_type_ = "twoway"
-    _in_type_ = "file/photo"
-    _out_type_ = "file/photo"
     _icon_ = "f-spot"
 
     def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self)
+        Image.ImageTwoWay.__init__(self)
         self.need_configuration(True)
 
         try:
@@ -60,7 +58,7 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
             # get tag remote control
             self.tag_remote = _get_tagremote()
         except:
-            print "Fuckage"
+            print "Failed to get remotes"
 
         #Settings
         self.enabledTags = []
@@ -74,7 +72,7 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         return True
         
     def refresh(self):
-        DataProvider.TwoWay.refresh(self)
+        Image.ImageTwoWay.refresh(self)
 
         # get ids
         self.photos = self.photo_remote.Query (self.enabledTags)
@@ -83,33 +81,33 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         """
         return the list of photo id's
         """
-        DataProvider.TwoWay.get_all(self)
+        Image.ImageTwoWay.get_all(self)
         return list (str(photo_id) for photo_id in self.photos)
 
     def get(self, LUID):
         """
         Get the File object for a file with a given id
         """
-        DataProvider.TwoWay.get(self, LUID)
+        Image.ImageTwoWay.get(self, LUID)
 
         properties = self.photo_remote.GetPhotoProperties (LUID)
 
         photouri = properties['Uri']
+        name = str(properties['Name'])
+        tags = properties['Tags'].split(',')
 
         f = Photo.Photo(URI=photouri)
         f.set_UID(LUID)
         f.set_open_URI(photouri)
+        f.force_new_filename (name)
+        f.set_tags (tags)
 
         return f
 
-    def put (self, file, overwrite, LUID=None):
+    def _upload_photo (self, uploadInfo):
         """
         Import a file into the f-spot catalog
         """
-        # Update not supported 
-        if LUID != None:
-            return
-
         # Check if remote is read only
         if self.photo_remote.IsReadOnly ():
             raise conduit.Exceptions.SyncronizeError ('F-Spot DBus interface is operating in read only mode')
@@ -118,9 +116,21 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         if not self.has_roll:
             self.prepare_roll ()
 
+        # start with enabled tags from gui, they exist in fspot for sure
+        tags = list(self.enabledTags)
+
+        # add tags from upload info
+        for tag in uploadInfo.tags:
+            try:
+                self.tag_remote.GetTagByName (tag)
+            except:
+                self.tag_remote.CreateTag (fspot_tag)
+
+            tags.append (tag)
+
         # import the photo
         try:
-            id = self.photo_remote.ImportPhoto (file.get_local_uri(), True, self.enabledTags)
+            id = self.photo_remote.ImportPhoto (uploadInfo.url, True, tags)
             return str(id)
         except:
             raise conduit.Exceptions.SynchronizeError ('Import Failed')
@@ -136,7 +146,7 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
         """
         Round up, and don't forget the finish the import roll
         """
-        DataProvider.TwoWay.finish(self)
+        Image.ImageTwoWay.finish(self)
         self.photos = []
         self.finish_roll ()
 
@@ -217,6 +227,9 @@ class FSpotDbusTwoWay(DataProvider.TwoWay):
             
     def get_configuration(self):
         return {"tags": self.enabledTags}
+
+    def is_configured (self):
+        return len(self.enabledTags) > 0
 
     def get_UID(self):
         return Utils.get_user_string()

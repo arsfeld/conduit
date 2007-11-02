@@ -34,12 +34,12 @@ class FacebookSink(Image.ImageSink):
         Image.ImageSink.__init__(self)
         self.fapi = None
 
-    def _upload_photo (self, url, mimeType, name):
+    def _upload_photo (self, uploadInfo):
         """
         Upload to album; and return image id here
         """
         try:
-            rsp = self.fapi.photos.upload(url)
+            rsp = self.fapi.photos.upload(uploadInfo.url)
             return rsp["pid"]
         except FacebookError, f:
             raise Exceptions.SyncronizeError("Facebook Upload Error %s" % f)

@@ -69,12 +69,12 @@ class ShutterflySink(Image.ImageSink):
 		#self.salbum.deletePhoto(self.sphotos[LUID])
 		del self.sphotos[LUID]
 	
-	def _upload_photo(self, url, mimeType, name):
+	def _upload_photo(self, uploadInfo):
 		"""
 		Upload to album
 		"""
 		try:
-			ret = self.salbum.uploadPhoto(url, mimeType, name)
+			ret = self.salbum.uploadPhoto(uploadInfo.url, uploadInfo.mimeType, uploadInfo.name)
 			return ret.id
 		except Exception, e:
 			raise Exceptions.SyncronizeError("Shutterfly Upload Error.")

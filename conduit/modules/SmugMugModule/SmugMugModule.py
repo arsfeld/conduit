@@ -45,13 +45,13 @@ class SmugMugTwoWay(Image.ImageTwoWay):
     def _get_raw_photo_url(self, photoInfo):
         return photoInfo['OriginalURL']
         
-    def _upload_photo (self, url, mimeType, name):
+    def _upload_photo (self, uploadInfo):
         """
         Upload to album; and return image id here
         """
         try:
             albumID = self._get_album_id ()
-            return self.sapi.upload_file( albumID, url, name )
+            return self.sapi.upload_file( albumID, uploadInfo.url, uploadInfo.name)
         except:
             raise Exceptions.SyncronizeError("SmugMug Upload Error.")
 

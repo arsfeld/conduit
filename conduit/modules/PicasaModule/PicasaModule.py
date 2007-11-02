@@ -86,9 +86,13 @@ class PicasaTwoWay(Image.ImageTwoWay):
         self.galbum.deletePhoto (self.gphotos[LUID])
         del self.gphotos[LUID]
 
-    def _upload_photo (self, url, mimeType, name):
+    def _upload_photo (self, uploadInfo):
         try:
-            ret = self.galbum.uploadPhoto(url, mimeType, name)
+            ret = self.galbum.uploadPhoto(uploadInfo.url, uploadInfo.mimeType, uploadInfo.name)
+
+            for tag in uploadInfo.tags:
+                ret.addTag (str(tag))
+
             return ret.id
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")

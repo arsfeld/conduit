@@ -198,6 +198,8 @@ class GoogleConnection(object):
             self.__auth = line[5:] # get out the authentication key
             break
 
+        response.close()
+
         # check auth
         if self.__auth == None:
             raise PicasaWebException("Unable to connect (bad account ?)")
@@ -220,6 +222,7 @@ class PicasaWeb:
         request = mkRequest (GDataApi.getgalleryfeed (self.__gc.user), headers=self.__gc.getauthheaders())
         response = opener.open(request)
         xml=response.read()
+        response.close()
 
         root=parseString(xml).documentElement
 
@@ -260,6 +263,7 @@ class PicasaWeb:
 
         response = opener.open(request)
         xml = response.read()
+        response.close ()
 
         # get root
         root = parseString(xml).documentElement
@@ -295,6 +299,7 @@ class PicasaAlbum(object):
         request = mkRequest(feed, headers=self.__gc.getauthheaders())
         response = opener.open(request)
         xml=response.read()
+        response.close()
 
         root=parseString(xml).documentElement
 
@@ -333,6 +338,7 @@ class PicasaAlbum(object):
             request = urllib2.Request(GDataApi.getposturlforupload(self.__gc.user, self.id), body, headers)
             response = opener.open(request)
             xml =response.read()
+            response.close()
 
             root = parseString (xml).documentElement
 
@@ -346,6 +352,7 @@ class PicasaAlbum(object):
         request = PicasaDeleteRequest (url, headers=self.__gc.getauthheaders())
         response = opener.open(request)
         xml = response.read ()
+        response.close()
 
     def createPhotoFromXml (self, element):
         id = getText(element.getElementsByTagName("gphoto:id")[0])  # gphoto:id
@@ -355,7 +362,7 @@ class PicasaAlbum(object):
         timestamp = self.__datetime_from_timestamp(getText(element.getElementsByTagName("updated")[0]))
         version = getText(element.getElementsByTagName("gphoto:version")[0]) # gphoto.version
 
-        return PicasaPhoto (id, title, url, timestamp, version)
+        return PicasaPhoto (self.__gc, self.id, id, title, url, timestamp, version)
 
     def __repr__(self):
         return "<album %s : %s>" % (self.__id,self.__name)
@@ -375,22 +382,47 @@ class PicasaAlbum(object):
 ###############################################################################
 class PicasaPhoto (object):
 ###############################################################################
+    __albumId=None
     __id=None
     __title=None
     __url=None
     __timestamp=None
     __version=None
 
+    __gc=None
+
     title = property (lambda s : s.__title)
+    albumId = property (lambda s : s.__albumId)
     id = property (lambda s : s.__id)
     url = property(lambda s : s.__url)
     timestamp = property(lambda s : s.__timestamp)
     version = property(lambda s: s.__version)
 
-    def __init__ (self, id, title, url, timestamp, version):
+    def __init__ (self, gc, albumId, id, title, url, timestamp, version):
+        self.__gc = gc
+        self.__albumId = albumId
         self.__id = id
         self.__title = title
         self.__url = url
         self.__timestamp = timestamp
         self.__version = version
+
+    def addTag (self, tag):
+        body = """<entry xmlns='http://www.w3.org/2005/Atom'>
+  <title>%s</title>
+  <category scheme="http://schemas.google.com/g/2005#kind"
+    term="http://schemas.google.com/photos/2007#tag"/>
+</entry>""" % tag
+        
+        content_type = "application/atom+xml; charset=UTF-8"
+
+        headers = {'Content-Type': content_type,
+                   'Content-Length': str(len(body)),
+                   'Authorization' : 'GoogleLogin auth=' + self.__gc.auth
+                  }
+
+        request = urllib2.Request(GDataApi.getpicturefeed (self.__gc.user, self.albumId, self.id), body, headers)
+        response = opener.open(request)
+        xml = response.read()
+        response.close ()
 

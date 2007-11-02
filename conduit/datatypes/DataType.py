@@ -27,6 +27,7 @@ class DataType(object):
         self._original_URI = None
         self._mtime = None
         self._UID = None
+        self._tags = ()
 
     def get_type(self):
         """
@@ -95,6 +96,18 @@ class DataType(object):
         @rtype: C{datetime.datetime}
         """
         return self._mtime
+
+    def get_tags(self):
+        """
+        @returns: the current list of tags
+        """
+        return self._tags
+
+    def set_tags(self, tags):
+        """
+        Sets the tags of the datatype
+        """
+        self._tags = tags
 
     def get_open_URI(self):
         """

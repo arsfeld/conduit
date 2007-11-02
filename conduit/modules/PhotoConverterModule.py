@@ -7,6 +7,8 @@ MODULES = {
         "PixbufPhotoConverter" :  { "type": "converter" }
 }
 
+NO_RESIZE = "None"
+
 class PixbufPhotoConverter:
     def __init__(self):
         self.conversions =  {
@@ -58,6 +60,9 @@ class PixbufPhotoConverter:
         conduit.log("Transcode Photo: %s" % kwargs)
         formats = kwargs.get("formats","").split(',')
         newSize = kwargs.get("size",None)
+
+        if newSize == NO_RESIZE:
+            newSize = None
         
         #anything to do?
         if len(formats) == 0 and newSize == None:

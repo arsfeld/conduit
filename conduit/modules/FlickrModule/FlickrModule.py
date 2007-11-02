@@ -78,12 +78,13 @@ class FlickrTwoWay(Image.ImageTwoWay):
         url = "http://farm%(farm)s.static.flickr.com/%(server)s/%(id)s_%(secret)s.jpg" % photo
         return url
 
-    def _upload_photo (self, url, mimeType, name):
+    def _upload_photo (self, uploadInfo):
         ret = self.fapi.upload( api_key=FlickrTwoWay.API_KEY, 
                                 auth_token=self.token,
-                                filename=url,
-                                title=name,
-                                is_public="%i" % self.showPublic
+                                filename=uploadInfo.url,
+                                title=uploadInfo.name,
+                                is_public="%i" % self.showPublic,
+                                tags=' '.join(tag.replace(' ', '_') for tag in uploadInfo.tags)
                                 )
 
         if self.fapi.getRspErrorCode(ret) != 0:
@@ -154,6 +155,13 @@ class FlickrTwoWay(Image.ImageTwoWay):
         url = self._get_raw_photo_url (photoInfo)
         # get the title
         title = str(photoInfo.photo[0].title[0].elementText)
+        # get tags
+        tagsNode = photoInfo.photo[0].tags[0]
+
+        if hasattr(tagsNode, 'tag'):
+            tags = tuple(tag.elementText for tag in tagsNode.tag)
+        else:
+            tags = ()
 
         # create the file
         f = Photo.Photo (URI=url)
@@ -168,6 +176,9 @@ class FlickrTwoWay(Image.ImageTwoWay):
             f.force_new_filename(title)
 
         f.set_UID(LUID)
+
+        # set the tags
+        f.set_tags (tags)
 
         return f
 
