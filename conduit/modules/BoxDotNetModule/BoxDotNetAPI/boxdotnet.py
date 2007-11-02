@@ -40,8 +40,8 @@ import sys
 from xml.dom.minidom import parseString
 import xml.dom
 
-def get_content_type(filename):
-	return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+def get_content_type(file_path):
+	return mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
 
 ########################################################################
 # XML functionality
@@ -212,17 +212,17 @@ class BoxDotNet(object):
 
     #-------------------------------------------------------------------
     #-------------------------------------------------------------------
-    def upload(self, filename, **arg):
+    def upload(self, file_path, **arg):
         """
         Upload a file to box.net.
         """
 
-        if filename == None:
-            raise UploadException("filename OR jpegData must be specified")
+        if file_path == None:
+            raise UploadException("file_path OR jpegData must be specified")
 
         # verify key names
         for a in arg.keys():
-            if a != "api_key" and a != "auth_token" and a != "folder_id" and a != 'share':
+            if a not in ("api_key","auth_token","folder_id","share","filename"):
                 sys.stderr.write("Box.net api: warning: unknown parameter \"%s\" sent to Box.net.upload\n" % (a))
 
         url = 'http://upload.box.net/api/1.0/upload/%s/%s' % (arg['auth_token'], arg['folder_id'])
@@ -231,7 +231,8 @@ class BoxDotNet(object):
         boundary = mimetools.choose_boundary()
         body = ""
 
-        # filename
+        #If not specified, the default filename is the path
+        filename = arg.get("filename",file_path)
         body += "--%s\r\n" % (boundary)
         body += 'Content-Disposition: form-data; name="share"\r\n\r\n'
         body += "%s\r\n" % (arg['share'])
@@ -239,11 +240,10 @@ class BoxDotNet(object):
         body += "--%s\r\n" % (boundary)
         body += "Content-Disposition: form-data; name=\"file\";"
         body += " filename=\"%s\"\r\n" % filename
-        body += "Content-Type: %s\r\n\r\n" % get_content_type(filename)
+        body += "Content-Type: %s\r\n\r\n" % get_content_type(file_path)
 
-        #print body
-
-        fp = file(filename, "rb")
+        #file date
+        fp = file(file_path, "rb")
         data = fp.read()
         fp.close()
 

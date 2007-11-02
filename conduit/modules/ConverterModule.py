@@ -95,7 +95,8 @@ class NoteConverter:
 
     def note_to_file(self, note, **kwargs):
         f = File.TempFile(note.raw)
-        f.force_new_filename(note.title)
+        f.force_new_filename(note.title+".txt")
+        #f.force_new_file_extension(".txt")
         return f
 
 class ContactConverter:
@@ -174,8 +175,8 @@ class FileConverter:
             return text
         except ValueError:
             raise Exception(
-                    "Could not convert %s to text. Binary file" % 
-                    theFile._get_text_uri()
+                    "Could not convert %s to text. File mimetype: %s" % 
+                    (theFile._get_text_uri(),mime)
                     )
 
     def file_to_note(self, theFile, **kwargs):
@@ -185,6 +186,7 @@ class FileConverter:
             mime.index("text")
             raw = theFile.get_contents_as_text()
             title = theFile.get_filename()
+            #remove the file extension....
             note = Note.Note(
                     title=title,
                     raw=raw
@@ -192,7 +194,7 @@ class FileConverter:
             return note
         except ValueError:
             raise Exception(
-                    "Could not convert %s to text. Binary file" % 
-                    theFile._get_text_uri()
+                    "Could not convert %s to note. File mimetype: %s" % 
+                    (theFile._get_text_uri(),mime)
                     )
        

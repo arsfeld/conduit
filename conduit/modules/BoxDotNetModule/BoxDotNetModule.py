@@ -85,11 +85,16 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
     #------------------------------------------
     # Upload functions
     #------------------------------------------
-    def _upload_file (self, url, name):
+    def _upload_file (self, file_path, filename):
         """
         Upload the file to url
         """
-        rsp = self.boxapi.upload(filename=url, auth_token=self.token, folder_id=self.folder_id, share=0)
+        rsp = self.boxapi.upload(file_path, 
+                        auth_token=self.token, 
+                        folder_id=self.folder_id, 
+                        share=0,
+                        filename=filename
+                        )
 
         return rsp.files[0].file[0].attrib['id']
 
