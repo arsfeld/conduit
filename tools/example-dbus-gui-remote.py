@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # check if they needed providers are available
     dps = app.GetAllDataProviders()
 
-    if not FOLDER_TWOWAY in dps and not FLICKR_TWOWAY in dps:
+    if not FOLDER_TWOWAY in dps or not FLICKR_TWOWAY in dps:
         print "Could not find folder/flickt"
         exit()
 
