@@ -109,10 +109,7 @@ class PixbufPhotoConverter:
                         URI=f._get_text_uri()
                         )
             p.set_from_instance(f)
-            return self.transcode(
-                            p,
-                            **kwargs
-                            )
+            return self.transcode(p,**kwargs)
         else:
             return None
             

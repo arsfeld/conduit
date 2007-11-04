@@ -2,10 +2,10 @@ import conduit
 import conduit.datatypes.File as File
 
 PRESET_ENCODINGS = {
-    "divx":{"vcodec":"mpeg4","acodec":"ac3","format":"avi","vtag":"DIVX"},
-    "ogg":{"vcodec":"theora","acodec":"vorbis","format":"ogg"},
+    "divx":{"vcodec":"mpeg4","acodec":"ac3","format":"avi","vtag":"DIVX","file_extension":"avi"},
+    "ogg":{"vcodec":"theora","acodec":"vorbis","format":"ogg","file_extension":"ogg"},
     #needs mencoder or ffmpeg compiled with mp3 support
-    "flv":{'arate':22050,'abitrate':32,'format':'flv','acodec':'mp3','mencoder':True}   
+    "flv":{"arate":22050,"abitrate":32,"format":"flv","acodec":"mp3","mencoder":True,"file_extension":"flv"}   
     }
 
 class Video(File.File):

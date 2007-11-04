@@ -134,6 +134,8 @@ class AudioVideoConverter:
 
         #create output file
         output_file = video.to_tempfile()
+        if kwargs.has_key("file_extension"):
+            video.force_new_file_extension(".%s" % kwargs["file_extension"])
 
         #convert the video
         if kwargs.get("mencoder", False) and Utils.program_installed("mencoder"):
@@ -183,6 +185,8 @@ class AudioVideoConverter:
         
         #create output file
         output_file = audio.to_tempfile()
+        if kwargs.has_key("file_extension"):
+            audio.force_new_file_extension(".%s" % kwargs["file_extension"])
 
         #convert audio
         c = FFmpegCommandLineConverter(duration=duration)

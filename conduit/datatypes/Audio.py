@@ -2,8 +2,8 @@ import conduit
 import conduit.datatypes.File as File
 
 PRESET_ENCODINGS = {
-    "ogg":{"acodec":"vorbis","format":"ogg"},
-    "wav":{"acodec":"pcm_mulaw","format":"wav"}
+    "ogg":{"acodec":"vorbis","format":"ogg","file_extension":"ogg"},
+    "wav":{"acodec":"pcm_mulaw","format":"wav","file_extension":"wav"}
     }
 
 class Audio(File.File):
