@@ -289,7 +289,6 @@ class File(DataType.DataType):
                 if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
                     #append the new filename
                     newURI = newURI.append_file_name(self._newFilename)
-
                     logd("Using deferred filename in transfer")
         else:
             newURI = gnomevfs.URI(newURIString)

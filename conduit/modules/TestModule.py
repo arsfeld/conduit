@@ -215,8 +215,8 @@ class TestImageSink(Image.ImageSink):
         self.size = "640x480"
 
     #ImageSink Methods
-    def _upload_photo(self, uri, mimeType, originalName):
-        return originalName+self._name_
+    def _upload_photo(self, uploadInfo):
+        return uploadInfo.name+uploadInfo.url+self._name_
 
     def _get_photo_info(self, luid):
         return None

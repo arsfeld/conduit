@@ -219,7 +219,7 @@ class N800PhotoTwoWay(N800Base):
 
     DEFAULT_FOLDER = "Photo"
     PRESET_ENCODINGS = {
-        "jpg":{'formats':'image/jpeg','default-format':'image/jpeg','size':'800x480'},
+        "jpeg":{'formats':'image/jpeg','default-format':'image/jpeg','size':'800x480'},
         "png":{'formats':'image/png','default-format':'image/png','size':'800x480'}
         }
 

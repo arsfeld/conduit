@@ -34,53 +34,39 @@ class PixbufPhotoConverter:
             self._image_types = types
         return self._image_types
         
-    def _convert(self, pb, out_file, format, width, height):
+    def _convert(self, photo, format, width, height, doResize, doReformat):
         """
         Basically we defer the conversion until as late as possible, or 
         not at all.
         """
         import gtk.gdk
-        #resize if necessary
-        if width != None and height != None:
+
+        pb = photo.get_pixbuf()
+        out_file = photo.to_tempfile()
+
+        if doResize:
             try:
-                print "SCALING TO %sx%s" % (width,height)
+                conduit.logd("Photo: Scaling to %sx%s" % (width,height))
                 pb = pb.scale_simple(width,height,gtk.gdk.INTERP_HYPER)
-                #make sure we save the resized image
-                if format == None: 
-                    format = "jpeg"
             except Exception, err:
-                print "BUGGER", size, err
+                conduit.logd("Photo: Error scaling photo\n%s" % err)
         
-        #save to new format if necessary
-        if format != None:
-            print "Save %s.%s" % (out_file,format)
+        #save to new format. gdk.Pixbuf needs the type argument
+        if doResize or doReformat:
+            conduit.logd("Photo: Saving photo:%s Format:%s" % (out_file,format))
             pb.save(out_file, format)
+            #can safely rename the file here because its defintately a tempfile
+            photo.force_new_file_extension(".%s" % format)
 
     def transcode(self, photo, **kwargs):
         conduit.log("Transcode Photo: %s" % kwargs)
-        formats = kwargs.get("formats","").split(',')
-        newSize = kwargs.get("size",None)
-
-        if newSize == NO_RESIZE:
-            newSize = None
         
-        #anything to do?
-        if len(formats) == 0 and newSize == None:
-            return photo
+        #default format is the current format, and default is no resize
+        formats = kwargs.get("formats",photo.get_mimetype()).split(',')
+        newSize = kwargs.get("size",NO_RESIZE)
 
-        #check if the photo is in the allowed format
-        if photo.get_mimetype() not in formats:
-            #convert photo to default format
-            mimeType = kwargs.get("default-format","image/jpeg")
-            try:
-                newFormat = self._get_pixbuf_capabilities()[mimeType]
-            except KeyError:
-                newFormat = "jpeg"
-        else:
-            newFormat = None
-            
         #resize if necessary
-        if newSize != None:
+        if newSize != NO_RESIZE:
             w,h = photo.get_size()
             width,height = Utils.get_proportional_resize(
                                 desiredW=int(newSize.split('x')[0]),
@@ -88,18 +74,30 @@ class PixbufPhotoConverter:
                                 currentW=int(w),
                                 currentH=int(h)
                                 )
+            doResize = True
         else:
             width = None
             height = None
+            doResize = False
 
-        input_pb = photo.get_pixbuf()
-        output_file = photo.to_tempfile()
+        #check if the photo is in the allowed format, otherwise we must convert it
+        mimeType = photo.get_mimetype()
+        doReformat = False
+        if mimeType not in formats:
+            #convert photo to default format
+            mimeType = kwargs.get("default-format","image/jpeg")
+            doReformat = True
+
+        #convert the mimetype to the image type for gdk pixbuf save method
+        format = self._get_pixbuf_capabilities()[mimeType]
+            
         self._convert(
-                input_pb,
-                output_file,
-                newFormat,
+                photo,
+                format,
                 width,
-                height
+                height,
+                doResize,
+                doReformat
                 )
                 
         return photo
