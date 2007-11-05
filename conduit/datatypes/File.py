@@ -327,10 +327,10 @@ class File(DataType.DataType):
             self.force_new_mtime(self._newMtime)
       
     def delete(self):
-        logd("Deleting %s" % self.URI)
-        result = gnomevfs.unlink(self.URI)
         #close the file and the handle so that the file info is refreshed
         self._close_file()
+        logd("Deleting %s" % self.URI)
+        result = gnomevfs.unlink(self.URI)
 
     def get_mimetype(self):
         self._get_file_info()
