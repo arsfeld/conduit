@@ -19,7 +19,7 @@ from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
-
+from conduit.datatypes import Rid
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Note as Note
@@ -65,8 +65,8 @@ class EvoBase(DataProvider.TwoWay):
             existing = self._get_object(LUID)
             if existing != None:
                 if overwrite == True:
-                    uid = self._update_object(LUID, obj)
-                    return uid
+                    rid = self._update_object(LUID, obj)
+                    return rid
                 else:
                     comp = obj.compare(existing)
                     # only update if newer
@@ -74,13 +74,13 @@ class EvoBase(DataProvider.TwoWay):
                         raise Exceptions.SynchronizeConflictError(comp, existing, obj)
                     else:
                         # overwrite and return new ID
-                        uid = self._update_object(LUID, obj)
-                        return uid
+                        rid = self._update_object(LUID, obj)
+                        return rid
 
         # if we get here then it is new...
         log("Creating new object")
-        uid = self._create_object(obj)
-        return uid
+        rid = self._create_object(obj)
+        return rid
 
     def delete(self, LUID):
         if not self._delete_object(LUID):
@@ -168,7 +168,8 @@ class EvoContactTwoWay(EvoBase):
     def _create_object(self, contact):
         obj = evolution.ebook.EContact(vcard=contact.get_vcard_string())
         if self.book.add_contact(obj):
-            return obj.get_uid()
+            mtime = datetime.datetime.fromtimestamp(obj.get_modified())
+            return Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating contact")
 
@@ -228,7 +229,8 @@ class EvoCalendarTwoWay(EvoBase):
 
         obj = evolution.ecal.ECalComponent(evolution.ecal.CAL_COMPONENT_EVENT, event.get_ical_string())
         if self.calendar.add_object(obj):
-            return obj.get_uid()
+            mtime = datetime.datetime.fromtimestamp(obj.get_modified())
+            return Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating event")
 
@@ -290,7 +292,8 @@ class EvoTasksTwoWay(EvoBase):
                     event.get_ical_string()
                     )
         if self.tasks.add_object(obj):
-            return obj.get_uid()
+            mtime = datetime.datetime.fromtimestamp(obj.get_modified())
+            return Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating event")
 
@@ -363,7 +366,8 @@ class EvoMemoTwoWay(EvoBase):
         uid = self.source.add_object(obj)
         
         if uid != None:
-            return uid
+            mtime = datetime.datetime.fromtimestamp(obj.get_modified())
+            return Rid(uid=uid, mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating memo")
 

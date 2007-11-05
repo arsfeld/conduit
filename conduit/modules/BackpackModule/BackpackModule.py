@@ -8,6 +8,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
 
 Utils.dataprovider_add_dir_to_path(__file__, "backpack-1.1")
@@ -140,7 +141,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             log("Could not sync note (%s)" % err)
             raise Exceptions.SyncronizeError
                 
-        return uid
+        return Rid(uid=uid, mtime=mtime, hash=mtime)
 
     def delete(self, LUID):
         if LUID in self._notes.values():

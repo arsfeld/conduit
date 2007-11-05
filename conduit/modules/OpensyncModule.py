@@ -9,6 +9,7 @@ import md5
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
+from conduit.datatypes import Rid
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
@@ -69,7 +70,7 @@ class BaseDataprovider(DataProvider.TwoWay):
             chg.changetype = opensync.CHANGE_TYPE_ADDED
 
         self.sink.commit_change(self.data, self.info, chg, self.ctx)
-        return chg.uid
+        return Rid(uid=chg.uid)
 
     def delete(self, LUID):
         chg = opensync.Change()

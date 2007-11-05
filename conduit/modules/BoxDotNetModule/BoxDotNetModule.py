@@ -11,6 +11,7 @@ import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.File as File
 
 Utils.dataprovider_add_dir_to_path(__file__, "BoxDotNetAPI")
@@ -96,7 +97,8 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                         filename=filename
                         )
 
-        return rsp.files[0].file[0].attrib['id']
+        uid = rsp.files[0].file[0].attrib['id']
+        return Rid(uid=uid)
 
     def _replace_file (self, fileID, url, name):
         """
@@ -255,7 +257,7 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                     if comp != conduit.datatypes.COMPARISON_EQUAL:
                         raise Exceptions.SynchronizeConflictError(comp, file, remoteFile)
                     else:
-                        return LUID
+                        return Rid(uid=LUID)
 
         logd("Uploading file URI = %s, Mimetype = %s, Original Name = %s" % (fileURI, mimeType, originalName))
 

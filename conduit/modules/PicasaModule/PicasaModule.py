@@ -11,6 +11,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "PicasaAPI")
@@ -93,7 +94,7 @@ class PicasaTwoWay(Image.ImageTwoWay):
             for tag in uploadInfo.tags:
                 ret.addTag (str(tag))
 
-            return ret.id
+            return Rid(uid=ret.id)
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")
 

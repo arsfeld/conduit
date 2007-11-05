@@ -211,7 +211,8 @@ class DataproviderResource(StoppableXMLRPCServer):
         if len(LUID) == 0:
             LUID = None
         try:
-            return self.dpw.module.put(data, overwrite, LUID)
+            rid = self.dpw.module.put(data, overwrite, LUID)
+            return xmlrpclib.Binary(pickle.dumps(rid))
         except Exceptions.SynchronizeConflictError, e:
             return xmlrpclib.Fault("SynchronizeConflictError", e.comparison)
 

@@ -10,6 +10,7 @@ import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Email as Email
 import conduit.datatypes.Contact as Contact
 
@@ -288,7 +289,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         except Exception, err:
             raise Exceptions.SyncronizeError("Error adding label %s to message" % self._label)
 
-        return draftMsg.id
+        return Rid(uid=draftMsg.id)
 
     def finish(self):
         DataProvider.TwoWay.finish(self)
@@ -354,6 +355,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
     def put(self, contact, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, contact, overwrite, LUID)
+        #return Rid(uid=)
 
     def finish(self):
         DataProvider.TwoWay.finish(self)

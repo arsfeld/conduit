@@ -141,7 +141,7 @@ class ImageSink(DataProvider.DataSink):
                     if comp != conduit.datatypes.COMPARISON_EQUAL:
                         raise Exceptions.SynchronizeConflictError(comp, photo, remoteFile)
                     else:
-                        return LUID
+                        return Rid(uid=LUID)
 
         conduit.logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
 

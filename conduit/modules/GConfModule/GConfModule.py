@@ -6,7 +6,7 @@ from conduit import log,logd,logw
 
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
-from conduit.datatypes import DataType
+from conduit.datatypes import DataType, Rid
 import conduit.datatypes.Text as Text
 
 MODULES = {
@@ -154,7 +154,8 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def put(self, setting, overwrite, uid=None):
         logd("%s: %s" % (setting.key, setting.value))
         self._to_gconf(setting.key, setting.value)
-        return setting.key
+        #FIXME: Use an MD5...
+        return Rid(uid=setting.key, hash=setting.value)
 
     def delete(self, uid):
         self.gconf.unset(uid)

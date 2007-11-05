@@ -176,7 +176,8 @@ class ClientDataProvider(DataProvider.TwoWay):
             LUID_out = LUID
 
         try:
-            return self.server.put(data_out, overwrite, LUID_out)
+            rid = self.server.put(data_out, overwrite, LUID_out)
+            return pickle.loads(str(rid))
         except xmlrpclib.Fault, f:
             if f.faultCode == "SynchronizeConflictError":
                 fromData = self.get(LUID)

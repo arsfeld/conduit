@@ -4,6 +4,7 @@ Shutterfly Data Sink
 import conduit
 from conduit import log, logd, logw
 import conduit.Utils as Utils
+from conduit.datatypes import Rid
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 
@@ -75,7 +76,7 @@ class ShutterflySink(Image.ImageSink):
 		"""
 		try:
 			ret = self.salbum.uploadPhoto(uploadInfo.url, uploadInfo.mimeType, uploadInfo.name)
-			return ret.id
+			return Rid(ret.id)
 		except Exception, e:
 			raise Exceptions.SyncronizeError("Shutterfly Upload Error.")
 	

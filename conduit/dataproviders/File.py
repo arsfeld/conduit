@@ -4,6 +4,7 @@ import gnomevfs
 import conduit
 from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
+from conduit.datatypes import Rid
 import conduit.datatypes as DataType
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
@@ -224,7 +225,8 @@ class FolderTwoWay(DataProvider.TwoWay):
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
-        return gnomevfs.make_uri_canonical(newURI)
+        uid = gnomevfs.make_uri_canonical(newURI)
+        return Rid(uid=uid, mtime=vfsFile.get_mtime())
 
     def delete(self, LUID):
         f = File.File(URI=LUID)

@@ -8,6 +8,7 @@ import conduit.Utils as Utils
 import conduit.Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.Image as Image
+from conduit.datatypes import Rid
 import conduit.datatypes.Photo as Photo
 
 MODULES = {
@@ -131,7 +132,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         # import the photo
         try:
             id = self.photo_remote.ImportPhoto (uploadInfo.url, True, tags)
-            return str(id)
+            return Rid(uid=str(id))
         except:
             raise conduit.Exceptions.SynchronizeError ('Import Failed')
 

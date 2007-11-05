@@ -19,6 +19,7 @@ import conduit
 from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
+from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
@@ -45,7 +46,7 @@ def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
 
     temp = Utils.new_tempfile(txt)
     temp.transfer(uri, True)
-    return luid
+    return Rid(uid=uri, mtime=temp.get_mtime(), hash=temp.get_mtime())
 
 class iPodFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
@@ -217,6 +218,7 @@ class IPodNoteTwoWay(IPodBase):
         ipodnote.transfer(os.path.join(self.dataDir,uid), overwrite=True)
         if note.get_mtime() != None:
             ipodnote.force_new_mtime(note.get_mtime())
+        mtime = ipodnote.get_mtime()
 
         if note.raw != "":
             shadowDir = self._get_shadow_dir()
@@ -224,6 +226,8 @@ class IPodNoteTwoWay(IPodBase):
             rawnote.transfer(os.path.join(shadowDir,uid), overwrite=True)
             if note.get_mtime() != None:
                 rawnote.force_new_mtime(note.get_mtime())
+            mtime = rawnote.get_mtime()
+        return Rid(uid=uid, mtime=mtime, hash=mtime)
 
     def _note_exists(self, uid):
         #Check if both the shadow copy and the ipodified version exists
@@ -246,19 +250,16 @@ class IPodNoteTwoWay(IPodBase):
                 if overwrite == True:
                     #replace the note
                     logd("Replacing Note %s" % LUID)
-                    self._save_note_to_ipod(LUID, note)
-                    return LUID
+                    return self._save_note_to_ipod(LUID, note)
                 else:
                     #only overwrite if newer
                     logw("OVERWRITE IF NEWER NOT IMPLEMENTED")
-                    self._save_note_to_ipod(LUID, note)
-                    return LUID
+                    return self._save_note_to_ipod(LUID, note)
     
         #make a new note
         logw("CHECK IF EXISTS, COMPARE, SAVE")
-        self._save_note_to_ipod(note.title, note)
-        return note.title
-
+        return self._save_note_to_ipod(note.title, note)
+    
     def delete(self, LUID):
         IPodBase.delete(self, LUID)
 
@@ -296,7 +297,7 @@ class IPodContactsTwoWay(IPodBase):
         if LUID != None:
             f = Utils.new_tempfile(contact.get_vcard_string())
             f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
-            return LUID
+            return Rid(uid=LUID, mtime=f.get_mtime(), hash=f.get_mtime())
         
         return _string_to_unqiue_file(contact.get_vcard_string(), self.dataDir, 'contact')
 
@@ -330,7 +331,7 @@ class IPodCalendarTwoWay(IPodBase):
         if LUID != None:
             f = Utils.new_tempfile(event.get_ical_string())
             f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
-            return LUID
+            return Rid(uid=LUID, mtime=f.get_mtime(), hash=f.get_mtime())
 
         return _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
@@ -368,11 +369,14 @@ class IPodPhotoTwoWay(IPodBase):
 
     def put(self, obj, overwrite, LUID=None):
         photo = self.db.new_Photo(filename=obj.URI)
-        return photo.id
+        return Rid(uid=photo.id, mtime="", hash="")
 
     def delete(self, LUID):
         self.db.remove(self.get(LUID))
 
     def finish(self):
         self.uids = None
+
+print Rid(uid="blah")
+
 

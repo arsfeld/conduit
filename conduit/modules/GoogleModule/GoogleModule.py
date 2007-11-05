@@ -8,6 +8,7 @@ from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Event as Event
 
 try:
@@ -437,15 +438,15 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
     def _createEvent(self, conduitEvent):
         googleEvent = GoogleEvent.FromICalFormat( conduitEvent.get_ical_string() )
         newEvent = self.google.AddEvent( googleEvent )
-        return newEvent.GetUID()
+        return Rid(uid=newEvent.GetUID(), mtime=None, hash=None)
         
     def _deleteEvent(self, LUID):
         self.google.DeleteEvent( self.events[LUID] )
         
     def _updateEvent(self, LUID, conduitEvent):
         self._deleteEvent(LUID)
-        uid = self._createEvent(conduitEvent)
-        return uid
+        rid = self._createEvent(conduitEvent)
+        return rid
 
     def delete(self, LUID):
         self._deleteEvent(LUID)
@@ -457,8 +458,8 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
             existing = self.events.get(LUID, None)
             if existing != None:
                 if overwrite == True:
-                    uid = self._updateEvent(LUID, obj)
-                    return uid
+                    rid = self._updateEvent(LUID, obj)
+                    return rid
                 else:
                     comp = obj.compare(existing)
                     # only update if newer
@@ -466,13 +467,13 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
                         raise Exceptions.SynchronizeConflictError(comp, existing, obj)
                     else:
                         # overwrite and return new ID
-                        uid = self._updateEvent(LUID, obj)
-                        return uid
+                        rid = self._updateEvent(LUID, obj)
+                        return rid
 
         # if we get here then it is new...
         log("Creating new object")
-        uid = self._createEvent(obj)
-        return uid
+        rid = self._createEvent(obj)
+        return rid
         
     def get_configuration(self):
         config = dict()

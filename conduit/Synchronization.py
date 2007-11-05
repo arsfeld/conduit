@@ -24,7 +24,7 @@ def _put_data(source, sink, data, LUID, overwrite):
     the mappingDB
     """
     log("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
-    LUID = sink.module.put(data, overwrite, LUID)
+    rid = sink.module.put(data, overwrite, LUID)
     mtime = data.get_mtime()
     #Now store the mapping of the original URI to the new one. We only
     #get here if the put was successful, so the mtime of the putted
@@ -34,7 +34,7 @@ def _put_data(source, sink, data, LUID, overwrite):
                             sourceDataLUID=data.get_UID(),
                             sourceDataMtime=mtime,
                             sinkUID=sink.get_UID(),
-                            sinkDataLUID=LUID,
+                            sinkDataLUID=rid.get_UID(),
                             sinkDataMtime=mtime
                             )
 

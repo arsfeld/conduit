@@ -10,6 +10,7 @@ from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
 import conduit.datatypes.Text as Text
@@ -81,17 +82,22 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if not ok:
             raise Exceptions.SyncronizeError("Error setting Tomboy note content (uri: %s)" % uid)
 
-    def _get_note(self, uid):
+        mtime = self._get_note_mtime(uid)
+        return Rid(uid=uid, mtime=mtime, hash=mtime)
+
+    def _get_note_mtime(self, uid):
         try:
             timestr = self.remoteTomboy.GetNoteChangeDate(uid)
             mtime = datetime.datetime.fromtimestamp(int(timestr))
         except:
             logw("Error parsing tomboy note modification time")
             mtime = None
+        return mtime
 
+    def _get_note(self, uid):
         n = Note.Note(
                     title=str(self.remoteTomboy.GetNoteTitle(uid)),
-                    mtime=mtime,
+                    mtime=self._get_note_mtime(uid),
                     contents=str(self.remoteTomboy.GetNoteContents(uid)),
                     raw=str(self.remoteTomboy.GetNoteContentsXml(uid))
                     )
@@ -110,8 +116,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             raise Exceptions.SyncronizeError("Error creating Tomboy note")
 
         #fill out the note content
-        self._update_note(uid, note)
-        return uid
+        rid = self._update_note(uid, note)
+        return rid
 
     def initialize(self):
         """

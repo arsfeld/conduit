@@ -11,6 +11,7 @@ import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.File as File
 
 Utils.dataprovider_add_dir_to_path(__file__)
@@ -40,7 +41,7 @@ class FacebookSink(Image.ImageSink):
         """
         try:
             rsp = self.fapi.photos.upload(uploadInfo.url)
-            return rsp["pid"]
+            return Rid(uid=rsp["pid"])
         except FacebookError, f:
             raise Exceptions.SyncronizeError("Facebook Upload Error %s" % f)
 

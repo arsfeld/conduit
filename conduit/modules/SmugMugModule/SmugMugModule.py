@@ -10,6 +10,7 @@ from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "SmugMugAPI")
@@ -51,7 +52,8 @@ class SmugMugTwoWay(Image.ImageTwoWay):
         """
         try:
             albumID = self._get_album_id ()
-            return self.sapi.upload_file( albumID, uploadInfo.url, uploadInfo.name)
+            uid = self.sapi.upload_file( albumID, uploadInfo.url, uploadInfo.name)
+            return Rid(uid=uid)
         except:
             raise Exceptions.SyncronizeError("SmugMug Upload Error.")
 

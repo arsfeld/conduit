@@ -11,6 +11,7 @@ import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
+from conduit.datatypes import Rid
 import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI")
@@ -116,7 +117,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
                 raise Exceptions.SyncronizeError("Flickr failed to add photo to set: %s" % self.fapi.getPrintableError(ret))
 
         #return the photoID
-        return photoId
+        return Rid(uid=photoId)
 
     
     def _get_photo_size (self):
