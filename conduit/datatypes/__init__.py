@@ -20,8 +20,11 @@ class Rid(object):
         self.mtime = mtime
         self.hash = hash
 
-    def __equ__(self, b):
+    def __eq__(self, b):
         return self.uid == b.uid and self.mtime == b.mtime and self.hash == b.hash
+
+    def __hash__(self):
+        return hash( (self.uid, self.mtime, self.hash) )
 
     def get_UID(self):
         return self.uid

@@ -3,8 +3,8 @@ Shared API for comparing the previous state of a dp to the current
 state. Returns only changes to core synch mechanism.
 
 This class is a proxy for the TwoWay dataprovider. If the dataprovider
-cannot implement get_changes() using backend dependant means this
-class uses the mapping DB to implement get_changes()
+cannot implement get_changes() using backend dependant means this class 
+uses the mapping DB to implement get_changes()
 
 This class will always be slower than if the backend implements the function
 iteself.

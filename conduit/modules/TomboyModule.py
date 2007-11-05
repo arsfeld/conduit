@@ -68,6 +68,9 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             return False
 
     def _update_note(self, uid, note):
+        """
+        @returns: A Rid for the note
+        """
         ok = False
         if note.raw != "":
             ok = self.remoteTomboy.SetNoteContentsXml(uid, note.raw)
@@ -106,6 +109,9 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         return n
 
     def _create_note(self, note):
+        """
+        @returns: A Rid for the created note
+        """
         if note.title != "":
             uid = self.remoteTomboy.CreateNamedNote(note.title)
         else:
@@ -153,8 +159,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                 if overwrite == True:
                     #replace the note
                     log("Replacing Note %s" % LUID)
-                    self._update_note(LUID, note)
-                    return LUID
+                    rid = self._update_note(LUID, note)
+                    return rid
                 else:
                     #Only replace if newer
                     existingNote = self._get_note(LUID)
@@ -164,15 +170,15 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                     if comp != conduit.datatypes.COMPARISON_NEWER:
                         raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
                     else:
-                        self._update_note(LUID, note)
-                        return LUID
+                        rid = self._update_note(LUID, note)
+                        return rid
             else:
                 log("Told to replace note %s, nothing there to replace." % LUID)
                     
         #We havent, or its been deleted so add it. 
         log("Saving new Note")
-        LUID = self._create_note(note)
-        return LUID
+        rid = self._create_note(note)
+        return rid
 
     def delete(self, LUID):
         if self.remoteTomboy.NoteExists(LUID):

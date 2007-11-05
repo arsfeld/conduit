@@ -142,6 +142,17 @@ class DataType(object):
 
         return s
 
+    def get_rid(self):
+        """
+        @returns: The record identifier (Rid) for this data
+        """
+        rid = conduit.datatypes.Rid(
+                        uid=self.get_UID(), 
+                        mtime=self.get_mtime(), 
+                        hash=self.get_hash()
+                        )
+        return rid
+
     def __getstate__(self):
         """
         Store the object state in a dict for pickling
