@@ -377,6 +377,3 @@ class IPodPhotoTwoWay(IPodBase):
     def finish(self):
         self.uids = None
 
-print Rid(uid="blah")
-
-
