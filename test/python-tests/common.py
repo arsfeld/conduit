@@ -96,6 +96,7 @@ class SimpleTest(object):
                             ]
 
         self.model = Module.ModuleManager(dirs_to_search)
+        self.model.load_all()
         self.type_converter = TypeConverter.TypeConverter(self.model)
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
 

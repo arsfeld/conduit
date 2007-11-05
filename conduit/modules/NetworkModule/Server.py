@@ -5,7 +5,11 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import gobject
+import socket
+import xmlrpclib
+import SimpleXMLRPCServer
+import pickle
+import threading
 
 import conduit
 from conduit import log,logd,logw
@@ -15,13 +19,10 @@ import conduit.Exceptions as Exceptions
 
 import Peers
 
-from twisted.internet import reactor
-from twisted.web import resource, server, xmlrpc
-import xmlrpclib, pickle, threading
-
 SERVER_PORT = 3400
+DP_PORT = 3401
 
-class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, threading.Thread):
+class NetworkServerFactory(DataProvider.DataProviderFactory):
     """
     Controlls all network related communication aspects. This involves
     1) Advertising dataprovider presence on local network using avahi
@@ -29,40 +30,41 @@ class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, th
     3) Data transmission to/from remote conduit instances
     """
     def __init__(self, **kwargs):
-        gobject.GObject.__init__(self)
-        threading.Thread.__init__(self)
+        DataProvider.DataProviderFactory.__init__(self)
 
-        if not kwargs.has_key("moduleManager"):
-            return
-
-        self.modules = kwargs['moduleManager']
-        self.modules.connect('syncset-added', self.syncset_added)
-        self.start()
-
-    def run(self):
         self.conduits = {}
         self.shared = {}
+
+        #watch the modulemanager for added conduits and syncsets
+        conduit.GLOBALS.moduleManager.connect('syncset-added', self._syncset_added)
 
         # Initiate Avahi stuff & announce our presence
         self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
         self.advertiser.announce()
-        
-        # Create a XML-RPC server..
-        reactor.listenTCP(SERVER_PORT, server.Site(RootResource(self)))
-        reactor.run(installSignalHandlers=0)
+
+        # start the server which anounces other shared servers
+        self.rootServer = StoppableXMLRPCServer('',SERVER_PORT)
+        self.rootServer.register_function(self.list_shared_dataproviders)
+        self.rootServer.start()
+
+    def list_shared_dataproviders(self):
+        info = {}
+        for key, dp in self.shared.iteritems():
+            info[key] = dp.get_info()
+        return info
 
     def quit(self):
-        reactor.stop()
+        self.rootServer.stop()
 
-    def syncset_added(self, mgr, syncset):
-        syncset.connect("conduit-added", self.conduit_added)
-        syncset.connect("conduit-removed", self.conduit_removed)
+    def _syncset_added(self, mgr, syncset):
+        syncset.connect("conduit-added", self._conduit_added)
+        syncset.connect("conduit-removed", self._conduit_removed)
 
-    def conduit_added(self, syncset, conduit):
-        conduit.connect("dataprovider-added", self.conduit_changed)
-        conduit.connect("dataprovider-removed", self.conduit_changed)
+    def _conduit_added(self, syncset, conduit):
+        conduit.connect("dataprovider-added", self._conduit_changed)
+        conduit.connect("dataprovider-removed", self._conduit_changed)
 
-    def conduit_removed(self, syncset, conduit):
+    def _conduit_removed(self, syncset, conduit):
         pass
 
     def _get_shared(self, conduit):
@@ -86,13 +88,13 @@ class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, th
                 return None
         return None
 
-    def conduit_changed(self, conduit, dataprovider):
+    def _conduit_changed(self, conduit, dataprovider):
         """
         Same event handler for dataprovider-added + removed
         """
         shared = self._get_shared(conduit)
         if shared != None:
-            if not conduit in self.conduits:
+            if conduit not in self.conduits:
                 self.share_dataprovider(conduit, shared)
         else:
             if conduit in self.conduits:
@@ -102,16 +104,18 @@ class NetworkServerFactory(DataProvider.DataProviderFactory, gobject.GObject, th
         """
         Shares a conduit/dp on the network
         """
-        self.shared[conduit.uid] = DataproviderResource(dataprovider, conduit.uid)
-        self.advertiser.announce()
+        server = DataproviderResource(dataprovider, DP_PORT)
+        server.start()
+        self.shared[conduit.uid] = server
 
     def unshare_dataprovider(self, conduit):
         """
         Stop sharing a conduit
         """
-        if conduit in self.conduits:
+        if conduit.uid in self.conduits:
+            server = self.shared[conduit.uid]
+            server.stop()
             del self.shared[conduit.uid]
-        self.advertiser.announce()
 
 class NetworkEndpoint(DataProvider.TwoWay):
 
@@ -129,65 +133,88 @@ class NetworkEndpoint(DataProvider.TwoWay):
     def get_UID(self):
         return "NetworkEndpoint"
 
-class RootResource(xmlrpc.XMLRPC):
-    isLeaf = False
+class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
+    """
+    Wrapper around a SimpleXMLRpcServer that allows threaded 
+    operation and cancellation
+    """
+    allow_reuse_address = True
+    def __init__( self, host, port):
+        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self,(host,port))
 
-    def __init__(self, factory):
-        xmlrpc.XMLRPC.__init__(self)
-        self.factory = factory
+    def server_bind(self):
+        SimpleXMLRPCServer.SimpleXMLRPCServer.server_bind(self)
+        self.socket.settimeout(1)
+        self.stop_request = False
+        
+    def get_request(self):
+        while not self.stop_request:
+            try:
+                sock, addr = self.socket.accept()
+                sock.settimeout(None)
+                return (sock, addr)
+            except socket.timeout:
+                pass
+            return (None,None)
+        
+    def close_request(self, request):
+        if (request is None): return
+        SimpleXMLRPCServer.SimpleXMLRPCServer.close_request(self, request)
+        
+    def process_request(self, request, client_address):
+        if (request is None): return
+        SimpleXMLRPCServer.SimpleXMLRPCServer.process_request(self, request, client_address)
+        
+    def start(self):
+        threading.Thread(target=self.serve).start()
+        
+    def stop(self):
+        self.stop_request = True
 
-    def xmlrpc_get_all(self):
-        info = {}
-        for key, dp in self.factory.shared.iteritems():
-            info[key] = dp.get_info()
-        return info
+    def serve(self):
+        while not self.stop_request:
+            self.handle_request()
 
-    def getChild(self, path, request):
-        if path == "":
-            return self
-        elif self.factory.shared.has_key(path):
-            return self.factory.shared[path]
+class DataproviderResource(StoppableXMLRPCServer):
+    def __init__(self, wrapper, port):
+        StoppableXMLRPCServer.__init__(self,'',port)
+        self.port = port
+        self.dpw = wrapper
 
-class DataproviderResource(xmlrpc.XMLRPC):
-    def __init__(self, wrapper, uid):
-        xmlrpc.XMLRPC.__init__(self)
-        self.uid = uid
-        self.wrapper = wrapper
-        self.module = wrapper.module
+        #register individual functions, not the whole object, 
+        #because we need to pickle function arguments
+        self.register_function(self.get_info)
 
     def get_info(self):
         """
         Return information about this dataprovider (so that client can show correct icon, name, description etc)
         """
-        wrapper = self.wrapper
-        return { "uid":          self.uid,
-                 "name":         wrapper.name,
-                 "description":  wrapper.description,
-                 "icon":         wrapper.icon_name,
-                 "module_type":  wrapper.module_type,
-                 "in_type":      wrapper.in_type,
-                 "out_type":     wrapper.out_type,
-               }
+        return {"uid":          self.dpw.module.get_UID(),
+                "name":         self.dpw.name,
+                "description":  self.dpw.description,
+                "icon":         self.dpw.icon_name,
+                "module_type":  self.dpw.module_type,
+                "in_type":      self.dpw.in_type,
+                "out_type":     self.dpw.out_type,
+                "server_port":  self.port                 
+                }
 
-    def xmlrpc_get_info(self):
-        return self.get_info()
+    def get_all(self):
+        self.dpw.module.refresh()
+        return self.dpw.module.get_all()
 
-    def xmlrpc_get_all(self):
-        self.module.refresh()
-        return self.module.get_all()
+    def get(self, LUID):
+        return xmlrpclib.Binary(pickle.dumps(self.dpw.module.get(LUID)))
 
-    def xmlrpc_get(self, LUID):
-        return xmlrpclib.Binary(pickle.dumps(self.module.get(LUID)))
-
-    def xmlrpc_put(self, data, overwrite, LUID):
+    def put(self, data, overwrite, LUID):
         data = pickle.loads(str(data))
         if len(LUID) == 0:
             LUID = None
         try:
-            return self.module.put(data, overwrite, LUID)
+            return self.dpw.module.put(data, overwrite, LUID)
         except Exceptions.SynchronizeConflictError, e:
             return xmlrpclib.Fault("SynchronizeConflictError", e.comparison)
 
-    def xmlrpc_delete(self, LUID):
-        self.module.delete(LUID)
+    def delete(self, LUID):
+        self.dpw.module.delete(LUID)
         return ""

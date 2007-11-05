@@ -46,8 +46,8 @@ class ModuleManager(gobject.GObject):
         @type dirs: C{string[]}
         """
         gobject.GObject.__init__(self)
+        #monitor removable devices
         self.hal = HalMonitor()
-
         #Dict of loaded classes, key is classname, value is class
         self.classRegistry = {}
         #Dict of loaded modulewrappers. key is wrapper.get_key()
@@ -56,19 +56,8 @@ class ModuleManager(gobject.GObject):
         self.moduleWrappers = {}
         #Keep a ref to dataprovider factories so they are not collected
         self.dataproviderFactories = []
-
-        #Now load all directories containing MODULES
-        #(includes dataproviders, converters and dynamic-dataproviders)
-        filelist = self._build_filelist_from_directories(dirs)
-        for f in filelist:
-            self._load_modules_in_file(f)
-
-        for i in self.dataproviderFactories:
-            i.connect("dataprovider-unavailable", self._on_dynamic_dataprovider_unavailable)
-            i.connect("dataprovider-available", self._on_dynamic_dataprovider_available)
-            i.probe()
-
-        self.emit('all-modules-loaded')
+        #scan all dirs for files in the right format (*Module/*Module.py)
+        self.filelist = self._build_filelist_from_directories(dirs)
 
     def _on_dynamic_dataprovider_available(self, monitor, dpw, klass):
         """
@@ -258,6 +247,19 @@ class ModuleManager(gobject.GObject):
         else:
             logw("Could not find class named %s" % classname)
 
+    def load_all(self):
+        """
+        Loads all classes in the configured paths
+        """
+        for f in self.filelist:
+            self._load_modules_in_file(f)
+
+        for i in self.dataproviderFactories:
+            i.connect("dataprovider-unavailable", self._on_dynamic_dataprovider_unavailable)
+            i.connect("dataprovider-available", self._on_dynamic_dataprovider_available)
+            i.probe()
+
+        self.emit('all-modules-loaded')
             
     def get_all_modules(self):
         """

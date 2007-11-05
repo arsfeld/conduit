@@ -116,6 +116,7 @@ class Application(dbus.service.Object):
         #Initialize all globals variables
         conduit.GLOBALS.app = self
         conduit.GLOBALS.moduleManager = ModuleManager(dirs_to_search)
+        conduit.GLOBALS.moduleManager.load_all()
         conduit.GLOBALS.typeConverter = TypeConverter(conduit.GLOBALS.moduleManager)
         conduit.GLOBALS.syncManager = SyncManager(conduit.GLOBALS.typeConverter)
         conduit.GLOBALS.mappingDB = MappingDB(dbFile)

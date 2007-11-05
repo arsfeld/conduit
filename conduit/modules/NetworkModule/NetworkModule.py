@@ -9,16 +9,13 @@ License: GPLv2
 import conduit
 import conduit.Utils as Utils
 
-#Utils.dataprovider_add_dir_to_path(__file__, "")
-#import Server
-#import Client
+Utils.dataprovider_add_dir_to_path(__file__, "")
+import Client
+import Server
 
-#import NetworkModule.Client as Client
-#import NetworkModule.Server as Server
-
-#NetworkClientFactory = Client.NetworkClientFactory
-#NetworkServerFactory = Server.NetworkServerFactory
-#NetworkEndpoint = Server.NetworkEndpoint
+NetworkClientFactory = Client.NetworkClientFactory
+NetworkServerFactory = Server.NetworkServerFactory
+NetworkEndpoint = Server.NetworkEndpoint
 
 MODULES = {
 #        "NetworkServerFactory" :     { "type": "dataprovider-factory" },

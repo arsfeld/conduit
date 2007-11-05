@@ -19,8 +19,10 @@ from cStringIO import StringIO
 import xmlrpclib
 import threading
 import pickle
+import socket
+import time
 
-class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
+class NetworkClientFactory(DataProvider.DataProviderFactory):
     """
     Responsible for making networked Conduit resources available to the user. This includes:
     1) Monitoring Avahi events to detect other Conduit instances on the network
@@ -28,11 +30,16 @@ class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
     3) Data transmission to/from remote conduit instances
     """
     def __init__(self, **kwargs):
-        gobject.GObject.__init__(self)
+        DataProvider.DataProviderFactory.__init__(self)
 
-        self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
         self.categories = {}
         self.dataproviders = {}
+        self.peers = []
+        self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
+
+    def quit(self):
+        for p in self.peers:
+            p.stop()
 
     def host_available(self, name, host, address, port, extra_info):
         """
@@ -42,7 +49,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
         logd("Remote host '%s' detected" % host)
 
         # Path to remote data services
-        url = "http://" + host + ":" + port + "/"
+        url = "http://%s" % host
 
         # Create a categories group for this host?
         if not self.categories.has_key(url):
@@ -51,10 +58,13 @@ class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
         # Create a dataproviders list for this host
         self.dataproviders[url] = {}
 
-        # Request all dp's for this host
-        request = ClientDataproviderList(url)
+        # Request all dp's for this host. Because there is no
+        # avahi signal when the text entry in a avahi publish group
+        # is changed, we must poll detected peers....
+        request = ClientDataproviderList(url, port)
         request.connect("complete", self.dataprovider_process)
         request.start()
+        self.peers.append(request)
 
     def host_removed(self, url):
         """
@@ -74,36 +84,40 @@ class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
         """
         """
         # get some local refs
-        dps = self.dataproviders[response.url]
+        url = response.url
+        dps = self.dataproviders[url]
         data = response.data_out
+
+        print "DP PROCESS",dps,data
 
         # loop through all dp's 
         for uid, info in data.iteritems():
             if uid not in dps:
-                self.dataprovider_added(response.url, uid, info)
+                self.dataprovider_added(url, uid, info)
 
-        for uid in dps.iterkeys():
-            if uid not in data.iterkeys():
-                self.dataprovider_removed
+#        for uid in dps.iterkeys():
+#            if uid not in data.iterkeys():
+#                self.dataprovider_removed
 
     def dataprovider_create(self, host_url, uid, info):
-        newurl = host_url + uid
-
+        # Each dataprovider is on its own port
+        dp_url = "%s:%s/" % (host_url, info['server_port'])
+   
         params = {}
 
         if info == None:
-            s = xmlrpclib.Server(newurl)
+            s = xmlrpclib.Server(dp_url)
             info = s.get_info()
 
         for key, val in info.iteritems():
             params['_' + key + '_'] = val
 
         params['host_url'] = host_url
-        params['url'] = newurl
+        params['url'] = dp_url
 
         # Actually create a new object type based on ClientDataProvider
         # but with the properties from the remote DataProvider
-        newdp = type(newurl, (ClientDataProvider, ), params)
+        newdp = type(dp_url, (ClientDataProvider, ), params)
         return newdp
 
     def dataprovider_added(self, host_url, uid, info):
@@ -122,12 +136,12 @@ class NetworkClientFactory(DataProvider.DataProviderFactory, gobject.GObject):
         # Record the key so we can unregister the dp later (if needed)
         self.dataproviders[host_url][newdp.url] = key
 
-    def dataprovider_removed(self, wrapper):
-        """
-        Remove a dataprovider from ModuleManager
-        """
-        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.url])
-        self.dataproviders[wrapper.host_url].remove(wrapper.url)
+#    def dataprovider_removed(self, wrapper):
+#        """
+#        Remove a dataprovider from ModuleManager
+#        """
+#        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.url])
+#        self.dataproviders[wrapper.host_url].remove(wrapper.url)
 
 class ClientDataProvider(DataProvider.TwoWay):
     """
@@ -187,12 +201,21 @@ class ClientDataproviderList(threading.Thread, gobject.GObject):
                         gobject.TYPE_PYOBJECT])      #request,
                     }
 
-    def __init__(self, url):
+    def __init__(self, url, port):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
+        self.port = port
         self.url = url
+        self.stopped = False
+
+    def stop(self):
+        self.stopped = True
 
     def run(self):
-        server = xmlrpclib.Server(self.url)
-        self.data_out = server.get_all()
-        gobject.idle_add(self.emit, "complete", self)
+        server = xmlrpclib.Server("%s:%s/" % (self.url,self.port))
+        while True:
+            print "REQUESTING"
+            self.data_out = server.list_shared_dataproviders()
+            gobject.idle_add(self.emit, "complete", self)
+            time.sleep(5)
+

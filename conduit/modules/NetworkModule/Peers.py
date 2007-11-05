@@ -13,9 +13,7 @@ License: GPLv2
 
 import gobject
 import avahi
-import dbus
-if getattr(dbus, 'version', (0,0,0)) >= (0,41,0):
-    import dbus.glib
+import dbus, dbus.glib
 
 import conduit
 from conduit import log,logd,logw
@@ -56,28 +54,8 @@ class AvahiAdvertiser:
     Advertises the presence of dataprovider instances on the network using avahi.
     Wraps up some of the complexity due to it being hard to add additional
     services to a group once that group has been committed.
-
-    Code adapted from glchess
-
-    Each advertised dataprovider is given its own service. This done for 
-    several reasons.
-    1) Each dataprovider that is advertised is given its own port. Because
-    subservices cannot specify a port (or a txt variable into which a port may
-    be encoded) i encode the hostname in the advertised service to form some
-    sort of namespacing.
-    e.g.    hostname:advertisedDataProvider1
-            hostname:advertisedDataProvider2
-            hostname2:advertisedDataProvider1
-    2) I could have encoded all of the advertised services in the
-    txtdata field of the sercice. However it is easier to have one callback 
-    for ItemNew than it is to have seperate callbacks for New Item, and when the
-    textdata changes. Furthurmore I want each dataprovider to be on its own
-    port so being limited to one service and port is a disadvantage here    
     """
     def __init__(self, name, port):
-        """
-        Constructor.
-        """
         self.name = name
         self.port = port
 
@@ -101,6 +79,18 @@ class AvahiAdvertiser:
                     avahi.DBUS_INTERFACE_ENTRY_GROUP
                     )
 
+    def foo(self):
+        self.group.AddServiceSubtype(
+                            avahi.IF_UNSPEC,        #interface
+                            avahi.PROTO_UNSPEC,     #protocol
+                            0,                      #flags
+                            self.hostname,          #name
+                            AVAHI_SERVICE_NAME,     #service type
+                            AVAHI_SERVICE_DOMAIN,   #domain
+                            "_foo_"
+                            )
+        self.group.Commit()
+
     def announce(self):
         """
         Resets the group, announces Conduit, and commits the change
@@ -108,6 +98,7 @@ class AvahiAdvertiser:
         self.reset()
 
         try:
+            print "-------------------------- ADDING SERVICE"
             self.group.AddService(
                     avahi.IF_UNSPEC,        #interface
                     avahi.PROTO_UNSPEC,     #protocol
@@ -116,11 +107,11 @@ class AvahiAdvertiser:
                     AVAHI_SERVICE_NAME,     #service type
                     AVAHI_SERVICE_DOMAIN,   #domain
                     '',                     #host
-                    self.port,                   #port
+                    self.port,              #port
                     avahi.string_array_to_txt_array(["version=%s" % conduit.APPVERSION])
                     )
         except dbus.DBusException, err:
-            print err
+            print "--------------------------------------ERROR",err
 
         self.group.Commit() 
             
@@ -165,6 +156,10 @@ class AvahiMonitor:
         browser = dbus.Interface(obj, avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         browser.connect_to_signal('ItemNew', self._new_service)
         browser.connect_to_signal('ItemRemove', self._remove_service)
+        browser.connect_to_signal('StateChanged',self._foo)
+
+    def foo(self, *args):
+        print "===========================",args
 
     def _new_service(self, interface, protocol, name, type, domain, flags):
         """
