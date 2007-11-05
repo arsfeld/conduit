@@ -238,7 +238,7 @@ class File(DataType.DataType):
         Changes the file extension to ext. 
         @param ext: The new file extension (including the dot)
         """
-        curname,curext = os.path.splitext(self.get_filename())
+        curname,curext = self.get_filename_and_extension()
         if curext != ext:
             self.force_new_filename(curname+ext)
 
@@ -386,7 +386,13 @@ class File(DataType.DataType):
         else:
             self._get_file_info()
             return self.fileInfo.name
-        
+
+    def get_filename_and_extension(self):
+        """
+        @returns: filename,file_extension
+        """
+        return os.path.splitext(self.get_filename())
+
     def get_contents_as_text(self):
         return gnomevfs.read_entire_file(self._get_text_uri())
         

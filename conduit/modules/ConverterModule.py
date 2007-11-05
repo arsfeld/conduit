@@ -185,7 +185,7 @@ class FileConverter:
             #check its a text type
             mime.index("text")
             raw = theFile.get_contents_as_text()
-            title = theFile.get_filename()
+            title,ext = theFile.get_filename_and_extension()
             #remove the file extension....
             note = Note.Note(
                     title=title,
