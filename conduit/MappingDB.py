@@ -1,5 +1,4 @@
 import os, os.path
-import UserDict
 
 import conduit
 import conduit.datatypes
@@ -7,7 +6,16 @@ import conduit.Utils as Utils
 import conduit.Database as Database
 from conduit import log,logd,logw
 
-DB_ATTRIBUTES = ("sourceUID","sourceDataLUID","sourceDataMtime","sourceDataHash","sinkUID","sinkDataLUID","sinkDataMtime","sinkDataHash")
+DB_SCHEMA = {
+    "sourceUID":"TEXT",
+    "sourceDataLUID":"TEXT",
+    "sourceDataMtime":"timestamp",
+    "sourceDataHash":"TEXT",
+    "sinkUID":"TEXT",
+    "sinkDataLUID":"TEXT",
+    "sinkDataMtime":"timestamp",
+    "sinkDataHash":"TEXT"
+    }
 
 class Mapping(object):
     """
@@ -81,7 +89,7 @@ class MappingDB:
         if "mappings" not in self._db.get_tables():
             self._db.create(
                     table="mappings",
-                    fields=DB_ATTRIBUTES
+                    fieldswithtype=DB_SCHEMA
                     )
 
     def get_mapping(self, sourceUID, dataLUID, sinkUID):
