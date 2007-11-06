@@ -44,7 +44,7 @@ class TestDataType(DataType.DataType):
         self.integerData = integerData
 
         self.set_open_URI("file:///home/")
-        self.set_UID(str(self.integerData))
+        self.set_UID(self.integerData)
         self.set_mtime(datetime.datetime(2003,8,16))
         
     def __str__(self):
@@ -162,14 +162,14 @@ class TestSource(_TestBase, DataProvider.DataSource):
        
     def get_all(self):
         DataProvider.DataSource.get_all(self)
-        return range(0,self.numData)
+        return map(str,range(0,self.numData))
 
     def get(self, index):
         DataProvider.DataSource.get(self, index)
         if self.slow:
             time.sleep(2)
 
-        if index >= self.errorAfter:
+        if int(index) >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
 
         data = TestDataType(index)

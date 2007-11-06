@@ -15,7 +15,7 @@ COMPARISON_UNKNOWN = 4
 
 class Rid(object):
 
-    def __init__(self, uid=None, mtime=None, hash=None):
+    def __init__(self, uid=None, mtime=None, hash=""):
         self.uid = uid
         self.mtime = mtime
         self.hash = hash
@@ -25,6 +25,9 @@ class Rid(object):
 
     def __hash__(self):
         return hash( (self.uid, self.mtime, self.hash) )
+        
+    def __str__(self):
+        return "UID:%s mtime:%s hash:%s" % (self.uid, self.mtime, self.hash)
 
     def get_UID(self):
         return self.uid

@@ -20,7 +20,7 @@ class Mapping(object):
         self.sinkUID = sinkUID
         self.sinkRid = sinkRid
         
-    def _str_(self):
+    def __str__(self):
         return "%s) [%s] <-> [%s] (%s <-> %s)" % (self.oid,self.sourceRid,self.sinkRid, self.sourceUID, self.sinkUID)
 
     def get_source_rid(self):
