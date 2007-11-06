@@ -1,52 +1,57 @@
 #common sets up the conduit environment
 from common import *
 
-import conduit.DB as DB
+import conduit.MappingDB as MappingDB
 import conduit.Utils as Utils
 
 import datetime
 
 FILE=os.path.join(os.environ['TEST_DIRECTORY'], "test-%s.db" % Utils.random_string())
 
-m = DB.MappingDB()
+m = MappingDB.MappingDB()
 m.open_db(FILE)
 ok("Create mapping DB (%s)" % FILE, m != None)
 
 now=datetime.datetime.now()
 
 #save some relationships
-m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
-m.save_mapping(sourceUID="source",sourceDataLUID="data3",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data4",sinkDataMtime=now)
-m.save_mapping(sourceUID="source",sourceDataLUID="data5",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data6",sinkDataMtime=now)
+i = MappingDB.Mapping(None,sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
+m.save_mapping(i)
+i = MappingDB.Mapping(None,sourceUID="source",sourceDataLUID="data3",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data4",sinkDataMtime=now)
+m.save_mapping(i)
+i = MappingDB.Mapping(None,sourceUID="source",sourceDataLUID="data5",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data6",sinkDataMtime=now)
+m.save_mapping(i)
 
 #check that mapping is saved
 ok("Saved all relationships", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
 
-luid = m.get_matching_UID(sourceUID="source", sourceDataLUID="data1",sinkUID="sink")
+luid = m.get_matching_UID(sourceUID="source", dataLUID="data1",sinkUID="sink")
 ok("data1 --> data2 for (source --> sink)", luid == "data2")
-luid = m.get_matching_UID(sourceUID="source", sourceDataLUID="data2",sinkUID="sink")
+luid = m.get_matching_UID(sourceUID="source", dataLUID="data2",sinkUID="sink")
 ok("data2 --> data1 for (source --> sink)", luid == "data1")
-luid = m.get_matching_UID(sourceUID="sink", sourceDataLUID="data1",sinkUID="source")
+luid = m.get_matching_UID(sourceUID="sink", dataLUID="data1",sinkUID="source")
 ok("data1 --> data2 for (sink --> source)", luid == "data2")
-luid = m.get_matching_UID(sourceUID="sink", sourceDataLUID="data2",sinkUID="source")
+luid = m.get_matching_UID(sourceUID="sink", dataLUID="data2",sinkUID="source")
 ok("data2 --> data1 for (sink --> source)", luid == "data1")
 
-luid = m.get_matching_UID(sourceUID="source", sourceDataLUID="data3",sinkUID="sink")
+luid = m.get_matching_UID(sourceUID="source", dataLUID="data3",sinkUID="sink")
 ok("data3 --> data4 for (source --> sink)", luid == "data4")
 
 
 #check that we never save more than one relationship per dp and uid
-m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
-ok("Duplicate relationships not saved", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
+#m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
+#ok("Duplicate relationships not saved", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
 
 #check that the updated mtime is saved correctly for both dps in both directions
 now2=datetime.datetime.now()
-m.save_mapping(sourceUID="source",sourceDataLUID="data1",sourceDataMtime=now2,sinkUID="sink",sinkDataLUID="data2",sinkDataMtime=now)
-now3=datetime.datetime.now()
-m.save_mapping(sourceUID="sink",sourceDataLUID="data1",sourceDataMtime=now2,sinkUID="source",sinkDataLUID="data2",sinkDataMtime=now3)
+i = m.get_mapping(sourceUID="source",dataLUID="data1",sinkUID="sink")
+i["sourceDataMtime"] = now2
+m.save_mapping(i)
 
 ok("Mtimes updated correctly", len(m.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
-print m.debug(printMtime=True)
+print m.debug()
+
+raise
 
 # luid, mtime = m.get_mapping(sourceUID="source", sourceDataLUID="data1",sinkUID="sink")
 # ok("Updated mtime saved. data1 --> data2 for (source --> sink)", luid == "data2" and mtime == now2)
@@ -82,7 +87,7 @@ print m.debug(printMtime=True)
 
 #save db to file and restore
 m.save()
-n = DB.MappingDB()
+n = MappingDB.MappingDB()
 n.open_db(FILE)
 ok("Saved DB loaded", n != None)
 ok("Saved DB relationships restored", len(n.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)

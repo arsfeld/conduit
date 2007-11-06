@@ -30,29 +30,29 @@ class DeltaProvider:
         conduit.logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
-        #we also get the mtimes because we need those to detect if something has changed
-        mtimes = {}
-        for i in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.me.get_UID(), self.other.get_UID()):
-            mtimes[ i["sourceDataLUID"] ] = i["sourceDataMtime"]
-        for i in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
-            mtimes[ i["sinkDataLUID"] ] = i["sinkDataMtime"]
+        #we also get the rids because we need those to detect if something has changed
+        rids = {}
+        for m in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.me.get_UID(), self.other.get_UID()):
+            rids[ m.get_source_rid().get_UID() ] = m.get_source_rid()
+        for m in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
+            rids[ m.get_sink_rid().get_UID() ] = m.get_sink_rid()
 
-        conduit.logd("Delta: Expecting %s items\n%s" % (len(mtimes), mtimes.keys()))
+        conduit.logd("Delta: Expecting %s items\n%s" % (len(rids), rids.keys()))
 
         #now classify all my items relative to the expected data from the previous
         #sync with the supplied other dataprovider. Copy (slice) the list because we
         #modify it in place
         modified = []
         for i in allItems[:]:
-            if i in mtimes:
+            if i in rids:
                 data = self.me.module.get(i)
-                if data.get_mtime() != mtimes[i]:
+                if data.get_rid() != rids[i]:
                     modified.append(i)
-                del(mtimes[i])
+                del(rids[i])
                 allItems.remove(i)
 
-        #now all that remains in mtimes is data which has been deleted,
+        #now all that remains in rids is data which has been deleted,
         #and all that remains in allItems is new data
-        return allItems, modified, mtimes.keys()
+        return allItems, modified, rids.keys()
 
 

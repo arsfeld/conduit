@@ -73,7 +73,6 @@ class Application(dbus.service.Object):
             sys.exit(1)
 
         log("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
-        log("Log Level: %s" % conduit.LOG_LEVEL)
         log("Using UI: %s" % self.ui)
         
         #Make conduit single instance. If conduit is already running then
@@ -245,6 +244,10 @@ OPTIONS:
         log("Unitializing dataproviders")
         self.guiSyncSet.quit()
         self.dbusSyncSet.quit()
+        
+        #Save the mapping DB
+        conduit.GLOBALS.mappingDB.save()
+        conduit.GLOBALS.mappingDB.close()
 
         conduit.GLOBALS.mainloop.quit()
 

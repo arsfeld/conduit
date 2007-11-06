@@ -15,32 +15,15 @@ import conduit
 from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
-
-#ENUM of directions when resolving a conflict
-CONFLICT_SKIP = 0                   #dont draw an arrow - draw a -x-
-CONFLICT_COPY_SOURCE_TO_SINK = 1    #right drawn arrow
-CONFLICT_COPY_SINK_TO_SOURCE = 2    #left drawn arrow
-CONFLICT_DELETE = 3                 #double headed arrow
+import conduit.Conflict as Conflict
 
 #Indexes into the conflict tree model in which conflict data is stored
 CONFLICT_IDX = 0            #The conflict object
 DIRECTION_IDX = 1           #The current user decision re: the conflict (-->, <-- or -x-)
 
-class Conflict:
-    """
-    Represents a conflict
-    """
-    def __init__(self, sourceWrapper, sourceData, sinkWrapper, sinkData, validResolveChoices, isDeletion):
-        self.sourceWrapper = sourceWrapper
-        self.sourceData = sourceData
-        self.sinkWrapper = sinkWrapper
-        self.sinkData = sinkData
-        self.choices = validResolveChoices
-        self.isDeletion = isDeletion
-
-class ConflictHeader(Conflict):
+class ConflictHeader(Conflict.Conflict):
     def __init__(self, sourceWrapper, sinkWrapper):
-        Conflict.__init__(self, sourceWrapper, None, sinkWrapper, None, (), False)
+        Conflict.Conflict.__init__(self, sourceWrapper, None, sinkWrapper, None, (), False)
 
 class ConflictResolver:
     """
@@ -222,9 +205,9 @@ class ConflictResolver:
         if (source,sink) not in self.partnerships:
             #create a header row
             header = ConflictHeader(source, sink)
-            self.partnerships[(source,sink)] = self.model.append(None, (header, CONFLICT_SKIP) )
+            self.partnerships[(source,sink)] = self.model.append(None, (header, Conflict.CONFLICT_SKIP) )
 
-        self.model.append(self.partnerships[(source,sink)], (conflict, CONFLICT_SKIP) )  
+        self.model.append(self.partnerships[(source,sink)], (conflict, Conflict.CONFLICT_SKIP) )  
 
         #FIXME: Do this properly with model signals and a count function
         #update the expander label and the standalone window title
@@ -272,20 +255,20 @@ class ConflictResolver:
             conflict = model[path][CONFLICT_IDX]
 
             #do as the user inducated with the arrow
-            if direction == CONFLICT_SKIP:
+            if direction == Conflict.CONFLICT_SKIP:
                 logd("Not resolving")
                 return
-            elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
+            elif direction == Conflict.CONFLICT_COPY_SOURCE_TO_SINK:
                 logd("Resolving source data --> sink")
                 data = conflict.sourceData
                 source = conflict.sourceWrapper
                 sink = conflict.sinkWrapper
-            elif direction == CONFLICT_COPY_SINK_TO_SOURCE:
+            elif direction == Conflict.CONFLICT_COPY_SINK_TO_SOURCE:
                 logd("Resolving source <-- sink data")
                 data = conflict.sinkData
                 source = conflict.sinkWrapper
                 sink = conflict.sourceWrapper
-            elif direction == CONFLICT_DELETE:
+            elif direction == Conflict.CONFLICT_DELETE:
                 logd("Resolving deletion  --->")
                 data = conflict.sinkData
                 source = conflict.sourceWrapper
@@ -406,13 +389,13 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
         return True
 
     def set_direction(self, direction):
-        if direction == CONFLICT_COPY_SINK_TO_SOURCE:
+        if direction == Conflict.CONFLICT_COPY_SINK_TO_SOURCE:
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-left",16,0)
-        elif direction == CONFLICT_COPY_SOURCE_TO_SINK:
+        elif direction == Conflict.CONFLICT_COPY_SOURCE_TO_SINK:
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-right",16,0)
-        elif direction == CONFLICT_SKIP:
+        elif direction == Conflict.CONFLICT_SKIP:
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-skip",16,0)
-        elif direction == CONFLICT_DELETE:
+        elif direction == Conflict.CONFLICT_DELETE:
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-delete",16,0)
         else:
             self.image = None

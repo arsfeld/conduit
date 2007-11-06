@@ -56,8 +56,8 @@ do
 done
 
 #prepare output folders, etc
-rm -r $LOGDIR 2> /dev/null
-rm -r $TEST_DATA_DIR 2> /dev/null
+rm -fr $LOGDIR 2> /dev/null
+rm -fr $TEST_DATA_DIR 2> /dev/null
 #Prepare some folders
 mkdir -p $LOGDIR
 mkdir -p $COVERAGE_RESULTS
@@ -157,10 +157,7 @@ if [ $do_coverage -ne 0 ] ; then
     #put in the index.html file
     COVERAGE_FILE="$LOGDIR/.coverage" \
     python $COVERAGE_APP -r -a -d $COVERAGE_RESULTS \
-    conduit/*.py \
     conduit/datatypes/*.py \
-    conduit/dataproviders/*.py \
-    conduit/modules/*/*.py \
     | tee --append $indexfile
 
     echo "</pre></p>" >> $indexfile

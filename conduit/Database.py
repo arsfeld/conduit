@@ -113,20 +113,24 @@ class GenericDB(gobject.GObject):
         #dictionary of field names, key is table name
         self.tables = {}
         self.filename = filename
-        self._open(**kwargs)
+        self.options = kwargs
+        
+        self._open()
+        self._get_tables()
 
-    def _open(self, **options):
+    def _open(self):
         #Open the DB and set options
         self.db = sqlite.connect(self.filename)
-        self.db.isolation_level = options.get("isolation_level",None)
-        if options.get("row_by_name",False) == True:
+        self.db.isolation_level = self.options.get("isolation_level",None)
+        if self.options.get("row_by_name",False) == True:
             self.db.row_factory = sqlite.Row
         self.cur = self.db.cursor()
 
+    def _get_tables(self):
         #get the field names for all tables
-        for name, in self.select("SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence'"):
-            self.tables[name] = [row[1] for row in self.select("PRAGMA table_info('%s')" % name)]
-
+        for name, in self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence'"):
+            self.tables[str(name)] = [row[1] for row in cur.execute("PRAGMA table_info('%s')" % name) if row[1] != 'oid']
+            
     def _build_insert_sql(self, table, *values):
         assert(self.tables.has_key(table))
         assert(len(values) == len(self.get_fields(table)))
@@ -241,10 +245,13 @@ class GenericDB(gobject.GObject):
 
     def get_fields(self, table):
         """
-        Returns the number of fields in the table excluding oid
+        Returns the number of fields in the table EXCLUDING oid
         """
         assert(self.tables.has_key(table))
         return self.tables[table]
+        
+    def get_tables(self):
+        return self.tables.keys()
 
 class ThreadSafeGenericDB(Thread, GenericDB):
     #Adapted from
@@ -253,16 +260,22 @@ class ThreadSafeGenericDB(Thread, GenericDB):
         GenericDB.__init__(self,filename,**kwargs)
         Thread.__init__(self)
         self.reqs=Queue()
-        self.start()
         self.stopped = False
+        self.start()
         
     def _open(self):
-        #open the DB in the thread
+        #open the db in the thread where it is used
         pass
-
+        
+    def _get_tables(self):
+        db = sqlite.connect(self.filename)
+        cur = db.cursor()
+        #get the field names for all tables
+        for name, in cur.execute("SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence'"):
+            self.tables[str(name)] = [row[1] for row in cur.execute("PRAGMA table_info('%s')" % name) if row[1] != 'oid']
+            
     def run(self):
-        self.db = sqlite.connect(self.filename)
-        self.cur = self.db.cursor()
+        GenericDB._open(self)
         while not self.stopped:
             req, args, res, operation = self.reqs.get()
             if req=='--stop--': 
@@ -314,5 +327,4 @@ class ThreadSafeGenericDB(Thread, GenericDB):
             newId = res.get()
             self.emit("row-inserted",int(newId))
             return newId
-        
 

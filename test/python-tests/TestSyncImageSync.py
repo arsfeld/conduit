@@ -12,7 +12,8 @@ test.prepare(
 test.set_two_way_sync(False)
 
 #add a file
-test.source.module.add("http://files.conduit-project.org/screenshot.png")
+#test.source.module.add("http://files.conduit-project.org/screenshot.png")
+test.source.module.add("file:///home/john/image.jpg")
 test.sync(debug=False)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)

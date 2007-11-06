@@ -18,6 +18,7 @@ from conduit import log,logd,logw
 from conduit.gtkui.Canvas import Canvas
 from conduit.gtkui.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.gtkui.ConflictResolver import ConflictResolver
+from conduit.gtkui.Database import SqliteListStore
 
 DEFAULT_CONDUIT_BROWSER = "gtkmozembed"
 
@@ -223,9 +224,8 @@ class MainWindow:
             conduit.GLOBALS.settings.set("twoway_policy_%s" % policy, i)
             return i
 
-        def on_clear_button_clicked(sender, textview):
+        def on_clear_button_clicked(sender):
             conduit.GLOBALS.mappingDB.delete()
-            textview.get_buffer().set_text(conduit.GLOBALS.mappingDB.debug())
 
         #Build some liststores to display
         CONVERT_FROM_MESSAGE = _("Convert from")
@@ -249,19 +249,35 @@ class MainWindow:
         #Show the DB contents to help debugging
         if conduit.IS_DEVELOPMENT_VERSION:
             notebook = tree.get_widget("prop_notebook")
-
-            #Show a text window and a button in a VBox
             vbox = gtk.VBox(False,5)
+            
+            #build the treeview to show all colump fields
+            treeview = gtk.TreeView()
+            treeview.set_headers_visible(True)
+            treeview.set_fixed_height_mode(True)
+            index = 1
+            db = conduit.GLOBALS.mappingDB._db
+            for name in db.get_fields("mappings"):
+                column = gtk.TreeViewColumn()
+                column.set_title(name)
+                column.set_property('sizing', gtk.TREE_VIEW_COLUMN_FIXED)
+                column.set_property('min-width', 150)
+                cell = gtk.CellRendererText()
+                cell.set_property('single-paragraph-mode', True)
+                column.pack_start(cell, False)
+                column.add_attribute(cell, 'text', index)
+                treeview.append_column(column)
+                index = index + 1
 
-            textView = gtk.TextView()
-            textView.set_editable(False)
-            textView.get_buffer().set_text(conduit.GLOBALS.mappingDB.debug())
+            store = SqliteListStore("mappings", db)
+            treeview.set_model(store)            
+            
             sw = gtk.ScrolledWindow()
-            sw.add(textView)
+            sw.add(treeview)
             vbox.pack_start(sw,True,True)
 
             clear = gtk.Button(None,gtk.STOCK_CLEAR)
-            clear.connect("clicked", on_clear_button_clicked, textView)
+            clear.connect("clicked", on_clear_button_clicked)
             vbox.pack_start(clear, False, False)
 
             notebook.append_page(vbox,gtk.Label('Mapping DB'))

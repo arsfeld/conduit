@@ -18,25 +18,16 @@ import conduit.DeltaProvider as DeltaProvider
 from conduit.Conflict import Conflict, CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_UNKNOWN
 
-def _put_data(source, sink, data, LUID, overwrite):
+def _put_data(source, sink, mapping, data, overwrite):
     """
     Puts data into sink, overwrites if overwrite is True. Updates 
     the mappingDB
     """
     log("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
+    LUID = mapping.sinkRid.get_UID()
     rid = sink.module.put(data, overwrite, LUID)
-    mtime = data.get_mtime()
-    #Now store the mapping of the original URI to the new one. We only
-    #get here if the put was successful, so the mtime of the putted
-    #data wll be the same as the original data
-    conduit.GLOBALS.mappingDB.save_mapping(
-                            sourceUID=source.get_UID(),
-                            sourceDataLUID=data.get_UID(),
-                            sourceDataMtime=mtime,
-                            sinkUID=sink.get_UID(),
-                            sinkDataLUID=rid.get_UID(),
-                            sinkDataMtime=mtime
-                            )
+    mapping.set_sink_rid(rid)
+    conduit.GLOBALS.mappingDB.save_mapping(mapping)
 
 def _delete_data(source, sink, dataLUID):
     """
@@ -44,18 +35,12 @@ def _delete_data(source, sink, dataLUID):
     """
     log("Deleting %s from %s" % (dataLUID, sink.get_UID()))
     sink.module.delete(dataLUID)
-    conduit.GLOBALS.mappingDB.delete_mapping(
+    mapping = conduit.GLOBALS.mappingDB.get_mapping(
                         sourceUID=source.get_UID(),
                         dataLUID=dataLUID,
                         sinkUID=sink.get_UID()
                         )
-    #FIXME: Is this necessary or refective of bad design?
-    conduit.GLOBALS.mappingDB.delete_mapping(
-                        sourceUID=sink.get_UID(),
-                        dataLUID=dataLUID,
-                        sinkUID=source.get_UID()
-                        )
-
+    conduit.GLOBALS.mappingDB.delete_mapping(mapping)
 
 class SyncManager: 
     """
@@ -287,12 +272,12 @@ class SyncWorker(_ThreadedWorker):
             if newdata != None:
                 try:
                     #Get existing mapping
-                    LUID = conduit.GLOBALS.mappingDB.get_matching_UID(
+                    mapping = conduit.GLOBALS.mappingDB.get_mapping(
                                             sourceUID=source.get_UID(),
-                                            sourceDataLUID=newdata.get_UID(),
+                                            dataLUID=newdata.get_UID(),
                                             sinkUID=sink.get_UID()
                                             )
-                    _put_data(source, sink, newdata, LUID, False)
+                    _put_data(source, sink, mapping, newdata, False)
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
                     if comp == COMPARISON_OLDER:
@@ -397,12 +382,12 @@ class SyncWorker(_ThreadedWorker):
                 self.conflicted = True
 
                 try:
-                    LUID = conduit.GLOBALS.mappingDB.get_matching_UID(
+                    mapping = conduit.GLOBALS.mappingDB.get_mapping(
                                             sourceUID=sourceWrapper.get_UID(),
-                                            sourceDataLUID=toData.get_UID(),
+                                            dataLUID=toData.get_UID(),
                                             sinkUID=sinkWrapper.get_UID()
                                             )
-                    _put_data(sourceWrapper, sinkWrapper, toData, LUID, True)
+                    _put_data(sourceWrapper, sinkWrapper, mapping, toData, True)
                 except:
                     logw("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...

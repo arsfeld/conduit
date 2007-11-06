@@ -65,7 +65,7 @@ class SqliteListStore(gtk.GenericTreeModel):
         """
         Returns the number of columns found in our sqlite table.
         """
-        return ('oid',) + self.db.get_fields(self.table)
+        return ('oid',) + tuple(self.db.get_fields(self.table))
     
     @DB.lru_cache(0)
     def _get_oid(self, offset):
@@ -162,7 +162,12 @@ class SqliteListStore(gtk.GenericTreeModel):
         finding the oid for the row in the database at the same
         offset as the path.
         """
-        return self._get_oid(path[0]) if len(path) == 1 else None
+        if len(path) > 1:
+            return None #We are a list not a tree
+        try:
+            return self._get_oid(path[0])
+        except TypeError:
+            return None #DB is empty
     
     def on_get_path(self, rowref):
         """
