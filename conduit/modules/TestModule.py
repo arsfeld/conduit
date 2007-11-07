@@ -11,7 +11,7 @@ import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
 import conduit.Web as Web
-from conduit.datatypes import Rid
+#from conduit.datatypes import Rid
 from conduit.datatypes import DataType, Text, Video, Audio
 
 import time
@@ -34,21 +34,20 @@ MODULES = {
     "TestConverter" :           { "type": "converter" }
 }
 
-#Test datatype is a thin wrapper around an integer string in the form
-#"xy" where x is supplied at construction time, and y is a random integer
-#in the range 0-9. 
+#Test datatype is a thin wrapper around a string in the form
+#"xy.." where x is an integer, and y is a string
 class TestDataType(DataType.DataType):
     _name_ = "test_type"
-    def __init__(self, integerData):
+    def __init__(self, xy):
         DataType.DataType.__init__(self)
-        self.integerData = integerData
-
+        self.Integer = int(xy[0])
+        
         self.set_open_URI("file:///home/")
-        self.set_UID(self.integerData)
+        self.set_UID(xy)
         self.set_mtime(datetime.datetime(2003,8,16))
         
     def __str__(self):
-        return "testData %s" % self.integerData
+        return "testData %s" % self.charInteger
 
     def get_snippet(self):
         return str(self) + "\nI am a piece of test data"
@@ -56,8 +55,8 @@ class TestDataType(DataType.DataType):
     #The strings are numerically compared. If A < B then it is older
     #If A is larger than B then it is newer.
     def compare(self, A, B):
-        a = int(A.UID)
-        b = int(B.UID)
+        a = A.Integer
+        b = B.Integer
         if a < b:
             return conduit.datatypes.COMPARISON_OLDER
         elif a > b:
@@ -162,17 +161,21 @@ class TestSource(_TestBase, DataProvider.DataSource):
        
     def get_all(self):
         DataProvider.DataSource.get_all(self)
-        return map(str,range(0,self.numData))
+        data = []
+        for i in range(0,self.numData):
+            data.append(str(i))
+        return data
 
-    def get(self, index):
-        DataProvider.DataSource.get(self, index)
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
         if self.slow:
             time.sleep(2)
 
-        if int(index) >= self.errorAfter:
+        index = int(LUID)
+        if index >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
 
-        data = TestDataType(index)
+        data = TestDataType(LUID)
         return data
 
     def add(self, LUID):
@@ -199,8 +202,8 @@ class TestSink(_TestBase, DataProvider.DataSink):
         if self.count >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, self.count))
         self.count += 1
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
 class TestImageSink(Image.ImageSink):
 
@@ -311,8 +314,8 @@ class TestVideoSink(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         logd("Put Video File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def get_UID(self):
         return Utils.random_string()
@@ -356,8 +359,8 @@ class TestAudioSink(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         logd("Put Audio File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def get_UID(self):
         return Utils.random_string()
@@ -414,8 +417,8 @@ class TestWebSink(DataProvider.DataSink):
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def get_UID(self):
         return Utils.random_string()
@@ -436,8 +439,8 @@ class TestFileSink(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         logd("Putting file: %s" % data._get_text_uri())
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def get_UID(self):
         return Utils.random_string()
@@ -453,7 +456,6 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
     _out_type_ = "test_type"
     _icon_ = "view-refresh"
 
-    NUM_DATA = 10
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.TwoWay.__init__(self)
@@ -465,7 +467,7 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         self.data = []
         #Assemble a random array of data
         for i in range(0, random.randint(1, self.numData)):
-            self.data.append(TestDataType(i))
+            self.data.append(str(i))
 
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
@@ -481,8 +483,8 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         if self.slow:
             time.sleep(1)    
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def finish(self): 
         DataProvider.TwoWay.finish(self)
@@ -546,9 +548,9 @@ class TestConflict(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         if not overwrite:
-            raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, TestDataType(0))
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+            raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, TestDataType('0Conflict'))
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def get_UID(self):
         return Utils.random_string()
@@ -589,8 +591,8 @@ class TestConversionArgs(DataProvider.DataSink):
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        LUID=data.get_UID()+self._name_
-        return Rid(uid=LUID)
+        newData = TestDataType(data.get_UID()+self._name_)
+        return newData.get_rid()
 
     def get_input_conversion_args(self):
         if self.conversionArgs == "":

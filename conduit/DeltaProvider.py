@@ -26,7 +26,13 @@ class DeltaProvider:
         @returns: added, modified, deleted
         """
         #Copy (slice) list for in case there are other sinks to follow
-        allItems = self.me.module.get_all()[:]
+        #allItems = self.me.module.get_all()[:]
+        allItems = []
+        for i in self.me.module.get_all():
+            #Maybe we should be unicode....
+            assert type(i) == str, "LUID Must be str"
+            allItems.append(i)
+
         conduit.logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
@@ -47,6 +53,7 @@ class DeltaProvider:
             if i in rids:
                 data = self.me.module.get(i)
                 if data.get_rid() != rids[i]:
+                    print "Modified: Actual:%s v DB:%s" % (data.get_rid(), rids[i])
                     modified.append(i)
                 del(rids[i])
                 allItems.remove(i)

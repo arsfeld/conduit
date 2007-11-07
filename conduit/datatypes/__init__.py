@@ -13,15 +13,27 @@ COMPARISON_OLDER = 2
 COMPARISON_UNEQUAL = 3
 COMPARISON_UNKNOWN = 4
 
+import datetime
+
 class Rid(object):
 
-    def __init__(self, uid=None, mtime=None, hash=""):
+    def __init__(self, uid=None, mtime=None, hash=None):
         self.uid = uid
         self.mtime = mtime
         self.hash = hash
 
-    def __eq__(self, b):
-        return self.uid == b.uid and self.mtime == b.mtime and self.hash == b.hash
+        assert (type(uid) == str or type(uid) == unicode or uid == None), "UID must be unicode,string or None not %s" % type(uid)
+        assert (type(mtime) == datetime.datetime or mtime == None), "mtime must be datatime or None not %s" % type(datetime)
+
+    def __eq__(self, other):
+        print "EQ: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash)
+        print "EQ Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash))
+        return self.uid == other.uid and self.mtime == other.mtime and self.hash == other.hash
+        
+    def __ne__(self, other):
+        print "NE: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash)
+        print "NE Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash))
+        return self.uid != other.uid or self.mtime != other.mtime or self.hash != other.hash
 
     def __hash__(self):
         return hash( (self.uid, self.mtime, self.hash) )

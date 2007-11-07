@@ -25,8 +25,13 @@ def _put_data(source, sink, mapping, data, overwrite):
     """
     log("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
     LUID = mapping.sinkRid.get_UID()
-    rid = sink.module.put(data, overwrite, LUID)
-    mapping.set_sink_rid(rid)
+    sourceRid = data.get_rid()
+    sinkRid = sink.module.put(
+                    data, 
+                    overwrite, 
+                    LUID)
+    mapping.set_sink_rid(sinkRid)
+    mapping.set_source_rid(sourceRid)
     conduit.GLOBALS.mappingDB.save_mapping(mapping)
 
 def _delete_data(source, sink, dataLUID):
