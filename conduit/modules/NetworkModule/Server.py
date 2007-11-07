@@ -31,9 +31,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
         DataProvider.DataProviderFactory.__init__(self)
 
-        self.conduits = {}
         self.shared = {}
-
         self.DP_PORT = 3401
 
         #watch the modulemanager for added conduits and syncsets
@@ -59,20 +57,23 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         return info
 
     def quit(self):
+        #stop all the xmlrpc servers
         self.rootServer.stop()
+        for server in self.shared.values():
+            server.stop()
 
     def _syncset_added(self, mgr, syncset):
         syncset.connect("conduit-added", self._conduit_added)
         syncset.connect("conduit-removed", self._conduit_removed)
 
     def _conduit_added(self, syncset, conduit):
-        conduit.connect("dataprovider-added", self._conduit_changed)
-        conduit.connect("dataprovider-removed", self._conduit_changed)
+        conduit.connect("dataprovider-added", self._dataprovider_added)
+        conduit.connect("dataprovider-removed", self._dataprovider_removed)
 
     def _conduit_removed(self, syncset, conduit):
         pass
 
-    def _get_shared(self, conduit):
+    def _get_shared_dps(self, conduit):
         """
         This is a cludgy evil function to determine if a conduit is shared or not
           If it is, the dp to share is returned
@@ -93,35 +94,33 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
                 return None
         return None
 
-    def _conduit_changed(self, conduit, dataprovider):
-        """
-        Same event handler for dataprovider-added + removed
-        """
-        shared = self._get_shared(conduit)
-        if shared != None:
-            if conduit not in self.conduits:
-                self.share_dataprovider(conduit, shared)
-        else:
-            if conduit in self.conduits:
-                self.unshare_dataprovider(conduit)
+    def _dataprovider_added(self, cond, dpw):
+        sharedDpw = self._get_shared_dps(cond)
+        if sharedDpw != None:
+            if sharedDpw.get_UID() not in self.shared:
+                self.share_dataprovider(sharedDpw)
 
-    def share_dataprovider(self, conduit, dpw):
+    def _dataprovider_removed(self, cond, dpw):
+        if dpw.get_UID() in self.shared:
+            self.unshare_dataprovider(dpw)
+
+    def share_dataprovider(self, dpw):
         """
         Shares a conduit/dp on the network
         """
         server = DataproviderResource(dpw, self.DP_PORT)
         server.start()
-        self.shared[conduit.uid] = server
+        self.shared[dpw.get_UID()] = server
         self.DP_PORT += 1
 
-    def unshare_dataprovider(self, conduit):
+    def unshare_dataprovider(self, dpw):
         """
         Stop sharing a conduit
         """
-        if conduit.uid in self.conduits:
-            server = self.shared[conduit.uid]
-            server.stop()
-            del self.shared[conduit.uid]
+        uid = dpw.get_UID()
+        server = self.shared[uid]
+        server.stop()
+        del self.shared[uid]
 
 class NetworkEndpoint(DataProvider.TwoWay):
 
@@ -191,6 +190,9 @@ class DataproviderResource(StoppableXMLRPCServer):
         #because we need to pickle function arguments
         self.register_function(self.get_info)
         self.register_function(self.get_all)
+        self.register_function(self.get)
+        self.register_function(self.put)
+        self.register_function(self.delete)
 
     def get_info(self):
         """

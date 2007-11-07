@@ -53,6 +53,17 @@ class TestDataType(DataType.DataType):
     def __str__(self):
         return "testData %s" % self.charInteger
 
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data['Integer'] = self.Integer
+        data['myHash'] = self.myHash
+        return data
+
+    def __setstate__(self, data):
+        self.Integer = data['Integer']
+        self.myHash = data['myHash']
+        DataType.DataType.__setstate__(self, data)
+
     def get_hash(self):
         return self.myHash
 

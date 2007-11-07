@@ -141,12 +141,12 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         # Record the key so we can unregister the dp later (if needed)
         self.dataproviders[host_url][newdp.uid] = key
 
-    def dataprovider_removed(self, wrapper):
-        """
-        Remove a dataprovider from ModuleManager
-        """
-        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.uid])
-        self.dataproviders[wrapper.host_url].remove(wrapper.uid)
+#    def dataprovider_removed(self, wrapper):
+#        """
+#        Remove a dataprovider from ModuleManager
+#        """
+#        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.uid])
+#        self.dataproviders[wrapper.host_url].remove(wrapper.uid)
 
 class ClientDataProvider(DataProvider.TwoWay):
     """
