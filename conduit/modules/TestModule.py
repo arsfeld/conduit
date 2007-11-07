@@ -34,20 +34,27 @@ MODULES = {
     "TestConverter" :           { "type": "converter" }
 }
 
+DEFAULT_MTIME=datetime.datetime(2003,8,16)
+DEFAULT_HASH="12345"
+
 #Test datatype is a thin wrapper around a string in the form
 #"xy.." where x is an integer, and y is a string
 class TestDataType(DataType.DataType):
     _name_ = "test_type"
-    def __init__(self, xy):
+    def __init__(self, xy, mtime=DEFAULT_MTIME, hash=DEFAULT_HASH):
         DataType.DataType.__init__(self)
         self.Integer = int(xy[0])
+        self.myHash = hash
         
         self.set_open_URI("file:///home/")
         self.set_UID(xy)
-        self.set_mtime(datetime.datetime(2003,8,16))
+        self.set_mtime(mtime)
         
     def __str__(self):
         return "testData %s" % self.charInteger
+
+    def get_hash(self):
+        return self.myHash
 
     def get_snippet(self):
         return str(self) + "\nI am a piece of test data"
@@ -70,6 +77,8 @@ class _TestBase:
     def __init__(self):
         #Through an error on the nth time through
         self.errorAfter = 999
+        self.newHash = False
+        self.newMtime = False
         self.slow = False
         self.UID = Utils.random_string()
         self.numData = 5
@@ -91,6 +100,10 @@ class _TestBase:
             self.errorAfter = int(param)
         def setSlow(param):
             self.slow = bool(param)
+        def setNewHash(param):
+            self.newHash = bool(param)
+        def setNewMtime(param):
+            self.newMtime = bool(param)
         def setUID(param):
             self.UID = str(param)        
         def setNumData(param):
@@ -107,6 +120,18 @@ class _TestBase:
                     "Widget" : gtk.CheckButton,
                     "Callback" : setSlow,
                     "InitialValue" : self.slow
+                    },
+                    {
+                    "Name" : "Data gets a New Hash",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : setNewHash,
+                    "InitialValue" : self.newHash
+                    },
+                    {
+                    "Name" : "Data gets a New Mtime",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : setNewMtime,
+                    "InitialValue" : self.newMtime
                     },
                     {
                     "Name" : "UID",
@@ -131,6 +156,8 @@ class _TestBase:
         return {
             "errorAfter" : self.errorAfter,
             "slow" : self.slow,
+            "newHash" : self.newHash,
+            "newMtime" : self.newMtime,
             "UID" : self.UID,
             "aString" : "im a string",
             "aInt" : 5,
@@ -175,7 +202,15 @@ class TestSource(_TestBase, DataProvider.DataSource):
         if index >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
 
-        data = TestDataType(LUID)
+        mtime = DEFAULT_MTIME
+        if self.newMtime:
+            mtime = datetime.datetime.now()
+            
+        hash = DEFAULT_HASH
+        if self.newHash:
+            hash = Utils.random_string()
+
+        data = TestDataType(LUID, mtime, hash)
         return data
 
     def add(self, LUID):
