@@ -300,7 +300,7 @@ class ShutterflyAlbum(object):
 			pairs = re.findall("pList\[\d+\]='(.*)';\ntList\[\d+\]='(.*)';", buf)
 			for pair in pairs:
 				photo = ShutterflyPhoto(pair[0], pair[1])
-				l[photo.title] = photo
+				l[photo.id] = photo
 			count -= perpage
 			page += 1
 			if count > 0:
