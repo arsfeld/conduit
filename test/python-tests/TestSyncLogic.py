@@ -3,7 +3,7 @@ from common import *
 
 import conduit
 from conduit.datatypes import DataType,COMPARISON_OLDER,COMPARISON_NEWER,COMPARISON_EQUAL,COMPARISON_UNKNOWN
-from conduit.DataProvider import TwoWay
+from conduit.dataproviders.DataProvider import TwoWay
 
 import datetime
 
@@ -12,7 +12,7 @@ class TestDataType(conduit.datatypes.DataType.DataType):
     def __init__(self, **kwargs):
         DataType.DataType.__init__(self)
         self.set_UID(
-                kwargs.get("data",0)
+                kwargs.get("data",'0')
                 )
         self.set_mtime(
                 kwargs.get("mtime",datetime.datetime.now())
@@ -57,14 +57,12 @@ class TestShell(TwoWay):
         return len(self.added) + len(self.modified) + len(self.deleted)
 
     def get(self, LUID):
-        return TestDataType(data=int(LUID))
+        return TestDataType(data=LUID)
 
     def put(self, data, overwrite, LUID=None):
         TwoWay.put(self, data, overwrite, LUID)
-        if LUID != None:
-            return LUID
-        else:
-            return data.get_UID()
+        newData = TestDataType(data=data.get_UID())
+        return newData.get_rid()        
 
     def finish(self): 
         TwoWay.finish(self)
@@ -87,8 +85,8 @@ test.prepare(
 test.set_two_way_sync(True)
 
 #phase one: add different data to each side
-source.added = [1,2,3]
-sink.added = [4,5]
+source.added = ['1','2','3']
+sink.added = ['4','5']
 
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
@@ -96,9 +94,9 @@ ok("Sync completed: phase one: add different data to each side", aborted == Fals
 
 #phase two: modify some
 source.added = []
-source.modified = [4,5]
+source.modified = ['4','5']
 sink.added = []
-sink.modified = [1,2]
+sink.modified = ['1','2']
 
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
@@ -107,10 +105,10 @@ ok("Sync completed: phase two: modify some", aborted == False)
 #phase two: delete some (delete policy: skip)
 source.added = []
 source.modified = []
-source.deleted = [4]
+source.deleted = ['4']
 sink.added = []
 sink.modified = []
-sink.deleted = [2]
+sink.deleted = ['2']
 
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
@@ -130,10 +128,10 @@ ok("Sync completed: phase two: delete some (delete policy: replace)", aborted ==
 
 #phase three: modify both (modify policy: skip)
 source.added = []
-source.modified = [1,5]
+source.modified = ['1','5']
 source.deleted = []
 sink.added = []
-sink.modified = [1,5]
+sink.modified = ['1','5']
 sink.deleted = []
 
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
@@ -143,8 +141,8 @@ ok("Sync completed: phase three: modify both (modify policy: skip)", aborted == 
 
 #phase three: modify both (modify policy: ask)
 #FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
-source.modified = [1,5]
-sink.modified = [1,5]
+source.modified = ['1','5']
+sink.modified = ['1','5']
 test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()
@@ -152,8 +150,8 @@ ok("Sync completed: phase three: modify both (modify policy: ask)", aborted == F
 
 #phase three: modify both (modify policy: replace)
 #FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
-source.modified = [1,5]
-sink.modified = [1,5]
+source.modified = ['1','5']
+sink.modified = ['1','5']
 test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
 a,b = test.sync(debug=True)
 aborted = test.sync_aborted()

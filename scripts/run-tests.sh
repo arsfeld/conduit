@@ -157,7 +157,8 @@ if [ $do_coverage -ne 0 ] ; then
     #put in the index.html file
     COVERAGE_FILE="$LOGDIR/.coverage" \
     python $COVERAGE_APP -r -a -d $COVERAGE_RESULTS \
-    conduit/datatypes/*.py \
+    conduit/*.py \
+    conduit/modules/TestModule.py \
     | tee --append $indexfile
 
     echo "</pre></p>" >> $indexfile
