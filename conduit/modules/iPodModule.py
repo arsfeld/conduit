@@ -46,7 +46,7 @@ def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
 
     temp = Utils.new_tempfile(txt)
     temp.transfer(uri, True)
-    return Rid(uid=uri, mtime=temp.get_mtime(), hash=temp.get_mtime())
+    return Rid(uid=luid, mtime=temp.get_mtime(), hash=temp.get_mtime())
 
 class iPodFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
