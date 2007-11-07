@@ -477,7 +477,7 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         if self.slow:
             time.sleep(1)    
         DataProvider.TwoWay.get(self, LUID)
-        return LUID
+        return TestDataType(LUID)
 
     def put(self, data, overwrite, LUID=None):
         if self.slow:
