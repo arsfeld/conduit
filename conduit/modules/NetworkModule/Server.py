@@ -20,7 +20,6 @@ import conduit.Exceptions as Exceptions
 import Peers
 
 SERVER_PORT = 3400
-DP_PORT = 3401
 
 class NetworkServerFactory(DataProvider.DataProviderFactory):
     """
@@ -35,6 +34,8 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         self.conduits = {}
         self.shared = {}
 
+        self.DP_PORT = 3401
+
         #watch the modulemanager for added conduits and syncsets
         conduit.GLOBALS.moduleManager.connect('syncset-added', self._syncset_added)
 
@@ -48,9 +49,13 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         self.rootServer.start()
 
     def list_shared_dataproviders(self):
-        info = {}
+        #info = {}
+        #for key, dp in self.shared.iteritems():
+        #    info[key] = dp.get_info()
+        #return info
+        info = []
         for key, dp in self.shared.iteritems():
-            info[key] = dp.get_info()
+            info.append(dp.get_info())
         return info
 
     def quit(self):
@@ -100,13 +105,14 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
             if conduit in self.conduits:
                 self.unshare_dataprovider(conduit)
 
-    def share_dataprovider(self, conduit, dataprovider):
+    def share_dataprovider(self, conduit, dpw):
         """
         Shares a conduit/dp on the network
         """
-        server = DataproviderResource(dataprovider, DP_PORT)
+        server = DataproviderResource(dpw, self.DP_PORT)
         server.start()
         self.shared[conduit.uid] = server
+        self.DP_PORT += 1
 
     def unshare_dataprovider(self, conduit):
         """
@@ -184,19 +190,20 @@ class DataproviderResource(StoppableXMLRPCServer):
         #register individual functions, not the whole object, 
         #because we need to pickle function arguments
         self.register_function(self.get_info)
+        self.register_function(self.get_all)
 
     def get_info(self):
         """
         Return information about this dataprovider (so that client can show correct icon, name, description etc)
         """
-        return {"uid":          self.dpw.module.get_UID(),
-                "name":         self.dpw.name,
-                "description":  self.dpw.description,
-                "icon":         self.dpw.icon_name,
-                "module_type":  self.dpw.module_type,
-                "in_type":      self.dpw.in_type,
-                "out_type":     self.dpw.out_type,
-                "server_port":  self.port                 
+        return {"uid":              self.dpw.get_UID(),
+                "name":             self.dpw.name,
+                "description":      self.dpw.description,
+                "icon":             self.dpw.icon_name,
+                "module_type":      self.dpw.module_type,
+                "in_type":          self.dpw.in_type,
+                "out_type":         self.dpw.out_type,
+                "dp_server_port":   self.port                 
                 }
 
     def get_all(self):

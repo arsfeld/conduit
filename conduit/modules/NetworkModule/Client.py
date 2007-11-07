@@ -84,16 +84,19 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         """
         """
         # get some local refs
-        url = response.url
-        dps = self.dataproviders[url]
-        data = response.data_out
+        remoteUrl = response.url
+        currentSharedDps = self.dataproviders[remoteUrl]
+        remoteSharedDps = response.data_out
 
-        print "DP PROCESS",dps,data
+        print "DP PROCESS.\nURL:%s\nCurrent dps:%s\nRemote dps:%s" % (remoteUrl,currentSharedDps,remoteSharedDps)
 
         # loop through all dp's 
-        for uid, info in data.iteritems():
-            if uid not in dps:
-                self.dataprovider_added(url, uid, info)
+        for d in remoteSharedDps:
+            #the uid is the url + the remote dp uid
+            uid = "%s-%s" % (remoteUrl,d['uid'])
+            print "REMOTE UID: %s" % uid
+            if uid not in currentSharedDps:
+                self.dataprovider_added(remoteUrl, uid, d)
 
 #        for uid in dps.iterkeys():
 #            if uid not in data.iterkeys():
@@ -101,7 +104,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
 
     def dataprovider_create(self, host_url, uid, info):
         # Each dataprovider is on its own port
-        dp_url = "%s:%s/" % (host_url, info['server_port'])
+        dp_url = "%s:%s/" % (host_url, info['dp_server_port'])
    
         params = {}
 
@@ -114,10 +117,12 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
 
         params['host_url'] = host_url
         params['url'] = dp_url
-
+        params['uid'] = uid
+    
         # Actually create a new object type based on ClientDataProvider
         # but with the properties from the remote DataProvider
         newdp = type(dp_url, (ClientDataProvider, ), params)
+
         return newdp
 
     def dataprovider_added(self, host_url, uid, info):
@@ -129,19 +134,19 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         # Register the new dataprovider with Conduit
         key = self.emit_added(
                                   newdp, 
-                                  (newdp.url, ), 
+                                  (), #No init args, these are encoded as class params
                                   self.categories[newdp.host_url]
                              )
 
         # Record the key so we can unregister the dp later (if needed)
-        self.dataproviders[host_url][newdp.url] = key
+        self.dataproviders[host_url][newdp.uid] = key
 
-#    def dataprovider_removed(self, wrapper):
-#        """
-#        Remove a dataprovider from ModuleManager
-#        """
-#        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.url])
-#        self.dataproviders[wrapper.host_url].remove(wrapper.url)
+    def dataprovider_removed(self, wrapper):
+        """
+        Remove a dataprovider from ModuleManager
+        """
+        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.uid])
+        self.dataproviders[wrapper.host_url].remove(wrapper.uid)
 
 class ClientDataProvider(DataProvider.TwoWay):
     """
@@ -150,6 +155,8 @@ class ClientDataProvider(DataProvider.TwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
+
+        print "Connecting to remote DP on %s" % self.url
 
         self.server = xmlrpclib.Server(self.url)
         self.objects = None
@@ -193,7 +200,7 @@ class ClientDataProvider(DataProvider.TwoWay):
         self.objects = None
 
     def get_UID(self):
-        return "Networked" + self.url
+        return self.uid
 
 class ClientDataproviderList(threading.Thread, gobject.GObject):
     __gsignals__ =  { 

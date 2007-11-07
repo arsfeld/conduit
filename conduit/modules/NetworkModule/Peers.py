@@ -156,7 +156,7 @@ class AvahiMonitor:
         browser = dbus.Interface(obj, avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         browser.connect_to_signal('ItemNew', self._new_service)
         browser.connect_to_signal('ItemRemove', self._remove_service)
-        browser.connect_to_signal('StateChanged',self._foo)
+        browser.connect_to_signal('StateChanged',self.foo)
 
     def foo(self, *args):
         print "===========================",args

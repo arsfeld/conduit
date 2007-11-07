@@ -26,7 +26,7 @@ class Conduit(gobject.GObject):
             gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
         "dataprovider-removed" : (
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_PYOBJECT]),    # The DataProvider that was added to this ConduitModel
+            gobject.TYPE_PYOBJECT]),    # The DataProvider that was removed from this ConduitModel
         "dataprovider-changed" : (
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT,      # The old DP
