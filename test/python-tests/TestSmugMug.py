@@ -63,7 +63,8 @@ ok ("Photo url is correct", gnomevfs.exists (gnomevfs.URI(url)))
 f = File.File("http://files.conduit-project.org/screenshot.png")
 uid = None
 try:
-    uid = smugmug.put(f, True)
+    rid = smugmug.put(f, True)
+    uid = rid.get_UID()
     ok("Upload a photo (UID:%s) " % uid, True)
 except Exception, err:
     ok("Upload a photo (%s)" % err, False)
