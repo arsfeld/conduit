@@ -120,7 +120,10 @@ class GenericDB(gobject.GObject):
 
     def _open(self):
         #Open the DB and set options
-        self.db = sqlite.connect(self.filename, detect_types=sqlite.PARSE_DECLTYPES)
+        if self.options.get("detect_types",False):
+            self.db = sqlite.connect(self.filename, detect_types=sqlite.PARSE_DECLTYPES)
+        else:
+            self.db = sqlite.connect(self.filename)
         self.db.isolation_level = self.options.get("isolation_level",None)
         if self.options.get("row_by_name",False) == True:
             self.db.row_factory = sqlite.Row
@@ -162,17 +165,16 @@ class GenericDB(gobject.GObject):
         sql = sql + "WHERE oid = %s" % oid
         return sql, values
 
-    def _build_create_sql(self, table, *fields, **fieldswithtype):
+    def _build_create_sql(self, table, fields, fieldtypes):
         #the default type is TEXT
-        if len(fieldswithtype) == 0:
-            for f in fields:
-                fieldswithtype[f] = "TEXT"
+        if len(fieldtypes) == 0:
+            fieldtypes = ('TEXT',) * len(fields)
     
         sql = "CREATE TABLE %s (oid INTEGER PRIMARY KEY AUTOINCREMENT" % table
-        for f,t in fieldswithtype.items():
-            sql = sql + ", %s %s" % (f,t)
+        for i in range(0,len(fields)):
+            sql = sql + ", %s %s" % (fields[i],fieldtypes[i])
         sql = sql + ")"
-        return sql,fieldswithtype.keys()
+        return sql
         
     def execute(self, sql, args=()):
         if GenericDB.DEBUG: print sql
@@ -187,8 +189,8 @@ class GenericDB(gobject.GObject):
         for i in self.select(sql, args):
             return i
 
-    def create(self, table, fields=(), fieldswithtype={}):
-        sql,fields = self._build_create_sql(table, *fields, **fieldswithtype)
+    def create(self, table, fields=(), fieldtypes=()):
+        sql = self._build_create_sql(table, fields, fieldtypes)
         self.execute(sql)
 
         #save the field names

@@ -6,17 +6,8 @@ import conduit.Utils as Utils
 import conduit.Database as Database
 from conduit import log,logd,logw
 
-DB_SCHEMA = {
-    "sourceUID":"TEXT",
-    "sourceDataLUID":"TEXT",
-    "sourceDataMtime":"timestamp",
-    "sourceDataHash":"TEXT",
-    "sinkUID":"TEXT",
-    "sinkDataLUID":"TEXT",
-    "sinkDataMtime":"timestamp",
-    "sinkDataHash":"TEXT"
-    }
-
+DB_FIELDS = ("sourceUID","sourceDataLUID","sourceDataMtime","sourceDataHash","sinkUID","sinkDataLUID","sinkDataMtime","sinkDataHash")
+DB_TYPES =  ("TEXT",     "TEXT",          "timestamp",      "TEXT",          "TEXT",   "TEXT",        "timestamp",    "TEXT")
 class Mapping(object):
     """
     Manages a mapping of source -> sink
@@ -85,11 +76,12 @@ class MappingDB:
             return oid[0]
             
     def _open_db(self, filename):
-        self._db = Database.ThreadSafeGenericDB(filename)
+        self._db = Database.ThreadSafeGenericDB(filename,detect_types=True)
         if "mappings" not in self._db.get_tables():
             self._db.create(
                     table="mappings",
-                    fieldswithtype=DB_SCHEMA
+                    fields=DB_FIELDS,
+                    fieldtypes=DB_TYPES
                     )
 
     def get_mapping(self, sourceUID, dataLUID, sinkUID):

@@ -114,9 +114,6 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         """
         path = self.model.get_path(rowref)
 
-        print "--------------------%s %s" % (self.model[path][TYPE_IDX],type(self.model[path][TYPE_IDX]))
-        print "--------------------%s %s" % (self.model[path][URI_IDX],type(self.model[path][URI_IDX]))
-
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             icon = _FileSourceConfigurator.FILE_ICON
         else:
