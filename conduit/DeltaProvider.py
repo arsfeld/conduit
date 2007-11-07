@@ -43,7 +43,9 @@ class DeltaProvider:
         for m in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
             rids[ m.get_sink_rid().get_UID() ] = m.get_sink_rid()
 
-        conduit.logd("Delta: Expecting %s items\n%s" % (len(rids), rids.keys()))
+        conduit.logd("Delta: Expecting %s items" % len(rids))
+        for uid,rid in rids.items():
+            print "%s) -- %s" % (uid,rid)
 
         #now classify all my items relative to the expected data from the previous
         #sync with the supplied other dataprovider. Copy (slice) the list because we

@@ -17,10 +17,15 @@ import datetime
 
 class Rid(object):
 
-    def __init__(self, uid=None, mtime=None, hash=None):
+    def __init__(self, uid=None, mtime=None, hash=""):
+        """
+        @param uid: str or None
+        @param mtime: datetime or None
+        @param hash: str
+        """
         self.uid = uid
         self.mtime = mtime
-        self.hash = hash
+        self.hash = str(hash)
 
         assert (type(uid) == str or type(uid) == unicode or uid == None), "UID must be unicode,string or None not %s" % type(uid)
         assert (type(mtime) == datetime.datetime or mtime == None), "mtime must be datatime or None not %s" % type(datetime)
