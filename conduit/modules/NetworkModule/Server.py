@@ -47,10 +47,6 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         self.rootServer.start()
 
     def list_shared_dataproviders(self):
-        #info = {}
-        #for key, dp in self.shared.iteritems():
-        #    info[key] = dp.get_info()
-        #return info
         info = []
         for key, dp in self.shared.iteritems():
             info.append(dp.get_info())

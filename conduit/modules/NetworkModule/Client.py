@@ -84,69 +84,69 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         """
         """
         # get some local refs
-        remoteUrl = response.url
-        currentSharedDps = self.dataproviders[remoteUrl]
+        hostUrl = response.url
+        currentSharedDps = self.dataproviders[hostUrl]
         remoteSharedDps = response.data_out
 
-        print "DP PROCESS.\nURL:%s\nCurrent dps:%s\nRemote dps:%s" % (remoteUrl,currentSharedDps,remoteSharedDps)
+        print "DP PROCESS.\nURL:%s\nCurrent dps:%s\nRemote dps:%s" % (hostUrl,currentSharedDps,remoteSharedDps)
 
         # loop through all dp's 
         for d in remoteSharedDps:
             #the uid is the url + the remote dp uid
-            uid = "%s-%s" % (remoteUrl,d['uid'])
-            print "REMOTE UID: %s" % uid
-            if uid not in currentSharedDps:
-                self.dataprovider_added(remoteUrl, uid, d)
+            remoteUid = "%s-%s" % (hostUrl,d['uid'])
+            print "REMOTE UID: %s" % remoteUid
+            if remoteUid not in currentSharedDps:
+                self.dataprovider_added(hostUrl, remoteUid, d)
 
-#        for uid in dps.iterkeys():
-#            if uid not in data.iterkeys():
-#                self.dataprovider_removed
+        for remoteUid in currentSharedDps:
+            if remoteUid not in ["%s-%s"%(hostUrl,d['uid']) for d in remoteSharedDps]:
+                print "_______________________________________________"
+                self.dataprovider_removed(hostUrl, remoteUid)
 
-    def dataprovider_create(self, host_url, uid, info):
+    def dataprovider_create(self, hostUrl, uid, info):
         # Each dataprovider is on its own port
-        dp_url = "%s:%s/" % (host_url, info['dp_server_port'])
+        dpUrl = "%s:%s/" % (hostUrl, info['dp_server_port'])
    
-        params = {}
-
         if info == None:
-            s = xmlrpclib.Server(dp_url)
+            s = xmlrpclib.Server(dpUrl)
             info = s.get_info()
 
+        params = {}
         for key, val in info.iteritems():
             params['_' + key + '_'] = val
 
-        params['host_url'] = host_url
-        params['url'] = dp_url
+        params['hostUrl'] = hostUrl
+        params['url'] = dpUrl
         params['uid'] = uid
     
         # Actually create a new object type based on ClientDataProvider
         # but with the properties from the remote DataProvider
-        newdp = type(dp_url, (ClientDataProvider, ), params)
+        newdp = type(dpUrl, (ClientDataProvider, ), params)
 
         return newdp
 
-    def dataprovider_added(self, host_url, uid, info):
+    def dataprovider_added(self, hostUrl, uid, info):
         """
         Enroll a dataprovider with Conduit's ModuleManager.
         """
-        newdp = self.dataprovider_create(host_url, uid, info)
+        newdp = self.dataprovider_create(hostUrl, uid, info)
 
         # Register the new dataprovider with Conduit
         key = self.emit_added(
                                   newdp, 
                                   (), #No init args, these are encoded as class params
-                                  self.categories[newdp.host_url]
+                                  self.categories[newdp.hostUrl]
                              )
 
         # Record the key so we can unregister the dp later (if needed)
-        self.dataproviders[host_url][newdp.uid] = key
+        self.dataproviders[hostUrl][newdp.uid] = key
 
-#    def dataprovider_removed(self, wrapper):
-#        """
-#        Remove a dataprovider from ModuleManager
-#        """
-#        self.emit_removed(self.dataproviders[wrapper.host_url][wrapper.uid])
-#        self.dataproviders[wrapper.host_url].remove(wrapper.uid)
+    def dataprovider_removed(self, hostUrl, uid):
+        """
+        Remove a dataprovider from ModuleManager
+        """
+        self.emit_removed(self.dataproviders[hostUrl][uid])
+        del(self.dataproviders[hostUrl][uid])
 
 class ClientDataProvider(DataProvider.TwoWay):
     """
