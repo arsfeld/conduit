@@ -151,16 +151,16 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
         SimpleXMLRPCServer.SimpleXMLRPCServer.server_bind(self)
         self.socket.settimeout(1)
         self.stop_request = False
-        
-    def get_request(self):
-        while not self.stop_request:
-            try:
-                sock, addr = self.socket.accept()
-                sock.settimeout(None)
-                return (sock, addr)
-            except socket.timeout:
-                pass
-            return (None,None)
+
+	def get_request(self):
+		while not self.stop_request:
+			try:
+				sock, addr = self.socket.accept()
+				sock.settimeout(None)
+				return (sock, addr)
+			except socket.timeout:
+				if self.stop_request:
+					raise socket.error
         
     def close_request(self, request):
         if (request is None): return

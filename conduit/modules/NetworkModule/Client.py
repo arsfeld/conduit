@@ -209,21 +209,29 @@ class ClientDataproviderList(threading.Thread, gobject.GObject):
                         gobject.TYPE_PYOBJECT])      #request,
                     }
 
+    FREQ = 5
+    SLEEP = 0.1
+
     def __init__(self, url, port):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         self.port = port
         self.url = url
         self.stopped = False
+        self._ticks = 0
 
     def stop(self):
         self.stopped = True
 
     def run(self):
         server = xmlrpclib.Server("%s:%s/" % (self.url,self.port))
-        while True:
-            print "REQUESTING"
-            self.data_out = server.list_shared_dataproviders()
-            gobject.idle_add(self.emit, "complete", self)
-            time.sleep(5)
+        #Gross cancellable spinning loop...
+        while not self.stopped:
+            while self._ticks > (self.FREQ / self.SLEEP):
+                self.data_out = server.list_shared_dataproviders()
+                gobject.idle_add(self.emit, "complete", self)
+                self._ticks = 0
+            else:
+                time.sleep(self.SLEEP)
+                self._ticks += 1
 
