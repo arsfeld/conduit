@@ -44,6 +44,7 @@ class BaseDataprovider(DataProvider.TwoWay):
         self.ctx = None
 
         for plugin in plugins.plugins:
+            print plugin.name
             if plugin.name == self._os_name_:
                 self.info = opensync.PluginInfo()
                 self.info.set_config(self._get_config())
@@ -53,6 +54,7 @@ class BaseDataprovider(DataProvider.TwoWay):
                 plugin.discover(self.data, info)
 
                 for sink in info.objtypes:
+                    print sink.name
                     if sink.name == self._os_sink_:
                         self.sink = sink
                         self.info.sink = sink
@@ -145,7 +147,7 @@ class BaseDataprovider(DataProvider.TwoWay):
         raise NotImplementedError
 
 
-class Callbacks(ContextCallbacks):
+class Callbacks(opensync.ContextCallbacks):
     """
     The OpenSync bindings call back into this function as changes are received
     from the other dataprovider. As they are received, we updated the uids dict.

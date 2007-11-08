@@ -13,9 +13,12 @@ try:
 except ImportError:
     logw("Skipping OpenSync support. Please install OpenSync bindings!")
 
+
 if SUPPORTED == True:
     import SynceAdaptor
     MODULES.update(SynceAdaptor.MODULES)
-
+    
     import EvolutionAdaptor
     MODULES.update(EvolutionAdaptor.MODULES)
+    OS_Evolution_Contact = EvolutionAdaptor.OS_Evolution_Contact
+    OS_Evolution_Event = EvolutionAdaptor.OS_Evolution_Event

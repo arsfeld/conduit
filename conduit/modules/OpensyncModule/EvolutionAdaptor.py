@@ -1,3 +1,4 @@
+import conduit
 from OpensyncBase import ContactDataprovider, EventDataprovider
 
 MODULES = {
@@ -10,6 +11,7 @@ class OS_Evolution_Contact(ContactDataprovider):
 
     _name_ = "Evolution Contacts"
     _description_ = "Sync your Evolution contacts"
+    _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _os_name_ = ""
     _os_sink_ = ""
 
@@ -26,6 +28,7 @@ class OS_Evolution_Event(EventDataprovider):
 
     _name_ = "Evolution Events"
     _description_ = "Sync your Evolution events"
+    _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _os_name_ = ""
     _os_sink_ = ""
 
