@@ -1,5 +1,8 @@
 import conduit
+import conduit.Utils as Utils
 from conduit import logw
+
+Utils.dataprovider_add_dir_to_path(__file__, "")
 
 MODULES = {}
 SUPPORTED = False
@@ -10,7 +13,7 @@ try:
 except ImportError:
     logw("Skipping OpenSync support. Please install OpenSync bindings!")
 
-if SUPPORTED:
+if SUPPORTED == True:
     import SynceAdaptor
     MODULES.update(SynceAdaptor.MODULES)
 
