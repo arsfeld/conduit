@@ -11,13 +11,11 @@ import SimpleXMLRPCServer
 import pickle
 import threading
 
-import conduit
-from conduit import log,logd,logw
-import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Utils as Utils
-import conduit.Exceptions as Exceptions
-
 import Peers
+
+import conduit
+import conduit.dataproviders.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
 
 SERVER_PORT = 3400
 

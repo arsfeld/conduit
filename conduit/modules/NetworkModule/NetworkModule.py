@@ -5,11 +5,9 @@ receiving python objects over the network.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import conduit
 import conduit.Utils as Utils
-
 Utils.dataprovider_add_dir_to_path(__file__, "")
+
 import Client
 import Server
 

@@ -4,23 +4,18 @@ Contains classes for transmitting and receiving python objects over the network.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import gobject
-
-import conduit
-from conduit import log,logd,logw
-from conduit.dataproviders import DataProvider
-from conduit.dataproviders import DataProviderCategory
-import conduit.Exceptions as Exceptions
-
-import Peers
-
-from cStringIO import StringIO
 import xmlrpclib
 import threading
 import pickle
-import socket
 import time
+import gobject
+
+import Peers
+
+import conduit
+import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.DataProviderCategory as DataProviderCategory
+import conduit.Exceptions as Exceptions
 
 class NetworkClientFactory(DataProvider.DataProviderFactory):
     """
@@ -46,7 +41,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
-        logd("Remote host '%s' detected" % host)
+        conduit.logd("Remote host '%s' detected" % host)
 
         # Path to remote data services
         url = "http://%s" % host
@@ -70,7 +65,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         """
         Callback which is triggered when a host is no longer available
         """
-        logd("Remote host '%s' removed" % url)
+        conduit.logd("Remote host '%s' removed" % url)
 
         if self.categories.has_key(url):
             self.categories.remove(url)

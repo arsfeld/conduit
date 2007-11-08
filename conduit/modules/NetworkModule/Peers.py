@@ -11,15 +11,10 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import gobject
 import avahi
 import dbus, dbus.glib
 
 import conduit
-from conduit import log,logd,logw
-from conduit.ModuleWrapper import ModuleWrapper
-import conduit.Module as Module
-import conduit.dataproviders.DataProvider as DataProvider
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
@@ -187,14 +182,14 @@ class AvahiMonitor:
         extra_info = avahi.txt_array_to_string_array(txt)
         extra = decode_avahi_text_array_to_dict(extra_info)
 
-        logd("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
+        conduit.logd("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
 
         # Check if the service is local and then check the 
         # conduit versions are identical
         if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
             self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
         else:
-            logd("Ignoring %s because remote conduit is different version" % name)
+            conduit.logd("Ignoring %s because remote conduit is different version" % name)
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
@@ -206,5 +201,5 @@ class AvahiMonitor:
         """
         Dbus callback when a service details cannot be resolved
         """
-        logw("Avahi/D-Bus error: %s" % repr(error))
+        conduit.logw("Avahi/D-Bus error: %s" % repr(error))
 
