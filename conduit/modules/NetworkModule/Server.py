@@ -42,9 +42,9 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         self.advertiser.announce()
 
         # start the server which anounces other shared servers
-        self.rootServer = StoppableXMLRPCServer('',SERVER_PORT)
-        self.rootServer.register_function(self.list_shared_dataproviders)
-        self.rootServer.start()
+        self.peerAnnouncer = _StoppableXMLRPCServer('',SERVER_PORT)
+        self.peerAnnouncer.register_function(self.list_shared_dataproviders)
+        self.peerAnnouncer.start()
 
     def list_shared_dataproviders(self):
         info = []
@@ -54,7 +54,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
 
     def quit(self):
         #stop all the xmlrpc servers
-        self.rootServer.stop()
+        self.peerAnnouncer.stop()
         for server in self.shared.values():
             server.stop()
 
@@ -104,7 +104,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         """
         Shares a conduit/dp on the network
         """
-        server = DataproviderResource(dpw, self.DP_PORT)
+        server = _DataproviderServer(dpw, self.DP_PORT)
         server.start()
         self.shared[dpw.get_UID()] = server
         self.DP_PORT += 1
@@ -119,7 +119,10 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         del self.shared[uid]
 
 class NetworkEndpoint(DataProvider.TwoWay):
-
+    """
+    Simple class used for detecting when a user connects
+    another dataprovider to this one, symbolising a network sync
+    """
     _name_ = "Network"
     _description_ = "Network your desktop"
     _category_ = conduit.dataproviders.CATEGORY_MISC
@@ -134,7 +137,7 @@ class NetworkEndpoint(DataProvider.TwoWay):
     def get_UID(self):
         return "NetworkEndpoint"
 
-class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
+class _StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
     """
     Wrapper around a SimpleXMLRpcServer that allows threaded 
     operation and cancellation
@@ -148,15 +151,15 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
         self.socket.settimeout(1)
         self.stop_request = False
 
-	def get_request(self):
-		while not self.stop_request:
-			try:
-				sock, addr = self.socket.accept()
-				sock.settimeout(None)
-				return (sock, addr)
-			except socket.timeout:
-				if self.stop_request:
-					raise socket.error
+    def get_request(self):
+        while not self.stop_request:
+            try:
+                sock, addr = self.socket.accept()
+                sock.settimeout(None)
+                return (sock, addr)
+            except socket.timeout:
+                if self.stop_request:
+                    raise socket.error
         
     def close_request(self, request):
         if (request is None): return
@@ -176,19 +179,26 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
         while not self.stop_request:
             self.handle_request()
 
-class DataproviderResource(StoppableXMLRPCServer):
+class _DataproviderServer(_StoppableXMLRPCServer):
+    """
+    Wraps a dataproviderwrapper in order to pickle args
+    and deal with exceptions in the sync process
+    """
     def __init__(self, wrapper, port):
-        StoppableXMLRPCServer.__init__(self,'',port)
+        _StoppableXMLRPCServer.__init__(self,'',port)
         self.port = port
         self.dpw = wrapper
 
         #register individual functions, not the whole object, 
-        #because we need to pickle function arguments
+        #because we need to pickle function arguments and deal with 
+        #exceptions
+        self.register_function(self.refresh)
         self.register_function(self.get_info)
         self.register_function(self.get_all)
         self.register_function(self.get)
         self.register_function(self.put)
         self.register_function(self.delete)
+        self.register_function(self.finish)
 
     def get_info(self):
         """
@@ -204,8 +214,10 @@ class DataproviderResource(StoppableXMLRPCServer):
                 "dp_server_port":   self.port                 
                 }
 
-    def get_all(self):
+    def refresh(self):
         self.dpw.module.refresh()
+
+    def get_all(self):
         return self.dpw.module.get_all()
 
     def get(self, LUID):
@@ -224,3 +236,7 @@ class DataproviderResource(StoppableXMLRPCServer):
     def delete(self, LUID):
         self.dpw.module.delete(LUID)
         return ""
+
+    def finish(self):
+        self.dpw.module.finish()
+

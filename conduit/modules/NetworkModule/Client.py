@@ -61,7 +61,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         # Request all dp's for this host. Because there is no
         # avahi signal when the text entry in a avahi publish group
         # is changed, we must poll detected peers....
-        request = ClientDataproviderList(url, port)
+        request = _PeerLister(url, port)
         request.connect("complete", self.dataprovider_process)
         request.start()
         self.peers.append(request)
@@ -86,21 +86,21 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         # get some local refs
         hostUrl = response.url
         currentSharedDps = self.dataproviders[hostUrl]
-        remoteSharedDps = response.data_out
+        #A remote dps uid is the url + the original dp uid
+        remoteSharedDps = {}
+        for dpInfo in response.data_out:
+            remoteUid = "%s-%s" % (hostUrl,dpInfo['uid'])
+            remoteSharedDps[remoteUid] = dpInfo
 
         print "DP PROCESS.\nURL:%s\nCurrent dps:%s\nRemote dps:%s" % (hostUrl,currentSharedDps,remoteSharedDps)
-
+        
         # loop through all dp's 
-        for d in remoteSharedDps:
-            #the uid is the url + the remote dp uid
-            remoteUid = "%s-%s" % (hostUrl,d['uid'])
-            print "REMOTE UID: %s" % remoteUid
+        for remoteUid,info in remoteSharedDps.items():
             if remoteUid not in currentSharedDps:
-                self.dataprovider_added(hostUrl, remoteUid, d)
+                self.dataprovider_added(hostUrl, remoteUid, info)
 
         for remoteUid in currentSharedDps:
-            if remoteUid not in ["%s-%s"%(hostUrl,d['uid']) for d in remoteSharedDps]:
-                print "_______________________________________________"
+            if remoteUid not in remoteSharedDps:
                 self.dataprovider_removed(hostUrl, remoteUid)
 
     def dataprovider_create(self, hostUrl, uid, info):
@@ -119,9 +119,9 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         params['url'] = dpUrl
         params['uid'] = uid
     
-        # Actually create a new object type based on ClientDataProvider
+        # Actually create a new object type based on _ClientDataProvider
         # but with the properties from the remote DataProvider
-        newdp = type(dpUrl, (ClientDataProvider, ), params)
+        newdp = type(dpUrl, (_ClientDataProvider, ), params)
 
         return newdp
 
@@ -148,7 +148,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         self.emit_removed(self.dataproviders[hostUrl][uid])
         del(self.dataproviders[hostUrl][uid])
 
-class ClientDataProvider(DataProvider.TwoWay):
+class _ClientDataProvider(DataProvider.TwoWay):
     """
     Provides the client portion of dataprovider proxying.
     """
@@ -202,7 +202,11 @@ class ClientDataProvider(DataProvider.TwoWay):
     def get_UID(self):
         return self.uid
 
-class ClientDataproviderList(threading.Thread, gobject.GObject):
+class _PeerLister(threading.Thread, gobject.GObject):
+    """
+    Connects to the remote dataprovider factory and queries
+    the shared dataproviders
+    """
     __gsignals__ =  { 
                     "complete": 
                         (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
