@@ -7,8 +7,19 @@ MODULES = {
 #    "OS_Evolution_Todo":     { "type": "dataprovider" },
 }
 
+class _EvolutionMixin(object):
+    ev_source = "default"
 
-class OS_Evolution_Contact(ContactDataprovider):
+    def get_configuration(self):
+        return {
+            "source" : self.ev_source
+        }
+
+    def set_configuration(self, config):
+        self.ev_source = config.get("source", self.ev_source)
+
+
+class OS_Evolution_Contact(ContactDataprovider, _EvolutionMixin):
 
     _name_ = "Evolution Contacts"
     _description_ = "Sync your Evolution contacts"
@@ -18,14 +29,14 @@ class OS_Evolution_Contact(ContactDataprovider):
 
     def _get_config(self):
         config = """<config>
-                        <address_path>default</address_path>
+                        <address_path>%s</address_path>
                         <calendar_path>default</calendar_path>
                         <tasks_path>default</tasks_path>
                     </config>"""
-        return config
+        return config % self.ev_source
 
 
-class OS_Evolution_Event(EventDataprovider):
+class OS_Evolution_Event(EventDataprovider, _EvolutionMixin):
 
     _name_ = "Evolution Events"
     _description_ = "Sync your Evolution events"
@@ -36,13 +47,13 @@ class OS_Evolution_Event(EventDataprovider):
     def _get_config(self):
         config = """<config>
                         <address_path>default</address_path>
-                        <calendar_path>default</calendar_path>
+                        <calendar_path>%s</calendar_path>
                         <tasks_path>default</tasks_path>
                     </config>"""
-        return config
+        return config % self.ev_source
 
 
-class OS_Evolution_Todo(EventDataprovider):
+class OS_Evolution_Todo(EventDataprovider, _EvolutionMixin):
 
     _name_ = "Evolution Todo"
     _description_ = "Sync your Evolution tasks"
@@ -54,6 +65,6 @@ class OS_Evolution_Todo(EventDataprovider):
         config = """<config>
                         <address_path>default</address_path>
                         <calendar_path>default</calendar_path>
-                        <tasks_path>default</tasks_path>
+                        <tasks_path>%s</tasks_path>
                     </config>"""
-        return config
+        return config % self.ev_source

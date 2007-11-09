@@ -163,6 +163,11 @@ def prep_folder_contacts(host):
 
 #@dataprovider("contact")
 #def prep_opensync_evo_contact(host):
-#    dp = host.get_dataprovider("opensync-evo2-sync-contact")
+#    dp = host.get_dataprovider("OS_Evolution_Contact")
+#    return dp
+
+#@dataprovider("event")
+#def prep_opensync_evo_event(host):
+#    dp = host.get_dataprovider("OS_Evolution_Event")
 #    return dp
 
