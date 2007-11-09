@@ -161,13 +161,15 @@ def prep_folder_contacts(host):
 #    dp.module.set_configuration( { "sourceURI": opts["conduit-test"], } )
 #    return dp
 
-#@dataprovider("contact")
-#def prep_opensync_evo_contact(host):
-#    dp = host.get_dataprovider("OS_Evolution_Contact")
-#    return dp
+@dataprovider("contact")
+def prep_opensync_evo_contact(host):
+    dp = host.get_dataprovider("OS_Evolution_Contact")
+    dp.module.set_configuration({"source": "Test"})
+    return dp
 
-#@dataprovider("event")
-#def prep_opensync_evo_event(host):
-#    dp = host.get_dataprovider("OS_Evolution_Event")
-#    return dp
+@dataprovider("event")
+def prep_opensync_evo_event(host):
+    dp = host.get_dataprovider("OS_Evolution_Event")
+    dp.module.set_configuration({"source": "Test"})
+    return dp
 

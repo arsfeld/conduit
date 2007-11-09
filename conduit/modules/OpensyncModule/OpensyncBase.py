@@ -93,6 +93,7 @@ class BaseDataprovider(DataProvider.TwoWay):
         return Rid(uid=chg.uid, hash=self._get_hash(chg))
 
     def delete(self, LUID):
+        print type(LUID)
         DataProvider.TwoWay.delete(self, LUID)
         chg = opensync.Change()
         chg.uid = LUID
@@ -114,9 +115,9 @@ class BaseDataprovider(DataProvider.TwoWay):
         if chgfrom == chgto:
             return data
 
-        formatfrom = self.formats.find_objformat(chgfrom)
-        formatto = self.formats.find_objformat(chgto)
-        converter = self.formats.find_converter(formatfrom, formatto)
+        formatfrom = formats.find_objformat(chgfrom)
+        formatto = formats.find_objformat(chgto)
+        converter = formats.find_converter(formatfrom, formatto)
         return converter.invoke(data, "")
 
     def _get_hash(self, change):
@@ -193,7 +194,7 @@ class ContactDataprovider(BaseDataprovider):
         chg = opensync.Change()
         chg.format = "vcard30"
         chg.objtype = "data"
-        format = self.formats.find_objformat("vcard30")
+        format = formats.find_objformat("vcard30")
         vcard = str(obj.get_vcard_string())
         chg.data = opensync.Data(vcard, format)
         return chg
@@ -223,7 +224,7 @@ class EventDataprovider(BaseDataprovider):
         chg = opensync.Change()
         chg.format = "vevent20"
         chg.objtype = "data"
-        format = self.formats.find_objformat("vevent20")
+        format = formats.find_objformat("vevent20")
         vcard = str(obj.get_ical_string())
         chg.data = opensync.Data(vcard, format)
         return chg
