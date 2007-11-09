@@ -50,10 +50,10 @@ class BaseDataprovider(DataProvider.TwoWay):
                 self.info.set_config(self._get_config())
                 self.info.set_format_env(formats)
 
-                self.data = plugin.initialize(info)
-                plugin.discover(self.data, info)
+                self.data = plugin.initialize(self.info)
+                plugin.discover(self.data, self.info)
 
-                for sink in info.objtypes:
+                for sink in self.info.objtypes:
                     print sink.name
                     if sink.name == self._os_sink_:
                         self.sink = sink
