@@ -29,7 +29,7 @@ class Mapping(object):
         self.sourceRid = rid
         
     def get_sink_rid(self):
-        return self.sourceRid
+        return self.sinkRid
         
     def set_sink_rid(self, rid):
         self.sinkRid = rid
