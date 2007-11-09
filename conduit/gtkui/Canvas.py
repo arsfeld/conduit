@@ -66,7 +66,7 @@ class Canvas(goocanvas.Canvas):
     CANVAS_HEIGHT = 600
     WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
 
-    def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu, conduitMenu):
+    def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu=None, conduitMenu=None):
         """
         Draws an empty canvas of the appropriate size
         """
@@ -79,7 +79,9 @@ class Canvas(goocanvas.Canvas):
         self.sync_manager = syncManager
         self.typeConverter = typeConverter
         self.parentWindow = parentWindow
-        self._setup_popup_menus(dataproviderMenu, conduitMenu)
+
+        if dataproviderMenu and conduitMenu:
+            self._setup_popup_menus(dataproviderMenu, conduitMenu)
         
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
