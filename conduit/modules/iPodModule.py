@@ -18,6 +18,7 @@ import tempfile
 import conduit
 from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.Utils as Utils
 from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
@@ -66,7 +67,7 @@ class iPodFactory(DataProvider.DataProviderFactory):
 
     def _ipod_added(self, hal, udi, mount, name):
         """ New iPod has been discovered """
-        cat = DataProvider.DataProviderCategory(
+        cat = DataProviderCategory.DataProviderCategory(
                     name,
                     "multimedia-player-ipod-video-white",
                     mount)
