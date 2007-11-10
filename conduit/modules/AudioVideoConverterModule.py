@@ -1,4 +1,6 @@
 import re
+import logging
+log = logging.getLogger("modules.AVConverter")
 
 import conduit
 import conduit.Utils as Utils
@@ -99,7 +101,7 @@ class AudioVideoConverter:
 
     def transcode_video(self, video, **kwargs):
         if not video.get_mimetype().startswith("video/"):
-            conduit.logd("File is not video type")
+            log.debug("File is not video type")
             return None
         input_file = video.get_local_uri()
         
@@ -109,7 +111,7 @@ class AudioVideoConverter:
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
-            conduit.logd("Error getting video information\n%s" % output)
+            log.debug("Error getting video information\n%s" % output)
             return None
 
         #extract the video parameters    
@@ -120,9 +122,9 @@ class AudioVideoConverter:
             ho,m,s = duration_string.split(':')
             duration = (60.0*60.0*float(ho)) + (60*float(m)) + float(s)
         except AttributeError:
-            conduit.logd("Error parsing ffmpeg output")
+            log.debug("Error parsing ffmpeg output")
             return None
-        conduit.logd("Input Video %s: size=%swx%sh, duration=%ss" % (input_file,w,h,duration))
+        log.debug("Input Video %s: size=%swx%sh, duration=%ss" % (input_file,w,h,duration))
 
         if kwargs.get('width',None) != None and kwargs.get('height',None) != None:
             kwargs['width'],kwargs['height'] = Utils.get_proportional_resize(
@@ -146,19 +148,19 @@ class AudioVideoConverter:
         ok,output = c.convert(
                         input_file,
                         output_file,
-                        callback=lambda x: conduit.logd("Trancoding video %s%% complete" % x),
+                        callback=lambda x: log.debug("Trancoding video %s%% complete" % x),
                         save_output=True
                         )
 
         if not ok:
-            conduit.logd("Error transcoding video\b%s" % output)
+            log.debug("Error transcoding video\b%s" % output)
             return None
 
         return video
         
     def transcode_audio(self, audio, **kwargs):
         if not audio.get_mimetype().startswith("audio/"):
-            conduit.logd("File is not audio type")
+            log.debug("File is not audio type")
             return None
         input_file = audio.get_local_uri()
 
@@ -168,7 +170,7 @@ class AudioVideoConverter:
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
-            conduit.logd("Error getting audio information\n%s" % output)
+            log.debug("Error getting audio information\n%s" % output)
             return None
 
         #extract the video parameters    
@@ -179,9 +181,9 @@ class AudioVideoConverter:
             h,m,s = duration_string.split(':')
             duration = (60.0*60.0*float(h)) + (60*float(m)) + float(s)
         except AttributeError:
-            conduit.logd("Error parsing ffmpeg output")
+            log.debug("Error parsing ffmpeg output")
             return None
-        conduit.logd("Input Audio %s: duration=%ss" % (input_file,duration))
+        log.debug("Input Audio %s: duration=%ss" % (input_file,duration))
         
         #create output file
         output_file = audio.to_tempfile()
@@ -194,12 +196,12 @@ class AudioVideoConverter:
         ok,output = c.convert(
                         input_file,
                         output_file,
-                        callback=lambda x: conduit.logd("Trancoding audio %s%% complete" % x),
+                        callback=lambda x: log.debug("Trancoding audio %s%% complete" % x),
                         save_output=True
                         )
 
         if not ok:
-            conduit.logd("Error transcoding audio\n%s" % output)
+            log.debug("Error transcoding audio\n%s" % output)
             return None
 
         return audio

@@ -6,9 +6,10 @@ License: GPLv2
 """
 import xml.dom.minidom
 import traceback
-
 import gobject
 from gettext import gettext as _
+import logging
+log = logging.getLogger("dataproviders.DataProvider")
 
 import conduit
 import conduit.ModuleWrapper as ModuleWrapper
@@ -66,7 +67,7 @@ class DataProviderBase(gobject.GObject):
         """
         Emits a 'change-detected' signal to the main loop.
         """
-        conduit.logd("Change detected in dataproviders data (%s)" % self.get_UID())
+        log.debug("Change detected in dataproviders data (%s)" % self.get_UID())
 
         self.set_status(STATUS_CHANGE_DETECTED)
         self.emit("change-detected")
@@ -221,7 +222,7 @@ class DataProviderBase(gobject.GObject):
         @param window: The parent window (to show a modal diaconduit.log)
         @type window: {gtk.Window}
         """
-        conduit.logd("configure() not overridden by derived class %s" % self._name_)
+        log.debug("configure() not overridden by derived class %s" % self._name_)
         self.set_configured(True)
 
     def is_configured(self):
@@ -238,7 +239,7 @@ class DataProviderBase(gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
-        conduit.logd("get_configuration() not overridden by derived class %s" % self._name_)
+        log.debug("get_configuration() not overridden by derived class %s" % self._name_)
         return {}
 
     def get_configuration_xml(self):
@@ -255,7 +256,7 @@ class DataProviderBase(gobject.GObject):
                     vtype = conduit.Settings.Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
                     value = conduit.Settings.Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
                 except KeyError:
-                    conduit.logw("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
+                    log.warn("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
                     vtype = conduit.Settings.Settings.TYPE_TO_TYPE_NAME[str]
                     value = conduit.Settings.Settings.TYPE_TO_STRING[str](configDict[config])
                 configxml.setAttribute("type", vtype)
@@ -271,15 +272,15 @@ class DataProviderBase(gobject.GObject):
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        conduit.logd("set_configuration() not overridden by derived class %s" % self._name_)
+        log.debug("set_configuration() not overridden by derived class %s" % self._name_)
         for c in config:
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods
             if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
-                conduit.logd("Setting %s to %s" % (c, config[c]))
+                log.debug("Setting %s to %s" % (c, config[c]))
                 setattr(self,c,config[c])
             else:
-                conduit.logw("Not restoring %s setting: Exists=%s Callable=%s" % (
+                log.warn("Not restoring %s setting: Exists=%s Callable=%s" % (
                     c,
                     getattr(self, c, False),
                     callable(getattr(self, c, None)))
@@ -307,18 +308,18 @@ class DataProviderBase(gobject.GObject):
                             data = conduit.Settings.Settings.STRING_TO_TYPE[vtype](raw)
                         except KeyError:
                             #fallback to string type
-                            conduit.logw("Cannot convert string (%s) to native type %s\n" % (raw, vtype, traceback.format_exc()))
+                            log.warn("Cannot convert string (%s) to native type %s\n" % (raw, vtype, traceback.format_exc()))
                             data = str(raw)
-                        conduit.logd("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
+                        log.debug("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
                         settings[s.localName] = data
 
             try:
                 self.set_configuration(settings)
             except Exception, err: 
-                conduit.logw("Error restoring %s configuration\n%s" % 
+                log.warn("Error restoring %s configuration\n%s" % 
                         (self._name_, traceback.format_exc()))
         else:
-            conduit.logd("Could not find <configuration> xml fragment")
+            log.debug("Could not find <configuration> xml fragment")
 
     def get_UID(self):
         """
@@ -501,12 +502,12 @@ class DataProviderFactory(gobject.GObject):
                     klass.__name__,     #classname
                     initargs,
                     )
-        conduit.logd("DataProviderFactory %s: Emitting dataprovider-available for %s" % (self, dpw.get_key()))
+        log.debug("DataProviderFactory %s: Emitting dataprovider-available for %s" % (self, dpw.get_key()))
         self.emit("dataprovider-available", dpw, klass)
         return dpw.get_key()
 
     def emit_removed(self, key):
-        conduit.logd("DataProviderFactory %s: Emitting dataprovider-unavailable for %s" % (self, key))
+        log.debug("DataProviderFactory %s: Emitting dataprovider-unavailable for %s" % (self, key))
         self.emit("dataprovider-unavailable", key)
 
     def probe(self):

@@ -1,9 +1,9 @@
 import gconf
 import fnmatch
+import logging
+log = logging.getLogger("modules.GConf")
 
 import conduit
-from conduit import log,logd,logw
-
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 from conduit.datatypes import DataType, Rid
@@ -97,13 +97,13 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         schema_key = "/schemas" + key 
         schema = gconf_client.get_schema(schema_key)
         if not schema:
-            logw("can't sync, no schema for key: " + key)
+            log.warn("can't sync, no schema for key: " + key)
             return
 
         # for some reason schema.get_type() appears to not exist
         dvalue = schema.get_default_value()
         if not dvalue:
-            logw("no default value for " + key + " and right now we need one to get the key type")
+            log.warn("no default value for " + key + " and right now we need one to get the key type")
             return
     
         return dvalue.type
@@ -147,12 +147,12 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         """ Get a Setting object based on UID (key path) """
         node = self.gconf.get(uid)
         if not node:
-            logd("Could not find uid %s" % uid)
+            log.debug("Could not find uid %s" % uid)
             return None
         return GConfSetting(uid, self._from_gconf(node))
 
     def put(self, setting, overwrite, uid=None):
-        logd("%s: %s" % (setting.key, setting.value))
+        log.debug("%s: %s" % (setting.key, setting.value))
         self._to_gconf(setting.key, setting.value)
         #FIXME: Use an MD5...
         return Rid(uid=setting.key, hash=setting.value)

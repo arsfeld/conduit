@@ -1,6 +1,8 @@
 import gnomevfs
 import os.path
 from gettext import gettext as _
+import logging
+log = logging.getLogger("modules.File")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider

@@ -10,6 +10,8 @@ import xmlrpclib
 import SimpleXMLRPCServer
 import pickle
 import threading
+import logging
+log = logging.getLogger("modules.Network")
 
 import Peers
 

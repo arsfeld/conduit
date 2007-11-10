@@ -12,9 +12,10 @@ import gnome.ui
 import os.path
 import gettext
 from gettext import gettext as _
+import logging
+log = logging.getLogger("gtkui.UI")
 
 import conduit
-from conduit import log,logd,logw
 from conduit.gtkui.Canvas import Canvas
 from conduit.gtkui.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.gtkui.ConflictResolver import ConflictResolver
@@ -51,7 +52,7 @@ class MainWindow:
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
-            logd("Adding %s to icon theme search path" % (i))
+            log.debug("Adding %s to icon theme search path" % (i))
 
         self.gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
         self.widgets = gtk.glade.XML(self.gladeFile, "MainWindow")
@@ -124,7 +125,6 @@ class MainWindow:
 
         #final GUI setup
         self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
-        #print "GUI POSITION - ",conduit.GLOBALS.settings.get("gui_window_size")
         self.dataproviderTreeView.expand_all()
         self.window_state = 0
 
@@ -146,7 +146,7 @@ class MainWindow:
         """
         Present the main window. Enjoy your window
         """
-        logd("Presenting GUI")
+        log.debug("Presenting GUI")
         self.mainWindow.show_all()
         self.mainWindow.present()
         
@@ -154,7 +154,7 @@ class MainWindow:
         """
         Iconifies the main window
         """
-        logd("Iconifying GUI")
+        log.debug("Iconifying GUI")
         self.mainWindow.hide()
 
     def is_visible(self):
@@ -166,10 +166,10 @@ class MainWindow:
         return (not minimized) and self.mainWindow.get_property('visible')
 
     def on_sync_started(self, thread):
-        logd("GUI got sync started")
+        log.debug("GUI got sync started")
 
     def on_sync_completed(self, thread, aborted, error, conflict):
-        logd("GUI got sync completed")
+        log.debug("GUI got sync completed")
        
     def on_dataprovider_available(self, loader, dataprovider):
         """
@@ -192,7 +192,7 @@ class MainWindow:
             if conduit.datasource is not None and len(conduit.datasinks) > 0:
                 self.sync_manager.sync_conduit(conduit)
             else:
-                log("Conduit must have a datasource and a datasink")        
+                log.info("Conduit must have a datasource and a datasink")        
 
     def on_clear_canvas(self, widget):
         """
@@ -407,7 +407,6 @@ class MainWindow:
         """
         drop cb
         """
-        #print "DND DROP = ", context.targets
         self.canvas.drag_get_data(context, context.targets[0], time)
         return True
         
@@ -435,7 +434,6 @@ class MainWindow:
         self.syncSet.save_to_xml()
 
         #GUI settings
-        #print "EXPANDED ROWS - ", self.dataproviderTreeView.get_expanded_rows()
         conduit.GLOBALS.settings.set("gui_hpane_postion", self.hpane.get_position())
         conduit.GLOBALS.settings.set("gui_window_size", self.mainWindow.get_size())
 
@@ -590,15 +588,15 @@ class StatusIcon(gtk.StatusIcon):
     def _on_sync_started(self, cond):
         self.running += 1
         gobject.timeout_add(100, self._go_to_running_state)
-        logd("Icon got sync started")
+        log.debug("Icon got sync started")
 
     def _on_sync_completed(self, cond, aborted, error, conflict):
         self.running -= 1
-        logd("Icon got sync completed %s (error: %s)" % (self.running, error))
+        log.debug("Icon got sync completed %s (error: %s)" % (self.running, error))
 
     def _on_sync_conflict(self, cond, conflict):
         self.conflict = True
-        logd("Icon got sync conflict")
+        log.debug("Icon got sync conflict")
 
     def on_synchronize(self, data):
         #sessionBus = dbus.SessionBus()

@@ -1,6 +1,8 @@
+import logging
+log = logging.getLogger("modules.OpenSync")
+
 import conduit
 import conduit.Utils as Utils
-from conduit import logw
 
 Utils.dataprovider_add_dir_to_path(__file__, "")
 
@@ -11,7 +13,7 @@ try:
     import opensync
     SUPPORTED = True
 except ImportError:
-    logw("Skipping OpenSync support. Please install OpenSync bindings!")
+    log.warn("Skipping OpenSync support. Please install OpenSync bindings!")
 
 
 if SUPPORTED == True:

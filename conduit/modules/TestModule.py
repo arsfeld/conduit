@@ -2,9 +2,10 @@ import gobject
 import random
 import datetime
 import thread
+import logging
+log = logging.getLogger("modules.Test")
 
 import conduit
-from conduit import logd
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.Image as Image
@@ -358,7 +359,7 @@ class TestVideoSink(DataProvider.DataSink):
             return {}
 
     def put(self, data, overwrite, LUID=None):
-        logd("Put Video File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
+        log.debug("Put Video File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         newData = TestDataType(data.get_UID()+self._name_)
         return newData.get_rid()
@@ -403,7 +404,7 @@ class TestAudioSink(DataProvider.DataSink):
             return {}
 
     def put(self, data, overwrite, LUID=None):
-        logd("Put Audio File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
+        log.debug("Put Audio File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         newData = TestDataType(data.get_UID()+self._name_)
         return newData.get_rid()
@@ -457,7 +458,7 @@ class TestWebSink(DataProvider.DataSink):
         return True
 
     def refresh(self):
-        print "REFRESH ----------------------------", thread.get_ident()
+        log.debug("REFRESH (thread: %s)" % thread.get_ident())
         DataProvider.DataSink.refresh(self)
         Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=self._login)
 
@@ -483,7 +484,7 @@ class TestFileSink(DataProvider.DataSink):
         DataProvider.DataSink.__init__(self)
 
     def put(self, data, overwrite, LUID=None):
-        logd("Putting file: %s" % data._get_text_uri())
+        log.debug("Putting file: %s" % data._get_text_uri())
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         newData = TestDataType(data.get_UID()+self._name_)
         return newData.get_rid()
@@ -661,7 +662,7 @@ class TestConverter:
                 "test_type,text"        : self.convert_to_text,}
                             
     def transcode(self, test, **kwargs):
-        logd("TEST CONVERTER: Transcode %s (args: %s)" % (test, kwargs))
+        log.debug("TEST CONVERTER: Transcode %s (args: %s)" % (test, kwargs))
         return test
 
     def convert_to_test(self, text, **kwargs):

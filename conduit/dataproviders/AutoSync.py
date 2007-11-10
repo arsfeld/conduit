@@ -1,4 +1,6 @@
 import gobject
+import logging
+log = logging.getLogger("dataproviders.AutoSync")
 
 class AutoSync(object):
 
@@ -48,7 +50,7 @@ class AutoSync(object):
     def _handle_sync(self):
         self._timeout_id = 0
         self.emit_change_detected()
-        print self._get_changes()
+        log.debug(self._get_changes())
 
     def _get_changes(self):
         return self.as_added, self.as_modified, self.as_deleted

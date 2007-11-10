@@ -1,10 +1,13 @@
-import os, os.path
+import os
+import os.path
+import logging
+log = logging.getLogger("MappingDB")
+
 
 import conduit
 import conduit.datatypes
 import conduit.Utils as Utils
 import conduit.Database as Database
-from conduit import log,logd,logw
 
 DB_FIELDS = ("sourceUID","sourceDataLUID","sourceDataMtime","sourceDataHash","sinkUID","sinkDataLUID","sinkDataMtime","sinkDataHash")
 DB_TYPES =  ("TEXT",     "TEXT",          "timestamp",      "TEXT",          "TEXT",   "TEXT",        "timestamp",    "TEXT")
@@ -171,10 +174,10 @@ class MappingDB:
             elif dataLUID == sinkDataLUID:
                 return sourceDataLUID
             else:
-                logw("Mapping Error")
+                log.warn("Mapping Error")
                 return None
         else:
-            logd("No mapping found for LUID: %s (source: %s, sink %s)" % (dataLUID, sourceUID, sinkUID))
+            log.debug("No mapping found for LUID: %s (source: %s, sink %s)" % (dataLUID, sourceUID, sinkUID))
             return None
         
     def delete_mapping(self, mapping):
@@ -183,7 +186,7 @@ class MappingDB:
         that involve dataLUID
         """
         if mapping.oid == None:
-            logw("Could not delete mapping ")
+            log.warn("Could not delete mapping ")
         self._db.delete(table="mappings",oid=mapping.oid)
 
     def save(self):

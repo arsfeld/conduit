@@ -1,5 +1,7 @@
 import os
 import gobject
+import logging
+log = logging.getLogger("modules.Fspot")
 
 try:
     #python 2.4
@@ -9,7 +11,6 @@ except ImportError:
     from sqlite3 import dbapi2 as sqlite
 
 import conduit
-from conduit import logd
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
@@ -114,7 +115,7 @@ class FspotSource(DataProvider.DataSource):
             elif not checked and val in self.enabledTags:
                 self.enabledTags.remove(val)
 
-            logd("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
+            log.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
             return
 
         tree = Utils.dataprovider_glade_get_widget(

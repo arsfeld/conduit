@@ -9,6 +9,8 @@ import os.path
 import dbus
 import dbus.service
 import dbus.glib
+import logging
+log = logging.getLogger("DBus")
 
 import conduit
 import conduit.Utils as Utils
@@ -119,13 +121,13 @@ class DBusItem(dbus.service.Object):
         bus_name = dbus.service.BusName(iface, bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, path)
         
-        conduit.logd("DBus Exported: %s" % self.get_path())
+        log.debug("DBus Exported: %s" % self.get_path())
 
     def get_path(self):
         return self.__dbus_object_path__
 
     def _print(self, message):
-        conduit.logd("DBus Message from %s: %s" % (self.get_path(), message))
+        log.debug("DBus Message from %s: %s" % (self.get_path(), message))
 
 class ConduitDBusItem(DBusItem):
     def __init__(self, sync_manager, conduit, uuid):

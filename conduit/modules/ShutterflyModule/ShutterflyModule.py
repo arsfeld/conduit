@@ -1,8 +1,10 @@
 """
 Shutterfly Data Sink
 """
+import logging
+log = logging.getLogger("modules.Shutterfly")
+
 import conduit
-from conduit import log, logd, logw
 import conduit.Utils as Utils
 from conduit.datatypes import Rid
 import conduit.dataproviders.Image as Image
@@ -63,7 +65,7 @@ class ShutterflySink(Image.ImageSink):
 		Delete a photo by ID
 		"""
 		if not self.sphotos.has_key(LUID):
-			logw("Photo does not exist")
+			log.warn("Photo does not exist")
 			return
 		
 		# Need to figure out how to delete a photo (javascript hell)

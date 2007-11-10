@@ -12,6 +12,9 @@ iteself.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import logging
+log = logging.getLogger("DeltaProvider")
+
 import conduit
 
 class DeltaProvider:
@@ -19,7 +22,7 @@ class DeltaProvider:
         self.me = dpw
         self.other = otherdpw
 
-        conduit.log("Delta: Source (%s) does not implement get_changes(). Proxying..." % self.me.get_UID())
+        log.info("Delta: Source (%s) does not implement get_changes(). Proxying..." % self.me.get_UID())
 
     def get_changes(self):
         """
@@ -33,7 +36,7 @@ class DeltaProvider:
             assert type(i) == str, "LUID Must be str"
             allItems.append(i)
 
-        conduit.logd("Delta: Got %s items\n%s" % (len(allItems), allItems))
+        log.debug("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
         #we also get the rids because we need those to detect if something has changed
@@ -43,9 +46,9 @@ class DeltaProvider:
         for m in conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(self.other.get_UID(), self.me.get_UID()):
             rids[ m.get_sink_rid().get_UID() ] = m.get_sink_rid()
 
-        conduit.logd("Delta: Expecting %s items" % len(rids))
+        log.debug("Delta: Expecting %s items" % len(rids))
         for uid,rid in rids.items():
-            print "%s) -- %s" % (uid,rid)
+            log.debug("%s) -- %s" % (uid,rid))
 
         #now classify all my items relative to the expected data from the previous
         #sync with the supplied other dataprovider. Copy (slice) the list because we
@@ -55,7 +58,7 @@ class DeltaProvider:
             if i in rids:
                 data = self.me.module.get(i)
                 if data.get_rid() != rids[i]:
-                    print "Modified: Actual:%s v DB:%s" % (data.get_rid(), rids[i])
+                    log.debug("Modified: Actual:%s v DB:%s" % (data.get_rid(), rids[i]))
                     modified.append(i)
                 del(rids[i])
                 allItems.remove(i)

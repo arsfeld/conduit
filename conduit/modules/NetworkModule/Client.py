@@ -9,6 +9,8 @@ import threading
 import pickle
 import time
 import gobject
+import logging
+log = logging.getLogger("modules.Network")
 
 import Peers
 
@@ -41,7 +43,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
-        conduit.logd("Remote host '%s' detected" % host)
+        log.debug("Remote host '%s' detected" % host)
 
         # Path to remote data services
         url = "http://%s" % host
@@ -65,7 +67,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         """
         Callback which is triggered when a host is no longer available
         """
-        conduit.logd("Remote host '%s' removed" % url)
+        log.debug("Remote host '%s' removed" % url)
 
         if self.categories.has_key(url):
             self.categories.remove(url)
@@ -87,7 +89,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
             remoteUid = "%s-%s" % (hostUrl,dpInfo['uid'])
             remoteSharedDps[remoteUid] = dpInfo
 
-        print "DP PROCESS.\nURL:%s\nCurrent dps:%s\nRemote dps:%s" % (hostUrl,currentSharedDps,remoteSharedDps)
+        log.debug("DP PROCESS.\tURL:%s\tCurrent dps:%s\tRemote dps:%s" % (hostUrl,currentSharedDps,remoteSharedDps))
         
         # loop through all dp's 
         for remoteUid,info in remoteSharedDps.items():
@@ -150,9 +152,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-
-        print "Connecting to remote DP on %s" % self.url
-
+        log.info("Connecting to remote DP on %s" % self.url)
         self.server = xmlrpclib.Server(self.url)
         self.objects = None
 

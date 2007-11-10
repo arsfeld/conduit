@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger("modules.PhotoConverter")
+
 import conduit
 import conduit.Utils as Utils
 import conduit.datatypes.File as File
@@ -46,20 +49,20 @@ class PixbufPhotoConverter:
 
         if doResize:
             try:
-                conduit.logd("Photo: Scaling to %sx%s" % (width,height))
+                log.debug("Photo: Scaling to %sx%s" % (width,height))
                 pb = pb.scale_simple(width,height,gtk.gdk.INTERP_HYPER)
             except Exception, err:
-                conduit.logd("Photo: Error scaling photo\n%s" % err)
+                log.debug("Photo: Error scaling photo\n%s" % err)
         
         #save to new format. gdk.Pixbuf needs the type argument
         if doResize or doReformat:
-            conduit.logd("Photo: Saving photo:%s Format:%s" % (out_file,format))
+            log.debug("Photo: Saving photo:%s Format:%s" % (out_file,format))
             pb.save(out_file, format)
             #can safely rename the file here because its defintately a tempfile
             photo.force_new_file_extension(".%s" % format)
 
     def transcode(self, photo, **kwargs):
-        conduit.log("Transcode Photo: %s" % kwargs)
+        log.info("Transcode Photo: %s" % kwargs)
         
         #default format is the current format, and default is no resize
         formats = kwargs.get("formats",photo.get_mimetype()).split(',')

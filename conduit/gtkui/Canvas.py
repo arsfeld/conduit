@@ -11,8 +11,9 @@ import goocanvas
 import gtk
 import pango
 from gettext import gettext as _
+import logging
+log = logging.getLogger("gtkui.Canvas")
 
-from conduit import log,logd,logw
 from conduit.Conduit import Conduit
 from conduit.gtkui.Tree import DND_TARGETS
 
@@ -247,7 +248,7 @@ class Canvas(goocanvas.Canvas):
                 if idx != -1:
                     self.root.remove_child(idx)
                 else:
-                    logw("Error finding item")
+                    log.warn("Error finding item")
         self._remove_overlap()
         self._show_welcome_message()
 
@@ -327,7 +328,7 @@ class Canvas(goocanvas.Canvas):
                 for i in xrange(0, len(items)):
                     try:
                         overlap = items[i].get_bottom() - items[i+1].get_top()
-                        print "Overlap: %s %s ----> %s" % (overlap,i,i+1)
+                        log.debug("Overlap: %s %s ----> %s" % (overlap,i,i+1))
                         if overlap != 0.0:
                             #translate all those below
                             for item in items[i+1:]:
@@ -412,7 +413,7 @@ class Canvas(goocanvas.Canvas):
         Calls the configure method on the selected dataprovider
         """
         dp = self.selectedDataproviderItem.model.module
-        log("Configuring %s" % dp)
+        log.info("Configuring %s" % dp)
         #May block
         dp.configure(self.parentWindow)
 
@@ -459,7 +460,6 @@ class Canvas(goocanvas.Canvas):
         c_x,c_y,c_w,c_h = self.get_bounds()
 
         #if the user dropped on the right half of the canvas try add into the sink position
-        print x,c_x,c_w
         if x < (c_w/2):
             trySourceFirst = True
         else:
@@ -564,7 +564,7 @@ class DataProviderCanvasItem(_CanvasItem):
             elif self.model.module_type == "twoway":
                 return DataProviderCanvasItem.TWOWAY_FILL_COLOR
             else:
-                logw("Unknown module type: Cannot get fill color")
+                log.warn("Unknown module type: Cannot get fill color")
 
     def _update_appearance(self):
         #the image
@@ -627,7 +627,7 @@ class DataProviderCanvasItem(_CanvasItem):
         self.add_child(self.statusText) 
 
     def _on_change_detected(self, dataprovider):
-        print "CHANGE DETECTED"
+        log.debug("CHANGE DETECTED")
 
     def _on_status_changed(self, dataprovider):
         msg = dataprovider.get_status_text()
@@ -748,7 +748,7 @@ class ConduitCanvasItem(_CanvasItem):
             if idx != -1:
                 self.remove_child(idx)
             else:
-                logw("Could not find child connector item")
+                log.warn("Could not find child connector item")
             
             del(self.connectorItems[item])
         except KeyError: pass
@@ -793,7 +793,7 @@ class ConduitCanvasItem(_CanvasItem):
                 for i in xrange(0, len(items)):
                     try:
                         overlap = items[i].get_bottom() - items[i+1].get_top()
-                        print "Sink Overlap: %s %s ----> %s" % (overlap,i,i+1)
+                        log.debug("Sink Overlap: %s %s ----> %s" % (overlap,i,i+1))
                         #If there is anything more than the normal padding gap between then
                         #the dp must be translated
                         if overlap < -SIDE_PADDING:
@@ -858,7 +858,7 @@ class ConduitCanvasItem(_CanvasItem):
         if idx != -1:
             self.remove_child(idx)
         else:
-            logw("Could not find child dataprovider item")
+            log.warn("Could not find child dataprovider item")
 
         if item == self.sourceItem:
             self.sourceItem = None
@@ -888,7 +888,6 @@ class ConduitCanvasItem(_CanvasItem):
             desired = w - d.get_width() - SIDE_PADDING
             actual = d.get_left()
             change = desired-actual
-            #print "%s v %s" % (desired-actual,w - self.get_width())
             #move righthand dp
             d.translate(change, 0)
             #resize arrow (if exists)

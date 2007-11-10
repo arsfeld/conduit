@@ -7,6 +7,8 @@ License: GPLv2
 """
 import os
 import os.path
+import logging
+log = logging.getLogger("modules.N800")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider

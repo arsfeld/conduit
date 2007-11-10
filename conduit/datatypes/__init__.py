@@ -14,6 +14,8 @@ COMPARISON_UNEQUAL = 3
 COMPARISON_UNKNOWN = 4
 
 import datetime
+import logging
+log = logging.getLogger("datatypes.Rid")
 
 class Rid(object):
 
@@ -31,13 +33,13 @@ class Rid(object):
         assert (type(mtime) == datetime.datetime or mtime == None), "mtime must be datatime or None not %s" % type(datetime)
 
     def __eq__(self, other):
-        print "EQ: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash)
-        print "EQ Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash))
+        log.debug("EQ: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash))
+        log.debug("EQ Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash)))
         return self.uid == other.uid and self.mtime == other.mtime and self.hash == other.hash
         
     def __ne__(self, other):
-        print "NE: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash)
-        print "NE Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash))
+        log.debug("NE: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash))
+        log.debug("NE Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash)))
         return self.uid != other.uid or self.mtime != other.mtime or self.hash != other.hash
 
     def __hash__(self):

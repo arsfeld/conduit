@@ -1,8 +1,9 @@
 import os.path
 import gnomevfs
+import logging
+log = logging.getLogger("dataproviders.File")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 from conduit.datatypes import Rid
 import conduit.datatypes as DataType
@@ -95,17 +96,17 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         if f.exists():
             oid = self.db.select_one("SELECT oid FROM files WHERE URI = ?", (LUID,))
             if oid != None:
-                    logd("Could not add (already added): %s" % LUID)
+                    log.debug("Could not add (already added): %s" % LUID)
                     return False
 
             if f.is_directory():
-                logd("Adding folder: %s" % LUID)
+                log.debug("Adding folder: %s" % LUID)
                 self._add_folder(LUID,"FIXME")
             else:
-                logd("Adding file: %s" % LUID)
+                log.debug("Adding file: %s" % LUID)
                 self._add_file(LUID)
         else:
-            logw("Could not add: %s" % LUID)
+            log.warn("Could not add: %s" % LUID)
             return False
         return True
 
@@ -130,7 +131,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
                     )
 
     def _on_scan_folder_completed(self, folderScanner, oid, groupname):
-        logd("Folder scan complete %s" % folderScanner)
+        log.debug("Folder scan complete %s" % folderScanner)
         #Update scan status
         self.db.update(
                     table="config",
@@ -204,16 +205,16 @@ class FolderTwoWay(DataProvider.TwoWay):
             #came from another type of dataprovider such as tomboy
             #where relative path makes no sense. Could also come from
             #the FileSource dp when the user has selected a single file
-            logd("FolderTwoWay: No basepath. Going to empty dir")
+            log.debug("FolderTwoWay: No basepath. Going to empty dir")
             newURI = self.folder+os.sep+vfsFile.get_filename()
         else:
             #Look for corresponding groups
             if self.folderGroupName == vfsFile.group:
-                logd("FolderTwoWay: Found corresponding group")
+                log.debug("FolderTwoWay: Found corresponding group")
                 #put in the folder
                 newURI = self.folder+vfsFile.relpath
             else:
-                logd("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
+                log.debug("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
                 #unknown. Store in the dir but recreate the group
                 newURI = self.folder+os.sep+os.path.join(vfsFile.group+vfsFile.relpath)
 

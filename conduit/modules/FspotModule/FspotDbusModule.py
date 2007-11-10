@@ -1,9 +1,10 @@
 import os
 import gobject
 import dbus
+import logging
+log = logging.getLogger("modules.Fspot")
 
 import conduit
-from conduit import logd
 import conduit.Utils as Utils
 import conduit.Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
@@ -177,7 +178,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             elif not checked and val in self.enabledTags:
                 self.enabledTags.remove(val)
 
-            logd("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
+            log.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
             return
 
         tree = Utils.dataprovider_glade_get_widget(

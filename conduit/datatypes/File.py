@@ -3,9 +3,10 @@ import tempfile
 import datetime
 import traceback
 import gnomevfs
+import logging
+log = logging.getLogger("datatypes.File")
 
 import conduit
-from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 class File(DataType.DataType):
@@ -46,17 +47,17 @@ class File(DataType.DataType):
             self.fileExists = gnomevfs.exists(self.URI)
 
     def _close_file(self):
-        logd("Closing file")
+        log.debug("Closing file")
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False
 
         #check to see if we have applied the rename/mtimes yet
         if self.get_filename() == self._newFilename:
-            logd("Clearing pending rename")
+            log.debug("Clearing pending rename")
             self._newFilename = None
         if self.get_mtime() == self._newMtime:
-            logd("Clearing pending mtime")
+            log.debug("Clearing pending mtime")
             self._newMtime = None
 
     def _xfer_check_global_cancel_flag(self):
@@ -66,10 +67,10 @@ class File(DataType.DataType):
         #check if cancelled
         try:
             if cancel_func():
-                log("Transfer of %s -> %s cancelled" % (info.source_name, info.target_name))
+                log.info("Transfer of %s -> %s cancelled" % (info.source_name, info.target_name))
                 return 0
         except Exception, ex:
-            logw("Could not call gnomevfs cancel function")
+            log.warn("Could not call gnomevfs cancel function")
             return 0
         return True
 
@@ -93,7 +94,7 @@ class File(DataType.DataType):
             if self.exists() == True:
                 self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
-                logw("Cannot get info on non-existant file %s" % self.URI)
+                log.warn("Cannot get info on non-existant file %s" % self.URI)
 
     def _make_directory_and_parents(self, directory):
         """
@@ -112,7 +113,7 @@ class File(DataType.DataType):
 
         dirs.reverse()
         for d in dirs:
-            logd("Making directory %s" % d)
+            log.debug("Making directory %s" % d)
             gnomevfs.make_directory(
                 d,
                 gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
@@ -123,7 +124,7 @@ class File(DataType.DataType):
         In the event that the file is on a read-only volume this call defers the 
         file rename till after the transfer proces
         """
-        logd("Defering rename till transfer (New name: %s)" % filename)
+        log.debug("Defering rename till transfer (New name: %s)" % filename)
         self._newFilename = filename
         
     def _is_deferred_rename(self):
@@ -134,7 +135,7 @@ class File(DataType.DataType):
         In the event that the file is on a read-only volume this call defers the 
         file mtime modification till after the transfer proces
         """
-        logd("Defering new mtime till transfer (New mtime: %s)" % mtime)
+        log.debug("Defering new mtime till transfer (New mtime: %s)" % mtime)
         self._newMtime = mtime
         
     def _is_deferred_new_mtime(self):
@@ -171,7 +172,7 @@ class File(DataType.DataType):
         """
         #Get a temporary file name
         tempname = tempfile.mkstemp(prefix="conduit")[1]
-        logd("Tempfile %s -> %s" % (self.URI, tempname))
+        log.debug("Tempfile %s -> %s" % (self.URI, tempname))
         filename = self.get_filename()
         mtime = self.get_mtime()
         self.transfer(
@@ -217,7 +218,7 @@ class File(DataType.DataType):
                 olduri = self._get_text_uri()
                 newuri = olduri.replace(oldname, filename)
 
-                logd("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
+                log.debug("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
                 gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
 
                 #close so the file info is re-read
@@ -251,7 +252,7 @@ class File(DataType.DataType):
         else:
             try:
                 timestamp = conduit.Utils.datetime_get_timestamp(mtime)
-                logd("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
+                log.debug("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
                 newInfo = gnomevfs.FileInfo()
                 newInfo.mtime = timestamp
                 gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
@@ -289,7 +290,7 @@ class File(DataType.DataType):
                 if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
                     #append the new filename
                     newURI = newURI.append_file_name(self._newFilename)
-                    logd("Using deferred filename in transfer")
+                    log.debug("Using deferred filename in transfer")
         else:
             newURI = gnomevfs.URI(newURIString)
             
@@ -298,7 +299,7 @@ class File(DataType.DataType):
         else:
             mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
         
-        logd("Transfering File %s -> %s" % (self.URI, newURI))
+        log.debug("Transfering File %s -> %s" % (self.URI, newURI))
 
         #recursively create all parent dirs if needed
         parent = newURI.parent
@@ -329,7 +330,7 @@ class File(DataType.DataType):
     def delete(self):
         #close the file and the handle so that the file info is refreshed
         self._close_file()
-        logd("Deleting %s" % self.URI)
+        log.debug("Deleting %s" % self.URI)
         result = gnomevfs.unlink(self.URI)
 
     def get_mimetype(self):
@@ -365,7 +366,7 @@ class File(DataType.DataType):
             try:
                 self.force_new_mtime(mtime)
             except Exception, err:
-                logw("Error setting mtime of %s. \n%s" % (self.URI, traceback.format_exc()))
+                log.warn("Error setting mtime of %s. \n%s" % (self.URI, traceback.format_exc()))
     
     def get_size(self):
         """
@@ -434,7 +435,7 @@ class File(DataType.DataType):
         if sizeOnly:
             meSize = self.get_size()
             bSize = B.get_size()
-            logd("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (self.URI, meSize, B.URI, bSize))
+            log.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (self.URI, meSize, B.URI, bSize))
             if meSize == None or bSize == None:
                 return conduit.datatypes.COMPARISON_UNKNOWN
             elif meSize == bSize:
@@ -445,7 +446,7 @@ class File(DataType.DataType):
         #Else look at the modification times
         meTime = self.get_mtime()
         bTime = B.get_mtime()
-        logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.URI, meTime, B.URI, bTime))
+        log.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.URI, meTime, B.URI, bTime))
         if meTime is None:
             return conduit.datatypes.COMPARISON_UNKNOWN
         if bTime is None:            
@@ -461,7 +462,7 @@ class File(DataType.DataType):
         elif meTime == bTime:
             meSize = self.get_size()
             bSize = B.get_size()
-            #logd("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, meSize, B.URI, bSize))
+            #log.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, meSize, B.URI, bSize))
             #If the times are equal, and the sizes are equal then assume
             #that they are the same.
             if meSize == None or bSize == None:
@@ -471,11 +472,11 @@ class File(DataType.DataType):
                 return conduit.datatypes.COMPARISON_EQUAL
             else:
                 #shouldnt get here
-                logw("Error comparing file sizes")
+                log.warn("Error comparing file sizes")
                 return conduit.datatypes.COMPARISON_UNKNOWN
                 
         else:
-            logw("Error comparing file modification times")
+            log.warn("Error comparing file modification times")
             return conduit.datatypes.COMPARISON_UNKNOWN
 
     def __getstate__(self):
@@ -510,5 +511,5 @@ class TempFile(File):
         os.write(fd, contents)
         os.close(fd)
         File.__init__(self, name)
-        logd("New tempfile created at %s" % name)
+        log.debug("New tempfile created at %s" % name)
 

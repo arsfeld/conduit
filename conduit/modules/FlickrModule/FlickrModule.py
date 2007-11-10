@@ -4,9 +4,10 @@ Flickr Uploader.
 import os, sys
 import traceback
 import md5
+import logging
+log = logging.getLogger("modules.Flickr")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.Image as Image
@@ -53,7 +54,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
                                 auth_token=self.token
                                 )
         if self.fapi.getRspErrorCode(ret) != 0:
-            logd("Flickr people_getUploadStatus Error: %s" % self.fapi.getPrintableError(ret))
+            log.debug("Flickr people_getUploadStatus Error: %s" % self.fapi.getPrintableError(ret))
             return -1,-1
         else:
             totalkb = ret.user[0].bandwidth[0]["maxkb"]
@@ -68,7 +69,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
                                     )
 
         if self.fapi.getRspErrorCode(info) != 0:
-            logd("Flickr photos_getInfo Error: %s" % self.fapi.getPrintableError(info))
+            log.debug("Flickr photos_getInfo Error: %s" % self.fapi.getPrintableError(info))
             return None
         else:
             return info
@@ -236,11 +237,11 @@ class FlickrTwoWay(Image.ImageTwoWay):
                             photo_id=LUID
                             )
             if self.fapi.getRspErrorCode(ret) != 0:
-                logw("Flickr Error Deleting: %s" % self.fapi.getPrintableError(ret))
+                log.warn("Flickr Error Deleting: %s" % self.fapi.getPrintableError(ret))
             else:
-                logd("Successfully deleted photo [%s]" % LUID)
+                log.debug("Successfully deleted photo [%s]" % LUID)
         else:
-            logw("Photo doesnt exist")
+            log.warn("Photo doesnt exist")
 
     def configure(self, window):
         """

@@ -2,9 +2,10 @@ import gobject
 import datetime
 import dateutil.parser
 from dateutil.tz import tzutc, tzlocal
+import logging
+log = logging.getLogger("modules.Google")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
@@ -23,7 +24,7 @@ try:
 except ImportError:
     MODULES = {
     }
-    logw("Skipping GoogleCalendarTwoWay - GDATA is not available")
+    log.warn("Skipping GoogleCalendarTwoWay - GDATA is not available")
 
 class GoogleConnection(object):
     def __init__(self):
@@ -139,7 +140,7 @@ def ConvertMadnessToDateTime(inputDate):
         elif dateTZInfo is not None:
             return dateDateTime.replace(tzinfo=dateTZInfo)
         else:
-            logw('Waring, assuming datetime ('+dateDateTime.isoformat()+') is UTC')
+            log.warn('Waring, assuming datetime ('+dateDateTime.isoformat()+') is UTC')
             return dateDateTime.replace(tzinfo=tzutc())
                 
     raise TypeError('Unable to convert to datetime')
@@ -188,7 +189,7 @@ class GoogleEvent(object):
 
     def FromICalFormat(cls, iCalString):
         args = dict()
-        logd('Importing from iCal Event :\n'+iCalString)
+        log.debug('Importing from iCal Event :\n'+iCalString)
         iCal = vobject.readOne(iCalString)
         iCalEvent = iCal.vevent
         if 'vtimezone' in iCal.contents:
@@ -214,7 +215,7 @@ class GoogleEvent(object):
 
     def FromGoogleFormat(cls, googleEvent):
         args = dict()
-        logd('Importing from Google Event :\n'+str(googleEvent))
+        log.debug('Importing from Google Event :\n'+str(googleEvent))
         if googleEvent.id.text is not None:
             args['uid'] = googleEvent.id.text.split('/')[-1] + "@google.com"
         if googleEvent.title.text is not None:    
@@ -294,7 +295,7 @@ class GoogleEvent(object):
             eventTimes.start_time = self.startTime.isoformat()
             eventTimes.end_time = self.endTime.isoformat()
             googleEvent.when.append(eventTimes)
-        logd("Created Google Format :\n"+str(googleEvent))
+        log.debug("Created Google Format :\n"+str(googleEvent))
         return googleEvent
 
     def GetICalFormat(self):
@@ -323,7 +324,7 @@ class GoogleEvent(object):
         if self.endTime is not None:
             iCalEvent.add('dtend').value = self.endTime
         returnStr = iCalEvent.serialize()
-        logd("Created ICal Format :\n"+returnStr)
+        log.debug("Created ICal Format :\n"+returnStr)
         return returnStr
 
     
@@ -471,7 +472,7 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
                         return rid
 
         # if we get here then it is new...
-        log("Creating new object")
+        log.info("Creating new object")
         rid = self._createEvent(obj)
         return rid
         

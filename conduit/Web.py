@@ -7,14 +7,15 @@ import gobject
 import webbrowser
 import time
 import thread
+import logging
+log = logging.getLogger("Web")
 
 import conduit
-from conduit import logd
 
 def open_url(url):
-    logd("Opening %s" % url)
+    log.debug("Opening %s" % url)
     webbrowser.open(url,new=1,autoraise=True)
-    logd("Opened %s" % url)
+    log.debug("Opened %s" % url)
 
 def get_profile_subdir(subdir):
     """
@@ -58,7 +59,6 @@ class _WebBrowser(gobject.GObject):
         Override the gobject signal emission so that signals
         can be emitted from the main loop on an idle handler
         """
-        print "------EMITTING: %s" % args[0]
         if self.emitOnIdle == True:
             gobject.idle_add(gobject.GObject.emit,self,*args)
         else:
@@ -136,7 +136,7 @@ class _MozEmbedWebBrowser(_WebBrowser):
         self.emit("loading_finished")
 
     def __del__(self):
-        print "---------IF WEIRD THINGS HAPPEN ITS BECAUSE I WAS GC'd TO EARLY-------------------------"
+        log.warn("IF WEIRD THINGS HAPPEN ITS BECAUSE I WAS GC'd TO EARLY")
 
 class _SystemLogin(object):
     def __init__ (self):
@@ -147,7 +147,7 @@ class _SystemLogin(object):
         self.timeout = kwargs.get("timeout",30)
     
         #use the system web browerser to open the url
-        logd("System Login for %s" % name)
+        log.debug("System Login for %s" % name)
         open_url(url)
 
         start_time = time.time()
@@ -156,7 +156,7 @@ class _SystemLogin(object):
                 if self.testFunc():
                     return
             except Exception, e:
-                logd("testFunc threw an error: %s" % e)
+                log.debug("testFunc threw an error: %s" % e)
                 pass
 
             time.sleep(2)
@@ -195,10 +195,10 @@ class _ConduitLoginSingleton(object):
         return browser
 
     def _on_open_uri(self, *args):
-        print "LINK CLICKED ----------------------------", thread.get_ident()
+        log.debug("LINK CLICKED (thread: %s)" % thread.get_ident())
 
     def _delete_page(self, url):
-        print "DELETE PAGE ----------------------------", thread.get_ident()
+        log.debug("DELETE PAGE (thread: %s)" % thread.get_ident())
         #get the original objects
         browser = self.pages[url]
         browserWidget = browser.widget()
@@ -216,7 +216,7 @@ class _ConduitLoginSingleton(object):
         self.finished[url] = True
 
     def _create_page(self, name, url, browserName):
-        print "CREATE PAGE ----------------------------", thread.get_ident(), url
+        log.debug("CREATE PAGE: %s (thread: %s)" % (url,thread.get_ident()))
         if url in self.pages:
             return False
 
@@ -264,7 +264,7 @@ class _ConduitLoginSingleton(object):
         return False
 
     def _raise_page(self, url):
-        print "RAISE PAGE ----------------------------", thread.get_ident()
+        log.debug("RAISE PAGE (thread: %s)" % thread.get_ident())
         self.window.show_all()
 
         #get the original objects
@@ -280,7 +280,7 @@ class _ConduitLoginSingleton(object):
         return False
 
     def wait_for_login(self, name, url, **kwargs):
-        print "LOGIN ----------------------------", thread.get_ident()
+        log.debug("LOGIN (thread: %s)" % thread.get_ident())
     
         if url in self.pages:
             gobject.idle_add(self._raise_page, url)
@@ -294,7 +294,7 @@ class _ConduitLoginSingleton(object):
             #and gtk.main needs to iterate
             time.sleep(0.1)
 
-        print "FINISHED LOGIN ----------------------------", thread.get_ident()
+        log.debug("FINISHED LOGIN (thread: %s)" % thread.get_ident())
 
         #call the test function
         testFunc = kwargs.get("login_function",None)

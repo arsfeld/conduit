@@ -2,9 +2,10 @@
 import gtk
 import hildon
 import os
+import logging
+log = logging.getLogger("hildonui.UI")
 
 import conduit
-from conduit import log,logd,logw
 from conduit.hildonui.List import DataProviderBox
 from conduit.gtkui.Canvas import Canvas
 
@@ -32,7 +33,7 @@ class MainWindow(hildon.Program):
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
-            logd("Adding %s to icon theme search path" % (i))
+            log.debug("Adding %s to icon theme search path" % (i))
  
         self.mainWindow = hildon.Window()
         self.mainWindow.set_title (conduit.APPNAME)
@@ -80,7 +81,7 @@ class MainWindow(hildon.Program):
         """
         Iconifies the main window
         """
-        logd("Iconifying GUI")
+        log.debug("Iconifying GUI")
         self.mainWindow.hide()
 
     def is_visible(self):
@@ -93,7 +94,6 @@ class MainWindow(hildon.Program):
         """
         drop cb
         """
-        #print "DND DROP = ", context.targets
         self.canvas.drag_get_data(context, context.targets[0], time)
         return True
         
@@ -146,7 +146,7 @@ class MainWindow(hildon.Program):
         #DBus interface which will tidy up any pending running
         #non gui tasks
         if quit:
-            logd("Quitting...")
+            log.debug("Quitting...")
             #FIXME: I want to do this call over DBus but this hangs. Why?
             #sessionBus = dbus.SessionBus()
             #obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")

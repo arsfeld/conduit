@@ -2,10 +2,10 @@ import os
 import sys
 from gettext import gettext as _
 import traceback
-
+import logging
+log = logging.getLogger("modules.Gmail")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
@@ -51,7 +51,7 @@ class GmailBase(DataProvider.DataProviderBase):
                 self.ga.login()
                 self.loggedIn = True
             except:
-                logw("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
+                log.warn("Error logging into gmail (username %s)\n%s" % (self.username,traceback.format_exc()))
                 raise Exceptions.RefreshError
 
     def get_UID(self):
@@ -215,11 +215,11 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
         if self.loggedIn:
             if self.getAllEmail:
-                logd("Getting all Email")
+                log.debug("Getting all Email")
                 pass
             else:
                 if self.getUnreadEmail:
-                    logd("Getting Unread Email")                
+                    log.debug("Getting Unread Email")                
                     #FIXME: These TODO notes taken from libgmail examples
                     #Check if these TODOs have been answered at a future
                     #date
@@ -239,7 +239,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                                 mail.set_from_email_string(message.source)
                                 self.mails[message.id] = mail              
                 elif len(self.getWithLabel) > 0:
-                    logd("Getting Email Labelled: %s" % self.getWithLabel)                
+                    log.debug("Getting Email Labelled: %s" % self.getWithLabel)                
                     result = self.ga.getMessagesByLabel(self.getWithLabel)
                     if len(result):
                         for thread in result:
@@ -248,7 +248,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                                 mail.set_from_email_string(message.source)
                                 self.mails[message.id] = mail
                 elif len(self.getInFolder) > 0:
-                    logd("Getting Email in Folder: %s" % self.getInFolder)                
+                    log.debug("Getting Email in Folder: %s" % self.getInFolder)                
                     result = self.ga.getMessagesByFolder(self.getInFolder)
                     if len(result):
                         for thread in result:

@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger("datatypes.DataType")
+
 import conduit.datatypes
 
 CHANGE_UNMODIFIED = 0
@@ -51,7 +54,7 @@ class DataType(object):
          - L{conduit.datatypes.COMPARISON_UNKNOWN} This means we were unable to determine
            which was newer than the other so its up to the user to decide        
         """
-        logd("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid()))
+        log.debug("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid()))
 
         if self.get_hash() == B.get_hash():
             return conduit.datatypes.COMPARISON_EQUAL

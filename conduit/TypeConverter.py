@@ -4,10 +4,10 @@ Holds the TypeConverter class
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
 import traceback
+import logging
+log = logging.getLogger("TypeConverter")
 
-from conduit import log,logd,logw
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 
@@ -73,11 +73,11 @@ class TypeConverter:
                         else:
                             self.convertables[fromtype][totype] = conv[c]
                     except IndexError:
-                        logw("Conversion dict (%s) wrong format. Should be fromtype,totype" % c)
+                        log.warn("Conversion dict (%s) wrong format. Should be fromtype,totype" % c)
                     except KeyError, err:
-                        logw("Could not add conversion function from %s to %s\n%s" % (fromtype,totype,err))
+                        log.warn("Could not add conversion function from %s to %s\n%s" % (fromtype,totype,err))
                     except Exception:
-                        logw("BAD PROGRAMMER")
+                        log.warn("BAD PROGRAMMER")
 
     def _retain_info_in_conversion(self, fromdata, todata):
         """
@@ -89,7 +89,7 @@ class TypeConverter:
         Call this function from a typeconverter
         """
         if todata == None:
-            logw("Conversion from %s returned None" % (fromdata))
+            log.warn("Conversion from %s returned None" % (fromdata))
         else:
             todata.set_mtime(fromdata.get_mtime())
             todata.set_open_URI(fromdata.get_open_URI())
@@ -171,7 +171,7 @@ class TypeConverter:
         from_type, to_type, args = self._get_conversion(from_type, to_type)
 
         conversionExists = self._conversion_exists(from_type, to_type)
-        #print "------------------ %s -> %s (args: %s) (exists: %s)" % (from_type, to_type, args, conversionExists)
+        log.debug("Convert %s -> %s (args: %s) (exists: %s)" % (from_type, to_type, args, conversionExists))
 
         #if fromtype and totype differ only through args, then check if that
         #datatype has a transcode function (a convert function whose in and
@@ -181,7 +181,7 @@ class TypeConverter:
                 return data
             elif conversionExists == True:
                 try:
-                    logd("Transcoding %s (args: %s)" % (from_type, args))
+                    log.debug("Transcoding %s (args: %s)" % (from_type, args))
                     to = self.convertables[from_type][to_type](data, **args)
                     return self._retain_info_in_conversion(fromdata=data, todata=to)
                 except Exception, err:
@@ -192,14 +192,14 @@ class TypeConverter:
         #perform the conversion
         elif conversionExists == True:
             try:
-                logd("Converting %s -> %s (args: %s)" % (from_type, to_type, args))
+                log.debug("Converting %s -> %s (args: %s)" % (from_type, to_type, args))
                 to = self.convertables[from_type][to_type](data, **args)
                 return self._retain_info_in_conversion(fromdata=data, todata=to)
             except Exception, err:
                 extra="Error calling conversion function\n%s" % traceback.format_exc()
                 raise Exceptions.ConversionError(from_type, to_type, extra)
         else:
-            logw("Conversion from %s -> %s does not exist " % (from_type, to_type))
+            log.warn("Conversion from %s -> %s does not exist " % (from_type, to_type))
             raise Exceptions.ConversionDoesntExistError(from_type, to_type)
 
     def get_convertables_list(self):

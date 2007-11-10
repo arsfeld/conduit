@@ -14,8 +14,9 @@ import gnomevfs
 import gobject
 import dbus
 import dbus.glib
+import logging
+log = logging.getLogger("Hal")
 
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 
 TYPE_IDX = 0
@@ -78,7 +79,7 @@ class HalMonitor(gobject.GObject):
         self.bus = dbus.SystemBus()
 
         if Utils.dbus_service_available(self.bus,'org.freedesktop.Hal'):
-            log("HAL Initialized")
+            log.info("HAL Initialized")
             #Scan hardware first.
             self._scan_hardware()
             #Subsequent detected volumes are added via signals
@@ -86,10 +87,10 @@ class HalMonitor(gobject.GObject):
             self.vol_monitor.connect("volume-pre-unmount",self._volume_pre_unmounted_cb)
             self.vol_monitor.connect("volume-unmounted",self._volume_unmounted_cb)
         else:
-            logw("HAL Could not be Initialized")
+            log.warn("HAL Could not be Initialized")
 
     def _emit(self, signal, device_udi, mount, name):
-        log("Hal: Emitting %s for Volume %s at %s )" % (signal, name, mount))
+        log.info("Hal: Emitting %s for Volume %s at %s )" % (signal, name, mount))
         self.emit(signal, device_udi, mount, name)
 
     def _add_volume(self, volume_type, device_udi, mount, name):
@@ -103,13 +104,13 @@ class HalMonitor(gobject.GObject):
             elif volume_type == N800:
                 signal = "n800-added"
             else:
-                logw("Hal: Unknown volume type")
+                log.warn("Hal: Unknown volume type")
                 return
 
             #emit the signal
             self._emit(signal, device_udi, mount, name)
         else:
-            logw("Hal: Volume already present. Not adding")
+            log.warn("Hal: Volume already present. Not adding")
 
     def _remove_volume(self, volume_type, device_udi, mount, name):
         signature = str(device_udi)
@@ -122,16 +123,16 @@ class HalMonitor(gobject.GObject):
             elif volume_type == N800:
                 signal = "n800-removed"
             else:
-                logw("Hal: Unknown volume type")
+                log.warn("Hal: Unknown volume type")
                 return
 
             #emit the signal
             self._emit(signal, device_udi, mount, name)
         else:
-            logw("Hal: Volume doesnt exist. Cannot remove")
+            log.warn("Hal: Volume doesnt exist. Cannot remove")
 
     def _volume_mounted_cb(self,monitor,volume):
-        logd("Volume mounted")
+        log.debug("Volume mounted")
         device_udi = volume.get_hal_udi()
         if device_udi :
             properties = self._get_properties(device_udi)
@@ -145,14 +146,14 @@ class HalMonitor(gobject.GObject):
         return True
 
     def _volume_pre_unmounted_cb(self,monitor,volume):
-        logd("Volume pre-unmount")
+        log.debug("Volume pre-unmount")
         device_udi = volume.get_hal_udi()
         if device_udi :
             pass
         return False
 
     def _volume_unmounted_cb(self,monitor,volume):
-        logd("Volume Umounted")
+        log.debug("Volume Umounted")
         device_udi = volume.get_hal_udi()
         if device_udi :
             properties = self._get_properties(device_udi)
@@ -217,7 +218,7 @@ class HalMonitor(gobject.GObject):
                     #signature = (USB_KEY, device_udi, mount, name)
                     self._add_volume(N800, device_udi, mount, name)
                 else:
-                    logd("Hal: Skipping non ipod UDI %s" % device_udi)
+                    log.debug("Hal: Skipping non ipod UDI %s" % device_udi)
 
         #Only run once if run in the idle handler
         return False

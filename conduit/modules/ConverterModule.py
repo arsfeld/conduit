@@ -1,8 +1,8 @@
+import logging
+log = logging.getLogger("modules.Converter")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
-
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Text as Text
@@ -53,7 +53,7 @@ class EmailConverter:
         mimeCategory = thefile.get_mimetype().split('/')[0]
         if mimeCategory == "text":
             #insert the contents into the email
-            logd("Inserting file contents into email")
+            log.debug("Inserting file contents into email")
             email = Email.Email(
                             None,
                             subject=thefile.get_filename(),
@@ -61,7 +61,7 @@ class EmailConverter:
                             )
         else:
             #binary file so send as attachment
-            logd("Binary file, attaching to email")
+            log.debug("Binary file, attaching to email")
             email = Email.Email(
                             None,
                             subject=thefile.get_filename(),

@@ -1,5 +1,7 @@
+import logging
+log = logging.getLogger("datatypes.Note")
+
 import conduit
-from conduit import log,logd,logw
 from conduit.datatypes import DataType
 
 class Note(DataType.DataType):
@@ -39,9 +41,9 @@ class Note(DataType.DataType):
         #Look at the modification times
         meTime = self.get_mtime()
         bTime = B.get_mtime()
-        logd("MTIME: %s with MTIME: %s" % (meTime, bTime))
+        log.debug("MTIME: %s with MTIME: %s" % (meTime, bTime))
         if meTime != None and bTime != None:
-            logd("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.title, meTime, B.title, bTime))
+            log.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.title, meTime, B.title, bTime))
             if meTime == bTime:
                 return conduit.datatypes.COMPARISON_EQUAL
             #newer than B?
@@ -55,7 +57,7 @@ class Note(DataType.DataType):
 
         #look at raw xml
         elif self.raw != "" and B.raw != "":
-            logd("Comparing via XML")
+            log.debug("Comparing via XML")
             if self.raw == B.raw:
                 return conduit.datatypes.COMPARISON_EQUAL
             else:

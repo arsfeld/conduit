@@ -1,5 +1,6 @@
-from conduit import log,logd,logw
 import traceback
+import logging
+log = logging.getLogger("ModuleWrapper")
 
 class ModuleWrapper: 
     """
@@ -79,7 +80,7 @@ class ModuleWrapper:
         if type(initargs) == tuple:
             self.initargs = initargs
         else:
-            logw("INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
+            log.warn("INIT ARGS MUST BE A TUPLE (was a %s)" % type(initargs))
             self.initargs = ()
         self.module = module
         self.enabled = enabled
@@ -163,7 +164,7 @@ class ModuleWrapper:
                     self.icon_path = info.get_filename()
                 except:
                     self.icon[size] = None
-                    logw("Could not load icon %s for %s" % (self.icon_name, self.name))
+                    log.warn("Could not load icon %s for %s" % (self.icon_name, self.name))
                     #Last resort: Try the non icon-naming-spec compliant icon
                     self.icon_name = "conduit"
                     info = gtk.icon_theme_get_default().lookup_icon(self.icon_name, size, 0)
@@ -236,8 +237,7 @@ class ModuleWrapper:
                                 )
                     self.descriptiveIcon = dest
                 except:
-                    traceback.print_exc()
-                    pass
+                    log.warn("Error getting icon\n%s" % traceback.format_exc())
             
             elif self.module_type == "category":
                 self.descriptiveIcon = self.get_icon(isize)

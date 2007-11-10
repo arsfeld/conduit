@@ -4,9 +4,10 @@ Facebook Photo Uploader.
 import os, sys
 import traceback
 import md5
+import logging
+log = logging.getLogger("modules.Facebook")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.Image as Image
@@ -61,7 +62,7 @@ class FacebookSink(Image.ImageSink):
         This function is used by the login tester, we try to get a token,
         but return None if it does not succeed so the login tester can keep trying
         """
-        print "Trying Login"        
+        log.info("Trying Login")
         rsp = self.fapi.auth.getSession()
         return rsp.has_key("secret") and rsp.has_key("session_key")
 

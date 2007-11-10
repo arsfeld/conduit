@@ -2,9 +2,10 @@ import os
 import sys
 import traceback
 from gettext import gettext as _
+import logging
+log = logging.getLogger("modules.Backpack")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -37,7 +38,7 @@ class BackpackBase(DataProvider.DataProviderBase):
             self.ba = backpack.Backpack(username,self.apikey)
             self.loggedIn = True
         except backpack.BackpackError:
-            logw("Error logging into backpack (username %s)" % self.username)
+            log.warn("Error logging into backpack (username %s)" % self.username)
             raise Exceptions.RefreshError
     
 
@@ -72,15 +73,15 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             for uid,scope,title in pages:
                 if title == self.storeInPage:
                     self.pageID = uid
-                    logd("Found Page %s:%s:%s" % (uid,scope,title))
+                    log.debug("Found Page %s:%s:%s" % (uid,scope,title))
 
             #Didnt find the page so create
             if self.pageID is None:
                 try:
                     self.pageID, foo = self.ba.page.create(self.storeInPage,"Automatically Synchronized Notes")
-                    log("Created page")
+                    log.info("Created page")
                 except backpack.BackpackError, err:
-                    log("Could not create page to store notes in (%s)" % err)
+                    log.info("Could not create page to store notes in (%s)" % err)
                     #cannot continue
                     raise Exceptions.RefreshError
                     
@@ -88,7 +89,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         if len(self._notes) == 0:
             for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
                 self._notes[title] = uid
-            logd("Found existing notes: %s" % self._notes)
+            log.debug("Found existing notes: %s" % self._notes)
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
@@ -130,15 +131,15 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
         uid = None
         try:
             if note.title in self._notes:
-                logd("Updating Existing")
+                log.debug("Updating Existing")
                 uid = self._notes[note.title]
                 self.ba.notes.update(self.pageID,uid,note.title,note.contents)
             else:
-                logd("Creating New (title: %s)" % note.title)
+                log.debug("Creating New (title: %s)" % note.title)
                 uid,title,mtime,content = self.ba.notes.create(self.pageID,note.title,note.contents)
                 self._notes[note.title] = uid
         except backpack.BackpackError, err:
-            log("Could not sync note (%s)" % err)
+            log.info("Could not sync note (%s)" % err)
             raise Exceptions.SyncronizeError
                 
         return Rid(uid=uid, mtime=mtime, hash=mtime)
@@ -148,10 +149,10 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             try:
                 self.ba.notes.destroy(self.pageID,LUID)
             except backpack.BackpackError, err:
-                log("Could delete note (%s)" % err)
+                log.info("Could delete note (%s)" % err)
                 raise Exceptions.SyncronizeError
         else:
-            logd("Could not find note")
+            log.debug("Could not find note")
 
     def get_UID(self):
         return "%s:%s" % (self.username,self.storeInPage)

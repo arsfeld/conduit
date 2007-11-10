@@ -13,9 +13,10 @@ except:
     
 import datetime
 import gobject
+import logging
+log = logging.getLogger("modules.Evolution")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
@@ -78,13 +79,13 @@ class EvoBase(DataProvider.TwoWay):
                         return rid
 
         # if we get here then it is new...
-        log("Creating new object")
+        log.info("Creating new object")
         rid = self._create_object(obj)
         return rid
 
     def delete(self, LUID):
         if not self._delete_object(LUID):
-            logw("Error deleting event (uid: %s)" % LUID)
+            log.warn("Error deleting event (uid: %s)" % LUID)
 
     def finish(self):
         DataProvider.TwoWay.finish(self)

@@ -1,9 +1,10 @@
+import email 
+import logging
+log = logging.getLogger("dataproviders.Email")
+
 
 import conduit
-from conduit import log,logd,logw
 from conduit.datatypes import DataType
-
-import email
 
 class Email(DataType.DataType):
     """
@@ -58,7 +59,7 @@ class Email(DataType.DataType):
                 self.emailFrom = self.email['from']
                 self.subject = self.email['subject']                
             except:
-                logw("Error parsing email message")
+                log.warn("Error parsing email message")
 
     def get_email_string(self):
         #FIXME: make a self.email and use pythons methods to get the raw string

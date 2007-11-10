@@ -9,8 +9,9 @@ import gobject
 import os, os.path
 import traceback
 import pydoc
+import logging
+log = logging.getLogger("Module")
 
-from conduit import log,logd,logw
 from conduit.dataproviders import CATEGORY_TEST
 from conduit.ModuleWrapper import ModuleWrapper, PendingDataproviderWrapper
 from conduit.Hal import HalMonitor
@@ -64,11 +65,11 @@ class ModuleManager(gobject.GObject):
         Store the ipod so it can be retrieved later by the treeview/model
         emit a signal so it is added to the GUI
         """
-        log("Dynamic dataprovider (%s) available by %s" % (dpw, monitor))
+        log.info("Dynamic dataprovider (%s) available by %s" % (dpw, monitor))
         self._append_module(dpw, klass)
 
     def _on_dynamic_dataprovider_unavailable(self, monitor, key):
-        log("Dynamic dataprovider (%s) unavailable by %s" % (key, monitor))
+        log.info("Dynamic dataprovider (%s) unavailable by %s" % (key, monitor))
         self._remove_module(key)
 
     def _emit_available(self, dataproviderWrapper):
@@ -100,7 +101,7 @@ class ModuleManager(gobject.GObject):
 
         while len(directories) > 0:
             d = directories.pop(0)
-            logd("Reading directory %s" % d)
+            log.debug("Reading directory %s" % d)
             try:
                 if not os.path.exists(d):
                     continue
@@ -112,7 +113,7 @@ class ModuleManager(gobject.GObject):
                     elif os.path.isdir(f) and self._is_module_dir(f):
                         directories.append(f)
             except OSError, err:
-                logw("Error reading directory %s, skipping." % (d))
+                log.warn("Error reading directory %s, skipping." % (d))
         return res            
        
     def _is_module(self, filename):
@@ -141,7 +142,7 @@ class ModuleManager(gobject.GObject):
         if classname not in self.classRegistry:
             self.classRegistry[classname] = klass
         else:
-            logw("Class named %s allready loaded" % (classname))
+            log.warn("Class named %s allready loaded" % (classname))
         #Check if the wrapper is unique
         key = wrapper.get_key()
         if key not in self.moduleWrappers:
@@ -149,7 +150,7 @@ class ModuleManager(gobject.GObject):
             #Emit a signal because this wrapper is new
             self._emit_available(wrapper)
         else:
-            logw("Wrapper with key %s allready loaded" % key)
+            log.warn("Wrapper with key %s allready loaded" % key)
     
     def _remove_module(self, key):
         """
@@ -159,7 +160,7 @@ class ModuleManager(gobject.GObject):
         """
         
         if not key in self.moduleWrappers:
-            logw("Unable to remove class - it isn't available! (%s)" % key)
+            log.warn("Unable to remove class - it isn't available! (%s)" % key)
             return
 
         #keep a ref for the signal emission
@@ -179,20 +180,20 @@ class ModuleManager(gobject.GObject):
         try:
             mods = pydoc.importfile (filename)
         except Exception:
-            logw("Error loading the file: %s.\n%s" % (filename, traceback.format_exc()))
+            log.warn("Error loading the file: %s.\n%s" % (filename, traceback.format_exc()))
             return
 
         try:
             if (mods.MODULES): pass
         except AttributeError:
-            logw("The file %s is not a valid module. Skipping." % (filename))
-            logw("A module must have the variable MODULES defined as a dictionary.")
+            log.warn("The file %s is not a valid module. Skipping." % (filename))
+            log.warn("A module must have the variable MODULES defined as a dictionary.")
             return
 
         for modules, infos in mods.MODULES.items():
             for i in ModuleWrapper.COMPULSORY_ATTRIBUTES:
                 if i not in infos:
-                    logw("Class %s in file %s does define a %s attribute. Skipping." % (modules, filename, i))
+                    log.warn("Class %s in file %s does define a %s attribute. Skipping." % (modules, filename, i))
                     return
 
         return mods
@@ -233,19 +234,19 @@ class ModuleManager(gobject.GObject):
                     instance = klass(**kwargs)
                     self.dataproviderFactories.append(instance)
                 else:
-                    logw("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
+                    log.warn("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
             except AttributeError:
-                logw("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
+                log.warn("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
 
     def _instantiate_class(self, classname, initargs):
         if type(initargs) != tuple:
-            logw("Could not make class %s. Initargs must be a tuple" % classname)
+            log.warn("Could not make class %s. Initargs must be a tuple" % classname)
             return None
         if classname in self.classRegistry:
-            logd("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
+            log.debug("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
             return self.classRegistry[classname](*initargs)
         else:
-            logw("Could not find class named %s" % classname)
+            log.warn("Could not find class named %s" % classname)
 
     def load_all(self):
         """
@@ -313,7 +314,7 @@ class ModuleManager(gobject.GObject):
                                         True)
                 
         else:
-            logw("Could not find module wrapper: %s" % (wrapperKey))
+            log.warn("Could not find module wrapper: %s" % (wrapperKey))
             mod_wrapper = PendingDataproviderWrapper(wrapperKey)
 
         return mod_wrapper

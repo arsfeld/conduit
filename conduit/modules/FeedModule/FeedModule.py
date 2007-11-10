@@ -1,25 +1,24 @@
-import os
-from os.path import abspath, expanduser
-import sys
-from gettext import gettext as _
-
-import conduit
-from conduit import log,logd,logw
-import conduit.Utils as Utils
-import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Exceptions as Exceptions
-import conduit.datatypes.File as File
-
-import traceback
-import gnomevfs
-import urllib2
-
 try:
     from elementtree import ElementTree
 except:
     from xml.etree import ElementTree
 
 import mimetypes
+import traceback
+import gnomevfs
+import urllib2
+import os
+from os.path import abspath, expanduser
+import sys
+from gettext import gettext as _
+import logging
+log = logging.getLogger("modules.Feed")
+
+import conduit
+import conduit.Utils as Utils
+import conduit.dataproviders.DataProvider as DataProvider
+import conduit.Exceptions as Exceptions
+import conduit.datatypes.File as File
 
 MODULES = {
     "RSSSource" : { "type": "dataprovider" }    
@@ -110,7 +109,7 @@ class RSSSource(DataProvider.DataSource):
             self.downloadPhotos = photosCb.get_active()
             
         dlg.destroy()            
-        logd(self.allowedTypes)
+        log.debug(self.allowedTypes)
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -142,9 +141,9 @@ class RSSSource(DataProvider.DataSource):
                                     allreadyInserted.append(url)
                                     self.files.append(url)
                             else:
-                                logd("Enclosure %s is on non-allowed type (%s)" % (title,t))
+                                log.debug("Enclosure %s is on non-allowed type (%s)" % (title,t))
         except:
-            log("Error getting/parsing feed \n%s" % traceback.format_exc())
+            log.info("Error getting/parsing feed \n%s" % traceback.format_exc())
             raise Exceptions.RefreshError
 
     def get_all(self):

@@ -21,8 +21,8 @@ import time
 import re
 import popen2
 
-from conduit import log,logd,logw
-import conduit.datatypes.File as File
+import logging
+log = logging.getLogger("Utils")
 
 def get_proportional_resize(desiredW, desiredH, currentW, currentH):
         if currentH < currentW:
@@ -87,6 +87,7 @@ def new_tempfile(contents, contentsAreText=True):
     @param contentsAreText: C{bool}
     @returns: a L{conduit.datatypes.File}
     """
+    import conduit.datatypes.File as File
     return File.TempFile(contents)
 
 def new_tempdir():
@@ -145,7 +146,7 @@ def dataprovider_add_dir_to_path(dataproviderfile, directory=""):
     """
     path = os.path.join(dataproviderfile, "..", directory)
     path = os.path.abspath(path)
-    logd("Adding %s to python path" % path)
+    log.debug("Adding %s to python path" % path)
     sys.path.insert(0,path)
 
 def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
@@ -216,7 +217,7 @@ def open_URI(uri):
     FIXME: Use xdg-open?
     """
     if uri == None:
-        logw("Cannot open non-existant URI")
+        log.warn("Cannot open non-existant URI")
 
     APP = "gnome-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
@@ -288,7 +289,6 @@ def memstats(prev=(0.0,0.0,0.0)):
             v = t.read()
             t.close()
         except Exception, err:
-            print err
             return 0.0  # non-Linux?
          # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
         i = v.index(VmKey)
@@ -302,7 +302,7 @@ def memstats(prev=(0.0,0.0,0.0)):
     VmRSS = _VmB('VmRSS:') - prev [1]
     VmStack = _VmB('VmStk:') - prev [2]
 
-    logd("Memory Stats: VM=%sMB RSS=%sMB STACK=%sMB" %(
+    log.debug("Memory Stats: VM=%sMB RSS=%sMB STACK=%sMB" %(
                                     VmSize  / _scale["MB"],
                                     VmRSS   / _scale["MB"],
                                     VmStack / _scale["MB"],
@@ -333,7 +333,7 @@ class ScannerThreadManager:
             thread.connect("scan-completed", self._register_thread_completed, folderURI)
             self.scanThreads[folderURI] = thread
             if running < ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
-                logd("Starting thread %s" % folderURI)
+                log.debug("Starting thread %s" % folderURI)
                 self.scanThreads[folderURI].start()
             else:
                 self.pendingScanThreadsURIs.append(folderURI)
@@ -347,12 +347,12 @@ class ScannerThreadManager:
         del(self.scanThreads[folderURI])
         running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
 
-        logd("Thread %s completed. %s running, %s pending" % (folderURI, running, len(self.pendingScanThreadsURIs)))
+        log.debug("Thread %s completed. %s running, %s pending" % (folderURI, running, len(self.pendingScanThreadsURIs)))
 
         if running < ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
             try:
                 uri = self.pendingScanThreadsURIs.pop()
-                logd("Starting pending thread %s" % uri)
+                log.debug("Starting pending thread %s" % uri)
                 self.scanThreads[uri].start()
             except IndexError: pass
 
@@ -381,7 +381,7 @@ class ScannerThreadManager:
         """
         for thread in self.scanThreads.values():
             if thread.isAlive():
-                logd("Cancelling thread %s" % thread)
+                log.debug("Cancelling thread %s" % thread)
                 thread.cancel()
             thread.join() #May block
 
@@ -431,7 +431,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             dir = self.dirs.pop(0)
             try:hdir = gnomevfs.DirectoryHandle(dir)
             except: 
-                logw("Folder %s Not found" % dir)
+                log.warn("Folder %s Not found" % dir)
                 continue
             try: fileinfo = hdir.next()
             except StopIteration: continue;
@@ -454,7 +454,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
                         except UnicodeDecodeError:
                             raise "UnicodeDecodeError",uri
                     else:
-                        logd("Unsupported file type: %s (%s)" % (filename, fileinfo.type))
+                        log.debug("Unsupported file type: %s (%s)" % (filename, fileinfo.type))
                 try: fileinfo = hdir.next()
                 except StopIteration: break;
             #Calculate the estimated complete percentags
@@ -462,7 +462,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             estimated *= 100
             #Enly emit progress signals every 10% (+/- 1%) change to save CPU
             if delta+10 - estimated <= 1:
-                logd("Folder scan %s%% complete" % estimated)
+                log.debug("Folder scan %s%% complete" % estimated)
                 self.emit("scan-progress", len(self.URIs))
                 delta += 10
             last_estimated = estimated
@@ -470,7 +470,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
         i = 0
         total = len(self.URIs)
         endTime = time.time()
-        logd("%s files loaded in %s seconds" % (total, (endTime - startTime)))
+        log.debug("%s files loaded in %s seconds" % (total, (endTime - startTime)))
         self.emit("scan-completed")
 
     def cancel(self):
@@ -487,7 +487,7 @@ class CommandLineConverter:
         self.percentage_match = re.compile('.*')
 
     def _kill(self, process):
-        logd("Killing process")
+        log.debug("Killing process")
         os.kill(process.pid, signal.SIGKILL)
 
     def build_command(self, command, **params):
@@ -501,7 +501,7 @@ class CommandLineConverter:
 
     def convert( self, input_filename, output_filename, callback=None,save_output=False):
         command = self.command % (input_filename, output_filename)
-        logd("Executing %s" % command)
+        log.debug("Executing %s" % command)
 
         output = ""
         process = popen2.Popen4(command)

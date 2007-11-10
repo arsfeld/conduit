@@ -4,9 +4,11 @@ import sys
 import dbus, dbus.service, dbus.glib
 import gobject
 
+import logging
+log = logging.getLogger("Main")
+
 import conduit
 import conduit.Utils as Utils
-from conduit import log,logd,logw
 from conduit.Module import ModuleManager
 from conduit.MappingDB import MappingDB
 from conduit.TypeConverter import TypeConverter
@@ -67,19 +69,18 @@ class Application(dbus.service.Object):
                 if o in ("-u", "--ui"):
                      self.ui = a
         except getopt.GetoptError:
-            # print help information and exit:
-            logw("Unknown command line option")
+            log.warn("Unknown command line option")
             self._usage()
             sys.exit(1)
 
-        log("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
-        log("Using UI: %s" % self.ui)
+        log.info("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
+        log.info("Using UI: %s" % self.ui)
         
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
         sessionBus = dbus.SessionBus()
         if Utils.dbus_service_available(sessionBus, APPLICATION_DBUS_IFACE):
-            log("Conduit is already running")
+            log.info("Conduit is already running")
             obj = sessionBus.get_object(APPLICATION_DBUS_IFACE, "/activate")
             conduitApp = dbus.Interface(obj, APPLICATION_DBUS_IFACE)
             if buildGUI:
@@ -222,26 +223,26 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):
-        log("Closing application")
+        log.info("Closing application")
         if self.gui != None:
             self.gui.mainWindow.hide()
             if conduit.GLOBALS.settings.get("save_on_exit") == True:
                 self.gui.save_settings(None)
 
         #flag the global cancellation object
-        log("Setting global cancel flag")
+        log.info("Setting global cancel flag")
         conduit.GLOBALS.cancelled = True
 
         #cancel all conduits
-        log("Stopping Synchronization threads")
+        log.info("Stopping Synchronization threads")
         conduit.GLOBALS.syncManager.cancel_all()
 
         #give the dataprovider factories time to shut down
-        log("Closing dataprovider factories")
+        log.info("Closing dataprovider factories")
         conduit.GLOBALS.moduleManager.quit()
         
         #unitialize all dataproviders
-        log("Unitializing dataproviders")
+        log.info("Unitializing dataproviders")
         self.guiSyncSet.quit()
         self.dbusSyncSet.quit()
         

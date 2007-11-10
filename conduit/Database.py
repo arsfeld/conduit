@@ -21,6 +21,8 @@ along with main.c.  If not, write to:
  Boston, MA  02110-1301, USA.
 """
 import gobject
+import logging
+log = logging.getLogger("Database")
 
 #for generic db
 try:
@@ -177,7 +179,7 @@ class GenericDB(gobject.GObject):
         return sql
         
     def execute(self, sql, args=()):
-        if GenericDB.DEBUG: print sql
+        if GenericDB.DEBUG: log.debug(sql)
         self.cur.execute(sql, args)
         
     def select(self, sql, args=()):
@@ -308,7 +310,7 @@ class ThreadSafeGenericDB(Thread, GenericDB):
         self.db.close()
 
     def execute(self, req, args=(), res=None, operation=""):
-        if GenericDB.DEBUG: print req
+        if GenericDB.DEBUG: log.debug(req)
         if not self.stopped:
             self.reqs.put((req, args, res, operation))
 

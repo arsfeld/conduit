@@ -1,8 +1,9 @@
 import gobject
 import gtk
+import logging
+log = logging.getLogger("hildonui.List")
 
 import conduit
-from conduit import log,logd,logw
 
 DND_TARGETS = [
     ('conduit/element-name', 0, 0)
@@ -60,7 +61,7 @@ class DataProviderBox(gtk.VBox):
         """
         Adds a new dataprovider
         """
-        logd("Adding dataprovider %s to List" % dpw)
+        log.debug("Adding dataprovider %s to List" % dpw)
 
         category_name = dpw.category.name
 
@@ -96,7 +97,7 @@ class DataProviderBox(gtk.VBox):
         #get the classname
         data = model.get_value(iter, 2)
 
-        logd("Dragging %s" % data)
+        log.debug("Dragging %s" % data)
 
         selection.set(selection.target, 8, data)
         
@@ -129,7 +130,7 @@ class DataProviderBox(gtk.VBox):
         Reloads the current category
         """
         category_name = self.get_current_category()
-        log ("Loading category: %s" % category_name)
+        log.info("Loading category: %s" % category_name)
 
         self.dp_store.clear()
 

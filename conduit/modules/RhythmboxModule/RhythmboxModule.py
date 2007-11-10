@@ -8,6 +8,9 @@ License: GPLv2
 """
 import urllib
 import os
+import logging
+log = logging.getLogger("modules.Rhythmbox")
+
 
 try:
     import elementtree.ElementTree as ET
@@ -100,7 +103,7 @@ class RhythmboxSource(DataProvider.DataSource):
             elif not checked and val in self.playlists:
                 self.playlists.remove(val)
 
-            conduit.logd("Toggle '%s' to: %s" % (val, checked))
+            log.debug("Toggle '%s' to: %s" % (val, checked))
             return
 
         #FIXME: This should not run here, it should run in initialize() instead

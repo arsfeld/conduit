@@ -14,9 +14,10 @@ import os
 import gnomevfs
 import datetime
 import tempfile
+import logging
+log = logging.getLogger("modules.iPod")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.Utils as Utils
@@ -250,15 +251,15 @@ class IPodNoteTwoWay(IPodBase):
             if self._note_exists(LUID):
                 if overwrite == True:
                     #replace the note
-                    logd("Replacing Note %s" % LUID)
+                    log.debug("Replacing Note %s" % LUID)
                     return self._save_note_to_ipod(LUID, note)
                 else:
                     #only overwrite if newer
-                    logw("OVERWRITE IF NEWER NOT IMPLEMENTED")
+                    log.warn("OVERWRITE IF NEWER NOT IMPLEMENTED")
                     return self._save_note_to_ipod(LUID, note)
     
         #make a new note
-        logw("CHECK IF EXISTS, COMPARE, SAVE")
+        log.warn("CHECK IF EXISTS, COMPARE, SAVE")
         return self._save_note_to_ipod(note.title, note)
     
     def delete(self, LUID):

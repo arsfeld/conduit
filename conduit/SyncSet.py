@@ -4,18 +4,16 @@ Represents a group of conduits
 Copyright: John Stowers, 2007
 License: GPLv2
 """
-from conduit import log,logd,logw, APPVERSION
-
 import traceback
 import os
-#import xml.dom
-#import xml.dom.ext
 import xml.dom.minidom
-
 import gobject
+import logging
+log = logging.getLogger("SyncSet")
 
-from conduit.Conduit import Conduit
-from conduit.Settings import Settings
+import conduit
+import conduit.Conduit as Conduit
+import conduit.Settings as Settings
 
 class SyncSet(gobject.GObject):
     """
@@ -54,7 +52,6 @@ class SyncSet(gobject.GObject):
         """
         Removes all PendingWrappers corresponding to dpw and replaces with new dpw instances
         """
-        print "AVAIL/UNAVAIL"
         key = dpw.get_key()
         for c in self.get_all_conduits():
             for dp in c.get_dataproviders_by_key(key):
@@ -99,11 +96,11 @@ class SyncSet(gobject.GObject):
         they are connected) to an xml file so that the 'sync set' can
         be restored later
         """
-        log("Saving Sync Set to %s" % self.xmlSettingFilePath)
+        log.info("Saving Sync Set to %s" % self.xmlSettingFilePath)
         #Build the application settings xml document
         doc = xml.dom.minidom.Document()
         rootxml = doc.createElement("conduit-application")
-        rootxml.setAttribute("version", APPVERSION)
+        rootxml.setAttribute("version", conduit.APPVERSION)
         doc.appendChild(rootxml)
         
         #Store the conduits
@@ -143,13 +140,13 @@ class SyncSet(gobject.GObject):
             #file_object.write(doc.toprettyxml())
             file_object.close()        
         except IOError, err:
-            logw("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
+            log.warn("Could not save settings to %s (Error: %s)" % (self.xmlSettingFilePath, err.strerror))
         
     def restore_from_xml(self):
         """
         Restores sync settings from the xml file
         """
-        log("Restoring Sync Set")
+        log.info("Restoring Sync Set")
            
         def restore_dataprovider(conduit, wrapperKey, dpName, dpxml, trySourceFirst):
             """
@@ -158,7 +155,7 @@ class SyncSet(gobject.GObject):
             
             @returns: The conduit the dataprovider was restored to
             """
-            logd("Restoring %s to (source=%s)" % (wrapperKey,trySourceFirst))
+            log.debug("Restoring %s to (source=%s)" % (wrapperKey,trySourceFirst))
             wrapper = self.moduleManager.get_new_module_instance(wrapperKey)
             wrapper.set_name(dpName)
             if wrapper is not None:
@@ -170,7 +167,7 @@ class SyncSet(gobject.GObject):
 
         #Check the file exists
         if not os.path.isfile(self.xmlSettingFilePath):
-            log("%s not present" % self.xmlSettingFilePath)
+            log.info("%s not present" % self.xmlSettingFilePath)
             return
             
         try:
@@ -178,20 +175,19 @@ class SyncSet(gobject.GObject):
             doc = xml.dom.minidom.parse(self.xmlSettingFilePath)
             xmlVersion = doc.documentElement.getAttribute("version")
             #And check it is the correct version        
-            if xmlVersion != APPVERSION:
-                log("%s xml file is incorrect version" % self.xmlSettingFilePath)
+            if xmlVersion != conduit.APPVERSION:
+                log.info("%s xml file is incorrect version" % self.xmlSettingFilePath)
                 os.remove(self.xmlSettingFilePath)
                 return
             
             #Parse...    
             for conds in doc.getElementsByTagName("conduit"):
-                print conds.localName
                 #create a new conduit
-                conduit = Conduit(self.syncManager, conds.getAttribute("uid"))
+                conduit = Conduit.Conduit(self.syncManager, conds.getAttribute("uid"))
                 self.add_conduit(conduit)
 
                 #restore conduit specific settings
-                twoway = Settings._string_to_bool(conds.getAttribute("twoway"))
+                twoway = Settings.string_to_bool(conds.getAttribute("twoway"))
                 if twoway == True:
                     conduit.enable_two_way_sync()
 
@@ -218,7 +214,7 @@ class SyncSet(gobject.GObject):
                                     restore_dataprovider(conduit, key, name, sink, False)
 
         except:
-            logw("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
+            log.warn("Error parsing %s. Exception:\n%s" % (self.xmlSettingFilePath, traceback.format_exc()))
             os.remove(self.xmlSettingFilePath)
 
     def quit(self):

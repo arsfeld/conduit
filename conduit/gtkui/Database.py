@@ -1,5 +1,7 @@
 import gobject
 import gtk
+import logging
+log = logging.getLogger("gtkui.Database")
 
 import conduit.Database as DB
 import conduit.Utils as Utils
@@ -58,7 +60,6 @@ class SqliteListStore(gtk.GenericTreeModel):
         the sqlite database.
         """
         (rows,) = self.db.select_one("SELECT COUNT(oid) FROM %s" % self.table)
-        print 'found', rows, 'rows'
         return rows
     
     def _get_columns(self):
@@ -222,7 +223,6 @@ class SqliteListStore(gtk.GenericTreeModel):
         is made for the count of all rows. Requesting the row count
         is done by passing None as the rowref.
         """
-        print 'iter_n_children'
         return 0 if rowref else self._get_n_rows()
     
     def on_iter_nth_child(self, rowref, n):

@@ -1,5 +1,8 @@
 import os.path
 import gtk, gtk.glade
+import logging
+log = logging.getLogger("gtkui.Config")
+
 
 import conduit
 
@@ -61,7 +64,7 @@ class SimpleConfigurator:
         """
         on_ok_clicked
         """
-        conduit.logd("OK Clicked")
+        log.debug("OK Clicked")
         for w in self.widgetInstances:
             #FIXME: This seems hackish
             if isinstance(w["Widget"], gtk.Entry):
@@ -69,7 +72,7 @@ class SimpleConfigurator:
             elif isinstance(w["Widget"], gtk.CheckButton):
                 w["Callback"](w["Widget"].get_active())
             else:
-                conduit.logw("Dont know how to retrieve value from a %s" % w["Widget"])
+                log.warn("Dont know how to retrieve value from a %s" % w["Widget"])
 
         self.dialog.destroy()
         
@@ -77,20 +80,20 @@ class SimpleConfigurator:
         """
         on_cancel_clicked
         """
-        conduit.logd("Cancel Clicked")
+        log.debug("Cancel Clicked")
         self.dialog.destroy()
         
     def on_help_clicked(self, widget):
         """
         on_help_clicked
         """
-        conduit.logd("Help Clicked")
+        log.debug("Help Clicked")
         
     def on_dialog_close(self, widget):
         """
         on_dialog_close
         """
-        conduit.logd("Dialog Closed")
+        log.debug("Dialog Closed")
         self.dialog.destroy()                       
 
     def run(self):

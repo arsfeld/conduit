@@ -7,9 +7,10 @@ License: GPLv2
 """
 
 import gtk
+import logging
+log = logging.getLogger("gtkui.Tree")
 
 import conduit
-from conduit import log,logd,logw
 from conduit.ModuleWrapper import ModuleWrapper
 
 DND_TARGETS = [
@@ -101,11 +102,11 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         built (in the constructor)
         @type signal: C{bool}
         """
-        logd("Adding DataProvider %s to TreeModel" % dpw)
+        log.debug("Adding DataProvider %s to TreeModel" % dpw)
         #Do we need to create a category first?
         i = self._get_category_index_by_name(dpw.category)
         if i == None:
-            logd("Creating Category %s" % dpw.category)
+            log.debug("Creating Category %s" % dpw.category)
             new_cat = CategoryWrapper(dpw.category)
             self.cats.append(new_cat)
             i = self.cats.index(new_cat)
@@ -145,7 +146,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
 
         i = self._get_category_index_by_name(dpw.category)
         if len(self.dataproviders[i]) == 0:
-            log("Category %s empty - removing." % dpw.category)
+            log.info("Category %s empty - removing." % dpw.category)
             self.row_deleted((i, ))
             del self.dataproviders[i]
             del self.cats[i]
@@ -375,7 +376,7 @@ class DataProviderTreeView(gtk.TreeView):
         #model, iter = treeselection.get_selected()
         #categoryHeading = model.get_value(iter, 4)
         #if categoryHeading:
-        #    logd("Aborting DND")
+        #    log.debug("Aborting DND")
         #    context.drag_abort()
 
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):

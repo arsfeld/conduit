@@ -4,10 +4,10 @@ Picasa Uploader.
 import os, sys
 import traceback
 import md5
-
+import logging
+log = logging.getLogger("modules.Picasa")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
@@ -81,7 +81,7 @@ class PicasaTwoWay(Image.ImageTwoWay):
 
     def delete(self, LUID):
         if not self.gphotos.has_key(LUID):
-            logw("Photo does not exit")
+            log.warn("Photo does not exit")
             return
 
         self.galbum.deletePhoto (self.gphotos[LUID])

@@ -10,9 +10,10 @@ import time
 import gobject
 import gtk, gtk.gdk
 import pango
+import logging
+log = logging.getLogger("gtkui.ConflictResolver")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Conflict as Conflict
@@ -170,7 +171,7 @@ class ConflictResolver:
         """
         if not self.model.iter_is_valid(rowref):
             #FIXME: Need to work a way around this before resolution can be threaded
-            logw("Iters do not persist throug signal emission!")
+            log.warn("Iters do not persist throug signal emission!")
             return
 
         self.model.remove(rowref)
@@ -256,25 +257,25 @@ class ConflictResolver:
 
             #do as the user inducated with the arrow
             if direction == Conflict.CONFLICT_SKIP:
-                logd("Not resolving")
+                log.debug("Not resolving")
                 return
             elif direction == Conflict.CONFLICT_COPY_SOURCE_TO_SINK:
-                logd("Resolving source data --> sink")
+                log.debug("Resolving source data --> sink")
                 data = conflict.sourceData
                 source = conflict.sourceWrapper
                 sink = conflict.sinkWrapper
             elif direction == Conflict.CONFLICT_COPY_SINK_TO_SOURCE:
-                logd("Resolving source <-- sink data")
+                log.debug("Resolving source <-- sink data")
                 data = conflict.sinkData
                 source = conflict.sinkWrapper
                 sink = conflict.sourceWrapper
             elif direction == Conflict.CONFLICT_DELETE:
-                logd("Resolving deletion  --->")
+                log.debug("Resolving deletion  --->")
                 data = conflict.sinkData
                 source = conflict.sourceWrapper
                 sink = conflict.sinkWrapper
             else:
-                logw("Unknown resolution")
+                log.warn("Unknown resolution")
 
             deleted = conflict.isDeletion
 
@@ -285,15 +286,15 @@ class ConflictResolver:
             else:
                 try:
                     if deleted:
-                        logd("Resolving conflict. Deleting %s from %s" % (data, sink))
+                        log.debug("Resolving conflict. Deleting %s from %s" % (data, sink))
                         conduit.Synchronization._delete_data(source, sink, data.get_UID())
                     else:
-                        logd("Resolving conflict. Putting %s --> %s" % (data, sink))
+                        log.debug("Resolving conflict. Putting %s --> %s" % (data, sink))
                         conduit.Synchronization._put_data(source, sink, data, None, True)
 
                     resolved.append(rowref)
                 except Exception:
-                    logw("Could not resolve conflict\n%s" % traceback.format_exc())
+                    log.warn("Could not resolve conflict\n%s" % traceback.format_exc())
 
         self.model.foreach(_resolve_func)
         for r in resolved:
@@ -451,13 +452,13 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
     def run(self):
         try:
             if self.isDeleted:
-                logd("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
+                log.debug("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
                 conduit.Synchronization._delete_data(self.source, self.sink, self.data.get_UID())
             else:
-                logd("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
+                log.debug("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
                 conduit.Synchronization._put_data(self.source, self.sink, self.data, None, True)
         except Exception:                        
-            logw("Could not resolve conflict\n%s" % traceback.format_exc())
+            log.warn("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
 
         self.emit("completed")
@@ -482,13 +483,13 @@ class ConflictResolveThreadManager:
         del(self.fooThreads[args])
         running = len(self.fooThreads) - len(self.pendingFooThreadArgs)
 
-        print "%s completed. %s running, %s pending" % (
-                            thread, running, len(self.pendingFooThreadArgs))
+        log.debug("Thread %s completed. %s running, %s pending" % (
+                            thread, running, len(self.pendingFooThreadArgs)))
 
         if running < self.maxConcurrentThreads:
             try:
                 args = self.pendingFooThreadArgs.pop()
-                print "Starting pending %s" % self.fooThreads[args]
+                log.debug("Starting pending %s" % self.fooThreads[args])
                 self.fooThreads[args].start()
             except IndexError: pass
 
@@ -509,13 +510,13 @@ class ConflictResolveThreadManager:
             self.fooThreads[args] = thread
 
             if running < self.maxConcurrentThreads:
-                print "Starting %s" % thread
+                log.debug("Starting %s" % thread)
                 self.fooThreads[args].start()
             else:
-                print "Queing %s" % thread
+                log.debug("Queing %s" % thread)
                 self.pendingFooThreadArgs.append(args)
         else:
-            logd("Already resolving conflict")
+            log.debug("Already resolving conflict")
 
     def join_all_threads(self):
         """

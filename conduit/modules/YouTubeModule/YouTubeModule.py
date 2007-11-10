@@ -3,11 +3,10 @@ from os.path import abspath, expanduser
 import sys
 import re
 from gettext import gettext as _
-
+import logging
+log = logging.getLogger("modules.YouTube")
 
 import conduit
-import logging
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
@@ -90,8 +89,8 @@ class YouTubeSource(DataProvider.DataSource):
                 favoritesofRb.set_active(True)
             user.set_text(self.username)
 
-        logging.debug("Max")
-        logging.debug(self.max)
+        log.debug("Max")
+        log.debug(self.max)
         maxdownloads.set_value(self.max)
 
         response = Utils.run_dialog(dlg, window)
@@ -130,7 +129,7 @@ class YouTubeSource(DataProvider.DataSource):
             if self.max > 0:
                 feedUrl = ("%s&max-results=%d" % (feedUrl, self.max))
 
-            logging.debug ("Retrieve URL: %s" % feedUrl)
+            log.debug ("Retrieve URL: %s" % feedUrl)
             url_info = urllib2.urlopen(feedUrl)
             if (url_info):
                 doc = ElementTree.parse(url_info).getroot()
@@ -145,7 +144,7 @@ class YouTubeSource(DataProvider.DataSource):
 
                     self.entries[title] = url
         except:
-            logging.debug("Error getting/parsing feed \n%s" % traceback.format_exc())
+            log.debug("Error getting/parsing feed \n%s" % traceback.format_exc())
             raise Exceptions.RefreshError
 
     def get_all(self):
@@ -155,10 +154,10 @@ class YouTubeSource(DataProvider.DataSource):
         DataProvider.DataSource.get(self, LUID)
         
         url = self.entries[LUID]
-        logging.debug("Title: '%s', Url: '%s'"%(LUID, url))
+        log.debug("Title: '%s', Url: '%s'"%(LUID, url))
         video_url = self._extract_video_url (url)
-        logging.debug ("URL: %s" % video_url)
-        logging.debug ("LUID: %s" % LUID)
+        log.debug ("URL: %s" % video_url)
+        log.debug ("LUID: %s" % LUID)
 
         f = Video.Video(URI=video_url)
         f.set_open_URI(video_url)
@@ -209,6 +208,6 @@ class YouTubeSource(DataProvider.DataSource):
             return url
     
         except:
-            log("Error getting/parsing feed \n%s" % traceback.format_exc())
+            log.warn("Error getting/parsing feed \n%s" % traceback.format_exc())
             return None
 

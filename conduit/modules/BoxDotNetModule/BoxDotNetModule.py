@@ -4,9 +4,10 @@ BoxDotNet Module
 import os, sys
 import traceback
 import md5
+import logging
+log = logging.getLogger("modules.BoxDotNet")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.DataProvider as DataProvider
@@ -55,10 +56,10 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         self.files = self._get_files(self.folder_id)
 
         if self.files.has_key(fileID):
-            logd("File [%s] does exist" % fileID)
+            log.debug("File [%s] does exist" % fileID)
             return fileID
         else:
-            logd("File [%s] does not exist" % fileID)
+            log.debug("File [%s] does not exist" % fileID)
             return None
 
     def _get_files(self,folderID):
@@ -252,14 +253,14 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
 
                     #this is a limited test for equality type comparison
                     comp = file.compare(remoteFile,True)
-                    logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
+                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
                             (file.get_filename(),remoteFile.get_filename(),comp))
                     if comp != conduit.datatypes.COMPARISON_EQUAL:
                         raise Exceptions.SynchronizeConflictError(comp, file, remoteFile)
                     else:
                         return Rid(uid=LUID)
 
-        logd("Uploading file URI = %s, Mimetype = %s, Original Name = %s" % (fileURI, mimeType, originalName))
+        log.debug("Uploading file URI = %s, Mimetype = %s, Original Name = %s" % (fileURI, mimeType, originalName))
 
         #upload the file
         return self._upload_file (fileURI, originalName)

@@ -13,6 +13,8 @@ License: GPLv2
 
 import avahi
 import dbus, dbus.glib
+import logging
+log = logging.getLogger("modules.OpenSync")
 
 import conduit
 
@@ -93,7 +95,7 @@ class AvahiAdvertiser:
         self.reset()
 
         try:
-            print "-------------------------- ADDING SERVICE"
+            log.debug("AVAHI ADDING SERVICE")
             self.group.AddService(
                     avahi.IF_UNSPEC,        #interface
                     avahi.PROTO_UNSPEC,     #protocol
@@ -106,7 +108,7 @@ class AvahiAdvertiser:
                     avahi.string_array_to_txt_array(["version=%s" % conduit.APPVERSION])
                     )
         except dbus.DBusException, err:
-            print "--------------------------------------ERROR",err
+            log.warn("ERROR: %s" % err)
 
         self.group.Commit() 
             
@@ -151,10 +153,6 @@ class AvahiMonitor:
         browser = dbus.Interface(obj, avahi.DBUS_INTERFACE_SERVICE_BROWSER)
         browser.connect_to_signal('ItemNew', self._new_service)
         browser.connect_to_signal('ItemRemove', self._remove_service)
-        browser.connect_to_signal('StateChanged',self.foo)
-
-    def foo(self, *args):
-        print "===========================",args
 
     def _new_service(self, interface, protocol, name, type, domain, flags):
         """
@@ -182,14 +180,14 @@ class AvahiMonitor:
         extra_info = avahi.txt_array_to_string_array(txt)
         extra = decode_avahi_text_array_to_dict(extra_info)
 
-        conduit.logd("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
+        log.debug("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
 
         # Check if the service is local and then check the 
         # conduit versions are identical
         if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
             self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
         else:
-            conduit.logd("Ignoring %s because remote conduit is different version" % name)
+            log.debug("Ignoring %s because remote conduit is different version" % name)
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
@@ -201,5 +199,5 @@ class AvahiMonitor:
         """
         Dbus callback when a service details cannot be resolved
         """
-        conduit.logw("Avahi/D-Bus error: %s" % repr(error))
+        log.warn("Avahi/D-Bus error: %s" % repr(error))
 

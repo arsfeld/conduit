@@ -1,6 +1,8 @@
 import gtk
 import gnomevfs
 from gettext import gettext as _
+import logging
+log = logging.getLogger("modules.File")
 
 import conduit
 import conduit.Utils as Utils
@@ -72,14 +74,14 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
     def _dnd_data_get(self, wid, context, x, y, selection, targetType, time):
         for uri in selection.get_uris():
             try:
-                conduit.logd("Drag recieved %s" % uri)
+                log.debug("Drag recieved %s" % uri)
                 info = gnomevfs.get_file_info(uri)
                 if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
                     self._add_folder(uri)
                 else:
                     self._add_file(uri)
             except Exception, err:
-                conduit.logd("Error adding %s\n%s" % (uri,err))
+                log.debug("Error adding %s\n%s" % (uri,err))
             
     def _make_view(self):
         """
@@ -179,7 +181,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         """
         Called when the folder scanner thread completes
         """
-        conduit.logd("Folder scan complete")
+        log.debug("Folder scan complete")
         self.db.update(
             table="config",
             oid=oid,

@@ -5,7 +5,9 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import gobject
-from conduit import log,logd,logw
+import logging
+log = logging.getLogger("Conduit")
+
 import conduit.Utils as Utils
 
 class Conduit(gobject.GObject):
@@ -89,13 +91,13 @@ class Conduit(gobject.GObject):
             if self.datasource == None:
                 self.datasource = dataprovider_wrapper
             else:         
-                logw("Only one datasource allowed per conduit")
+                log.warn("Only one datasource allowed per conduit")
                 return False
 
         elif dataprovider_wrapper.module_type == "sink":
             #only one sink of each kind is allowed
             if dataprovider_wrapper in self.datasinks:
-                logw("This datasink already present in this conduit")
+                log.warn("This datasink already present in this conduit")
                 return False
             else:
                 #temp reference for drawing the connector line
@@ -104,17 +106,17 @@ class Conduit(gobject.GObject):
         elif dataprovider_wrapper.module_type == "twoway":
             if self.datasource == None:
                 if trySourceFirst:
-                    logd("Adding twoway dataprovider into source position")
+                    log.debug("Adding twoway dataprovider into source position")
                     self.datasource = dataprovider_wrapper
                 else:
-                    logd("Adding twoway dataprovider into sink position")
+                    log.debug("Adding twoway dataprovider into sink position")
                     self.datasinks.append(dataprovider_wrapper)
             else:
-                logd("Adding twoway dataprovider into sink position")
+                log.debug("Adding twoway dataprovider into sink position")
                 self.datasinks.append(dataprovider_wrapper)
                 #Datasinks go on the right
         else:
-                logw("Only sinks, sources or twoway dataproviders may be added")
+                log.warn("Only sinks, sources or twoway dataproviders may be added")
                 return False
 
         self.emit("dataprovider-added", dataprovider_wrapper) 
@@ -203,7 +205,7 @@ class Conduit(gobject.GObject):
             del(self.datasinks[i])
             return True
         else:
-            logw("Could not remove %s" % dataprovider)
+            log.warn("Could not remove %s" % dataprovider)
             return False
 
     def can_do_two_way_sync(self):
@@ -217,12 +219,12 @@ class Conduit(gobject.GObject):
         return False
 
     def enable_two_way_sync(self):
-        logd("Enabling Two Way Sync")
+        log.debug("Enabling Two Way Sync")
         self.twoWaySyncEnabled = True
         self.emit("parameters-changed")
                     
     def disable_two_way_sync(self):
-        logd("Disabling Two Way Sync")
+        log.debug("Disabling Two Way Sync")
         self.twoWaySyncEnabled = False
         self.emit("parameters-changed")
 
@@ -230,12 +232,12 @@ class Conduit(gobject.GObject):
         return self.can_do_two_way_sync() and self.twoWaySyncEnabled
 
     def enable_slow_sync(self):
-        logd("Enabling Slow Sync")
+        log.debug("Enabling Slow Sync")
         self.slowSyncEnabled = True
         self.emit("parameters-changed")
 
     def disable_slow_sync(self):
-        logd("Disabling Slow Sync")
+        log.debug("Disabling Slow Sync")
         self.slowSyncEnabled = False
         self.emit("parameters-changed")
 
@@ -246,7 +248,6 @@ class Conduit(gobject.GObject):
         """
         called when dpw becomes unavailable.
         """
-        print "SWAP: OLD: %s, NEW: %s" % (oldDpw, newDpw)
         x,y = self.get_dataprovider_position(oldDpw)
         self.delete_dataprovider(oldDpw)
         self.add_dataprovider(
@@ -259,7 +260,7 @@ class Conduit(gobject.GObject):
         if dp in self.get_all_dataproviders():
             self.syncManager.refresh_dataprovider(self, dp)
         else:
-            logw("Could not refresh dataprovider: %s" % dp)
+            log.warn("Could not refresh dataprovider: %s" % dp)
 
     def refresh(self, block=False):
         if self.datasource is not None and len(self.datasinks) > 0:
@@ -267,7 +268,7 @@ class Conduit(gobject.GObject):
             if block == True:
                 self.syncManager.join_one(self)
         else:
-            log("Conduit must have a datasource and a datasink")
+            log.info("Conduit must have a datasource and a datasink")
 
     def sync(self, block=False):
         if self.datasource is not None and len(self.datasinks) > 0:
@@ -275,5 +276,5 @@ class Conduit(gobject.GObject):
             if block == True:
                 self.syncManager.join_one(self)
         else:
-            log("Conduit must have a datasource and a datasink")
+            log.info("Conduit must have a datasource and a datasink")
 

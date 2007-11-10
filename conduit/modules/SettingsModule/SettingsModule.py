@@ -4,10 +4,10 @@ import gobject
 import tarfile
 import tempfile
 import ConfigParser
-
 import logging
+log = logging.getLogger("modules.Settings")
+
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 from conduit.datatypes import DataType
@@ -68,7 +68,7 @@ class Settings(DataProvider.DataSource):
         parser = ConfigParser.RawConfigParser()
         parser.read([filename])
         if not parser.has_section("Backup"):
-            logw("Cannot parse backup config file %s" % filename)
+            log.warn("Cannot parse backup config file %s" % filename)
             raise Exception
 
         #get the translated display name

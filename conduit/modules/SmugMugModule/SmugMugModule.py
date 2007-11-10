@@ -4,9 +4,10 @@ SmugMug Uploader.
 import os, sys
 import traceback
 import md5
+import logging
+log = logging.getLogger("modules.SmugMug")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.Utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
@@ -40,7 +41,7 @@ class SmugMugTwoWay(Image.ImageTwoWay):
         try:
             return self.sapi.get_image_info (photoId)
         except SmugMugException, e:
-            logw ("Get info error: %s" % e.get_printable_error())
+            log.warn ("Get info error: %s" % e.get_printable_error())
             return None
 
     def _get_raw_photo_url(self, photoInfo):
@@ -93,7 +94,7 @@ class SmugMugTwoWay(Image.ImageTwoWay):
         try:
             self.sapi.delete_image(LUID)
         except SmugMugException, e:
-            logw('Delete error: %s' % e.get_printable_error())
+            log.warn('Delete error: %s' % e.get_printable_error())
 
     def _get_photo_size (self):
         return self.imageSize

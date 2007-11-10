@@ -13,14 +13,13 @@ License: GPLv2
 import sys
 import os.path
 
-
 #support running uninstalled
 _dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if os.path.exists(os.path.join(_dirname,"ChangeLog")):
     sys.path.insert(0, _dirname)
 
-# Start the application
 import conduit
+import conduit.Logging
 import conduit.Main
 app = conduit.Main.Application()
  

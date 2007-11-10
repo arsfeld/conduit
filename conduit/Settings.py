@@ -8,9 +8,52 @@ License: GPLv2
 """
 import gobject
 import gconf
-#import gnomekeyring
+import logging
+log = logging.getLogger("Settings")
 
-import conduit
+#import gnomekeyring
+#import conduit
+
+#these dicts are used for mapping config setting types to type names
+#and back again (isnt python cool...)
+TYPE_TO_TYPE_NAME = {
+    int     :   "int",
+    bool    :   "bool",
+    str     :   "string",
+    list    :   "list"
+}
+STRING_TO_TYPE = {
+    "int"       :   lambda x: int(x),
+    "bool"      :   lambda x: string_to_bool(x),
+    "string"    :   lambda x: str(x),
+    "list"      :   lambda x: string_to_list(x)
+}
+TYPE_TO_STRING = {
+    int     :   lambda x: str(x),
+    bool    :   lambda x: str(x),
+    str     :   lambda x: str(x),
+    list    :   lambda x: list_to_string(x)
+}
+
+def string_to_bool(stringy):
+    #Because bool("False") doesnt work as expected when restoring strings
+    if stringy == "True":
+        return True
+    else:
+        return False
+    
+def list_to_string(listy):
+    s = ""
+    if type(listy) is list:
+        s = ",".join(listy) #cool
+    return s
+    
+def string_to_list(string, listInternalVtype=str):
+    l = string.split(",")
+    internalTypeName = TYPE_TO_TYPE_NAME[listInternalVtype]
+    for i in range(0, len(l)):
+        l[i] = STRING_TO_TYPE[internalTypeName](l[i])
+    return l
 
 class Settings(gobject.GObject):
     """
@@ -44,26 +87,6 @@ class Settings(gobject.GObject):
         'web_login_browser'         :   "system"    #When loggin into websites use: "system","gtkmozembed","webkit","gtkhtml"
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"
-    #these dicts are used for mapping config setting types to type names
-    #and back again (isnt python cool...)
-    TYPE_TO_TYPE_NAME = {
-        int     :   "int",
-        bool    :   "bool",
-        str     :   "string",
-        list    :   "list"
-    }
-    STRING_TO_TYPE = {
-        "int"       :   lambda x: int(x),
-        "bool"      :   lambda x: Settings._string_to_bool(x),
-        "string"    :   lambda x: str(x),
-        "list"      :   lambda x: Settings._string_to_list(x)
-    }
-    TYPE_TO_STRING = {
-        int     :   lambda x: str(x),
-        bool    :   lambda x: str(x),
-        str     :   lambda x: str(x),
-        list    :   lambda x: Settings._list_to_string(x)
-    }
         
     def __init__(self):
         """
@@ -84,29 +107,6 @@ class Settings(gobject.GObject):
         #http://bugzilla.gnome.org/show_bug.cgi?id=376183
         #http://bugzilla.gnome.org/show_bug.cgi?id=363019
         #self._init_keyring()
-
-    @staticmethod
-    def _string_to_bool(stringy):
-        #Because bool("False") doesnt work as expected when restoring strings
-        if stringy == "True":
-            return True
-        else:
-            return False
-        
-    @staticmethod    
-    def _list_to_string(listy):
-        s = ""
-        if type(listy) is list:
-            s = ",".join(listy) #cool
-        return s
-        
-    @staticmethod
-    def _string_to_list(string, listInternalVtype=str):
-        l = string.split(",")
-        internalTypeName = Settings.TYPE_TO_TYPE_NAME[listInternalVtype]
-        for i in range(0, len(l)):
-            l[i] = Settings.STRING_TO_TYPE[internalTypeName](l[i])
-        return l
 
     def _init_keyring(self):
         """
@@ -204,7 +204,7 @@ class Settings(gobject.GObject):
             strvalues = [str(i) for i in value]
             self.client.set_list(key, gconf.VALUE_STRING, strvalues)
         else:
-            conduit.logw("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
+            log.warn("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
 
     def get_username_and_password(self, classname):
         """

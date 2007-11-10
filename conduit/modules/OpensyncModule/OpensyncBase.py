@@ -5,6 +5,8 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import md5
+import logging
+log = logging.getLogger("modules.OpenSync")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
@@ -13,7 +15,6 @@ from conduit.datatypes import Rid
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
-from conduit import log,logd,logw
 
 import opensync
 
@@ -160,13 +161,13 @@ class Callbacks(opensync.ContextCallbacks):
         self.dp = dp
 
     def callback(self, err):
-        logw(err)
+        log.warn(err)
 
     def changes(self, change):
         self.dp.uids[change.uid] = self.dp._change_to_object(change)
 
     def warning(self, warning):
-        logw(warning)
+        log.warn(warning)
 
 
 class ContactDataprovider(BaseDataprovider):

@@ -1,8 +1,7 @@
-import conduit
-from conduit import log,logd,logw
-from conduit.datatypes import DataType
+import vobject 
 
-import vobject
+import conduit
+from conduit.datatypes import DataType
 
 class Event(DataType.DataType):
     """

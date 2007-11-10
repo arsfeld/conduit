@@ -4,9 +4,14 @@ except:
     import xml.etree.ElementTree as ET
 
 import dbus
+import os
+import os.path
+import traceback
+import datetime
+import logging
+log = logging.getLogger("modules.Tomboy")
 
 import conduit
-from conduit import log,logd,logw
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
@@ -15,11 +20,6 @@ import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
 import conduit.datatypes.Text as Text
 import conduit.Utils as Utils
-
-import os
-import os.path
-import traceback
-import datetime
 
 TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
 TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
@@ -58,13 +58,13 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             self.remoteTomboy = dbus.Interface(obj, "org.gnome.Tomboy.RemoteControl")
             version = str(self.remoteTomboy.Version())
             if version >= TOMBOY_MIN_VERSION:
-                log("Using Tomboy Version %s" % version)
+                log.info("Using Tomboy Version %s" % version)
                 return True
             else:
-                logw("Incompatible Tomboy Version %s" % version)
+                log.warn("Incompatible Tomboy Version %s" % version)
                 return False
         else:
-            logw("Tomboy DBus interface not found")
+            log.warn("Tomboy DBus interface not found")
             return False
 
     def _update_note(self, uid, note):
@@ -93,7 +93,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             timestr = self.remoteTomboy.GetNoteChangeDate(uid)
             mtime = datetime.datetime.fromtimestamp(int(timestr))
         except:
-            logw("Error parsing tomboy note modification time")
+            log.warn("Error parsing tomboy note modification time")
             mtime = None
         return mtime
 
@@ -158,14 +158,14 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             if self.remoteTomboy.NoteExists(LUID):
                 if overwrite == True:
                     #replace the note
-                    log("Replacing Note %s" % LUID)
+                    log.info("Replacing Note %s" % LUID)
                     rid = self._update_note(LUID, note)
                     return rid
                 else:
                     #Only replace if newer
                     existingNote = self._get_note(LUID)
                     comp = note.compare(existingNote)
-                    logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
+                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
                             (note.title,existingNote.title,comp))
                     if comp != conduit.datatypes.COMPARISON_NEWER:
                         raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
@@ -173,20 +173,20 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                         rid = self._update_note(LUID, note)
                         return rid
             else:
-                log("Told to replace note %s, nothing there to replace." % LUID)
+                log.info("Told to replace note %s, nothing there to replace." % LUID)
                     
         #We havent, or its been deleted so add it. 
-        log("Saving new Note")
+        log.info("Saving new Note")
         rid = self._create_note(note)
         return rid
 
     def delete(self, LUID):
         if self.remoteTomboy.NoteExists(LUID):
             if self.remoteTomboy.DeleteNote(LUID):
-                logd("Deleted note %s" % LUID)
+                log.debug("Deleted note %s" % LUID)
                 return
 
-        logw("Error deleting note %s" % LUID)
+        log.warn("Error deleting note %s" % LUID)
 
     def finish(self):
         DataProvider.TwoWay.finish(self)

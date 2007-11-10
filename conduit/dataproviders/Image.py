@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger("dataproviders.Image")
+
 import conduit
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
@@ -136,14 +139,14 @@ class ImageSink(DataProvider.DataSink):
 
                     #this is a limited test for equality type comparison
                     comp = photo.compare(remoteFile,True)
-                    conduit.logd("Compared %s with %s to check if they are the same (size). Result = %s" % 
+                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
                             (photo.get_filename(),remoteFile.get_filename(),comp))
                     if comp != conduit.datatypes.COMPARISON_EQUAL:
                         raise Exceptions.SynchronizeConflictError(comp, photo, remoteFile)
                     else:
                         return Rid(uid=LUID)
 
-        conduit.logd("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
+        log.debug("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
 
         #upload the file
         return self._upload_photo (uploadInfo)
