@@ -18,7 +18,7 @@ class ConduitLogger(logging.Logger):
         
         #create the single file appending handler
         if ConduitLogger.LOG_FILE_HANDLER == None:
-            filename = os.path.join(conduit.USER_DIR,'conduit.log')
+            filename = os.environ.get('CONDUIT_LOGFILE',os.path.join(conduit.USER_DIR,'conduit.log'))
             ConduitLogger.LOG_FILE_HANDLER = logging.FileHandler(filename,'w')
             ConduitLogger.LOG_FILE_HANDLER.setFormatter(formatter)
 

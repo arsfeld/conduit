@@ -76,41 +76,23 @@ class AvahiAdvertiser:
                     avahi.DBUS_INTERFACE_ENTRY_GROUP
                     )
 
-    def foo(self):
-        self.group.AddServiceSubtype(
-                            avahi.IF_UNSPEC,        #interface
-                            avahi.PROTO_UNSPEC,     #protocol
-                            0,                      #flags
-                            self.hostname,          #name
-                            AVAHI_SERVICE_NAME,     #service type
-                            AVAHI_SERVICE_DOMAIN,   #domain
-                            "_foo_"
-                            )
-        self.group.Commit()
-
     def announce(self):
         """
         Resets the group, announces Conduit, and commits the change
         """
-        self.reset()
-
-        try:
-            log.debug("AVAHI ADDING SERVICE")
-            self.group.AddService(
-                    avahi.IF_UNSPEC,        #interface
-                    avahi.PROTO_UNSPEC,     #protocol
-                    0,                      #flags
-                    self.hostname,          #name
-                    AVAHI_SERVICE_NAME,     #service type
-                    AVAHI_SERVICE_DOMAIN,   #domain
-                    '',                     #host
-                    self.port,              #port
-                    avahi.string_array_to_txt_array(["version=%s" % conduit.APPVERSION])
-                    )
-        except dbus.DBusException, err:
-            log.warn("ERROR: %s" % err)
-
-        self.group.Commit() 
+        log.debug("Announcing avahi conduit service")
+        self.group.AddService(
+                avahi.IF_UNSPEC,        #interface
+                avahi.PROTO_UNSPEC,     #protocol
+                0,                      #flags
+                self.hostname,          #name
+                AVAHI_SERVICE_NAME,     #service type
+                AVAHI_SERVICE_DOMAIN,   #domain
+                '',                     #host
+                self.port,              #port
+                avahi.string_array_to_txt_array(["version=%s" % conduit.APPVERSION])
+                )
+        self.group.Commit()
             
     def reset(self):
         if not self.group.IsEmpty():

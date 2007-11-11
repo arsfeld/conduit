@@ -35,16 +35,24 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         self.DP_PORT = 3401
 
         #watch the modulemanager for added conduits and syncsets
-        conduit.GLOBALS.moduleManager.connect('syncset-added', self._syncset_added)
+        if conduit.GLOBALS.moduleManager != None:
+            conduit.GLOBALS.moduleManager.connect('syncset-added', self._syncset_added)
+            # Initiate Avahi stuff & announce our presence
+            try:
+                self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
+                self.advertiser.announce()
+    
+                # start the server which anounces other shared servers
+                self.peerAnnouncer = _StoppableXMLRPCServer('',SERVER_PORT)
+                self.peerAnnouncer.register_function(self.list_shared_dataproviders)
+                self.peerAnnouncer.start()
+            except:
+                log.warn("Error starting server")
+            
+        else:
+            log.warn("Could not start server, moduleManager not created yet")
 
-        # Initiate Avahi stuff & announce our presence
-        self.advertiser = Peers.AvahiAdvertiser("_conduit.tcp", SERVER_PORT)
-        self.advertiser.announce()
 
-        # start the server which anounces other shared servers
-        self.peerAnnouncer = _StoppableXMLRPCServer('',SERVER_PORT)
-        self.peerAnnouncer.register_function(self.list_shared_dataproviders)
-        self.peerAnnouncer.start()
 
     def list_shared_dataproviders(self):
         info = []
