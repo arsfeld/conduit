@@ -55,6 +55,8 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # Methods:
 # AddConduit
 # DeleteConduit
+# SaveToXml
+# RestoreFromXml
 # 
 # Signals:
 # ConduitAdded(key)
@@ -397,14 +399,12 @@ class SyncSetDBusItem(DBusItem):
     @dbus.service.method(SYNCSET_DBUS_IFACE, in_signature='s', out_signature='')
     def SaveToXml(self, path):
         self._print("SaveToXml: %s" % path)
-        self.syncSet.xmlSettingFilePath = os.path.abspath(path)
-        self.syncSet.save_to_xml()
+        self.syncSet.save_to_xml(os.path.abspath(path))
         
     @dbus.service.method(SYNCSET_DBUS_IFACE, in_signature='s', out_signature='')
     def RestoreFromXml(self, path):
         self._print("RestoreFromXml: %s" % path)
-        self.syncSet.xmlSettingFilePath = os.path.abspath(path)
-        self.syncSet.restore_to_xml()
+        self.syncSet.restore_from_xml(os.path.abspath(path))
 
 class DBusInterface(DBusItem):
     def __init__(self, conduitApplication, moduleManager, typeConverter, syncManager, guiSyncSet, dbusSyncSet):

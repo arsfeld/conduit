@@ -2,6 +2,8 @@
 from common import *
 from conduit.DBus import *
 
+import tempfile
+
 #Call the DBus functions directly so that we get code coverage analysis
 #See example-dbus-conduit-client.py file for and example of the DBus iface
 #Note: A few small hacks are needed to acomplish this, get_path() and SENDER
@@ -101,9 +103,19 @@ except:
 ss = get_dbus_object("/syncset/gui")
 ss.AddConduit(cond.get_path())
 ok("Add Conduit to SyncSet", True)
-
 ss.DeleteConduit(cond.get_path())
 ok("Delete Conduit from SyncSet", True)
 
+#Save and restore ss to xml
+fd, xmlfile = tempfile.mkstemp(prefix="conduit")
+ss2 = dbus.NewSyncSet()
+ss2.AddConduit(cond.get_path())
+ok("Add Conduit to New SyncSet", True)
+ss2.SaveToXml(xmlfile)
+ok("Save SyncSet to xml", True)
+
+ss3 = dbus.NewSyncSet()
+ss3.RestoreFromXml(xmlfile)
+ok("Restore SyncSet from xml", True)
 
 finished()
