@@ -10,7 +10,7 @@ sys.path.insert(0, base_path)
 
 # import main conduit module
 import conduit
-#enable loggin
+#enable logging
 import conduit.Logging
 
 # import code used by SimpleSync tests

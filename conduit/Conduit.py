@@ -151,19 +151,6 @@ class Conduit(gobject.GObject):
                 
         return False
         
-    def has_dataprovider_by_key(self, key):
-        """
-        Checks if the conduit containes the specified dataprovider (checks using the key)
-        
-        @type dataprovider: L{Conduit.Module.ModuleWrapper}
-        @returns: True if the conduit contains the dataprovider
-        @rtype: C{bool}
-        """
-        if key in [dp.get_key() for dp in self.get_all_dataproviders()]:
-            return True
-        else:
-            return False
-
     def get_dataproviders_by_key(self, key):
         """
         Use list comprehension to return all dp's with a given key
@@ -256,9 +243,11 @@ class Conduit(gobject.GObject):
                     )
         self.emit("dataprovider-changed", oldDpw, newDpw) 
 
-    def refresh_dataprovider(self, dp):
+    def refresh_dataprovider(self, dp, block=False):
         if dp in self.get_all_dataproviders():
             self.syncManager.refresh_dataprovider(self, dp)
+            if block == True:
+                self.syncManager.join_one(self)
         else:
             log.warn("Could not refresh dataprovider: %s" % dp)
 

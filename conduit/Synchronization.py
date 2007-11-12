@@ -100,13 +100,13 @@ class SyncManager:
             self.syncWorkers[c].join(timeout)
 
     def refresh_dataprovider(self, conduit, dataprovider):
-        if dataprovider in self.syncWorkers:
-            self._cancel_sync_thread(dataprovider)
+        if conduit in self.syncWorkers:
+            self._cancel_sync_thread(conduit)
 
         #Create a new thread over top
         newThread = RefreshDataProviderWorker(conduit, dataprovider)
-        self.syncWorkers[dataprovider] = newThread
-        self.syncWorkers[dataprovider].start()
+        self.syncWorkers[conduit] = newThread
+        self.syncWorkers[conduit].start()
 
     def refresh_conduit(self, conduit):
         """
