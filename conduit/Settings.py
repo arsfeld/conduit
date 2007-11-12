@@ -100,33 +100,6 @@ class Settings(gobject.GObject):
         self.client.add_dir(self.CONDUIT_GCONF_DIR[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)  
         self.notifications = []
 
-        # Init the keyring
-        self.classUsernamesAndPasswords = {}
-
-        #FIXME: BROKEN
-        #http://bugzilla.gnome.org/show_bug.cgi?id=376183
-        #http://bugzilla.gnome.org/show_bug.cgi?id=363019
-        #self._init_keyring()
-
-    def _init_keyring(self):
-        """
-        Connects to the Gnome Keyring. All passwords are stored under a 
-        conduit key, in the format
-
-        classname:username:password;classname:username:password
-
-        This function gets all the usernames and passwords and puts them in a
-        dict organised by class name
-        """
-        pass
-        #self.keyring = gnomekeyring.get_default_keyring_sync()
-        #token = self.get("%s_token" % conduit.APPNAME, int, 0)
-        #if token > 0:
-        #    secrets = gnomekeyring.item_get_info_sync(self.keyring, token).get_secret()
-        #    for i in secrets.split(';'):
-        #        j = i.split(':')
-        #        self.classUsernamesAndPasswords[j[0]] = (j[0], j[1])
-
     def _fix_key(self, key):
         """
         Appends the CONDUIT_GCONF_PREFIX to the key if needed
@@ -179,8 +152,11 @@ class Settings(gobject.GObject):
             return value.get_string()
         elif vtype is int:
             return value.get_int()
-        elif vtype is list:
+        elif vtype in [list, tuple]:
             return value.get_list()
+            
+        log.warn("Unknown gconf key: %s" % key)
+        return None
 
     def set(self, key, value, vtype=None):
         """
@@ -199,24 +175,14 @@ class Settings(gobject.GObject):
             self.client.set_string(key, value)
         elif vtype is int:
             self.client.set_int(key, value)
-        elif vtype is list:
+        elif vtype in [list, tuple]:
             #Save every value as a string
             strvalues = [str(i) for i in value]
             self.client.set_list(key, gconf.VALUE_STRING, strvalues)
         else:
             log.warn("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
+            return False
 
-    def get_username_and_password(self, classname):
-        """
-        Returns a tuple of username and password for the class defined
-        by classname
-        """
-        pass
-    
-    def set_username_and_password(self, classname, password, username=''):
-        """
-        Stores the username and password for the class called classname
-        """        
-        pass
-
+        return True            
+        
 
