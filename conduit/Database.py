@@ -227,7 +227,7 @@ class GenericDB(gobject.GObject):
             fields = self.get_fields(table)
             #Decide whether to print the oid or not
             if printoid:
-                fields = ('oid',) + fields
+                fields = ('oid',) + tuple(fields)
                 fieldIndices = range(0, len(fields))
             else:
                 fieldIndices = range(1, len(fields))

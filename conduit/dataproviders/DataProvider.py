@@ -14,6 +14,7 @@ log = logging.getLogger("dataproviders.DataProvider")
 import conduit
 import conduit.ModuleWrapper as ModuleWrapper
 import conduit.Utils as Utils
+import conduit.Settings as Settings
 
 #Constants used in the sync state machine
 STATUS_NONE = 0
@@ -253,12 +254,12 @@ class DataProviderBase(gobject.GObject):
                 configxml = xml.dom.minidom.Element(str(config))
                 #store the value and value type
                 try:
-                    vtype = conduit.Settings.Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
-                    value = conduit.Settings.Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
+                    vtype = Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
+                    value = Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
                 except KeyError:
                     log.warn("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
-                    vtype = conduit.Settings.Settings.TYPE_TO_TYPE_NAME[str]
-                    value = conduit.Settings.Settings.TYPE_TO_STRING[str](configDict[config])
+                    vtype = Settings.TYPE_TO_TYPE_NAME[str]
+                    value = Settings.TYPE_TO_STRING[str](configDict[config])
                 configxml.setAttribute("type", vtype)
                 valueNode = xml.dom.minidom.Text()
                 valueNode.data = value
@@ -305,7 +306,7 @@ class DataProviderBase(gobject.GObject):
                         raw = s.firstChild.data
                         vtype = s.getAttribute("type")
                         try:
-                            data = conduit.Settings.Settings.STRING_TO_TYPE[vtype](raw)
+                            data = Settings.STRING_TO_TYPE[vtype](raw)
                         except KeyError:
                             #fallback to string type
                             log.warn("Cannot convert string (%s) to native type %s\n" % (raw, vtype, traceback.format_exc()))
