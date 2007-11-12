@@ -37,8 +37,10 @@ def new_file(filename):
     else:
         files = get_files_from_data_dir(filename)
         txt = read_data_file(files[0])
-
-    return Utils.new_tempfile(txt)
+    f = Utils.new_tempfile(txt)
+    f.set_UID(Utils.random_string())
+    f.set_open_URI(Utils.random_string())
+    return f
 
 def new_note(filename):
     n = conduit.datatypes.Note.Note(
@@ -55,6 +57,8 @@ def new_event(filename):
                 URI=Utils.random_string()
                 )
     e.set_from_ical_string( read_data_file(icals[0]) )
+    e.set_UID(Utils.random_string())
+    e.set_open_URI(Utils.random_string())
     return e
 
 def new_contact(filename):
@@ -63,12 +67,17 @@ def new_contact(filename):
                 URI=Utils.random_string()
                 )
     c.set_from_vcard_string( read_data_file(vcards[0]) )
+    c.set_UID(Utils.random_string())
+    c.set_open_URI(Utils.random_string())
     return c
 
 def new_email(filename):
-    return conduit.datatypes.Email.Email(
+    e = conduit.datatypes.Email.Email(
                 URI=Utils.random_string()
                 )
+    e.set_UID(Utils.random_string())
+    e.set_open_URI(Utils.random_string())
+    return e
 
 #Dynamically load all datasources, datasinks and converters
 type_converter = SimpleTest().type_converter
@@ -133,8 +142,6 @@ for fromtype,totype in tests:
         toinstance = type_converter.convert(fromtype,totype,frominstance)
         ok("[%s] Conversion Successful" % conv,toinstance != None, False)
         #check that all info was retained
-        retained = toinstance.get_mtime() == frominstance.get_mtime()
-        ok("[%s] Mtime retained (%s vs. %s)" % (conv,frominstance.get_mtime(),toinstance.get_mtime()), retained, False)
         retained = toinstance.get_UID() == frominstance.get_UID()
         ok("[%s] UID retained (%s vs. %s)" % (conv,frominstance.get_UID(),toinstance.get_UID()), retained, False)
         retained = toinstance.get_open_URI() == frominstance.get_open_URI()
