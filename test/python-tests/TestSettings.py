@@ -17,7 +17,7 @@ SETTINGS = {
 for k,v in SETTINGS.items():
     val = s.get(k)
     ok("Settings returned correct type (%s) for %s" % (type(val),k), type(val) == type(v))
-    i = s.set(k,v)
+    i = s.set(k,val)
     ok("Save setting %s OK" % k, i)
 
 #Override defaults

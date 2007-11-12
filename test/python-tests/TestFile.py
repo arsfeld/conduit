@@ -7,9 +7,6 @@ import conduit.Utils as Utils
 
 import os
 
-#so conduit asks me for my password
-init_gnomevfs_authentication()
-
 try:
     f = File.File()
 except:
@@ -75,6 +72,9 @@ f1.transfer(f2)
 f3.transfer(f4)
 
 if is_online():
+    #so conduit asks me for my password
+    init_gnomevfs_authentication()
+
     remoteURIs = [  "ssh://root@www.greenbirdsystems.com/root/sync/Document.abw",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Image.png",
                     "ssh://root@www.greenbirdsystems.com/root/sync/Tgz.tar.gz",
