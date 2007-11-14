@@ -57,7 +57,6 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         """
         @returns: A Rid for the note
         """
-        assert(uid != "")
         log.debug("Updating note uid: %s" % uid)
         xmlContent = '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
         ok = self.remoteTomboy.SetNoteContentsXml(uid, xmlContent)
@@ -95,7 +94,6 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         @returns: A Rid for the created note
         """
         uid = self.remoteTomboy.CreateNamedNote(note.get_title())
-        assert(uid != "")
         #fill out the note content
         rid = self._update_note(str(uid), note)
         return rid
@@ -129,7 +127,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         DataProvider.TwoWay.put(self, note, overwrite, LUID)
         existingNote = None
 
-        log.debug("Put note: %s (LUID: %s)" % (note, LUID))
+        log.debug("Put note LUID: %s" % LUID)
 
         #Check if the note, or one with same title exists
         if LUID != None:

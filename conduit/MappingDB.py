@@ -103,13 +103,28 @@ class MappingDB:
         else:
             sql = "SELECT * FROM mappings WHERE oid = ?"
             res = self._db.select_one(sql, (oid,))
-            m = Mapping(
-                    res[0],
-                    sourceUID=res[1],
-                    sourceRid=conduit.datatypes.Rid(res[2],res[3],res[4]),
-                    sinkUID=res[5],
-                    sinkRid=conduit.datatypes.Rid(res[6],res[7],res[8])
-                    )
+            #a mapping is always returned relative to the source -> sink
+            #order in which it was called.
+            if (res[1] == sourceUID):
+                m = Mapping(
+                        res[0],
+                        sourceUID=res[1],
+                        sourceRid=conduit.datatypes.Rid(res[2],res[3],res[4]),
+                        sinkUID=res[5],
+                        sinkRid=conduit.datatypes.Rid(res[6],res[7],res[8])
+                        )
+            else:
+                m = Mapping(
+                        res[0],
+                        sourceUID=res[5],
+                        sourceRid=conduit.datatypes.Rid(res[6],res[7],res[8]),
+                        sinkUID=res[1],
+                        sinkRid=conduit.datatypes.Rid(res[2],res[3],res[4])
+                        )
+        #FIXME: Remove these...
+        assert(m.sourceUID == sourceUID)
+        assert(m.sinkUID == sinkUID)
+        assert(m.get_source_rid().get_UID() == dataLUID)
         return m
 
     def get_mappings_for_dataproviders(self, sourceUID, sinkUID):
