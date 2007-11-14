@@ -287,10 +287,10 @@ class ConflictResolver:
                 try:
                     if deleted:
                         log.debug("Resolving conflict. Deleting %s from %s" % (data, sink))
-                        conduit.Synchronization._delete_data(source, sink, data.get_UID())
+                        conduit.Synchronization.delete_data(source, sink, data.get_UID())
                     else:
                         log.debug("Resolving conflict. Putting %s --> %s" % (data, sink))
-                        conduit.Synchronization._put_data(source, sink, data, None, True)
+                        conduit.Synchronization.put_data(source, sink, data, None, True)
 
                     resolved.append(rowref)
                 except Exception:
@@ -453,10 +453,10 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
         try:
             if self.isDeleted:
                 log.debug("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
-                conduit.Synchronization._delete_data(self.source, self.sink, self.data.get_UID())
+                conduit.Synchronization.delete_data(self.source, self.sink, self.data.get_UID())
             else:
                 log.debug("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-                conduit.Synchronization._put_data(self.source, self.sink, self.data, None, True)
+                conduit.Synchronization.put_data(self.source, self.sink, self.data, None, True)
         except Exception:                        
             log.warn("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)

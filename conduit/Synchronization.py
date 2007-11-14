@@ -19,27 +19,33 @@ import conduit.DeltaProvider as DeltaProvider
 from conduit.Conflict import Conflict, CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_UNKNOWN
 
-def _put_data(source, sink, mapping, data, overwrite, oldRid=None):
+def put_data(source, sink, sourceData, sourceDataRid, overwrite):
     """
-    Puts data into sink, overwrites if overwrite is True. Updates 
+    Puts sourceData into sink, overwrites if overwrite is True. Updates 
     the mappingDB
     """
-    
-    log.info("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
-    LUID = mapping.sinkRid.get_UID()
-    sourceRid = data.get_rid()
+    #get the existing mapping
+    mapping = conduit.GLOBALS.mappingDB.get_mapping(
+                            sourceUID=source.get_UID(),
+                            dataLUID=sourceDataRid.get_UID(),
+                            sinkUID=sink.get_UID()
+                            )
+    sourceDataLUID = sourceDataRid.get_UID()
+    sinkDataLUID = mapping.get_sink_rid().get_UID()
+
+    #put the data
+    log.info("Putting data %s --> %s into %s" % (sourceDataLUID, sinkDataLUID, sink.get_UID()))
     sinkRid = sink.module.put(
-                    data, 
+                    sourceData, 
                     overwrite, 
-                    LUID)
-    print "--x-----------------\n%s" % oldRid
-    print "-s->----------------\n%s" % sourceRid
-    print "-->s----------------\n%s" % sinkRid
+                    sinkDataLUID)
+    
+    #Update the mapping and save
+    mapping.set_source_rid(sourceDataRid)
     mapping.set_sink_rid(sinkRid)
-    mapping.set_source_rid(oldRid)
     conduit.GLOBALS.mappingDB.save_mapping(mapping)
 
-def _delete_data(source, sink, dataLUID):
+def delete_data(source, sink, dataLUID):
     """
     Deletes data from sink and updates the mapping DB
     """
@@ -270,33 +276,30 @@ class SyncWorker(_ThreadedWorker):
 
         return data
 
+    def _put_data(self, source, sink, sourceData, sourceDataRid):
+        """
+        Handles exceptions when putting data from source to sink. Default is
+        not to overwrite
+        """
+        if sourceData != None:
+            try:
+                put_data(source, sink, sourceData, sourceDataRid, False)
+            except Exceptions.SynchronizeConflictError, err:
+                comp = err.comparison
+                if comp == COMPARISON_OLDER:
+                    log.info("Skipping %s (Older)" % sourceData)
+                elif comp == COMPARISON_EQUAL:
+                    log.info("Skipping %s (Equal)" % sourceData)
+                else:
+                    self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
 
-    def _transfer_data(self, source, sink, data):
+    def _convert_data(self, source, sink, data):
         """
-        Puts the data from source to sink, includes performing any conversions,
-        handling exceptions, etc.
+        Converts data into a format acceptable for sink, handling exceptions, etc.
         """
+        newdata = None
         try:
-            #convert data type if necessary
             newdata = self.typeConverter.convert(source.get_output_type(), sink.get_input_type(), data)
-            if newdata != None:
-                try:
-                    #Get existing mapping
-                    mapping = conduit.GLOBALS.mappingDB.get_mapping(
-                                            sourceUID=source.get_UID(),
-                                            dataLUID=newdata.get_UID(),
-                                            sinkUID=sink.get_UID()
-                                            )
-                    _put_data(source, sink, mapping, newdata, False, data.get_rid())
-                except Exceptions.SynchronizeConflictError, err:
-                    comp = err.comparison
-                    if comp == COMPARISON_OLDER:
-                        log.info("Skipping %s (Older)" % newdata)
-                    elif comp == COMPARISON_EQUAL:
-                        log.info("Skipping %s (Equal)" % newdata)
-                    else:
-                        self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
-
         except Exceptions.ConversionDoesntExistError:
             log.warn("ConversionDoesntExistError")
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
@@ -318,6 +321,7 @@ class SyncWorker(_ThreadedWorker):
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             raise Exceptions.StopSync
+        return newdata
 
     def _apply_deleted_policy(self, sourceWrapper, sourceDataLUID, sinkWrapper, sinkDataLUID):
         """
@@ -355,8 +359,7 @@ class SyncWorker(_ThreadedWorker):
         elif self.policy["deleted"] == "replace":
             log.debug("Deleted Policy: Delete")
             self.conflicted = True
-
-            _delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
+            delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
          
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
         """
@@ -397,7 +400,7 @@ class SyncWorker(_ThreadedWorker):
                                             dataLUID=toData.get_UID(),
                                             sinkUID=sinkWrapper.get_UID()
                                             )
-                    _put_data(sourceWrapper, sinkWrapper, mapping, toData, True)
+                    put_data(sourceWrapper, sinkWrapper, mapping, toData, True)
                 except:
                     log.warn("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
@@ -448,7 +451,9 @@ class SyncWorker(_ThreadedWorker):
             data = self._get_data(source, sink, i)
             if data != None:
                 log.debug("1WAY PUT: %s (%s) -----> %s" % (source.name,data.get_UID(),sink.name))
-                self._transfer_data(source, sink, data)
+                dataRid = data.get_rid()
+                data = self._convert_data(source, sink, data)
+                self._put_data(source, sink, data, dataRid)
        
     def two_way_sync(self, source, sink):
         """
@@ -521,23 +526,37 @@ class SyncWorker(_ThreadedWorker):
             data = self._get_data(sourcedp, sinkdp, dataUID)
             if data != None:
                 log.debug("2WAY PUT: %s (%s) -----> %s" % (sourcedp.name,dataUID,sinkdp.name))
-                self._transfer_data(sourcedp, sinkdp, data)
+                dataRid = data.get_rid()
+                data = self._convert_data(sourcedp, sinkdp, data)
+                self._put_data(sourcedp, sinkdp, data, dataRid)
 
             cnt = cnt+1
             self.conduit.emit("sync-progress", float(cnt)/total)
 
+        #FIXME: rename dp1 -> sourcedp1 and dp2 -> sinkdp2 because when both
+        #data is modified we might as well choost source -> sink as the comparison direction
         for dp1, data1UID, dp2, data2UID in tocomp:
             data1 = self._get_data(dp1, dp2, data1UID)
+            data1Rid = data1.get_rid()
             data2 = self._get_data(dp2, dp1, data2UID)
+            data2Rid = data2.get_rid()
+            
+            #Only need to convert one data to the other type
+            #choose to convert the source data for no reason other than convention
+            data1 = self._convert_data(dp1, dp2, data1)
+            
+            log.debug("2WAY CMP: %s v %s" % (data1, data2))
 
             cnt = cnt+1
             self.conduit.emit("sync-progress", float(cnt)/total)
 
-            comparison = data1.compare(data2)
-            if comparison == conduit.datatypes.COMPARISON_OLDER:
-                self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data1)
-            else:
-                self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
+            #compare the data
+            if data1 != None and data2 != None:
+                comparison = data1.compare(data2)
+                if comparison == conduit.datatypes.COMPARISON_OLDER:
+                    self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data1)
+                else:
+                    self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
 
     def run(self):
         """

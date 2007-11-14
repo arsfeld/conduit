@@ -4,7 +4,7 @@ log = logging.getLogger("modules.Tomboy")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.dataproviders.AutoSync as AutoSync
+#import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
@@ -17,7 +17,8 @@ MODULES = {
 	"TomboyNoteTwoWay" :        { "type": "dataprovider" }
 }
 
-class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
+#class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
+class TomboyNoteTwoWay(DataProvider.TwoWay):
     """
     LUID is the tomboy uid string
     """
@@ -30,13 +31,13 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _icon_ = "tomboy"
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-        AutoSync.AutoSync.__init__(self)
+#        AutoSync.AutoSync.__init__(self)
         self.notes = []
         self.bus = dbus.SessionBus()
-        if self._check_tomboy_version():
-            self.remoteTomboy.connect_to_signal("NoteAdded", lambda uid: self.handle_added(str(uid)))
-            self.remoteTomboy.connect_to_signal("NoteSaved", lambda uid: self.handle_modified(str(uid)))
-            self.remoteTomboy.connect_to_signal("NoteDeleted", lambda uid, x: self.handle_deleted(str(uid)))
+#        if self._check_tomboy_version():
+#            self.remoteTomboy.connect_to_signal("NoteAdded", lambda uid: self.handle_added(str(uid)))
+#            self.remoteTomboy.connect_to_signal("NoteSaved", lambda uid: self.handle_modified(str(uid)))
+#            self.remoteTomboy.connect_to_signal("NoteDeleted", lambda uid, x: self.handle_deleted(str(uid)))
 
     def _check_tomboy_version(self):
         if Utils.dbus_service_available(self.bus,TOMBOY_DBUS_IFACE):
