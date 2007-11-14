@@ -14,7 +14,6 @@ log = logging.getLogger("Module")
 
 from conduit.dataproviders import CATEGORY_TEST
 from conduit.ModuleWrapper import ModuleWrapper, PendingDataproviderWrapper
-from conduit.Hal import HalMonitor
 
 class ModuleManager(gobject.GObject):
     """
@@ -47,8 +46,6 @@ class ModuleManager(gobject.GObject):
         @type dirs: C{string[]}
         """
         gobject.GObject.__init__(self)
-        #monitor removable devices
-        self.hal = HalMonitor()
         #Dict of loaded classes, key is classname, value is class
         self.classRegistry = {}
         #Dict of loaded modulewrappers. key is wrapper.get_key()
@@ -227,7 +224,6 @@ class ModuleManager(gobject.GObject):
                 elif infos["type"] == "dataprovider-factory":
                     # build a dict of kwargs to pass to factories
                     kwargs = {
-                        "hal":    self.hal,
                         "moduleManager": self,
                     }
                     #instantiate and store the factory

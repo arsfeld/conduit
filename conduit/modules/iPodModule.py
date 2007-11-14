@@ -20,6 +20,7 @@ log = logging.getLogger("modules.iPod")
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
+import conduit.dataproviders.VolumeFactory as VolumeFactory
 import conduit.Utils as Utils
 from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
@@ -50,51 +51,23 @@ def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
     temp.transfer(uri, True)
     return Rid(uid=luid, mtime=temp.get_mtime(), hash=temp.get_mtime())
 
-class iPodFactory(DataProvider.DataProviderFactory):
-    def __init__(self, **kwargs):
-        DataProvider.DataProviderFactory.__init__(self, **kwargs)
+class iPodFactory(VolumeFactory.VolumeFactory):
+    def is_interesting(self, udi, props):
+        if props.has_key("info.parent") and props.has_key("info.parent")!="":
+            prop2 = self._get_properties(props["info.parent"])
+            if prop2.has_key("storage.model") and prop2["storage.model"]=="iPod":
+               return True
+        return False
 
-        if kwargs.has_key("hal"):
-            self.hal = kwargs["hal"]
-            self.hal.connect("ipod-added", self._ipod_added)
-            self.hal.connect("ipod-removed", self._ipod_removed)
-
-        self.ipods = {}
-
-    def probe(self):
-        """ Probe for iPod's that are already attached """
-        for device_type, udi, mount, name in self.hal.get_all_ipods():
-            self._ipod_added(None, udi, mount, name)
-
-    def _ipod_added(self, hal, udi, mount, name):
-        """ New iPod has been discovered """
-        cat = DataProviderCategory.DataProviderCategory(
-                    name,
+    def get_category(self, udi, **kwargs):
+        return DataProviderCategory.DataProviderCategory(
+                    kwargs['label'],
                     "multimedia-player-ipod-video-white",
-                    mount)
+                    kwargs['mount'])
 
-        keys = []
-        for klass in [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]:
-            key = self.emit_added(
-                           klass,            # Dataprovider class
-                           (mount,udi,),     # Init args
-                           cat)              # Category..
-            keys.append(key)
+    def get_dataproviders(self, udi, **kwargs):
+         return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
 
-        #if LIBGPOD_PHOTOS == True:
-        #    key = self.emit_added(
-        #                   IPodPhotoTwoWay,  # Dataprovider class
-        #                   (mount,udi,),     # Init args
-        #                   cat)              # Category..
-        #    keys.append(key)
-
-        self.ipods[udi] = keys
-
-    def _ipod_removed(self, hal, udi, mount, name):
-        for key in self.ipods[udi]:
-            self.emit_removed(key)
-
-        del self.ipods[udi]
 
 class IPodBase(DataProvider.TwoWay):
     def __init__(self, *args):

@@ -30,6 +30,7 @@ STATUS_DONE_SYNC_CANCELLED = 9
 STATUS_DONE_SYNC_CONFLICT = 10
 STATUS_DONE_SYNC_NOT_CONFIGURED = 11
 
+
 class DataProviderBase(gobject.GObject):
     """
     Model of a DataProvider. Can be a source or a sink
@@ -424,6 +425,7 @@ class DataSource(DataProviderBase):
         """
         return False
 
+
 class DataSink(DataProviderBase):
     """
     Base Class for DataSinks
@@ -464,6 +466,7 @@ class DataSink(DataProviderBase):
         """
         self.set_status(STATUS_SYNC)
 
+
 class TwoWay(DataSource, DataSink):
     """
     Abstract Base Class for TwoWay dataproviders
@@ -471,6 +474,7 @@ class TwoWay(DataSource, DataSink):
     def __init__(self):
         DataSource.__init__(self)
         DataSink.__init__(self)
+
 
 class DataProviderFactory(gobject.GObject):
     """
@@ -534,3 +538,4 @@ class DataProviderFactory(gobject.GObject):
         """
         pass
         
+

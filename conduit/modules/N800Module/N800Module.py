@@ -15,6 +15,7 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Video as Video
 import conduit.datatypes.Audio as Audio
 import conduit.datatypes.Photo as Photo
+import conduit.dataproviders.VolumeFactory as VolumeFactory
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
 import conduit.Utils as Utils
@@ -24,44 +25,25 @@ MODULES = {
     "N800Factory" : { "type": "dataprovider-factory" },
 }
 
-class N800Factory(DataProvider.DataProviderFactory):
-    def __init__(self, **kwargs):
-        DataProvider.DataProviderFactory.__init__(self, **kwargs)
 
-        if kwargs.has_key("hal"):
-            self.hal = kwargs["hal"]
-            self.hal.connect("n800-added", self._n800_added)
-            self.hal.connect("n800-removed", self._n800_removed)
+class N800Factory(VolumeFactory.VolumeFactory):
+    def is_interesting(self, udi, props):
+        if props.has_key("info.parent") and props.has_key("info.parent")!="":
+            prop2 = self._get_properties(props["info.parent"])
+            if prop2.has_key("storage.model") and prop2["storage.model"]=="N800":
+                if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
+                    return True
+        return False
 
-        self.n800s = {}
-
-    def probe(self):
-        """ Probe for N800 devices that are already attached """
-        for device_type, udi, mount, name in self.hal.get_all_n800s():
-            self._n800_added(None, udi, mount, name)
-
-    def _n800_added(self, hal, udi, mount, name):
-        """ New N800 has been discovered """
-        cat = DataProviderCategory.DataProviderCategory(
+    def get_category(self, udi, **kwargs):
+        return DataProviderCategory.DataProviderCategory(
                     "Nokia N800",
                     "n800",
-                    mount)
+                    kwargs['mount'])
 
-        keys = []
-        for klass in [N800FolderTwoWay, N800AudioTwoWay, N800VideoTwoWay, N800PhotoTwoWay]:
-            key = self.emit_added(
-                           klass,            # Dataprovider class
-                           (mount,udi,),     # Init args
-                           cat)              # Category..
-            keys.append(key)
+    def get_dataproviders(self, udi, **kwargs):
+         return [N800FolderTwoWay, N800AudioTwoWay, N800VideoTwoWay, N800PhotoTwoWay]
 
-        self.n800s[udi] = keys
-
-    def _n800_removed(self, hal, udi, mount, name):
-        for key in self.n800s[udi]:
-            self.emit_removed(key)
-
-        del self.n800s[udi]
 
 class N800Base(FileDataProvider.FolderTwoWay):
     """

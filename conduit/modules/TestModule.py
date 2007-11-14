@@ -8,6 +8,8 @@ log = logging.getLogger("modules.Test")
 import conduit
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.DataProviderCategory as DataProviderCategory
+import conduit.dataproviders.SimpleFactory as SimpleFactory
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
@@ -32,6 +34,7 @@ MODULES = {
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
 #    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
+#    "TestSimpleFactory" :       { "type": "dataprovider-factory" },
     "TestConverter" :           { "type": "converter" }
 }
 
@@ -766,4 +769,46 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
     def quit(self):
         self.count = 0
 
+
+class TestSimpleFactory(SimpleFactory.SimpleFactory):
+    """
+    Repeatedly add/remove a DP/Category to stress test framework
+    """
+    def __init__(self, **kwargs):
+        SimpleFactory.SimpleFactory.__init__(self, **kwargs)
+        gobject.timeout_add(5000, self._added)
+        self.count = 200
+        self.stats = None
+
+    def get_category(self, key, **kwargs):
+        return DataProviderCategory.DataProviderCategory(
+            "TestHotplug",
+            "emblem-system",
+            "/test/")
+
+    def get_dataproviders(self, key, **kwargs):
+        return [TestDynamicSource]
+
+    def get_args(self, key, **kwargs):
+        return ()
+
+    def _added(self):
+        """ Some hal event added a device? """
+        if self.stats == None:
+            self.stats = Utils.memstats()
+        self.item_added("foobar", **{})
+        gobject.timeout_add(500, self._removed)
+        return False
+
+    def _removed(self):
+        self.item_removed("foobar")
+        if self.count > 0:
+            gobject.timeout_add(500, self._added)
+            self.count -= 1
+        else:
+            Utils.memstats(self.stats)
+        return False
+
+    def quit(self):
+        self.count = 0
 
