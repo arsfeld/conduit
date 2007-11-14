@@ -377,6 +377,10 @@ class File(DataType.DataType):
             return self.fileInfo.size
         except:
             return None
+
+    def get_hash(self):
+        #FIXME: self.get_size() does not seem reliable
+        return None
                        
     def get_filename(self):
         """

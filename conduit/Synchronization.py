@@ -19,11 +19,12 @@ import conduit.DeltaProvider as DeltaProvider
 from conduit.Conflict import Conflict, CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
 from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_UNKNOWN
 
-def _put_data(source, sink, mapping, data, overwrite):
+def _put_data(source, sink, mapping, data, overwrite, oldRid=None):
     """
     Puts data into sink, overwrites if overwrite is True. Updates 
     the mappingDB
     """
+    
     log.info("Putting data %s into %s" % (data.get_UID(), sink.get_UID()))
     LUID = mapping.sinkRid.get_UID()
     sourceRid = data.get_rid()
@@ -31,8 +32,11 @@ def _put_data(source, sink, mapping, data, overwrite):
                     data, 
                     overwrite, 
                     LUID)
+    print "--x-----------------\n%s" % oldRid
+    print "-s->----------------\n%s" % sourceRid
+    print "-->s----------------\n%s" % sinkRid
     mapping.set_sink_rid(sinkRid)
-    mapping.set_source_rid(sourceRid)
+    mapping.set_source_rid(oldRid)
     conduit.GLOBALS.mappingDB.save_mapping(mapping)
 
 def _delete_data(source, sink, dataLUID):
@@ -283,7 +287,7 @@ class SyncWorker(_ThreadedWorker):
                                             dataLUID=newdata.get_UID(),
                                             sinkUID=sink.get_UID()
                                             )
-                    _put_data(source, sink, mapping, newdata, False)
+                    _put_data(source, sink, mapping, newdata, False, data.get_rid())
                 except Exceptions.SynchronizeConflictError, err:
                     comp = err.comparison
                     if comp == COMPARISON_OLDER:

@@ -1,13 +1,4 @@
-try:
-    import elementtree.ElementTree as ET
-except:
-    import xml.etree.ElementTree as ET
-
 import dbus
-import os
-import os.path
-import traceback
-import datetime
 import logging
 log = logging.getLogger("modules.Tomboy")
 
@@ -15,10 +6,7 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
-from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
-import conduit.datatypes.File as File
-import conduit.datatypes.Text as Text
 import conduit.Utils as Utils
 
 TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
@@ -26,14 +14,13 @@ TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
 TOMBOY_MIN_VERSION = "0.5.10"
 
 MODULES = {
-	"TomboyNoteTwoWay" :    { "type": "dataprovider" }
+	"TomboyNoteTwoWay" :        { "type": "dataprovider" }
 }
 
 class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     """
     LUID is the tomboy uid string
     """
-
     _name_ = "Tomboy Notes"
     _description_ = "Sync your Tomboy notes"
     _category_ = conduit.dataproviders.CATEGORY_NOTES
@@ -41,7 +28,6 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "tomboy"
-
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
@@ -71,40 +57,36 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         """
         @returns: A Rid for the note
         """
-        ok = False
-        if note.raw != "":
-            ok = self.remoteTomboy.SetNoteContentsXml(uid, note.raw)
-        else:
-            #Tomboy interprets the first line of text content as the note title
-            if note.title != "":
-                content = note.title+"\n"+note.contents
-            else:
-                content = note.contents
-            ok = self.remoteTomboy.SetNoteContents(uid, content)
-
+        assert(uid != "")
+        log.debug("Updating note uid: %s" % uid)
+        xmlContent = '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
+        ok = self.remoteTomboy.SetNoteContentsXml(uid, xmlContent)
         if not ok:
             raise Exceptions.SyncronizeError("Error setting Tomboy note content (uri: %s)" % uid)
-
-        mtime = self._get_note_mtime(uid)
-        return Rid(uid=uid, mtime=mtime, hash=mtime)
+        n = self._get_note(uid)
+        return n.get_rid()
 
     def _get_note_mtime(self, uid):
         try:
             timestr = self.remoteTomboy.GetNoteChangeDate(uid)
-            mtime = datetime.datetime.fromtimestamp(int(timestr))
+            mtime = Utils.datetime_from_timestamp(int(timestr))
         except:
             log.warn("Error parsing tomboy note modification time")
             mtime = None
         return mtime
 
     def _get_note(self, uid):
+        #Get the whole xml and strip out the tags
+        log.debug("Getting note: %s" % uid)
+        xmlContent=str(self.remoteTomboy.GetNoteContentsXml(uid))
+        xmlContent=xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
+        title, sep, contents = xmlContent.partition("\n")
         n = Note.Note(
-                    title=str(self.remoteTomboy.GetNoteTitle(uid)),
-                    mtime=self._get_note_mtime(uid),
-                    contents=str(self.remoteTomboy.GetNoteContents(uid)),
-                    raw=str(self.remoteTomboy.GetNoteContentsXml(uid))
-                    )
+                title=title,
+                contents=contents
+                )
         n.set_UID(str(uid))
+        n.set_mtime(self._get_note_mtime(uid))
         n.set_open_URI(str(uid))
         return n
 
@@ -112,17 +94,10 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         """
         @returns: A Rid for the created note
         """
-        if note.title != "":
-            uid = self.remoteTomboy.CreateNamedNote(note.title)
-        else:
-            uid = self.remoteTomboy.CreateNote()
-        #hackery because python dbus bindings dont marshal dbus.String to str
-        uid = str(uid)
-        if uid == "":
-            raise Exceptions.SyncronizeError("Error creating Tomboy note")
-
+        uid = self.remoteTomboy.CreateNamedNote(note.get_title())
+        assert(uid != "")
         #fill out the note content
-        rid = self._update_note(uid, note)
+        rid = self._update_note(str(uid), note)
         return rid
 
     def initialize(self):
@@ -152,32 +127,35 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         Stores a Note in Tomboy.
         """
         DataProvider.TwoWay.put(self, note, overwrite, LUID)
+        existingNote = None
 
-        #Check if we have already uploaded the photo
+        log.debug("Put note: %s (LUID: %s)" % (note, LUID))
+
+        #Check if the note, or one with same title exists
         if LUID != None:
             if self.remoteTomboy.NoteExists(LUID):
-                if overwrite == True:
-                    #replace the note
-                    log.info("Replacing Note %s" % LUID)
-                    rid = self._update_note(LUID, note)
-                    return rid
-                else:
-                    #Only replace if newer
-                    existingNote = self._get_note(LUID)
-                    comp = note.compare(existingNote)
-                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
-                            (note.title,existingNote.title,comp))
-                    if comp != conduit.datatypes.COMPARISON_NEWER:
-                        raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
-                    else:
-                        rid = self._update_note(LUID, note)
-                        return rid
+                existingNote = self._get_note(LUID)
+        else:
+            uid = self.remoteTomboy.FindNote(note.get_title())
+            if uid != "":
+                existingNote = self._get_note(str(uid))
+
+        #compare with the existing note
+        if existingNote != None:
+            comp = note.compare(existingNote)
+            log.debug("Comparing new %s with existing %s" % (note.get_title(),existingNote.get_title()))
+            if comp == conduit.datatypes.COMPARISON_EQUAL:
+                log.info("Notes are equal")
+                rid = existingNote.get_rid()
+            elif overwrite == True or comp == conduit.datatypes.COMPARISON_NEWER:
+                log.info("Updating note")
+                rid = self._update_note(LUID, note)
             else:
-                log.info("Told to replace note %s, nothing there to replace." % LUID)
-                    
-        #We havent, or its been deleted so add it. 
-        log.info("Saving new Note")
-        rid = self._create_note(note)
+                raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
+        else:                    
+            log.info("Saving new Note")
+            rid = self._create_note(note)
+
         return rid
 
     def delete(self, LUID):

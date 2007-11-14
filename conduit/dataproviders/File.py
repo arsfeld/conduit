@@ -226,8 +226,15 @@ class FolderTwoWay(DataProvider.TwoWay):
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
 
-        uid = gnomevfs.make_uri_canonical(newURI)
-        return Rid(uid=uid, mtime=vfsFile.get_mtime())
+        #FIXME: I think we can return vfsFile.get_rid() because after transfer
+        #the file info is reloaded, so we are not permuting anything in place
+        #rid = vfsFile.get_rid()
+        rid = Rid(
+                uid=gnomevfs.make_uri_canonical(newURI), 
+                mtime=vfsFile.get_mtime(), 
+                hash=vfsFile.get_hash()
+                )
+        return rid
 
     def delete(self, LUID):
         f = File.File(URI=LUID)

@@ -54,7 +54,7 @@ class DataType(object):
          - L{conduit.datatypes.COMPARISON_UNKNOWN} This means we were unable to determine
            which was newer than the other so its up to the user to decide        
         """
-        log.debug("COMPARE: %s <----> %s " % (self.get_uid(), B.get_uid()))
+        log.debug("COMPARE: %s <----> %s " % (self.get_UID(), B.get_UID()))
 
         if self.get_hash() == B.get_hash():
             return conduit.datatypes.COMPARISON_EQUAL
@@ -71,7 +71,7 @@ class DataType(object):
             return conduit.datatypes.COMPARISON_OLDER
 
     def get_hash(self):
-        return self.get_mtime()
+        raise NotImplementedError
 
     def get_UID(self):
         """
@@ -149,6 +149,7 @@ class DataType(object):
         """
         @returns: The record identifier (Rid) for this data
         """
+        log.debug("Getting Rid for %s" % self.get_UID())
         rid = conduit.datatypes.Rid(
                         uid=self.get_UID(), 
                         mtime=self.get_mtime(), 

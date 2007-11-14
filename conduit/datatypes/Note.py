@@ -6,89 +6,34 @@ from conduit.datatypes import DataType
 
 class Note(DataType.DataType):
     """
-    Represents a Note
+    Represents a Note with a title and content
     """
-
     _name_ = "note"
-
-    def __init__(self, **kwargs):
-        """
-        Note constructor.
-        Compulsory kwargs
-          - title: The title of the note
-
-        Optional kwargs
-          - contents: The raw note contents
-          - mtime: python datetime
-          - raw: Raw note XML. This should probbably be removed and put into
-          - a dedicated TomboyNote datatype at some point.
-        """
+    def __init__(self, title, contents, **kwargs):
         DataType.DataType.__init__(self)
-        self.title = kwargs["title"]
-        self.contents = kwargs.get("contents","")
-        self.raw = kwargs.get("raw", "")
+        self.title = title
+        self.contents = contents
 
-        self.set_mtime(kwargs.get("mtime", None))
+    def get_title(self):
+        return self.title
 
-    def compare(self, B):
-        """
-        Compares two notes: Approach
-          1. If the notes have valid mtimes then use that as an age comparison.
-          2. If they have raw xml then use that as an equality comparison
-          3. Otherwise do an equality comparison on title & contents
-          4. Otherwise Unknown
-        """
-        #Look at the modification times
-        meTime = self.get_mtime()
-        bTime = B.get_mtime()
-        log.debug("MTIME: %s with MTIME: %s" % (meTime, bTime))
-        if meTime != None and bTime != None:
-            log.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.title, meTime, B.title, bTime))
-            if meTime == bTime:
-                return conduit.datatypes.COMPARISON_EQUAL
-            #newer than B?
-            elif meTime > bTime:
-                return conduit.datatypes.COMPARISON_NEWER
-            #older than B?
-            elif meTime < bTime:
-                return conduit.datatypes.COMPARISON_OLDER
-            else:
-                return conduit.datatypes.COMPARISON_UNEQUAL
+    def get_contents(self):
+        return self.contents
 
-        #look at raw xml
-        elif self.raw != "" and B.raw != "":
-            log.debug("Comparing via XML")
-            if self.raw == B.raw:
-                return conduit.datatypes.COMPARISON_EQUAL
-            else:
-                return conduit.datatypes.COMPARISON_UNEQUAL
-
-        #else look at text (title + content)
-        elif self.get_note_string() == B.get_note_string():
-            return conduit.datatypes.COMPARISON_EQUAL
-
-        else:
-            return conduit.datatypes.COMPARISON_UNEQUAL
-
-    def set_from_note_string(self, string):
-        raise NotImplementedError
-
-    def get_note_string(self):
-        return ("Title: %s\n%s\n(Modified: %s)" % (self.title, self.contents, self.get_mtime()))
+    def get_hash(self):
+        return hash( (self.get_title(), self.get_contents()) )
 
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
-        data["title"] = self.title
-        data["contents"] = self.contents
-        data["raw"] = self.raw
+        data["title"] = self.get_title()
+        data["contents"] = self.get_contents()
         return data
 
     def __setstate__(self, data):
         self.title = data["title"]
         self.contents = data["contents"]
-        self.raw = data["raw"]
         DataType.DataType.__setstate__(self, data)
         
     def __str__(self):
-        return self.title
+        return ("Title: %s\n%s\n(Modified: %s)" % (self.get_title(), self.get_contents(), self.get_mtime()))
 
