@@ -17,7 +17,7 @@ import conduit.Exceptions as Exceptions
 import conduit.DeltaProvider as DeltaProvider
 
 from conduit.Conflict import Conflict, CONFLICT_DELETE, CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE
-from conduit.datatypes import DataType, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_UNKNOWN
+from conduit.datatypes import DataType, Rid, COMPARISON_OLDER, COMPARISON_EQUAL, COMPARISON_NEWER, COMPARISON_UNKNOWN
 
 def put_data(source, sink, sourceData, sourceDataRid, overwrite):
     """
@@ -291,7 +291,8 @@ class SyncWorker(_ThreadedWorker):
                 elif comp == COMPARISON_EQUAL:
                     log.info("Skipping %s (Equal)" % sourceData)
                 else:
-                    self._apply_conflict_policy(source, sink, err.comparison, err.fromData, err.toData)
+                    assert(err.fromData == sourceData)
+                    self._apply_conflict_policy(source, sink, err.comparison, sourceData, sourceDataRid, err.toData, err.toData.get_rid())
 
     def _convert_data(self, source, sink, data):
         """
@@ -346,11 +347,15 @@ class SyncWorker(_ThreadedWorker):
                 #(CONFLICT_SKIP,CONFLICT_COPY_SINK_TO_SOURCE)
                 validResolveChoices = (CONFLICT_DELETE, CONFLICT_SKIP) 
             
+            sourceData = DeletedData(sourceDataLUID)
+            sinkData = DeletedData(sinkDataLUID)
             c = Conflict(
                     sourceWrapper,              #datasource wrapper
-                    DeletedData(sourceDataLUID),#from data
+                    sourceData,                 #from data
+                    sourceData.get_rid(),       #from data rid
                     sinkWrapper,                #datasink wrapper
-                    DeletedData(sinkDataLUID),  #to data
+                    sinkData,                   #to data
+                    sinkData.get_rid(),         #to data rid
                     validResolveChoices,        #valid resolve choices
                     True                        #This conflict is a deletion
                     )
@@ -361,7 +366,7 @@ class SyncWorker(_ThreadedWorker):
             self.conflicted = True
             delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
          
-    def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, toData):
+    def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, fromDataRid, toData, toDataRid):
         """
         Applies user policy when a put() has failed. This may mean emitting
         the conflict up to the GUI or skipping altogether
@@ -382,9 +387,11 @@ class SyncWorker(_ThreadedWorker):
 
                 c = Conflict(
                         sourceWrapper, 
-                        fromData, 
+                        fromData,
+                        fromDataRid, 
                         sinkWrapper, 
-                        toData, 
+                        toData,
+                        toDataRid,
                         avail,
                         False
                         )
@@ -554,9 +561,9 @@ class SyncWorker(_ThreadedWorker):
             if data1 != None and data2 != None:
                 comparison = data1.compare(data2)
                 if comparison == conduit.datatypes.COMPARISON_OLDER:
-                    self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data1)
+                    self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data2Rid, data1, data1Rid)
                 else:
-                    self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data2)
+                    self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data1Rid, data2, data2Rid)
 
     def run(self):
         """
@@ -793,6 +800,9 @@ class DeletedData(DataType.DataType):
 
     def get_UID(self):
         return self.UID
+        
+    def get_rid(self):
+        return Rid(self.UID)
         
     def get_snippet(self):
         return self.snippet

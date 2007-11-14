@@ -14,11 +14,13 @@ class Conflict:
     """
     Represents a conflict
     """
-    def __init__(self, sourceWrapper, sourceData, sinkWrapper, sinkData, validResolveChoices, isDeletion):
+    def __init__(self, sourceWrapper, sourceData, sourceDataRid, sinkWrapper, sinkData, sinkDataRid, validResolveChoices, isDeletion):
         self.sourceWrapper = sourceWrapper
         self.sourceData = sourceData
+        self.sourceDataRid = sourceDataRid
         self.sinkWrapper = sinkWrapper
         self.sinkData = sinkData
+        self.sinkDataRid = sinkDataRid
         self.choices = validResolveChoices
         self.isDeletion = isDeletion
 

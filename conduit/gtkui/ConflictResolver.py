@@ -24,7 +24,7 @@ DIRECTION_IDX = 1           #The current user decision re: the conflict (-->, <-
 
 class ConflictHeader(Conflict.Conflict):
     def __init__(self, sourceWrapper, sinkWrapper):
-        Conflict.Conflict.__init__(self, sourceWrapper, None, sinkWrapper, None, (), False)
+        Conflict.Conflict.__init__(self, sourceWrapper, None, None, sinkWrapper, None, None, (), False)
 
 class ConflictResolver:
     """
@@ -262,16 +262,19 @@ class ConflictResolver:
             elif direction == Conflict.CONFLICT_COPY_SOURCE_TO_SINK:
                 log.debug("Resolving source data --> sink")
                 data = conflict.sourceData
+                dataRid = conflict.sourceDataRid
                 source = conflict.sourceWrapper
                 sink = conflict.sinkWrapper
             elif direction == Conflict.CONFLICT_COPY_SINK_TO_SOURCE:
                 log.debug("Resolving source <-- sink data")
                 data = conflict.sinkData
+                dataRid = conflict.sinkDataRid
                 source = conflict.sinkWrapper
                 sink = conflict.sourceWrapper
             elif direction == Conflict.CONFLICT_DELETE:
                 log.debug("Resolving deletion  --->")
                 data = conflict.sinkData
+                dataRid = conflict.sinkDataRid
                 source = conflict.sourceWrapper
                 sink = conflict.sinkWrapper
             else:
@@ -282,7 +285,7 @@ class ConflictResolver:
             #add to resolve thread
             #FIXME: Think of a way to make rowrefs persist through signals
             if IHaveMadeItersPersist:
-                self.resolveThreadManager.make_thread(self._conflict_resolved,rowref,data,sink,source,deleted)
+                self.resolveThreadManager.make_thread(self._conflict_resolved,rowref,source,sink,data,dataRid,deleted)
             else:
                 try:
                     if deleted:
@@ -290,7 +293,7 @@ class ConflictResolver:
                         conduit.Synchronization.delete_data(source, sink, data.get_UID())
                     else:
                         log.debug("Resolving conflict. Putting %s --> %s" % (data, sink))
-                        conduit.Synchronization.put_data(source, sink, data, None, True)
+                        conduit.Synchronization.put_data(source, sink, data, dataRid, True)
 
                     resolved.append(rowref)
                 except Exception:
@@ -427,18 +430,21 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
     def __init__(self, *args):
         """
         Args
-         - arg[0]: data
+         - arg[0]: source
          - arg[1]: sink
-         - arg[2]: source
-         - arg[3]: isDeleted
+         - arg[2]: data
+         - arg[3]: dataRid
+         - arg[4]: isDeleted
         """
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         
-        self.data = args[0]
+
+        self.source = args[0]
         self.sink = args[1]
-        self.source = args[2]
-        self.isDeleted = args[3]
+        self.data = args[2]
+        self.dataRid = args[3]
+        self.isDeleted = args[4]
 
         self.setName("ResolveThread for sink: %s. (Delete: %s)" % (self.sink, self.isDeleted))
 
@@ -453,10 +459,10 @@ class _ConflictResolveThread(threading.Thread, gobject.GObject):
         try:
             if self.isDeleted:
                 log.debug("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
-                conduit.Synchronization.delete_data(self.source, self.sink, self.data.get_UID())
+                conduit.Synchronization.delete_data(self.source, self.sink, self.dataRid.get_UID())
             else:
                 log.debug("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-                conduit.Synchronization.put_data(self.source, self.sink, self.data, None, True)
+                conduit.Synchronization.put_data(self.source, self.sink, self.data, self.dataRid, True)
         except Exception:                        
             log.warn("Could not resolve conflict\n%s" % traceback.format_exc())
             #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)

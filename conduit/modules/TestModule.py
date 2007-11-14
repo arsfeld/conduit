@@ -52,7 +52,7 @@ class TestDataType(DataType.DataType):
         self.set_mtime(mtime)
         
     def __str__(self):
-        return "testData %s" % self.charInteger
+        return "testData %s" % self.Integer
 
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
