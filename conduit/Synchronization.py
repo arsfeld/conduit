@@ -200,7 +200,8 @@ class _ThreadedWorker(threading.Thread):
         log.debug("%s Changes: Modified %s items\n%s" % (source.get_UID(), len(modified), modified))
         log.debug("%s Changes: Deleted %s items\n%s" % (source.get_UID(), len(deleted), deleted))
 
-        return added, modified, deleted
+        #FIXME: Copy the lists because they are modified in place somewhere...
+        return added[:], modified[:], deleted[:]
 
     def cancel(self):
         """
@@ -473,6 +474,17 @@ class SyncWorker(_ThreadedWorker):
         """
         Performs a two way sync from source to sink and back.
         """
+        def modified_and_deleted(dp1, modified, dp2, deleted):
+            found = []
+            for i in modified[:]:
+                matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(dp1.get_UID(), i, dp2.get_UID())
+                if deleted.count(matchingUID) != 0:
+                    log.debug("2WAY MOD+DEL: %s v %s" % (i, matchingUID))
+                    deleted.remove(matchingUID)
+                    modified.remove(i)
+                    found += [(dp2, matchingUID, dp1)]
+            return found
+            
         log.info("Synchronizing (Two Way) %s <--> %s " % (source, sink))
         #Need to do all the analysis before we touch the mapping db
         toput = []      # (sourcedp, dataUID, sinkdp)
@@ -488,18 +500,7 @@ class SyncWorker(_ThreadedWorker):
         toput += [(source, i, sink) for i in sourceAdded]
         toput += [(sink, i, source) for i in sinkAdded]
 
-        def modified_and_deleted(dp1, modified, dp2, deleted):
-            found = []
-            for i in modified[:]:
-                matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(dp1.get_UID(), i, dp2.get_UID())
-                log.debug("%s, %s" % (i, matchingUID))
-                if deleted.count(matchingUID) != 0:
-                    log.debug("MOD+DEL: %s v %s" % (i, matchingUID))
-                    deleted.remove(matchingUID)
-                    modified.remove(i)
-                    found += [(dp2, matchingUID, dp1)]
-            return found
-
+        #check first for data that had been simulatainously modified and deleted
         todelete += modified_and_deleted(source, sourceModified, sink, sinkDeleted)
         todelete += modified_and_deleted(sink, sinkModified, source, sourceDeleted)
 
@@ -513,7 +514,7 @@ class SyncWorker(_ThreadedWorker):
         for i in sourceModified[:]:
             matchingUID = conduit.GLOBALS.mappingDB.get_matching_UID(source.get_UID(), i, sink.get_UID())
             if sinkModified.count(matchingUID) != 0:
-                log.warn("BOTH MODIFIED: %s v %s" % (i, matchingUID))
+                log.warn("2WAY BOTH MODIFIED: %s v %s" % (i, matchingUID))
                 sourceModified.remove(i)
                 sinkModified.remove(matchingUID)
                 tocomp.append( (source, i, sink, matchingUID) )
