@@ -8,6 +8,7 @@ import conduit.Utils as Utils
 
 import gnomevfs
 import dbus
+import dbus.glib
 
 class VolumeFactory(SimpleFactory.SimpleFactory):
     """ 
