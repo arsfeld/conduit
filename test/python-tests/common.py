@@ -309,6 +309,9 @@ class SimpleSyncTest(SimpleTest):
         return self.sync_manager.did_sync_error(self.conduit) 
 
     def sync_conflicted(self):
-        return self.sync_manager.did_sync_conflict(self.conduit) 
+        return self.sync_manager.did_sync_conflict(self.conduit)
+        
+    def get_sync_result(self):
+        return self.sync_aborted(), self.sync_errored(), self.sync_conflicted()
 
 

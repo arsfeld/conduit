@@ -17,9 +17,12 @@ class TestDataType(conduit.datatypes.DataType.DataType):
         self.set_mtime(
                 kwargs.get("mtime",datetime.datetime.now())
                 )
-        
-    def compare(self, A, B):
-        a = int(A.get_UID())
+                
+    def get_hash(self):
+        return "pipe"
+                
+    def compare(self, B):
+        a = int(self.get_UID())
         b = int(B.get_UID())
         if a < b:
             return COMPARISON_OLDER
@@ -70,13 +73,19 @@ class TestShell(TwoWay):
     def get_UID(self):
         return self.uid
 
+def get_mappings(sourceDpw, sinkDpw):
+    mappings = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sourceDpw.get_UID(), sinkDpw.get_UID())
+    mappings += conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sinkDpw.get_UID(), sourceDpw.get_UID())
+    return mappings
 
 test = SimpleSyncTest()
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 
 #instantiate directly because we will be manipulating the data directly
 source = TestShell(uid="A")
+sourceDpw = test.wrap_dataprovider(source)
 sink = TestShell(uid="B")
+sinkDpw = test.wrap_dataprovider(sink)
 
 test.prepare(
         test.wrap_dataprovider(source), 
@@ -89,8 +98,10 @@ source.added = ['1','2','3']
 sink.added = ['4','5']
 
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase one: add different data to each side", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase one: add different data to each side", abort == False and error == False and conflict == False)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("5 mappings exist", len(mappings) == 5)
 
 #phase two: modify some
 source.added = []
@@ -99,8 +110,10 @@ sink.added = []
 sink.modified = ['1','2']
 
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase two: modify some", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase two: modify some", abort == False and error == False and conflict == False)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("5 mappings exist", len(mappings) == 5)
 
 #phase two: delete some (delete policy: skip)
 source.added = []
@@ -111,20 +124,26 @@ sink.modified = []
 sink.deleted = ['2']
 
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase two: delete some (delete policy: skip)", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase two: delete some (delete policy: skip)", abort == False and error == False and conflict == False)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("5 mappings exist", len(mappings) == 5)
 
 #phase two: delete some (delete policy: ask)
 test.set_two_way_policy({"conflict":"skip","deleted":"ask"})
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase two: delete some (delete policy: ask)", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase two: delete some (delete policy: ask)", abort == False and error == False and conflict == True)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("5 mappings exist", len(mappings) == 5)
 
 #phase two: delete some (delete policy: replace)
 test.set_two_way_policy({"conflict":"skip","deleted":"replace"})
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase two: delete some (delete policy: replace)", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase two: delete some (delete policy: replace)", abort == False and error == False and conflict == True)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("3 mappings exist", len(mappings) == 3)
 
 #phase three: modify both (modify policy: skip)
 source.added = []
@@ -136,25 +155,29 @@ sink.deleted = []
 
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase three: modify both (modify policy: skip)", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase three: modify both (modify policy: skip)", abort == False and error == False and conflict == False)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("3 mappings exist", len(mappings) == 3)
 
 #phase three: modify both (modify policy: ask)
-#FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
 source.modified = ['1','5']
 sink.modified = ['1','5']
 test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase three: modify both (modify policy: ask)", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase three: modify both (modify policy: ask) %s,%s,%s" % (abort,error,conflict), abort == False and error == False and conflict == True)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("3 mappings exist", len(mappings) == 3)
 
 #phase three: modify both (modify policy: replace)
-#FIXME: BUG. I NEED TO ADD THESE TO MODIFIED AGAIN. THIS SHOWS WE ARE EATING A LIST IN PLACE
 source.modified = ['1','5']
 sink.modified = ['1','5']
 test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
 a,b = test.sync(debug=True)
-aborted = test.sync_aborted()
-ok("Sync completed: phase three: modify both (modify policy: replace)", aborted == False)
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed: phase three: modify both (modify policy: replace)", abort == False and error == False and conflict == True)
+mappings = get_mappings(sourceDpw, sinkDpw)
+ok("3 mappings exist", len(mappings) == 3)
 
 finished()

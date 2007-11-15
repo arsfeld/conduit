@@ -155,13 +155,13 @@ class SyncManager:
         Returns True if the supplied conduit raised a non fatal 
         SynchronizeError during sync
         """
-        return len(self.syncWorkers[conduit].sinkErrors) != 0
+        return self.syncWorkers[conduit].did_sync_error()
 
     def did_sync_conflict(self, conduit):
         """
         Returns True if the supplied conduit encountered a conflict during processing
         """
-        return self.syncWorkers[conduit].conflicted
+        return self.syncWorkers[conduit].did_sync_conflict()
 
 class _ThreadedWorker(threading.Thread):
     """
@@ -177,13 +177,11 @@ class _ThreadedWorker(threading.Thread):
 
         #true if the sync aborts via an unhandled exception
         self.aborted = False
-        #Keep track of any non fatal errors (or trapped exceptions) in the sync process. 
+        #Keep track of any non conflicts, fatal errors (or trapped exceptions) in the sync process. 
         #Class variable because these may occur in a data conversion. 
         #Needed so that the correct status is shown on the GUI at the end of the sync process
         self.sinkErrors = {}
-        #true if the sync contained a conflict needing a decision by the user
-        self.conflicted = False
-
+        
     def _get_changes(self, source, sink):
         """
         Returns all the data from the source to the sink. If the dataprovider
@@ -210,6 +208,18 @@ class _ThreadedWorker(threading.Thread):
         possible.
         """
         self.cancelled = True
+        
+    def did_sync_error(self):
+        #conflicts do not specifically count as errors so remove them
+        errors = self.sinkErrors.values()
+        while True:
+            try: errors.remove(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+            except ValueError: break
+        return len(errors) > 0
+
+    def did_sync_conflict(self):
+        errors = self.sinkErrors.values()
+        return DataProvider.STATUS_DONE_SYNC_CONFLICT in errors
 
 class SyncWorker(_ThreadedWorker):
     """
@@ -334,7 +344,9 @@ class SyncWorker(_ThreadedWorker):
             log.debug("Deleted Policy: Skipping")
         elif self.policy["deleted"] == "ask":
             log.debug("Deleted Policy: Ask")
-            self.conflicted = True
+
+            #FIXME: Delete should be handled differently from conflict
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
             #check if the source is visually on the left of the sink
             if self.source == sourceWrapper:
@@ -363,7 +375,8 @@ class SyncWorker(_ThreadedWorker):
 
         elif self.policy["deleted"] == "replace":
             log.debug("Deleted Policy: Delete")
-            self.conflicted = True
+            #FIXME: Delete should be handled differently from conflict
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             delete_data(sourceWrapper, sinkWrapper, sinkDataLUID)
          
     def _apply_conflict_policy(self, sourceWrapper, sinkWrapper, comparison, fromData, fromDataRid, toData, toDataRid):
@@ -372,12 +385,11 @@ class SyncWorker(_ThreadedWorker):
         the conflict up to the GUI or skipping altogether
         """
         if comparison == COMPARISON_EQUAL or comparison == COMPARISON_UNKNOWN or comparison == COMPARISON_OLDER:
-            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
             if self.policy["conflict"] == "skip":
                 log.debug("Conflict Policy: Skipping")
             elif self.policy["conflict"] == "ask":
                 log.debug("Conflict Policy: Ask")
-                self.conflicted = True
+                self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
                 if sourceWrapper.module_type in ["twoway", "sink"]:
                     #in twoway case the user can copy back
@@ -399,21 +411,16 @@ class SyncWorker(_ThreadedWorker):
 
             elif self.policy["conflict"] == "replace":
                 log.debug("Conflict Policy: Replace")
-                self.conflicted = True
+                self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
                 try:
-                    mapping = conduit.GLOBALS.mappingDB.get_mapping(
-                                            sourceUID=sourceWrapper.get_UID(),
-                                            dataLUID=toData.get_UID(),
-                                            sinkUID=sinkWrapper.get_UID()
-                                            )
-                    put_data(sourceWrapper, sinkWrapper, mapping, toData, True)
+                    put_data(sourceWrapper, sinkWrapper, fromData, fromDataRid, True)
                 except:
                     log.warn("Forced Put Failed\n%s" % traceback.format_exc())        
         #This should not happen...
         else:
             log.warn("UNKNOWN COMPARISON\n%s" % traceback.format_exc())
-            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_ERROR
 
     def check_thread_not_cancelled(self, dataprovidersToCancel):
         """
@@ -732,7 +739,7 @@ class SyncWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.GLOBALS.mappingDB.save()
-        self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
+        self.conduit.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
 
 class RefreshDataProviderWorker(_ThreadedWorker):
     """
@@ -785,7 +792,7 @@ class RefreshDataProviderWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.GLOBALS.mappingDB.save()
-        self.conduit.emit("sync-completed", self.aborted, len(self.sinkErrors) != 0, self.conflicted)
+        self.conduit.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
 
                 
 class DeletedData(DataType.DataType):

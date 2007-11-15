@@ -108,7 +108,7 @@ class GenericDB(gobject.GObject):
             gobject.TYPE_INT])          #row oid
         }
         
-    DEBUG = False
+    DEBUG = True
         
     def __init__(self, filename=":memory:", **kwargs):
         gobject.GObject.__init__(self)

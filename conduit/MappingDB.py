@@ -122,9 +122,8 @@ class MappingDB:
                         sinkRid=conduit.datatypes.Rid(res[2],res[3],res[4])
                         )
         #FIXME: Remove these...
-        assert(m.sourceUID == sourceUID)
-        assert(m.sinkUID == sinkUID)
-        assert(m.get_source_rid().get_UID() == dataLUID)
+        #assert(m.sourceUID == sourceUID)
+        #assert(m.sinkUID == sinkUID)
         return m
 
     def get_mappings_for_dataproviders(self, sourceUID, sinkUID):

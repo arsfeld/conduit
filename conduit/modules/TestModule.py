@@ -76,8 +76,8 @@ class TestDataType(DataType.DataType):
      
     #The strings are numerically compared. If A < B then it is older
     #If A is larger than B then it is newer.
-    def compare(self, A, B):
-        a = A.Integer
+    def compare(self, B):
+        a = self.Integer
         b = B.Integer
         if a < b:
             return conduit.datatypes.COMPARISON_OLDER
