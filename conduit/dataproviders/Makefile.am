@@ -1,9 +1,11 @@
 conduitdir = $(pythondir)/conduit/dataproviders
 conduit_PYTHON = \
-	__init__.py \
-	DataProvider.py \
+	AutoSync.py \
 	DataProviderCategory.py \
-	Image.py
+	DataProvider.py \
+	File.py \
+	Image.py \
+	__init__.py
 
 clean-local:
 	rm -rf *.pyc *.pyo

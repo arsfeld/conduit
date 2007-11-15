@@ -7,17 +7,16 @@ conduitbin_SCRIPTS = \
 
 conduitdir = $(pythondir)/conduit
 conduit_PYTHON = \
-	__init__.py \
 	Conduit.py \
 	Conflict.py \
-	DB.py \
 	Database.py \
 	DBus.py \
 	defs.py \
 	DeltaProvider.py \
 	Exceptions.py \
-	Hal.py \
 	Globals.py \
+	__init__.py \
+	Logging.py \
 	Main.py \
 	MappingDB.py \
 	Module.py \

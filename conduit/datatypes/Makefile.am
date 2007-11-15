@@ -1,5 +1,6 @@
 conduitdir = $(pythondir)/conduit/datatypes
 conduit_PYTHON = \
+	Audio.py \
 	Contact.py \
 	DataType.py \
 	Email.py \
