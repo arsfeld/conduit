@@ -159,6 +159,8 @@ if [ $do_coverage -ne 0 ] ; then
     python $COVERAGE_APP -r -a -d $COVERAGE_RESULTS \
     conduit/*.py \
     conduit/modules/TestModule.py \
+    conduit/datatypes/DataType.py \
+    conduit/dataproviders/DataProvider.py \
     | tee --append $indexfile
 
     echo "</pre></p>" >> $indexfile
