@@ -19,6 +19,7 @@ except ImportError:
 if SUPPORTED == True:
     import SynceAdaptor
     MODULES.update(SynceAdaptor.MODULES)
+    OS_SynceFactory = SynceAdaptor.OS_SynceFactory
     
     import EvolutionAdaptor
     MODULES.update(EvolutionAdaptor.MODULES)
