@@ -13,7 +13,7 @@ from conduit.datatypes import Rid
 import conduit.datatypes.Photo as Photo
 
 MODULES = {
-#	"FSpotFactory" : { "type": "dataprovider-factory" }
+	"FSpotFactory" : { "type": "dataprovider-factory" }
 }
 
 NAME_IDX = 0
