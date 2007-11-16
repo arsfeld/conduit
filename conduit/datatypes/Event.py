@@ -30,3 +30,6 @@ class Event(DataType.DataType):
     def __setstate__(self, data):
         self.set_from_ical_string(data['ical'])
         DataType.DataType.__setstate__(self, data)
+        
+    def get_hash(self):
+        return hash(self.iCal)

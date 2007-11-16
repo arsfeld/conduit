@@ -33,4 +33,7 @@ class Contact(DataType.DataType):
 
     def __str__(self):
         return self.get_vcard_string()
+        
+    def get_hash(self):
+        return hash(self.vCard)
 

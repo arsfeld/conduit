@@ -67,3 +67,7 @@ class Email(DataType.DataType):
 
     def __str__(self):
         return ("To: %s\nFrom: %s\nSubject: %s\n" % (self.to,self.emailFrom,self.subject))
+        
+    def get_hash(self):
+        return hash( (self.to,self.emailFrom,self.subject,self.content) )
+        

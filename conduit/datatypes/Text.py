@@ -27,4 +27,7 @@ class Text(DataType.DataType):
             return self.text[0:19]
         else:
             return self.text
+            
+    def get_hash(self):
+        return hash(self.text)
 
