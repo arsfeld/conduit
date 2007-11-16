@@ -115,7 +115,10 @@ class SqliteListStore(gtk.GenericTreeModel):
                 oids = [oid for (oid,) in self.db.select(sql)]
                 self.oidcache.extend(oids)
                 self.oidcache = Utils.unique_list(self.oidcache)
-            oid = oids[0] if len(oids) > 0 else None        
+            if len(oids) > 0:
+                oid = oids[0] 
+            else:
+                oid = None        
         else:
             try:
                 (oid,) = self.db.select_one("SELECT oid FROM %s WHERE oid > %d LIMIT 1" % (self.table, oid or -1))
@@ -188,7 +191,9 @@ class SqliteListStore(gtk.GenericTreeModel):
         """
         if column > len(self.columns):
             return None
-        return rowref if column == 0 else self._get_value(rowref, column)
+        if column == 0:
+            return rowref
+        return self._get_value(rowref, column)
     
     def on_iter_next(self, rowref):
         """
@@ -207,7 +212,9 @@ class SqliteListStore(gtk.GenericTreeModel):
         Parameters:
             rowref -- the oid of the desired row.
         """
-        return None if rowref else self._get_next_oid(-1)
+        if rowref:
+            return None
+        return self._get_next_oid(-1)
     
     def on_iter_has_child(self, rowref):
         """
@@ -223,7 +230,9 @@ class SqliteListStore(gtk.GenericTreeModel):
         is made for the count of all rows. Requesting the row count
         is done by passing None as the rowref.
         """
-        return 0 if rowref else self._get_n_rows()
+        if rowref:
+            return 0
+        return self._get_n_rows()
     
     def on_iter_nth_child(self, rowref, n):
         """
@@ -235,7 +244,9 @@ class SqliteListStore(gtk.GenericTreeModel):
             rowref -- the oid of the row.
             n -- the row offset to retrieve.
         """
-        return None if rowref else self._get_oid(n)
+        if rowref:
+            return None
+        return self._get_oid(n)
     
     def on_iter_parent(self, child):
         """
