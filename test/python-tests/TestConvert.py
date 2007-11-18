@@ -45,9 +45,10 @@ def new_file(filename):
 def new_note(filename):
     n = conduit.datatypes.Note.Note(
                 title=Utils.random_string(),
-                mtime=datetime.datetime(1977,3,23)
+                contents=Utils.random_string()
                 )
     n.set_UID(Utils.random_string())
+    n.set_mtime(datetime.datetime(1977,3,23))
     n.set_open_URI(Utils.random_string())
     return n
 
