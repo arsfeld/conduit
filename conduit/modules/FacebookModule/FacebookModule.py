@@ -18,14 +18,16 @@ import conduit.datatypes.File as File
 Utils.dataprovider_add_dir_to_path(__file__)
 from pyfacebook import Facebook, FacebookError
 
+from gettext import gettext as _
+
 MODULES = {
     "FacebookSink" :          { "type": "dataprovider" }        
 }
 
 class FacebookSink(Image.ImageSink):
 
-    _name_ = "Facebook"
-    _description_ = "Sync Your Facebook Photos"
+    _name_ = _("Facebook")
+    _description_ = _("Sync your Facebook photos")
     _module_type_ = "sink"
     _icon_ = "facebook"
 

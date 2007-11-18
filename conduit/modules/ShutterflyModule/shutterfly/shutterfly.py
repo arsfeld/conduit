@@ -28,7 +28,9 @@ import re
 import time
 import os
 
-FORMAT_STRING = "%Y-%m-%d %H:%M:%S"
+from gettext import gettext as _
+
+FORMAT_STRING = _("%Y-%m-%d %H:%M:%S")
 
 ###############################################################################
 # Helper functions

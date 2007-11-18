@@ -17,14 +17,16 @@ import conduit.datatypes.Photo as Photo
 Utils.dataprovider_add_dir_to_path(__file__, "SmugMugAPI")
 from smugmug import SmugMug, SmugMugException
 
+from gettext import gettext as _
+
 MODULES = {
     "SmugMugTwoWay" :          { "type": "dataprovider" }        
 }
 
 class SmugMugTwoWay(Image.ImageTwoWay):
 
-    _name_ = "SmugMug"
-    _description_ = "Sync Your SmugMug.com Photos"
+    _name_ = _("SmugMug")
+    _description_ = _("Sync your SmugMug.com photos")
     _module_type_ = "twoway"
     _icon_ = "smugmug"
 

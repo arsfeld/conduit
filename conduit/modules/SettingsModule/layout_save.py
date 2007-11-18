@@ -28,6 +28,8 @@ import os
 import tempfile
 import ConfigParser
 
+from gettext import gettext as _
+
 class LayoutSave:
 	def __init__(self, name, description, gconfClient = None):
 		if (gconfClient == None):
@@ -48,10 +50,10 @@ class LayoutSave:
 			try:
 				os.mkdir(config.defaultSaveDir)
 			except:
-				print "Error: Could not create directory: " + config.defaultSaveDir
+				print _("Error: Could not create directory: ") + config.defaultSaveDir
 
 		if not os.path.exists(config.defaultLauncherPath):
-			print "Error: '" + config.defaultLauncherPath + "' does not exist"
+			print _("Error: '%s' does not exist") % config.defaultLauncherPath
 			return
 
 		if (file == None):
@@ -120,7 +122,7 @@ class LayoutSave:
 			if descXml[0].firstChild != None:
 				micro = descXml[0].firstChild.data
 		except Exception, e:
-			print "WARNING: could not get gnome version number"
+			print _("WARNING: could not get gnome version number")
 			print e
 
 		return "%s.%s.%s" % (platform, minor, micro)

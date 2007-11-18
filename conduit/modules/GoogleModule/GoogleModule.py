@@ -12,6 +12,8 @@ import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.Event as Event
 
+from gettext import gettext as _
+
 try:
     import vobject
     import gdata.calendar.service
@@ -329,8 +331,8 @@ class GoogleEvent(object):
 
     
 class GoogleCalendarTwoWay(DataProvider.TwoWay):
-    _name_ = "Google Calendar"
-    _description_ = "Sync your Calendar"
+    _name_ = _("Google Calendar")
+    _description_ = _("Sync your Google Calendar")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "event"

@@ -27,6 +27,8 @@ import config
 import gconf_import
 import ConfigParser
 
+from gettext import gettext as _
+
 class Layouts:
 	""" This class represent all avaible layouts. """
 	__data = {}	
@@ -51,7 +53,7 @@ class Layouts:
 						filePath = dir + file
 						if os.path.isfile(filePath):
 							if tarfile.is_tarfile(filePath):
-								print "Loading: " + filePath
+								print _("Loading: ") + filePath
 								layout = Layout(dir, file)
 								self.__data[layout.name] = layout
 								self.__names.append(layout.name)
@@ -59,7 +61,7 @@ class Layouts:
 								if addFunction != None:
 									addFunction(layout)
 					except Exception, e:
-						print "Error loading layout file: " + file
+						print _("Error loading layout file: ") + file
 						print e
 	
 	def add(self, layout):
@@ -80,7 +82,7 @@ class Layouts:
 						self.__names.append(layout.name)
 						return layout.name
 			except Exception, e:
-				print "Error loading layout file: " + file
+				print _("Error loading layout file: ") + file
 				print e
 		
 	def clear(self):
@@ -238,6 +240,6 @@ class Layout:
 			#print (name,description,gnomeVersion)
 			return (name,description,gnomeVersion)
 		except Exception, e:
-			print "ERROR: info.ini is not valid"
+			print _("ERROR: info.ini is not valid")
 			print e
 			return

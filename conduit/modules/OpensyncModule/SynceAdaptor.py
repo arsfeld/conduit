@@ -3,6 +3,8 @@ import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.HalFactory as HalFactory
 from OpensyncBase import ContactDataprovider, EventDataprovider
 
+from gettext import gettext as _
+
 MODULES = {
     "OS_SynceFactory" :        { "type": "dataprovider-factory" },
 }
@@ -30,8 +32,8 @@ class OS_SynceFactory(HalFactory.HalFactory):
 
 class OS_Synce_Contact(ContactDataprovider):
 
-    _name_ = "Synce Contacts"
-    _description_ = "Sync your devices contacts"
+    _name_ = _("Synce Contacts")
+    _description_ = _("Sync your devices contacts")
     _os_name_ = "synce-plugin"
     _os_sink_ = "contact"
 
@@ -41,8 +43,8 @@ class OS_Synce_Contact(ContactDataprovider):
 
 class OS_Synce_Event(EventDataprovider):
 
-    _name_ = "Synce Events"
-    _description_ = "Sync your devices events"
+    _name_ = _("Synce Events")
+    _description_ = _("Sync your devices events")
     _os_name_ = "synce-plugin"
     _os_sink_ = "event"
 
@@ -52,8 +54,8 @@ class OS_Synce_Event(EventDataprovider):
 
 class OS_Synce_Todo(EventDataprovider):
 
-    _name_ = "Synce Todo"
-    _description_ = "Sync your devices tasks"
+    _name_ = _("Synce Todo")
+    _description_ = _("Sync your devices tasks")
     _os_name_ = "synce-plugin"
     _os_sink_ = "todo"
 

@@ -28,6 +28,8 @@ from xml.dom import minidom
 import gconf
 import types
 
+from gettext import gettext as _
+
 class GConfExport:
     """
     Allow us to export from gconf to XML
@@ -47,7 +49,7 @@ class GConfExport:
 
         try:
             if (value.type == gconf.VALUE_INVALID):
-                raise "Invalid value in gconf"
+                raise _("Invalid value in gconf")
                 return ""
 
             elif (value.type == gconf.VALUE_STRING):
@@ -66,9 +68,9 @@ class GConfExport:
                 return self.__getListValXml( value, key, indent ) 
 
             elif (value.type == gconf.VALUE_SCHEMA):
-                raise "Can not export schema, not implemented"
+                raise _("Can not export schema, not implemented")
             elif (value.type == gconf.VALUE_PAIR):
-                raise "Can not export pair, not implemented"
+                raise _("Can not export pair, not implemented")
             else:
                 return ""
         except Exception, e:

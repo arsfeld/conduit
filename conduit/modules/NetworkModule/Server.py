@@ -19,6 +19,8 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 
+from gettext import gettext as _
+
 SERVER_PORT = 3400
 
 class NetworkServerFactory(DataProvider.DataProviderFactory):
@@ -131,8 +133,8 @@ class NetworkEndpoint(DataProvider.TwoWay):
     Simple class used for detecting when a user connects
     another dataprovider to this one, symbolising a network sync
     """
-    _name_ = "Network"
-    _description_ = "Network your desktop"
+    _name_ = _("Network")
+    _description_ = _("Network your desktop")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
     _in_type_ = "file"

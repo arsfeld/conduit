@@ -22,6 +22,8 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.datatypes.Audio as Audio
 
+from gettext import gettext as _ 
+
 MODULES = {
     "RhythmboxSource" :              { "type": "dataprovider" },
 }
@@ -32,8 +34,8 @@ CHECK_IDX=1
 
 class RhythmboxSource(DataProvider.DataSource):
 
-    _name_ = "Rhythmbox Music"
-    _description_ = "Sync songs from your Rhythmbox playlists"
+    _name_ = _("Rhythmbox Music")
+    _description_ = _("Sync songs from your Rhythmbox playlists")
     _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "source"
     _in_type_ = "file/audio"
@@ -52,7 +54,7 @@ class RhythmboxSource(DataProvider.DataSource):
     def _parse_playlists(self, path, allowed=[]):
         playlists = []
         songs = []
-        playlist_name = u"Unknown"
+        playlist_name = _(u"Unknown")
         is_static = False
 
         path = os.path.expanduser(path) 
@@ -124,7 +126,7 @@ class RhythmboxSource(DataProvider.DataSource):
         #Set up the treeview
         tagtreeview.set_model(list_store)
         #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn('Tag Name', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
                                     gtk.CellRendererText(), 
                                     text=NAME_IDX)
                                     )
@@ -132,7 +134,7 @@ class RhythmboxSource(DataProvider.DataSource):
         renderer1 = gtk.CellRendererToggle()
         renderer1.set_property('activatable', True)
         renderer1.connect( 'toggled', col1_toggled_cb, list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn('Enabled', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
                                     renderer1, 
                                     active=CHECK_IDX)
                                     )

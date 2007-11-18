@@ -9,6 +9,8 @@ import conduit
 from conduit.hildonui.List import DataProviderBox
 from conduit.gtkui.Canvas import Canvas
 
+from gettext import gettext as _
+
 class MainWindow(hildon.Program):
     def __init__(self, conduitApplication, moduleManager, typeConverter, syncManager):
         hildon.Program.__init__(self)

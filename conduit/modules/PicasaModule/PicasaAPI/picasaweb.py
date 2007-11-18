@@ -18,8 +18,11 @@ import urllib,urllib2,urlparse,mimetypes,mimetools
 from datetime import datetime
 from xml.dom.minidom import parseString
 
+from gettext import gettext as _
+
+
 # time format
-FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
+FORMAT_STRING = _("%Y-%m-%dT%H:%M:%S")
 
 #===============================================================================
 # functions helpers ...

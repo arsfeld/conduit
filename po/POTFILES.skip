@@ -1,25 +1,11 @@
+conduit/Main.py
 data/conduit-autostart.desktop.in
 data/conduit.desktop.in
 tools/eog-plugin/config.glade
-conduit/Main.py
-conduit/modules/BackpackModule/BackpackModule.py
-conduit/modules/BackpackModule/config.glade
-conduit/modules/BoxDotNetModule/config.glade
-conduit/modules/EvolutionModule/config.glade
-conduit/modules/FeedModule/FeedModule.py
-conduit/modules/FeedModule/config.glade
-conduit/modules/FileModule/FileModule.py
-conduit/modules/FileModule/FileConfiguration.py
-conduit/modules/FileModule/config.glade
-conduit/modules/FlickrModule/config.glade
-conduit/modules/FspotModule/config.glade
-conduit/modules/GmailModule/GmailModule.py
-conduit/modules/GmailModule/config.glade
-conduit/modules/GoogleModule/config.glade
-conduit/modules/PicasaModule/config.glade
-conduit/modules/SettingsModule/config.glade
-conduit/modules/SmugMugModule/config.glade
-conduit/modules/YouTubeModule/YouTubeModule.py
+conduit/modules/SettingsModule/GConfUtils.py
+conduit/modules/SettingsModule/layout_loader.py
+conduit/modules/SettingsModule/layout_save.py
 conduit/modules/YouTubeModule/config.glade
+
 
 

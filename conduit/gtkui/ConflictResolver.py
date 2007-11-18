@@ -18,6 +18,8 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Utils as Utils
 import conduit.Conflict as Conflict
 
+from gettext import gettext as _
+
 #Indexes into the conflict tree model in which conflict data is stored
 CONFLICT_IDX = 0            #The conflict object
 DIRECTION_IDX = 1           #The current user decision re: the conflict (-->, <-- or -x-)
@@ -76,7 +78,7 @@ class ConflictResolver:
         #Visible column0 is 
         #[pixbuf + source display name] or 
         #[source_data.get_snippet()]
-        column0 = gtk.TreeViewColumn("Source")
+        column0 = gtk.TreeViewColumn(_("Source"))
 
         sourceIconRenderer = gtk.CellRendererPixbuf()
         sourceNameRenderer = gtk.CellRendererText()
@@ -90,12 +92,12 @@ class ConflictResolver:
 
         #Visible column1 is the arrow to decide the direction
         confRenderer = ConflictCellRenderer()
-        column1 = gtk.TreeViewColumn("Resolution", confRenderer)
+        column1 = gtk.TreeViewColumn(_("Resolution"), confRenderer)
         column1.set_cell_data_func(confRenderer, self._direction_data_func, DIRECTION_IDX)
         column1.set_property("expand", False)
 
         #Visible column2 is the display name of source and source data
-        column2 = gtk.TreeViewColumn("Sink")
+        column2 = gtk.TreeViewColumn(_("Sink"))
 
         sinkIconRenderer = gtk.CellRendererPixbuf()
         sinkNameRenderer = gtk.CellRendererText()
@@ -159,8 +161,8 @@ class ConflictResolver:
             cell_renderer.set_direction(direction)
 
     def _set_conflict_titles(self):
-        self.expander.set_label("Conflicts (%s)" % self.numConflicts)
-        self.standalone.set_title("Conflicts (%s)" % self.numConflicts)
+        self.expander.set_label(_("Conflicts (%s)") % self.numConflicts)
+        self.standalone.set_title(_("Conflicts (%s)") % self.numConflicts)
 
     def _conflict_resolved(self, sender, rowref):
         """

@@ -93,19 +93,19 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.view.set_model( self.model )
         #First column is an icon (folder of File)
         iconRenderer = gtk.CellRendererPixbuf()
-        column1 = gtk.TreeViewColumn("Icon", iconRenderer)
+        column1 = gtk.TreeViewColumn(_("Icon"), iconRenderer)
         column1.set_cell_data_func(iconRenderer, self._item_icon_data_func)
         self.view.append_column(column1)
         #Second column is the File/Folder name
         nameRenderer = gtk.CellRendererText()
         nameRenderer.connect('edited', self._item_name_edited_callback)
-        column2 = gtk.TreeViewColumn("Name", nameRenderer)
+        column2 = gtk.TreeViewColumn(_("Name"), nameRenderer)
         column2.set_property("expand", True)
         column2.set_cell_data_func(nameRenderer, self._item_name_data_func)
         self.view.append_column(column2)
         #Third column is the number of contained items
         containsNumRenderer = gtk.CellRendererText()
-        column3 = gtk.TreeViewColumn("Items", containsNumRenderer)
+        column3 = gtk.TreeViewColumn(_("Items"), containsNumRenderer)
         column3.set_cell_data_func(containsNumRenderer, self._item_contains_num_data_func)
         self.view.append_column(column3)
 
@@ -131,7 +131,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         if self.model[path][TYPE_IDX] == TYPE_FILE:
             contains = ""
         else:
-            contains = "<i>Contains %s Files</i>" % self.model[path][CONTAINS_NUM_ITEMS_IDX]
+            contains = _("<i>Contains %s files</i>") % self.model[path][CONTAINS_NUM_ITEMS_IDX]
         cell_renderer.set_property("markup",contains)
         
     def _item_name_data_func(self, column, cell_renderer, tree_model, rowref):
@@ -221,7 +221,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         return response
         
     def on_addfile_clicked(self, *args):
-        dialog = gtk.FileChooserDialog( _("Include file ..."),  
+        dialog = gtk.FileChooserDialog( _("Include file..."),  
                                         None, 
                                         gtk.FILE_CHOOSER_ACTION_OPEN,
                                         (gtk.STOCK_CANCEL, 
@@ -244,7 +244,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         dialog.destroy()
 
     def on_adddir_clicked(self, *args):
-        dialog = gtk.FileChooserDialog( _("Include folder ..."), 
+        dialog = gtk.FileChooserDialog( _("Include folder..."), 
                                         None, 
                                         gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER, 
                                         (gtk.STOCK_CANCEL, 
@@ -287,8 +287,8 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
                                 flags=gtk.DIALOG_MODAL, 
                                 type=gtk.MESSAGE_WARNING, 
                                 buttons=gtk.BUTTONS_OK, 
-                                message_format="Please Name All Folders")
-                warning.format_secondary_text("All folders require a descriptive name. To name a folder simply click on it")
+                                message_format=_("Please Name All Folders"))
+                warning.format_secondary_text(_("All folders require a descriptive name. To name a folder simply click on it"))
                 warning.run()
                 warning.destroy()
                 dialog.emit_stop_by_name("response")
@@ -328,8 +328,8 @@ class _FolderTwoWayConfigurator:
                                 flags=gtk.DIALOG_MODAL, 
                                 type=gtk.MESSAGE_WARNING, 
                                 buttons=gtk.BUTTONS_OK, 
-                                message_format="Please Enter a Folder Name")
-                warning.format_secondary_text("All folders require a descriptive name. To name a folder enter its name where indicated")
+                                message_format=_("Please Enter a Folder Name"))
+                warning.format_secondary_text(_("All folders require a descriptive name. To name a folder enter its name where indicated"))
                 warning.run()
                 warning.destroy()
                 dialog.emit_stop_by_name("response")

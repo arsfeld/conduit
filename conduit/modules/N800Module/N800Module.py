@@ -21,6 +21,8 @@ import conduit.dataproviders.File as FileDataProvider
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
 
+from gettext import gettext as _
+
 MODULES = {
     "N800Factory" : { "type": "dataprovider-factory" },
 }
@@ -104,12 +106,13 @@ class N800FolderTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "N800 Files"
-    _description_ = "Synchronize files/folders o a N800 device"
+    _name_ = _("N800 Files")
+    _description_ = _("Synchronizes files/folders to a N800 device")
     _in_type_ = "file"
     _out_type_ = "file"
 
-    DEFAULT_FOLDER = "Backups"
+    #To translators: default backup folder of N800
+    DEFAULT_FOLDER = _("Backups")
 
     def __init__(self, *args):
         mount,udi = args
@@ -125,13 +128,14 @@ class N800AudioTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "N800 Music"
-    _description_ = "Synchronizes Music to a N800 device"
+    _name_ = _("N800 Music")
+    _description_ = _("Synchronizes music to a N800 device")
     _in_type_ = "file/audio"
     _out_type_ = "file/audio"
     _icon_ = "audio-x-generic"
 
-    DEFAULT_FOLDER = "Music"
+    #To translators: defaul music folder of N800
+    DEFAULT_FOLDER = _("Music")
 
     def __init__(self, *args):
         mount,udi = args
@@ -160,13 +164,14 @@ class N800VideoTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "N800 Videos"
-    _description_ = "Synchronizes Video to a N800 device"
+    _name_ = _("N800 Videos")
+    _description_ = _("Synchronizes video to a N800 device")
     _in_type_ = "file/video"
     _out_type_ = "file/video"
     _icon_ = "video-x-generic"
 
-    DEFAULT_FOLDER = "Video"
+    #To translators: defaul video folder of N800
+    DEFAULT_FOLDER = _("Video")
 
     def __init__(self, *args):
         mount,udi = args
@@ -195,13 +200,15 @@ class N800PhotoTwoWay(N800Base):
     TwoWay dataprovider for synchronizing a folder on a N800
     """
 
-    _name_ = "N800 Photos"
-    _description_ = "Synchronizes Video to a N800 device"
+    _name_ = _("N800 Photos")
+    _description_ = _("Synchronizes video to a N800 device")
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"
     _icon_ = "image-x-generic"
 
-    DEFAULT_FOLDER = "Photo"
+    #To translators: default photos folder of N800
+    DEFAULT_FOLDER = _("Photo")
+
     PRESET_ENCODINGS = {
         "jpeg":{'formats':'image/jpeg','default-format':'image/jpeg','size':'800x480'},
         "png":{'formats':'image/png','default-format':'image/png','size':'800x480'}

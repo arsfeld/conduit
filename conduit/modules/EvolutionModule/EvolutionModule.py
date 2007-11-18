@@ -1,3 +1,5 @@
+from gettext import gettext as _
+
 MODULES = {}
 try:
     import evolution
@@ -102,7 +104,7 @@ class EvoBase(DataProvider.TwoWay):
         #get a whole bunch of widgets
         sourceComboBox = tree.get_widget("sourceComboBox")
         sourceLabel = tree.get_widget("sourceLabel")
-        sourceLabel.set_text("Select %s:" % name)
+        sourceLabel.set_text(_("Select %s:") % name)
 
         #make a combobox with the addressbooks
         store = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING)
@@ -143,8 +145,8 @@ class EvoContactTwoWay(EvoBase):
 
     DEFAULT_ADDRESSBOOK_URI = "default"
 
-    _name_ = "Evolution Contacts"
-    _description_ = "Sync your Contacts"
+    _name_ = _("Evolution Contacts")
+    _description_ = _("Sync your contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "contact"
@@ -200,8 +202,8 @@ class EvoCalendarTwoWay(EvoBase):
 
     DEFAULT_CALENDAR_URI = "default"
 
-    _name_ = "Evolution Calendar"
-    _description_ = "Sync your Calendar"
+    _name_ = _("Evolution Calendar")
+    _description_ = _("Sync your calendar")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "event"
@@ -263,8 +265,8 @@ class EvoTasksTwoWay(EvoBase):
 
     DEFAULT_TASK_URI = "default"
 
-    _name_ = "Evolution Tasks"
-    _description_ = "Sync your Tasks"
+    _name_ = _("Evolution Tasks")
+    _description_ = _("Sync your tasks")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "event"
@@ -325,8 +327,8 @@ class EvoMemoTwoWay(EvoBase):
 
     DEFAULT_MEMO_URI = ""
 
-    _name_ = "Evolution Memos"
-    _description_ = "Sync your Memos"
+    _name_ = _("Evolution Memos")
+    _description_ = _("Sync your memos")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "note"

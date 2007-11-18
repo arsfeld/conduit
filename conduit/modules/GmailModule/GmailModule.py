@@ -80,7 +80,7 @@ class GmailBase(DataProvider.DataProviderBase):
 class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
     _name_ = _("Email")
-    _description_ = _("Sync your Gmail Emails")
+    _description_ = _("Sync your Gmail emails")
     _category_ = GOOGLE_CAT
     _module_type_ = "twoway"
     _in_type_ = "email"
@@ -309,7 +309,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
 
     _name_ = _("Contacts")
-    _description_ = _("Sync your Gmail Contacts")
+    _description_ = _("Sync your Gmail contacts")
     _category_ = GOOGLE_CAT
     _module_type_ = "twoway"
     _in_type_ = "contact"

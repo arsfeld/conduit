@@ -13,14 +13,16 @@ import conduit.Exceptions as Exceptions
 Utils.dataprovider_add_dir_to_path(__file__, "shutterfly")
 from shutterfly import Shutterfly
 
+from gettext import gettext as _
+
 MODULES = {
 	"ShutterflySink" : {"type" : "dataprovider"}
 }
 
 class ShutterflySink(Image.ImageSink):
 	
-	_name_ = "Shutterfly"
-	_description_ = "Sync Your Shutterfly Photos"
+	_name_ = _("Shutterfly")
+	_description_ = _("Sync your Shutterfly photos")
 	_module_type_ = "sink"
 	_icon_ = "shutterfly"
 	

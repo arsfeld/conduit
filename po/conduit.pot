@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-09-11 16:39+0100\n"
+"POT-Creation-Date: 2007-11-19 10:50+1300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,413 +31,6 @@ msgstr ""
 msgid "Synchronization for GNOME"
 msgstr ""
 
-#: ../conduit/Canvas.py:68
-msgid "Drag a Dataprovider here to continue"
-msgstr ""
-
-#: ../conduit/DataProvider.py:173
-msgid "Ready"
-msgstr ""
-
-#: ../conduit/DataProvider.py:175
-msgid "New data to sync"
-msgstr ""
-
-#: ../conduit/DataProvider.py:177
-msgid "Refreshing..."
-msgstr ""
-
-#: ../conduit/DataProvider.py:179
-msgid "Refreshed OK"
-msgstr ""
-
-#: ../conduit/DataProvider.py:181
-msgid "Error Refreshing"
-msgstr ""
-
-#: ../conduit/DataProvider.py:183
-msgid "Synchronizing..."
-msgstr ""
-
-#: ../conduit/DataProvider.py:185
-msgid "Synchronized OK"
-msgstr ""
-
-#: ../conduit/DataProvider.py:187
-msgid "Error Synchronizing"
-msgstr ""
-
-#: ../conduit/DataProvider.py:189
-msgid "Synchronization Skipped"
-msgstr ""
-
-#: ../conduit/DataProvider.py:191
-msgid "Synchronization Cancelled"
-msgstr ""
-
-#: ../conduit/DataProvider.py:193
-msgid "Synchronization Conflict"
-msgstr ""
-
-#: ../conduit/DataProvider.py:195
-msgid "Not Configured Correctly"
-msgstr ""
-
-#: ../conduit/DataProvider.py:582
-msgid "Configure "
-msgstr ""
-
-#: ../conduit/GtkUI.py:347
-msgid "Synchronization in progress. Do you want to cancel it?"
-msgstr ""
-
-#: ../conduit/TypeConverter.py:144
-msgid "Convert from"
-msgstr ""
-
-#: ../conduit/TypeConverter.py:145
-msgid "into"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:47
-msgid "Backpack Notes"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/BackpackModule.py:48
-msgid "Store things in Backpack Notes"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/config.glade.h:1
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:1
-#: ../conduit/dataproviders/GmailModule/config.glade.h:1
-#: ../conduit/dataproviders/GoogleModule/config.glade.h:1
-#: ../conduit/dataproviders/PicasaModule/config.glade.h:1
-#: ../conduit/dataproviders/SmugMugModule/config.glade.h:1
-msgid "<b>Account Details</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/config.glade.h:2
-msgid "<b>Saved Note Settings</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/config.glade.h:3
-msgid "API Key:"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/config.glade.h:4
-msgid "Backpack"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/config.glade.h:5
-msgid "Save Notes In Page:"
-msgstr ""
-
-#: ../conduit/dataproviders/BackpackModule/config.glade.h:6
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:6
-#: ../conduit/dataproviders/GmailModule/config.glade.h:16
-#: ../conduit/dataproviders/PicasaModule/config.glade.h:6
-#: ../conduit/dataproviders/SmugMugModule/config.glade.h:6
-msgid "Username:"
-msgstr ""
-
-#: ../conduit/dataproviders/BoxDotNetModule/config.glade.h:1
-msgid "Box.net"
-msgstr ""
-
-#: ../conduit/dataproviders/BoxDotNetModule/config.glade.h:2
-#: ../conduit/dataproviders/FileModule/FileModule.py:520
-msgid "Folder"
-msgstr ""
-
-#: ../conduit/dataproviders/EvolutionModule/config.glade.h:1
-msgid "Addressbook"
-msgstr ""
-
-#: ../conduit/dataproviders/EvolutionModule/config.glade.h:2
-msgid "Evolution"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/FeedModule.py:32
-#: ../conduit/dataproviders/FeedModule/config.glade.h:8
-msgid "RSS Feed"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/FeedModule.py:33
-msgid "Sync data from RSS enclosures"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/config.glade.h:1
-msgid "<b>Enclosure Settings</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/config.glade.h:2
-msgid "<b>Feed Details</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/config.glade.h:3
-msgid "Download Audio"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/config.glade.h:4
-msgid "Download Photos"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/config.glade.h:5
-msgid "Feed Address:"
-msgstr ""
-
-#: ../conduit/dataproviders/FeedModule/config.glade.h:6
-msgid ""
-"Limit the Number of\n"
-"Enclosures Downloded to:"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:250
-msgid "Include file ..."
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:260
-msgid "All files"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:273
-msgid "Include folder ..."
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:321
-msgid "Files"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:322
-msgid "Source for synchronizing multiple files"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/FileModule.py:521
-msgid "Synchronize folders"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:1
-msgid "<b>Items to Synchronize</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:2
-msgid "Add Directory"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:3
-msgid "Add File"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:4
-msgid "File Configuration"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:5
-msgid "Folder Configuration"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:6
-msgid "Folder Location:"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:7
-msgid "Folder Name:"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:8
-msgid "Include Hidden Files"
-msgstr ""
-
-#: ../conduit/dataproviders/FileModule/config.glade.h:9
-msgid "Select A Folder"
-msgstr ""
-
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:2
-#: ../conduit/dataproviders/PicasaModule/config.glade.h:2
-#: ../conduit/dataproviders/SmugMugModule/config.glade.h:2
-msgid "<b>Saved Photo Settings</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:3
-msgid "Flickr"
-msgstr ""
-
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:4
-msgid "Photos are Public"
-msgstr ""
-
-#: ../conduit/dataproviders/FlickrModule/config.glade.h:5
-msgid "Photoset Name:"
-msgstr ""
-
-#: ../conduit/dataproviders/FspotModule/config.glade.h:1
-msgid "<b>Return Photos Tagged With</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/FspotModule/config.glade.h:2
-msgid "F-Spot"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:75
-msgid "Email"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:76
-msgid "Sync your Gmail Emails"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:302
-msgid "Contacts"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/GmailModule.py:303
-msgid "Sync your Gmail Contacts"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:2
-msgid "<b>Login Details</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:3
-msgid "<b>Return Emails Matching</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:4
-msgid "<b>Saved Email Settings</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:5
-msgid "<b>When Saving Emails</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:6
-msgid "All Emails"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:7
-msgid "Attach Label to Email"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:8
-msgid "Emails With Label"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:9
-msgid "Emails in Folder"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:10
-msgid "Gmail Emails"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:11
-msgid "Gmail Sink Properties"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:12
-#: ../conduit/dataproviders/GoogleModule/config.glade.h:6
-#: ../conduit/dataproviders/PicasaModule/config.glade.h:4
-#: ../conduit/dataproviders/SmugMugModule/config.glade.h:4
-msgid "Password:"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:13
-msgid "Password:   "
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:14
-msgid "Save With Label"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:15
-msgid "Unread Emails"
-msgstr ""
-
-#: ../conduit/dataproviders/GmailModule/config.glade.h:17
-msgid "Username: "
-msgstr ""
-
-#: ../conduit/dataproviders/GoogleModule/config.glade.h:2
-msgid "Calendar:"
-msgstr ""
-
-#: ../conduit/dataproviders/GoogleModule/config.glade.h:3
-msgid "Email:"
-msgstr ""
-
-#: ../conduit/dataproviders/GoogleModule/config.glade.h:4
-msgid "Google Calendar"
-msgstr ""
-
-#: ../conduit/dataproviders/GoogleModule/config.glade.h:5
-msgid "Load Calendars"
-msgstr ""
-
-#: ../conduit/dataproviders/PicasaModule/config.glade.h:3
-#: ../conduit/dataproviders/SmugMugModule/config.glade.h:3
-msgid "Album:"
-msgstr ""
-
-#: ../conduit/dataproviders/PicasaModule/config.glade.h:5
-msgid "Picasa"
-msgstr ""
-
-#: ../conduit/dataproviders/SettingsModule/config.glade.h:1
-msgid "<b>Synchronize the Following Application Settings</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/SettingsModule/config.glade.h:2
-msgid "Settings Configuration"
-msgstr ""
-
-#: ../conduit/dataproviders/SmugMugModule/config.glade.h:5
-msgid "SmugMug"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:1
-msgid "<b>Donwload Videos</b>"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:2
-msgid "By user"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:3
-msgid "Favorites of"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:4
-msgid "Max retrieved videos (0 is unlimited):"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:5
-msgid "Most viewed"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:6
-msgid "Top rated"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:7
-msgid "Uploaded by"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:8
-msgid "User: "
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/config.glade.h:9
-msgid "YouTube Source"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/YouTubeModule.py:34
-msgid "YouTube"
-msgstr ""
-
-#: ../conduit/dataproviders/YouTubeModule/YouTubeModule.py:35
-msgid "Sync data from YouTube"
-msgstr ""
-
 #: ../data/conduit.glade.h:1
 msgid "<b>General</b>"
 msgstr ""
@@ -447,7 +40,7 @@ msgid "<b>Two Way Synchronisation</b>"
 msgstr ""
 
 #: ../data/conduit.glade.h:3
-msgid "Ask Me What to Do"
+msgid "Ask what to do"
 msgstr ""
 
 #: ../data/conduit.glade.h:4
@@ -459,39 +52,39 @@ msgid "Compare"
 msgstr ""
 
 #: ../data/conduit.glade.h:6
-msgid "Conduit Properties"
+msgid "Compares the conflicts"
 msgstr ""
 
 #: ../data/conduit.glade.h:7
-msgid "Configuration"
+msgid "Conduit Properties"
 msgstr ""
 
 #: ../data/conduit.glade.h:8
-msgid "Configure Item"
+msgid "Configuration"
 msgstr ""
 
 #: ../data/conduit.glade.h:9
-msgid "Configure the Synchronization Settings for this Item"
+msgid "Configure Item"
 msgstr ""
 
 #: ../data/conduit.glade.h:10
-msgid "Conflicts"
+msgid "Configure the Synchronization Settings for this Item"
 msgstr ""
 
 #: ../data/conduit.glade.h:11
-msgid "Contents"
+msgid "Conflicts"
 msgstr ""
 
 #: ../data/conduit.glade.h:12
-msgid "Data Conversions"
+msgid "Contents"
 msgstr ""
 
 #: ../data/conduit.glade.h:13
-msgid "Data Providers"
+msgid "Data Conversions"
 msgstr ""
 
 #: ../data/conduit.glade.h:14
-msgid "Dataproviders"
+msgid "Data Providers"
 msgstr ""
 
 #: ../data/conduit.glade.h:15
@@ -511,35 +104,35 @@ msgid "Editor"
 msgstr ""
 
 #: ../data/conduit.glade.h:19
-msgid "Enable iPod and USB Key Support"
+msgid "Minimize to Notification area"
 msgstr ""
 
 #: ../data/conduit.glade.h:20
-msgid "Minimize to Tray Icon"
-msgstr ""
-
-#: ../data/conduit.glade.h:21
 msgid "Refresh Group"
 msgstr ""
 
-#: ../data/conduit.glade.h:22
+#: ../data/conduit.glade.h:21
 msgid "Refresh Item"
 msgstr ""
 
-#: ../data/conduit.glade.h:23
-msgid "Replace the Older Item"
+#: ../data/conduit.glade.h:22
+msgid "Replace the older item"
 msgstr ""
 
-#: ../data/conduit.glade.h:24
+#: ../data/conduit.glade.h:23
 msgid "Resolve Conflicts"
 msgstr ""
 
+#: ../data/conduit.glade.h:24
+msgid "Resolves the conflicts"
+msgstr ""
+
 #: ../data/conduit.glade.h:25
-msgid "Save Synchronization Settings on Exit."
+msgid "Save settings on exit"
 msgstr ""
 
 #: ../data/conduit.glade.h:26
-msgid "Show Status Icon"
+msgid "Show Status icon"
 msgstr ""
 
 #: ../data/conduit.glade.h:27
@@ -559,21 +152,849 @@ msgid "Synchronize Group"
 msgstr ""
 
 #: ../data/conduit.glade.h:31
-msgid "Title"
+msgid "Synchronize the group"
 msgstr ""
 
 #: ../data/conduit.glade.h:32
-msgid "Two Way Sync"
+msgid "Title"
 msgstr ""
 
 #: ../data/conduit.glade.h:33
-msgid "When There is a Conflict"
+msgid "Two Way Sync"
 msgstr ""
 
 #: ../data/conduit.glade.h:34
-msgid "When an Item Has Been Deleted"
+msgid "Use built in web browser"
 msgstr ""
 
 #: ../data/conduit.glade.h:35
+msgid "When There is a Conflict:"
+msgstr ""
+
+#: ../data/conduit.glade.h:36
+msgid "When an Item Has Been Deleted:"
+msgstr ""
+
+#: ../data/conduit.glade.h:37
+msgid "_Edit"
+msgstr ""
+
+#: ../data/conduit.glade.h:38
+msgid "_File"
+msgstr ""
+
+#: ../data/conduit.glade.h:39
+msgid "_Help"
+msgstr ""
+
+#: ../data/conduit.glade.h:40
 msgid "dialog1"
+msgstr ""
+
+#: ../conduit/gtkui/Canvas.py:68
+msgid "Drag a Dataprovider here to continue"
+msgstr ""
+
+#. Visible column0 is
+#. [pixbuf + source display name] or
+#. [source_data.get_snippet()]
+#: ../conduit/gtkui/ConflictResolver.py:81
+msgid "Source"
+msgstr ""
+
+#: ../conduit/gtkui/ConflictResolver.py:95
+msgid "Resolution"
+msgstr ""
+
+#. Visible column2 is the display name of source and source data
+#: ../conduit/gtkui/ConflictResolver.py:100
+msgid "Sink"
+msgstr ""
+
+#: ../conduit/gtkui/ConflictResolver.py:164
+#: ../conduit/gtkui/ConflictResolver.py:165
+#, python-format
+msgid "Conflicts (%s)"
+msgstr ""
+
+#. Build some liststores to display
+#: ../conduit/gtkui/UI.py:231
+msgid "Convert from"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:232
+msgid "into"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:288
+msgid "Conversions Available"
+msgstr ""
+
+#. column1 is the name of the backup
+#: ../conduit/gtkui/UI.py:294 ../conduit/gtkui/Tree.py:337
+#: ../conduit/modules/FileModule/FileConfiguration.py:102
+#: ../conduit/modules/SettingsModule/SettingsModule.py:97
+msgid "Name"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:298
+#: ../conduit/modules/BansheeModule/BansheeModule.py:142
+#: ../conduit/modules/FspotModule/FspotDbusModule.py:212
+#: ../conduit/modules/FspotModule/FspotModule.py:150
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:137
+#: ../conduit/modules/SettingsModule/SettingsModule.py:94
+msgid "Enabled"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:382 ../conduit/hildonui/UI.py:135
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:528
+msgid "_Synchronize"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:528
+msgid "Synchronize all dataproviders"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:529
+msgid "_Quit"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:529
+msgid "Close Conduit"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:530
+msgid "_About"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:530
+msgid "About Conduit"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:554
+msgid "Synchronization Complete"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:558
+msgid "Synchronization Error"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:561
+msgid "Synchronizing"
+msgstr ""
+
+#: ../conduit/gtkui/Tree.py:352
+msgid "Description"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:163
+msgid "Ready"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:165
+msgid "New data to sync"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:167
+msgid "Refreshing..."
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:169
+msgid "Refreshed OK"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:171
+msgid "Error Refreshing"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:173
+msgid "Synchronizing..."
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:175
+msgid "Synchronized OK"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:177
+msgid "Error Synchronizing"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:179
+msgid "Synchronization Skipped"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:181
+msgid "Synchronization Cancelled"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:183
+msgid "Synchronization Conflict"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:185
+msgid "Not Configured Correctly"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:47
+msgid "Backpack Notes"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:48
+msgid "Store things in Backpack Notes"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:1
+#: ../conduit/modules/FlickrModule/config.glade.h:1
+#: ../conduit/modules/GmailModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/config.glade.h:1
+#: ../conduit/modules/PicasaModule/config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
+#: ../conduit/modules/SmugMugModule/config.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:3
+msgid "API key:"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:4
+msgid "Backpack"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:5
+msgid "Save notes in page:"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:6
+#: ../conduit/modules/FlickrModule/config.glade.h:7
+#: ../conduit/modules/GmailModule/config.glade.h:16
+#: ../conduit/modules/PicasaModule/config.glade.h:7
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:7
+msgid "Username:"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/backpack-1.1/backpack.py:58
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr ""
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:30
+msgid "Banshee Playlists"
+msgstr ""
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:31
+msgid "Sync your Banshee playlists"
+msgstr ""
+
+#. column 1 is the tag name
+#: ../conduit/modules/BansheeModule/BansheeModule.py:134
+#: ../conduit/modules/FspotModule/FspotDbusModule.py:204
+#: ../conduit/modules/FspotModule/FspotModule.py:142
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:129
+msgid "Tag Name"
+msgstr ""
+
+#: ../conduit/modules/BansheeModule/config.glade.h:1
+msgid "<b>Return Playlists</b>"
+msgstr ""
+
+#: ../conduit/modules/BansheeModule/config.glade.h:2
+msgid "Banshee"
+msgstr ""
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr ""
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
+msgid "Sync your Box.net files"
+msgstr ""
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
+msgid "Folder:"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:107
+#, python-format
+msgid "Select %s:"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
+#: ../conduit/modules/OpensyncModule/EvolutionAdaptor.py:26
+msgid "Evolution Contacts"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:149
+msgid "Sync your contacts"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:205
+msgid "Evolution Calendar"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:206
+msgid "Sync your calendar"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:268
+msgid "Evolution Tasks"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:269
+msgid "Sync your tasks"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:330
+msgid "Evolution Memos"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:331
+msgid "Sync your memos"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:1
+msgid "Addressbook:"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr ""
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:29
+msgid "Facebook"
+msgstr ""
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:30
+msgid "Sync your Facebook photos"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/FeedModule.py:29
+#: ../conduit/modules/FeedModule/config.glade.h:8
+msgid "RSS Feed"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/FeedModule.py:30
+msgid "Sync data from RSS enclosures"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:2
+msgid "<b>Feed Details</b>"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:3
+msgid "Download audio"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:4
+msgid "Download photos"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:5
+msgid "Feed Address:"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:6
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloaded to:"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:96
+msgid "Icon"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:108
+msgid "Items"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:134
+#, python-format
+msgid "<i>Contains %s files</i>"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:224
+msgid "Include file..."
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:234
+msgid "All files"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:247
+msgid "Include folder..."
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:290
+msgid "Please Name All Folders"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:291
+msgid ""
+"All folders require a descriptive name. To name a folder simply click on it"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:331
+msgid "Please Enter a Folder Name"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:332
+msgid ""
+"All folders require a descriptive name. To name a folder enter its name "
+"where indicated"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileModule.py:24
+msgid "Files"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileModule.py:25
+msgid "Source for synchronizing multiple files"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileModule.py:67
+msgid "Folder"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileModule.py:68
+msgid "Synchronize folders"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:4
+msgid "File Configuration"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:5
+msgid "Folder Configuration"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:6
+msgid "Folder Location:"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:7
+msgid "Folder Name:"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:8
+msgid "Ignore File Modification Times"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:9
+msgid "Include Hidden Files"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:10
+msgid "Select A Folder"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:29
+#: ../conduit/modules/FlickrModule/config.glade.h:3
+msgid "Flickr"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:30
+msgid "Sync your Flickr.com photos"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/config.glade.h:2
+#: ../conduit/modules/PicasaModule/config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Photos are public"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/config.glade.h:5
+msgid "Photoset Name:"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/config.glade.h:6
+#: ../conduit/modules/PicasaModule/config.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotDbusModule.py:49
+msgid "F-Spot DBus Photos"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotDbusModule.py:50
+msgid "Sync your F-Spot photos over DBus"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotDbusModule.py:65
+msgid "Failed to get remotes"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotDbusModule.py:117
+msgid "F-Spot DBus interface is operating in read only mode"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotModule.py:30
+msgid "F-Spot Photos"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotModule.py:31
+msgid "Sync your F-Spot photos"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/config.glade.h:2
+msgid "F-Spot"
+msgstr ""
+
+#: ../conduit/modules/GConfModule/GConfModule.py:53
+msgid "GConf Settings"
+msgstr ""
+
+#: ../conduit/modules/GConfModule/GConfModule.py:54
+#: ../conduit/modules/SettingsModule/SettingsModule.py:38
+msgid "Sync your desktop preferences"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/GmailModule.py:82
+msgid "Email"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/GmailModule.py:83
+msgid "Sync your Gmail emails"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/GmailModule.py:311
+msgid "Contacts"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/GmailModule.py:312
+msgid "Sync your Gmail contacts"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:2
+msgid "<b>Login Details</b>"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:3
+msgid "<b>Return Emails Matching</b>"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:4
+msgid "<b>Saved Email Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:5
+msgid "<b>When Saving Emails</b>"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:6
+msgid "All emails"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:7
+msgid "Attach label to email"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:8
+msgid "Emails in folder:"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:9
+msgid "Emails with label:"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:10
+msgid "Gmail Emails"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:11
+msgid "Gmail Sink Properties"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:12
+#: ../conduit/modules/GoogleModule/config.glade.h:6
+#: ../conduit/modules/PicasaModule/config.glade.h:4
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+msgid "Password:"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:13
+msgid "Password:   "
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:14
+msgid "Save with label:"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:15
+msgid "Unread emails"
+msgstr ""
+
+#: ../conduit/modules/GmailModule/config.glade.h:17
+msgid "Username: "
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:334
+#: ../conduit/modules/GoogleModule/config.glade.h:4
+msgid "Google Calendar"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:335
+msgid "Sync your Google Calendar"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/config.glade.h:2
+msgid "Calendar:"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/config.glade.h:3
+msgid "Email:"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/config.glade.h:5
+msgid "Load Calendars"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:109
+msgid "N800 Files"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:110
+msgid "Synchronizes files/folders to a N800 device"
+msgstr ""
+
+#. To translators: default backup folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:115
+msgid "Backups"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:131
+msgid "N800 Music"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:132
+msgid "Synchronizes music to a N800 device"
+msgstr ""
+
+#. To translators: defaul music folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:138
+msgid "Music"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:167
+msgid "N800 Videos"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:168
+#: ../conduit/modules/N800Module/N800Module.py:204
+msgid "Synchronizes video to a N800 device"
+msgstr ""
+
+#. To translators: defaul video folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:174
+msgid "Video"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:203
+msgid "N800 Photos"
+msgstr ""
+
+#. To translators: default photos folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:210
+msgid "Photo"
+msgstr ""
+
+#: ../conduit/modules/NetworkModule/Server.py:136
+msgid "Network"
+msgstr ""
+
+#: ../conduit/modules/NetworkModule/Server.py:137
+msgid "Network your desktop"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/EvolutionAdaptor.py:27
+msgid "Sync your Evolution contacts"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/EvolutionAdaptor.py:43
+msgid "Evolution Events"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/EvolutionAdaptor.py:44
+msgid "Sync your Evolution events"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/EvolutionAdaptor.py:60
+msgid "Evolution Todo"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/EvolutionAdaptor.py:61
+msgid "Sync your Evolution tasks"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/SynceAdaptor.py:35
+msgid "Synce Contacts"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/SynceAdaptor.py:36
+msgid "Sync your devices contacts"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/SynceAdaptor.py:46
+msgid "Synce Events"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/SynceAdaptor.py:47
+msgid "Sync your devices events"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/SynceAdaptor.py:57
+msgid "Synce Todo"
+msgstr ""
+
+#: ../conduit/modules/OpensyncModule/SynceAdaptor.py:58
+msgid "Sync your devices tasks"
+msgstr ""
+
+#: ../conduit/modules/PicasaModule/PicasaModule.py:28
+#: ../conduit/modules/PicasaModule/config.glade.h:5
+msgid "Picasa"
+msgstr ""
+
+#: ../conduit/modules/PicasaModule/PicasaModule.py:29
+msgid "Sync your Google Picasa photos"
+msgstr ""
+
+#: ../conduit/modules/PicasaModule/config.glade.h:3
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+msgid "Album:"
+msgstr ""
+
+#. time format
+#: ../conduit/modules/PicasaModule/PicasaAPI/picasaweb.py:25
+msgid "%Y-%m-%dT%H:%M:%S"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
+msgid "Rhythmbox Music"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
+msgid "Sync songs from your Rhythmbox playlists"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+msgid "Unknown"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:1
+msgid "<b>Synchronize the Following Playlists</b>"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:2
+msgid "Rhythmbox Playlists"
+msgstr ""
+
+#: ../conduit/modules/SettingsModule/SettingsModule.py:37
+msgid "System Settings"
+msgstr ""
+
+#: ../conduit/modules/SettingsModule/config.glade.h:1
+msgid "<b>Synchronize the Following Application Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/SettingsModule/config.glade.h:2
+msgid "Settings Configuration"
+msgstr ""
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:24
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr ""
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:25
+msgid "Sync your Shutterfly photos"
+msgstr ""
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr ""
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Sync your SmugMug.com photos"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/YouTubeModule.py:32
+msgid "YouTube"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/YouTubeModule.py:33
+msgid "Sync data from YouTube"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:1
+msgid "<b>Donwload Videos</b>"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:2
+msgid "By user"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:3
+msgid "Favorites of"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:5
+msgid "Most viewed"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:6
+msgid "Top rated"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:7
+msgid "Uploaded by"
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:8
+msgid "User: "
+msgstr ""
+
+#: ../conduit/modules/YouTubeModule/config.glade.h:9
+msgid "YouTube Source"
 msgstr ""

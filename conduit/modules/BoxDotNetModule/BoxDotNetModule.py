@@ -18,14 +18,16 @@ import conduit.datatypes.File as File
 Utils.dataprovider_add_dir_to_path(__file__, "BoxDotNetAPI")
 from boxdotnet import BoxDotNet
 
+from gettext import gettext as _
+
 MODULES = {
     "BoxDotNetTwoWay" :          { "type": "dataprovider" }
 }
 
 class BoxDotNetTwoWay(DataProvider.TwoWay):
 
-    _name_ = "Box.net"
-    _description_ = "Sync Your Box.net files"
+    _name_ = _("Box.net")
+    _description_ = _("Sync your Box.net files")
     _category_ = conduit.dataproviders.CATEGORY_FILES
     _module_type_ = "twoway"
     _in_type_ = "file"

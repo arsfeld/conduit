@@ -1,6 +1,8 @@
 import conduit
 from OpensyncBase import ContactDataprovider, EventDataprovider
 
+from gettext import gettext as _
+
 MODULES = {
     "OS_Evolution_Contact":   { "type": "dataprovider" },
     "OS_Evolution_Event":     { "type": "dataprovider" },
@@ -21,8 +23,8 @@ class _EvolutionMixin(object):
 
 class OS_Evolution_Contact(ContactDataprovider, _EvolutionMixin):
 
-    _name_ = "Evolution Contacts"
-    _description_ = "Sync your Evolution contacts"
+    _name_ = _("Evolution Contacts")
+    _description_ = _("Sync your Evolution contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _os_name_ = "evo2-sync"
     _os_sink_ = "contact"
@@ -38,8 +40,8 @@ class OS_Evolution_Contact(ContactDataprovider, _EvolutionMixin):
 
 class OS_Evolution_Event(EventDataprovider, _EvolutionMixin):
 
-    _name_ = "Evolution Events"
-    _description_ = "Sync your Evolution events"
+    _name_ = _("Evolution Events")
+    _description_ = _("Sync your Evolution events")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _os_name_ = "evo2-sync"
     _os_sink_ = "event"
@@ -55,8 +57,8 @@ class OS_Evolution_Event(EventDataprovider, _EvolutionMixin):
 
 class OS_Evolution_Todo(EventDataprovider, _EvolutionMixin):
 
-    _name_ = "Evolution Todo"
-    _description_ = "Sync your Evolution tasks"
+    _name_ = _("Evolution Todo")
+    _description_ = _("Sync your Evolution tasks")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _os_name_ = "evo2-sync"
     _os_sink_ = "todo"

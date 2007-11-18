@@ -18,14 +18,16 @@ import conduit.datatypes.Photo as Photo
 Utils.dataprovider_add_dir_to_path(__file__, "FlickrAPI")
 from flickrapi import FlickrAPI
 
+from gettext import gettext as _
+
 MODULES = {
 	"FlickrTwoWay" :          { "type": "dataprovider" }        
 }
 
 class FlickrTwoWay(Image.ImageTwoWay):
 
-    _name_ = "Flickr"
-    _description_ = "Sync Your Flickr.com Photos"
+    _name_ = _("Flickr")
+    _description_ = _("Sync your Flickr.com photos")
     _module_type_ = "twoway"
     _icon_ = "flickr"
 

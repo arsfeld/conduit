@@ -9,6 +9,8 @@ import conduit.dataproviders.AutoSync as AutoSync
 from conduit.datatypes import DataType, Rid
 import conduit.datatypes.Text as Text
 
+from gettext import gettext as _
+
 MODULES = {
     "GConfTwoWay"     : { "type": "dataprovider"  },
     "GConfConverter"  : { "type": "converter" },
@@ -48,8 +50,8 @@ class GConfConverter(object):
         return Text.Text(None, text=val)
 
 class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
-    _name_ = "GConf Settings"
-    _description_ = "Sync your desktop preferences"
+    _name_ = _("GConf Settings")
+    _description_ = _("Sync your desktop preferences")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
     _in_type_ = "gconf-setting"

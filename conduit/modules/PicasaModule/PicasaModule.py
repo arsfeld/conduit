@@ -17,14 +17,16 @@ import conduit.datatypes.Photo as Photo
 Utils.dataprovider_add_dir_to_path(__file__, "PicasaAPI")
 from picasaweb import PicasaWeb
 
+from gettext import gettext as _
+
 MODULES = {
     "PicasaTwoWay" :          { "type": "dataprovider" }        
 }
 
 class PicasaTwoWay(Image.ImageTwoWay):
 
-    _name_ = "Picasa"
-    _description_ = "Sync Your Google Picasa Photos"
+    _name_ = _("Picasa")
+    _description_ = _("Sync your Google Picasa photos")
     _icon_ = "picasa"
 
     def __init__(self, *args):

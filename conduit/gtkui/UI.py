@@ -285,17 +285,17 @@ class MainWindow:
         
         converterTreeView = tree.get_widget("dataConversionsTreeView")
         converterTreeView.set_model(converterListStore)
-        converterTreeView.append_column(gtk.TreeViewColumn('Conversions Available', 
+        converterTreeView.append_column(gtk.TreeViewColumn(_("Conversions Available"), 
                                         gtk.CellRendererText(), 
                                         text=0)
                                         )
         dataproviderTreeView = tree.get_widget("dataProvidersTreeView")
         dataproviderTreeView.set_model(dataProviderListStore)
-        dataproviderTreeView.append_column(gtk.TreeViewColumn('Name', 
+        dataproviderTreeView.append_column(gtk.TreeViewColumn(_("Name"), 
                                         gtk.CellRendererText(), 
                                         text=0)
                                         )                                                   
-        dataproviderTreeView.append_column(gtk.TreeViewColumn('Enabled', 
+        dataproviderTreeView.append_column(gtk.TreeViewColumn(_("Enabled"), 
                                         gtk.CellRendererToggle(), 
                                         active=1)
                                         )                                        
@@ -525,9 +525,9 @@ class StatusIcon(gtk.StatusIcon):
         '''
         actions = [
             ('Menu',  None, 'Menu'),
-            ('Sync', gtk.STOCK_EXECUTE, '_Synchronize', None, 'Synchronize all dataproviders', self.on_synchronize),
-            ('Quit', gtk.STOCK_QUIT, '_Quit', None, 'Close Conduit', self.on_quit),
-            ('About', gtk.STOCK_ABOUT, '_About', None, 'About Conduit', self.on_about)]
+            ('Sync', gtk.STOCK_EXECUTE, _("_Synchronize"), None, _("Synchronize all dataproviders"), self.on_synchronize),
+            ('Quit', gtk.STOCK_QUIT, _("_Quit"), None, _("Close Conduit"), self.on_quit),
+            ('About', gtk.STOCK_ABOUT, _("_About"), None, _("About Conduit"), self.on_about)]
         ag = gtk.ActionGroup('Actions')
         ag.add_actions(actions)
         self.manager = gtk.UIManager()
@@ -551,14 +551,14 @@ class StatusIcon(gtk.StatusIcon):
 
     def _go_to_idle_state(self):
         self.set_from_icon_name("conduit")
-        self.set_tooltip("Synchronization Complete")
+        self.set_tooltip(_("Synchronization Complete"))
 
     def _go_to_conflict_state(self):
         self.set_from_icon_name("dialog-error")
-        self.set_tooltip("Synchronization Error")
+        self.set_tooltip(_("Synchronization Error"))
 
     def _go_to_running_state(self):
-        self.set_tooltip("Synchronizing")
+        self.set_tooltip(_("Synchronizing"))
         if self.animated_idx == self.animated_icons[-1]:
             self.animated_idx = 1
         else:

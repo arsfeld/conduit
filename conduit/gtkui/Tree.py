@@ -13,6 +13,8 @@ log = logging.getLogger("gtkui.Tree")
 import conduit
 from conduit.ModuleWrapper import ModuleWrapper
 
+from gettext import gettext as _
+
 DND_TARGETS = [
     ('conduit/element-name', 0, 0)
     ]
@@ -332,7 +334,7 @@ class DataProviderTreeView(gtk.TreeView):
         #First column is an image and name
         pixbufRenderer = gtk.CellRendererPixbuf()
         textRenderer = gtk.CellRendererText()
-        tvcolumn0 = gtk.TreeViewColumn("Name")
+        tvcolumn0 = gtk.TreeViewColumn(_("Name"))
         tvcolumn0.pack_start(pixbufRenderer, False)
         tvcolumn0.add_attribute(pixbufRenderer, 'pixbuf', 0)
         tvcolumn0.pack_start(textRenderer, True)
@@ -347,7 +349,7 @@ class DataProviderTreeView(gtk.TreeView):
 
         # Second column is a description
         if conduit.GLOBALS.settings.get("show_dp_description") == True:
-            tvcolumn1 = gtk.TreeViewColumn("Description", gtk.CellRendererText(), text=2)
+            tvcolumn1 = gtk.TreeViewColumn(_("Description"), gtk.CellRendererText(), text=2)
             self.append_column(tvcolumn1)
             self.set_headers_visible(True)
         else:

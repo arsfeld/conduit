@@ -17,6 +17,8 @@ import conduit.datatypes.File as File
 Utils.dataprovider_add_dir_to_path(__file__)
 from GConfUtils import GConfImport, GConfExport
 
+from gettext import gettext as _
+
 MODULES = {
 #	"Settings"     : { "type": "dataprovider"  },
 #    "SettingConverter"  : { "type": "converter"     }
@@ -32,8 +34,8 @@ BACKUP_IDX = 3
 
 class Settings(DataProvider.DataSource):
 
-    _name_ = "System Settings"
-    _description_ = "Sync your desktop preferences"
+    _name_ = _("System Settings")
+    _description_ = _("Sync your desktop preferences")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "source"
     _in_type_ = "setting"
@@ -89,10 +91,10 @@ class Settings(DataProvider.DataSource):
         renderer = gtk.CellRendererToggle()
         renderer.set_property('activatable', True)
         renderer.connect( 'toggled', self._backup_enabled_toggled_cb)
-        column0 = gtk.TreeViewColumn("Enabled", renderer, active=ENABLED_IDX)
+        column0 = gtk.TreeViewColumn(_("Enabled"), renderer, active=ENABLED_IDX)
 
         #column1 is the name of the backup
-        column1 = gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=NAME_IDX)
+        column1 = gtk.TreeViewColumn(_("Name"), gtk.CellRendererText(), text=NAME_IDX)
         column1.set_property("expand", True)
         column1.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
 

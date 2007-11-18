@@ -16,6 +16,8 @@ import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Audio as Audio
 
+from gettext import gettext as _
+
 MODULES = {
 	"BansheeSource" : { "type": "dataprovider" }
 }
@@ -25,8 +27,8 @@ NAME_IDX = 1
 
 class BansheeSource(DataProvider.DataSource):
 
-    _name_ = "Banshee Playlists"
-    _description_ = "Sync your Banshee Playlists"
+    _name_ = _("Banshee Playlists")
+    _description_ = _("Sync your Banshee playlists")
     _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "source"
     _in_type_ = "file/audio"
@@ -129,7 +131,7 @@ class BansheeSource(DataProvider.DataSource):
         #Set up the treeview
         tagtreeview.set_model(list_store)
         #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn('Tag Name', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
                                     gtk.CellRendererText(), 
                                     text=NAME_IDX)
                                     )
@@ -137,7 +139,7 @@ class BansheeSource(DataProvider.DataSource):
         renderer1 = gtk.CellRendererToggle()
         renderer1.set_property('activatable', True)
         renderer1.connect( 'toggled', col1_toggled_cb, list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn('Enabled', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
                                     renderer1, 
                                     active=2)
                                     )

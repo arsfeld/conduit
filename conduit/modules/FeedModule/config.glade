@@ -173,7 +173,7 @@
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="label" translatable="yes">Limit the Number of
-Enclosures Downloded to:</property>
+Enclosures Downloaded to:</property>
 	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
@@ -211,7 +211,7 @@ Enclosures Downloded to:</property>
 	    <widget class="GtkCheckButton" id="downloadphotos">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="label" translatable="yes">Download Photos</property>
+	      <property name="label" translatable="yes">Download photos</property>
 	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
@@ -230,7 +230,7 @@ Enclosures Downloded to:</property>
 	    <widget class="GtkCheckButton" id="downloadaudio">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="label" translatable="yes">Download Audio</property>
+	      <property name="label" translatable="yes">Download audio</property>
 	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>

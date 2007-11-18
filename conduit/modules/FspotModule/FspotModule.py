@@ -16,6 +16,8 @@ import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Photo as Photo
 
+from gettext import gettext as _
+
 MODULES = {
 	"FspotSource" : { "type": "dataprovider" }
 }
@@ -25,8 +27,8 @@ NAME_IDX = 1
 
 class FspotSource(DataProvider.DataSource):
 
-    _name_ = "F-Spot Photos"
-    _description_ = "Sync your F-Spot photos"
+    _name_ = _("F-Spot Photos")
+    _description_ = _("Sync your F-Spot photos")
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _module_type_ = "source"
     _in_type_ = "file/photo"
@@ -137,7 +139,7 @@ class FspotSource(DataProvider.DataSource):
         #Set up the treeview
         tagtreeview.set_model(list_store)
         #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn('Tag Name', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
                                     gtk.CellRendererText(), 
                                     text=NAME_IDX)
                                     )
@@ -145,7 +147,7 @@ class FspotSource(DataProvider.DataSource):
         renderer1 = gtk.CellRendererToggle()
         renderer1.set_property('activatable', True)
         renderer1.connect( 'toggled', col1_toggled_cb, list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn('Enabled', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
                                     renderer1, 
                                     active=2)
                                     )

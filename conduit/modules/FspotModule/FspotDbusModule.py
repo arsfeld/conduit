@@ -12,6 +12,8 @@ import conduit.dataproviders.Image as Image
 from conduit.datatypes import Rid
 import conduit.datatypes.Photo as Photo
 
+from gettext import gettext as _
+
 MODULES = {
 	"FSpotFactory" : { "type": "dataprovider-factory" }
 }
@@ -44,8 +46,8 @@ def _get_tagremote():
         return None
 
 class FSpotDbusTwoWay(Image.ImageTwoWay):
-    _name_ = "F-Spot DBus Photos"
-    _description_ = "Sync your F-Spot photos over DBus"
+    _name_ = _("F-Spot DBus Photos")
+    _description_ = _("Sync your F-Spot photos over DBus")
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _icon_ = "f-spot"
 
@@ -60,7 +62,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             # get tag remote control
             self.tag_remote = _get_tagremote()
         except:
-            print "Failed to get remotes"
+            print _("Failed to get remotes")
 
         #Settings
         self.enabledTags = []
@@ -112,7 +114,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         """
         # Check if remote is read only
         if self.photo_remote.IsReadOnly ():
-            raise conduit.Exceptions.SyncronizeError ('F-Spot DBus interface is operating in read only mode')
+            raise conduit.Exceptions.SyncronizeError (_("F-Spot DBus interface is operating in read only mode"))
 
         # create roll if necessary
         if not self.has_roll:
@@ -199,7 +201,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         #Set up the treeview
         tagtreeview.set_model(list_store)
         #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn('Tag Name', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
                                     gtk.CellRendererText(), 
                                     text=NAME_IDX)
                                     )
@@ -207,7 +209,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         renderer1 = gtk.CellRendererToggle()
         renderer1.set_property('activatable', True)
         renderer1.connect( 'toggled', col1_toggled_cb, list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn('Enabled', 
+        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
                                     renderer1, 
                                     active=1)
                                     )

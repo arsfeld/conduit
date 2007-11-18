@@ -47,13 +47,15 @@ import datetime
 import exceptions
 import xml.dom.minidom
 
+from gettext import gettext as _
+
 try:
     False
 except NameError:
     True=1
     False=0
 
-TIMEFMT="%Y-%m-%d %H:%M:%S"
+TIMEFMT=_("%Y-%m-%d %H:%M:%S")
 
 def parseTime(timeString):
     """Parse a timestamp from a backpack response."""

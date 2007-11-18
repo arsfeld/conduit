@@ -146,7 +146,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label7">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">API Key:</property>
+	      <property name="label" translatable="yes">API key:</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -221,7 +221,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label5">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Save Notes In Page:</property>
+		  <property name="label" translatable="yes">Save notes in page:</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_LEFT</property>
