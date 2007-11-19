@@ -153,7 +153,7 @@ class AudioVideoConverter:
                         )
 
         if not ok:
-            log.debug("Error transcoding video\b%s" % output)
+            log.debug("Error transcoding video\n%s" % output)
             return None
 
         return video
@@ -233,5 +233,4 @@ class AudioVideoConverter:
                 return v
         else:
             return None
-   
-        
+
