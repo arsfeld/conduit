@@ -14,6 +14,7 @@ from gettext import gettext as _
 import logging
 log = logging.getLogger("gtkui.Canvas")
 
+import conduit
 from conduit.Conduit import Conduit
 from conduit.gtkui.Tree import DND_TARGETS
 
@@ -829,7 +830,10 @@ class ConduitCanvasItem(_CanvasItem):
                     tox,
                     toy,
                     self.model.is_two_way(),
-                    False
+                    conduit.GLOBALS.typeConverter.conversion_exists(
+                                        self.sourceItem.model.get_output_type(),
+                                        s.model.get_input_type()
+                                        )
                     )
                 self.connectorItems[s] = c
         else:
@@ -842,7 +846,10 @@ class ConduitCanvasItem(_CanvasItem):
                     tox,
                     toy,
                     self.model.is_two_way(),
-                    False
+                    conduit.GLOBALS.typeConverter.conversion_exists(
+                                        self.sourceItem.model.get_output_type(),
+                                        item.model.get_input_type()
+                                        )
                     )
                 self.connectorItems[item] = c
 
@@ -902,7 +909,7 @@ class ConnectorCanvasItem(_CanvasItem):
     CONNECTOR_TEXT_XPADDING = 5
     CONNECTOR_TEXT_YPADDING = 10
 
-    def __init__(self, parent, fromX, fromY, toX, toY, twoway, lossy):
+    def __init__(self, parent, fromX, fromY, toX, toY, twoway, conversionExists):
         _CanvasItem.__init__(self, parent, None)
     
         self.fromX = fromX
@@ -911,7 +918,11 @@ class ConnectorCanvasItem(_CanvasItem):
         self.toY = toY
 
         self.twoway = twoway
-        self.lossy = lossy
+
+        if conversionExists == True:
+            self.color = "black"
+        else:
+            self.color = "red"
 
         self._build_widget()
         
@@ -921,13 +932,13 @@ class ConnectorCanvasItem(_CanvasItem):
                                     center_y=self.fromY, 
                                     radius_x=6, 
                                     radius_y=6, 
-                                    fill_color="black", 
+                                    fill_color=self.color, 
                                     line_width=0.0
                                     )
         points = goocanvas.Points([(self.fromX-6, self.fromY), (self.fromX-7, self.fromY)])
         self.left_end_arrow = goocanvas.Polyline(
                             points=points,
-                            stroke_color="black",
+                            stroke_color=self.color,
                             line_width=5,
                             end_arrow=True,
                             arrow_tip_length=3,
@@ -940,7 +951,7 @@ class ConnectorCanvasItem(_CanvasItem):
         points = goocanvas.Points([(self.toX-1, self.toY), (self.toX, self.toY)])
         self.right_end = goocanvas.Polyline(
                             points=points,
-                            stroke_color="black",
+                            stroke_color=self.color,
                             line_width=5,
                             end_arrow=True,
                             arrow_tip_length=3,
@@ -951,7 +962,7 @@ class ConnectorCanvasItem(_CanvasItem):
         self._draw_arrow_ends()
         self.add_child(self.right_end,-1)
 
-        self.path = goocanvas.Path(data="",stroke_color="black",line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
+        self.path = goocanvas.Path(data="",stroke_color=self.color,line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
         self._draw_path()
 
     def _draw_arrow_ends(self):
@@ -1009,7 +1020,7 @@ class ConnectorCanvasItem(_CanvasItem):
             self.remove_child(pidx)
 
         #Reecreate the path to work round goocanvas bug
-        self.path = goocanvas.Path(data=p,stroke_color="black",line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
+        self.path = goocanvas.Path(data=p,stroke_color=self.color,line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
         self.add_child(self.path,-1)
             
     def resize_connector_width(self, dw):
