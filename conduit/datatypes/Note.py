@@ -19,7 +19,7 @@ class Note(DataType.DataType):
 
     def get_contents(self):
         return self.contents
-
+        
     def get_hash(self):
         return hash( (self.get_title(), self.get_contents()) )
 

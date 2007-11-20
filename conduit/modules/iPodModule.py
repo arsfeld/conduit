@@ -15,6 +15,7 @@ import gnomevfs
 import datetime
 import tempfile
 import logging
+import pickle
 log = logging.getLogger("modules.iPod")
 
 import conduit
@@ -29,7 +30,7 @@ import conduit.datatypes.Event as Event
 import conduit.datatypes.File as File
 
 MODULES = {
-        "iPodFactory" :        { "type": "dataprovider-factory" },
+        "iPodFactory" :         { "type":   "dataprovider-factory"  }
 }
 
 try:
@@ -121,7 +122,7 @@ class IPodBase(DataProvider.TwoWay):
             if not os.path.exists(f):
                 done = True
         return f
-
+        
 class IPodNoteTwoWay(IPodBase):
     """
     Stores Notes on the iPod. 
@@ -156,30 +157,29 @@ class IPodNoteTwoWay(IPodBase):
 
     def _get_note_from_ipod(self, uid):
         """
-        Gets a note from the ipod, considering both the shadowed copy
-        and the plain text copy. If the mtimes of the two are different
-        then always use the plain copy. and ignore the shadow copy
+        Gets a note from the ipod, If the pickled shadow copy exists
+        then return that
         """
+        rawNoteURI = os.path.join(self._get_shadow_dir(),uid)
+        if os.path.exists(rawNoteURI):
+            raw = open(rawNoteURI,'rb')
+            try:
+                n = pickle.load(raw)
+                raw.close()
+                return n
+            except: 
+                raw.close()
+
         noteURI = os.path.join(self.dataDir, uid)
         noteFile = File.File(URI=noteURI)
-        rawNoteURI = os.path.join(self._get_shadow_dir(),uid)
-
-        raw = ""
-        mtime = noteFile.get_mtime()
-        if os.path.exists(rawNoteURI):
-            rawNoteFile = File.File(URI=rawNoteURI)
-            if mtime == rawNoteFile.get_mtime():
-                raw = rawNoteFile.get_contents_as_text()
-
         #get the contents from the note, get the raw from the raw copy.
         #the UID for notes from the ipod is the filename
         n = Note.Note(
                     title=uid,
-                    mtime=mtime,
                     contents=noteFile.get_contents_as_text(),
-                    raw=raw
                     )
         n.set_UID(uid)
+        n.set_mtime(noteFile.get_mtime())
         n.set_open_URI(noteURI)
         return n
     
@@ -189,20 +189,19 @@ class IPodNoteTwoWay(IPodBase):
         If the note has raw then also save that in shadowdir
         uid is the note title
         """
-        ipodnote = Utils.new_tempfile(note.contents)
+        #the normal note viewed by the ipod
+        ipodnote = Utils.new_tempfile(note.get_contents())
         ipodnote.transfer(os.path.join(self.dataDir,uid), overwrite=True)
-        if note.get_mtime() != None:
-            ipodnote.force_new_mtime(note.get_mtime())
-        mtime = ipodnote.get_mtime()
+        ipodnote.force_new_mtime(note.get_mtime())
+        #ipodnote.force_new_filename(note.get_title())
+        #ipodnote.force_new_file_extension(".txt")
+        
+        #the raw pickled note for sync
+        raw = open(os.path.join(self._get_shadow_dir(),uid),'wb')
+        pickle.dump(note, raw, -1)
+        raw.close()
 
-        if note.raw != "":
-            shadowDir = self._get_shadow_dir()
-            rawnote = Utils.new_tempfile(note.raw)
-            rawnote.transfer(os.path.join(shadowDir,uid), overwrite=True)
-            if note.get_mtime() != None:
-                rawnote.force_new_mtime(note.get_mtime())
-            mtime = rawnote.get_mtime()
-        return Rid(uid=uid, mtime=mtime, hash=mtime)
+        return Rid(uid=uid, mtime=ipodnote.get_mtime(), hash=ipodnote.get_hash())
 
     def _note_exists(self, uid):
         #Check if both the shadow copy and the ipodified version exists

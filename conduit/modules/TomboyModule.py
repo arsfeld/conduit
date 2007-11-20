@@ -15,8 +15,39 @@ TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
 TOMBOY_MIN_VERSION = "0.5.10"
 
 MODULES = {
-	"TomboyNoteTwoWay" :        { "type": "dataprovider" }
+	"TomboyNoteTwoWay" :        { "type": "dataprovider"    },
+	"TomboyNoteConverter" :     { "type": "converter"       }
 }
+
+class TomboyNote(Note.Note):
+    def __init__(self, title, xmlContent):
+        self.xmlContent = xmlContent
+        #strip the xml
+        text = xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
+        title, sep, contents = text.partition("\n")
+        Note.Note.__init__(self, title, contents)
+        
+    def get_xml(self):
+        return self.xmlContent
+        
+    def __getstate__(self):
+        data = Note.Note.__getstate__(self)
+        data["xml"] = self.xmlContent
+        return data
+
+    def __setstate__(self, data):
+        self.xmlContent = data["xml"]
+        Note.Note.__setstate__(self, data)
+
+class TomboyNoteConverter(object):
+    def __init__(self):
+        self.conversions =  {
+                "note,tomboy/note"  : self.convert_to_tomboy_note
+        }
+                            
+    def convert_to_tomboy_note(self, note, **kwargs):
+        xmlContent = '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
+        return note
 
 class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     """
@@ -26,8 +57,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _description_ = "Sync your Tomboy notes"
     _category_ = conduit.dataproviders.CATEGORY_NOTES
     _module_type_ = "twoway"
-    _in_type_ = "note"
-    _out_type_ = "note"
+    _in_type_ = "note/tomboy"
+    _out_type_ = "note/tomboy"
     _icon_ = "tomboy"
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
