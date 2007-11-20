@@ -6,6 +6,7 @@ import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
 
 import datetime
+import traceback
 
 #Dynamically load all datasources, datasinks and converters
 test = SimpleTest()
@@ -36,40 +37,35 @@ except Exception, err:
 newtitle = "Conduit-"+Utils.random_string()
 newnote = Note.Note(
                     title=newtitle,
-                    mtime=datetime.datetime.today(),
-                    contents="Conduit Test Note",
-                    raw="RAW Conduit Test Note"
+                    contents="Conduit Test Note"
                     )
+newnote.set_UID(newtitle)
+newnote.set_mtime(datetime.datetime.today())
 try:
-    newuid = ipod.put(newnote,False)
-    ok("Put note %s" % newtitle, newtitle == newuid)
+    rid = ipod.put(newnote,False)
+    ok("Put note %s" % newtitle, rid.get_UID() != None)
 except Exception, err:
+    traceback.print_exc()
     ok("Put note %s" % err, False)
 
 #Check that we saved the note back
-note = ipod._get_note_from_ipod(newuid)
+ipod.refresh()
+ok("Got note", rid.get_UID() in ipod.get_all())
+
+note = ipod.get(rid.get_UID())
 comp = note.compare(newnote)
 ok("Got note back idenitcal. Comparison %s" % comp, comp == conduit.datatypes.COMPARISON_EQUAL, False)
 
 #check we overwrite the note ok
 try:
-    newnewuid = ipod.put(newnote,True,newuid)
-    ok("Overwrite note %s" % newtitle, newnewuid == newuid)
+    newrid = ipod.put(newnote,True,rid.get_UID())
+    ok("Overwrite note %s" % newtitle, newrid.get_UID() == rid.get_UID())
 except Exception, err:
     ok("Overwrite note %s" % err, False)
 
-
 #Check that we saved the note back
-note = ipod._get_note_from_ipod(newuid)
+newnote = ipod.get(newrid.get_UID())
 comp = note.compare(newnote)
 ok("Got note back idenitcal. Comparison %s" % comp, comp == conduit.datatypes.COMPARISON_EQUAL, False)
-
-#Check that we saved the note back
-try:
-    ipod.refresh()
-    num = len(ipod.get_all())
-    ok("Notes Present on iPod %s" % num, num>0)
-except Exception, err:
-    ok("Could not get number of notes on ipod (%s)" % err, False) 
 
 finished()
