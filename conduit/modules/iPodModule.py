@@ -11,19 +11,14 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import os
-import gnomevfs
-import datetime
-import tempfile
-import logging
 import pickle
+import logging
 log = logging.getLogger("modules.iPod")
 
-import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.VolumeFactory as VolumeFactory
 import conduit.Utils as Utils
-from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
@@ -33,24 +28,24 @@ MODULES = {
         "iPodFactory" :         { "type":   "dataprovider-factory"  }
 }
 
-try:
-    import gpod
-    LIBGPOD_PHOTOS = True
-except:
-    LIBGPOD_PHOTOS = False
+#try:
+#    import gpod
+#    LIBGPOD_PHOTOS = True
+#except:
+#    LIBGPOD_PHOTOS = False
 
 def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
-    # fixme: gnomevfs is a pain :-(, this function sucks, someone make it nicer? :(
     for i in range(1, 10000):
-        if False == gnomevfs.exists(str(os.path.join(uri, prefix + str(i) + postfix))):
+        filename = prefix + str(i) + postfix
+        uri = os.path.join(uri, filename)
+        f = File.File(uri)
+        if not f.exists():
             break
     
-    luid = prefix + str(i) + postfix
-    uri = str(os.path.join(uri, luid))
-
     temp = Utils.new_tempfile(txt)
     temp.transfer(uri, True)
-    return Rid(uid=luid, mtime=temp.get_mtime(), hash=temp.get_mtime())
+    temp.set_UID(filename)
+    return temp.get_rid()
 
 class iPodFactory(VolumeFactory.VolumeFactory):
     def is_interesting(self, udi, props):
@@ -192,16 +187,15 @@ class IPodNoteTwoWay(IPodBase):
         #the normal note viewed by the ipod
         ipodnote = Utils.new_tempfile(note.get_contents())
         ipodnote.transfer(os.path.join(self.dataDir,uid), overwrite=True)
-        ipodnote.force_new_mtime(note.get_mtime())
-        #ipodnote.force_new_filename(note.get_title())
-        #ipodnote.force_new_file_extension(".txt")
+        ipodnote.set_mtime(note.get_mtime())
+        ipodnote.set_UID(uid)
         
         #the raw pickled note for sync
         raw = open(os.path.join(self._get_shadow_dir(),uid),'wb')
         pickle.dump(note, raw, -1)
         raw.close()
 
-        return Rid(uid=uid, mtime=ipodnote.get_mtime(), hash=ipodnote.get_hash())
+        return ipodnote.get_rid()
 
     def _note_exists(self, uid):
         #Check if both the shadow copy and the ipodified version exists
@@ -271,7 +265,8 @@ class IPodContactsTwoWay(IPodBase):
         if LUID != None:
             f = Utils.new_tempfile(contact.get_vcard_string())
             f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
-            return Rid(uid=LUID, mtime=f.get_mtime(), hash=f.get_mtime())
+            f.set_UID(LUID)
+            return f.get_rid()
         
         return _string_to_unqiue_file(contact.get_vcard_string(), self.dataDir, 'contact')
 
@@ -305,49 +300,50 @@ class IPodCalendarTwoWay(IPodBase):
         if LUID != None:
             f = Utils.new_tempfile(event.get_ical_string())
             f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
-            return Rid(uid=LUID, mtime=f.get_mtime(), hash=f.get_mtime())
+            f.set_UID(LUID)
+            return f.get_rid()
 
         return _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
-class IPodPhotoTwoWay(IPodBase):
-
-    _name_ = "Photos"
-    _description_ = "Sync your iPod photos"
-    _module_type_ = "twoway"
-    _in_type_ = "file"
-    _out_type_ = "file"
-    _icon_ = "contact-new"
-
-    def __init__(self, *args):
-        IPodBase.__init__(self, *args)
-        self.dataDir = os.path.join(self.mountPoint, 'Photos')
-        self.uids = None
-
-    def refresh(self):
-        DataProvider.TwoWay.refresh(self)
-        self.db = gpod.PhotoDatabase(self.mountPoint)
-        self.uids = []
-
-        for photo in self.db.PhotoAlbums[0]:
-            self.uids.append(photo.id)
-
-    def get_all(self):
-        return self.uids
-
-    def get(self, LUID):
-        photopath = os.path.join(self.dataDir, LUID)
-        f = File.File(URI=photopath)
-        f.set_open_URI(photopath)
-        f.set_UID(photopath)
-        return f
-
-    def put(self, obj, overwrite, LUID=None):
-        photo = self.db.new_Photo(filename=obj.URI)
-        return Rid(uid=photo.id, mtime="", hash="")
-
-    def delete(self, LUID):
-        self.db.remove(self.get(LUID))
-
-    def finish(self):
-        self.uids = None
-
+#class IPodPhotoTwoWay(IPodBase):
+#
+#    _name_ = "Photos"
+#    _description_ = "Sync your iPod photos"
+#    _module_type_ = "twoway"
+#    _in_type_ = "file/photo"
+#    _out_type_ = "file/photo"
+#    _icon_ = "image-x-generic"
+#
+#    def __init__(self, *args):
+#        IPodBase.__init__(self, *args)
+#        self.dataDir = os.path.join(self.mountPoint, 'Photos')
+#        self.uids = None
+#
+#    def refresh(self):
+#        DataProvider.TwoWay.refresh(self)
+#        self.db = gpod.PhotoDatabase(self.mountPoint)
+#        self.uids = []
+#
+#        for photo in self.db.PhotoAlbums[0]:
+#            self.uids.append(photo.id)
+#
+#    def get_all(self):
+#        return self.uids
+#
+#    def get(self, LUID):
+#        photopath = os.path.join(self.dataDir, LUID)
+#        f = File.File(URI=photopath)
+#        f.set_open_URI(photopath)
+#        f.set_UID(photopath)
+#        return f
+#
+#    def put(self, obj, overwrite, LUID=None):
+#        photo = self.db.new_Photo(filename=obj.URI)
+#        return Rid(uid=photo.id, mtime="", hash="")
+#
+#    def delete(self, LUID):
+#        self.db.remove(self.get(LUID))
+#
+#    def finish(self):
+#        self.uids = None
+#
