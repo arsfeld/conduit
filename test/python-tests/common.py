@@ -2,6 +2,7 @@ import sys
 import os
 import glob
 import time
+import datetime
 
 # make sure we have conduit folder in path!
 my_path = os.path.dirname(__file__)
@@ -81,6 +82,56 @@ def init_gnomevfs_authentication():
     import gnome.ui
     gnome.init(conduit.APPNAME, conduit.APPVERSION)
     gnome.ui.authentication_manager_init()     
+    
+#Functions to construct new types
+def new_file(filename):
+    if filename == None:
+        txt = Utils.random_string()
+    else:
+        files = get_files_from_data_dir(filename)
+        txt = read_data_file(files[0])
+    f = Utils.new_tempfile(txt)
+    f.set_UID(Utils.random_string())
+    f.set_open_URI(Utils.random_string())
+    return f
+
+def new_note(filename):
+    n = conduit.datatypes.Note.Note(
+                title=Utils.random_string(),
+                contents=Utils.random_string()
+                )
+    n.set_UID(Utils.random_string())
+    n.set_mtime(datetime.datetime(1977,3,23))
+    n.set_open_URI(Utils.random_string())
+    return n
+
+def new_event(filename):
+    icals = get_files_from_data_dir(filename)
+    e = conduit.datatypes.Event.Event(
+                URI=Utils.random_string()
+                )
+    e.set_from_ical_string( read_data_file(icals[0]) )
+    e.set_UID(Utils.random_string())
+    e.set_open_URI(Utils.random_string())
+    return e
+
+def new_contact(filename):
+    vcards = get_files_from_data_dir(filename)
+    c = conduit.datatypes.Contact.Contact(
+                URI=Utils.random_string()
+                )
+    c.set_from_vcard_string( read_data_file(vcards[0]) )
+    c.set_UID(Utils.random_string())
+    c.set_open_URI(Utils.random_string())
+    return c
+
+def new_email(filename):
+    e = conduit.datatypes.Email.Email(
+                URI=Utils.random_string()
+                )
+    e.set_UID(Utils.random_string())
+    e.set_open_URI(Utils.random_string())
+    return e
 
 class SimpleTest(object):
     """

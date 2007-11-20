@@ -26,12 +26,11 @@ num = len(notes)
 ok("Got all notes (%s)" % num, num > 1)
 
 #Get a note and check its valid
-idx = random.randint(0,num)
+idx = random.randint(0,num-1)
 note = tomboy.get(notes[idx])
 ok("Got note #%s" % idx, note != None)
 ok("Got note title (%s)" % note.title, len(note.title) > 0)
 ok("Got note contents", len(note.contents) > 0)
-ok("Got note raw xml", len(note.raw) > 0)
 
 #make a new note
 newnote = Note.Note(
@@ -40,8 +39,8 @@ newnote = Note.Note(
                     contents="Conduit Test Note"
                     )
 try:
-    uid = tomboy.put(newnote,False)
-    print "uid", uid
+    rid = tomboy.put(newnote,False)
+    uid = rid.get_UID()
     ok("Put new note (%s)" % uid, uid != None)
 except Exception, err:
     traceback.print_exc()
@@ -52,7 +51,7 @@ teststr = Utils.random_string()
 newnote.contents += teststr
 try:
     i = tomboy.put(newnote, True, uid)
-    ok("Overwrite the note", i == uid)
+    ok("Overwrite the note", i.get_UID() == uid)
 except:
     ok("Overwrite the note", False)
 
