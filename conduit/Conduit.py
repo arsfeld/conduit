@@ -119,6 +119,7 @@ class Conduit(gobject.GObject):
                 log.warn("Only sinks, sources or twoway dataproviders may be added")
                 return False
 
+        dataprovider_wrapper.module.connect("change-detected", self._change_detected)
         self.emit("dataprovider-added", dataprovider_wrapper) 
         return True
 
@@ -267,3 +268,6 @@ class Conduit(gobject.GObject):
         else:
             log.info("Conduit must have a datasource and a datasink")
 
+    def _change_detected(self, arg):
+        log.debug("Triggering an auto sync...")
+        self.sync()
