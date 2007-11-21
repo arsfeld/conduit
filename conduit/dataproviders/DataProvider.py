@@ -416,6 +416,12 @@ class DataSource(DataProviderBase):
         self.set_status(STATUS_SYNC)
         return []
 
+    def get_changes(self):
+        """
+        Returns all changes since last sync
+        """
+        raise NotImplementedError
+
     def add(self, LUID):
         """
         Adds an item to the datasource according to LUID. This method 

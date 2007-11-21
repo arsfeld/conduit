@@ -190,11 +190,11 @@ class _ThreadedWorker(threading.Thread):
 
         @returns: added, modified, deleted
         """
-        if hasattr(source.module, "get_changes"):
+        try:
             added, modified, deleted = source.module.get_changes()
-        else:
+        except NotImplementedError:
             delta = DeltaProvider.DeltaProvider(source, sink)
-            added, modified, deleted = delta.get_changes()
+            added, modified, deleted = delta.get_changes()            
 
         log.debug("%s Changes: New %s items\n%s" % (source.get_UID(), len(added), added))
         log.debug("%s Changes: Modified %s items\n%s" % (source.get_UID(), len(modified), modified))
