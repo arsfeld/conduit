@@ -33,7 +33,7 @@ class DeltaProvider:
         allItems = []
         for i in self.me.module.get_all():
             #Maybe we should be unicode....
-            assert type(i) == str, "LUID Must be str"
+            assert type(i) in [str,unicode], "LUID Must be str not %s" % type(i)
             allItems.append(i)
 
         log.debug("Delta: Got %s items\n%s" % (len(allItems), allItems))

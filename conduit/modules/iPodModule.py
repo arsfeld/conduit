@@ -15,6 +15,7 @@ import pickle
 import logging
 log = logging.getLogger("modules.iPod")
 
+import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.VolumeFactory as VolumeFactory
@@ -28,11 +29,11 @@ MODULES = {
         "iPodFactory" :         { "type":   "dataprovider-factory"  }
 }
 
-#try:
-#    import gpod
-#    LIBGPOD_PHOTOS = True
-#except:
-#    LIBGPOD_PHOTOS = False
+try:
+    import gpod
+    LIBGPOD_PHOTOS = gpod.version_info >= (0,6,0)
+except:
+    LIBGPOD_PHOTOS = False
 
 def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
     for i in range(1, 10000):
@@ -62,7 +63,7 @@ class iPodFactory(VolumeFactory.VolumeFactory):
                     kwargs['mount'])
 
     def get_dataproviders(self, udi, **kwargs):
-         return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
+         return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
 
 
 class IPodBase(DataProvider.TwoWay):
@@ -305,45 +306,61 @@ class IPodCalendarTwoWay(IPodBase):
 
         return _string_to_unqiue_file(event.get_ical_string(), self.dataDir, 'event')
 
-#class IPodPhotoTwoWay(IPodBase):
-#
-#    _name_ = "Photos"
-#    _description_ = "Sync your iPod photos"
-#    _module_type_ = "twoway"
-#    _in_type_ = "file/photo"
-#    _out_type_ = "file/photo"
-#    _icon_ = "image-x-generic"
-#
-#    def __init__(self, *args):
-#        IPodBase.__init__(self, *args)
-#        self.dataDir = os.path.join(self.mountPoint, 'Photos')
-#        self.uids = None
-#
-#    def refresh(self):
-#        DataProvider.TwoWay.refresh(self)
-#        self.db = gpod.PhotoDatabase(self.mountPoint)
+class IPodPhotoSink(IPodBase):
+
+    _name_ = "Photos"
+    _description_ = "Sync your iPod photos"
+    _module_type_ = "sink"
+    _in_type_ = "file/photo"
+    _out_type_ = "file/photo"
+    _icon_ = "image-x-generic"
+
+    def __init__(self, *args):
+        IPodBase.__init__(self, *args)
+        self.db = gpod.PhotoDatabase(self.mountPoint)
+        self.albumName = "Conduit"
+        self.album = None
+        
+    def _get_photo_album(self):
+        for album in self.db.PhotoAlbums:
+            if album.name == self.albumName:
+                return album
+        return None
+        
+    def _get_photo_by_id(self, id):
+        for album in self.db.PhotoAlbums:
+            for photo in album:
+                if str(photo['id']) == str(id):
+                    return photo
+        return None
+
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        if self.albumName != "":
+            self.album = self._get_photo_album()
+            if self.album == None:
+                log.debug("Creating album %s" % self.albumName)
+                self.album = self.db.new_PhotoAlbum(title=self.albumName)
+
 #        self.uids = []
-#
 #        for photo in self.db.PhotoAlbums[0]:
-#            self.uids.append(photo.id)
-#
-#    def get_all(self):
-#        return self.uids
-#
-#    def get(self, LUID):
-#        photopath = os.path.join(self.dataDir, LUID)
-#        f = File.File(URI=photopath)
-#        f.set_open_URI(photopath)
-#        f.set_UID(photopath)
-#        return f
-#
-#    def put(self, obj, overwrite, LUID=None):
-#        photo = self.db.new_Photo(filename=obj.URI)
-#        return Rid(uid=photo.id, mtime="", hash="")
-#
-#    def delete(self, LUID):
-#        self.db.remove(self.get(LUID))
-#
-#    def finish(self):
-#        self.uids = None
-#
+#            self.uids.append(str(photo['id']))
+
+
+    def put(self, f, overwrite, LUID=None):
+        photo = self.db.new_Photo(filename=f.get_local_uri())
+        if self.album != None:
+            self.album.add(photo)
+        gpod.itdb_photodb_write(self.db._itdb, None)
+        return conduit.datatypes.Rid(str(photo['id']), None, hash(None))
+
+    def delete(self, LUID):
+        photo = self._get_photo_by_id(LUID)
+        if photo != None:
+            self.db.remove(photo)
+            gpod.itdb_photodb_write(self.db._itdb, None)
+        
+    def uninitialize(self):
+        self.db.close()
+                
+
