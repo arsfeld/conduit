@@ -6,8 +6,9 @@ log = logging.getLogger("modules.GConf")
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
-from conduit.datatypes import DataType, Rid
+import conduit.datatypes.DataType as DataType
 import conduit.datatypes.Text as Text
+import conduit.datatypes.File as File
 
 from gettext import gettext as _
 
@@ -19,7 +20,7 @@ MODULES = {
 class GConfSetting(DataType.DataType):
     _name_ = "gconf-setting"
 
-    def __init__(self, key, value=""):
+    def __init__(self, key, value):
         DataType.DataType.__init__(self)
         self.key = key
         self.value = value
@@ -38,16 +39,23 @@ class GConfSetting(DataType.DataType):
     def get_UID(self):
         return self.key
 
+    def get_hash(self):
+        return hash(self.value)
 
 class GConfConverter(object):
     def __init__(self):
         self.conversions =  {    
                             "gconf-setting,text"    : self.to_text,
+                            "gconf-setting,file"    : self.to_file
                             }
                             
     def to_text(self, setting):
-        val = "%s, %s" % (setting.key, setting.value)
-        return Text.Text(None, text=val)
+        return Text.Text(None, text="%s\n%s" % (setting.key, setting.value))
+        
+    def to_file(self, setting):
+        f = File.TempFile("%s\n%s" % (setting.key, setting.value))
+        f.force_new_filename(setting.key.replace("/"," "))
+        return f
 
 class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _name_ = _("GConf Settings")
@@ -101,7 +109,6 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if not schema:
             log.warn("can't sync, no schema for key: " + key)
             return
-
         # for some reason schema.get_type() appears to not exist
         dvalue = schema.get_default_value()
         if not dvalue:
@@ -123,20 +130,21 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             val = node.get_float()
         elif t == gconf.VALUE_LIST:
             val = [self._from_gconf(x) for x in node.get_list()]
-        return val
+        return str(val)
 
     def _to_gconf(self, key, value):
         t = self._gconf_type(key)
         if t == gconf.VALUE_INT:
-            self.gconf.set_int(key, value)
+            self.gconf.set_int(key, int(value))
         elif t == gconf.VALUE_STRING:
-            self.gconf.set_string(key, value)
+            self.gconf.set_string(key, str(value))
         elif t == gconf.VALUE_BOOL:
-            self.gconf.set_bool(key, value)
+            self.gconf.set_bool(key, bool(value))
         elif t == gconf.VALUE_FLOAT:
-            self.gconf.set_float(key, value)
+            self.gconf.set_float(key, float(value))
         elif t == gconf.VALUE_LIST:
-            pass # val = [self._from_gconf(x) for x in item.get_list()]
+            value = [self._from_gconf(x) for x in value]
+            self.gconf.set_list(key, eval(value))
 
     def refresh(self):
         pass
@@ -156,8 +164,7 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def put(self, setting, overwrite, uid=None):
         log.debug("%s: %s" % (setting.key, setting.value))
         self._to_gconf(setting.key, setting.value)
-        #FIXME: Use an MD5...
-        return Rid(uid=setting.key, hash=setting.value)
+        return setting.get_rid()
 
     def delete(self, uid):
         self.gconf.unset(uid)

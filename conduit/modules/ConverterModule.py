@@ -162,8 +162,8 @@ class FileConverter:
                             "file,note" : self.file_to_note
                             }
         
-    def text_to_file(self, theText, **kwargs):
-        return Utils.new_tempfile(str(theText))
+    def text_to_file(self, text, **kwargs):
+        return Utils.new_tempfile(text.get_string())
 
     def file_to_text(self, theFile, **kwargs):
         mime = theFile.get_mimetype()

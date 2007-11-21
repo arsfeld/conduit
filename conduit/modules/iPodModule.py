@@ -333,6 +333,14 @@ class IPodPhotoSink(IPodBase):
                 if str(photo['id']) == str(id):
                     return photo
         return None
+        
+    def _empty_album(self):
+        for photo in self.album[:]:
+            self.album.remove(photo)
+            
+    def _empty_all_photos(self):
+        for photo in self.db.PhotoAlbums[0][:]:
+            self.db.remove(photo)
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
