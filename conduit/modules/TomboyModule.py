@@ -42,7 +42,7 @@ class TomboyNote(Note.Note):
 class TomboyNoteConverter(object):
     def __init__(self):
         self.conversions =  {
-                "note,tomboy/note"  : self.convert_to_tomboy_note
+                "note,note/tomboy"  : self.convert_to_tomboy_note
         }
                             
     def convert_to_tomboy_note(self, note, **kwargs):
