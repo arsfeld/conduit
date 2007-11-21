@@ -57,7 +57,6 @@ class AutoSync(object):
     def _handle_sync(self):
         self._timeout_id = 0
         self.emit_change_detected()
-        log.debug(self._get_changes())
 
     def decorated_changes(self, old_func):
         def _get_changes(self):
