@@ -1,5 +1,4 @@
 import os.path
-import gnomevfs
 import logging
 log = logging.getLogger("dataproviders.File")
 
@@ -230,7 +229,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         #the file info is reloaded, so we are not permuting anything in place
         #rid = vfsFile.get_rid()
         rid = Rid(
-                uid=gnomevfs.make_uri_canonical(newURI), 
+                uid=Utils.make_uri_canonical(newURI), 
                 mtime=vfsFile.get_mtime(), 
                 hash=vfsFile.get_hash()
                 )

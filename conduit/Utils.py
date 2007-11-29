@@ -14,15 +14,21 @@ import signal
 import tempfile
 import random
 import md5
-import gnomevfs
 import socket
 import datetime
 import time
 import re
 import popen2
+try:
+    import gnomevfs
+except ImportError:
+    from gnome import gnomevfs # for maemo
 
 import logging
 log = logging.getLogger("Utils")
+
+def make_uri_canonical(uri):
+    return gnomevfs.make_uri_canonical (uri)
 
 def get_proportional_resize(desiredW, desiredH, currentW, currentH):
         if currentH < currentW:

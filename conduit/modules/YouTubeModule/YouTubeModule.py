@@ -13,7 +13,6 @@ import conduit.Exceptions as Exceptions
 import conduit.datatypes.Video as Video
 
 import traceback
-import gnomevfs
 import urllib2
 
 try:

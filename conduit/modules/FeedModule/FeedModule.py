@@ -5,7 +5,7 @@ except:
 
 import mimetypes
 import traceback
-import gnomevfs
+
 import urllib2
 import os
 from os.path import abspath, expanduser

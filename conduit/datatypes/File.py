@@ -2,9 +2,13 @@ import os
 import tempfile
 import datetime
 import traceback
-import gnomevfs
 import logging
 log = logging.getLogger("datatypes.File")
+
+try:
+    import gnomevfs
+except ImportError:
+    from gnome import gnomevfs # for maemo
 
 import conduit
 from conduit.datatypes import DataType
