@@ -1,5 +1,4 @@
 import os
-import gconf
 import gobject
 import tarfile
 import tempfile
@@ -191,8 +190,7 @@ class SettingConverter:
     def _get_gconf_data_as_text (self, settings):
         text = None
         if len(settings.GConfDirs + settings.GConfKeys) > 0:
-            client = gconf.client_get_default()
-            gconfExporter = GConfExport(client)
+            gconfExporter = GConfExport()
             text = gconfExporter.export(
                             settings.GConfDirs,
                             settings.GConfKeys

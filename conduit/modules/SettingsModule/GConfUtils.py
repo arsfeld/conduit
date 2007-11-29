@@ -25,7 +25,11 @@ Modified for use in Conduit by John Stowers
 """
 
 from xml.dom import minidom
-import gconf
+try:
+    import gconf
+except ImportError:
+    from gnome import gconf
+        
 import types
 
 from gettext import gettext as _
@@ -34,7 +38,10 @@ class GConfExport:
     """
     Allow us to export from gconf to XML
     """
-    def __init__(self, client):
+    def __init__(self, client=None):
+        if not client:
+            client = gconf.client_get_default()
+
         self.client = client
         self.indentStep = "  "
 

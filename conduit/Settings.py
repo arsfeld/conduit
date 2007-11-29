@@ -7,7 +7,12 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import gobject
-import gconf
+
+try:
+    import gconf
+except ImportError:
+    from gnome import gconf
+
 import logging
 log = logging.getLogger("Settings")
 

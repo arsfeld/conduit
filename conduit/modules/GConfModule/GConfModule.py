@@ -1,4 +1,8 @@
-import gconf
+try:
+    import gconf
+except ImportError: # for maemo
+    from gnome import gconf
+        
 import fnmatch
 import logging
 log = logging.getLogger("modules.GConf")
