@@ -61,11 +61,8 @@ class Canvas(goocanvas.Canvas):
     """
     This class manages many objects
     """
-    
-    INITIAL_WIDTH = 600
-    INITIAL_HEIGHT = 450
     CANVAS_WIDTH = 450
-    CANVAS_HEIGHT = 600
+    CANVAS_HEIGHT = 450
     WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
 
     def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu=None, conduitMenu=None):
@@ -74,8 +71,8 @@ class Canvas(goocanvas.Canvas):
         """
         #setup the canvas
         goocanvas.Canvas.__init__(self)
-        self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
         self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
+        self.set_size_request(Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
         self.root = self.get_root_item()
 
         self.sync_manager = syncManager
@@ -112,10 +109,11 @@ class Canvas(goocanvas.Canvas):
         get in the way.
         """
         if self.welcomeMessage == None:
+            c_x,c_y,c_w,c_h = self.get_bounds()
             self.welcomeMessage = goocanvas.Text(  
-                                    x=Canvas.CANVAS_WIDTH/2, 
-                                    y=Canvas.CANVAS_HEIGHT/3, 
-                                    width=2*Canvas.CANVAS_WIDTH/5, 
+                                    x=c_w/2, 
+                                    y=c_w/3, 
+                                    width=3*c_w/5, 
                                     text=Canvas.WELCOME_MESSAGE, 
                                     anchor=gtk.ANCHOR_CENTER,
                                     alignment=pango.ALIGN_CENTER,
@@ -130,16 +128,7 @@ class Canvas(goocanvas.Canvas):
         else:
             if idx != -1:
                 self.root.remove_child(idx)
-
-    def _delete_welcome_message(self):
-        """
-        Removes the welcome message from the canvas if it has previously
-        been added
-        """
-        if self.welcomeMessage != None:
-            
-            del(self.welcomeMessage)
-            self.welcomeMessage = None
+                self.welcomeMessage = None
 
     def _get_child_conduit_canvas_items(self):
         items = []
@@ -160,13 +149,9 @@ class Canvas(goocanvas.Canvas):
 
     def _canvas_resized(self, widget, allocation):
         if NEW_GOOCANVAS_API:
-            w = max(allocation.width,Canvas.CANVAS_WIDTH)
-            h = max(allocation.height,Canvas.CANVAS_HEIGHT)
-
-            self.set_bounds(0,0,w,h)
-
+            self.set_bounds(0,0,allocation.width,allocation.height)
             for i in self._get_child_conduit_canvas_items():
-                i.set_width(w)
+                i.set_width(allocation.width)
         else:
             for i in self._get_child_conduit_canvas_items():
                 i.set_width(allocation.width)
@@ -271,13 +256,9 @@ class Canvas(goocanvas.Canvas):
                                 width=c_w)
         conduitCanvasItem.connect('button-press-event', self._on_conduit_button_press)
         conduitCanvasItem.translate(
-                LINE_WIDTH,
-                bottom+LINE_WIDTH
+                LINE_WIDTH/2.0,
+                bottom+(LINE_WIDTH/2.0)
                 )
-
-        #FIXME Evilness to fix ConduitCanvasItems ending up too big (scrollbars suck!) 
-        self.set_size_request(Canvas.INITIAL_WIDTH-1, Canvas.INITIAL_HEIGHT-1)
-        self.set_size_request(Canvas.INITIAL_WIDTH, Canvas.INITIAL_HEIGHT)
 
         for dp in conduitAdded.get_all_dataproviders():
             self.on_dataprovider_added(None, dp, conduitCanvasItem)
@@ -700,7 +681,7 @@ class ConduitCanvasItem(_CanvasItem):
                             )
 
     def _build_widget(self, width):
-        true_width = width-(2*LINE_WIDTH) #account for line width
+        true_width = width-LINE_WIDTH
 
         #draw a spacer to give some space between conduits
         points = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
@@ -883,7 +864,7 @@ class ConduitCanvasItem(_CanvasItem):
         self.bounding_box.set_property("height",h)
 
     def set_width(self, w):
-        true_width = w-(2*LINE_WIDTH)
+        true_width = w-LINE_WIDTH
 
         #resize the box
         self.bounding_box.set_property("width",true_width)
