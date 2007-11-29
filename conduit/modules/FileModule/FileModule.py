@@ -1,4 +1,3 @@
-import gnomevfs
 import os.path
 from gettext import gettext as _
 import logging
@@ -9,6 +8,7 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.File as FileDataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 
 MODULES = {
 	"FileSource" :      { "type": "dataprovider" },
@@ -86,7 +86,7 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
 
     def __del__(self):
         if self._monitor_folder_id != None:
-            gnomevfs.monitor_cancel(self._monitor_folder_id)
+            Vfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
 
     def configure(self, window):
@@ -120,24 +120,21 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
 
     def _monitor_folder(self):
         if self._monitor_folder_id != None:
-            gnomevfs.monitor_cancel(self._monitor_folder_id)
+            Vfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
-        try:
-            self._monitor_folder_id = gnomevfs.monitor_add(self.folder, gnomevfs.MONITOR_DIRECTORY, self._monitor_folder_cb)
-        except gnomevfs.NotSupportedError:
-            # silently fail if we are looking at a folder that doesn't support directory monitoring
-            pass
+
+        self._monitor_folder_id = Vfs.monitor_add(self.folder, Vfs.MONITOR_DIRECTORY, self._monitor_folder_cb)            
 
     def _monitor_folder_cb(self, monitor_uri, event_uri, event, data=None):
         """
         Called when a file in the current folder is changed, added or deleted
         """
-        # supported events = CHANGED, DELETED, STARTEXECUTING, STOPEXECUTING, CREATED, METADATA_CHANGED
-        if event == gnomevfs.MONITOR_EVENT_CREATED:
+        # supported events = CHANGED, DELETED, CREATED
+        if event == Vfs.MONITOR_EVENT_CREATED:
             self.handle_added(event_uri)
-        elif event == gnomevfs.MONITOR_EVENT_CHANGED:
+        elif event == Vfs.MONITOR_EVENT_CHANGED:
             self.handle_modified(event_uri)
-        elif event == gnomevfs.MONITOR_EVENT_DELETED:
+        elif event == Vfs.MONITOR_EVENT_DELETED:
             self.handle_deleted(event_uri)
 
 class USBFactory(DataProvider.DataProviderFactory):

@@ -5,8 +5,8 @@ log = logging.getLogger("dataproviders.SimpleFactory")
 import conduit
 import conduit.dataproviders.SimpleFactory as SimpleFactory
 import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 
-import gnomevfs
 import dbus
 import dbus.glib
 
@@ -18,7 +18,7 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
     def __init__(self, **kwargs):
         SimpleFactory.SimpleFactory.__init__(self, **kwargs)
 
-        self.vol_monitor = gnomevfs.VolumeMonitor()
+        self.vol_monitor = Vfs.VolumeMonitor()
         self.bus = dbus.SystemBus()
 
         if Utils.dbus_service_available(self.bus,'org.freedesktop.Hal'):
