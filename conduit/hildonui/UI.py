@@ -7,23 +7,15 @@ log = logging.getLogger("hildonui.UI")
 
 import conduit
 from conduit.hildonui.List import DataProviderBox
-from conduit.gtkui.Canvas import Canvas
+
+# FIXME: we probably should share some code between these two
+from conduit.hildonui.Canvas import Canvas
 
 from gettext import gettext as _
 
 class MainWindow(hildon.Program):
     def __init__(self, conduitApplication, moduleManager, typeConverter, syncManager):
         hildon.Program.__init__(self)
-
-        self.conduitApplication = conduitApplication
-        self.moduleManager = moduleManager
-        self.type_converter = typeConverter
-        self.sync_manager = syncManager
-        self.sync_manager.set_twoway_policy({
-                "conflict"  :   conduit.GLOBALS.settings.get("twoway_policy_conflict"),
-                "deleted"   :   conduit.GLOBALS.settings.get("twoway_policy_deleted")}
-                )
-        self.syncSet = None
 
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
@@ -37,6 +29,16 @@ class MainWindow(hildon.Program):
             gtk.icon_theme_get_default().prepend_search_path(i)
             log.debug("Adding %s to icon theme search path" % (i))
  
+        self.conduitApplication = conduitApplication
+        self.moduleManager = moduleManager
+        self.type_converter = typeConverter
+        self.sync_manager = syncManager
+        self.sync_manager.set_twoway_policy({
+                "conflict"  :   conduit.GLOBALS.settings.get("twoway_policy_conflict"),
+                "deleted"   :   conduit.GLOBALS.settings.get("twoway_policy_deleted")}
+                )
+        self.syncSet = None
+
         self.mainWindow = hildon.Window()
         self.mainWindow.set_title (conduit.APPNAME)
         self.mainWindow.set_icon_name("conduit")
@@ -57,9 +59,7 @@ class MainWindow(hildon.Program):
         self.canvas = Canvas(
                         parentWindow=self.mainWindow,
                         typeConverter=self.type_converter,
-                        syncManager=self.sync_manager,
-                        dataproviderMenu=None,
-                        conduitMenu=None)
+                        syncManager=self.sync_manager)
 
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
@@ -71,14 +71,17 @@ class MainWindow(hildon.Program):
 
     def set_model(self, syncSet):
         self.syncSet = syncSet
+        self.toolbar = ConduitToolbar(self.syncSet, self.canvas)
         self.canvas.set_sync_set(syncSet)
+        
+        self.set_common_toolbar(self.toolbar)
 
     def present(self):
         """
         Present the main window. Enjoy your window
         """
         self.mainWindow.show_all ()
-                
+
     def minimize_to_tray(self):
         """
         Iconifies the main window
@@ -162,6 +165,72 @@ class MainWindow(hildon.Program):
 
     def on_dataprovider_unavailable (self, loader, dataprovider):
         self.provider_box.remove_dataprovider (dataprovider)
+
+class ConduitToolbar(gtk.Toolbar):
+    def __init__(self, syncSet, canvas):
+        gtk.Toolbar.__init__(self)
+
+        self.syncSet = syncSet
+
+        # canvas
+        self.canvas = canvas
+        self.canvas.connect("position-changed", self.on_position_changed)
+
+        # new conduit button 
+        self.remove_button = gtk.ToolButton(gtk.STOCK_REMOVE)
+        self.remove_button.connect("clicked", self.on_remove)
+
+        # save settings button
+        self.save_button = gtk.ToolButton(gtk.STOCK_SAVE)
+        self.save_button.connect("clicked", self.on_settings_save)
+
+        # moving
+        self.previous_button = gtk.ToolButton(gtk.STOCK_GO_BACK)
+        self.previous_button.connect("clicked", self.on_previous)
+
+        self.label = gtk.Label("0/0")
+
+        self.next_button = gtk.ToolButton(gtk.STOCK_GO_FORWARD)
+        self.next_button.connect("clicked", self.on_next)
+
+        # add all items
+        self.add_item (self.remove_button)
+        self.add_item (gtk.SeparatorToolItem())
+        self.add_item (self.previous_button)
+        self.add_item (self._create_toolitem(self.label))
+        self.add_item (self.next_button)
+        self.add_item (gtk.SeparatorToolItem())
+        self.add_item (self.save_button)
+
+        self.show_all () 
+
+    def add_item(self, item):
+        self.insert (item, -1)       
+
+    def on_remove (self, button):
+        current = self.canvas.get_current()
+        if not current:
+            return
+
+        self.syncSet.remove_conduit(current)
+
+    def on_settings_save (self, button):
+        self.syncSet.save_to_xml()
+
+    def on_previous (self, button):
+        self.canvas.move_previous()
+
+    def on_next (self, button):
+        self.canvas.move_next()
+
+    def on_position_changed(self, canvas):
+        self.label.set_text (canvas.get_position_str())
+
+    def _create_toolitem (self, widget):
+        toolitem = gtk.ToolItem()
+        toolitem.add (widget)
+
+        return toolitem
 
 class SplashScreen:
     def __init__(self):
