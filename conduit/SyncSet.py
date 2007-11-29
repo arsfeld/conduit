@@ -97,6 +97,12 @@ class SyncSet(gobject.GObject):
     def get_all_conduits(self):
         return self.conduits
 
+    def get_conduit(self, index):
+        return self.conduits[index]
+
+    def index (self, conduit):
+        return self.conduits.index(conduit)        
+
     def num_conduits(self):
         return len(self.conduits)
 
