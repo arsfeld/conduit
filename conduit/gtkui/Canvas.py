@@ -65,7 +65,7 @@ class Canvas(goocanvas.Canvas):
     CANVAS_HEIGHT = 450
     WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
 
-    def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu=None, conduitMenu=None):
+    def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu, conduitMenu):
         """
         Draws an empty canvas of the appropriate size
         """
@@ -79,9 +79,6 @@ class Canvas(goocanvas.Canvas):
         self.typeConverter = typeConverter
         self.parentWindow = parentWindow
 
-        if dataproviderMenu and conduitMenu:
-            self._setup_popup_menus(dataproviderMenu, conduitMenu)
-        
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
                         DND_TARGETS,
@@ -529,6 +526,9 @@ class DataProviderCanvasItem(_CanvasItem):
     SINK_FILL_COLOR = TANGO_COLOR_SKYBLUE_LIGHT
     TWOWAY_FILL_COLOR = TANGO_COLOR_BUTTER_MID
 
+    NAME_FONT = "Sans 8"
+    STATUS_FONT = "Sans 7"
+
     def __init__(self, parent, model):
         _CanvasItem.__init__(self, parent, model)
 
@@ -537,28 +537,28 @@ class DataProviderCanvasItem(_CanvasItem):
 
     def _get_fill_color(self):
         if self.model.module == None:
-            return DataProviderCanvasItem.PENDING_FILL_COLOR
+            return self.PENDING_FILL_COLOR
         else:
             if self.model.module_type == "source":
-                return DataProviderCanvasItem.SOURCE_FILL_COLOR
+                return self.SOURCE_FILL_COLOR
             elif self.model.module_type == "sink":
-                return DataProviderCanvasItem.SINK_FILL_COLOR
+                return self.SINK_FILL_COLOR
             elif self.model.module_type == "twoway":
-                return DataProviderCanvasItem.TWOWAY_FILL_COLOR
+                return self.TWOWAY_FILL_COLOR
             else:
                 log.warn("Unknown module type: Cannot get fill color")
 
     def _update_appearance(self):
         #the image
         pb = self.model.get_icon()
-        pbx = int((1*DataProviderCanvasItem.WIDGET_WIDTH/5) - (pb.get_width()/2))
-        pby = int((1*DataProviderCanvasItem.WIDGET_HEIGHT/3) - (pb.get_height()/2))
+        pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
+        pby = int((1*self.WIDGET_HEIGHT/3) - (pb.get_height()/2))
         self.image.set_property("pixbuf",pb)
 
         self.name.set_property("text",self.model.get_name())
 
         if self.model.module == None:
-            statusText = DataProviderCanvasItem.PENDING_MESSAGE
+            statusText = self.PENDING_MESSAGE
         else:
             statusText = self.model.module.get_status_text()
         self.statusText.set_property("text",statusText)
@@ -569,8 +569,8 @@ class DataProviderCanvasItem(_CanvasItem):
         self.box = goocanvas.Rect(   
                                 x=0, 
                                 y=0, 
-                                width=DataProviderCanvasItem.WIDGET_WIDTH-(2*LINE_WIDTH), 
-                                height=DataProviderCanvasItem.WIDGET_HEIGHT-(2*LINE_WIDTH),
+                                width=self.WIDGET_WIDTH-(2*LINE_WIDTH), 
+                                height=self.WIDGET_HEIGHT-(2*LINE_WIDTH),
                                 line_width=LINE_WIDTH, 
                                 stroke_color="black",
                                 fill_color_rgba=self._get_fill_color(), 
@@ -578,26 +578,26 @@ class DataProviderCanvasItem(_CanvasItem):
                                 radius_x=RECTANGLE_RADIUS
                                 )
         pb = self.model.get_icon()
-        pbx = int((1*DataProviderCanvasItem.WIDGET_WIDTH/5) - (pb.get_width()/2))
-        pby = int((1*DataProviderCanvasItem.WIDGET_HEIGHT/3) - (pb.get_height()/2))
+        pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
+        pby = int((1*self.WIDGET_HEIGHT/3) - (pb.get_height()/2))
         self.image = goocanvas.Image(pixbuf=pb,
                                 x=pbx,
                                 y=pby
                                 )
-        self.name = goocanvas.Text(  x=pbx + pb.get_width() + DataProviderCanvasItem.IMAGE_TO_TEXT_PADDING, 
-                                y=int(1*DataProviderCanvasItem.WIDGET_HEIGHT/3), 
-                                width=3*DataProviderCanvasItem.WIDGET_WIDTH/5, 
+        self.name = goocanvas.Text(  x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
+                                y=int(1*self.WIDGET_HEIGHT/3), 
+                                width=3*self.WIDGET_WIDTH/5, 
                                 text=self.model.get_name(), 
                                 anchor=gtk.ANCHOR_WEST, 
-                                font="Sans 8"
+                                font=self.NAME_FONT
                                 )
         self.statusText = goocanvas.Text(  
-                                x=int(1*DataProviderCanvasItem.WIDGET_WIDTH/10), 
-                                y=int(2*DataProviderCanvasItem.WIDGET_HEIGHT/3), 
-                                width=4*DataProviderCanvasItem.WIDGET_WIDTH/5, 
+                                x=int(1*self.WIDGET_WIDTH/10), 
+                                y=int(2*self.WIDGET_HEIGHT/3), 
+                                width=4*self.WIDGET_WIDTH/5, 
                                 text="", 
                                 anchor=gtk.ANCHOR_WEST, 
-                                font="Sans 7",
+                                font=self.STATUS_FONT,
                                 fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
                                 )                                    
         
