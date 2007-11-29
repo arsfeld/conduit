@@ -44,6 +44,12 @@ class RefreshError(Exception):
     Exception thrown upon failure to refresh conduit
     """
     pass
+
+class NotSupportedError(Exception):
+    """
+    Exception thrown when a dataprovider cannot be loaded
+    """
+    pass    
     
 class SyncronizeError(Exception):
     """

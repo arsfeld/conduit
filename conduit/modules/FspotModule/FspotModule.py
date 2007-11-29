@@ -25,6 +25,12 @@ MODULES = {
 ID_IDX = 0
 NAME_IDX = 1
 
+PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
+
+# check if path exists
+if not os.path.exists(PHOTO_DB):
+    raise Exceptions.NotSupportedError("No F-Spot database found")
+
 class FspotSource(DataProvider.DataSource):
 
     _name_ = _("F-Spot Photos")
@@ -35,10 +41,9 @@ class FspotSource(DataProvider.DataSource):
     _out_type_ = "file/photo"
     _icon_ = "f-spot"
 
-    PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
-
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
+
         self.need_configuration(True)
         #Settings
         self.enabledTags = []
@@ -46,9 +51,9 @@ class FspotSource(DataProvider.DataSource):
 
     def _get_all_tags(self):
         tags = []
-        if os.path.exists(FspotSource.PHOTO_DB):
+        if os.path.exists(PHOTO_DB):
             #Create a connection to the database
-            con = sqlite.connect(FspotSource.PHOTO_DB)
+            con = sqlite.connect(PHOTO_DB)
             cur = con.cursor()
             #Get a list of all tags for the config dialog
             cur.execute("SELECT id, name FROM tags")
@@ -64,13 +69,13 @@ class FspotSource(DataProvider.DataSource):
     def refresh(self):
         DataProvider.DataSource.refresh(self)
         #only work if Fspot is installed
-        if not os.path.exists(FspotSource.PHOTO_DB):
+        if not os.path.exists(PHOTO_DB):
             raise Exceptions.RefreshError("Fspot is not installed")
 
         #Stupid pysqlite thread stuff. 
         #Connection must be made in the same thread
         #as any execute statements
-        con = sqlite.connect(FspotSource.PHOTO_DB)
+        con = sqlite.connect(PHOTO_DB)
         cur = con.cursor()
 
         for tagID in self.enabledTags:
@@ -87,7 +92,7 @@ class FspotSource(DataProvider.DataSource):
     def get(self, LUID):
         DataProvider.DataSource.get(self, LUID)
 
-        con = sqlite.connect(FspotSource.PHOTO_DB)
+        con = sqlite.connect(PHOTO_DB)
         cur = con.cursor()
         cur.execute("SELECT directory_path, name FROM photos WHERE id=?", (LUID, ))
         directory_path, name = cur.fetchone()        
