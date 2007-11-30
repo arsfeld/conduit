@@ -6,7 +6,7 @@ License: GPLv2
 """
 import md5
 import logging
-log = logging.getLogger("modules.OpenSync")
+log = logging.getLogger("dataproviders.Opensync")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
@@ -15,8 +15,10 @@ from conduit.datatypes import Rid
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 
-
-import opensync
+try:
+    import opensync
+except ImportError:
+    raise conduit.Exceptions.NotSupportedError
 
 # Create a Format Environment and load plugins in to it
 formats = opensync.FormatEnv()

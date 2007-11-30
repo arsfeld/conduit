@@ -1,6 +1,5 @@
 import conduit
-from OpensyncBase import ContactDataprovider, EventDataprovider
-
+from conduit.dataproviders.Opensync import ContactDataprovider, EventDataprovider
 from gettext import gettext as _
 
 MODULES = {
@@ -8,6 +7,7 @@ MODULES = {
     "OS_Evolution_Event":     { "type": "dataprovider" },
 #    "OS_Evolution_Todo":     { "type": "dataprovider" },
 }
+
 
 class _EvolutionMixin(object):
     ev_source = "default"

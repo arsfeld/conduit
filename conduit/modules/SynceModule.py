@@ -1,14 +1,12 @@
 import conduit
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.HalFactory as HalFactory
-from OpensyncBase import ContactDataprovider, EventDataprovider
-
+from conduit.dataproviders.Opensync import ContactDataprovider, EventDataprovider
 from gettext import gettext as _
 
 MODULES = {
     "OS_SynceFactory" :        { "type": "dataprovider-factory" },
 }
-
 
 class OS_SynceFactory(HalFactory.HalFactory):
 
