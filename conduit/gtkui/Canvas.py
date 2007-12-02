@@ -79,6 +79,8 @@ class Canvas(goocanvas.Canvas):
         self.typeConverter = typeConverter
         self.parentWindow = parentWindow
 
+        self._setup_popup_menus(dataproviderMenu, conduitMenu)
+
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
                         DND_TARGETS,
