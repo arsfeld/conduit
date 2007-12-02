@@ -10,6 +10,7 @@ import xmlrpclib
 import SimpleXMLRPCServer
 import pickle
 import threading
+import select
 import logging
 log = logging.getLogger("modules.Network")
 
@@ -149,45 +150,37 @@ class NetworkEndpoint(DataProvider.TwoWay):
 
 class _StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
     """
-    Wrapper around a SimpleXMLRpcServer that allows threaded 
-    operation and cancellation
+    A variant of SimpleXMLRPCServer that can be stopped. From
+    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/520583
     """
     allow_reuse_address = True
     def __init__( self, host, port):
-        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self,(host,port))
-
-    def server_bind(self):
-        SimpleXMLRPCServer.SimpleXMLRPCServer.server_bind(self)
-        self.socket.settimeout(1)
-        self.stop_request = False
-
+        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self,
+                                addr=(host,port),
+                                logRequests=False
+                                )
+        self.closed = False
+    
+    def serve(self):
+        self.socket.setblocking(0)
+        while not self.closed:
+            self.handle_request()        
+            
     def get_request(self):
-        while not self.stop_request:
+        inputObjects = []
+        while not inputObjects and not self.closed:
+            inputObjects, outputObjects, errorObjects = \
+                select.select([self.socket], [], [], 0.2)
             try:
-                sock, addr = self.socket.accept()
-                sock.settimeout(None)
-                return (sock, addr)
-            except socket.timeout:
-                if self.stop_request:
-                    raise socket.error
-        
-    def close_request(self, request):
-        if (request is None): return
-        SimpleXMLRPCServer.SimpleXMLRPCServer.close_request(self, request)
-        
-    def process_request(self, request, client_address):
-        if (request is None): return
-        SimpleXMLRPCServer.SimpleXMLRPCServer.process_request(self, request, client_address)
-        
+                return self.socket.accept()
+            except socket.error:
+                raise
+                
     def start(self):
         threading.Thread(target=self.serve).start()
         
     def stop(self):
-        self.stop_request = True
-
-    def serve(self):
-        while not self.stop_request:
-            self.handle_request()
+        self.closed = True
 
 class _DataproviderServer(_StoppableXMLRPCServer):
     """
@@ -200,8 +193,8 @@ class _DataproviderServer(_StoppableXMLRPCServer):
         self.dpw = wrapper
 
         #register individual functions, not the whole object, 
-        #because we need to pickle function arguments and deal with 
-        #exceptions
+        #because in some cases we need to pickle function arguments
+        #and deal with exceptions
         self.register_function(self.refresh)
         self.register_function(self.get_info)
         self.register_function(self.get_all)
