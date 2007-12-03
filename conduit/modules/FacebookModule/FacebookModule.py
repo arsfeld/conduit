@@ -36,7 +36,7 @@ class FacebookSink(Image.ImageSink):
 
     def __init__(self, *args):
         Image.ImageSink.__init__(self)
-        self.fapi = None
+        self.fapi = Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
 
     def _upload_photo (self, uploadInfo):
         """
@@ -52,7 +52,6 @@ class FacebookSink(Image.ImageSink):
         """
         Get ourselves a token we can use to perform all calls
         """
-        self.fapi = Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
         self.fapi.auth.createToken()
         url = self.fapi.get_login_url()
 
@@ -70,7 +69,7 @@ class FacebookSink(Image.ImageSink):
 
     def refresh(self):
         Image.ImageSink.refresh(self)
-        if self.fapi == None:
+        if self.fapi.uid == None:
             self._login()
 
     def is_configured (self):

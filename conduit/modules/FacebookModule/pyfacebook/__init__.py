@@ -37,7 +37,7 @@ import mimetypes
 try:
     import simplejson
     RESPONSE_FORMAT = 'JSON'
-except:
+except ImportError:
     from xml.dom import minidom
     RESPONSE_FORMAT = 'XML'
 
@@ -81,6 +81,26 @@ METHODS = {
             ('image_4_link', str, ['optional']),
             ('priority', int, ['optional']),
         ],
+
+        'publishTemplatizedAction': [
+            # facebook expects title_data and body_data to be JSON
+            # simplejson.dumps({'place':'Florida'}) would do fine
+            ('actor_id', int, []),
+            ('title_template', str, []),
+            ('title_data', str, ['optional']),
+            ('body_template', str, ['optional']),
+            ('body_data', str, ['optional']),
+            ('body_general', str, ['optional']),
+            ('image_1', str, ['optional']),
+            ('image_1_link', str, ['optional']),
+            ('image_2', str, ['optional']),
+            ('image_2_link', str, ['optional']),
+            ('image_3', str, ['optional']),
+            ('image_3_link', str, ['optional']),
+            ('image_4', str, ['optional']),
+            ('image_4_link', str, ['optional']),
+            ('target_ids', list, ['optional']),
+        ],
     },
 
     # fql methods
@@ -102,6 +122,7 @@ METHODS = {
         'getAppUsers': [],
     },
 
+    # notifications methods
     'notifications': {
         'get': [],
 
@@ -129,7 +150,7 @@ METHODS = {
 
         'getFBML': [
             ('uid', int, ['optional']),
-        ]
+        ],
     },
 
     # users methods
@@ -142,6 +163,15 @@ METHODS = {
         'getLoggedInUser': [],
 
         'isAppAdded': [],
+
+        'hasAppPermission': [
+            ('ext_perm', str, []),
+        ],
+
+        'setStatus': [
+            ('status', str, []),
+            ('clear', bool, []),
+        ],
     },
 
     # events methods
@@ -174,7 +204,59 @@ METHODS = {
         ],
 
         'getMembers': [
-            ('gid', int, [])
+            ('gid', int, []),
+        ],
+    },
+
+    # marketplace methods
+    'marketplace': {
+        'createListing': [
+            ('listing_id', int, []),
+            ('show_on_profile', bool, []),
+            ('listing_attrs', str, []),
+        ],
+
+        'getCategories': [],
+
+        'getListings': [
+            ('listing_ids', list, []),
+            ('uids', list, []),
+        ],
+
+        'getSubCategories': [
+            ('category', str, []),
+        ],
+
+        'removeListing': [
+            ('listing_id', int, []),
+            ('status', str, []),
+        ],
+
+        'search': [
+            ('category', str, ['optional']),
+            ('subcategory', str, ['optional']),
+            ('query', str, ['optional']),
+        ],
+    },
+
+    # pages methods
+    'pages': {
+        'getInfo': [
+            ('page_ids', list, ['optional']),
+            ('uid', int, ['optional']),
+        ],
+
+        'isAdmin': [
+            ('page_id', int, []),
+        ],
+
+        'isAppAdded': [
+            ('page_id', int, []),
+        ],
+
+        'isFan': [
+            ('page_id', int, []),
+            ('uid', int, []),
         ],
     },
 
@@ -452,6 +534,12 @@ class Facebook(object):
     in_canvas
         True if the current request is for a canvas page.
 
+    internal
+        True if this Facebook object is for an internal application (one that can be added on Facebook)
+
+    page_id
+        Set to the page_id of the current page (if any)
+
     secret
         Secret that is used after getSession for desktop apps.
 
@@ -473,7 +561,7 @@ class Facebook(object):
 
     """
 
-    def __init__(self, api_key, secret_key, auth_token=None, app_name=None, callback_path=None):
+    def __init__(self, api_key, secret_key, auth_token=None, app_name=None, callback_path=None, internal=None):
         """
         Initializes a new Facebook object which provides wrappers for the Facebook API.
 
@@ -497,10 +585,12 @@ class Facebook(object):
         self.auth_token = auth_token
         self.secret = None
         self.uid = None
+        self.page_id = None
         self.in_canvas = False
         self.added = False
         self.app_name = app_name
         self.callback_path = callback_path
+        self.internal = internal
         self._friends = None
 
         for namespace in METHODS:
@@ -572,6 +662,8 @@ class Facebook(object):
         for arg in args.items():
             if type(arg[1]) == list:
                 args[arg[0]] = ','.join(str(a) for a in arg[1])
+            elif type(arg[1]) == unicode:
+                args[arg[0]] = arg[1].encode("UTF-8")
 
         args['method'] = method
         args['api_key'] = self.api_key
@@ -655,7 +747,23 @@ class Facebook(object):
         return self.get_url('install', **args)
 
 
-    def get_login_url(self, next=None, popup=False):
+    def get_authorize_url(self, next=None, next_cancel=None):
+        """
+        Returns the URL that the user should be redirected to in order to add the application.
+
+        """
+        args = {'api_key': self.api_key, 'v': '1.0'}
+
+        if next is not None:
+            args['next'] = next
+
+        if next_cancel is not None:
+            args['next_cancel'] = next_cancel
+
+        return self.get_url('authorize', **args)
+
+
+    def get_login_url(self, next=None, popup=False, canvas=True):
         """
         Returns the URL that the user should be redirected to in order to login.
 
@@ -666,6 +774,9 @@ class Facebook(object):
 
         if next is not None:
             args['next'] = next
+			
+        if canvas is True:
+            args['canvas'] = 1
 
         if popup is True:
             args['popup'] = 1
@@ -675,69 +786,10 @@ class Facebook(object):
 
         return self.get_url('login', **args)
 
-
     def login(self, popup=False):
         """Open a web browser telling the user to login to Facebook."""
         import webbrowser
         webbrowser.open(self.get_login_url(popup=popup))
-
-
-    def redirect(self, url):
-        """
-        Redirects to the given URL, depending on if a request is in the
-        canvas. Must be implemented in subclasses.
-
-        """
-        raise NotImplementedError('redirect() must be implemented in subclasses.')
-
-
-    def check_session(self, request, next=''):
-        """
-        Checks the given Django HttpRequest for Facebook parameters such as
-        POST variables or an auth token. If the session is valid, returns None
-        and this object can now be used to access the Facebook API. Otherwise,
-        it returns an HttpResponse which either asks the user to log in or grant
-        access permissions to this application.
-
-        """
-        self.in_canvas = (request.POST.get('fb_sig_in_canvas') == '1')
-
-        if request.method == 'POST':
-            params = self.validate_signature(request.POST)
-        else:
-            if 'auth_token' in request.GET:
-                self.auth_token = request.GET['auth_token']
-
-                try:
-                    self.auth.getSession()
-                except FacebookError, e:
-                    self.auth_token = None
-                    return self.redirect(self.get_login_url(next=next))
-                return
-
-            params = self.validate_signature(request.GET)
-
-        if not params:
-            return self.redirect(self.get_login_url(next=next))
-
-        if params.get('in_canvas') == '1':
-            self.in_canvas = True
-
-        if 'session_key' in params and 'user' in params:
-            self.session_key = params['session_key']
-            self.uid = params['user']
-        else:
-            return self.redirect(self.get_url('tos', api_key=self.api_key, v='1.0', next=next))
-
-        if params.get('added') == '1':
-            self.added = True
-
-        if params.get('expires'):
-            self.session_key_expires = int(params['expires'])
-
-        if 'friends' in params:
-            self._friends = params['friends'].split(',')
-
 
     def validate_signature(self, post, prefix='fb_sig', timeout=None):
         """
