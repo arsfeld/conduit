@@ -315,6 +315,7 @@ class LoginMagic(object):
     """
     def __init__(self, name, url, **kwargs):
         browser = kwargs.get("browser",conduit.GLOBALS.settings.get("web_login_browser"))
+        log.info("Logging in using browser: %s" % browser)
         #instantiate the browser
         if browser == "system":
             login = _SystemLogin()

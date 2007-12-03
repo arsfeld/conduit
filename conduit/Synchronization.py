@@ -76,18 +76,29 @@ class SyncManager:
         #Two way sync policy
         self.policy = {"conflict":"skip","deleted":"skip"}
 
-    def _cancel_sync_thread(self, conduit):
-        log.warn("Conduit already in queue (alive: %s)" % self.syncWorkers[conduit].isAlive())
+    def _cancel_sync_thread(self, cond):
+        log.warn("Conduit already in queue (alive: %s)" % self.syncWorkers[cond].isAlive())
         #If the thread is alive then cancel it
-        if self.syncWorkers[conduit].isAlive():
+        if self.syncWorkers[cond].isAlive():
             log.warn("Cancelling thread")
-            self.syncWorkers[conduit].cancel()
-            self.syncWorkers[conduit].join() #Will block
+            self.syncWorkers[cond].cancel()
+            self.syncWorkers[cond].join() #Will block
+
+    def _on_sync_completed(self, cond, abort, error, conflict, worker):
+        if cond in self.syncWorkers:
+            log.debug("Deleting worker: %s" % worker)
+            del(self.syncWorkers[cond])
+
+    def _start_worker_thread(self, cond, worker):
+        log.debug("Starting worker: %s" % worker)
+        cond.connect("sync-completed", self._on_sync_completed, worker)
+        self.syncWorkers[cond] = worker
+        self.syncWorkers[cond].start()
+
 
     def set_twoway_policy(self, policy):
         log.debug("Setting sync policy: %s" % policy)
         self.policy = policy
-        #It is NOT threadsafe to apply to existing conduits
 
     def cancel_all(self):
         """
@@ -109,59 +120,47 @@ class SyncManager:
         for c in self.syncWorkers:
             self.syncWorkers[c].join(timeout)
 
-    def refresh_dataprovider(self, conduit, dataprovider):
-        if conduit in self.syncWorkers:
-            self._cancel_sync_thread(conduit)
+    def refresh_dataprovider(self, cond, dataprovider):
+        if cond in self.syncWorkers:
+            log.info("Refresh dataprovider already in progress")
+        else:
+            threadedWorker = RefreshDataProviderWorker(cond, dataprovider)
+            self._start_worker_thread(cond, threadedWorker)
 
-        #Create a new thread over top
-        newThread = RefreshDataProviderWorker(conduit, dataprovider)
-        self.syncWorkers[conduit] = newThread
-        self.syncWorkers[conduit].start()
+    def refresh_conduit(self, cond):
+        if cond in self.syncWorkers:
+            log.info("Refresh already in progress")
+        else:
+            threadedWorker = SyncWorker(self.typeConverter, cond, False, self.policy)
+            self._start_worker_thread(cond, threadedWorker)
 
-    def refresh_conduit(self, conduit):
-        """
-            """
-        if conduit in self.syncWorkers:
-            self._cancel_sync_thread(conduit)
+    def sync_conduit(self, cond):
+        if cond in self.syncWorkers:
+            log.info("Sync already in progress")
+        else:
+            threadedWorker = SyncWorker(self.typeConverter, cond, True, self.policy)
+            self._start_worker_thread(cond, threadedWorker)
 
-        #Create a new thread over top
-        newThread = SyncWorker(self.typeConverter, conduit, False, self.policy)
-        self.syncWorkers[conduit] = newThread
-        self.syncWorkers[conduit].start()
-
-    def sync_conduit(self, conduit):
-        """
-        @todo: Send some signals back to the GUI to disable clicking
-        on the conduit
-        """
-        if conduit in self.syncWorkers:
-            self._cancel_sync_thread(conduit)
-
-        #Create a new thread over top.
-        newThread = SyncWorker(self.typeConverter, conduit, True, self.policy)
-        self.syncWorkers[conduit] = newThread
-        self.syncWorkers[conduit].start()
-
-    def did_sync_abort(self, conduit):
+    def did_sync_abort(self, cond):
         """
         Returns True if the supplied conduit aborted (the sync did not complete
         due to an unhandled exception, a SynchronizeFatalError or the conduit was
         unsyncable (source did not refresh, etc)
         """
-        return self.syncWorkers[conduit].aborted
+        return self.syncWorkers[cond].aborted
 
-    def did_sync_error(self, conduit):
+    def did_sync_error(self, cond):
         """
         Returns True if the supplied conduit raised a non fatal 
         SynchronizeError during sync
         """
-        return self.syncWorkers[conduit].did_sync_error()
+        return self.syncWorkers[cond].did_sync_error()
 
-    def did_sync_conflict(self, conduit):
+    def did_sync_conflict(self, cond):
         """
         Returns True if the supplied conduit encountered a conflict during processing
         """
-        return self.syncWorkers[conduit].did_sync_conflict()
+        return self.syncWorkers[cond].did_sync_conflict()
 
 class _ThreadedWorker(threading.Thread):
     """
@@ -236,25 +235,19 @@ class SyncWorker(_ThreadedWorker):
     SYNC_STATE = 2
     DONE_STATE = 3
 
-    def __init__(self, typeConverter, conduit, do_sync, policy):
-        """
-        @param conduit: The conduit to synchronize
-        @type conduit: L{conduit.Conduit.Conduit}
-        @param typeConverter: The typeconverter
-        @type typeConverter: L{conduit.TypeConverter.TypeConverter}
-        """
+    def __init__(self, typeConverter, cond, do_sync, policy):
         _ThreadedWorker.__init__(self)
         self.typeConverter = typeConverter
-        self.conduit = conduit
-        self.source = conduit.datasource
-        self.sinks = conduit.datasinks
+        self.cond = cond
+        self.source = cond.datasource
+        self.sinks = cond.datasinks
         self.do_sync = do_sync
         self.policy = policy
 
         #Start at the beginning
         self.state = SyncWorker.CONFIGURE_STATE
 
-        if conduit.is_two_way():
+        if self.cond.is_two_way():
             self.setName("%s <--> %s" % (self.source, self.sinks[0]))
         else:
             self.setName("%s |--> %s" % (self.source, self.sinks))
@@ -372,7 +365,7 @@ class SyncWorker(_ThreadedWorker):
                     validResolveChoices,        #valid resolve choices
                     True                        #This conflict is a deletion
                     )
-            self.conduit.emit("sync-conflict", c)
+            self.cond.emit("sync-conflict", c)
 
         elif self.policy["deleted"] == "replace":
             log.debug("Deleted Policy: Delete")
@@ -408,7 +401,7 @@ class SyncWorker(_ThreadedWorker):
                         avail,
                         False
                         )
-                self.conduit.emit("sync-conflict", c)
+                self.cond.emit("sync-conflict", c)
 
             elif self.policy["conflict"] == "replace":
                 log.debug("Conflict Policy: Replace")
@@ -460,7 +453,7 @@ class SyncWorker(_ThreadedWorker):
             #work out the percent complete
             done = idx/(numItems*len(self.sinks)) + \
                     float(self.sinks.index(sink))/len(self.sinks)
-            self.conduit.emit("sync-progress", done)
+            self.cond.emit("sync-progress", done)
 
             #transfer the data
             data = self._get_data(source, sink, i)
@@ -535,7 +528,7 @@ class SyncWorker(_ThreadedWorker):
 
             #progress
             cnt = cnt+1
-            self.conduit.emit("sync-progress", float(cnt)/total)
+            self.cond.emit("sync-progress", float(cnt)/total)
 
         for sourcedp, dataUID, sinkdp in toput:
             data = self._get_data(sourcedp, sinkdp, dataUID)
@@ -546,7 +539,7 @@ class SyncWorker(_ThreadedWorker):
                 self._put_data(sourcedp, sinkdp, data, dataRid)
 
             cnt = cnt+1
-            self.conduit.emit("sync-progress", float(cnt)/total)
+            self.cond.emit("sync-progress", float(cnt)/total)
 
         #FIXME: rename dp1 -> sourcedp1 and dp2 -> sinkdp2 because when both
         #data is modified we might as well choost source -> sink as the comparison direction
@@ -563,7 +556,7 @@ class SyncWorker(_ThreadedWorker):
             log.debug("2WAY CMP: %s v %s" % (data1, data2))
 
             cnt = cnt+1
-            self.conduit.emit("sync-progress", float(cnt)/total)
+            self.cond.emit("sync-progress", float(cnt)/total)
 
             #compare the data
             if data1 != None and data2 != None:
@@ -597,8 +590,8 @@ class SyncWorker(_ThreadedWorker):
         try:
             log.debug("Sync %s beginning. Slow: %s, Twoway: %s" % (
                                     self,
-                                    self.conduit.do_slow_sync(), 
-                                    self.conduit.is_two_way()
+                                    self.cond.do_slow_sync(), 
+                                    self.cond.is_two_way()
                                     ))
             #Variable to exit the loop
             finished = False
@@ -614,7 +607,7 @@ class SyncWorker(_ThreadedWorker):
             #on the GUI and the user can see them.
             #UNLESS the error is Fatal (causes us to throw a stopsync exceptiion)
             #in which case set the error status immediately.
-            self.conduit.emit("sync-started")
+            self.cond.emit("sync-started")
             while not finished:
                 self.check_thread_not_cancelled([self.source] + self.sinks)
                 log.debug("Syncworker state %s" % self.state)
@@ -696,7 +689,7 @@ class SyncWorker(_ThreadedWorker):
                         if sink not in sinkDidntRefreshOK:
                             #now perform a one or two way sync depending on the user prefs
                             #and the capabilities of the dataprovider
-                            if  self.conduit.is_two_way():
+                            if  self.cond.is_two_way():
                                 #two way
                                 self.two_way_sync(self.source, sink)
                             else:
@@ -740,7 +733,7 @@ class SyncWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.GLOBALS.mappingDB.save()
-        self.conduit.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
+        self.cond.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
 
 class RefreshDataProviderWorker(_ThreadedWorker):
     """
@@ -753,7 +746,7 @@ class RefreshDataProviderWorker(_ThreadedWorker):
         """
         _ThreadedWorker.__init__(self)
         self.dataproviderWrapper = dataproviderWrapper
-        self.conduit = cond
+        self.cond = cond
 
         self.setName("%s" % self.dataproviderWrapper)
 
@@ -767,7 +760,7 @@ class RefreshDataProviderWorker(_ThreadedWorker):
         """
         try:
             log.debug("Refresh %s beginning" % self)
-            self.conduit.emit("sync-started")
+            self.cond.emit("sync-started")
 
             if not self.dataproviderWrapper.module.is_configured():
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
@@ -793,7 +786,7 @@ class RefreshDataProviderWorker(_ThreadedWorker):
             self.aborted = True
 
         conduit.GLOBALS.mappingDB.save()
-        self.conduit.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
+        self.cond.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
 
                 
 class DeletedData(DataType.DataType):

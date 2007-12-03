@@ -168,6 +168,7 @@ class Settings(gobject.GObject):
         Sets the key value in gconf and connects adds a signal 
         which is fired if the key changes
         """
+        log.debug("Settings %s -> %s" % (key, value))
         if key in self.DEFAULTS and not vtype:
             vtype = type(self.DEFAULTS[key])
 
