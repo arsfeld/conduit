@@ -224,8 +224,10 @@ class MainWindow:
             conduit.GLOBALS.settings.set("twoway_policy_%s" % policy, i)
             return i
 
-        def on_clear_button_clicked(sender):
+        def on_clear_button_clicked(sender, treeview, sqliteListStore):
+            treeview.set_model(None)
             conduit.GLOBALS.mappingDB.delete()
+            treeview.set_model(sqliteListStore)
 
         #Build some liststores to display
         CONVERT_FROM_MESSAGE = _("Convert from")
@@ -277,7 +279,7 @@ class MainWindow:
             vbox.pack_start(sw,True,True)
 
             clear = gtk.Button(None,gtk.STOCK_CLEAR)
-            clear.connect("clicked", on_clear_button_clicked)
+            clear.connect("clicked", on_clear_button_clicked, treeview, store)
             vbox.pack_start(clear, False, False)
 
             notebook.append_page(vbox,gtk.Label('Mapping DB'))
