@@ -16,7 +16,6 @@ Options:\n\
     -a      Run the automatically generated (SLOW) tests\n\
     -c      Code coverage analysis\n\
     -u      Upload results\n\
-    -p      Prepare some files on remote servers\n\
     -s NAME Perform only the test called NAME\n\
     -o      Offline. Skip tests that require a net connection\n\
     -d      Debug. also print test ouput to console\n\
@@ -33,7 +32,6 @@ fi
 #Parse command line arguments
 do_coverage=0
 do_upload=0
-do_prepare=0
 do_single_test="Test*.py"
 do_online="TRUE"
 do_auto=0
@@ -44,7 +42,6 @@ do
         a )     do_auto=1;;
         c )     do_coverage=1;;
         u )     do_upload=1;;
-        p )     do_prepare=1;;
         s )     do_single_test=$OPTARG;;
         o )     do_online="FALSE";;
         d )     do_debug=1;;
@@ -62,25 +59,14 @@ rm -fr $TEST_DATA_DIR 2> /dev/null
 mkdir -p $LOGDIR
 mkdir -p $COVERAGE_RESULTS
 mkdir -p $TEST_DATA_DIR
+#Prepare some test files with known mtimes
+touch -t 198308160000 $TEST_DATA_DIR/oldest
+touch -t 198308160001 $TEST_DATA_DIR/older
+touch -t 198308160002 $TEST_DATA_DIR/newer
+touch -t 198308160003 $TEST_DATA_DIR/newest
 
 #Disable save on exit (the test sets are read only)
 gconftool-2 --type bool --set /apps/conduit/save_on_exit false
-
-#prepare stuff for the folder and file tests
-if [ $do_prepare -ne 0 ] ; then
-    echo "PREPARING"
-    mkdir -p $TEST_DATA_DIR/old
-    mkdir -p $TEST_DATA_DIR/new
-    echo "oldest" > $TEST_DATA_DIR/old/oldest
-    sleep 2
-    echo "older" > $TEST_DATA_DIR/old/older
-    sleep 2
-    echo "newer" > $TEST_DATA_DIR/new/newer
-    sleep 2
-    echo "newest" > $TEST_DATA_DIR/new/newest
-    #put them on a remote server (with same mtimes)
-    scp -rpq $TEST_DATA_DIR root@www.greenbirdsystems.com:/root/sync/
-fi
 
 rm $PY_TEST_DIR/TestAuto*.py 2> /dev/null
 if [ $do_auto -ne 0 ] ; then

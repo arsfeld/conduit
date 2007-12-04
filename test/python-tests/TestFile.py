@@ -25,10 +25,10 @@ folder = File.File(os.environ["HOME"])
 ok("Base: check if HOME exists", folder.exists() == True)
 ok("Base: check if HOME is folder", folder.is_directory() == True)
 
-localURIs = [   os.path.abspath(os.path.join(my_path,"..", "test-data","old","oldest")),
-                os.path.abspath(os.path.join(my_path,"..", "test-data","old","older")),
-                os.path.abspath(os.path.join(my_path,"..", "test-data","new","newer")),
-                os.path.abspath(os.path.join(my_path,"..", "test-data","new","newest"))
+localURIs = [   os.path.abspath(os.path.join(my_path,"..", "test-data","oldest")),
+                os.path.abspath(os.path.join(my_path,"..", "test-data","older")),
+                os.path.abspath(os.path.join(my_path,"..", "test-data","newer")),
+                os.path.abspath(os.path.join(my_path,"..", "test-data","newest"))
             ]
 
 #test the comparison of files by mtime
@@ -66,24 +66,22 @@ f1 = Utils.new_tempfile(Utils.random_string())
 f2 = os.path.join(tmpdir,"I am", "a", "path with spaces", "foo.txt")
 
 f3 = Utils.new_tempfile(Utils.random_string())
-f4 = os.path.join(tmpdir,"I also am", "a", "wird path", "foo.txt")
+f4 = os.path.join(tmpdir,"I also am", "a", "wierd path", "foo.txt")
 
 f1.transfer(f2)
 f3.transfer(f4)
 
 if is_online():
     #so conduit asks me for my password
-    init_gnomevfs_authentication()
-
-    remoteURIs = [  "ssh://root@www.greenbirdsystems.com/root/sync/Document.abw",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/Image.png",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/Tgz.tar.gz",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/Text.txt",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/Text",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/old/oldest",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/old/older",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/new/newer",
-                    "ssh://root@www.greenbirdsystems.com/root/sync/tests/new/newest"
+    remoteURIs = [  "http://www.gnome.org/~jstowers/conduit_test_data/Document.abw",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/Image.png",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/Tgz.tar.gz",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/Text.txt",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/Text",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/oldest",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/older",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/newer",
+                    "http://www.gnome.org/~jstowers/conduit_test_data/newest"
                     ]
 
 
@@ -105,7 +103,7 @@ if is_online():
     ok("Local: file mtime = %s" % mtime,mtime != None)
     size = lrnewer.get_size()
     ok("Local: file size = %s" % size,size != None)
-    fname, ext = lrnewer.get_filename()
+    fname = lrnewer.get_filename()
     #Not a strict test because my get_filename() is a bit of a hack
     ok("Local: file name = %s" % fname,fname == lrnewerfname)
 
