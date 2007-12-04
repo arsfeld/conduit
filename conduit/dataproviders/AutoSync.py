@@ -3,8 +3,13 @@ from types import MethodType
 import logging
 log = logging.getLogger("dataproviders.AutoSync")
 
-class AutoSync(object):
+class AutoSync(object): 
+    def __init__(self): pass
+    def handle_added(self, uid): pass
+    def handle_modified(self, uid): pass
+    def handle_deleted(self, uid): pass
 
+class BrokenAutoSync(object):
     def __init__(self):
         self.as_added = []
         self.as_modified = []
@@ -73,3 +78,11 @@ class AutoSync(object):
             self.first_sync = False
             old_func()
         return MethodType(_finish, self)
+        
+    #I Suspect having these here breaks the MRO...........
+    def get_changes(self):
+        return [],[],[]
+        
+    def finish(self):
+        pass
+        
