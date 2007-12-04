@@ -79,10 +79,3 @@ class BrokenAutoSync(object):
             old_func()
         return MethodType(_finish, self)
         
-    #I Suspect having these here breaks the MRO...........
-    def get_changes(self):
-        return [],[],[]
-        
-    def finish(self):
-        pass
-        
