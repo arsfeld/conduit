@@ -19,9 +19,13 @@ Options:\n\
     -s NAME Perform only the test called NAME\n\
     -o      Offline. Skip tests that require a net connection\n\
     -d      Debug. also print test ouput to console\n\
+    -D      Perform dataprovider tests\n\
+    -S      Perform sync tests\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
 login information in the relevant dataproviders\n\
+\n\
+The default behaviour is to run all core (TestCore*.py) tests\n\
 "
 
 if [ ! -f "conduit/conduit" ] ; then
@@ -32,11 +36,13 @@ fi
 #Parse command line arguments
 do_coverage=0
 do_upload=0
-do_single_test="Test*.py"
+do_single_test=""
 do_online="TRUE"
 do_auto=0
 do_debug=0
-while getopts "acups:od" options
+do_dataprovider_tests=0
+do_sync_tests=0
+while getopts "acus:odDS" options
 do
     case $options in
         a )     do_auto=1;;
@@ -44,7 +50,8 @@ do
         u )     do_upload=1;;
         s )     do_single_test=$OPTARG;;
         o )     do_online="FALSE";;
-        d )     do_debug=1;;
+        D )     do_dataprovider_tests=1;;
+        S )     do_sync_tests=1;;
         \? )    echo -e $USAGE
                 exit 1;;
         * )     echo -e $USAGE
@@ -55,6 +62,7 @@ done
 #prepare output folders, etc
 rm -fr $LOGDIR 2> /dev/null
 rm -fr $TEST_DATA_DIR 2> /dev/null
+rm $PY_TEST_DIR/TestAuto*.py 2> /dev/null
 #Prepare some folders
 mkdir -p $LOGDIR
 mkdir -p $COVERAGE_RESULTS
@@ -67,10 +75,24 @@ touch -t 198308160003 $TEST_DATA_DIR/newest
 
 #Disable save on exit (the test sets are read only)
 gconftool-2 --type bool --set /apps/conduit/save_on_exit false
+#Without a gobject main loop the gtkmozembed browser hangs
+gconftool-2 --type string --set /apps/conduit/web_login_browser system
 
-rm $PY_TEST_DIR/TestAuto*.py 2> /dev/null
-if [ $do_auto -ne 0 ] ; then
-    python $PY_TEST_DIR/AutoGenerate.py
+#Work out which tests to run
+if [ -n "$do_single_test" ] ; then
+    tests=$do_single_test
+else
+    tests="TestCore*.py"
+    if [ $do_dataprovider_tests -ne 0 ] ; then
+        tests="$tests TestDataProvider*.py"
+    fi
+    if [ $do_sync_tests -ne 0 ] ; then
+        tests="$tests TestSync*.py"
+    fi
+    if [ $do_auto -ne 0 ] ; then
+        python $PY_TEST_DIR/AutoGenerate.py
+        tests="$tests TestAuto*.py"
+    fi    
 fi
 
 #-------------------------------------------------------------------------------
@@ -85,7 +107,7 @@ tempfile=`tempfile`
 echo $HEADER > $indexfile
 echo $STYLE >> $indexfile
 
-for t in `ls $PY_TEST_DIR/$do_single_test`
+for t in `ls $PY_TEST_DIR/$tests`
 do
     fname=`basename $t`
     echo "RUNNING UNIT TEST: $fname"
