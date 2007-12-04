@@ -103,7 +103,7 @@ class BaseDataprovider(DataProvider.TwoWay):
         chg.changetype = opensync.CHANGE_TYPE_DELETED
         self.sink.commit_change(self.data, self.info, chg, self.ctx)
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.uids = None
         self.sink.disconnect(self.data, self.info, self.ctx)

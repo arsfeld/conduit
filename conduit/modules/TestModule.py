@@ -536,7 +536,7 @@ class TestTwoWay(_TestBase, DataProvider.TwoWay):
         newData = TestDataType(data.get_UID()+self._name_)
         return newData.get_rid()
 
-    def finish(self): 
+    def finish(self, aborted, error, conflict): 
         DataProvider.TwoWay.finish(self)
         self.data = None
 

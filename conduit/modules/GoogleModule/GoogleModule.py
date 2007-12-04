@@ -419,7 +419,7 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         for event in self.google.Events():
             self.events[event.GetUID()] = event
         
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         self.events.clear()
         
     def get_all(self):

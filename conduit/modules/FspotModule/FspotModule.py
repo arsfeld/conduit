@@ -106,7 +106,7 @@ class FspotSource(DataProvider.DataSource):
 
         return f
     
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.DataSource.finish(self)
         self.photos = []
 

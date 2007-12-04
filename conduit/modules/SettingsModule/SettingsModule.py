@@ -129,7 +129,7 @@ class Settings(DataProvider.DataSource):
 #                 num += 1
 #         return num
     
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.DataSource.finish(self)
 
     def configure(self, window):

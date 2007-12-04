@@ -190,7 +190,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
     def delete(self, LUID):
         self.server.delete(LUID)
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.objects = None
 

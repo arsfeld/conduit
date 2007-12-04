@@ -146,7 +146,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         """
         self.photo_remote.RemovePhoto (LUID)
     
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         """
         Round up, and don't forget the finish the import roll
         """

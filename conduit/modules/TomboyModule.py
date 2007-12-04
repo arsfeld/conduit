@@ -196,7 +196,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
 
         log.warn("Error deleting note %s" % LUID)
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.notes = []
 

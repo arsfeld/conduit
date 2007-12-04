@@ -243,6 +243,6 @@ class _DataproviderServer(_StoppableXMLRPCServer):
         self.dpw.module.delete(LUID)
         return ""
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         self.dpw.module.finish()
 

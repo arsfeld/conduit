@@ -291,7 +291,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
         return Rid(uid=draftMsg.id)
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.mails = None
 
@@ -357,7 +357,7 @@ class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.put(self, contact, overwrite, LUID)
         #return Rid(uid=)
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.contacts = None
 

@@ -70,9 +70,6 @@ class TestShell(TwoWay):
         self.num_del += 1
         return True
 
-    def finish(self): 
-        TwoWay.finish(self)
-
     def get_UID(self):
         return self.uid
 

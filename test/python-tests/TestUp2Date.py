@@ -4,9 +4,9 @@ from common import *
 from conduit.dataproviders.AutoSync import BrokenAutoSync as AutoSync
 
 class Mock(AutoSync):
-    def get_changes(self,*args,**kwargs):
+    def get_changes(self):
         raise NotImplementedError
-    def finish(self,*args,**kwargs):
+    def finish(self,aborted,error,conflict):
         pass
 
 a = Mock()

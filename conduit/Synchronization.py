@@ -733,10 +733,6 @@ class SyncWorker(_ThreadedWorker):
                     else:
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
                     
-                    # allow dataproviders to do any post-sync cleanup
-                    for s in [self.source] + self.sinks:
-                        s.module.finish()        
-                    
                     #Exit thread
                     finished = True
 
@@ -744,8 +740,13 @@ class SyncWorker(_ThreadedWorker):
             log.warn("Sync Aborted")
             self.aborted = True
 
+        #Post sync cleanup and notification of sync success
+        error = self.did_sync_error()
+        conflict = self.did_sync_conflict()
+        for s in [self.source] + self.sinks:
+            s.module.finish(self.aborted, error, conflict)
         conduit.GLOBALS.mappingDB.save()
-        self.cond.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
+        self.cond.emit("sync-completed", self.aborted, error, conflict)
 
 class RefreshDataProviderWorker(_ThreadedWorker):
     """

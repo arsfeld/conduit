@@ -97,7 +97,7 @@ class IPodBase(DataProvider.TwoWay):
         if obj.exists():
             obj.delete()
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.objects = None
 

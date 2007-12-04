@@ -114,7 +114,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         files = [f for f, in self.db.select("SELECT URI FROM files")]
         return files
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.DataSource.finish(self)
         self.db.execute("DELETE FROM files")
 
@@ -255,7 +255,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         DataProvider.TwoWay.get_all(self)
         return self.files
 
-    def finish(self):
+    def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.files = []
 
