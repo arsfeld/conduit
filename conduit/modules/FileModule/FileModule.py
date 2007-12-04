@@ -38,8 +38,7 @@ class FileSource(FileDataProvider.FileSource):
             self._add_file(f)
         for f in config.get("folders",[]):
             f,group = f.split("---FIXME---")
-            if Utils.uri_get_protocol(f) != "":
-                self._add_folder(f,group)
+            self._add_folder(f,group)
         self.db.debug(200,True)
 
     def get_configuration(self):

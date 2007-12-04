@@ -87,19 +87,6 @@ def uri_get_protocol(uri):
     protocol = uri[:uri.index("://")+3]
     return protocol.lower()
 
-def uri_get_ext(uri,complete=True):
-    """
-    Returns the extension of a given URI
-    """
-    if uri.rfind(".")==-1:
-        return ""
-    if uri.rfind("#")!=-1:
-        uri = uri[:uri.rindex("#")]
-    if complete:
-        return uri[uri.rindex("."):].lower()
-    else:
-        return uri[uri.rindex(".")+1:].lower()
-
 def uri_get_filename(path):
     """
     Method to return the filename of a file. Could use GnomeVFS for this
@@ -133,26 +120,6 @@ def new_tempdir():
     """
     import tempfile
     return tempfile.mkdtemp("conduit")
-
-def flatten_list(x):
-    """flatten(sequence) -> list
-
-    Returns a single, flat list which contains all elements retrieved
-    from the sequence and all recursively contained sub-sequences
-    (iterables).
-
-    Examples:
-    >>> [1, 2, [3,4], (5,6)]
-    [1, 2, [3, 4], (5, 6)]
-    >>> flatten([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
-    [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""
-    result = []
-    for el in x:
-        if hasattr(el, "__iter__"):
-            result.extend(flatten_list(el))
-        else:
-            result.append(el)
-    return result
 
 def unique_list(seq):
     """
