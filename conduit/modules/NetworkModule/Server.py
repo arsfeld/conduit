@@ -169,11 +169,14 @@ class _StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
     def get_request(self):
         inputObjects = []
         while not inputObjects and not self.closed:
-            inputObjects, outputObjects, errorObjects = \
-                select.select([self.socket], [], [], 0.2)
             try:
+                inputObjects, outputObjects, errorObjects = select.select([self.socket], [], [], 0.2)
                 return self.socket.accept()
+            except select.error:
+                #Occurs sometimes at start up, race condition, ignore
+                pass
             except socket.error:
+                #Occurs at shutdown, raise to stop serving
                 raise
                 
     def start(self):
