@@ -10,14 +10,12 @@ License: GPLv2
 import sys
 import os
 import os.path
-import signal
-import tempfile
-import random
-import md5
 import socket
 import datetime
 import time
 import re
+import os
+import signal
 import popen2
 try:
     import gnomevfs
@@ -27,20 +25,23 @@ except ImportError:
 import logging
 log = logging.getLogger("Utils")
 
-def make_uri_canonical(uri):
-    return gnomevfs.make_uri_canonical (uri)
-
 def get_proportional_resize(desiredW, desiredH, currentW, currentH):
-        if currentH < currentW:
-            width = desiredW
-            height = float(desiredW) / currentW * currentH
-        else:
-            height = desiredH
-            width = float(desiredH) / currentH * currentW
+    """
+    Returns proportionally resized co-ordinates for an image
+    """
+    if currentH < currentW:
+        width = desiredW
+        height = float(desiredW) / currentW * currentH
+    else:
+        height = desiredH
+        width = float(desiredH) / currentH * currentW
 
-        return int(width), int(height)
+    return int(width), int(height)
 
 def program_installed(app):
+    """
+    Check if the given app is installed.
+    """
     path = os.environ['PATH'] 
     paths = path.split(os.pathsep)
     for dir in paths:
@@ -49,17 +50,44 @@ def program_installed(app):
                 return True
     return False
 
-#Filename Manipulation
-def get_protocol(uri):
+#
+# URI Manipulation functions
+#
+def uri_make_canonical(uri):
     """
-    Returns the gnome-vfs protocol (file, smb, etc) for a URI
+    Standardizes the format of the uri
+    @param uri:an absolute or relative stringified uri. It might have scheme.
+    """
+    return gnomevfs.make_uri_canonical(uri)
+    
+def uri_escape(uri):
+    """
+    Escapes a uri, replacing only special characters that would not be found in 
+    paths or host names.
+    (so '/', '&', '=', ':' and '@' will not be escaped by this function)
+    """
+    #FIXME: This function lies, it escapes @
+    #return gnomevfs.escape_host_and_path_string(uri)
+    import urllib
+    return urllib.quote(uri,safe='/&=:@')
+    
+def uri_unescape(uri):
+    """
+    Replace "%xx" escapes by their single-character equivalent.
+    """
+    import urllib
+    return urllib.unquote(uri)
+    
+def uri_get_protocol(uri):
+    """
+    Returns the protocol (file, smb, etc) for a URI
     """
     if uri.rfind("://")==-1:
         return ""
     protocol = uri[:uri.index("://")+3]
     return protocol.lower()
 
-def get_ext(uri,complete=True):
+def uri_get_ext(uri,complete=True):
     """
     Returns the extension of a given URI
     """
@@ -72,13 +100,16 @@ def get_ext(uri,complete=True):
     else:
         return uri[uri.rindex(".")+1:].lower()
 
-def get_filename(path):
+def uri_get_filename(path):
     """
     Method to return the filename of a file. Could use GnomeVFS for this
     is it wasnt so slow
     """
     return path.split(os.sep)[-1]
 
+#
+# Temporary file functions
+#
 def new_tempfile(contents, contentsAreText=True):
     """
     Returns a new File onject, which has been created in the 
@@ -100,6 +131,7 @@ def new_tempdir():
     """
     Creates a new temporary directory
     """
+    import tempfile
     return tempfile.mkdtemp("conduit")
 
 def flatten_list(x):
@@ -123,8 +155,10 @@ def flatten_list(x):
     return result
 
 def unique_list(seq):
-    # The fastes way to unique-ify a list while retaining its order, from
-    # http://www.peterbe.com/plog/uniqifiers-benchmark
+    """
+    The fastes way to unique-ify a list while retaining its order, from
+    http://www.peterbe.com/plog/uniqifiers-benchmark
+    """
     def _f10(listy):
         seen = set()
         for x in listy:
@@ -138,6 +172,7 @@ def random_string(length=5):
     """
     returns a random string of length
     """
+    import random
     s = ""
     for i in range(1,length):
         s += str(random.randint(0,10))
@@ -156,6 +191,9 @@ def dataprovider_add_dir_to_path(dataproviderfile, directory=""):
     sys.path.insert(0,path)
 
 def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
+    """
+    Gets a single gtk widget from a glad file
+    """
     import gtk.glade
     path = os.path.join(dataproviderfile, "..", gladefilename)
     path = os.path.abspath(path)
@@ -180,9 +218,13 @@ def md5_string(string):
     """
     Returns the md5 of the supplied string in readable hexdigest string format
     """
+    import md5
     return md5.new(string).hexdigest()
 
 def uuid_string():
+    """
+    Returns a uuid string
+    """
     try:
         import uuid
         return uuid.uuid4().hex
@@ -199,6 +241,9 @@ def uuid_string():
         return data
 
 def dbus_service_available(bus,interface):
+    """
+    Checks if a dbus service is available on the given bus
+    """
     try: 
         import dbus
     except: 
@@ -250,11 +295,11 @@ def datetime_get_timestamp(d):
     Note: For the sake of consistancy always drop the
     fractional (microsecond) part of the timestamp
     """
+    import time, datetime
     if type(d) != datetime.datetime:
         raise Exception("Must supply a datetime")
 
     f = time.mktime(d.timetuple())
-
     if f < 0:
         raise Exception("Timestamps before 1970 are not valid")
 
@@ -281,8 +326,10 @@ def decode_conversion_args(argString):
 
 
 def memstats(prev=(0.0,0.0,0.0)):
-    #Memory analysis functions taken from
-    #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286222
+    """
+    Memory analysis functions taken from
+    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286222
+    """
 
     _proc_status = '/proc/%d/status' % os.getpid()
     _scale = {'kB': 1024.0, 'mB': 1024.0*1024.0,
@@ -315,7 +362,10 @@ def memstats(prev=(0.0,0.0,0.0)):
                                     ))
     return VmSize,VmRSS,VmStack 
 
-class ScannerThreadManager:
+#
+# Scanner ThreadManager
+#
+class ScannerThreadManager(object):
     """
     Manages many FolderScanner threads. This involves joining and cancelling
     said threads, and respecting a maximum num of concurrent threads limit
@@ -391,6 +441,9 @@ class ScannerThreadManager:
                 thread.cancel()
             thread.join() #May block
 
+#
+# FOLDER SCANNER
+#
 import threading
 import gobject
 import time
@@ -442,7 +495,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             try: fileinfo = hdir.next()
             except StopIteration: continue;
             while fileinfo:
-                filename = gnomevfs.escape_path_string(fileinfo.name)
+                filename = uri_escape(fileinfo.name)
                 if filename in [".","..",CONFIG_FILE_NAME]: 
                         pass
                 else:
@@ -453,7 +506,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
                             t += 1
                     elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
                         try:
-                            uri = gnomevfs.make_uri_canonical(dir+"/"+filename)
+                            uri = uri_make_canonical(dir+"/"+filename)
                             #Include hidden files
                             if filename[0] != "." or self.includeHidden:
                                 self.URIs.append(uri)

@@ -49,7 +49,7 @@ for i in localURIs:
     ok("Local: file size = %s" % size,size != None)
     fname = f.get_filename()
     #Not a strict test because my get_filename() is a bit of a hack
-    ok("Local: file name = %s" % fname,fname == Utils.get_filename(i))
+    ok("Local: file name = %s" % fname,fname == Utils.uri_get_filename(i))
 
 comp = oldest.compare(older)
 ok("Local Compare: checking oldest < older = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
@@ -106,7 +106,7 @@ if is_online():
     ok("Local: file size = %s" % size,size != None)
     fname = lrnewer.get_filename()
     #Not a strict test because my get_filename() is a bit of a hack
-    ok("Local: file name = %s" % fname,fname == Utils.get_filename(lrneweruri))
+    ok("Local: file name = %s" % fname,fname == Utils.uri_get_filename(lrneweruri))
 
     for i in remoteURIs:
         f = File.File(i)
@@ -120,7 +120,7 @@ if is_online():
         ok("Remote: file size = %s" % size,size != None)
         fname = f.get_filename()
         #Not a strict test because my get_filename() is a bit of a hack
-        ok("Remote: file name = %s" % fname,fname == Utils.get_filename(i))
+        ok("Remote: file name = %s" % fname,fname == Utils.uri_get_filename(i))
 
 
     comp = roldest.compare(rolder)

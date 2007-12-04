@@ -38,7 +38,7 @@ class FileSource(FileDataProvider.FileSource):
             self._add_file(f)
         for f in config.get("folders",[]):
             f,group = f.split("---FIXME---")
-            if Utils.get_protocol(f) != "":
+            if Utils.uri_get_protocol(f) != "":
                 self._add_folder(f,group)
         self.db.debug(200,True)
 
@@ -50,8 +50,6 @@ class FileSource(FileDataProvider.FileSource):
                 files.append(uri)
             else:
                 folders.append("%s---FIXME---%s" % (uri,group))
-
-        self.db.save()
 
         return {"files" : files,
                 "folders" : folders}

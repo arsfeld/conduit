@@ -238,6 +238,8 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             fileURI = dialog.get_uri()
+            #FIXME: Returns a quoted uri string. Inconsistant with other gnomevfs methods
+            #fileURI = Utils.uri_unescape(fileURI)
             self._add_file(fileURI)
         elif response == gtk.RESPONSE_CANCEL:
             pass
@@ -258,6 +260,8 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         response = dialog.run()
         if response == gtk.RESPONSE_OK:
             folderURI = dialog.get_uri()
+            #FIXME: Returns a quoted uri string. Inconsistant with other gnomevfs methods
+            #folderURI = Utils.uri_unescape(folderURI)
             self._add_folder(folderURI)
         elif response == gtk.RESPONSE_CANCEL:
             pass
@@ -336,7 +340,7 @@ class _FolderTwoWayConfigurator:
             else:
                 self.folderGroupName = self.folderEntry.get_text()
                 uri = self.folderChooser.get_uri()
-                self.folder = gnomevfs.make_uri_canonical(uri)
+                self.folder = Utils.uri_make_canonical(uri)
                 self.includeHidden = self.hiddenCb.get_active()
                 self.compareIgnoreMtime = self.mtimeCb.get_active()
 
