@@ -1,9 +1,9 @@
 #common sets up the conduit environment
 from common import *
 
-import conduit.dataproviders.BrokenAutoSync as AutoSync
+from conduit.dataproviders.AutoSync import BrokenAutoSync as AutoSync
 
-class Mock(AutoSync.AutoSync):
+class Mock(AutoSync):
     def get_changes(self,*args,**kwargs):
         raise NotImplementedError
     def finish(self,*args,**kwargs):
