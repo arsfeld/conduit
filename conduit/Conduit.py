@@ -138,19 +138,10 @@ class Conduit(gobject.GObject):
 
     def is_busy(self):
         """
-        Tests if it is currently safe to modify the conduits settings
-        or start/restart as synchronisation. 
-        
-        @returns: True if the conduit is currenlty performing a synchronisation
+        Returns True if the conduit is currenlty performing a synchronisation
         operaton on one or more of its contained DataProviders
-        @rtype: C{bool}
         """
-        for d in self.get_all_dataproviders():
-            if d.module is not None:
-                if d.module.is_busy():
-                    return True
-                
-        return False
+        return self.syncManager.sync_in_progress(self)
         
     def get_dataproviders_by_key(self, key):
         """
@@ -269,5 +260,7 @@ class Conduit(gobject.GObject):
             log.info("Conduit must have a datasource and a datasink")
 
     def _change_detected(self, arg):
-        log.debug("Triggering an auto sync...")
-        self.sync()
+        #Dont trigger a sync if we are already synchronising
+        if not self.is_busy():
+            log.debug("Triggering an auto sync...")
+            self.sync()

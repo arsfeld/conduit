@@ -95,8 +95,16 @@ class SyncManager:
         self.syncWorkers[cond] = worker
         self.syncWorkers[cond].start()
 
+    def sync_in_progress(self, cond):
+        """
+        Returns true if cond is currently undergoing sync, refresh etc
+        """
+        return cond in self.syncWorkers
 
     def set_twoway_policy(self, policy):
+        """
+        FIXME: Should be a per conduit setting
+        """
         log.debug("Setting sync policy: %s" % policy)
         self.policy = policy
 
@@ -111,6 +119,7 @@ class SyncManager:
         """
         Blocks until the thread associated with the supplied conduit finishes
         """
+        log.info("Waiting for thread to finish")
         self.syncWorkers[cond].join(timeout)
 
     def join_all(self, timeout=None):
@@ -123,23 +132,26 @@ class SyncManager:
     def refresh_dataprovider(self, cond, dataprovider):
         if cond in self.syncWorkers:
             log.info("Refresh dataprovider already in progress")
-        else:
-            threadedWorker = RefreshDataProviderWorker(cond, dataprovider)
-            self._start_worker_thread(cond, threadedWorker)
+            self.join_one(cond)            
+
+        threadedWorker = RefreshDataProviderWorker(cond, dataprovider)
+        self._start_worker_thread(cond, threadedWorker)
 
     def refresh_conduit(self, cond):
         if cond in self.syncWorkers:
             log.info("Refresh already in progress")
-        else:
-            threadedWorker = SyncWorker(self.typeConverter, cond, False, self.policy)
-            self._start_worker_thread(cond, threadedWorker)
+            self.join_one(cond)
+
+        threadedWorker = SyncWorker(self.typeConverter, cond, False, self.policy)
+        self._start_worker_thread(cond, threadedWorker)
 
     def sync_conduit(self, cond):
         if cond in self.syncWorkers:
             log.info("Sync already in progress")
-        else:
-            threadedWorker = SyncWorker(self.typeConverter, cond, True, self.policy)
-            self._start_worker_thread(cond, threadedWorker)
+            self.join_one(cond)
+
+        threadedWorker = SyncWorker(self.typeConverter, cond, True, self.policy)
+        self._start_worker_thread(cond, threadedWorker)
 
     def did_sync_abort(self, cond):
         """
@@ -161,7 +173,7 @@ class SyncManager:
         Returns True if the supplied conduit encountered a conflict during processing
         """
         return self.syncWorkers[cond].did_sync_conflict()
-
+        
 class _ThreadedWorker(threading.Thread):
     """
     Aa python thread, Base class for refresh and syncronization
