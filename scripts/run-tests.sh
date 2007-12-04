@@ -50,6 +50,7 @@ do
         u )     do_upload=1;;
         s )     do_single_test=$OPTARG;;
         o )     do_online="FALSE";;
+        d )     do_debug=1;;
         D )     do_dataprovider_tests=1;;
         S )     do_sync_tests=1;;
         \? )    echo -e $USAGE

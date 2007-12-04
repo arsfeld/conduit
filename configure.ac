@@ -125,7 +125,7 @@ conduit/dataproviders/Makefile
 conduit/gtkui/Makefile
 conduit/modules/Makefile
 conduit/modules/BackpackModule/Makefile
-conduit/modules/BackpackModule/backpack-1.1/Makefile
+conduit/modules/BackpackModule/backpack/Makefile
 conduit/modules/BansheeModule/Makefile
 conduit/modules/BoxDotNetModule/Makefile
 conduit/modules/BoxDotNetModule/BoxDotNetAPI/Makefile

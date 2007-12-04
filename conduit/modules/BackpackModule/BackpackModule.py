@@ -12,7 +12,7 @@ import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.Note as Note
 
-Utils.dataprovider_add_dir_to_path(__file__, "backpack-1.1")
+Utils.dataprovider_add_dir_to_path(__file__, "backpack")
 import backpack
 
 MODULES = {
@@ -75,14 +75,13 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                     self.pageID = uid
                     log.debug("Found Page %s:%s:%s" % (uid,scope,title))
 
-            #Didnt find the page so create
+            #Didnt find the page so create one
             if self.pageID is None:
                 try:
-                    self.pageID, foo = self.ba.page.create(self.storeInPage,"Automatically Synchronized Notes")
-                    log.info("Created page")
+                    self.pageID, title = self.ba.page.create("Conduit")
+                    log.info("Created page %s (id: %s)" % (title, self.pageID))
                 except backpack.BackpackError, err:
                     log.info("Could not create page to store notes in (%s)" % err)
-                    #cannot continue
                     raise Exceptions.RefreshError
                     
         #First put needs to cache the existing note titles and uris
@@ -142,7 +141,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             log.info("Could not sync note (%s)" % err)
             raise Exceptions.SyncronizeError
                 
-        return Rid(uid=uid, mtime=mtime, hash=mtime)
+        return Rid(uid=str(uid), mtime=None, hash=hash(None))
 
     def delete(self, LUID):
         if LUID in self._notes.values():

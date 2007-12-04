@@ -1,4 +1,4 @@
-SUBDIRS = backpack-1.1
+SUBDIRS = backpack
 
 conduit_handlersdir = $(libdir)/conduit/modules/BackpackModule
 conduit_handlers_PYTHON = BackpackModule.py
