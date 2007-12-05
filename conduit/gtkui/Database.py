@@ -1,3 +1,27 @@
+"""
+GtkListStore wrapping around Generic DB Abstraction layer, including a lru
+cache to speed up operation.
+Copyright (C) John Stowers 2007 <john.stowers@gmail.com>
+
+Based on http://vwdude.com/dropbox/pystore/
+Copyright (C) Christian Hergert 2007 <christian.hergert@gmail.com>
+
+You may redistribute it and/or modify it under the terms of the
+GNU General Public License, as published by the Free Software
+Foundation; either version 2 of the License, or (at your option)
+any later version.
+ 
+main.c is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+ 
+You should have received a copy of the GNU General Public License
+along with main.c.  If not, write to:
+ The Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor
+ Boston, MA  02110-1301, USA.
+"""
 import gobject
 import gtk
 import logging
@@ -6,7 +30,7 @@ log = logging.getLogger("gtkui.Database")
 import conduit.Database as DB
 import conduit.Utils as Utils
 
-class SqliteListStore(gtk.GenericTreeModel):
+class GenericDBListStore(gtk.GenericTreeModel):
     """
     gtk.TreeModel implementation that saves and stores data directly
     to and from a sqlite database. A simple LRU cache is included to
@@ -17,7 +41,7 @@ class SqliteListStore(gtk.GenericTreeModel):
 
     def __init__(self, table, genericDB):
         """
-        Creates a new SqliteListStore.
+        Creates a new GenericDBListStore.
         
         Parameters:
             filename -- the filename of the sqlite database.
@@ -106,7 +130,7 @@ class SqliteListStore(gtk.GenericTreeModel):
         Parameters:
             oid -- the current oid.
         """
-        if SqliteListStore.OID_CACHE:
+        if GenericDBListStore.OID_CACHE:
             try:
                 index = self.oidcache.index(oid)
                 return self.oidcache[index+1]

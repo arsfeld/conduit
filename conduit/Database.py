@@ -1,8 +1,9 @@
 """
-stores.py
-Copyright (C) Christian Hergert 2007 <christian.hergert@gmail.com>
+Sqlite DB Abstraction layer and threadsafe wrapping around it.
+Copyright (C) John Stowers 2007 <john.stowers@gmail.com>
 
-stores.py is free software.
+Based on http://vwdude.com/dropbox/pystore/
+Copyright (C) Christian Hergert 2007 <christian.hergert@gmail.com>
 
 You may redistribute it and/or modify it under the terms of the
 GNU General Public License, as published by the Free Software
@@ -134,7 +135,7 @@ class GenericDB(gobject.GObject):
     def _get_tables(self):
         #get the field names for all tables
         for name, in self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence'"):
-            self.tables[str(name)] = [row[1] for row in cur.execute("PRAGMA table_info('%s')" % name) if row[1] != 'oid']
+            self.tables[str(name)] = [row[1] for row in self.cur.execute("PRAGMA table_info('%s')" % name) if row[1] != 'oid']
             
     def _build_insert_sql(self, table, *values):
         assert(self.tables.has_key(table))

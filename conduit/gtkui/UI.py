@@ -19,7 +19,7 @@ import conduit
 from conduit.gtkui.Canvas import Canvas
 from conduit.gtkui.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.gtkui.ConflictResolver import ConflictResolver
-from conduit.gtkui.Database import SqliteListStore
+from conduit.gtkui.Database import GenericDBListStore
 
 DEFAULT_CONDUIT_BROWSER = "gtkmozembed"
 
@@ -270,7 +270,7 @@ class MainWindow:
                 treeview.append_column(column)
                 index = index + 1
 
-            store = SqliteListStore("mappings", db)
+            store = GenericDBListStore("mappings", db)
             treeview.set_model(store)            
             
             sw = gtk.ScrolledWindow()

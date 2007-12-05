@@ -9,8 +9,7 @@ import datetime
 
 FILE=os.path.join(os.environ['TEST_DIRECTORY'], "test-%s.db" % Utils.random_string())
 
-m = MappingDB.MappingDB()
-m.open_db(FILE)
+m = MappingDB.MappingDB(FILE)
 ok("Create mapping DB (%s)" % FILE, m != None)
 
 now=datetime.datetime.now()
@@ -80,8 +79,7 @@ m.debug()
 #save db to file and restore
 m.save()
 m.close()
-n = MappingDB.MappingDB()
-n.open_db(FILE)
+n = MappingDB.MappingDB(FILE)
 ok("Saved DB loaded", n != None)
 ok("Saved DB relationships restored", len(n.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink",)) == 3)
 ok("Saved DB relationships restored", len(n.get_mappings_for_dataproviders(sourceUID="source",sinkUID="sink2",)) == 2)

@@ -6,7 +6,7 @@ log = logging.getLogger("modules.File")
 
 import conduit
 import conduit.Utils as Utils
-import conduit.gtkui.Database as DB
+import conduit.gtkui.Database as Database
 
 TYPE_FILE = "0"
 TYPE_FOLDER = "1"
@@ -40,7 +40,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.tree.signal_autoconnect(dic)
         self.mainWindow = mainWindow
         self.db = db
-        self.model = DB.SqliteListStore("config", self.db)
+        self.model = Database.GenericDBListStore("config", self.db)
         
         self._make_view()
 
