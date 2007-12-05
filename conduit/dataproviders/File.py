@@ -4,7 +4,6 @@ log = logging.getLogger("dataproviders.File")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
-from conduit.datatypes import Rid
 import conduit.datatypes as DataType
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
@@ -224,16 +223,12 @@ class FolderTwoWay(DataProvider.TwoWay):
                         )
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
+        vfsFile.set_UID(newURI)
 
         #FIXME: I think we can return vfsFile.get_rid() because after transfer
-        #the file info is reloaded, so we are not permuting anything in place
-        #rid = vfsFile.get_rid()
-        rid = Rid(
-                uid=Utils.uri_make_canonical(newURI), 
-                mtime=vfsFile.get_mtime(), 
-                hash=vfsFile.get_hash()
-                )
-        return rid
+        #the file info (size,mtime) is reloaded, so we are not permuting anything in place
+        #also, we have set_UID to reflect the files destination ID
+        return vfsFile.get_rid()
 
     def delete(self, LUID):
         f = File.File(URI=LUID)
