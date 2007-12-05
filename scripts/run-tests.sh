@@ -81,18 +81,18 @@ gconftool-2 --type string --set /apps/conduit/web_login_browser system
 
 #Work out which tests to run
 if [ -n "$do_single_test" ] ; then
-    tests=$do_single_test
+    tests="$PY_TEST_DIR/$do_single_test"
 else
-    tests="TestCore*.py"
+    tests="$PY_TEST_DIR/TestCore*.py"
     if [ $do_dataprovider_tests -ne 0 ] ; then
-        tests="$tests TestDataProvider*.py"
+        tests="$tests $PY_TEST_DIR/TestDataProvider*.py"
     fi
     if [ $do_sync_tests -ne 0 ] ; then
-        tests="$tests TestSync*.py"
+        tests="$tests $PY_TEST_DIR/TestSync*.py"
     fi
     if [ $do_auto -ne 0 ] ; then
         python $PY_TEST_DIR/AutoGenerate.py
-        tests="$tests TestAuto*.py"
+        tests="$tests $PY_TEST_DIR/TestAuto*.py"
     fi    
 fi
 
@@ -108,7 +108,7 @@ tempfile=`tempfile`
 echo $HEADER > $indexfile
 echo $STYLE >> $indexfile
 
-for t in `ls $PY_TEST_DIR/$tests`
+for t in `ls $tests`
 do
     fname=`basename $t`
     echo "RUNNING UNIT TEST: $fname"
