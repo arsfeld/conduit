@@ -129,7 +129,7 @@ class MappingDB:
     def get_mappings_for_dataproviders(self, sourceUID, sinkUID):
         """
         Gets all the data mappings for the dataprovider pair
-        sourceUID <--> sinkUID
+        sourceUID --> sinkUID
         """
         mappings = []
         sql = "SELECT * FROM mappings WHERE sourceUID = ? AND sinkUID = ?"

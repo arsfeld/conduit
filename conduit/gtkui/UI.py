@@ -253,21 +253,20 @@ class MainWindow:
             notebook = tree.get_widget("prop_notebook")
             vbox = gtk.VBox(False,5)
             
-            #build the treeview to show all colump fields
+            #build the treeview to show all column fields. For performance
+            #reasons it is fixed_height and fixed_FIXE
             treeview = gtk.TreeView()
             treeview.set_headers_visible(True)
             treeview.set_fixed_height_mode(True)
             index = 1
             db = conduit.GLOBALS.mappingDB._db
             for name in db.get_fields("mappings"):
-                column = gtk.TreeViewColumn()
-                column.set_title(name)
-                column.set_property('sizing', gtk.TREE_VIEW_COLUMN_FIXED)
-                column.set_property('min-width', 150)
-                cell = gtk.CellRendererText()
-                cell.set_property('single-paragraph-mode', True)
-                column.pack_start(cell, False)
-                column.add_attribute(cell, 'text', index)
+                column = gtk.TreeViewColumn(
+                                    name, 
+                                    gtk.CellRendererText(),
+                                    text=index)
+                column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+                column.set_fixed_width(250)
                 treeview.append_column(column)
                 index = index + 1
 

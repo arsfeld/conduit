@@ -78,7 +78,7 @@ for i in range(1,SYNC_N_TIMES+1):
     mapSource2Sink = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sourceW.get_UID(), sinkW.get_UID())
     mapSink2Source = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sinkW.get_UID(), sourceW.get_UID())
     print mapSource2Sink, mapSink2Source
-    ok("Oneway Sync: 10 Mappings in total", len(mapSource2Sink) == 5 and len(mapSink2Source) == 0)
+    ok("Oneway Sync: 5 Mappings source -> sink", len(mapSource2Sink) == 5 and len(mapSink2Source) == 0)
 
 #two way sync
 test.set_two_way_sync(True)
