@@ -738,7 +738,7 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
         DataProvider.DataProviderFactory.__init__(self, **kwargs)
         gobject.timeout_add(5000, self.added)
         self.count = 200
-        self.stats = None
+        self.stats = Utils.Memstats()
 
         self.cat = DataProvider.DataProviderCategory(
                     "TestHotplug",
@@ -746,9 +746,7 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
                     "/test/")
 
     def added(self):
-        if self.stats == None:
-            self.stats = Utils.memstats()
-
+        self.stats.calculate()
         self.key = self.emit_added(
                            klass=TestDynamicSource,
                            initargs=("Bar","Bazzer"),
@@ -763,7 +761,7 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
             gobject.timeout_add(500, self.added)
             self.count -= 1
         else:
-            Utils.memstats(self.stats)
+            self.stats.calculate()
         return False
 
     def quit(self):
@@ -778,7 +776,7 @@ class TestSimpleFactory(SimpleFactory.SimpleFactory):
         SimpleFactory.SimpleFactory.__init__(self, **kwargs)
         gobject.timeout_add(5000, self._added)
         self.count = 200
-        self.stats = None
+        self.stats = Utils.Memstats()
 
     def get_category(self, key, **kwargs):
         return DataProviderCategory.DataProviderCategory(
@@ -794,8 +792,7 @@ class TestSimpleFactory(SimpleFactory.SimpleFactory):
 
     def _added(self):
         """ Some hal event added a device? """
-        if self.stats == None:
-            self.stats = Utils.memstats()
+        self.stats.calculate()
         self.item_added("foobar", **{})
         gobject.timeout_add(500, self._removed)
         return False
@@ -806,7 +803,7 @@ class TestSimpleFactory(SimpleFactory.SimpleFactory):
             gobject.timeout_add(500, self._added)
             self.count -= 1
         else:
-            Utils.memstats(self.stats)
+            self.stats.calculate()
         return False
 
     def quit(self):

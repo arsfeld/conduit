@@ -29,15 +29,25 @@ def get_proportional_resize(desiredW, desiredH, currentW, currentH):
     """
     Returns proportionally resized co-ordinates for an image
     """
-    if currentH < currentW:
-        width = desiredW
-        height = float(desiredW) / currentW * currentH
+    #Account for 'dont care about this axis sizing'
+    if desiredH == None: desiredH = currentH
+    if desiredW == None: desiredW = currentW
+
+    #Calculate the axis of most change
+    dw = abs(currentW - desiredW)
+    dh = abs(currentH - desiredH)
+
+    if dh > dw:
+        newHeight = float(desiredH)
+        percentage = newHeight / currentH
+        newWidth = currentW * percentage
     else:
-        height = desiredH
-        width = float(desiredH) / currentH * currentW
+        newWidth = float(desiredW)
+        percentage = newWidth / currentW
+        newHeight = currentH * percentage
 
-    return int(width), int(height)
-
+    return int(newWidth), int(newHeight)    
+    
 def program_installed(app):
     """
     Check if the given app is installed.
@@ -291,8 +301,10 @@ def decode_conversion_args(argString):
         args[key] = val
     return args
 
-
-def memstats(prev=(0.0,0.0,0.0)):
+#
+# Memstats
+#
+class Memstats(object):
     """
     Memory analysis functions taken from
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286222
@@ -301,11 +313,14 @@ def memstats(prev=(0.0,0.0,0.0)):
     _proc_status = '/proc/%d/status' % os.getpid()
     _scale = {'kB': 1024.0, 'mB': 1024.0*1024.0,
               'KB': 1024.0, 'MB': 1024.0*1024.0}
+              
+    def __init__(self):
+        self.prev = [0.0,0.0,0.0]
 
-    def _VmB(VmKey):
+    def _VmB(self, VmKey):
          # get pseudo file  /proc/<pid>/status
         try:
-            t = open(_proc_status)
+            t = open(self._proc_status)
             v = t.read()
             t.close()
         except Exception, err:
@@ -316,18 +331,18 @@ def memstats(prev=(0.0,0.0,0.0)):
         if len(v) < 3:
             return 0.0  # invalid format?
          # convert Vm value to bytes
-        return float(v[1]) * _scale[v[2]]
-
-    VmSize = _VmB('VmSize:') - prev[0]
-    VmRSS = _VmB('VmRSS:') - prev [1]
-    VmStack = _VmB('VmStk:') - prev [2]
-
-    log.debug("Memory Stats: VM=%sMB RSS=%sMB STACK=%sMB" %(
-                                    VmSize  / _scale["MB"],
-                                    VmRSS   / _scale["MB"],
-                                    VmStack / _scale["MB"],
+        return float(v[1]) * self._scale[v[2]]
+        
+    def calculate(self):
+        VmSize = self._VmB('VmSize:') - self.prev[0]
+        VmRSS = self._VmB('VmRSS:') - self.prev [1]
+        VmStack = self._VmB('VmStk:') - self.prev [2]
+        log.debug("Memory Stats: VM=%sMB RSS=%sMB STACK=%sMB" %(
+                                    VmSize  / self._scale["MB"],
+                                    VmRSS   / self._scale["MB"],
+                                    VmStack / self._scale["MB"],
                                     ))
-    return VmSize,VmRSS,VmStack 
+        return VmSize,VmRSS,VmStack 
 
 #
 # Scanner ThreadManager
@@ -337,8 +352,8 @@ class ScannerThreadManager(object):
     Manages many FolderScanner threads. This involves joining and cancelling
     said threads, and respecting a maximum num of concurrent threads limit
     """
-    MAX_CONCURRENT_SCAN_THREADS = 2
-    def __init__(self):
+    def __init__(self, maxConcurrentThreads=2):
+        self.maxConcurrentThreads = maxConcurrentThreads
         self.scanThreads = {}
         self.pendingScanThreadsURIs = []
 
@@ -355,11 +370,14 @@ class ScannerThreadManager(object):
             thread.connect("scan-completed",completedCb, *args)
             thread.connect("scan-completed", self._register_thread_completed, folderURI)
             self.scanThreads[folderURI] = thread
-            if running < ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
+            if running < self.maxConcurrentThreads:
                 log.debug("Starting thread %s" % folderURI)
                 self.scanThreads[folderURI].start()
             else:
                 self.pendingScanThreadsURIs.append(folderURI)
+            return thread
+        else:
+            return self.scanThreads[folderURI]
 
     def _register_thread_completed(self, sender, folderURI):
         """
@@ -372,7 +390,7 @@ class ScannerThreadManager(object):
 
         log.debug("Thread %s completed. %s running, %s pending" % (folderURI, running, len(self.pendingScanThreadsURIs)))
 
-        if running < ScannerThreadManager.MAX_CONCURRENT_SCAN_THREADS:
+        if running < self.maxConcurrentThreads:
             try:
                 uri = self.pendingScanThreadsURIs.pop()
                 log.debug("Starting pending thread %s" % uri)
