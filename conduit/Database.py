@@ -2,8 +2,13 @@
 Sqlite DB Abstraction layer and threadsafe wrapping around it.
 Copyright (C) John Stowers 2007 <john.stowers@gmail.com>
 
-Based on http://vwdude.com/dropbox/pystore/
+GenericDB:
+SQL based on http://vwdude.com/dropbox/pystore/
 Copyright (C) Christian Hergert 2007 <christian.hergert@gmail.com>
+
+ThreadSafeGenericDB:
+Wrapper based on http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/526618
+Copyright (C) Louis RIVIERE 2007
 
 You may redistribute it and/or modify it under the terms of the
 GNU General Public License, as published by the Free Software
@@ -96,7 +101,10 @@ def lru_cache(maxsize):
     return decorating_function
     
 class GenericDB(gobject.GObject):
-
+    """
+    GenericDB abstraction layer.
+    Supports select, update, delete, etc
+    """
     __gsignals__ = {
         "row-inserted" : (
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
@@ -108,9 +116,7 @@ class GenericDB(gobject.GObject):
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_INT])          #row oid
         }
-        
     DEBUG = False
-        
     def __init__(self, filename=":memory:", **kwargs):
         gobject.GObject.__init__(self)
         #dictionary of field names, key is table name
@@ -264,8 +270,10 @@ class GenericDB(gobject.GObject):
         return self.tables.keys()
 
 class ThreadSafeGenericDB(Thread, GenericDB):
-    #Adapted from
-    #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/526618
+    """
+    Threadsafe wrapper around GenericDB Abstraction layer. Serializes all requests
+    into one thread using a queue
+    """
     def __init__(self, filename=":memory:", **kwargs):
         GenericDB.__init__(self,filename,**kwargs)
         Thread.__init__(self)
