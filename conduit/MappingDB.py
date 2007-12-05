@@ -50,13 +50,9 @@ class MappingDB:
         3. Sink Wrapper UID
         4. Sink Data LUID
         5. Modification Time
-
-    This class is a mapping around a simple python dict based DB. This wrapper
-    will make it easier to swap out database layers at a later date. 
-    @todo: Add thread locks around all DB calls
     """
-    def __init__(self, filename=":memory:"):
-        self.open_db(filename)
+    def __init__(self, filename):
+        self._open_db(filename)
         
     def _get_mapping_oid(self, sourceUID, dataLUID, sinkUID):
         sql =   "SELECT oid FROM mappings WHERE sourceUID = ? AND sinkUID = ? AND sourceDataLUID = ? " \
@@ -78,7 +74,7 @@ class MappingDB:
         else:
             return oid[0]
             
-    def _open_db(self, filename):
+    def _open_db_and_check_structure(self, filename):
         self._db = Database.ThreadSafeGenericDB(filename,detect_types=True)
         if "mappings" not in self._db.get_tables():
             self._db.create(
@@ -86,6 +82,17 @@ class MappingDB:
                     fields=DB_FIELDS,
                     fieldtypes=DB_TYPES
                     )
+                    
+    def _open_db(self, f):
+        """
+        Opens the mapping DB at the location @ filename
+        """
+        filename = os.path.abspath(f)
+        try:
+            self._open_db_and_check_structure(filename)
+        except:
+            os.unlink(filename)
+            self._open_db_and_check_structure(filename)
 
     def get_mapping(self, sourceUID, dataLUID, sinkUID):
         """
@@ -145,17 +152,6 @@ class MappingDB:
 
         return mappings
         
-    def open_db(self, f):
-        """
-        Opens the mapping DB at the location @ filename
-        """
-        filename = os.path.abspath(f)
-        try:
-            self._open_db(filename)
-        except:
-            os.unlink(filename)
-            self._open_db(filename)
-
     def save_mapping(self, mapping):
         """
         Saves a mapping between the dataproviders
