@@ -1,5 +1,20 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/Makefile.am:
+	* conduit/modules/SettingsModule/GConfUtils.py:
+	* conduit/modules/SettingsModule/Makefile.am:
+	* conduit/modules/SettingsModule/SettingsModule.py:
+	* conduit/modules/SettingsModule/config.glade:
+	* conduit/modules/SettingsModule/layout_loader.py:
+	* conduit/modules/SettingsModule/layout_save.py:
+	* conduit/modules/SettingsModule/settings/Makefile.am:
+	* conduit/modules/SettingsModule/settings/gnome-panel.cfg:
+	* conduit/modules/SettingsModule/settings/nautilus.cfg:
+	* conduit/modules/SettingsModule/settings/ssh.cfg: Remove obsolete
+	settings module
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	* conduit/datatypes/Setting.py:
 	* conduit/modules/ConverterModule.py:
 	* conduit/modules/GConfModule/GConfModule.py:

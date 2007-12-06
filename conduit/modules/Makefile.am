@@ -9,7 +9,6 @@ SUBDIRS = \
 	FspotModule \
 	GmailModule \
 	PicasaModule \
-	SettingsModule \
 	SmugMugModule \
 	EvolutionModule \
 	YouTubeModule \
