@@ -1,0 +1,5 @@
+2007-12-06  Claude Paroz  <claude@2xlibre.net>
+
+	* data/conduit.glade: Stock labels should not have the translatable
+	property set.
+
