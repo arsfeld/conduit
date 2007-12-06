@@ -878,7 +878,7 @@ class coverage:
         source = open(filename, 'r')
         if directory:
             dest_file = os.path.join(directory,
-                                     os.path.basename(filename)
+                                     filename.replace(os.sep,'_')
                                      + ',cover')
         else:
             dest_file = filename + ',cover'

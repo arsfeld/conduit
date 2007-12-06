@@ -1,3 +1,9 @@
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
+	* scripts/coverage.py:
+	* scripts/run-tests.sh: Improve coverage.py to save coverage files
+	with the full path not just filename
+
 2007-12-06  Claude Paroz  <claude@2xlibre.net>
 
 	* data/conduit.glade: Stock labels should not have the translatable
