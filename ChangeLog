@@ -1,5 +1,12 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	* conduit/datatypes/Setting.py:
+	* conduit/modules/ConverterModule.py:
+	* conduit/modules/GConfModule/GConfModule.py: Make gconf-setting into
+	a basic key:value setting type
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	* conduit/datatypes/Email.py:
 	* conduit/datatypes/Note.py:
 	* conduit/modules/ConverterModule.py:

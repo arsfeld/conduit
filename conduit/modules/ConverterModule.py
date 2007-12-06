@@ -15,7 +15,8 @@ MODULES = {
         "NoteConverter" :       { "type": "converter" },
         "ContactConverter" :    { "type": "converter" },
         "EventConverter" :      { "type": "converter" },
-        "FileConverter" :       { "type": "converter" }
+        "FileConverter" :       { "type": "converter" },
+        "SettingConverter" :    { "type": "converter" }
 }
 
 class EmailConverter:
@@ -188,3 +189,17 @@ class FileConverter:
         else:
             raise Exception("Could not convert to note.")
        
+class SettingConverter(object):
+    def __init__(self):
+        self.conversions =  {    
+                            "setting,text"    : self.to_text,
+                            "setting,file"    : self.to_file
+                            }
+                            
+    def to_text(self, setting):
+        return Text.Text(None, text="%s\n%s" % (setting.key, setting.value))
+        
+    def to_file(self, setting):
+        f = File.TempFile("%s\n%s" % (setting.key, setting.value))
+        f.force_new_filename(setting.key.replace("/"," "))
+        return f

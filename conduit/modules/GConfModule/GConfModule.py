@@ -1,73 +1,29 @@
+import fnmatch
+import logging
+log = logging.getLogger("modules.GConf")
+from gettext import gettext as _
+
 try:
     import gconf
 except ImportError: # for maemo
     from gnome import gconf
-        
-import fnmatch
-import logging
-log = logging.getLogger("modules.GConf")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
-import conduit.datatypes.DataType as DataType
-import conduit.datatypes.Text as Text
-import conduit.datatypes.File as File
-
-from gettext import gettext as _
+import conduit.datatypes.Setting as Setting
 
 MODULES = {
-    "GConfTwoWay"     : { "type": "dataprovider"  },
-    "GConfConverter"  : { "type": "converter" },
+    "GConfTwoWay"     : { "type": "dataprovider"  }
 }
-
-class GConfSetting(DataType.DataType):
-    _name_ = "gconf-setting"
-
-    def __init__(self, key, value):
-        DataType.DataType.__init__(self)
-        self.key = key
-        self.value = value
-
-    def __getstate__(self):
-        data = DataType.DataType.__getstate__(self)
-        data["key"] = self.key
-        data["value"] = self.value
-        return data
-
-    def __setstate__(self, data):
-        self.key = data["key"]
-        self.value = data["value"]
-        DataType.DataType.__setstate__(self, data)
-
-    def get_UID(self):
-        return self.key
-
-    def get_hash(self):
-        return hash(self.value)
-
-class GConfConverter(object):
-    def __init__(self):
-        self.conversions =  {    
-                            "gconf-setting,text"    : self.to_text,
-                            "gconf-setting,file"    : self.to_file
-                            }
-                            
-    def to_text(self, setting):
-        return Text.Text(None, text="%s\n%s" % (setting.key, setting.value))
-        
-    def to_file(self, setting):
-        f = File.TempFile("%s\n%s" % (setting.key, setting.value))
-        f.force_new_filename(setting.key.replace("/"," "))
-        return f
 
 class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _name_ = _("GConf Settings")
     _description_ = _("Sync your desktop preferences")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
-    _in_type_ = "gconf-setting"
-    _out_type_ = "gconf-setting"
+    _in_type_ = "setting"
+    _out_type_ = "setting"
     _icon_ = "preferences-desktop"
 
     def __init__(self, *args):
@@ -163,7 +119,7 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if not node:
             log.debug("Could not find uid %s" % uid)
             return None
-        return GConfSetting(uid, self._from_gconf(node))
+        return Setting.Setting(uid, self._from_gconf(node))
 
     def put(self, setting, overwrite, uid=None):
         log.debug("%s: %s" % (setting.key, setting.value))
