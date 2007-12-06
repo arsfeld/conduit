@@ -17,7 +17,7 @@ def pad(s):
 def header(items):
     s = " "*WIDTH+"|"+"|".join([pad(i) for i in items])+"|"
     s += "\n"
-    for i in items:
+    for i in range(0, len(items)+1):
         s += "%s|" % ("-"*WIDTH)
     return s
 
@@ -44,11 +44,19 @@ type_converter = SimpleTest().type_converter
 #
 #    type           #construction function      #dict of conversion specific data
 TYPES = {
-    "file"      :   (new_file,      {"event":"1.ical", "contact":"1.vcard"} ),
-    "note"      :   (new_note,      {}                                      ),
-    "event"     :   (new_event,     {"*":"1.ical"}                          ),
-    "contact"   :   (new_contact,   {"*":"1.vcard"}                         ),
-    "email"     :   (new_email,     {}                                      )
+    "file"          :   (new_file,      {   "event":"1.ical", 
+                                            "contact":"1.vcard"                                 }),
+#    "file/audio"    :   (new_audio,     {                                                       }),
+#    "file/video"    :   (new_video,     {                                                       }),
+#    "file/photo"    :   (new_photo,     {                                                       }),
+    "note"          :   (new_note,      {                                                       }),
+    "event"         :   (new_event,     {   "*":"1.ical"                                        }),
+    "contact"       :   (new_contact,   {   "*":"1.vcard"                                       }),
+    "email"         :   (new_email,     {                                                       }),
+    "text"          :   (new_text,      {   "event":read_data_file_from_data_dir("1.vcard"),
+                                            "contact":read_data_file_from_data_dir("1.ical"),
+                                            "email":read_data_file_from_data_dir("1.email"),
+                                            "*":Utils.random_string()                           })
     }
 
 #Draw a table of the available conversions.

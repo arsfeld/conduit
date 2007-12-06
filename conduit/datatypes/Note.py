@@ -23,6 +23,9 @@ class Note(DataType.DataType):
     def get_hash(self):
         return hash( (self.get_title(), self.get_contents()) )
 
+    def get_note_string(self):
+        return self.__str__()
+
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
         data["title"] = self.get_title()

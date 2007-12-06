@@ -1,5 +1,16 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	* conduit/datatypes/Email.py:
+	* conduit/datatypes/Note.py:
+	* conduit/modules/ConverterModule.py:
+	* conduit/modules/GmailModule/GmailModule.py:
+	* test/python-tests/TestCoreConvert.py:
+	* test/python-tests/TestCoreEmail.py:
+	* test/python-tests/common.py:
+	* test/python-tests/data/1.email: Improve email datatype
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	* scripts/coverage.py:
 	* scripts/run-tests.sh: Improve coverage.py to save coverage files
 	with the full path not just filename

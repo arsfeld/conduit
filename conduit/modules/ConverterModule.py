@@ -36,13 +36,12 @@ class EmailConverter:
 
     def text_to_email(self, text, **kwargs):
         email = Email.Email(
-                        None,
                         content=text.get_string()
                         )
         return email
 
     def email_to_file(self, email, **kwargs):
-        f = File.TempFile(email.raw)
+        f = File.TempFile(email.get_email_string())
         return f        
 
     def file_to_email(self, thefile, **kwargs):
@@ -55,7 +54,6 @@ class EmailConverter:
             #insert the contents into the email
             log.debug("Inserting file contents into email")
             email = Email.Email(
-                            None,
                             subject=thefile.get_filename(),
                             content=thefile.get_contents_as_text()
                             )
@@ -63,7 +61,6 @@ class EmailConverter:
             #binary file so send as attachment
             log.debug("Binary file, attaching to email")
             email = Email.Email(
-                            None,
                             subject=thefile.get_filename(),
                             content="Attached"
                             )

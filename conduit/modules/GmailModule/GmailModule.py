@@ -235,7 +235,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                     if len(result):                    
                         for thread in result:
                             for message in thread:
-                                mail = Email.Email(None)
+                                mail = Email.Email()
                                 mail.set_from_email_string(message.source)
                                 self.mails[message.id] = mail              
                 elif len(self.getWithLabel) > 0:
@@ -244,7 +244,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                     if len(result):
                         for thread in result:
                             for message in thread:
-                                mail = Email.Email(None)
+                                mail = Email.Email()
                                 mail.set_from_email_string(message.source)
                                 self.mails[message.id] = mail
                 elif len(self.getInFolder) > 0:
@@ -253,7 +253,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                     if len(result):
                         for thread in result:
                             for message in thread:
-                                mail = Email.Email(None)
+                                mail = Email.Email()
                                 mail.set_from_email_string(message.source)
                                 self.mails[message.id] = mail
         else:

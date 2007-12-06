@@ -65,12 +65,16 @@ def get_files_from_data_dir(glob_str):
         files.append(os.path.abspath(i))
     return files
 
-#returns the contents of the file called name in the data dir
 def read_data_file(name):
     f = open(name,'r')
     txt = f.read()
     f.close()
     return txt
+
+#returns the contents of the file called name in the data dir
+def read_data_file_from_data_dir(filename):
+    path = os.path.join(os.path.dirname(__file__),"data",filename)
+    return read_data_file(path)
 
 def is_online():
     try:    
@@ -127,11 +131,44 @@ def new_contact(filename):
 
 def new_email(filename):
     e = conduit.datatypes.Email.Email(
-                URI=Utils.random_string()
+                content=Utils.random_string(),
+                subject=Utils.random_string()
                 )
     e.set_UID(Utils.random_string())
     e.set_open_URI(Utils.random_string())
     return e
+
+def new_text(data):
+    t = conduit.datatypes.Text.Text(
+                text=data
+                )
+    t.set_UID(Utils.random_string())
+    t.set_open_URI(Utils.random_string())
+    return t
+
+def new_audio(filename):
+    a = conduit.datatypes.Audio.Audio(
+                URI=filename
+                )                
+    a.set_UID(Utils.random_string())
+    a.set_open_URI(filename)
+    return a
+
+def new_video(filename):
+    v = conduit.datatypes.Video.Video(
+                URI=filename
+                )                
+    v.set_UID(Utils.random_string())
+    v.set_open_URI(filename)
+    return v
+
+def new_photo(filename):
+    p = conduit.datatypes.Photo.Photo(
+                URI=filename
+                )                
+    p.set_UID(Utils.random_string())
+    p.set_open_URI(filename)
+    return p
 
 class SimpleTest(object):
     """

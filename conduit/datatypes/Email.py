@@ -1,73 +1,85 @@
-import email 
+import email
+from email import Encoders
+from email.MIMEAudio import MIMEAudio
+from email.MIMEBase import MIMEBase
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEImage import MIMEImage
+from email.MIMEText import MIMEText
+
 import logging
 log = logging.getLogger("dataproviders.Email")
 
-
 import conduit
-from conduit.datatypes import DataType
+from conduit.datatypes import DataType, File
 
 class Email(DataType.DataType):
     """
-    Basic email representation
+    Basic email representation.
+    Based on: http://aspn.activestate.com/ASPN/docs/ActivePython/2.4/python/lib/node597.html
     """
-
     _name_ = "email"
-
-    def __init__(self, URI, **kwargs):
+    def __init__(self, **kwargs):
         DataType.DataType.__init__(self)
-
-        self.raw = ""
-        self.email = None
         self.attachments = []
 
-        self.to = kwargs.get("to", "")
-        self.emailFrom = kwargs.get("from", "")
-        self.subject = kwargs.get("subject", "")
-        self.content = kwargs.get("content", "")
+        self.email = MIMEText(kwargs.get("content", ""))
+        self.email['Subject'] = kwargs.get("subject", "")
+        self.email['To'] = kwargs.get("to", "")
+        self.email['From'] = kwargs.get("from", "")
+        self.email.preamble = ''
+        self.email.epilogue = ''
 
-        self.set_open_URI(URI)
-        
     def has_attachments(self):
         if len(self.attachments) > 0:
             return True
         return False
         
-    def add_attachment(self, attachmentLocalPath):
-        self.attachments.append(attachmentLocalPath)
+    def add_attachment(self, path):
+        #Create a multipart message and each attachment gets a part
+        if not self.email.is_multipart():
+            newemail = MIMEMultipart()
+            newemail['Subject'] = self.email['Subject']
+            newemail['To'] = self.email['To']
+            newemail['From'] = self.email['From']
+            newemail.preamble = 'There are attachments\n'
+            newemail.epilogue = ''
+            self.email = newemail
+
+        f = File.File(path)
+        filename = f.get_filename()
+        mt = f.get_mimetype()
+        maintype, subtype = mt.split('/', 1)
+        if maintype == 'text':
+            fp = open(path)
+            #We should handle calculating the charset
+            msg = MIMEText(fp.read(), _subtype=subtype)
+            fp.close()
+        elif maintype == 'image':
+            fp = open(path, 'rb')
+            msg = MIMEImage(fp.read(), _subtype=subtype)
+            fp.close()
+        elif maintype == 'audio':
+            fp = open(path, 'rb')
+            msg = MIMEAudio(fp.read(), _subtype=subtype)
+            fp.close()
+        else:
+            fp = open(path, 'rb')
+            msg = MIMEBase('application', 'octet-stream')
+            msg.set_payload(fp.read())
+            fp.close()
+            # Encode the payload using Base64
+            Encoders.encode_base64(msg)
+        # Set the filename parameter
+        msg.add_header('Content-Disposition', 'attachment', filename=filename)
+        self.email.attach(msg)
+        self.attachments.append(path)
 
     def set_from_email_string(self, text_source):
-        """
-        Uses pythons built in email parsing thingamajig to parse
-        the email emailFrom the raw string representation following
-        all the emaily RFC standards and doing stuff that I have no idea
-        about
-        
-        @todo: Actually read the python docs on how this works
-        """
         self.email = email.message_from_string(text_source)
-        
-        if self.email is not None:
-            self.raw = text_source
-
-            if self.email.is_multipart():
-                self.content = self.email.get_payload(0)
-            else:
-                self.content = self.email.get_payload()
-                
-            try:
-                self.to = self.email['to']
-                self.emailFrom = self.email['from']
-                self.subject = self.email['subject']                
-            except:
-                log.warn("Error parsing email message")
 
     def get_email_string(self):
-        #FIXME: make a self.email and use pythons methods to get the raw string
-        raise NotImplementedError
+        return self.email.as_string()
 
-    def __str__(self):
-        return ("To: %s\nFrom: %s\nSubject: %s\n" % (self.to,self.emailFrom,self.subject))
-        
     def get_hash(self):
-        return hash( (self.to,self.emailFrom,self.subject,self.content) )
+        return hash( self.get_email_string() )
         
