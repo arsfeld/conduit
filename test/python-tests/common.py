@@ -169,6 +169,15 @@ def new_photo(filename):
     p.set_UID(Utils.random_string())
     p.set_open_URI(filename)
     return p
+    
+def new_setting(data):
+    s = conduit.datatypes.Setting.Setting(
+                key=Utils.random_string(),
+                value=Utils.random_string()
+                )                
+    s.set_UID(Utils.random_string())
+    s.set_open_URI(None)
+    return s
 
 class SimpleTest(object):
     """

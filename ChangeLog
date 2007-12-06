@@ -2,6 +2,14 @@
 
 	* conduit/datatypes/Setting.py:
 	* conduit/modules/ConverterModule.py:
+	* conduit/modules/GConfModule/GConfModule.py:
+	* test/python-tests/TestCoreConvert.py:
+	* test/python-tests/common.py: Test the settings datatype
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
+	* conduit/datatypes/Setting.py:
+	* conduit/modules/ConverterModule.py:
 	* conduit/modules/GConfModule/GConfModule.py: Make gconf-setting into
 	a basic key:value setting type
 

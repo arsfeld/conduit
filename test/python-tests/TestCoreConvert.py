@@ -56,7 +56,8 @@ TYPES = {
     "text"          :   (new_text,      {   "event":read_data_file_from_data_dir("1.vcard"),
                                             "contact":read_data_file_from_data_dir("1.ical"),
                                             "email":read_data_file_from_data_dir("1.email"),
-                                            "*":Utils.random_string()                           })
+                                            "*":Utils.random_string()                           }),
+    "setting"       :   (new_setting,   {                                                       })
     }
 
 #Draw a table of the available conversions.

@@ -197,7 +197,11 @@ class SettingConverter(object):
                             }
                             
     def to_text(self, setting):
-        return Text.Text(None, text="%s\n%s" % (setting.key, setting.value))
+        s = "%s\n%s" % (setting.key, setting.value)
+        t = Text.Text(
+                    text=s
+                    )
+        return t
         
     def to_file(self, setting):
         f = File.TempFile("%s\n%s" % (setting.key, setting.value))

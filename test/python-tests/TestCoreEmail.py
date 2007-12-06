@@ -18,7 +18,6 @@ e.add_attachment(f.get_local_uri())
 ok("Email has attachment", e.has_attachments() == True)
 
 s2 = e.get_email_string()
-print "--\n%s\n--" % s2
 ok("Email OK", len(s) > 0 and len(s2) > len(s))
 
 h1 = e.get_hash()

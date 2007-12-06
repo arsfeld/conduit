@@ -119,7 +119,13 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if not node:
             log.debug("Could not find uid %s" % uid)
             return None
-        return Setting.Setting(uid, self._from_gconf(node))
+            
+        s = Setting.Setting(
+                        key=uid,
+                        value=self._from_gconf(node)
+                        )
+        s.set_UID(uid)
+        return s
 
     def put(self, setting, overwrite, uid=None):
         log.debug("%s: %s" % (setting.key, setting.value))

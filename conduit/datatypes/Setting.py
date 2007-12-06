@@ -21,8 +21,5 @@ class Setting(DataType.DataType):
         self.value = data["value"]
         DataType.DataType.__setstate__(self, data)
 
-    def get_UID(self):
-        return self.key
-
     def get_hash(self):
-        return hash(self.value)
+        return hash( (self.key,self.value) )
