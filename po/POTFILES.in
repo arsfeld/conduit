@@ -7,10 +7,11 @@ conduit/gtkui/ConflictResolver.py
 conduit/gtkui/UI.py
 conduit/gtkui/Tree.py
 conduit/dataproviders/DataProvider.py
+conduit/hildonui/Canvas.py
 conduit/hildonui/UI.py
 conduit/modules/BackpackModule/BackpackModule.py
 conduit/modules/BackpackModule/config.glade
-conduit/modules/BackpackModule/backpack-1.1/backpack.py
+conduit/modules/BackpackModule/backpack/backpack.py
 conduit/modules/BansheeModule/BansheeModule.py
 conduit/modules/BansheeModule/config.glade
 conduit/modules/BoxDotNetModule/BoxDotNetModule.py
@@ -35,8 +36,7 @@ conduit/modules/GoogleModule/GoogleModule.py
 conduit/modules/GoogleModule/config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py
-conduit/modules/OpensyncModule/EvolutionAdaptor.py
-conduit/modules/OpensyncModule/SynceAdaptor.py
+conduit/modules/OSyncEvoModule.py
 conduit/modules/PicasaModule/PicasaModule.py
 conduit/modules/PicasaModule/config.glade
 conduit/modules/PicasaModule/PicasaAPI/picasaweb.py
@@ -49,5 +49,6 @@ conduit/modules/ShutterflyModule/shutterfly.glade
 conduit/modules/ShutterflyModule/shutterfly/shutterfly.py
 conduit/modules/SmugMugModule/SmugMugModule.py
 conduit/modules/SmugMugModule/config.glade
+conduit/modules/SynceModule.py
 conduit/modules/YouTubeModule/YouTubeModule.py
 conduit/modules/YouTubeModule/config.glade
