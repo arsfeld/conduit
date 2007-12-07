@@ -289,8 +289,9 @@ class IPodCalendarTwoWay(IPodBase):
         fullpath = os.path.join(self.dataDir, LUID)
         f = File.File(URI=fullpath)
 
-        event = Event.Event(None)
+        event = Event.Event()
         event.set_from_ical_string(f.get_contents_as_text())
+        event.set_open_URI(fullpath)
         event.set_mtime(f.get_mtime())
         event.set_UID(LUID)
         return event

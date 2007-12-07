@@ -143,12 +143,12 @@ class EventConverter:
         return t
 
     def file_to_event(self, f, **kwargs):
-        e = Event.Event(None)
+        e = Event.Event()
         e.set_from_ical_string(f.get_contents_as_text())
         return e
 
     def text_to_event(self, text, **kwargs):
-        e = Event.Event(None)
+        e = Event.Event()
         e.set_from_ical_string(text.get_string())
         return e
 

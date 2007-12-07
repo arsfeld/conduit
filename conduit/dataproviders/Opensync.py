@@ -216,7 +216,7 @@ class EventDataprovider(BaseDataprovider):
         uid = change.uid
         # FIXME: Shouldn't need to trim the data!
         data = str(change.data.data)[:-1]
-        event = Event.Event(None)
+        event = Event.Event()
         event.set_UID(uid)
         event.set_from_ical_string(data)
         # event.set_hash(self._get_hash(change))

@@ -432,8 +432,9 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)       
         event = self.events[LUID]
-        conduitEvent = Event.Event(LUID)
+        conduitEvent = Event.Event()
         conduitEvent.set_from_ical_string(event.GetICalFormat())
+        conduitEvent.set_open_URI(LUID)
         conduitEvent.set_mtime(event.GetMTime())
         conduitEvent.set_UID(event.GetUID())
         return conduitEvent          

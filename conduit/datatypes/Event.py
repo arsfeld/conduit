@@ -1,20 +1,14 @@
 import vobject 
-
-import conduit
-from conduit.datatypes import DataType
+import conduit.datatypes.DataType as DataType
 
 class Event(DataType.DataType):
     """
     Very basic calendar event representation
     """
-
     _name_ = "event"
-
-    def __init__(self, URI, **kwargs):
+    def __init__(self, **kwargs):
         DataType.DataType.__init__(self)
         self.iCal = vobject.iCalendar()
-
-        self.set_open_URI(URI)
 
     def set_from_ical_string(self, string):
         self.iCal = vobject.readOne(string)

@@ -219,7 +219,7 @@ class EvoCalendarTwoWay(EvoBase):
         Get an event from Evolution.
         """
         raw = self.calendar.get_object(LUID, "")
-        event = Event.Event(None)
+        event = Event.Event()
         event.set_from_ical_string(self.calendar.get_object_as_string(raw))
         event.set_UID(raw.get_uid())
         event.set_mtime(datetime.datetime.fromtimestamp(raw.get_modified()))
@@ -279,7 +279,7 @@ class EvoTasksTwoWay(EvoBase):
 
     def _get_object(self, LUID):
         raw = self.tasks.get_object(LUID, "")
-        task = Event.Event(None)
+        task = Event.Event()
         task.set_from_ical_string(raw.get_as_string())
         task.set_UID(raw.get_uid())
         task.set_mtime(datetime.datetime.fromtimestamp(raw.get_modified()))

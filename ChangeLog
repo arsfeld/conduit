@@ -1,5 +1,16 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	* conduit/dataproviders/Opensync.py:
+	* conduit/datatypes/Event.py:
+	* conduit/modules/ConverterModule.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/iPodModule.py:
+	* test/python-tests/TestCoreEvent.py: Remove the URI parameter from
+	the Event datatype
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	reviewed by: <delete if not using a buddy>
 
 	* conduit/datatypes/Text.py: Remove the use of md5. Datatype instances
