@@ -26,4 +26,4 @@ class Event(DataType.DataType):
         DataType.DataType.__setstate__(self, data)
         
     def get_hash(self):
-        return hash(self.iCal)
+        return hash(self.get_ical_string())

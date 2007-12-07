@@ -1,5 +1,17 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	* conduit/datatypes/Contact.py:
+	* conduit/datatypes/Email.py:
+	* conduit/datatypes/Event.py:
+	* conduit/datatypes/Text.py:
+	* test/python-tests/TestCoreDatatypes.py: Improve and test that datatypes
+	pickle and unpickle correctly
+
+	* test/python-tests/common.py: Add a global except hook that stops tests
+	from hanging and ensures they exit
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	* conduit/modules/TestModule.py:
 	* conduit/datatypes/Text.py: The text parameter of the Text
 	datatype is compulsory

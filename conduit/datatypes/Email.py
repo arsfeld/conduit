@@ -80,6 +80,15 @@ class Email(DataType.DataType):
     def get_email_string(self):
         return self.email.as_string()
 
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data['email'] = self.get_email_string()
+        return data
+
+    def __setstate__(self, data):
+        self.set_from_email_string(data['email'])
+        DataType.DataType.__setstate__(self, data)
+
     def get_hash(self):
         return hash( self.get_email_string() )
         

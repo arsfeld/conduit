@@ -29,5 +29,5 @@ class Contact(DataType.DataType):
         return self.get_vcard_string()
         
     def get_hash(self):
-        return hash(self.vCard)
+        return hash(self.get_vcard_string())
 

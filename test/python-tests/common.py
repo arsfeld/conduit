@@ -1,4 +1,5 @@
 import sys
+import cgitb
 import os
 import glob
 import time
@@ -59,6 +60,18 @@ def finished():
     print "[FINISHED]"
     sys.exit()
 
+
+def my_except_hook(etype, evalue, etraceback):
+    """
+    Super verbose unhandled exception information. from
+    http://boodebr.org/main/python/tourist/taking-exception
+    """
+    txt = cgitb.text( (etype,evalue,etraceback) )
+    ok("** EXITING on unhandled exception \n%s" % txt,False)
+    
+#Set a global exception hook for unhandled exceptions
+sys.excepthook = my_except_hook
+    
 #returns list of files that match the glob in the data dir
 def get_files_from_data_dir(glob_str):
     files = []

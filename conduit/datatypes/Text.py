@@ -20,6 +20,15 @@ class Text(DataType.DataType):
         else:
             return self.text
             
+    def __getstate__(self):
+        data = DataType.DataType.__getstate__(self)
+        data['text'] = self.text
+        return data
+
+    def __setstate__(self, data):
+        self.text = data['text']
+        DataType.DataType.__setstate__(self, data)
+            
     def get_hash(self):
         return hash(self.text)
 
