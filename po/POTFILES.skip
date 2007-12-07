@@ -2,10 +2,10 @@ conduit/Main.py
 data/conduit-autostart.desktop.in
 data/conduit.desktop.in
 tools/eog-plugin/config.glade
+tools/test-db-wrapper/main.glade
+tools/test-db-wrapper/main.glade
 conduit/modules/SettingsModule/GConfUtils.py
 conduit/modules/SettingsModule/layout_loader.py
 conduit/modules/SettingsModule/layout_save.py
 conduit/modules/YouTubeModule/config.glade
-
-
 

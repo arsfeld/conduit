@@ -42,8 +42,6 @@ conduit/modules/PicasaModule/config.glade
 conduit/modules/PicasaModule/PicasaAPI/picasaweb.py
 conduit/modules/RhythmboxModule/RhythmboxModule.py
 conduit/modules/RhythmboxModule/config.glade
-conduit/modules/SettingsModule/SettingsModule.py
-conduit/modules/SettingsModule/config.glade
 conduit/modules/ShutterflyModule/ShutterflyModule.py
 conduit/modules/ShutterflyModule/shutterfly.glade
 conduit/modules/ShutterflyModule/shutterfly/shutterfly.py
