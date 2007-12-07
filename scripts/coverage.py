@@ -780,17 +780,19 @@ class coverage:
 
     def filter_by_prefix(self, morfs, omit_prefixes):
         """ Return list of morfs where the morf name does not begin
-            with any one of the omit_prefixes.
+            with any one of the omit_prefixes and the morf is guarenteed
+            to only be in the list once
         """
-        filtered_morfs = []
+        filtered_morfs = {}
         for morf in morfs:
+            mn = self.morf_name(morf)
             for prefix in omit_prefixes:
-                if self.morf_name(morf).startswith(prefix):
+                if mn.startswith(prefix):
                     break
             else:
-                filtered_morfs.append(morf)
+                filtered_morfs[mn] = morf
 
-        return filtered_morfs
+        return filtered_morfs.values()
 
     def morf_name_compare(self, x, y):
         return cmp(self.morf_name(x), self.morf_name(y))

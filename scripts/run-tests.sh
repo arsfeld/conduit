@@ -162,15 +162,34 @@ done
 #include code coverage results in output
 if [ $do_coverage -ne 0 ] ; then
     echo "<p><h1><a href=coverage/>Code Coverage Analysis</a></h1><pre>" >> $indexfile
-
+    
+    CORE_COVERAGE_FILES=`ls \
+        conduit/*.py \
+        conduit/datatypes/*.py \
+        conduit/dataproviders/DataProvider.py \
+        conduit/modules/TestModule.py \
+        conduit/modules/ConverterModule.py`
+        
+    ALL_COVERAGE_FILES=`ls \
+        conduit/*.py \
+        conduit/datatypes/*.py \
+        conduit/dataproviders/*.py \
+        conduit/modules/*.py \
+        conduit/modules/*/*.py`
+    
+    #only print coverage info on files we used    
+    coveragefiles="$CORE_COVERAGE_FILES"
+    if [ $do_dataprovider_tests -ne 0 ] ; then
+        coveragefiles="$coveragefiles $ALL_COVERAGE_FILES"
+    fi
+    if [ $do_sync_tests -ne 0 ] ; then
+        coveragefiles="$coveragefiles $ALL_COVERAGE_FILES"
+    fi
+        
     #put in the index.html file
     COVERAGE_FILE="$LOGDIR/.coverage" \
     python $COVERAGE_APP -r -a -d $COVERAGE_RESULTS \
-    conduit/*.py \
-    conduit/modules/TestModule.py \
-    conduit/modules/*Convert*.py \
-    conduit/datatypes/*.py \
-    conduit/dataproviders/*.py \
+    $coveragefiles \
     | tee --append $indexfile
 
     echo "</pre></p>" >> $indexfile
