@@ -169,7 +169,9 @@ class FileConverter:
             #check its a text type
             mime.index("text")
             raw = theFile.get_contents_as_text()
-            text = Text.Text(text=raw)
+            text = Text.Text(
+                            text=raw
+                            )
             return text
         except ValueError:
             raise Exception(

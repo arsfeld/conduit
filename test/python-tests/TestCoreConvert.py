@@ -85,18 +85,17 @@ for fromtype,totype in tests:
     conv = "%s --> %s" % (fromtype,totype)
     toinstance = None
     try:
-        #unpack the conversion function and see what specific filename
-        #contains data to make the conversion valid
+        #unpack the conversion function and call with the appropriate params
         func, datadict = TYPES[fromtype]
         if datadict.has_key(totype):
-            filename = datadict[totype]
+            arg = datadict[totype]
         elif datadict.has_key("*"):
-            filename = datadict["*"]
+            arg = datadict["*"]
         else:
-            filename = None
+            arg = None
         #call the construction function with the appropriate data 
         #to make a new instance
-        frominstance = func(filename)
+        frominstance = func(arg)
 
         #convert
         toinstance = type_converter.convert(fromtype,totype,frominstance)

@@ -1,5 +1,19 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	reviewed by: <delete if not using a buddy>
+
+	* conduit/datatypes/Text.py: Remove the use of md5. Datatype instances
+	should not call set_UID on themselves
+	
+	* conduit/datatypes/__init__.py:
+	* conduit/modules/ConverterModule.py:
+	* test/python-tests/TestCoreConvert.py:
+	* test/python-tests/TestCoreDatatypes.py:
+	* test/python-tests/common.py: Test constructing and inspecting the
+	core datatypes
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	* conduit/modules/Makefile.am:
 	* conduit/modules/SettingsModule/GConfUtils.py:
 	* conduit/modules/SettingsModule/Makefile.am:

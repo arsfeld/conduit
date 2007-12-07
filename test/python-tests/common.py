@@ -11,6 +11,7 @@ sys.path.insert(0, base_path)
 
 # import main conduit module
 import conduit
+import conduit.datatypes
 #enable logging
 import conduit.Logging
 
@@ -92,16 +93,17 @@ def new_file(filename):
     if filename == None:
         txt = Utils.random_string()
     else:
-        files = get_files_from_data_dir(filename)
-        txt = read_data_file(files[0])
+        txt = read_data_file_from_data_dir(filename)
     f = Utils.new_tempfile(txt)
     f.set_UID(Utils.random_string())
     f.set_open_URI(Utils.random_string())
     return f
 
-def new_note(filename):
+def new_note(title):
+    if title == None:
+        title = Utils.random_string()
     n = conduit.datatypes.Note.Note(
-                title=Utils.random_string(),
+                title=title,
                 contents=Utils.random_string()
                 )
     n.set_UID(Utils.random_string())
@@ -110,70 +112,82 @@ def new_note(filename):
     return n
 
 def new_event(filename):
-    icals = get_files_from_data_dir(filename)
+    if filename == None:
+        txt = read_data_file_from_data_dir("1.ical")
+    else:
+        txt = read_data_file_from_data_dir(filename)
     e = conduit.datatypes.Event.Event(
                 URI=Utils.random_string()
                 )
-    e.set_from_ical_string( read_data_file(icals[0]) )
+    e.set_from_ical_string(txt)
     e.set_UID(Utils.random_string())
     e.set_open_URI(Utils.random_string())
     return e
 
 def new_contact(filename):
-    vcards = get_files_from_data_dir(filename)
+    if filename == None:
+        txt = read_data_file_from_data_dir("1.vcard")
+    else:
+        txt = read_data_file_from_data_dir(filename)
     c = conduit.datatypes.Contact.Contact(
                 URI=Utils.random_string()
                 )
-    c.set_from_vcard_string( read_data_file(vcards[0]) )
+    c.set_from_vcard_string(txt)
     c.set_UID(Utils.random_string())
     c.set_open_URI(Utils.random_string())
     return c
 
-def new_email(filename):
+def new_email(content):
+    if content == None:
+        content = Utils.random_string()
     e = conduit.datatypes.Email.Email(
-                content=Utils.random_string(),
+                content=content,
                 subject=Utils.random_string()
                 )
     e.set_UID(Utils.random_string())
     e.set_open_URI(Utils.random_string())
     return e
 
-def new_text(data):
+def new_text(txt):
+    if txt == None:
+        txt = Utils.random_string()
     t = conduit.datatypes.Text.Text(
-                text=data
+                text=txt
                 )
     t.set_UID(Utils.random_string())
     t.set_open_URI(Utils.random_string())
     return t
 
-def new_audio(filename):
-    a = conduit.datatypes.Audio.Audio(
-                URI=filename
-                )                
-    a.set_UID(Utils.random_string())
-    a.set_open_URI(filename)
-    return a
+#def new_audio(filename):
+#    a = conduit.datatypes.Audio.Audio(
+#                URI=filename
+#                )                
+#    a.set_UID(Utils.random_string())
+#    a.set_open_URI(filename)
+#    return a
 
-def new_video(filename):
-    v = conduit.datatypes.Video.Video(
-                URI=filename
-                )                
-    v.set_UID(Utils.random_string())
-    v.set_open_URI(filename)
-    return v
+#def new_video(filename):
+#    v = conduit.datatypes.Video.Video(
+#                URI=filename
+#                )                
+#    v.set_UID(Utils.random_string())
+#    v.set_open_URI(filename)
+#    return v
 
-def new_photo(filename):
-    p = conduit.datatypes.Photo.Photo(
-                URI=filename
-                )                
-    p.set_UID(Utils.random_string())
-    p.set_open_URI(filename)
-    return p
+#def new_photo(filename):
+#    p = conduit.datatypes.Photo.Photo(
+#                URI=filename
+#                )                
+#    p.set_UID(Utils.random_string())
+#    p.set_open_URI(filename)
+#    return p
     
 def new_setting(data):
+    if data == None:
+        data = Utils.random_string()
     s = conduit.datatypes.Setting.Setting(
                 key=Utils.random_string(),
-                value=Utils.random_string()
+                value=data
                 )                
     s.set_UID(Utils.random_string())
     s.set_open_URI(None)
