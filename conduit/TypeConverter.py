@@ -192,8 +192,8 @@ class TypeConverter:
                         log.debug("Transcoding %s (args: %s)" % (from_type, args))
                         to = self.convertables[from_type][to_type](data, **args)
                         newdata = self._retain_info_in_conversion(fromdata=data, todata=to)
-                    except Exception, err:
-                        raise Exceptions.ConversionError(from_type, to_type)
+                    except Exception:
+                        raise Exceptions.ConversionError(from_type, to_type, extraMsg=traceback.format_exc())
                 else:
                     return data
             #perform the conversion
@@ -202,10 +202,9 @@ class TypeConverter:
                     log.debug("Converting %s -> %s (args: %s)" % (from_type, to_type, args))
                     to = self.convertables[from_type][to_type](data, **args)
                     newdata = self._retain_info_in_conversion(fromdata=data, todata=to)
-                except Exception, err:
-                    raise Exceptions.ConversionError(from_type, to_type)
+                except Exception:
+                    raise Exceptions.ConversionError(from_type, to_type, extraMsg=traceback.format_exc())
             else:
-                log.warn("Conversion from %s -> %s does not exist " % (from_type, to_type))
                 raise Exceptions.ConversionDoesntExistError(from_type, to_type)
         
         return newdata

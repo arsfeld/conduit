@@ -44,7 +44,8 @@ type_converter = SimpleTest().type_converter
 #
 #    type           #construction function      #dict of conversion specific data
 TYPES = {
-    "file"          :   (new_file,      {   "event":"1.ical", 
+    "file"          :   (new_file,      {   "event":"1.ical",
+                                            "setting":"setting.txt", 
                                             "contact":"1.vcard"                                 }),
 #    "file/audio"    :   (new_audio,     {                                                       }),
 #    "file/video"    :   (new_video,     {                                                       }),
@@ -56,6 +57,7 @@ TYPES = {
     "text"          :   (new_text,      {   "event":read_data_file_from_data_dir("1.vcard"),
                                             "contact":read_data_file_from_data_dir("1.ical"),
                                             "email":read_data_file_from_data_dir("1.email"),
+                                            "setting":"key:/foo/bar\nvalue:baz",
                                             "*":Utils.random_string()                           }),
     "setting"       :   (new_setting,   {                                                       })
     }
@@ -99,14 +101,14 @@ for fromtype,totype in tests:
 
         #convert
         toinstance = type_converter.convert(fromtype,totype,frominstance)
-        ok("[%s] Conversion Successful" % conv,toinstance != None, False)
+        ok("[%s] Conversion Successful" % conv,toinstance != None)
         #check that all info was retained
         retained = toinstance.get_UID() == frominstance.get_UID()
-        ok("[%s] UID retained (%s vs. %s)" % (conv,frominstance.get_UID(),toinstance.get_UID()), retained, False)
+        ok("[%s] UID retained (%s vs. %s)" % (conv,frominstance.get_UID(),toinstance.get_UID()), retained)
         retained = toinstance.get_open_URI() == frominstance.get_open_URI()
         ok("[%s] Open URI retained (%s vs. %s)" % (conv,frominstance.get_open_URI(),toinstance.get_open_URI()), retained, False)
     except Exception:
-        ok("[%s] Conversion Failed\n%s" % (conv,traceback.format_exc()), False, False)
+        ok("[%s] Conversion Failed\n%s" % (conv,traceback.format_exc()), False)
 
 finished()
 

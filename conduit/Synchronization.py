@@ -319,10 +319,11 @@ class SyncWorker(_ThreadedWorker):
         newdata = None
         try:
             newdata = self.typeConverter.convert(source.get_output_type(), sink.get_input_type(), data)
-        except Exceptions.ConversionDoesntExistError:
+        except Exceptions.ConversionDoesntExistError, err:
+            log.warn("Error performing conversion:\n%s" % err)
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
         except Exceptions.ConversionError, err:
-            log.warn("Error performing conversion:\n%s" % (err, traceback.format_exc()))
+            log.warn("Error performing conversion:\n%s" % err)
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
         except Exception:       
             log.critical("UNKNOWN CONVERSION ERROR\n%s" % traceback.format_exc())

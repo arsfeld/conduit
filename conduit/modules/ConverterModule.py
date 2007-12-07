@@ -1,3 +1,4 @@
+import re
 import logging
 log = logging.getLogger("modules.Converter")
 
@@ -9,6 +10,7 @@ import conduit.datatypes.Text as Text
 import conduit.datatypes.Email as Email
 import conduit.datatypes.File as File
 import conduit.datatypes.Note as Note
+import conduit.datatypes.Setting as Setting
 
 MODULES = {
         "EmailConverter" :      { "type": "converter" },
@@ -164,15 +166,15 @@ class FileConverter:
         return Utils.new_tempfile(text.get_string())
 
     def file_to_text(self, f, **kwargs):
+        test = None
         if f.get_mimetype().startswith("text"):
             text = Text.Text(
                             text=f.get_contents_as_text()
                             )
-            return text
-        else:
-            return None
+        return text
 
     def file_to_note(self, f, **kwargs):
+        note = None
         if f.get_mimetype().startswith("text"):
             title,ext = f.get_filename_and_extension()
             #remove the file extension....
@@ -180,25 +182,68 @@ class FileConverter:
                     title=title,
                     contents=f.get_contents_as_text()
                     )
-            return note
-        else:
-            return None
+        return note
        
 class SettingConverter(object):
     def __init__(self):
         self.conversions =  {    
-                            "setting,text"    : self.to_text,
-                            "setting,file"    : self.to_file
+                            "setting,text"    : self.setting_to_text,
+                            "setting,file"    : self.setting_to_file,
+                            "text,setting"    : self.text_to_setting,
+                            "file,setting"    : self.file_to_setting
                             }
+        #recognizes key value in text strings
+        self.regex = re.compile(r"^key:(.+)\nvalue:(.*)$")
                             
-    def to_text(self, setting):
-        s = "%s\n%s" % (setting.key, setting.value)
+    def _to_text(self, setting):
+        return "key:%s\nvalue:%s" % (setting.key, setting.value)
+        
+    def _to_key_value(self, txt):
+        m = self.regex.match(txt)
+        if m != None and len(m.groups()) == 2:
+            return m.group(1),m.group(2)
+        else:
+            return None,None
+            
+    def setting_to_text(self, setting):
         t = Text.Text(
-                    text=s
+                    text=self._to_text(setting)
                     )
         return t
         
-    def to_file(self, setting):
-        f = File.TempFile("%s\n%s" % (setting.key, setting.value))
+    def text_to_setting(self, text):
+        setting = None
+        k,v = self._to_key_value(text.get_string())
+        if k != None and v != None:
+            setting = Setting.Setting(
+                                key=k,
+                                value=v
+                                )
+        return setting
+        
+    def setting_to_file(self, setting):
+        f = File.TempFile(
+                        self._to_text(setting)
+                        )
         f.force_new_filename(setting.key.replace("/"," "))
+        f.force_new_file_extension(".txt")
         return f
+        
+    def file_to_setting(self, f):
+        setting = None
+        if f.get_mimetype().startswith("text"):
+            txt = f.get_contents_as_text()
+            k,v = self._to_key_value(txt)
+            if k != None and v != None:
+                setting = Setting.Setting(
+                                    key=k,
+                                    value=v
+                                    )
+        return setting
+
+            
+            
+        
+        
+        
+     
