@@ -163,21 +163,14 @@ class FileConverter:
     def text_to_file(self, text, **kwargs):
         return Utils.new_tempfile(text.get_string())
 
-    def file_to_text(self, theFile, **kwargs):
-        mime = theFile.get_mimetype()
-        try:
-            #check its a text type
-            mime.index("text")
-            raw = theFile.get_contents_as_text()
+    def file_to_text(self, f, **kwargs):
+        if f.get_mimetype().startswith("text"):
             text = Text.Text(
-                            text=raw
+                            text=f.get_contents_as_text()
                             )
             return text
-        except ValueError:
-            raise Exception(
-                    "Could not convert %s to text. File mimetype: %s" % 
-                    (theFile._get_text_uri(),mime)
-                    )
+        else:
+            return None
 
     def file_to_note(self, f, **kwargs):
         if f.get_mimetype().startswith("text"):
@@ -189,7 +182,7 @@ class FileConverter:
                     )
             return note
         else:
-            raise Exception("Could not convert to note.")
+            return None
        
 class SettingConverter(object):
     def __init__(self):

@@ -1,3 +1,11 @@
+2007-12-08  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Synchronization.py: Remove unused exception catching and
+	print more useful error messages on error
+	
+	* conduit/modules/ConverterModule.py: Dont raise exceptions if not 
+	necessary. Just return None instead
+
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
 	* conduit/datatypes/Contact.py:

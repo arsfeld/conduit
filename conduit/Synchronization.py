@@ -285,7 +285,7 @@ class SyncWorker(_ThreadedWorker):
             raise Exceptions.StopSync                  
         except Exception:       
             #Cannot continue
-            log.warn("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
+            log.critical("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             raise Exceptions.StopSync
@@ -309,6 +309,8 @@ class SyncWorker(_ThreadedWorker):
                 else:
                     assert(err.fromData == sourceData)
                     self._apply_conflict_policy(source, sink, err.comparison, sourceData, sourceDataRid, err.toData, err.toData.get_rid())
+        else:
+            log.info("Could not put data: Was None")
 
     def _convert_data(self, source, sink, data):
         """
@@ -318,23 +320,12 @@ class SyncWorker(_ThreadedWorker):
         try:
             newdata = self.typeConverter.convert(source.get_output_type(), sink.get_input_type(), data)
         except Exceptions.ConversionDoesntExistError:
-            log.warn("ConversionDoesntExistError")
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_SKIPPED
         except Exceptions.ConversionError, err:
-            log.warn("%s\n%s" % (err, traceback.format_exc()))
+            log.warn("Error performing conversion:\n%s" % (err, traceback.format_exc()))
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-        except Exceptions.SyncronizeError, err:
-            log.warn("%s\n%s" % (err, traceback.format_exc()))                     
-            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-        except Exceptions.SyncronizeFatalError, err:
-            log.warn("%s\n%s" % (err, traceback.format_exc()))
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
-            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
-            #Cannot continue
-            raise Exceptions.StopSync                  
         except Exception:       
-            #Cannot continue
-            log.warn("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
+            log.critical("UNKNOWN CONVERSION ERROR\n%s" % traceback.format_exc())
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             raise Exceptions.StopSync
@@ -657,9 +648,9 @@ class SyncWorker(_ThreadedWorker):
                         log.warn("RefreshError: %s" % self.source)
                         #Cannot continue with no source data
                         raise Exceptions.StopSync
-                    except Exception, err:
+                    except Exception:
+                        log.critical("UNKNOWN REFRESH ERROR: %s\n%s" % (self.source,traceback.format_exc()))
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                        log.warn("UNKNOWN REFRESH ERROR: %s\n%s" % (self.source,traceback.format_exc()))
                         #Cannot continue with no source data
                         raise Exceptions.StopSync           
 
@@ -675,7 +666,7 @@ class SyncWorker(_ThreadedWorker):
                                 sinkDidntRefreshOK[sink] = True
                                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                             except Exception:
-                                log.warn("UNKNOWN REFRESH ERROR: %s\n%s" % (sink,traceback.format_exc()))
+                                log.critical("UNKNOWN REFRESH ERROR: %s\n%s" % (sink,traceback.format_exc()))
                                 sinkDidntRefreshOK[sink] = True
                                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_REFRESH_ERROR
                                 
@@ -788,9 +779,9 @@ class RefreshDataProviderWorker(_ThreadedWorker):
                 log.warn("RefreshError: %s" % self.dataproviderWrapper)
                 #Cannot continue with no source data
                 raise Exceptions.StopSync
-            except Exception, err:
+            except Exception:
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
-                log.warn("UNKNOWN REFRESH ERROR: %s\n%s" % (self.dataproviderWrapper,traceback.format_exc()))
+                log.critical("UNKNOWN REFRESH ERROR: %s\n%s" % (self.dataproviderWrapper,traceback.format_exc()))
                 #Cannot continue with no source data
                 raise Exceptions.StopSync           
 
