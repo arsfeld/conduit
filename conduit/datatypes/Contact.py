@@ -1,20 +1,14 @@
-import vobject
-
-import conduit
-from conduit.datatypes import DataType
+import vobject 
+import conduit.datatypes.DataType as DataType
 
 class Contact(DataType.DataType):
     """
     Very basic contact representation
     """
-
     _name_ = "contact"
-
-    def __init__(self, URI, **kwargs):
+    def __init__(self, **kwargs):
         DataType.DataType.__init__(self)
         self.vCard = vobject.vCard()
-
-        self.set_open_URI(URI)
 
     def set_from_vcard_string(self, string):
         self.vCard = vobject.readOne(string)

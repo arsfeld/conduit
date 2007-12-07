@@ -5,7 +5,7 @@ class Setting(DataType.DataType):
     Represents a users 'setting' or a preference. Basically a key:value type
     """
     _name_ = "setting"
-    def __init__(self, key, value):
+    def __init__(self, key, value, **kwargs):
         DataType.DataType.__init__(self)
         self.key = key
         self.value = value

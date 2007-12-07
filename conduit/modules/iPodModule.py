@@ -254,8 +254,9 @@ class IPodContactsTwoWay(IPodBase):
         fullpath = os.path.join(self.dataDir, LUID)
         f = File.File(URI=fullpath)
 
-        contact = Contact.Contact(None)
+        contact = Contact.Contact()
         contact.set_from_vcard_string(f.get_contents_as_text())
+        contact.set_open_URI(fullpath)
         contact.set_mtime(f.get_mtime())
         contact.set_UID(LUID)
         return contact

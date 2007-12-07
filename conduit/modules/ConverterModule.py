@@ -118,7 +118,7 @@ class ContactConverter:
         return t
 
     def file_to_contact(self, f, **kwargs):
-        c = Contact.Contact(None)
+        c = Contact.Contact()
         c. set_from_vcard_string(f.get_contents_as_text())
         return c
 

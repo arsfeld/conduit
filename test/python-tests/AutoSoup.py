@@ -50,7 +50,7 @@ def objset_contacts():
     objs = []
     vcards = get_files_from_data_dir("*.vcard")
     for i in range(0, len(vcards)):
-        c = Contact.Contact(vcards[i])
+        c = Contact.Contact()
         c.set_from_vcard_string( read_data_file(vcards[i]) )
         objs.append(c)
     ok("Got %d sample contacts" % len(objs), len(objs) > 0)

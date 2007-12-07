@@ -6,9 +6,9 @@ class Text(DataType.DataType):
     plain string object
     """
     _name_ = "text"
-    def __init__(self, **kwargs):
+    def __init__(self, text, **kwargs):
         DataType.DataType.__init__(self)
-        self.text = kwargs.get("text","")
+        self.text = text
 
     def get_string(self):
         return self.text    

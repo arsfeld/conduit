@@ -186,7 +186,7 @@ class ContactDataprovider(BaseDataprovider):
         uid = change.uid
         # FIXME: Shouldn't need to trim the data!
         data = str(change.data.data)[:-1]
-        contact = Contact.Contact(None)
+        contact = Contact.Contact()
         contact.set_UID(change.uid)
         contact.set_from_vcard_string(data)
         # contact.set_hash(self._get_hash(change))

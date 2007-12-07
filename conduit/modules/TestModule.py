@@ -675,7 +675,9 @@ class TestConverter:
         return t
 
     def convert_to_text(self, test, **kwargs):
-        t = Text.Text(text=test.integerData)
+        t = Text.Text(
+                    text=test.integerData
+                    )
         return t
 
 class TestDynamicSource(_TestBase, DataProvider.DataSource):

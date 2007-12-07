@@ -162,7 +162,7 @@ class EvoContactTwoWay(EvoBase):
         Retrieve a specific contact object from evolution
         """
         obj = self.book.get_contact(LUID)
-        contact = Contact.Contact(None)
+        contact = Contact.Contact()
         contact.set_from_vcard_string(obj.get_vcard_string())
         contact.set_UID(obj.get_uid())
         contact.set_mtime(datetime.datetime.fromtimestamp(obj.get_modified()))

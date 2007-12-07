@@ -1,5 +1,22 @@
 2007-12-07  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/TestModule.py:
+	* conduit/datatypes/Text.py: The text parameter of the Text
+	datatype is compulsory
+
+	* conduit/dataproviders/Opensync.py:
+	* conduit/datatypes/Contact.py:
+	* conduit/datatypes/Setting.py:
+	* conduit/modules/ConverterModule.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* conduit/modules/iPodModule.py:
+	* test/python-tests/AutoSoup.py:
+	* test/python-tests/TestCoreContact.py:
+	* test/python-tests/common.py: Remove the URI parameter from
+	the Contact datatype
+
+2007-12-07  John Stowers <john.stowers@gmail.com>
+
 	* conduit/dataproviders/Opensync.py:
 	* conduit/datatypes/Event.py:
 	* conduit/modules/ConverterModule.py:

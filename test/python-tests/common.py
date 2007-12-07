@@ -116,9 +116,7 @@ def new_event(filename):
         txt = read_data_file_from_data_dir("1.ical")
     else:
         txt = read_data_file_from_data_dir(filename)
-    e = conduit.datatypes.Event.Event(
-                URI=Utils.random_string()
-                )
+    e = conduit.datatypes.Event.Event()
     e.set_from_ical_string(txt)
     e.set_UID(Utils.random_string())
     e.set_open_URI(Utils.random_string())
@@ -129,9 +127,7 @@ def new_contact(filename):
         txt = read_data_file_from_data_dir("1.vcard")
     else:
         txt = read_data_file_from_data_dir(filename)
-    c = conduit.datatypes.Contact.Contact(
-                URI=Utils.random_string()
-                )
+    c = conduit.datatypes.Contact.Contact()
     c.set_from_vcard_string(txt)
     c.set_UID(Utils.random_string())
     c.set_open_URI(Utils.random_string())
