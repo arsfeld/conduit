@@ -141,8 +141,6 @@ conduit/modules/GmailModule/Makefile
 conduit/modules/GmailModule/libgmail-0.1.6.2/Makefile
 conduit/modules/PicasaModule/Makefile
 conduit/modules/PicasaModule/PicasaAPI/Makefile
-conduit/modules/SettingsModule/Makefile
-conduit/modules/SettingsModule/settings/Makefile
 conduit/modules/SmugMugModule/Makefile
 conduit/modules/SmugMugModule/SmugMugAPI/Makefile
 conduit/modules/YouTubeModule/Makefile
