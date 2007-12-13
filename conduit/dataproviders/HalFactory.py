@@ -18,12 +18,18 @@ class HalFactory(SimpleFactory.SimpleFactory):
         # Hookup signals
         self.hal.connect_to_signal("DeviceAdded", self._device_added)
         self.hal.connect_to_signal("DeviceRemoved", self._device_removed)
-        # self.hal.connect_to_signal("NewCapability", self.new_capability)
+        self.hal.connect_to_signal("NewCapability", self._new_capability)
 
     def _device_added(self, device_udi, *args):
         props = self._get_properties(device_udi)
         if self.is_interesting(device_udi, props):
             self.item_added(device_udi, **props)
+
+    def _new_capability(self, device_udi, *args):
+        if not device_udi in self.items.keys():
+            props = self._get_properties(device_udi)
+            if self.is_interesting(device_udi, props):
+                self.item_added(device_udi, **props)
 
     def _device_removed(self, device_udi):
         self.item_removed(device_udi)
