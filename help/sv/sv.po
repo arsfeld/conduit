@@ -1,0 +1,152 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: conduit doc\n"
+"POT-Creation-Date: 2007-12-16 20:38+0000\n"
+"PO-Revision-Date: 2007-12-16 21:42+0100\n"
+"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: C/conduit.xml:14(title)
+msgid "Conduit Manual"
+msgstr "Handbok för Conduit"
+
+#: C/conduit.xml:16(para)
+msgid "Conduit is a program that synchronizes things"
+msgstr "Conduit är ett program som synkroniserar saker och ting"
+
+#: C/conduit.xml:19(year)
+msgid "2007"
+msgstr "2007"
+
+#: C/conduit.xml:20(holder)
+msgid "John Stowers"
+msgstr "John Stowers"
+
+#: C/conduit.xml:23(publishername)
+msgid "GNOME Documentation Project"
+msgstr "Dokumentationsprojekt för GNOME"
+
+#: C/conduit.xml:28(firstname)
+msgid "John"
+msgstr "John"
+
+#: C/conduit.xml:29(surname)
+msgid "Stowers"
+msgstr "Stowers"
+
+#: C/conduit.xml:35(revnumber)
+msgid "Conduit Manual 1.0"
+msgstr "Handbok för Conduit 1.0"
+
+#: C/conduit.xml:36(date)
+msgid "2006-02-04"
+msgstr "2006-02-04"
+
+#: C/conduit.xml:40(releaseinfo)
+msgid "This manual describes version 1.0 of Conduit"
+msgstr "Den här handboken beskriver version 1.0 av Conduit"
+
+#: C/conduit.xml:44(title)
+msgid "Introduction"
+msgstr "Introduktion"
+
+#: C/conduit.xml:45(para)
+msgid "Conduit is a synchronization solution for GNOME which allows the user to take their emails, files, bookmarks, and any other type of personal information and synchronize that data with another computer, an online service, or even another electronic device."
+msgstr ""
+
+#: C/conduit.xml:52(para)
+msgid "Conduit manages the synchronization and conversion of data into other formats. For example, conduit allows you to;"
+msgstr ""
+
+#: C/conduit.xml:59(para)
+msgid "Synchronize your tomboy notes to a file on a remote computer"
+msgstr "Synkronisera dina Tomboy-anteckningar till en fil på en fjärrdator"
+
+#: C/conduit.xml:65(para)
+msgid "Synchronize your emails to your mobile phone"
+msgstr "Synkronisera din e-post till din mobiltelefon"
+
+#: C/conduit.xml:71(para)
+msgid "Synchronize your bookmarks to delicious, gmail, or even your own webserver"
+msgstr "Synkronisera dina bokmärken till delicious, gmail eller till och med din egna webbserver"
+
+#: C/conduit.xml:78(para)
+msgid "and many more..."
+msgstr "och mycket annat..."
+
+#: C/conduit.xml:84(para)
+msgid "Any combination you can imagine, Conduit will take care of the conversion and synchronization."
+msgstr ""
+
+#: C/conduit.xml:90(title)
+msgid "What Can Conduit Do"
+msgstr "Vad Conduit kan göra"
+
+#: C/conduit.xml:92(para)
+msgid "From an end user perspective Conduit has reached the level of being useful. Conduit can currently perform the following sync partnerships;"
+msgstr ""
+
+#: C/conduit.xml:100(para)
+msgid "Two way file/folder sync on gnomevfs volumes and to/from Box.net"
+msgstr ""
+
+#: C/conduit.xml:106(para)
+msgid "Two way Tomboy note sync via gnomevfs volumes"
+msgstr ""
+
+#: C/conduit.xml:112(para)
+msgid "Two way Tomboy note sync via ipod notes"
+msgstr ""
+
+#: C/conduit.xml:118(para)
+msgid "One way sync of files/folders of photos to Flickr, Smugmug and Picasa"
+msgstr ""
+
+#: C/conduit.xml:124(para)
+msgid "One way sync of FSpot tagged photos to Flickr, Smugmug and Picasa"
+msgstr ""
+
+#: C/conduit.xml:131(para)
+msgid "Sync and export of Evolution memos and tasks to ipod and to a folder."
+msgstr ""
+
+#: C/conduit.xml:137(para)
+msgid "In the one way sync/export case Conduit is smart in the sense that if a piece of data has not been modified then it will not be synchronized/exported again, it will replace the existing data. In addition if data is subsequently removed from a source then its corresponding data will also be deleted."
+msgstr ""
+
+#: C/conduit.xml:145(para)
+msgid "Conduit has a full featured DBus interface to allow other application authors to use Conduit to perform the synchronization and export tasks of their applications."
+msgstr ""
+
+#: C/conduit.xml:153(title)
+msgid "Whats Planned For Future"
+msgstr "Vad är planerat i framtiden"
+
+#: C/conduit.xml:157(para)
+msgid "SyncML support"
+msgstr "Stöd för SyncML"
+
+#: C/conduit.xml:163(para)
+msgid "Google gdata support (Notes, docs, base)"
+msgstr "Google gdata-stöd (Notes, docs, base)"
+
+#: C/conduit.xml:169(para)
+msgid "Direct PC-PC sync over local LAN using Avahi"
+msgstr "Direkt PC-PC-synkronisering över lokala nätverket med Avahi"
+
+#: C/conduit.xml:178(title)
+msgid "How to use the GUI"
+msgstr "Hur man använder det grafiska gränssnittet"
+
+#: C/conduit.xml:179(para)
+msgid "Grab a dataprovider from the left panel and drag it on to the canvas on the right. Right click on the icon in the canvas to bring up a context menu. Double click to configure the item."
+msgstr ""
+
+#. Put one translator per line, in the form of NAME <EMAIL>, YEAR1, YEAR2.
+#: C/conduit.xml:0(None)
+msgid "translator-credits"
+msgstr "Daniel Nylander <po@danielnylander.se>, 2007"
+
