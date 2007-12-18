@@ -225,7 +225,7 @@ class SettingConverter(object):
         f = File.TempFile(
                         self._to_text(setting)
                         )
-        f.force_new_filename(setting.key.replace("/"," "))
+        f.force_new_filename(setting.key.replace("/","_"))
         f.force_new_file_extension(".txt")
         return f
         

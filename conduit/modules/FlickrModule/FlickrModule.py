@@ -201,7 +201,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
             self.frob = self.fapi.getFrob()
             url = self.fapi.getAuthURL(self._perms_, self.frob)
             # wait for user to login
-            Web.LoginMagic("Log into Flickr", url, login_funtion=self._try_login)
+            Web.LoginMagic("Log into Flickr", url, login_function=self._try_login)
 
         # try to get the photoSetId
         ret = self.fapi.photosets_getList(api_key=FlickrTwoWay.API_KEY,
