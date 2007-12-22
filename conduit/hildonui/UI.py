@@ -208,7 +208,7 @@ class ConduitToolbar(gtk.Toolbar):
         self.insert (item, -1)       
 
     def on_remove (self, button):
-        current = self.canvas.get_current()
+        current = self.canvas.selectedConduitItem.model
         if not current:
             return
 

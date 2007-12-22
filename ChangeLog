@@ -1,3 +1,12 @@
+2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/hildonui/UI.py:
+	* conduit/hildonui/Canvas.py: add context menus to conduit and 
+	dataprovider items, re-order the methods to make code clearer, 
+	drop unnecessary methods
+
+	* conduit/modules/FileModule/FileConfiguration.py: keep working even
+	when icons don't load
+
 2007-12-08  John Stowers <john.stowers@gmail.com>
 
 	* conduit/Synchronization.py:

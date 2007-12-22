@@ -1,5 +1,4 @@
 import gtk
-import gnomevfs
 from gettext import gettext as _
 import logging
 log = logging.getLogger("modules.File")
@@ -7,6 +6,10 @@ log = logging.getLogger("modules.File")
 import conduit
 import conduit.Utils as Utils
 import conduit.gtkui.Database as Database
+try:
+    import gnomevfs
+except:
+    from gnome import gnomevfs
 
 TYPE_FILE = "0"
 TYPE_FOLDER = "1"
@@ -23,8 +26,13 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
     """
     Configuration dialog for the FileTwoway dataprovider
     """
-    FILE_ICON = gtk.icon_theme_get_default().load_icon("text-x-generic", 16, 0)
-    FOLDER_ICON = gtk.icon_theme_get_default().load_icon("folder", 16, 0)
+    try:
+        FILE_ICON = gtk.icon_theme_get_default().load_icon("text-x-generic", 16, 0)
+        FOLDER_ICON = gtk.icon_theme_get_default().load_icon("folder", 16, 0)
+    except:
+        # FIXME: icon handling should be done better on Maemo
+        pass        
+
     def __init__(self, mainWindow, db):
         Utils.ScannerThreadManager.__init__(self)
         self.tree = Utils.dataprovider_glade_get_widget(
