@@ -26,6 +26,7 @@ conduit_PYTHON = \
 	SyncSet.py \
 	TypeConverter.py \
 	Utils.py \
+	Vfs.py \
 	Web.py
 	
 CLEANFILES = \

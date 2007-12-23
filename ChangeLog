@@ -1,3 +1,10 @@
+2007-12-23  John Carr <john.carr@unrouted.co.uk>
+
+	* conduit/datatypes/Makefile.am:
+	* conduit/dataproviders/Makefile.am:
+	* conduit/Makefile.am: Fix some missing autofoo that was stopping
+	clean installs running correctly
+
 2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/hildonui/UI.py:
 	* conduit/hildonui/Canvas.py: add context menus to conduit and 

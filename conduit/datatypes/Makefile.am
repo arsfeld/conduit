@@ -9,7 +9,9 @@ conduit_PYTHON = \
 	__init__.py \
 	Note.py \
 	Photo.py \
-	Text.py
+	Setting.py \
+	Text.py \
+	Video.py
 
 clean-local:
 	rm -rf *.pyc *.pyo
