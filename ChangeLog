@@ -1,3 +1,10 @@
+2007-12-26  John Carr <john.carr@unrouted.co.uk>
+
+	* data/conduit.glade:
+	* conduit/modules/FspotModule/FspotDbusModule.py:
+	* conduit/modules/SynceModule.py: Fix some strings
+	as per #505259
+
 2007-12-23  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/datatypes/Makefile.am:

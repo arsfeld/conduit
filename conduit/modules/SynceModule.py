@@ -30,7 +30,7 @@ class OS_SynceFactory(HalFactory.HalFactory):
 
 class OS_Synce_Contact(ContactDataprovider):
 
-    _name_ = _("Synce Contacts")
+    _name_ = _("Windows Mobile Contacts")
     _description_ = _("Sync your devices contacts")
     _os_name_ = "synce-plugin"
     _os_sink_ = "contact"
@@ -41,7 +41,7 @@ class OS_Synce_Contact(ContactDataprovider):
 
 class OS_Synce_Event(EventDataprovider):
 
-    _name_ = _("Synce Events")
+    _name_ = _("Windows Mobile Events")
     _description_ = _("Sync your devices events")
     _os_name_ = "synce-plugin"
     _os_sink_ = "event"
@@ -52,7 +52,7 @@ class OS_Synce_Event(EventDataprovider):
 
 class OS_Synce_Todo(EventDataprovider):
 
-    _name_ = _("Synce Todo")
+    _name_ = _("Windows Mobile Todo")
     _description_ = _("Sync your devices tasks")
     _os_name_ = "synce-plugin"
     _os_sink_ = "todo"

@@ -62,7 +62,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             # get tag remote control
             self.tag_remote = _get_tagremote()
         except:
-            print _("Failed to get remotes")
+            print _("Failed to get f-spot remote control interface")
 
         #Settings
         self.enabledTags = []
