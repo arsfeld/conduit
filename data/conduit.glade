@@ -530,7 +530,7 @@
   </widget>
   <widget class="GtkDialog" id="DataProviderConfigDialog">
     <property name="visible">True</property>
-    <property name="title" translatable="yes">dialog1</property>
+    <property name="title">dialog1</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
