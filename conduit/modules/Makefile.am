@@ -12,7 +12,12 @@ SUBDIRS = \
 	SmugMugModule \
 	EvolutionModule \
 	YouTubeModule \
-	GoogleModule
+	GoogleModule \
+	ShutterflyModule \
+	RhythmboxModule \
+	N800Module \
+	NetworkModule \
+	GConfModule
 
 conduit_handlersdir = $(libdir)/conduit/modules
 conduit_handlers_PYTHON = \
@@ -20,7 +25,11 @@ conduit_handlers_PYTHON = \
 	iPodModule.py \
 	TomboyModule.py \
 	ConverterModule.py \
-	PhotoConverterModule.py
+	PhotoConverterModule.py \
+	AudioVideoConverterModule.py \
+	OSyncEvoModule.py \
+	SynceModule.py \
+	TestModule.py
 
 clean-local:
 	rm -rf *.pyc *.pyo

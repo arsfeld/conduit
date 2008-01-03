@@ -1,5 +1,5 @@
 conduit_handlersdir = $(libdir)/conduit/modules/FspotModule
-conduit_handlers_PYTHON = FspotModule.py
+conduit_handlers_PYTHON = FspotModule.py FspotDbusModule.py
 
 conduit_handlers_DATA = config.glade
 EXTRA_DIST = config.glade

@@ -123,6 +123,7 @@ conduit/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
 conduit/gtkui/Makefile
+conduit/hildonui/Makefile
 conduit/modules/Makefile
 conduit/modules/BackpackModule/Makefile
 conduit/modules/BackpackModule/backpack/Makefile
@@ -145,6 +146,12 @@ conduit/modules/SmugMugModule/Makefile
 conduit/modules/SmugMugModule/SmugMugAPI/Makefile
 conduit/modules/YouTubeModule/Makefile
 conduit/modules/GoogleModule/Makefile
+conduit/modules/ShutterflyModule/Makefile
+conduit/modules/ShutterflyModule/shutterfly/Makefile
+conduit/modules/RhythmboxModule/Makefile
+conduit/modules/N800Module/Makefile
+conduit/modules/NetworkModule/Makefile
+conduit/modules/GConfModule/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit-autostart.desktop.in

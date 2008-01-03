@@ -1,3 +1,23 @@
+2008-01-03  Jonny Lamb  <jonnylamb@jonnylamb.com>
+
+	* conduit/Makefile.am: Add reference to hildonui directory.
+
+	* conduit/hildonui/Makefile.am: Create missing Makefile.am file.
+
+	* conduit/modules/Makefile.am: Updated references to SUBDIRS and
+	modules in the current directory.
+	
+	* conduit/modules/FspotModule/Makefile.am:
+	* conduit/modules/GConfModule/Makefile.am:
+	* conduit/modules/N800Module/Makefile.am:
+	* conduit/modules/NetworkModule/Makefile.am:
+	* conduit/modules/RhythmboxModule/Makefile.am:
+	* conduit/modules/ShutterflyModule/Makefile.am:
+	* conduit/modules/ShutterflyModule/shutterfly/Makefile.am: Create
+	missing Makefile.am files.
+	
+	* configure.ac: Update now that there are more Makefiles to create.
+
 2007-12-26  John Carr <john.carr@unrouted.co.uk>
 
 	* data/conduit.glade:

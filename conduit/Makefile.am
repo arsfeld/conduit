@@ -1,4 +1,4 @@
-SUBDIRS = datatypes dataproviders modules gtkui
+SUBDIRS = datatypes dataproviders modules gtkui hildonui
 
 conduitbindir = $(bindir)
 conduitbin_SCRIPTS = \
