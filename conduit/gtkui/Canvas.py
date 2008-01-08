@@ -552,7 +552,7 @@ class DataProviderCanvasItem(_CanvasItem):
 
     def _update_appearance(self):
         #the image
-        pb = self.model.get_icon()
+        pb = self._get_icon()
         pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
         pby = int((1*self.WIDGET_HEIGHT/3) - (pb.get_height()/2))
         self.image.set_property("pixbuf",pb)
@@ -566,6 +566,9 @@ class DataProviderCanvasItem(_CanvasItem):
         self.statusText.set_property("text",statusText)
 
         self.box.set_property("fill_color_rgba",self._get_fill_color())
+
+    def _get_icon(self):
+        return self.model.get_icon()        
 
     def _build_widget(self):
         self.box = goocanvas.Rect(   

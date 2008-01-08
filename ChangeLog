@@ -1,3 +1,19 @@
+2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/gtkui/Canvas.py:
+	* conduit/hildonui/Canvas.py:
+	* conduit/hildonui/UI.py: Add sync all button and some general cleanup
+
+	* configure.ac:
+	* data/icons/hicolor/Makefile.am:
+	* data/icons/hicolor/16x16/Makefile.am:
+	* data/icons/hicolor/16x16/hildon/conduit-twoway.png:
+	* data/icons/hicolor/16x16/hildon/conduit-source.png:
+	* data/icons/hicolor/16x16/hildon/conduit-sink.png:
+	* data/icons/hicolor/26x26/apps/conduit.png:
+	* data/icons/hicolor/26x26/apps/Makefile.am:
+	* data/icons/hicolor/26x26/Makefile.am: Add some hildon specific icons so that they are
+	shown properly in the DataProvider selection pane
+
 2008-01-06  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/modules/PicasaModule/PicasaAPI/picasaweb.py:

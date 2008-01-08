@@ -161,9 +161,12 @@ data/icons/hicolor/Makefile
 data/icons/hicolor/16x16/Makefile
 data/icons/hicolor/16x16/actions/Makefile
 data/icons/hicolor/16x16/apps/Makefile
+data/icons/hicolor/16x16/hildon/Makefile
 data/icons/hicolor/16x16/status/Makefile
 data/icons/hicolor/22x22/Makefile
 data/icons/hicolor/22x22/apps/Makefile
+data/icons/hicolor/26x26/Makefile
+data/icons/hicolor/26x26/apps/Makefile
 data/icons/hicolor/32x32/Makefile
 data/icons/hicolor/32x32/apps/Makefile
 data/icons/hicolor/48x48/apps/Makefile

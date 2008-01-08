@@ -5,6 +5,7 @@ The Canvas is the main area in Conduit, the area to which DataProviders are
 dragged onto.
 
 Copyright: John Stowers, 2006
+Copyright: Thomas Van Machelen, 2007
 License: GPLv2
 """
 import goocanvas
@@ -13,19 +14,14 @@ import gtk
 import pango
 from gettext import gettext as _
 import logging
-log = logging.getLogger("hildon.Canvas")
+log = logging.getLogger("hildonui.Canvas")
 
 import conduit
 from conduit.Conduit import Conduit
 from conduit.hildonui.List import DND_TARGETS
 import conduit.gtkui.Canvas 
 
-#Tango colors taken from 
-#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-#Style elements common to ConduitCanvasItem and DPCanvasItem
-SIDE_PADDING = 10.0
 LINE_WIDTH = 3.0
-RECTANGLE_RADIUS = 5.0
 
 #GRR support api break in pygoocanvas 0.6/8.0 -> 0.9.0
 NEW_GOOCANVAS_API = goocanvas.pygoocanvas_version >= (0,9,0)
@@ -269,6 +265,13 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         """
         return "%s/%s" % (self.position + 1, self.model.num_conduits())
 
+    def sync_all(self):
+        for conduit in self.model.get_all_conduits():
+            if conduit.datasource is not None and len(conduit.datasinks) > 0:
+                self.sync_manager.sync_conduit(conduit)
+            else:
+                log.info("Conduit must have a datasource and a datasink")        
+
     # Item Creation and Drawing
     ###########################
     def _show_welcome_message(self):
@@ -460,6 +463,9 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
 
     NAME_FONT = "Sans 12"
     STATUS_FONT = "Sans 10"
+
+    # def _get_icon(self):
+    #     return self.model.get_icon(24)
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
     pass 

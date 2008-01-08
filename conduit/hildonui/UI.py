@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.5
+import gobject
 import gtk
 import hildon
 import os
@@ -28,7 +29,7 @@ class MainWindow(hildon.Program):
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
             log.debug("Adding %s to icon theme search path" % (i))
- 
+
         self.conduitApplication = conduitApplication
         self.moduleManager = moduleManager
         self.type_converter = typeConverter
@@ -40,9 +41,8 @@ class MainWindow(hildon.Program):
         self.syncSet = None
 
         self.mainWindow = hildon.Window()
-        self.mainWindow.set_title (conduit.APPNAME)
         self.mainWindow.set_icon_name("conduit")
-        self.mainWindow.resize (800, 480)
+        # self.mainWindow.resize (800, 480)
 
         self.mainWindow.connect("destroy", self.on_window_destroyed)
         self.add_window(self.mainWindow)
@@ -68,6 +68,7 @@ class MainWindow(hildon.Program):
         main_pane.add1(self.provider_box)
         main_pane.add2(self.canvas)
         self.mainWindow.add(main_pane)
+        gobject.set_application_name(conduit.APPNAME)
 
     def set_model(self, syncSet):
         self.syncSet = syncSet
@@ -176,13 +177,18 @@ class ConduitToolbar(gtk.Toolbar):
         self.canvas = canvas
         self.canvas.connect("position-changed", self.on_position_changed)
 
-        # new conduit button 
+        # remove conduit button 
         self.remove_button = gtk.ToolButton(gtk.STOCK_REMOVE)
         self.remove_button.connect("clicked", self.on_remove)
 
         # save settings button
         self.save_button = gtk.ToolButton(gtk.STOCK_SAVE)
         self.save_button.connect("clicked", self.on_settings_save)
+
+        # sync all button
+        image_widget = gtk.image_new_from_icon_name("conduit", 24)
+        self.sync_button = gtk.ToolButton(icon_widget=image_widget)
+        self.sync_button.connect("clicked", self.on_sync_all)
 
         # moving
         self.previous_button = gtk.ToolButton(gtk.STOCK_GO_BACK)
@@ -200,6 +206,7 @@ class ConduitToolbar(gtk.Toolbar):
         self.add_item (self._create_toolitem(self.label))
         self.add_item (self.next_button)
         self.add_item (gtk.SeparatorToolItem())
+        self.add_item (self.sync_button)
         self.add_item (self.save_button)
 
         self.show_all () 
@@ -216,6 +223,9 @@ class ConduitToolbar(gtk.Toolbar):
 
     def on_settings_save (self, button):
         self.syncSet.save_to_xml()
+
+    def on_sync_all (self, button):
+        self.canvas.sync_all()
 
     def on_previous (self, button):
         self.canvas.move_previous()
