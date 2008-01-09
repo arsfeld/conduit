@@ -1,3 +1,9 @@
+2008-01-10  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Utils.py:
+	* conduit/Vfs.py: Add functions to strip illegal filesystem characters.
+	Borrowed from soundjuicer #321436
+
 2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py:

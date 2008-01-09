@@ -97,13 +97,27 @@ def uri_get_protocol(uri):
     protocol = uri[:uri.index("://")+3]
     return protocol.lower()
 
-def uri_get_filename(path):
+def uri_get_filename(uri):
     """
     Method to return the filename of a file. Could use GnomeVFS for this
     is it wasnt so slow
     """
-    return path.split(os.sep)[-1]
-
+    return uri.split(os.sep)[-1]
+    
+def uri_sanitize_for_filesystem(uri, filesystem=None):
+    """
+    Removes illegal characters in uri that cannot be stored on the 
+    given filesystem - particuarly fat and ntfs types
+    """
+    import string
+    if filesystem in ("vfat","ntfs"):
+        ILLEGAL_CHARS = "\\:*?\"<>|"
+        #replace illegal chars with a space
+        return uri.translate(string.maketrans(
+                                ILLEGAL_CHARS,
+                                " "*len(ILLEGAL_CHARS)))
+    return uri
+    
 #
 # Temporary file functions
 #
