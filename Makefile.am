@@ -35,11 +35,9 @@ EXTRA_DIST = \
 dist-hook:
 	@echo "Generating Changelog, NEWS, TODO"
 	@if test -d $(top_srcdir)/.svn ; then \
-		svn2cl --output=$(distdir)/ChangeLog --authors=$(top_srcdir)/AUTHORS --group-by-day; \
-	    wget -q -O $(distdir)/NEWS "http://www.conduit-project.org/wiki/$(VERSION)?format=txt" ; \
+		wget -q -O $(distdir)/NEWS "http://www.conduit-project.org/wiki/$(VERSION)?format=txt" ; \
 		wget -q -O $(distdir)/TODO "http://www.conduit-project.org/wiki/TODO?format=txt" ; \
 	else \
-		touch $(distdir)/ChangeLog; \
 		touch $(distdir)/NEWS; \
 		touch $(distdir)/TODO; \
 	fi

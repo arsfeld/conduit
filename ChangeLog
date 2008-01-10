@@ -1,3 +1,14 @@
+2008-01-10  John Carr <john.carr@unrouted.co.uk>
+
+	* conduit/Makefile.am:
+	We have a ChangeLog file that we maintain in SVN - don't overwrite it
+	in release process
+
+	* conduit/dataproviders/AutoSync.py:
+	Remove the old AutoSync - fancy it is, stable it cannot be in a reasonable
+	time. For now we'll just request an ordinary sync. Leaving the added/modified/deleted
+	framework in place for future work, and for the proposed conduitlib.
+
 2008-01-10  John Stowers <john.stowers@gmail.com>
 
 	* conduit/Utils.py:
