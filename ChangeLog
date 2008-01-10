@@ -1,3 +1,14 @@
+2008-01-11  John Stowers <john.stowers@gmail.com>
+
+	* test/python-tests/TestDataProvideriPod.py:
+	* test/python-tests/common.py: Fix behaviour of new_file and friends to
+	make the fake ipod tests pass
+	
+	* conduit/modules/N800Module/N800Module.py:
+	* conduit/modules/N800Module/__init__.py:
+	* test/python-tests/TestDataProviderN800.py: Simplify and test the 
+	N800Module
+
 2008-01-10  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/modules/Makefile.am:
@@ -31,7 +42,12 @@
 	* test/python-tests/TestCoreFile.py:
 	* test/python-tests/TestCoreUtil.py:
 	* test/python-tests/TestCoreVfs.py: Move all gnomevfs functions from 
-	Utils.py to Vfs.py
+	Utils.py to Vfs.py and add utility function to check a uri exists
+	
+	* conduit/modules/PicasaDesktopModule/Makefile.am:
+	* conduit/modules/PicasaDesktopModule/config.glade:
+	* conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py: Add reverse 
+	engineered support for Picasa v2.7
 
 2008-01-10  Aidan Skinner <aidan@skinner.me.uk>
 

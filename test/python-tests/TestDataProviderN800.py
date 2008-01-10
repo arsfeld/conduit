@@ -3,19 +3,19 @@ from common import *
 
 import traceback
 
-import conduit.modules.iPodModule as iPodModule
+import conduit.modules.N800Module.N800Module as N800Module
 
-#simulate an ipod
-fakeIpodDir = os.path.join(os.environ['TEST_DIRECTORY'],"iPod")
-if not os.path.exists(fakeIpodDir):
-    os.mkdir(fakeIpodDir)
-ok("Created fake ipod at %s" % fakeIpodDir, os.path.exists(fakeIpodDir))
+#simulate a n800
+fakeN800Dir = os.path.join(os.environ['TEST_DIRECTORY'],"n800")
+if not os.path.exists(fakeN800Dir):
+    os.mkdir(fakeN800Dir)
+ok("Created fake n800 at %s" % fakeN800Dir, os.path.exists(fakeN800Dir))
 
-ipodNoteDp = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
+n800FolderDp = N800Module.N800FolderTwoWay(fakeN800Dir,"")
 
 TESTS = (
 #dpinstance,        #newdata_func,          #name
-(ipodNoteDp,        new_note,               "IPodNoteTwoWay"),
+(n800FolderDp,      new_file,               "N800FolderTwoWay"),
 )
 
 for dp, newdata_func, name in TESTS:
@@ -38,7 +38,7 @@ for dp, newdata_func, name in TESTS:
 
     #Check that we saved the note back
     dp.refresh()
-    ok("%s: Got all" % name, rid.get_UID() in dp.get_all())
+    ok("%s: Got all (%s in %s)" % (name,rid.get_UID(),dp.get_all()), rid.get_UID() in dp.get_all())
 
     data = dp.get(rid.get_UID())
     comp = data.compare(newdata)

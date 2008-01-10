@@ -104,12 +104,13 @@ def init_gnomevfs_authentication():
 #Functions to construct new types
 def new_file(filename):
     if filename == None:
-        txt = Utils.random_string()
+        f = Utils.new_tempfile(Utils.random_string())
     else:
-        txt = read_data_file_from_data_dir(filename)
-    f = Utils.new_tempfile(txt)
-    f.set_UID(Utils.random_string())
-    f.set_open_URI(Utils.random_string())
+        files = get_files_from_data_dir(filename)
+        f = conduit.datatypes.File.File(URI=files[0])
+    uri = f._get_text_uri()
+    f.set_UID(uri)
+    f.set_open_URI(uri)
     return f
 
 def new_note(title):
