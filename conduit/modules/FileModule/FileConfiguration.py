@@ -5,6 +5,7 @@ log = logging.getLogger("modules.File")
 
 import conduit
 import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 import conduit.gtkui.Database as Database
 import conduit.dataproviders.File as FileDataProvider
 
@@ -16,7 +17,7 @@ CONTAINS_NUM_ITEMS_IDX = 3      #(folder only) How many items in the folder
 SCAN_COMPLETE_IDX = 4           #(folder only) HAs the folder been recursively scanned
 GROUP_NAME_IDX = 5              #(folder only) The visible identifier for the folder
 
-class _FileSourceConfigurator(Utils.ScannerThreadManager):
+class _FileSourceConfigurator(Vfs.FolderScannerThreadManager):
     """
     Configuration dialog for the FileTwoway dataprovider
     """
@@ -28,7 +29,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         pass        
 
     def __init__(self, mainWindow, db):
-        Utils.ScannerThreadManager.__init__(self)
+        Vfs.FolderScannerThreadManager.__init__(self)
         self.tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
@@ -77,7 +78,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         for uri in selection.get_uris():
             try:
                 log.debug("Drag recieved %s" % uri)
-                if Utils.uri_is_folder(uri):
+                if Vfs.uri_is_folder(uri):
                     self._add_folder(uri)
                 else:
                     self._add_file(uri)
@@ -146,7 +147,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         if self.model[path][GROUP_NAME_IDX] != "":
             displayName = self.model[path][GROUP_NAME_IDX]
         else:
-            displayName = Utils.uri_format_for_display(uri)
+            displayName = Vfs.uri_format_for_display(uri)
 
         cell_renderer.set_property("text", displayName)
         cell_renderer.set_property("ellipsize", True)
@@ -240,7 +241,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         if response == gtk.RESPONSE_OK:
             fileURI = dialog.get_uri()
             #FIXME: Returns a quoted uri string. Inconsistant with other gnomevfs methods
-            #fileURI = Utils.uri_unescape(fileURI)
+            #fileURI = Vfs.uri_unescape(fileURI)
             self._add_file(fileURI)
         elif response == gtk.RESPONSE_CANCEL:
             pass
@@ -262,7 +263,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         if response == gtk.RESPONSE_OK:
             folderURI = dialog.get_uri()
             #FIXME: Returns a quoted uri string. Inconsistant with other gnomevfs methods
-            #folderURI = Utils.uri_unescape(folderURI)
+            #folderURI = Vfs.uri_unescape(folderURI)
             self._add_folder(folderURI)
         elif response == gtk.RESPONSE_CANCEL:
             pass
@@ -341,7 +342,7 @@ class _FolderTwoWayConfigurator:
             else:
                 self.folderGroupName = self.folderEntry.get_text()
                 uri = self.folderChooser.get_uri()
-                self.folder = Utils.uri_make_canonical(uri)
+                self.folder = Vfs.uri_make_canonical(uri)
                 self.includeHidden = self.hiddenCb.get_active()
                 self.compareIgnoreMtime = self.mtimeCb.get_active()
 

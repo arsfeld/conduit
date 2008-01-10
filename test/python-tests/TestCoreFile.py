@@ -4,6 +4,7 @@ from common import *
 import conduit
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 
 import os
 
@@ -49,7 +50,7 @@ for i in localURIs:
     ok("Local: file size = %s" % size,size != None)
     fname = f.get_filename()
     #Not a strict test because my get_filename() is a bit of a hack
-    ok("Local: file name = %s" % fname,fname == Utils.uri_get_filename(i))
+    ok("Local: file name = %s" % fname,fname == Vfs.uri_get_filename(i))
 
 comp = oldest.compare(older)
 ok("Local Compare: checking oldest < older = %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
@@ -92,7 +93,7 @@ if is_online():
 
     #test rebasing a remote file to local and returning its uri
     lrnewer = File.File(remoteURIs[1])
-    lrnewerfname = Utils.uri_get_filename(remoteURIs[1])
+    lrnewerfname = Vfs.uri_get_filename(remoteURIs[1])
     lrneweruri = lrnewer.get_local_uri()
     ok("Base: getting local copy of a remote file = %s" % lrneweruri,type(lrneweruri) == str and len(lrneweruri) > 0)
     remote = lrnewer.is_local() == 1
@@ -119,7 +120,7 @@ if is_online():
         ok("Remote: file size = %s" % size,size != None)
         fname = f.get_filename()
         #Not a strict test because my get_filename() is a bit of a hack
-        ok("Remote: file name = %s" % fname,fname == Utils.uri_get_filename(i))
+        ok("Remote: file name = %s" % fname,fname == Vfs.uri_get_filename(i))
 
 
     comp = roldest.compare(rolder)

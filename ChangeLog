@@ -1,3 +1,15 @@
+2008-01-10  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Utils.py:
+	* conduit/Vfs.py:
+	* conduit/dataproviders/File.py:
+	* conduit/gtkui/ConflictResolver.py:
+	* conduit/modules/FileModule/FileConfiguration.py:
+	* test/python-tests/TestCoreFile.py:
+	* test/python-tests/TestCoreUtil.py:
+	* test/python-tests/TestCoreVfs.py: Move all gnomevfs functions from 
+	Utils.py to Vfs.py
+
 2008-01-10  Aidan Skinner <aidan@skinner.me.uk>
 
 	* data/icons/hicolor/16x16/hildon/Makefile.am: Add missing file

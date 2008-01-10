@@ -21,17 +21,6 @@ ok("Resized Image returns integers", type(w)==int and type(h)==int)
 ok("Test program installed finds sh", Utils.program_installed('sh'))
 ok("Test program installed doesnt find foobar", Utils.program_installed('foobar') == False)
 
-ok("URI make canonical", Utils.uri_make_canonical("file:///foo/bar/baz/../../bar//") == "file:///foo/bar")
-
-safe = '/&=:@'
-unsafe = ' !<>#%()[]{}'
-safeunsafe = '%20%21%3C%3E%23%25%28%29%5B%5D%7B%7D'
-
-ok("Dont escape path characters",Utils.uri_escape(safe+unsafe) == safe+safeunsafe)
-ok("Unescape back to original",Utils.uri_unescape(safe+safeunsafe) == safe+unsafe)
-ok("Get protocol", Utils.uri_get_protocol("file:///foo/bar") == "file://")
-ok("Get filename", Utils.uri_get_filename("file:///foo/bar") == "bar")
-
 fileuri = Utils.new_tempfile("bla").get_local_uri()
 ok("New tempfile: %s" % fileuri, os.path.isfile(fileuri))
 tmpdiruri = Utils.new_tempdir()
@@ -56,18 +45,6 @@ ok("Unix timestamp to datetime", Utils.datetime_from_timestamp(ts) == dt)
 m = Utils.Memstats()
 VmSize,VmRSS,VmStack = m.calculate()
 ok("Memstats: size:%s rss:%s stack:%s" % (VmSize,VmRSS,VmStack), VmSize > 0 and VmRSS > 0 and VmStack > 0)
-
-# Test the folder scanner theading stuff
-def prog(*args): pass
-def done(*args): pass
-
-stm = Utils.ScannerThreadManager(maxConcurrentThreads=1)
-t1 = stm.make_thread("file:///tmp", False, prog, done)
-t2 = stm.make_thread("file://"+tmpdiruri, False, prog, done)
-stm.join_all_threads()
-
-ok("Scanned /tmp ok - found %s" % fileuri, "file://"+fileuri in t1.get_uris())
-ok("Scanned %s ok (empty)" % tmpdiruri, t2.get_uris() == [])
 
 # Test the shink command line executer
 conv = Utils.CommandLineConverter()

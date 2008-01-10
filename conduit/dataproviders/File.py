@@ -6,13 +6,13 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes as DataType
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 import conduit.Database as DB
 
 TYPE_FILE = "0"
 TYPE_FOLDER = "1"
 
-class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
+class FileSource(DataProvider.DataSource, Vfs.FolderScannerThreadManager):
 
     _category_ = conduit.dataproviders.CATEGORY_FILES
     _module_type_ = "source"
@@ -22,7 +22,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
     
     def __init__(self):
         DataProvider.DataSource.__init__(self)
-        Utils.ScannerThreadManager.__init__(self)
+        Vfs.FolderScannerThreadManager.__init__(self)
 
         #One table stores the top level files and folders (config)
         #The other stores all files to sync. 
@@ -180,7 +180,7 @@ class FolderTwoWay(DataProvider.TwoWay):
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         #scan the folder
-        scanThread = Utils.FolderScanner(self.folder, self.includeHidden)
+        scanThread = Vfs.FolderScanner(self.folder, self.includeHidden)
         scanThread.start()
         scanThread.join()
 

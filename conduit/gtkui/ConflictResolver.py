@@ -15,7 +15,7 @@ log = logging.getLogger("gtkui.ConflictResolver")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 import conduit.Conflict as Conflict
 
 from gettext import gettext as _
@@ -335,8 +335,8 @@ class ConflictResolver:
     def on_compare_conflicts(self, sender):
         model, rowref = self.view.get_selection().get_selected()
         conflict = model.get_value(rowref, CONFLICT_IDX)
-        Utils.open_URI(conflict.sourceData.get_open_URI())
-        Utils.open_URI(conflict.sinkData.get_open_URI())
+        Vfs.uri_open(conflict.sourceData.get_open_URI())
+        Vfs.uri_open(conflict.sinkData.get_open_URI())
 
     def on_selection_changed(self, treeSelection):
         """
