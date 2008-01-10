@@ -13,6 +13,9 @@ ok("Dont escape path characters",Vfs.uri_escape(safe+unsafe) == safe+safeunsafe)
 ok("Unescape back to original",Vfs.uri_unescape(safe+safeunsafe) == safe+unsafe)
 ok("Get protocol", Vfs.uri_get_protocol("file:///foo/bar") == "file://")
 ok("Get filename", Vfs.uri_get_filename("file:///foo/bar") == "bar")
+ok("file:///home exists", Vfs.uri_exists("file:///home") == True)
+ok("/home exists", Vfs.uri_exists("/home") == True)
+ok("/foo/bar does not exist", Vfs.uri_exists("/foo/bar") == False)
 
 # Test the folder scanner theading stuff
 tmpdiruri = Utils.new_tempdir()

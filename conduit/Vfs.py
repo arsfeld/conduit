@@ -107,6 +107,16 @@ def uri_format_for_display(uri):
     Formats the uri so it can be displayed to the user (strips passwords, etc)
     """
     return gnomevfs.format_uri_for_display(uri)
+    
+def uri_exists(uri):
+    """
+    @returns: True if the uri exists
+    """
+    try:
+        return gnomevfs.exists(gnomevfs.URI(uri)) == 1
+    except Exception, err:
+        print err
+        return False
 
 #
 # For monitoring locations
