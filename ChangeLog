@@ -15,7 +15,10 @@
 	* conduit/dataproviders/File.py:
 	* test/python-tests/TestSyncFileFolder.py: Remove files from filesource that
 	have been deleted and add test.
-
+	
+	* conduit/gtkui/ConflictResolver.py:
+	* data/conduit.glade: Ensure when collapsed, the conflict expander moves
+	out of the way
 
 2008-01-10  John Stowers <john.stowers@gmail.com>
 

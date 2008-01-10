@@ -51,6 +51,7 @@ class ConflictResolver:
         #this is the scrolled window in the bottom of the main gui
         self.expander = widgets.get_widget("conflictExpander")
         self.expander.connect("activate", self.on_expand)
+        self.vpane = widgets.get_widget("vpaned1")
         self.expander.set_sensitive(False)
         self.fullscreenButton = widgets.get_widget("conflictFullscreenButton")
         self.fullscreenButton.connect("toggled", self.on_fullscreen_toggled)
@@ -163,7 +164,7 @@ class ConflictResolver:
     def _set_conflict_titles(self):
         self.expander.set_label(_("Conflicts (%s)") % self.numConflicts)
         self.standalone.set_title(_("Conflicts (%s)") % self.numConflicts)
-
+        
     def _conflict_resolved(self, sender, rowref):
         """
         Callback when a ConflictResolveThread finishes. Deletes the 
@@ -217,7 +218,8 @@ class ConflictResolver:
         #self._set_conflict_titles()
 
     def on_expand(self, sender):
-        pass
+        #Force the vpane to move to the bottom
+        self.vpane.set_position(-1)
 
     def on_fullscreen_toggled(self, sender):
         #switches between showing the conflicts in a standalone window.
