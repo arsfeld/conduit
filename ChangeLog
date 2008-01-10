@@ -1,5 +1,11 @@
 2008-01-10  John Carr <john.carr@unrouted.co.uk>
 
+	* conduit/modules/Makefile.am:
+	* po/POTFILES.in:
+	Don't ship TestModule or the OpenSync stuff (just yet).
+
+2008-01-10  John Carr <john.carr@unrouted.co.uk>
+
 	* conduit/modules/NetworkModule/Client.py:
 	* conduit/modules/NetworkModule/Peers.py:
 	Avahi might not be running - don't let that kill us. Also fix typo in logging.

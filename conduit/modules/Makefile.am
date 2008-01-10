@@ -26,10 +26,7 @@ conduit_handlers_PYTHON = \
 	TomboyModule.py \
 	ConverterModule.py \
 	PhotoConverterModule.py \
-	AudioVideoConverterModule.py \
-	OSyncEvoModule.py \
-	SynceModule.py \
-	TestModule.py
+	AudioVideoConverterModule.py
 
 clean-local:
 	rm -rf *.pyc *.pyo
