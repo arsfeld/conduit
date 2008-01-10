@@ -56,6 +56,7 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
+        self.db.execute("DELETE FROM files")
         #Make a whole bunch of threads to go and scan the directories
         for oid,uri,groupname in self.db.select("SELECT oid,URI,GROUP_NAME FROM config WHERE TYPE = ?",(TYPE_FOLDER,)):
             self.make_thread(
@@ -71,12 +72,19 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
         self.join_all_threads()
 
         #now add the single files to the list
-        for uri, in self.db.select("SELECT URI FROM config WHERE TYPE = ?",(TYPE_FILE,)):
-            self.db.insert(
-                        table="files",
-                        values=(uri,"","")    #single files dont have basepath and groupname
-                        )
-
+        for oid,uri in self.db.select("SELECT oid,URI FROM config WHERE TYPE = ?",(TYPE_FILE,)):
+            f = File.File(URI=uri)
+            if f.exists():
+                self.db.insert(
+                            table="files",
+                            values=(uri,"","")    #single files dont have basepath and groupname
+                            )
+            else:
+                self.db.delete(
+                    table="config",
+                    oid=oid
+                    )
+            
     def get(self, LUID):
         DataProvider.DataSource.get(self, LUID)
         basepath,group = self.db.select_one("SELECT BASEPATH,GROUPNAME FROM files WHERE URI = ?", (LUID,))
@@ -143,8 +151,6 @@ class FileSource(DataProvider.DataSource, Utils.ScannerThreadManager):
                         table="files",
                         values=(f,folderScanner.baseURI,groupname)
                         )
-
-        self.db.debug(200,True)
 
 class FolderTwoWay(DataProvider.TwoWay):
     """
