@@ -1,5 +1,20 @@
 2008-01-10  John Stowers <john.stowers@gmail.com>
 
+	* conduit/Database.py:
+	* conduit/Utils.py:
+	* conduit/modules/FileModule/FileConfiguration.py:
+	* conduit/modules/FileModule/FileModule.py:
+	* test/python-tests/TestSyncFolderFolder.py:
+	* test/python-tests/common.py: Move more Vfs functions into Utils and share
+	some more code among the File dataproviders and config dialogs
+	
+	* conduit/dataproviders/File.py:
+	* test/python-tests/TestSyncFileFolder.py: Remove files from filesource that
+	have been deleted and add test.
+
+
+2008-01-10  John Stowers <john.stowers@gmail.com>
+
 	* conduit/Utils.py:
 	* conduit/Vfs.py: Add functions to strip illegal filesystem characters.
 	Borrowed from soundjuicer #321436

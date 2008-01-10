@@ -16,9 +16,6 @@ MODULES = {
 #    "USBFactory" :      { "type": "dataprovider-factory" }
 }
 
-TYPE_FILE = "0"
-TYPE_FOLDER = "1"
-
 class FileSource(FileDataProvider.FileSource):
 
     _name_ = _("Files")
@@ -39,13 +36,12 @@ class FileSource(FileDataProvider.FileSource):
         for f in config.get("folders",[]):
             f,group = f.split("---FIXME---")
             self._add_folder(f,group)
-        self.db.debug(200,True)
 
     def get_configuration(self):
         files = []
         folders = []
         for uri,ftype,group in self.db.select("SELECT URI,TYPE,GROUP_NAME FROM config"):
-            if ftype == TYPE_FILE:
+            if ftype == FileDataProvider.TYPE_FILE:
                 files.append(uri)
             else:
                 folders.append("%s---FIXME---%s" % (uri,group))

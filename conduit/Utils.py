@@ -118,6 +118,19 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
                                 " "*len(ILLEGAL_CHARS)))
     return uri
     
+def uri_is_folder(uri):
+    """
+    @returns: True if the uri is a folder and not a file
+    """
+    info = gnomevfs.get_file_info(uri)
+    return info.type == gnomevfs.FILE_TYPE_DIRECTORY
+    
+def uri_format_for_display(uri):
+    """
+    Formats the uri so it can be displayed to the user (strips passwords, etc)
+    """
+    return gnomevfs.format_uri_for_display(uri)
+    
 #
 # Temporary file functions
 #

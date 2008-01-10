@@ -6,13 +6,7 @@ log = logging.getLogger("modules.File")
 import conduit
 import conduit.Utils as Utils
 import conduit.gtkui.Database as Database
-try:
-    import gnomevfs
-except:
-    from gnome import gnomevfs
-
-TYPE_FILE = "0"
-TYPE_FOLDER = "1"
+import conduit.dataproviders.File as FileDataProvider
 
 #Indexes of data in the list store
 OID_IDX = 0
@@ -70,7 +64,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         self.dlg.show_all()
 
         #Now go an background scan some folders to populate the UI estimates.
-        for oid,uri in self.db.select("SELECT oid,URI FROM config WHERE TYPE=? and SCAN_COMPLETE=?",(TYPE_FOLDER,False,)):
+        for oid,uri in self.db.select("SELECT oid,URI FROM config WHERE TYPE=? and SCAN_COMPLETE=?",(FileDataProvider.TYPE_FOLDER,False,)):
             self.make_thread(
                     uri, 
                     False,
@@ -83,8 +77,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         for uri in selection.get_uris():
             try:
                 log.debug("Drag recieved %s" % uri)
-                info = gnomevfs.get_file_info(uri)
-                if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
+                if Utils.uri_is_folder(uri):
                     self._add_folder(uri)
                 else:
                     self._add_file(uri)
@@ -124,7 +117,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         """
         path = self.model.get_path(rowref)
 
-        if self.model[path][TYPE_IDX] == TYPE_FILE:
+        if self.model[path][TYPE_IDX] == FileDataProvider.TYPE_FILE:
             icon = _FileSourceConfigurator.FILE_ICON
         else:
             icon = _FileSourceConfigurator.FOLDER_ICON
@@ -136,7 +129,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         string if the model item is a File
         """
         path = self.model.get_path(rowref)
-        if self.model[path][TYPE_IDX] == TYPE_FILE:
+        if self.model[path][TYPE_IDX] == FileDataProvider.TYPE_FILE:
             contains = ""
         else:
             contains = _("<i>Contains %s files</i>") % self.model[path][CONTAINS_NUM_ITEMS_IDX]
@@ -153,13 +146,13 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         if self.model[path][GROUP_NAME_IDX] != "":
             displayName = self.model[path][GROUP_NAME_IDX]
         else:
-            displayName = gnomevfs.format_uri_for_display(uri)
+            displayName = Utils.uri_format_for_display(uri)
 
         cell_renderer.set_property("text", displayName)
         cell_renderer.set_property("ellipsize", True)
 
         #Can not edit the group name of a file
-        if self.model[path][TYPE_IDX] == TYPE_FILE:
+        if self.model[path][TYPE_IDX] == FileDataProvider.TYPE_FILE:
             cell_renderer.set_property("editable", False)
         else:
             cell_renderer.set_property("editable", True)
@@ -203,7 +196,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         if folderURI not in self.scanThreads:
             oid = self.db.insert(
                         table="config",
-                        values=(folderURI,TYPE_FOLDER,0,False,"")
+                        values=(folderURI,FileDataProvider.TYPE_FOLDER,0,False,"")
                         )
             self.make_thread(
                     folderURI, 
@@ -216,7 +209,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
     def _add_file(self, uri):
             self.db.insert(
                         table="config",
-                        values=(uri,TYPE_FILE,0,False,"")
+                        values=(uri,FileDataProvider.TYPE_FILE,0,False,"")
                         )
 
     def show_dialog(self):
@@ -290,7 +283,7 @@ class _FileSourceConfigurator(Utils.ScannerThreadManager):
         """
         if response_id == gtk.RESPONSE_OK:
             #check the user has specified a named group for all folders
-            count, = self.db.select_one("SELECT COUNT(oid) FROM config WHERE TYPE=? and GROUP_NAME=?", (TYPE_FOLDER,""))
+            count, = self.db.select_one("SELECT COUNT(oid) FROM config WHERE TYPE=? and GROUP_NAME=?", (FileDataProvider.TYPE_FOLDER,""))
             if count > 0:
                 #stop this dialog from closing, and show a warning to the
                 #user indicating that all folders must be named

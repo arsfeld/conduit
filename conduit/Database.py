@@ -186,7 +186,7 @@ class GenericDB(gobject.GObject):
         return sql
         
     def execute(self, sql, args=()):
-        if GenericDB.DEBUG: log.debug(sql)
+        if self.DEBUG: log.debug(sql)
         self.cur.execute(sql, args)
         
     def select(self, sql, args=()):
@@ -319,7 +319,7 @@ class ThreadSafeGenericDB(Thread, GenericDB):
         self.db.close()
 
     def execute(self, req, args=(), res=None, operation=""):
-        if GenericDB.DEBUG: log.debug(req)
+        if self.DEBUG: log.debug(req)
         if not self.stopped:
             self.reqs.put((req, args, res, operation))
 

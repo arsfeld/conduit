@@ -369,6 +369,9 @@ class SimpleSyncTest(SimpleTest):
     def sync(self, debug=True):
         #sync conduit
         self.conduit.sync(block=True)
+        
+        abort,error,conflict = self.get_sync_result()
+        ok("Sync completed (a:%d e:%d c:%d)" % (abort,error,conflict), True)
 
         if debug:
             print conduit.GLOBALS.mappingDB.debug()

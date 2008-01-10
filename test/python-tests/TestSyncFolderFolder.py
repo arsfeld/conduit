@@ -5,6 +5,7 @@ import conduit.Utils as Utils
 import conduit.datatypes.File as File
 from conduit.datatypes import COMPARISON_EQUAL
 
+import os.path
 import traceback
 import random
 import time
