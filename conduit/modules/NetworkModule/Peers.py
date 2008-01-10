@@ -14,7 +14,7 @@ License: GPLv2
 import avahi
 import dbus, dbus.glib
 import logging
-log = logging.getLogger("modules.OpenSync")
+log = logging.getLogger("modules.Network")
 
 import conduit
 

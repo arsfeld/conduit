@@ -32,7 +32,10 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         self.categories = {}
         self.dataproviders = {}
         self.peers = []
-        self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
+        try:
+            self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
+        except:
+            log.warn("Error starting client")
 
     def quit(self):
         for p in self.peers:
