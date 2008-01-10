@@ -1,3 +1,7 @@
+2008-01-10  Aidan Skinner <aidan@skinner.me.uk>
+
+	* data/icons/hicolor/16x16/hildon/Makefile.am: Add missing file
+
 2008-01-10  John Stowers <john.stowers@gmail.com>
 
 	* conduit/Database.py:
