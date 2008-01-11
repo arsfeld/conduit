@@ -21,6 +21,7 @@ Options:\n\
     -d      Debug. also print test ouput to console\n\
     -D      Perform dataprovider tests\n\
     -S      Perform sync tests\n\
+    -N      Non interactive. Skip tests that require interaction (web login)\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
 login information in the relevant dataproviders\n\
@@ -42,7 +43,8 @@ do_auto=0
 do_debug=0
 do_dataprovider_tests=0
 do_sync_tests=0
-while getopts "acus:odDS" options
+do_interactive="TRUE"
+while getopts "acus:odDSN" options
 do
     case $options in
         a )     do_auto=1;;
@@ -53,6 +55,7 @@ do
         d )     do_debug=1;;
         D )     do_dataprovider_tests=1;;
         S )     do_sync_tests=1;;
+        N )     do_interactive="FALSE";;
         \? )    echo -e $USAGE
                 exit 1;;
         * )     echo -e $USAGE
@@ -130,6 +133,7 @@ do
         COVERAGE_FILE="$LOGDIR/.coverage" \
         CONDUIT_LOGFILE=$logfile \
         CONDUIT_ONLINE=$do_online \
+        CONDUIT_INTERACTIVE=$do_interactive \
         python $EXEC
     else
         #run the test
@@ -137,6 +141,7 @@ do
         COVERAGE_FILE="$LOGDIR/.coverage" \
         CONDUIT_LOGFILE=$logfile \
         CONDUIT_ONLINE=$do_online \
+        CONDUIT_INTERACTIVE=$do_interactive \
         python $EXEC 2> /dev/null | \
         tee $tempfile
     fi

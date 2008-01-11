@@ -91,7 +91,13 @@ def is_online():
         return os.environ["CONDUIT_ONLINE"] == "TRUE"
     except KeyError:
         return False
-
+        
+def is_interactive():
+    try:    
+        return os.environ["CONDUIT_INTERACTIVE"] == "TRUE"
+    except KeyError:
+        return False
+        
 def init_gnomevfs_authentication():
     import gnome.ui
     gnome.init(conduit.APPNAME, conduit.APPVERSION)

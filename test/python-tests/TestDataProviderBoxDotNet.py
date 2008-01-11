@@ -4,7 +4,7 @@ from common import *
 import conduit.Utils as Utils
 import conduit.datatypes.File as File
 
-if not is_online():
+if not is_online() or not is_interactive():
     skip()
 
 #A Reliable file that will note be deleted

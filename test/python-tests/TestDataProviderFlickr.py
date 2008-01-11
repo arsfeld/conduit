@@ -10,7 +10,7 @@ import conduit.datatypes.Email as Email
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
-if not is_online():
+if not is_online() or not is_interactive():
     skip()
 
 #A Reliable photo_id of a photo that will not be deleted

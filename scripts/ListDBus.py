@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import dbus
-from xml.dom import minidom
 
 obj = dbus.SessionBus().get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
 dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus') 
