@@ -35,10 +35,10 @@ try:
 except:
     LIBGPOD_PHOTOS = False
 
-def _string_to_unqiue_file(txt, uri, prefix, postfix=''):
+def _string_to_unqiue_file(txt, base_uri, prefix, postfix=''):
     for i in range(1, 10000):
         filename = prefix + str(i) + postfix
-        uri = os.path.join(uri, filename)
+        uri = os.path.join(base_uri, filename)
         f = File.File(uri)
         if not f.exists():
             break

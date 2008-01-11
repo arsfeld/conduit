@@ -1,3 +1,9 @@
+2008-01-11  John Carr <john.carr@unrouted.co.uk>
+
+	* conduit/modules/iPodModule.py:
+	Oops, variable collision! Fix to have base_uri (which is our target folder)
+	and uri (which is the current uri that we are checking for / writing to)
+
 2008-01-11  John Stowers <john.stowers@gmail.com>
 
 	* scripts/ListDBus.py:
