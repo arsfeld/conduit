@@ -10,15 +10,14 @@ import pickle
 import time
 import gobject
 import logging
-log = logging.getLogger("modules.Network")
+log = logging.getLogger("modules.Network.C")
 
 import Peers
 import XMLRPCUtils
 
-import conduit
+import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
-import conduit.Exceptions as Exceptions
 
 class NetworkClientFactory(DataProvider.DataProviderFactory):
     """
@@ -93,7 +92,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
             remoteUid = "%s-%s" % (hostUrl,dpInfo['uid'])
             remoteSharedDps[remoteUid] = dpInfo
 
-        log.debug("DP PROCESS.\tURL:%s\tCurrent dps:%s\tRemote dps:%s" % (hostUrl,currentSharedDps,remoteSharedDps))
+        #log.debug("Processing Remote Dataprovider: URL:%s\tCurrent dps:%s\tRemote dps:%s" % (hostUrl,currentSharedDps,remoteSharedDps.keys()))
         
         # loop through all dp's 
         for remoteUid,info in remoteSharedDps.items():
@@ -153,8 +152,8 @@ class _ClientDataProvider(DataProvider.TwoWay):
         DataProvider.TwoWay.__init__(self)
         log.info("Connecting to remote DP on %s" % self.url)
         self.server = xmlrpclib.Server(self.url)
-        self.objects = None
 
+    @Utils.log_function_call(log)
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         try:
@@ -162,6 +161,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
         except xmlrpclib.Fault, f:
             XMLRPCUtils.marshal_fault_to_exception(f)
 
+    @Utils.log_function_call(log)
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
         try:
@@ -169,6 +169,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
         except xmlrpclib.Fault, f:
             XMLRPCUtils.marshal_fault_to_exception(f)
 
+    @Utils.log_function_call(log)
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)
         try:
@@ -177,11 +178,12 @@ class _ClientDataProvider(DataProvider.TwoWay):
         except xmlrpclib.Fault, f:
             XMLRPCUtils.marshal_fault_to_exception(f)
 
+    @Utils.log_function_call(log)
     def put(self, data, overwrite=False, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
         binaryData = xmlrpclib.Binary(pickle.dumps(data))
         try:
-            binaryRid = self.server.put(data_out, overwrite, LUID)
+            binaryRid = self.server.put(binaryData, overwrite, LUID)
             return pickle.loads(binaryRid.data)
         except xmlrpclib.Fault, f:
             #Supply additional info because the conflict exception
@@ -194,6 +196,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
                             toData=data
                             )
 
+    @Utils.log_function_call(log)
     def delete(self, LUID):
         DataProvider.TwoWay.delete(self, LUID)
         try:
@@ -201,6 +204,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
         except xmlrpclib.Fault, f:
             XMLRPCUtils.marshal_fault_to_exception(f)
 
+    @Utils.log_function_call(log)
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         try:
@@ -208,6 +212,7 @@ class _ClientDataProvider(DataProvider.TwoWay):
         except xmlrpclib.Fault, f:
             XMLRPCUtils.marshal_fault_to_exception(f)
 
+    @Utils.log_function_call(log)
     def get_UID(self):
         return self.uid
 

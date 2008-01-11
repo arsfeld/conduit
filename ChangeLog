@@ -1,5 +1,15 @@
 2008-01-12  John Stowers <john.stowers@gmail.com>
 
+	* conduit/Utils.py: Add a decorator to log function calls
+
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/NetworkModule/Peers.py:
+	* conduit/modules/NetworkModule/Server.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Fix exception --> fault
+	marshalling bugs, and improve xmlrpc logging
+
+2008-01-12  John Stowers <john.stowers@gmail.com>
+
 	* conduit/modules/NetworkModule/Client.py:
 	* conduit/modules/NetworkModule/Server.py:
 	* conduit/modules/NetworkModule/XMLRPCUtils.py:

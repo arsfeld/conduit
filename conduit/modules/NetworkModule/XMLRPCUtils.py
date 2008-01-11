@@ -5,6 +5,7 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
+import traceback
 import xmlrpclib
 import conduit.Exceptions as Exceptions
 
@@ -29,18 +30,18 @@ def marshal_fault_to_exception(fault, **kwargs):
         toData = kwargs['toData']
         raise Exceptions.SynchronizeConflictError(fault.faultString, fromData, toData)
     else:
-        raise Exception("Unknown xmlrpc.Fault: %s:%s" % (fault.faultCode,fault.faultString))
+        raise Exception("Remote Exception:\n%s" % fault.faultString)
 
 def marshal_exception_to_fault(exception):
     klassName = exception.__class__.__name__
     if klassName in XML_RPC_EASY_EXCEPTIONS:
         #exception.message = fault.faultString
-        return xmlrpclib.Fault(klassName, exception.message)
-    elif fault.faultCode == "SynchronizeConflictError":
+        raise xmlrpclib.Fault(klassName, exception.message)
+    elif klassName == "SynchronizeConflictError":
         #only put the comparison in the fault, getting the other data 
         #requires subsequent xmlrpc calls
-        return xmlrpclib.Fault("SynchronizeConflictError", exception.comparison)    
+        raise xmlrpclib.Fault("SynchronizeConflictError", exception.comparison)    
     else:
-        return xmlrpclib.Fault("Unknown",exception.message)
+        raise xmlrpclib.Fault("Exception",traceback.format_exc())
 
 

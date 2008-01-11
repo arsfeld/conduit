@@ -239,6 +239,33 @@ def decode_conversion_args(argString):
     for key,val in cgi.parse_qsl(argString):
         args[key] = val
     return args
+    
+def log_function_call(log):
+    """
+    A decorator that prints debug message showing the function name and
+    argument types to the supplied logger instance. 
+    
+    Adapted from the accepts/returns decorators at
+    http://wiki.python.org/moin/PythonDecoratorLibrary
+    """
+    def decorator(f):
+        def newf(*args):
+            #Ensure args are tuples with str args - necessart for CPython methods
+            argtypes = map(str,map(type, args))
+            argnames = map(str,f.func_code.co_varnames[:f.func_code.co_argcount])
+            argnamesandtypes = ["%s:%s" % (i,j) for i,j in zip(argnames,argtypes)]
+            msg = "Method Call %s(%s)" % (
+                        f.__name__,
+                        ', '.join(argnamesandtypes)
+                        )
+            log.debug(msg)
+            return f(*args)
+        #Retain information about old function
+        newf.__name__ = f.__name__
+        newf.__doc__ = f.__doc__
+        newf.__dict__.update(f.__dict__)
+        return newf
+    return decorator
 
 #
 # Memstats

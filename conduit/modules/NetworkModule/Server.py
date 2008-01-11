@@ -12,14 +12,14 @@ import pickle
 import threading
 import select
 import logging
-log = logging.getLogger("modules.Network")
+log = logging.getLogger("modules.Network.S")
 
 import Peers
 import XMLRPCUtils
 
 import conduit
+import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Exceptions as Exceptions
 
 from gettext import gettext as _
 
@@ -239,24 +239,28 @@ class _DataproviderServer(_StoppableXMLRPCServer):
                 "dp_server_port":   self.port                 
                 }
 
+    @Utils.log_function_call(log)
     def refresh(self):
         try:
             self.dpw.module.refresh()
         except Exception, e:
             return XMLRPCUtils.marshal_exception_to_fault(e)
 
+    @Utils.log_function_call(log)
     def get_all(self):
         try:
             return self.dpw.module.get_all()
         except Exception, e:
             return XMLRPCUtils.marshal_exception_to_fault(e)
 
+    @Utils.log_function_call(log)
     def get(self, LUID):
         try:
             return xmlrpclib.Binary(pickle.dumps(self.dpw.module.get(LUID)))
         except Exception, e:
             return XMLRPCUtils.marshal_exception_to_fault(e)
 
+    @Utils.log_function_call(log)
     def put(self, binaryData, overwrite, LUID):
         data = pickle.loads(binaryData.data)
         try:
@@ -265,15 +269,17 @@ class _DataproviderServer(_StoppableXMLRPCServer):
         except Exception, e:
             return XMLRPCUtils.marshal_exception_to_fault(e)
 
+    @Utils.log_function_call(log)
     def delete(self, LUID):
         try:
             self.dpw.module.delete(LUID)
         except Exception, e:
             return XMLRPCUtils.marshal_exception_to_fault(e)
 
+    @Utils.log_function_call(log)
     def finish(self, aborted, error, conflict):
         try:
-            self.dpw.module.finish()
+            self.dpw.module.finish(aborted, error, conflict)
         except Exception, e:
             return XMLRPCUtils.marshal_exception_to_fault(e)
             

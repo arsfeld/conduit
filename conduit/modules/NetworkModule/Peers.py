@@ -12,7 +12,7 @@ License: GPLv2
 """
 
 import avahi
-import dbus, dbus.glib
+import dbus.glib
 import logging
 log = logging.getLogger("modules.Network")
 
