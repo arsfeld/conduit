@@ -10,7 +10,7 @@ import tempfile
 import datetime
 import traceback
 
-WIDTH=9
+WIDTH=12
 def pad(s):
     return s+" "*(WIDTH-len(s))
 
@@ -46,10 +46,11 @@ type_converter = SimpleTest().type_converter
 TYPES = {
     "file"          :   (new_file,      {   "event":"1.ical",
                                             "setting":"setting.txt", 
-                                            "contact":"1.vcard"                                 }),
+                                            "contact":"1.vcard",
+                                            "file/photo":"1.png"                                }),
 #    "file/audio"    :   (new_audio,     {                                                       }),
 #    "file/video"    :   (new_video,     {                                                       }),
-#    "file/photo"    :   (new_photo,     {                                                       }),
+    "file/photo"    :   (new_photo,     {                                                       }),
     "note"          :   (new_note,      {                                                       }),
     "event"         :   (new_event,     {   "*":"1.ical"                                        }),
     "contact"       :   (new_contact,   {   "*":"1.vcard"                                       }),
@@ -71,7 +72,11 @@ for i in TYPES:
         if i == j:
             conversions.append("N/A")
         else:
-            if type_converter._conversion_exists(i,j):
+            #Test file/photo -> file conversion
+            if i.split('/')[0] == j.split('/')[0]:
+                conversions.append("Y*")
+                tests.append((i,j))
+            elif type_converter._conversion_exists(i,j):
                 conversions.append("Y")
                 tests.append((i,j))
             else:

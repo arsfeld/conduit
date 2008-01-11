@@ -1,3 +1,9 @@
+2008-01-11  John Stowers <john.stowers@gmail.com>
+
+	* test/python-tests/TestCoreConvert.py:
+	* test/python-tests/TestDataProvideriPod.py:
+	* test/python-tests/common.py: Test iPod contacts and calendar
+
 2008-01-10  John Carr <john.carr@unrouted.co.uk>
 
 	*  conduit/modules/FspotModule/config.glade:

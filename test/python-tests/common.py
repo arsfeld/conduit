@@ -10,22 +10,18 @@ my_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(my_path, '..', '..'))
 sys.path.insert(0, base_path)
 
-# import main conduit module
+# import main conduit module and datatypes
 import conduit
-import conduit.datatypes
-#enable logging
-import conduit.Logging
-
-# import code used by SimpleSync tests
+import conduit.Logging as Logging
 import conduit.Utils as Utils
 import conduit.Module as Module
 import conduit.TypeConverter as TypeConverter
 import conduit.Synchronization as Synchronization
-from conduit.ModuleWrapper import ModuleWrapper
+import conduit.ModuleWrapper as ModuleWrapper
 import conduit.Conduit as Conduit
-import conduit.Exceptions as Exceptions
 import conduit.SyncSet as SyncSet
 import conduit.MappingDB as MappingDB
+from conduit.datatypes import File, Note, Setting, Contact, Email, Text, Video, Photo, Audio, Event
 
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
@@ -107,7 +103,7 @@ def new_file(filename):
         f = Utils.new_tempfile(Utils.random_string())
     else:
         files = get_files_from_data_dir(filename)
-        f = conduit.datatypes.File.File(URI=files[0])
+        f = File.File(URI=files[0])
     uri = f._get_text_uri()
     f.set_UID(uri)
     f.set_open_URI(uri)
@@ -116,7 +112,7 @@ def new_file(filename):
 def new_note(title):
     if title == None:
         title = Utils.random_string()
-    n = conduit.datatypes.Note.Note(
+    n = Note.Note(
                 title=title,
                 contents=Utils.random_string()
                 )
@@ -130,7 +126,7 @@ def new_event(filename):
         txt = read_data_file_from_data_dir("1.ical")
     else:
         txt = read_data_file_from_data_dir(filename)
-    e = conduit.datatypes.Event.Event()
+    e = Event.Event()
     e.set_from_ical_string(txt)
     e.set_UID(Utils.random_string())
     e.set_open_URI(Utils.random_string())
@@ -141,7 +137,7 @@ def new_contact(filename):
         txt = read_data_file_from_data_dir("1.vcard")
     else:
         txt = read_data_file_from_data_dir(filename)
-    c = conduit.datatypes.Contact.Contact()
+    c = Contact.Contact()
     c.set_from_vcard_string(txt)
     c.set_UID(Utils.random_string())
     c.set_open_URI(Utils.random_string())
@@ -150,7 +146,7 @@ def new_contact(filename):
 def new_email(content):
     if content == None:
         content = Utils.random_string()
-    e = conduit.datatypes.Email.Email(
+    e = Email.Email(
                 content=content,
                 subject=Utils.random_string()
                 )
@@ -161,7 +157,7 @@ def new_email(content):
 def new_text(txt):
     if txt == None:
         txt = Utils.random_string()
-    t = conduit.datatypes.Text.Text(
+    t = Text.Text(
                 text=txt
                 )
     t.set_UID(Utils.random_string())
@@ -169,7 +165,7 @@ def new_text(txt):
     return t
 
 #def new_audio(filename):
-#    a = conduit.datatypes.Audio.Audio(
+#    a = Audio.Audio(
 #                URI=filename
 #                )                
 #    a.set_UID(Utils.random_string())
@@ -177,25 +173,28 @@ def new_text(txt):
 #    return a
 
 #def new_video(filename):
-#    v = conduit.datatypes.Video.Video(
+#    v = Video.Video(
 #                URI=filename
 #                )                
 #    v.set_UID(Utils.random_string())
 #    v.set_open_URI(filename)
 #    return v
 
-#def new_photo(filename):
-#    p = conduit.datatypes.Photo.Photo(
-#                URI=filename
-#                )                
-#    p.set_UID(Utils.random_string())
-#    p.set_open_URI(filename)
-#    return p
+def new_photo(filename):
+    if filename == None:
+        files = get_files_from_data_dir("*.png")
+    else:
+        files = get_files_from_data_dir(filename)
+    f = Photo.Photo(URI=files[0])
+    uri = f._get_text_uri()
+    f.set_UID(uri)
+    f.set_open_URI(uri)
+    return f
     
 def new_setting(data):
     if data == None:
         data = Utils.random_string()
-    s = conduit.datatypes.Setting.Setting(
+    s = Setting.Setting(
                 key=Utils.random_string(),
                 value=data
                 )                
@@ -251,7 +250,7 @@ class SimpleTest(object):
         return wrapper
 
     def wrap_dataprovider(self, dp):
-        wrapper = ModuleWrapper (   
+        wrapper = ModuleWrapper.ModuleWrapper (   
                     getattr(dp, "_name_", ""),
                     getattr(dp, "_description_", ""),
                     getattr(dp, "_icon_", ""),

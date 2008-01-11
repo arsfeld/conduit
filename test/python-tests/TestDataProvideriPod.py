@@ -12,10 +12,16 @@ if not os.path.exists(fakeIpodDir):
 ok("Created fake ipod at %s" % fakeIpodDir, os.path.exists(fakeIpodDir))
 
 ipodNoteDp = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
+ipodContactsDp = iPodModule.IPodContactsTwoWay(fakeIpodDir,"")
+ipodCalendarDp = iPodModule.IPodCalendarTwoWay(fakeIpodDir,"")
+ipodPhotoDp = iPodModule.IPodPhotoSink(fakeIpodDir,"")
 
 TESTS = (
 #dpinstance,        #newdata_func,          #name
 (ipodNoteDp,        new_note,               "IPodNoteTwoWay"),
+(ipodContactsDp,    new_contact,            "IPodContactsTwoWay"),
+(ipodCalendarDp,    new_event,              "IPodCalendarTwoWay"),
+(ipodPhotoDp,       new_photo,              "IPodPhotoSink"),
 )
 
 for dp, newdata_func, name in TESTS:
