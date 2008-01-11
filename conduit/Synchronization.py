@@ -179,6 +179,11 @@ class _ThreadedWorker(threading.Thread):
     Aa python thread, Base class for refresh and syncronization
     operations
     """
+    CONFIGURE_STATE = 0
+    REFRESH_STATE = 1
+    SYNC_STATE = 2
+    DONE_STATE = 3
+
     def __init__(self):
         threading.Thread.__init__(self)
 
@@ -192,6 +197,9 @@ class _ThreadedWorker(threading.Thread):
         #Class variable because these may occur in a data conversion. 
         #Needed so that the correct status is shown on the GUI at the end of the sync process
         self.sinkErrors = {}
+        
+        #Start at the beginning
+        self.state = self.CONFIGURE_STATE
         
     def _get_changes(self, source, sink):
         """
@@ -242,11 +250,6 @@ class SyncWorker(_ThreadedWorker):
     Operates on a per Conduit basis, so a single SyncWorker may synchronize
     one source with many sinks within a single conduit
     """
-    CONFIGURE_STATE = 0
-    REFRESH_STATE = 1
-    SYNC_STATE = 2
-    DONE_STATE = 3
-
     def __init__(self, typeConverter, cond, do_sync, policy):
         _ThreadedWorker.__init__(self)
         self.typeConverter = typeConverter
@@ -255,9 +258,6 @@ class SyncWorker(_ThreadedWorker):
         self.sinks = cond.datasinks
         self.do_sync = do_sync
         self.policy = policy
-
-        #Start at the beginning
-        self.state = SyncWorker.CONFIGURE_STATE
 
         if self.cond.is_two_way():
             self.setName("%s <--> %s" % (self.source, self.sinks[0]))
@@ -282,13 +282,13 @@ class SyncWorker(_ThreadedWorker):
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
             #Cannot continue
-            raise Exceptions.StopSync                  
+            raise Exceptions.StopSync(self.state)                  
         except Exception:       
             #Cannot continue
             log.critical("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-            raise Exceptions.StopSync
+            raise Exceptions.StopSync(self.state)
 
         return data
 
@@ -329,7 +329,7 @@ class SyncWorker(_ThreadedWorker):
             log.critical("UNKNOWN CONVERSION ERROR\n%s" % traceback.format_exc())
             sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
             source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-            raise Exceptions.StopSync
+            raise Exceptions.StopSync(self.state)
         return newdata
 
     def _apply_deleted_policy(self, sourceWrapper, sourceDataLUID, sinkWrapper, sinkDataLUID):
@@ -429,7 +429,7 @@ class SyncWorker(_ThreadedWorker):
         if self.cancelled:
             for s in dataprovidersToCancel:
                 s.module.set_status(DataProvider.STATUS_DONE_SYNC_CANCELLED)
-            raise Exceptions.StopSync
+            raise Exceptions.StopSync(self.state)
 
     def one_way_sync(self, source, sink):
         """
@@ -617,11 +617,11 @@ class SyncWorker(_ThreadedWorker):
                 log.debug("Syncworker state %s" % self.state)
 
                 #Check dps have been configured
-                if self.state is SyncWorker.CONFIGURE_STATE:
+                if self.state is self.CONFIGURE_STATE:
                     if not self.source.module.is_configured():
                         self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
                         #Cannot continue if source not configured
-                        raise Exceptions.StopSync
+                        raise Exceptions.StopSync(self.state)
         
                     for sink in self.sinks:
                         if not sink.module.is_configured():
@@ -630,15 +630,15 @@ class SyncWorker(_ThreadedWorker):
                     #Need to have at least one successfully configured sink
                     if len(sinkDidntConfigureOK) < len(self.sinks):
                         #If this thread is a sync thread do a sync
-                        self.state = SyncWorker.REFRESH_STATE
+                        self.state = self.REFRESH_STATE
                     else:
                         #We are finished
                         log.warn("Not enough configured datasinks")
                         self.aborted = True
-                        self.state = SyncWorker.DONE_STATE                  
+                        self.state = self.DONE_STATE                  
 
                 #refresh state
-                elif self.state is SyncWorker.REFRESH_STATE:
+                elif self.state is self.REFRESH_STATE:
                     log.debug("Source Status = %s" % self.source.module.get_status_text())
                     #Refresh the source
                     try:
@@ -648,12 +648,12 @@ class SyncWorker(_ThreadedWorker):
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
                         log.warn("RefreshError: %s" % self.source)
                         #Cannot continue with no source data
-                        raise Exceptions.StopSync
+                        raise Exceptions.StopSync(self.state)
                     except Exception:
                         log.critical("UNKNOWN REFRESH ERROR: %s\n%s" % (self.source,traceback.format_exc()))
                         self.source.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
                         #Cannot continue with no source data
-                        raise Exceptions.StopSync           
+                        raise Exceptions.StopSync(self.state)           
 
                     #Refresh all the sinks. At least one must refresh successfully
                     for sink in self.sinks:
@@ -675,18 +675,18 @@ class SyncWorker(_ThreadedWorker):
                     if len(sinkDidntRefreshOK) < len(self.sinks):
                         #If this thread is a sync thread do a sync
                         if self.do_sync:
-                            self.state = SyncWorker.SYNC_STATE
+                            self.state = self.SYNC_STATE
                         else:
                             #This must be a refresh thread so we are done
-                            self.state = SyncWorker.DONE_STATE                        
+                            self.state = self.DONE_STATE                        
                     else:
                         #We are finished
                         log.info("Not enough sinks refreshed")
                         self.aborted = True
-                        self.state = SyncWorker.DONE_STATE                        
+                        self.state = self.DONE_STATE                        
 
                 #synchronize state
-                elif self.state is SyncWorker.SYNC_STATE:
+                elif self.state is self.SYNC_STATE:
                     for sink in self.sinks:
                         self.check_thread_not_cancelled([self.source, sink])
                         #only sync with those sinks that refresh'd OK
@@ -701,10 +701,10 @@ class SyncWorker(_ThreadedWorker):
                                 self.one_way_sync(self.source, sink)
      
                     #Done go clean up
-                    self.state = SyncWorker.DONE_STATE
+                    self.state = self.DONE_STATE
 
                 #Done successfully go home without raising exception
-                elif self.state is SyncWorker.DONE_STATE:
+                elif self.state is self.DONE_STATE:
                     #Now go back and check for errors, so that we can tell the GUI
                     #First update those sinks which had no errors
                     for sink in self.sinks:
@@ -770,8 +770,9 @@ class RefreshDataProviderWorker(_ThreadedWorker):
             if not self.dataproviderWrapper.module.is_configured():
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
                 #Cannot continue if source not configured
-                raise Exceptions.StopSync
+                raise Exceptions.StopSync(self.state)
         
+            self.state = self.REFRESH_STATE
             try:
                 self.dataproviderWrapper.module.refresh()
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_OK)
@@ -779,12 +780,12 @@ class RefreshDataProviderWorker(_ThreadedWorker):
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
                 log.warn("RefreshError: %s" % self.dataproviderWrapper)
                 #Cannot continue with no source data
-                raise Exceptions.StopSync
+                raise Exceptions.StopSync(self.state)
             except Exception:
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_REFRESH_ERROR)
                 log.critical("UNKNOWN REFRESH ERROR: %s\n%s" % (self.dataproviderWrapper,traceback.format_exc()))
                 #Cannot continue with no source data
-                raise Exceptions.StopSync           
+                raise Exceptions.StopSync(self.state)
 
         except Exceptions.StopSync:
             log.warn("Sync Aborted")

@@ -11,9 +11,10 @@ ok("Conduit Not busy", cond.is_busy() == False)
 #add some dataproviders in different places
 dps = test.get_dataprovider("TestSource")
 dpk1 = test.get_dataprovider("TestSink")
+dpk2 = test.get_dataprovider("TestSinkFailRefresh")
 dptw1 = test.get_dataprovider("TestTwoWay")
 dptw2 = test.get_dataprovider("TestTwoWay") 
-dptw3 = test.get_dataprovider("TestTwoWay")
+dptw3 = test.get_dataprovider("TestTwoWay") 
 
 res = cond.add_dataprovider(dps)
 ok("Add source", res == True)
@@ -73,10 +74,14 @@ ok("Sync", test.sync_manager.did_sync_abort(cond) == False and test.sync_manager
 
 #swap some dps
 cond.change_dataprovider(oldDpw=dptw1, newDpw=dps)
-cond.change_dataprovider(oldDpw=dptw2, newDpw=dpk1)
+cond.change_dataprovider(oldDpw=dptw2, newDpw=dpk2)
 ok("Swapped source", dps in cond.get_all_dataproviders())
-ok("Swapped sink", dpk1 in cond.get_all_dataproviders())
+ok("Swapped sink", dpk2 in cond.get_all_dataproviders())
 res = cond.can_do_two_way_sync()
 ok("Twoway no longer possible", res == False)
+
+#refresh dp (should fail)
+cond.refresh_dataprovider(dpk2, block=True)
+ok("Refresh dp failed", test.sync_manager.did_sync_abort(cond) == True and test.sync_manager.did_sync_error(cond) == False)
 
 finished()

@@ -16,11 +16,13 @@ class FooConverter(object):
                 "foo,foo/bar"       : self.convert,
                 "foo/bar,foo/bar"   : self.convert,     #transcode
                 "foo,baz"           : self.convert,
-                "baz,baz/bob"       : self.convert
+                "baz,baz/bob"       : self.convert,
+                "conversion,error"  : self.dont_convert,
         }
-    #no-op
     def convert(self, data, **kwargs):
         return data
+    def dont_convert(self, data, **kwargs):
+        raise Exception
 
 test = SimpleTest()
 tc = test.type_converter
@@ -37,28 +39,31 @@ for i in converterWrapper.module.conversions:
 
 #Conversions to try
 TEST_CONVERSIONS = (
-    #from       #to             #expected conversion sequence
-    ("foo",     "foo",          ("foo->foo",)),
-    ("foo",     "foo/bar",      ("foo->foo/bar",)),
-    ("foo/bar", "foo",          ("foo->foo",)),
-    ("foo",     "baz",          ("foo->baz",)),
-    ("foo",     "baz/bob",      ("foo->baz","baz->baz/bob")),
-    ("foo/bar", "baz/bob",      ("foo->baz","baz->baz/bob")),
-    ("baz/bob", "baz/bob",      ("baz/bob->baz/bob",)),
-    ("foo",     "bob",          False)
+    #from           #to             #exist  #expected conversion sequence
+    ("foo",         "foo",          True,   ("foo->foo",)),
+    ("foo",         "foo/bar",      True,   ("foo->foo/bar",)),
+    ("foo/bar",     "foo",          True,   ("foo->foo",)),
+    ("foo",         "baz",          True,   ("foo->baz",)),
+    ("foo",         "baz/bob",      True,   ("foo->baz","baz->baz/bob")),
+    ("foo/bar",     "baz/bob",      True,   ("foo->baz","baz->baz/bob")),
+    ("baz/bob",     "baz/bob",      True,   ("baz/bob->baz/bob",)),
+    ("no",          "conversion",   False,  False),
+    ("conversion",  "error",        True,   False)
 )
 
-for f, t, expected in TEST_CONVERSIONS:
+for f, t, exist, expected in TEST_CONVERSIONS:
+    ok("Conv %s -> %s exists (%s)" % (f,t,exist), tc.conversion_exists(f,t) == exist)
     if expected == False:
-        ok("Conv %s -> %s doesnt exist" % (f,t), tc.conversion_exists(f,t) == False)
         try:
             tc.convert(f,t,FooData())
-            ok("Invalid conversion exception caught", False)
+            ok("Conversion exception caught", False)
+        except Exceptions.ConversionError:
+            ok("ConversionError exception caught", True)
         except Exceptions.ConversionDoesntExistError:
-            ok("Invalid conversion exception caught", True)
+            ok("ConversionDoesntExistError exception caught", True)
+        except Exception:
+            ok("Conversion exception caught", False)
     else:
-        ok("Conv %s -> %s exists" % (f,t), tc.conversion_exists(f,t) == True)
-        
         #check the correct conversions are predicted
         conversions = tc._get_conversions(f,t)
         ok("Correct num conversions predicted", len(expected) == len(conversions))

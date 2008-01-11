@@ -1,3 +1,14 @@
+2008-01-12  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Exceptions.py: Call Exception constructor instead of using __str__
+	to return messages
+	
+	* conduit/Synchronization.py:
+	* conduit/TypeConverter.py: Upadate to new Exceptions API
+
+	* test/python-tests/TestCoreConduit.py:
+	* test/python-tests/TestCoreConvertSubtypesArgs.py: Test Exceptions
+
 2008-01-11  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/modules/iPodModule.py:
