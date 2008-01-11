@@ -221,13 +221,13 @@ class File(DataType.DataType):
                 oldname = self.get_filename()
                 olduri = self._get_text_uri()
                 newuri = olduri.replace(oldname, filename)
-
-                log.debug("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
-                gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
-
-                #close so the file info is re-read
-                self.URI = gnomevfs.URI(newuri)
-                self._close_file()
+                
+                if filename != oldname:
+                    log.debug("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
+                    gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
+                    #close so the file info is re-read
+                    self.URI = gnomevfs.URI(newuri)
+                    self._close_file()
             except gnomevfs.NotSupportedError:
                 #dunno what this is
                 self._defer_rename(filename)
@@ -237,6 +237,9 @@ class File(DataType.DataType):
             except gnomevfs.NotPermittedError:
                 #file is on readonly filesystem
                 self._defer_rename(filename)
+            except gnomevfs.FileExistsError:
+                #I think this is when you rename a file to its current name
+                pass
                 
     def force_new_file_extension(self, ext):
         """

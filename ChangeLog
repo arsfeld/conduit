@@ -1,5 +1,17 @@
 2008-01-11  John Stowers <john.stowers@gmail.com>
 
+	* scripts/ListDBus.py:
+	* scripts/run-tests.sh:
+	* test/python-tests/TestDataProviderBoxDotNet.py:
+	* test/python-tests/TestDataProviderFlickr.py:
+	* test/python-tests/common.py: Add non-interactive test switch
+
+	* conduit/datatypes/File.py:
+	* conduit/modules/FspotModule/FspotDbusModule.py: Fix Fspot bug with misuse
+	of force_new_filename
+
+2008-01-11  John Stowers <john.stowers@gmail.com>
+
 	* test/python-tests/TestCoreConvert.py:
 	* test/python-tests/TestDataProvideriPod.py:
 	* test/python-tests/common.py: Test iPod contacts and calendar

@@ -95,17 +95,13 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         Image.ImageTwoWay.get(self, LUID)
 
         properties = self.photo_remote.GetPhotoProperties (LUID)
-
         photouri = properties['Uri']
-        name = str(properties['Name'])
         tags = properties['Tags'].split(',')
 
         f = Photo.Photo(URI=photouri)
         f.set_UID(LUID)
         f.set_open_URI(photouri)
-        f.force_new_filename (name)
-        f.set_tags (tags)
-
+        f.set_tags(tags)
         return f
 
     def _upload_photo (self, uploadInfo):
