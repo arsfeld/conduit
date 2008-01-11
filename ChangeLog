@@ -1,5 +1,12 @@
 2008-01-12  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/NetworkModule/Server.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Move the xmlrpc server and
+	client into the same file so they can be kept in sync easier
+
+2008-01-12  John Stowers <john.stowers@gmail.com>
+
 	* conduit/Utils.py: Add a decorator to log function calls
 
 	* conduit/modules/NetworkModule/Client.py:

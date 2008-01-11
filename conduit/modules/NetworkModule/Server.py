@@ -4,21 +4,13 @@ Contains classes for transmitting and receiving python objects over the network.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
-import socket
-import xmlrpclib
-import SimpleXMLRPCServer
-import pickle
-import threading
-import select
 import logging
-log = logging.getLogger("modules.Network.S")
+log = logging.getLogger("modules.Network")
 
 import Peers
 import XMLRPCUtils
 
 import conduit
-import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 
 from gettext import gettext as _
@@ -47,7 +39,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
                 self.advertiser.announce()
     
                 # start the server which anounces other shared servers
-                self.peerAnnouncer = _StoppableXMLRPCServer('',SERVER_PORT)
+                self.peerAnnouncer = XMLRPCUtils.StoppableXMLRPCServer('',SERVER_PORT)
                 self.peerAnnouncer.register_function(self.list_shared_dataproviders)
                 self.peerAnnouncer.start()
             except:
@@ -121,7 +113,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         """
         Shares a conduit/dp on the network
         """
-        server = _DataproviderServer(dpw, self.DP_PORT)
+        server = XMLRPCUtils.DataproviderServer(dpw, self.DP_PORT)
         server.start()
         self.shared[dpw.get_UID()] = server
         self.DP_PORT += 1
@@ -161,126 +153,5 @@ class NetworkEndpoint(DataProvider.TwoWay):
         return self.output_type
 
     def get_UID(self):
-        return "NetworkEndpoint"
-
-class _StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
-    """
-    A variant of SimpleXMLRPCServer that can be stopped. From
-    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/520583
-    """
-    allow_reuse_address = True
-    def __init__( self, host, port):
-        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self,
-                                addr=(host,port),
-                                logRequests=False,
-                                allow_none=True
-                                )
-        self.closed = False
-    
-    def serve(self):
-        self.socket.setblocking(0)
-        while not self.closed:
-            self.handle_request()        
-            
-    def get_request(self):
-        inputObjects = []
-        while not inputObjects and not self.closed:
-            try:
-                inputObjects, outputObjects, errorObjects = select.select([self.socket], [], [], 0.2)
-                return self.socket.accept()
-            except select.error:
-                #Occurs sometimes at start up, race condition, ignore
-                pass
-            except socket.error:
-                #Occurs at shutdown, raise to stop serving
-                raise
-                
-    def start(self):
-        threading.Thread(target=self.serve).start()
-        
-    def stop(self):
-        self.closed = True
-
-class _DataproviderServer(_StoppableXMLRPCServer):
-    """
-    Wraps a dataproviderwrapper in order to pickle args
-    and deal with exceptions in the sync process
-    """
-    def __init__(self, wrapper, port):
-        _StoppableXMLRPCServer.__init__(self,'',port)
-        self.port = port
-        self.dpw = wrapper
-        
-        #Additional functions not part of the normal dp api
-        self.register_function(self.get_info)
-
-        #register individual functions, not the whole object, 
-        #because in some cases we need to pickle function arguments
-        #and deal with exceptions
-        self.register_function(self.refresh)
-        self.register_function(self.get_all)
-        self.register_function(self.get)
-        self.register_function(self.put)
-        self.register_function(self.delete)
-        self.register_function(self.finish)
-
-    def get_info(self):
-        """
-        Return information about this dataprovider 
-        (so that client can show correct icon, name, description etc)
-        """
-        return {"uid":              self.dpw.get_UID(),
-                "name":             self.dpw.name,
-                "description":      self.dpw.description,
-                "icon":             self.dpw.icon_name,
-                "module_type":      self.dpw.module_type,
-                "in_type":          self.dpw.in_type,
-                "out_type":         self.dpw.out_type,
-                "dp_server_port":   self.port                 
-                }
-
-    @Utils.log_function_call(log)
-    def refresh(self):
-        try:
-            self.dpw.module.refresh()
-        except Exception, e:
-            return XMLRPCUtils.marshal_exception_to_fault(e)
-
-    @Utils.log_function_call(log)
-    def get_all(self):
-        try:
-            return self.dpw.module.get_all()
-        except Exception, e:
-            return XMLRPCUtils.marshal_exception_to_fault(e)
-
-    @Utils.log_function_call(log)
-    def get(self, LUID):
-        try:
-            return xmlrpclib.Binary(pickle.dumps(self.dpw.module.get(LUID)))
-        except Exception, e:
-            return XMLRPCUtils.marshal_exception_to_fault(e)
-
-    @Utils.log_function_call(log)
-    def put(self, binaryData, overwrite, LUID):
-        data = pickle.loads(binaryData.data)
-        try:
-            rid = self.dpw.module.put(data, overwrite, LUID)
-            return xmlrpclib.Binary(pickle.dumps(rid))
-        except Exception, e:
-            return XMLRPCUtils.marshal_exception_to_fault(e)
-
-    @Utils.log_function_call(log)
-    def delete(self, LUID):
-        try:
-            self.dpw.module.delete(LUID)
-        except Exception, e:
-            return XMLRPCUtils.marshal_exception_to_fault(e)
-
-    @Utils.log_function_call(log)
-    def finish(self, aborted, error, conflict):
-        try:
-            self.dpw.module.finish(aborted, error, conflict)
-        except Exception, e:
-            return XMLRPCUtils.marshal_exception_to_fault(e)
-            
+        return "NetworkEndpoint"            
 
