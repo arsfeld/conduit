@@ -56,7 +56,7 @@ class FspotSource(DataProvider.DataSource):
             con = sqlite.connect(PHOTO_DB)
             cur = con.cursor()
             #Get a list of all tags for the config dialog
-            cur.execute("SELECT id, name FROM tags")
+            cur.execute("SELECT id, name FROM tags ORDER BY name")
             for tagid, tagname in cur:
                 tags.append( (tagid,tagname) )
             con.close()

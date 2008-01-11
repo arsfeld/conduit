@@ -1,3 +1,8 @@
+2008-01-10  John Carr <john.carr@unrouted.co.uk>
+
+	*  conduit/modules/FspotModule/FspotModule.py:
+	Sort tags properly (patch from maxxer)
+
 2008-01-11  John Stowers <john.stowers@gmail.com>
 
 	* test/python-tests/TestDataProvideriPod.py:
