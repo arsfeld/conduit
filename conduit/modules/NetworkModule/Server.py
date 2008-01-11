@@ -15,6 +15,7 @@ import logging
 log = logging.getLogger("modules.Network")
 
 import Peers
+import XMLRPCUtils
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
@@ -157,7 +158,8 @@ class _StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
     def __init__( self, host, port):
         SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self,
                                 addr=(host,port),
-                                logRequests=False
+                                logRequests=False,
+                                allow_none=True
                                 )
         self.closed = False
     
@@ -194,12 +196,14 @@ class _DataproviderServer(_StoppableXMLRPCServer):
         _StoppableXMLRPCServer.__init__(self,'',port)
         self.port = port
         self.dpw = wrapper
+        
+        #Additional functions not part of the normal dp api
+        self.register_function(self.get_info)
 
         #register individual functions, not the whole object, 
         #because in some cases we need to pickle function arguments
         #and deal with exceptions
         self.register_function(self.refresh)
-        self.register_function(self.get_info)
         self.register_function(self.get_all)
         self.register_function(self.get)
         self.register_function(self.put)
@@ -208,7 +212,8 @@ class _DataproviderServer(_StoppableXMLRPCServer):
 
     def get_info(self):
         """
-        Return information about this dataprovider (so that client can show correct icon, name, description etc)
+        Return information about this dataprovider 
+        (so that client can show correct icon, name, description etc)
         """
         return {"uid":              self.dpw.get_UID(),
                 "name":             self.dpw.name,
@@ -221,28 +226,41 @@ class _DataproviderServer(_StoppableXMLRPCServer):
                 }
 
     def refresh(self):
-        self.dpw.module.refresh()
+        try:
+            self.dpw.module.refresh()
+        except Exception, e:
+            return XMLRPCUtils.marshal_exception_to_fault(e)
 
     def get_all(self):
-        return self.dpw.module.get_all()
+        try:
+            return self.dpw.module.get_all()
+        except Exception, e:
+            return XMLRPCUtils.marshal_exception_to_fault(e)
 
     def get(self, LUID):
-        return xmlrpclib.Binary(pickle.dumps(self.dpw.module.get(LUID)))
+        try:
+            return xmlrpclib.Binary(pickle.dumps(self.dpw.module.get(LUID)))
+        except Exception, e:
+            return XMLRPCUtils.marshal_exception_to_fault(e)
 
-    def put(self, data, overwrite, LUID):
-        data = pickle.loads(str(data))
-        if len(LUID) == 0:
-            LUID = None
+    def put(self, binaryData, overwrite, LUID):
+        data = pickle.loads(binaryData.data)
         try:
             rid = self.dpw.module.put(data, overwrite, LUID)
             return xmlrpclib.Binary(pickle.dumps(rid))
-        except Exceptions.SynchronizeConflictError, e:
-            return xmlrpclib.Fault("SynchronizeConflictError", e.comparison)
+        except Exception, e:
+            return XMLRPCUtils.marshal_exception_to_fault(e)
 
     def delete(self, LUID):
-        self.dpw.module.delete(LUID)
-        return ""
+        try:
+            self.dpw.module.delete(LUID)
+        except Exception, e:
+            return XMLRPCUtils.marshal_exception_to_fault(e)
 
     def finish(self, aborted, error, conflict):
-        self.dpw.module.finish()
+        try:
+            self.dpw.module.finish()
+        except Exception, e:
+            return XMLRPCUtils.marshal_exception_to_fault(e)
+            
 

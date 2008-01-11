@@ -1,5 +1,16 @@
 2008-01-12  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/NetworkModule/Server.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py:
+	* conduit/modules/NetworkModule/__init__.py: Marshall exceptions to 
+	xmlrpc faults. Fix a number of bugs relating to pickling of objects
+	into xmlrpclib.Binary types
+	
+	* scripts/run-tests.sh: Add ability to list the available tests
+
+2008-01-12  John Stowers <john.stowers@gmail.com>
+
 	* conduit/Exceptions.py: Call Exception constructor instead of using __str__
 	to return messages
 	

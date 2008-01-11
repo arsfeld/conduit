@@ -13,14 +13,17 @@ USAGE="\
 Usage:\n\
 ./scripts/run-tests.sh [OPTIONS]\n\n\
 Options:\n\
-    -a      Run the automatically generated (SLOW) tests\n\
-    -c      Code coverage analysis\n\
-    -u      Upload results\n\
+    Test Types\n\
     -s NAME Perform only the test called NAME\n\
-    -o      Offline. Skip tests that require a net connection\n\
-    -d      Debug. also print test ouput to console\n\
+    -a      Run the automatically generated (SLOW) tests\n\
     -D      Perform dataprovider tests\n\
     -S      Perform sync tests\n\
+    -l      List (do not run) tests\n\
+    Test Options:\n\
+    -c      Code coverage analysis\n\
+    -u      Upload results\n\
+    -o      Offline. Skip tests that require a net connection\n\
+    -d      Debug. also print test ouput to console\n\
     -N      Non interactive. Skip tests that require interaction (web login)\n\
 The operation of the script is affected by two environment\n\
 variables. TEST_USERNAME and TEST_PASSWORD are used as\n\
@@ -44,7 +47,8 @@ do_debug=0
 do_dataprovider_tests=0
 do_sync_tests=0
 do_interactive="TRUE"
-while getopts "acus:odDSN" options
+do_list=0
+while getopts "acus:odDSNl" options
 do
     case $options in
         a )     do_auto=1;;
@@ -56,6 +60,7 @@ do
         D )     do_dataprovider_tests=1;;
         S )     do_sync_tests=1;;
         N )     do_interactive="FALSE";;
+        l )     do_list=1;;
         \? )    echo -e $USAGE
                 exit 1;;
         * )     echo -e $USAGE
@@ -98,6 +103,16 @@ else
         tests="$tests $PY_TEST_DIR/TestAuto*.py"
     fi    
 fi
+testfiles=`ls $tests`
+
+if [ $do_list -ne 0 ] ; then
+    echo "TESTS TO RUN:"
+    for t in $testfiles
+    do
+        echo "    "`basename $t`
+    done
+    exit 1
+fi
 
 #-------------------------------------------------------------------------------
 HEADER="<html><head><title>Conduit Test Results</title></head><body>"
@@ -111,7 +126,7 @@ tempfile=`tempfile`
 echo $HEADER > $indexfile
 echo $STYLE >> $indexfile
 
-for t in `ls $tests`
+for t in $testfiles
 do
     fname=`basename $t`
     echo "RUNNING UNIT TEST: $fname"

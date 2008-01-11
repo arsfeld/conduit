@@ -13,6 +13,7 @@ import logging
 log = logging.getLogger("modules.Network")
 
 import Peers
+import XMLRPCUtils
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
@@ -150,9 +151,8 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
 
 class _ClientDataProvider(DataProvider.TwoWay):
     """
-    Provides the client portion of dataprovider proxying.
+    Provides the Client portion of dataprovider proxying.
     """
-
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         log.info("Connecting to remote DP on %s" % self.url)
@@ -161,41 +161,56 @@ class _ClientDataProvider(DataProvider.TwoWay):
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-        self.objects = self.server.get_all()
+        try:
+            self.server.refresh()
+        except xmlrpclib.Fault, f:
+            XMLRPCUtils.marshal_fault_to_exception(f)
 
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
-        return self.objects
+        try:
+            return self.server.get_all()
+        except xmlrpclib.Fault, f:
+            XMLRPCUtils.marshal_fault_to_exception(f)
 
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)
-        return pickle.loads(str(self.server.get(LUID)))
+        try:
+            binaryData = self.server.get(LUID)
+            return pickle.loads(binaryData.data)
+        except xmlrpclib.Fault, f:
+            XMLRPCUtils.marshal_fault_to_exception(f)
 
     def put(self, data, overwrite=False, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        data_out = xmlrpclib.Binary(pickle.dumps(data))
-
-        if LUID == None:
-            LUID_out = ""
-        else:
-            LUID_out = LUID
-
+        binaryData = xmlrpclib.Binary(pickle.dumps(data))
         try:
-            rid = self.server.put(data_out, overwrite, LUID_out)
-            return pickle.loads(str(rid))
+            binaryRid = self.server.put(data_out, overwrite, LUID)
+            return pickle.loads(binaryRid.data)
         except xmlrpclib.Fault, f:
-            if f.faultCode == "SynchronizeConflictError":
-                fromData = self.get(LUID)
-                raise Exceptions.SynchronizeConflictError(f.faultString, fromData, data)
-            else:
-                raise f
+            #Supply additional info because the conflict exception
+            #includes details of the conflict
+            #FIXME: Check from and to isnt backwards...
+            XMLRPCUtils.marshal_fault_to_exception(
+                            f,
+                            server=self,
+                            fromDataLUID=LUID,
+                            toData=data
+                            )
 
     def delete(self, LUID):
-        self.server.delete(LUID)
+        DataProvider.TwoWay.delete(self, LUID)
+        try:
+            return self.server.delete(LUID)
+        except xmlrpclib.Fault, f:
+            XMLRPCUtils.marshal_fault_to_exception(f)
 
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
-        self.objects = None
+        try:
+            self.server.finish(aborted, error, conflict)
+        except xmlrpclib.Fault, f:
+            XMLRPCUtils.marshal_fault_to_exception(f)
 
     def get_UID(self):
         return self.uid
