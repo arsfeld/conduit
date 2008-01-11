@@ -70,6 +70,15 @@ class Conduit(gobject.GObject):
 
         self.twoWaySyncEnabled = False
         self.slowSyncEnabled = False
+        
+    def _parameters_changed(self):
+        self.emit("parameters-changed")
+        
+    def _change_detected(self, arg):
+        #Dont trigger a sync if we are already synchronising
+        if not self.is_busy():
+            log.debug("Triggering an auto sync...")
+            self.sync()
 
     def emit(self, *args):
         """
@@ -200,12 +209,12 @@ class Conduit(gobject.GObject):
     def enable_two_way_sync(self):
         log.debug("Enabling Two Way Sync")
         self.twoWaySyncEnabled = True
-        self.emit("parameters-changed")
+        self._parameters_changed()
                     
     def disable_two_way_sync(self):
         log.debug("Disabling Two Way Sync")
         self.twoWaySyncEnabled = False
-        self.emit("parameters-changed")
+        self._parameters_changed()
 
     def is_two_way(self):
         return self.can_do_two_way_sync() and self.twoWaySyncEnabled
@@ -213,12 +222,12 @@ class Conduit(gobject.GObject):
     def enable_slow_sync(self):
         log.debug("Enabling Slow Sync")
         self.slowSyncEnabled = True
-        self.emit("parameters-changed")
+        self._parameters_changed()
 
     def disable_slow_sync(self):
         log.debug("Disabling Slow Sync")
         self.slowSyncEnabled = False
-        self.emit("parameters-changed")
+        self._parameters_changed()
 
     def do_slow_sync(self):
         return self.slowSyncEnabled
@@ -259,8 +268,4 @@ class Conduit(gobject.GObject):
         else:
             log.info("Conduit must have a datasource and a datasink")
 
-    def _change_detected(self, arg):
-        #Dont trigger a sync if we are already synchronising
-        if not self.is_busy():
-            log.debug("Triggering an auto sync...")
-            self.sync()
+

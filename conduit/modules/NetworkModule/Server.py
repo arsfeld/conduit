@@ -56,20 +56,6 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         else:
             log.warn("Could not start server, moduleManager not created yet")
 
-
-
-    def list_shared_dataproviders(self):
-        info = []
-        for key, dp in self.shared.iteritems():
-            info.append(dp.get_info())
-        return info
-
-    def quit(self):
-        #stop all the xmlrpc servers
-        self.peerAnnouncer.stop()
-        for server in self.shared.values():
-            server.stop()
-
     def _syncset_added(self, mgr, syncset):
         syncset.connect("conduit-added", self._conduit_added)
         syncset.connect("conduit-removed", self._conduit_removed)
@@ -97,20 +83,39 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
                 else:
                     tg = dp
             if tg and ne:
-                return tg
+                return tg,ne
             else:
-                return None
-        return None
+                return None,None
+        return None,None
 
     def _dataprovider_added(self, cond, dpw):
-        sharedDpw = self._get_shared_dps(cond)
+        sharedDpw,networkEndpoint = self._get_shared_dps(cond)
         if sharedDpw != None:
             if sharedDpw.get_UID() not in self.shared:
+                #Update the network enpoint to have the same input and output
+                #types as the shared DP. The proper solution here is to
+                #have the network endpoint also be a client to the remote dp,
+                #but thats not going to happen yet
+                networkEndpoint.module.input_type = sharedDpw.module.get_input_type()
+                networkEndpoint.module.output_type = sharedDpw.module.get_output_type()
+                cond._parameters_changed()
                 self.share_dataprovider(sharedDpw)
 
     def _dataprovider_removed(self, cond, dpw):
         if dpw.get_UID() in self.shared:
             self.unshare_dataprovider(dpw)
+            
+    def list_shared_dataproviders(self):
+        info = []
+        for key, dp in self.shared.iteritems():
+            info.append(dp.get_info())
+        return info
+
+    def quit(self):
+        #stop all the xmlrpc servers
+        self.peerAnnouncer.stop()
+        for server in self.shared.values():
+            server.stop()           
 
     def share_dataprovider(self, dpw):
         """
@@ -139,12 +144,21 @@ class NetworkEndpoint(DataProvider.TwoWay):
     _description_ = _("Network your desktop")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
-    _in_type_ = "file"
-    _out_type_ = "file"
     _icon_ = "gnome-nettool"
+
+    def __init__(self):
+        DataProvider.TwoWay.__init__(self)
+        self.input_type = ""
+        self.output_type = ""
 
     def is_busy(self):
         return True
+        
+    def get_input_type(self):
+        return self.input_type
+        
+    def get_output_type(self):
+        return self.output_type
 
     def get_UID(self):
         return "NetworkEndpoint"

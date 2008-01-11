@@ -14,6 +14,10 @@ XML_RPC_EASY_EXCEPTIONS = (
     "SyncronizeFatalError",
     "StopSync"
     )
+    
+XML_RPC_EASY_DATAPROVIDER_METHODS = (
+    "refresh",
+    )
 
 def marshal_fault_to_exception(fault, **kwargs):
     if fault.faultCode in XML_RPC_EASY_EXCEPTIONS:

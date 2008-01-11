@@ -108,10 +108,6 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         # Each dataprovider is on its own port
         dpUrl = "%s:%s/" % (hostUrl, info['dp_server_port'])
    
-        if info == None:
-            s = xmlrpclib.Server(dpUrl)
-            info = s.get_info()
-
         params = {}
         for key, val in info.iteritems():
             params['_' + key + '_'] = val
