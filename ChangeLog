@@ -1,5 +1,10 @@
 2008-01-12  John Carr <john.carr@unrouted.co.uk>
 
+	* conduit/modules/NetworkModule/Peers.py:
+	No python-avahi dep (should minimize this)
+
+2008-01-12  John Carr <john.carr@unrouted.co.uk>
+
 	* test/python-tests/AutoSoup.py:
 	Fix broken auto tests
 
