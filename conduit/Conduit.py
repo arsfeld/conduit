@@ -128,7 +128,9 @@ class Conduit(gobject.GObject):
                 log.warn("Only sinks, sources or twoway dataproviders may be added")
                 return False
 
-        dataprovider_wrapper.module.connect("change-detected", self._change_detected)
+        if dataprovider_wrapper.module != None:
+            dataprovider_wrapper.module.connect("change-detected", self._change_detected)
+
         self.emit("dataprovider-added", dataprovider_wrapper) 
         return True
 
@@ -242,6 +244,9 @@ class Conduit(gobject.GObject):
                     dataprovider_wrapper=newDpw,
                     trySourceFirst=(x==0)
                     )
+        if newDpw.module != None:
+            newDpw.module.connect("change-detected", self._change_detected)
+        
         self.emit("dataprovider-changed", oldDpw, newDpw) 
 
     def refresh_dataprovider(self, dp, block=False):

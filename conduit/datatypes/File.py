@@ -492,10 +492,15 @@ class File(DataType.DataType):
 
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
-        data['uri'] = str(self.URI)
         data['basePath'] = self.basePath
         data['group'] = self.group
+        data['relpath'] = self.relpath
+        data['filename'] = self.get_filename()
+        data['filemtime'] = self.get_mtime()
+
+        #FIXME: Maybe we should tar this first...
         data['data'] = open(self.get_local_uri(), 'rb').read()
+
         return data
 
     def __setstate__(self, data):
@@ -503,10 +508,12 @@ class File(DataType.DataType):
         os.write(fd, data['data'])
         os.close(fd)
         
-        self.URI = gnomevfs.URI(data['uri'])
+        self.URI = gnomevfs.URI(name)
         self.basePath = data['basePath']
         self.group = data['group']
-        self._defer_rename(name)
+        self.relpath = data['relpath']
+        self._defer_rename(data['filename'])
+        self._defer_new_mtime(data['filemtime'])
 
         DataType.DataType.__setstate__(self, data)
 

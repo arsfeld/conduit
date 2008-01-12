@@ -3,6 +3,7 @@ import random
 import datetime
 import thread
 import logging
+import time
 log = logging.getLogger("modules.Test")
 
 import conduit
@@ -14,10 +15,7 @@ import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 import conduit.Module as Module
 import conduit.Web as Web
-#from conduit.datatypes import Rid
-from conduit.datatypes import DataType, Text, Video, Audio
-
-import time
+from conduit.datatypes import Rid, DataType, Text, Video, Audio
 
 MODULES = {
     "TestSource" :              { "type": "dataprovider" },
@@ -45,13 +43,16 @@ DEFAULT_HASH="12345"
 #"xy.." where x is an integer, and y is a string
 class TestDataType(DataType.DataType):
     _name_ = "test_type"
-    def __init__(self, xy, mtime=DEFAULT_MTIME, hash=DEFAULT_HASH):
+    def __init__(self, Integer, mtime=DEFAULT_MTIME, hash=DEFAULT_HASH):
         DataType.DataType.__init__(self)
-        self.Integer = int(xy[0])
+        self.Integer = int(Integer)
         self.myHash = hash
-        
+
+        #WARNING: Datatypes should not call these function from within
+        #their constructor - that is the dataproviders responsability. Consider
+        #this a special case for testing
+        self.set_UID(str(Integer))        
         self.set_open_URI("file:///home/")
-        self.set_UID(xy)
         self.set_mtime(mtime)
         
     def __str__(self):
@@ -252,7 +253,7 @@ class TestSink(_TestBase, DataProvider.DataSink):
         if self.count >= self.errorAfter:
             raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, self.count))
         self.count += 1
-        newData = TestDataType(data.get_UID()+self._name_)
+        newData = TestDataType(data.get_UID())
         return newData.get_rid()
 
 class TestImageSink(Image.ImageSink):
@@ -270,7 +271,8 @@ class TestImageSink(Image.ImageSink):
 
     #ImageSink Methods
     def _upload_photo(self, uploadInfo):
-        return uploadInfo.name+uploadInfo.url+self._name_
+        LUID = "%s%s%s" % (uploadInfo.name,uploadInfo.url,self._name_)
+        return Rid(uid=LUID)
 
     def _get_photo_info(self, luid):
         return None
@@ -364,7 +366,7 @@ class TestVideoSink(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         log.debug("Put Video File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID()+self._name_)
+        newData = TestDataType(data.get_size())
         return newData.get_rid()
 
     def get_UID(self):
@@ -409,7 +411,7 @@ class TestAudioSink(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         log.debug("Put Audio File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID()+self._name_)
+        newData = TestDataType(data.get_size())
         return newData.get_rid()
 
     def get_UID(self):
@@ -467,7 +469,7 @@ class TestWebSink(DataProvider.DataSink):
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID()+self._name_)
+        newData = TestDataType(data.get_UID())
         return newData.get_rid()
 
     def get_UID(self):
@@ -489,7 +491,7 @@ class TestFileSink(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         log.debug("Putting file: %s" % data._get_text_uri())
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID()+self._name_)
+        newData = TestDataType(data.get_size())
         return newData.get_rid()
 
     def get_UID(self):
@@ -598,7 +600,7 @@ class TestConflict(DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         if not overwrite:
-            raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, TestDataType('0Conflict'))
+            raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, TestDataType('0'))
         newData = TestDataType(data.get_UID()+self._name_)
         return newData.get_rid()
 

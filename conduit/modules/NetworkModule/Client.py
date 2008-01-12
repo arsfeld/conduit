@@ -113,9 +113,9 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         params['url'] = dpUrl
         params['uid'] = uid
     
-        # Actually create a new object type based on XMLRPCUtils.ClientDataProvider
+        # Actually create a new object type based on XMLRPCUtils.DataProviderClient
         # but with the properties from the remote DataProvider
-        newdp = type(dpUrl, (XMLRPCUtils.ClientDataProvider, ), params)
+        newdp = type(dpUrl, (XMLRPCUtils.DataProviderClient, ), params)
 
         return newdp
 

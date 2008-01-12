@@ -1,3 +1,17 @@
+2008-01-12  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Conduit.py: Dont crash trying to connect to signals on a 
+	missing dataprovider
+	
+	* conduit/datatypes/File.py: Serialize more file properties
+
+	* test/python-tests/common.py:	
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Rename the client and
+	server dataproviders to	be more clear
+	
+	* conduit/modules/TestModule.py: Update test dateproviders to return Rid
+
 2008-01-12  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/dataproviders/__init__.py:

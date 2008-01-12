@@ -297,7 +297,7 @@ class SimpleTest(object):
             factory = self.model.dataproviderFactories[i]
             if str(factory).find("NetworkClientFactory") != -1:
                 newdp = factory.dataprovider_create("http://localhost:3400/", conduit.uid, None)
-                ok("Created new ClientDataProvider", newdp != None)
+                ok("Created new DataProviderClient", newdp != None)
                 return self.wrap_dataprovider( newdp() )
 
     def configure(self, source={}, sink={}):

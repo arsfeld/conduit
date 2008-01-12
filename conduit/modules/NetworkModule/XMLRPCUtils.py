@@ -91,7 +91,7 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
     def stop(self):
         self.closed = True
 
-class ClientDataProvider(DataProvider.TwoWay):
+class DataProviderClient(DataProvider.TwoWay):
     """
     Provides the Client portion of dataprovider proxying.
     """
