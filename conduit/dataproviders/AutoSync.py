@@ -1,5 +1,4 @@
 import gobject
-from types import MethodType
 import logging
 log = logging.getLogger("dataproviders.AutoSync")
 

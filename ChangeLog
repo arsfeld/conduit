@@ -11,6 +11,9 @@
 	server dataproviders to	be more clear
 	
 	* conduit/modules/TestModule.py: Update test dateproviders to return Rid
+	
+	* conduit/dataproviders/AutoSync.py:
+	* test/python-tests/TestCoreUp2Date.py: Remove broken AutoSync test
 
 2008-01-12  John Carr <john.carr@unrouted.co.uk>
 
