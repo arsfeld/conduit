@@ -515,6 +515,11 @@ class File(DataType.DataType):
         self._defer_rename(data['filename'])
         self._defer_new_mtime(data['filemtime'])
 
+        #Ensure we re-read the fileInfo
+        self.fileInfo = None
+        self.fileExists = False
+        self.triedOpen = False
+        
         DataType.DataType.__setstate__(self, data)
 
 class TempFile(File):

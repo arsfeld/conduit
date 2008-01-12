@@ -11,6 +11,8 @@
 	
 	* test/python-tests/TestCoreSyncTestDataProviders.py: Test not configured
 	sinks
+	
+	* conduit/datatypes/File.py: Ensure we re-read the fileInfo
 
 2008-01-13  John Stowers <john.stowers@gmail.com>
 
