@@ -64,7 +64,7 @@ def objset_events():
     objs = []
     icals = get_files_from_data_dir("*.ical")
     for i in range(0, len(icals)):
-        c = Event.Event(icals[i])
+        c = Event.Event()
         c.set_from_ical_string( read_data_file(icals[i]) )
         objs.append(c)
     ok("Got %d sample events" % len(objs), len(objs) > 0)
