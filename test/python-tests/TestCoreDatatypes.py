@@ -16,6 +16,7 @@ TYPES = {
     "email"         :   new_email,
     "text"          :   new_text,
     "setting"       :   new_setting,
+    "test"          :   new_test_datatype,
     }
 
 for t,func in TYPES.items():

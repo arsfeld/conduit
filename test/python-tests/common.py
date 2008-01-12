@@ -22,6 +22,7 @@ import conduit.Conduit as Conduit
 import conduit.SyncSet as SyncSet
 import conduit.MappingDB as MappingDB
 from conduit.datatypes import File, Note, Setting, Contact, Email, Text, Video, Photo, Audio, Event
+from conduit.modules import TestModule
 
 # set up expected paths & variables 
 conduit.IS_INSTALLED =          False
@@ -207,6 +208,12 @@ def new_setting(data):
     s.set_UID(Utils.random_string())
     s.set_open_URI(None)
     return s
+    
+def new_test_datatype(data):
+    if data == None:
+        data = Utils.random_string(length=1)
+    t = TestModule.TestDataType(data)
+    return t
 
 class SimpleTest(object):
     """

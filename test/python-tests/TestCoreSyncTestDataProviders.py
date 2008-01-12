@@ -97,4 +97,37 @@ test.sync(debug=False)
 aborted = test.sync_aborted()
 ok("Sync completed", aborted == False)
 
+###
+#Test conversion args
+###
+ok("---- ONE WAY: CONVERSION ARGS", True)
+test = SimpleSyncTest()
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+test.prepare(
+        test.get_dataprovider("TestSource"), 
+        test.get_dataprovider("TestConversionArgs")
+        )
+test.set_two_way_sync(False)
+test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
+
+###
+#Test file and image sink
+###
+ok("---- ONE WAY: TEST FILE/IMAGE SINK", True)
+test = SimpleSyncTest()
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+test.prepare(
+        test.get_dataprovider("TestFileSource"), 
+        test.get_dataprovider("TestFileSink")
+        )
+test.add_extra_sink(
+        test.get_dataprovider("TestImageSink")
+        )
+test.set_two_way_sync(False)
+test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
+
 finished()

@@ -101,7 +101,7 @@ def random_string(length=5):
     """
     import random
     s = ""
-    for i in range(1,length):
+    for i in range(0,length):
         s += str(random.randint(0,10))
     return s
 

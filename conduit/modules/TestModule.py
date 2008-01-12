@@ -2,8 +2,9 @@ import gobject
 import random
 import datetime
 import thread
-import logging
 import time
+import os.path
+import logging
 log = logging.getLogger("modules.Test")
 
 import conduit
@@ -13,15 +14,15 @@ import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.SimpleFactory as SimpleFactory
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
-import conduit.Module as Module
 import conduit.Web as Web
-from conduit.datatypes import Rid, DataType, Text, Video, Audio
+from conduit.datatypes import Rid, DataType, Text, Video, Audio, File
 
 MODULES = {
     "TestSource" :              { "type": "dataprovider" },
     "TestSink" :                { "type": "dataprovider" },
-    "TestWebSink" :             { "type": "dataprovider" },
-    "TestFileSink" :             { "type": "dataprovider" },
+    "TestWebTwoWay" :           { "type": "dataprovider" },
+    "TestFileSource" :          { "type": "dataprovider" },
+    "TestFileSink" :            { "type": "dataprovider" },
     "TestImageSink" :           { "type": "dataprovider" },
     "TestVideoSink" :           { "type": "dataprovider" },
     "TestAudioSink" :           { "type": "dataprovider" },
@@ -89,8 +90,9 @@ class TestDataType(DataType.DataType):
         else:
             return conduit.datatypes.COMPARISON_UNKNOWN
 
-class _TestBase:
+class _TestBase(DataProvider.DataProviderBase):
     def __init__(self):
+        DataProvider.DataProviderBase.__init__(self)
         #Through an error on the nth time through
         self.errorAfter = 999
         self.newHash = False
@@ -180,6 +182,47 @@ class _TestBase:
             "aBool" : True,
             "aList" : ["ListItem1", "ListItem2"]
             }
+            
+class _TestConversionBase(DataProvider.DataSink):
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+        self.encodings =  {}
+        self.encoding = "unchanged"
+
+    def configure(self, window):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        def setEnc(param):
+            self.encoding = str(param)
+
+        encodings = self.encodings.keys()+["unchanged"]
+        items = [
+                    {
+                    "Name" : "Format (%s)" % ",".join(encodings),
+                    "Widget" : gtk.Entry,
+                    "Callback" : setEnc,
+                    "InitialValue" : self.encoding
+                    }
+                ]
+        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
+        dialog.run()
+
+    def get_input_conversion_args(self):
+        try:
+            return self.encodings[self.encoding]
+        except KeyError:
+            #HACK: Any conversion arg is allowed for test data type...
+            if self._in_type_ == "test_type":
+                return {"arg":self.encoding}
+            else:
+                return {}
+            
+    def get_configuration(self):
+        return {'encoding':self.encoding}
+
+    def get_UID(self):
+        return Utils.random_string()
 
 class TestSource(_TestBase, DataProvider.DataSource):
 
@@ -194,6 +237,8 @@ class TestSource(_TestBase, DataProvider.DataSource):
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
+        self.data = []
+        self.numData = 10
         
         #signal we have new data in a few seconds
         gobject.timeout_add(3000, self._emit_change)
@@ -201,6 +246,13 @@ class TestSource(_TestBase, DataProvider.DataSource):
     def _emit_change(self):
         self.emit_change_detected()
         return False
+        
+    def refresh(self):
+        DataProvider.DataSource.refresh(self)
+        self.data = []
+        #Assemble a random array of data
+        for i in range(0, random.randint(1, self.numData)):
+            self.data.append(str(i))
        
     def get_all(self):
         DataProvider.DataSource.get_all(self)
@@ -212,7 +264,7 @@ class TestSource(_TestBase, DataProvider.DataSource):
     def get(self, LUID):
         DataProvider.DataSource.get(self, LUID)
         if self.slow:
-            time.sleep(2)
+            time.sleep(1)
 
         index = int(LUID)
         if index >= self.errorAfter:
@@ -231,6 +283,10 @@ class TestSource(_TestBase, DataProvider.DataSource):
 
     def add(self, LUID):
         return True
+        
+    def finish(self, aborted, error, conflict): 
+        DataProvider.DataSource.finish(self)
+        self.data = []
 		
 class TestSink(_TestBase, DataProvider.DataSink):
 
@@ -255,6 +311,73 @@ class TestSink(_TestBase, DataProvider.DataSink):
         self.count += 1
         newData = TestDataType(data.get_UID())
         return newData.get_rid()
+        
+class TestTwoWay(TestSource, TestSink):
+
+    _name_ = "Test Two Way"
+    _description_ = "Prints Debug Messages"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "twoway"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
+    _icon_ = "view-refresh"
+
+    def __init__(self, *args):
+        TestSource.__init__(self)
+        TestSink.__init__(self)
+
+class TestFileSource(DataProvider.DataSource):
+
+    _name_ = "Test File Source"
+    _description_ = "Prints Debug Messages"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "source"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+    
+    def __init__(self, *args):
+        DataProvider.DataSource.__init__(self)
+        
+    def get_all(self):
+        DataProvider.DataSource.get_all(self)
+        files = [
+            os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"),
+            __file__
+            ]
+        return files
+        
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
+        f = File.File(URI=LUID)
+        f.set_open_URI(LUID)
+        f.set_UID(LUID)
+        return f
+        
+    def get_UID(self):
+        return Utils.random_string()
+        
+class TestFileSink(DataProvider.DataSink):
+
+    _name_ = "Test File Sink"
+    _description_ = "Prints Debug Messages"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+
+    def __init__(self, *args):
+        DataProvider.DataSink.__init__(self)
+
+    def put(self, data, overwrite, LUID=None):
+        log.debug("Putting file: %s" % data._get_text_uri())
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        newData = TestDataType(data.get_size())
+        return newData.get_rid()
+
+    def get_UID(self):
+        return Utils.random_string()
 
 class TestImageSink(Image.ImageSink):
 
@@ -327,7 +450,25 @@ class TestImageSink(Image.ImageSink):
     def get_UID(self):
         return Utils.random_string()
 
-class TestVideoSink(DataProvider.DataSink):
+class TestConversionArgs(_TestConversionBase):
+
+    _name_ = "Test Conversion Args"
+    _description_ = "Pass args to converters"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "sink"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
+    _icon_ = "emblem-system"
+
+    def __init__(self, *args):
+        _TestConversionBase.__init__(self)
+
+    def put(self, data, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, data, overwrite, LUID)
+        newData = TestDataType(data.get_UID())
+        return newData.get_rid()
+
+class TestVideoSink(_TestConversionBase, TestFileSink):
 
     _name_ = "Test Video Sink"
     _module_type_ = "sink"
@@ -336,43 +477,12 @@ class TestVideoSink(DataProvider.DataSink):
     _icon_ = "video-x-generic"
 
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
+        _TestConversionBase.__init__(self)
+        TestFileSink.__init__(self)
         self.encoding = "ogg"
+        self.encodings = Video.PRESET_ENCODINGS.copy()
 
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setEnc(param):
-            self.encoding = str(param)
-
-        items = [
-                    {
-                    "Name" : "Format (%s,unchanged)" % ",".join(Video.PRESET_ENCODINGS.keys()),
-                    "Widget" : gtk.Entry,
-                    "Callback" : setEnc,
-                    "InitialValue" : self.encoding
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-
-    def get_input_conversion_args(self):
-        try:
-            return Video.PRESET_ENCODINGS[self.encoding]
-        except KeyError:
-            return {}
-
-    def put(self, data, overwrite, LUID=None):
-        log.debug("Put Video File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
-        DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_size())
-        return newData.get_rid()
-
-    def get_UID(self):
-        return Utils.random_string()
-
-class TestAudioSink(DataProvider.DataSink):
+class TestAudioSink(_TestConversionBase, TestFileSink):
 
     _name_ = "Test Audio Sink"
     _module_type_ = "sink"
@@ -381,54 +491,23 @@ class TestAudioSink(DataProvider.DataSink):
     _icon_ = "audio-x-generic"
 
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
+        _TestConversionBase.__init__(self)
+        TestFileSink.__init__(self)
         self.encoding = "ogg"
+        self.encodings = Audio.PRESET_ENCODINGS.copy()
 
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+class TestWebTwoWay(TestTwoWay):
 
-        def setEnc(param):
-            self.encoding = str(param)
-
-        items = [
-                    {
-                    "Name" : "Format (%s,unchanged)" % ",".join(Audio.PRESET_ENCODINGS.keys()),
-                    "Widget" : gtk.Entry,
-                    "Callback" : setEnc,
-                    "InitialValue" : self.encoding
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-
-    def get_input_conversion_args(self):
-        try:
-            return Audio.PRESET_ENCODINGS[self.encoding]
-        except KeyError:
-            return {}
-
-    def put(self, data, overwrite, LUID=None):
-        log.debug("Put Audio File: %s (stored at: %s)" % (data.get_UID(),data.get_local_uri()))
-        DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_size())
-        return newData.get_rid()
-
-    def get_UID(self):
-        return Utils.random_string()
-
-class TestWebSink(DataProvider.DataSink):
-
-    _name_ = "Test Web Sink"
-    _description_ = "Prints Debug Messages"
+    _name_ = "Test Web"
+    _description_ = "Launches Conduits Browser"
     _category_ = conduit.dataproviders.CATEGORY_TEST
-    _module_type_ = "sink"
+    _module_type_ = "twoway"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
     _icon_ = "applications-internet"
 
     def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
+        TestTwoWay.__init__(self)
         self.url = "http://www.google.com"
         self.browser = "gtkmozembed"
 
@@ -463,84 +542,9 @@ class TestWebSink(DataProvider.DataSink):
         return True
 
     def refresh(self):
+        TestTwoWay.refresh(self)
         log.debug("REFRESH (thread: %s)" % thread.get_ident())
-        DataProvider.DataSink.refresh(self)
         Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=self._login)
-
-    def put(self, data, overwrite, LUID=None):
-        DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID())
-        return newData.get_rid()
-
-    def get_UID(self):
-        return Utils.random_string()
-
-class TestFileSink(DataProvider.DataSink):
-
-    _name_ = "Test File Sink"
-    _description_ = "Prints Debug Messages"
-    _category_ = conduit.dataproviders.CATEGORY_TEST
-    _module_type_ = "sink"
-    _in_type_ = "file"
-    _out_type_ = "file"
-    _icon_ = "text-x-generic"
-
-    def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
-
-    def put(self, data, overwrite, LUID=None):
-        log.debug("Putting file: %s" % data._get_text_uri())
-        DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_size())
-        return newData.get_rid()
-
-    def get_UID(self):
-        return Utils.random_string()
-
-
-class TestTwoWay(_TestBase, DataProvider.TwoWay):
-
-    _name_ = "Test Two Way"
-    _description_ = "Prints Debug Messages"
-    _category_ = conduit.dataproviders.CATEGORY_TEST
-    _module_type_ = "twoway"
-    _in_type_ = "test_type"
-    _out_type_ = "test_type"
-    _icon_ = "view-refresh"
-
-    def __init__(self, *args):
-        _TestBase.__init__(self)
-        DataProvider.TwoWay.__init__(self)
-        self.data = None
-        self.numData = 10
-
-    def refresh(self):
-        DataProvider.TwoWay.refresh(self)
-        self.data = []
-        #Assemble a random array of data
-        for i in range(0, random.randint(1, self.numData)):
-            self.data.append(str(i))
-
-    def get_all(self):
-        DataProvider.TwoWay.get_all(self)
-        return self.data
-
-    def get(self, LUID):
-        if self.slow:
-            time.sleep(1)    
-        DataProvider.TwoWay.get(self, LUID)
-        return TestDataType(LUID)
-
-    def put(self, data, overwrite, LUID=None):
-        if self.slow:
-            time.sleep(1)    
-        DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID()+self._name_)
-        return newData.get_rid()
-
-    def finish(self, aborted, error, conflict): 
-        DataProvider.TwoWay.finish(self)
-        self.data = None
 
 class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
 
@@ -607,58 +611,6 @@ class TestConflict(DataProvider.DataSink):
     def get_UID(self):
         return Utils.random_string()
 
-class TestConversionArgs(DataProvider.DataSink):
-
-    _name_ = "Test Conversion Args"
-    _description_ = "Pass args to converters"
-    _category_ = conduit.dataproviders.CATEGORY_TEST
-    _module_type_ = "sink"
-    _in_type_ = "test_type"
-    _out_type_ = "test_type"
-    _icon_ = "emblem-system"
-
-    def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
-        self.conversionArgs = ""
-
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setArgs(param):
-            self.conversionArgs = str(param)
-        items = [
-                    {
-                    "Name" : "Conversion Args (string)",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setArgs,
-                    "InitialValue" : self.conversionArgs
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-
-    def refresh(self):
-        DataProvider.DataSink.refresh(self)
-
-    def put(self, data, overwrite, LUID=None):
-        DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_UID()+self._name_)
-        return newData.get_rid()
-
-    def get_input_conversion_args(self):
-        if self.conversionArgs == "":
-            args = {}
-        else:
-            args = {
-                "foo"   :   self.conversionArgs,
-                "bar"   :   "baz"
-                }
-        return args
-
-    def get_UID(self):
-        return Utils.random_string()
-
 class TestConverter:
     def __init__(self):
         self.conversions =  {
@@ -682,32 +634,20 @@ class TestConverter:
                     )
         return t
 
-class TestDynamicSource(_TestBase, DataProvider.DataSource):
-    _name_ = "Test Dynamic Source"
-    _description_ = "Prints Debug Messages"
-    _module_type_ = "source"
-    _in_type_ = "test_type"
-    _out_type_ = "test_type"
-    _icon_ = "emblem-system"
-
-    def __init__(self, *args):
-        _TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self)
-
 class TestFactory(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
         DataProvider.DataProviderFactory.__init__(self, **kwargs)
-
+        
         #callback the GUI in 5 seconds to add a new dataprovider
-        gobject.timeout_add(3000, self.make_one)
+        gobject.timeout_add(4000, self.make_one)
         gobject.timeout_add(5000, self.make_two)
-        gobject.timeout_add(7000, self.make_three)
+        gobject.timeout_add(6000, self.make_three)
         gobject.timeout_add(7000, self.remove_one)
 
         
     def make_one(self, *args):
         self.key1 = self.emit_added(
-                            klass=TestDynamicSource,
+                            klass=type("DynamicTestSource1", (TestSource, ), {"_name_":"Dynamic Source 1"}),
                             initargs=("Foo",), 
                             category=conduit.dataproviders.CATEGORY_TEST)
         #run once
@@ -715,7 +655,7 @@ class TestFactory(DataProvider.DataProviderFactory):
 
     def make_two(self, *args):
         self.key2 = self.emit_added(
-                             klass=TestDynamicSource,
+                             klass=type("DynamicTestSource2", (TestSource, ), {"_name_":"Dynamic Source 2"}),
                              initargs=("Bar","Baz"), 
                              category=conduit.dataproviders.CATEGORY_TEST)
         #run once
@@ -723,7 +663,7 @@ class TestFactory(DataProvider.DataProviderFactory):
 
     def make_three(self, *args):
         self.key3 = self.emit_added(
-                             klass=TestTwoWay,
+                             klass=type("DynamicTestSource3", (TestSource, ), {"_name_":"Dynamic Source 3"}),
                              initargs=("Baz","Foo"), 
                              category=conduit.dataproviders.CATEGORY_TEST)
         #run once
@@ -740,22 +680,20 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
     """
     def __init__(self, **kwargs):
         DataProvider.DataProviderFactory.__init__(self, **kwargs)
-        gobject.timeout_add(5000, self.added)
         self.count = 200
         self.stats = Utils.Memstats()
-
-        self.cat = DataProvider.DataProviderCategory(
+        self.cat = DataProviderCategory.DataProviderCategory(
                     "TestHotplug",
                     "emblem-system",
                     "/test/")
+        gobject.timeout_add(5000, self.added)
 
     def added(self):
         self.stats.calculate()
         self.key = self.emit_added(
-                           klass=TestDynamicSource,
+                           klass=type("DynamicTestSource", (TestSource, ), {"_name_":"Dynamic Source"}),
                            initargs=("Bar","Bazzer"),
                            category=self.cat)
-
         gobject.timeout_add(500, self.removed)
         return False
 
@@ -789,7 +727,7 @@ class TestSimpleFactory(SimpleFactory.SimpleFactory):
             "/test/")
 
     def get_dataproviders(self, key, **kwargs):
-        return [TestDynamicSource]
+        return [type("DynamicTestSource", (TestSource, ), {"_name_":"Dynamic Source"})]
 
     def get_args(self, key, **kwargs):
         return ()

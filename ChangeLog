@@ -1,3 +1,17 @@
+2008-01-13  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Utils.py: Ensure random string has min length of 1
+
+	* conduit/modules/N800Module/N800Module.py: Ensure consistent appearance
+	when an encoding is not specified
+
+	* conduit/modules/TestModule.py: Consolidate a lot of TestModule code into
+	base classes
+
+	* test/python-tests/TestCoreDatatypes.py:
+	* test/python-tests/TestCoreSyncTestDataProviders.py:
+	* test/python-tests/common.py: Test more of TestModule
+
 2008-01-12  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/modules/NetworkModule/Peers.py:

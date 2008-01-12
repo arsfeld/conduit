@@ -55,7 +55,9 @@ class N800Base(FileDataProvider.FolderTwoWay):
     #Translators: Format string used to describe the acceptable formats the 
     #device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
     #arg is a comma seperated list of encodings
-    FORMAT_CONVERSION_STRING = _("%s Format (%s,unchanged)")
+    FORMAT_CONVERSION_STRING = _("%s Format (%s)")
+    #Signifies that a conversion should not take place
+    NO_CONVERSION_STRING = _("unchanged")
 
     def __init__(self, mount, udi, folder):
         FileDataProvider.FolderTwoWay.__init__(self,
@@ -77,9 +79,10 @@ class N800Base(FileDataProvider.FolderTwoWay):
         def setEnc(param):
             self.encoding = str(param)
 
+        encodings = self.encodings.keys()+[self.NO_CONVERSION_STRING]
         items = [
                     {
-                    "Name" : self.FORMAT_CONVERSION_STRING % (self.DEFAULT_FOLDER, ",".join(self.encodings)),
+                    "Name" : self.FORMAT_CONVERSION_STRING % (self.DEFAULT_FOLDER, ",".join(encodings)),
                     "Widget" : gtk.Entry,
                     "Callback" : setEnc,
                     "InitialValue" : self.encoding
