@@ -11,7 +11,6 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 
-import avahi
 import dbus.glib
 import logging
 log = logging.getLogger("modules.Network")
@@ -24,47 +23,103 @@ AVAHI_SERVICE_DOMAIN = ""
 PORT_IDX = 0
 VERSION_IDX = 1
 
+###
+#Instead of having to depend on python-avahi we just 
+#copy the functions and constants we need
+###
+DBUS_INTERFACE_ADDRESS_RESOLVER = 'org.freedesktop.Avahi.AddressResolver'
+DBUS_INTERFACE_DOMAIN_BROWSER = 'org.freedesktop.Avahi.DomainBrowser'
+DBUS_INTERFACE_ENTRY_GROUP = 'org.freedesktop.Avahi.EntryGroup'
+DBUS_INTERFACE_HOST_NAME_RESOLVER = 'org.freedesktop.Avahi.HostNameResolver'
+DBUS_INTERFACE_RECORD_BROWSER = 'org.freedesktop.Avahi.RecordBrowser'
+DBUS_INTERFACE_SERVER = 'org.freedesktop.Avahi.Server'
+DBUS_INTERFACE_SERVICE_BROWSER = 'org.freedesktop.Avahi.ServiceBrowser'
+DBUS_INTERFACE_SERVICE_RESOLVER = 'org.freedesktop.Avahi.ServiceResolver'
+DBUS_INTERFACE_SERVICE_TYPE_BROWSER = 'org.freedesktop.Avahi.ServiceTypeBrowser'
+DBUS_NAME = 'org.freedesktop.Avahi'
+DBUS_PATH_SERVER = '/'
+DOMAIN_BROWSER_BROWSE = 0
+DOMAIN_BROWSER_BROWSE_DEFAULT = 1
+DOMAIN_BROWSER_BROWSE_LEGACY = 4
+DOMAIN_BROWSER_REGISTER = 2
+DOMAIN_BROWSER_REGISTER_DEFAULT = 3
+ENTRY_GROUP_COLLISION = 3
+ENTRY_GROUP_ESTABLISHED = 2
+ENTRY_GROUP_FAILURE = 4
+ENTRY_GROUP_REGISTERING = 1
+ENTRY_GROUP_UNCOMMITED = 0
+IF_UNSPEC = -1
+LOOKUP_NO_ADDRESS = 8
+LOOKUP_NO_TXT = 4
+LOOKUP_RESULT_CACHED = 1
+LOOKUP_RESULT_LOCAL = 8
+LOOKUP_RESULT_MULTICAST = 4
+LOOKUP_RESULT_OUR_OWN = 16
+LOOKUP_RESULT_STATIC = 32
+LOOKUP_RESULT_WIDE_AREA = 2
+LOOKUP_USE_MULTICAST = 2
+LOOKUP_USE_WIDE_AREA = 1
+PROTO_INET = 0
+PROTO_INET6 = 1
+PROTO_UNSPEC = -1
+PUBLISH_ALLOW_MULTIPLE = 8
+PUBLISH_NO_ANNOUNCE = 4
+PUBLISH_NO_COOKIE = 32
+PUBLISH_NO_PROBE = 2
+PUBLISH_NO_REVERSE = 16
+PUBLISH_UNIQUE = 1
+PUBLISH_UPDATE = 64
+PUBLISH_USE_MULTICAST = 256
+PUBLISH_USE_WIDE_AREA = 128
+SERVER_COLLISION = 3
+SERVER_FAILURE = 4
+SERVER_INVALID = 0
+SERVER_REGISTERING = 1
+SERVER_RUNNING = 2
+SERVICE_COOKIE = 'org.freedesktop.Avahi.cookie'
+SERVICE_COOKIE_INVALID = 0
+
 def byte_array_to_string(s):
     r = ""
-    
     for c in s:
-        
         if c >= 32 and c < 127:
             r += "%c" % c
         else:
             r += "."
-
     return r
 
 def txt_array_to_string_array(t):
     l = []
-
     for s in t:
         l.append(byte_array_to_string(s))
-
     return l
 
-def decode_avahi_text_array_to_dict(array):
-    """
-    Avahi text arrays are encoded as key=value
-    This function converts the array to a dict
-    """
+
+def string_to_byte_array(s):
+    r = []
+    for c in s:
+        r.append(dbus.Byte(ord(c)))
+    return r
+
+def string_array_to_txt_array(t):
+    l = []
+    for s in t:
+        l.append(string_to_byte_array(s))
+    return l
+
+def dict_to_txt_array(txt_dict):
+    l = []
+    for k,v in txt_dict.items():
+        l.append(string_to_byte_array("%s=%s" % (k,v)))
+    return l
+
+def txt_array_to_dict(array):
     d = {}
     for i in array:
         bits = i.split("=")
         if len(bits) == 2:
             d[bits[0]] = bits[1]
     return d
-
-def encode_dict_to_avahi_text_array(d):
-    """
-    Encodes a python dict to the 'key=value' format expected
-    by avahi
-    """
-    array = []
-    for key in d:
-        array.append("%s=%s" % (key, d[key]))
-    return array
 
 class AvahiAdvertiser:
     """
@@ -180,7 +235,7 @@ class AvahiMonitor:
         Dbus callback
         """
         extra_info = txt_array_to_string_array(txt)
-        extra = decode_avahi_text_array_to_dict(extra_info)
+        extra = txt_array_to_dict(extra_info)
 
         log.debug("Resolved conduit service %s on %s - %s:%s\nExtra Info: %s" % (name, host, address, port, extra_info))
 
@@ -204,55 +259,5 @@ class AvahiMonitor:
         log.warn("Avahi/D-Bus error: %s" % repr(error))
 
 
-DBUS_INTERFACE_ADDRESS_RESOLVER = 'org.freedesktop.Avahi.AddressResolver'
-DBUS_INTERFACE_DOMAIN_BROWSER = 'org.freedesktop.Avahi.DomainBrowser'
-DBUS_INTERFACE_ENTRY_GROUP = 'org.freedesktop.Avahi.EntryGroup'
-DBUS_INTERFACE_HOST_NAME_RESOLVER = 'org.freedesktop.Avahi.HostNameResolver'
-DBUS_INTERFACE_RECORD_BROWSER = 'org.freedesktop.Avahi.RecordBrowser'
-DBUS_INTERFACE_SERVER = 'org.freedesktop.Avahi.Server'
-DBUS_INTERFACE_SERVICE_BROWSER = 'org.freedesktop.Avahi.ServiceBrowser'
-DBUS_INTERFACE_SERVICE_RESOLVER = 'org.freedesktop.Avahi.ServiceResolver'
-DBUS_INTERFACE_SERVICE_TYPE_BROWSER = 'org.freedesktop.Avahi.ServiceTypeBrowser'
-DBUS_NAME = 'org.freedesktop.Avahi'
-DBUS_PATH_SERVER = '/'
-DOMAIN_BROWSER_BROWSE = 0
-DOMAIN_BROWSER_BROWSE_DEFAULT = 1
-DOMAIN_BROWSER_BROWSE_LEGACY = 4
-DOMAIN_BROWSER_REGISTER = 2
-DOMAIN_BROWSER_REGISTER_DEFAULT = 3
-ENTRY_GROUP_COLLISION = 3
-ENTRY_GROUP_ESTABLISHED = 2
-ENTRY_GROUP_FAILURE = 4
-ENTRY_GROUP_REGISTERING = 1
-ENTRY_GROUP_UNCOMMITED = 0
-IF_UNSPEC = -1
-LOOKUP_NO_ADDRESS = 8
-LOOKUP_NO_TXT = 4
-LOOKUP_RESULT_CACHED = 1
-LOOKUP_RESULT_LOCAL = 8
-LOOKUP_RESULT_MULTICAST = 4
-LOOKUP_RESULT_OUR_OWN = 16
-LOOKUP_RESULT_STATIC = 32
-LOOKUP_RESULT_WIDE_AREA = 2
-LOOKUP_USE_MULTICAST = 2
-LOOKUP_USE_WIDE_AREA = 1
-PROTO_INET = 0
-PROTO_INET6 = 1
-PROTO_UNSPEC = -1
-PUBLISH_ALLOW_MULTIPLE = 8
-PUBLISH_NO_ANNOUNCE = 4
-PUBLISH_NO_COOKIE = 32
-PUBLISH_NO_PROBE = 2
-PUBLISH_NO_REVERSE = 16
-PUBLISH_UNIQUE = 1
-PUBLISH_UPDATE = 64
-PUBLISH_USE_MULTICAST = 256
-PUBLISH_USE_WIDE_AREA = 128
-SERVER_COLLISION = 3
-SERVER_FAILURE = 4
-SERVER_INVALID = 0
-SERVER_REGISTERING = 1
-SERVER_RUNNING = 2
-SERVICE_COOKIE = 'org.freedesktop.Avahi.cookie'
-SERVICE_COOKIE_INVALID = 0
+
 

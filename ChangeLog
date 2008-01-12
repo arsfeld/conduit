@@ -1,5 +1,19 @@
 2008-01-13  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/NetworkModule/Client.py: Remove race condition modifying
+	a dict while iterating.
+	
+	* conduit/modules/NetworkModule/Peers.py: Move avahi imports to top and
+	add missing functions.
+
+	* conduit/modules/TestModule.py: Inherit from _TestBase so we have a 
+	persistant ID
+	
+	* test/python-tests/TestCoreSyncTestDataProviders.py: Test not configured
+	sinks
+
+2008-01-13  John Stowers <john.stowers@gmail.com>
+
 	* conduit/Utils.py: Ensure random string has min length of 1
 
 	* conduit/modules/N800Module/N800Module.py: Ensure consistent appearance

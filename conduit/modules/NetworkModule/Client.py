@@ -97,7 +97,7 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
             if remoteUid not in currentSharedDps:
                 self.dataprovider_added(hostUrl, remoteUid, info)
 
-        for remoteUid in currentSharedDps:
+        for remoteUid in currentSharedDps.keys():
             if remoteUid not in remoteSharedDps:
                 self.dataprovider_removed(hostUrl, remoteUid)
 

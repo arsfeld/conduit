@@ -227,7 +227,7 @@ class _TestConversionBase(DataProvider.DataSink):
 class TestSource(_TestBase, DataProvider.DataSource):
 
     _name_ = "Test Source"
-    _description_ = "Prints Debug Messages"
+    _description_ = "Emits TestDataTypes"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "source"
     _in_type_ = "test_type"
@@ -291,7 +291,7 @@ class TestSource(_TestBase, DataProvider.DataSource):
 class TestSink(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Sink"
-    _description_ = "Prints Debug Messages"
+    _description_ = "Consumes TestDataTypes"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "test_type"
@@ -315,7 +315,7 @@ class TestSink(_TestBase, DataProvider.DataSink):
 class TestTwoWay(TestSource, TestSink):
 
     _name_ = "Test Two Way"
-    _description_ = "Prints Debug Messages"
+    _description_ = "Sync TestDataTypes"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "twoway"
     _in_type_ = "test_type"
@@ -326,10 +326,10 @@ class TestTwoWay(TestSource, TestSink):
         TestSource.__init__(self)
         TestSink.__init__(self)
 
-class TestFileSource(DataProvider.DataSource):
+class TestFileSource(_TestBase, DataProvider.DataSource):
 
     _name_ = "Test File Source"
-    _description_ = "Prints Debug Messages"
+    _description_ = "Emits Files"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "source"
     _in_type_ = "file"
@@ -337,7 +337,9 @@ class TestFileSource(DataProvider.DataSource):
     _icon_ = "text-x-generic"
     
     def __init__(self, *args):
+        _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
+        self.UID = Utils.random_string()
         
     def get_all(self):
         DataProvider.DataSource.get_all(self)
@@ -354,13 +356,10 @@ class TestFileSource(DataProvider.DataSource):
         f.set_UID(LUID)
         return f
         
-    def get_UID(self):
-        return Utils.random_string()
-        
-class TestFileSink(DataProvider.DataSink):
+class TestFileSink(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test File Sink"
-    _description_ = "Prints Debug Messages"
+    _description_ = "Consumes Files"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "file"
@@ -368,6 +367,7 @@ class TestFileSink(DataProvider.DataSink):
     _icon_ = "text-x-generic"
 
     def __init__(self, *args):
+        _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
 
     def put(self, data, overwrite, LUID=None):
@@ -376,16 +376,15 @@ class TestFileSink(DataProvider.DataSink):
         newData = TestDataType(data.get_size())
         return newData.get_rid()
 
-    def get_UID(self):
-        return Utils.random_string()
-
-class TestImageSink(Image.ImageSink):
+class TestImageSink(_TestBase, Image.ImageSink):
 
     _name_ = "Test Image Sink"
+    _description_ = "Consumes Images"
     _icon_ = "image-x-generic"
     _category_ = conduit.dataproviders.CATEGORY_TEST
 
     def __init__(self, *args):
+        _TestBase.__init__(self)
         Image.ImageSink.__init__(self)
 
         self.format = "image/jpeg"
@@ -447,13 +446,10 @@ class TestImageSink(Image.ImageSink):
     def is_configured (self):
         return True
 
-    def get_UID(self):
-        return Utils.random_string()
-
 class TestConversionArgs(_TestConversionBase):
 
     _name_ = "Test Conversion Args"
-    _description_ = "Pass args to converters"
+    _description_ = "Pass Arguments to TestConverter"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "test_type"
@@ -499,7 +495,7 @@ class TestAudioSink(_TestConversionBase, TestFileSink):
 class TestWebTwoWay(TestTwoWay):
 
     _name_ = "Test Web"
-    _description_ = "Launches Conduits Browser"
+    _description_ = "Launches Web Browser"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "twoway"
     _in_type_ = "test_type"
@@ -549,7 +545,7 @@ class TestWebTwoWay(TestTwoWay):
 class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Need Configure"
-    _description_ = "Test Sink Needs Configuration"
+    _description_ = "Needs Configuration"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "test_type"
@@ -570,7 +566,7 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
 class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Fail Refresh"
-    _description_ = "Test Sink Fails Refresh"
+    _description_ = "Fails Refresh"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "test_type"
@@ -585,10 +581,10 @@ class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
         DataProvider.DataSink.refresh(self)
         raise Exceptions.RefreshError
 
-class TestConflict(DataProvider.DataSink):
+class TestConflict(_TestBase, DataProvider.DataSink):
 
     _name_ = "Test Conflict"
-    _description_ = "Test Sink Conflict"
+    _description_ = "Raises a Conflict"
     _category_ = conduit.dataproviders.CATEGORY_TEST
     _module_type_ = "sink"
     _in_type_ = "test_type"
@@ -596,6 +592,7 @@ class TestConflict(DataProvider.DataSink):
     _icon_ = "dialog-warning"
 
     def __init__(self, *args):
+        _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
 
     def refresh(self):

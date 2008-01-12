@@ -40,6 +40,22 @@ aborted = test.sync_aborted()
 ok("Sync aborted due to no refreshing sinks", aborted == True)
 
 ###
+#One way, should abort (not configured)
+###
+ok("---- ONE WAY: SHOULD ABORT (Not Configured)", True)
+test = SimpleSyncTest()
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+test.prepare(
+        test.get_dataprovider("TestSource"), 
+        test.get_dataprovider("TestSinkNeedConfigure")
+        )
+
+test.set_two_way_sync(False)
+test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync aborted due to no configured sinks", aborted == True)
+
+###
 #One way, should conflict
 ###
 ok("---- ONE WAY: SHOULD CONFLICT", True)
