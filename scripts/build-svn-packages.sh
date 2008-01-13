@@ -3,14 +3,9 @@
 # Generates automated Debian packages for Conduit <http://conduit-project.org>
 # Author: Jonny Lamb <jonnylamb@jonnylamb.com>
 #
-# Things to note:
-#  * svn.greenbirdsystems.com's certificate has expired, and needs accepting permanently.
-#    To do this, simply do "svn co https://svn.greenbirdsystems.com/conduit/trunk conduit"
-#    yourself somewhere and press "p" when prompted.
-#
 # Requirements:
 #  For this script to work:
-#   * devscripts, dpkg-dev, subversion, gnome-common
+#   * devscripts, dpkg-dev, subversion, gnome-common, git-core
 #  And all the Build-dependencies for Conduit (some of these are unnecessary thanks to
 #  recent commits, but are required until they're removed from debian/control):
 #   * debhelper, python-support, python-all-dev, dpatch, python-vobject, libdbus-1-dev
@@ -31,18 +26,19 @@ PUBLISHDIR=/tmp/conduit/packages
 
 # Magic continues below.
 
-mkdir -p $TMPDIR
-cd $TMPDIR
+mkdir -p "$TMPDIR"
+cd "$TMPDIR"
 
 # First checkout trunk so that the SVN version can be determined.
 # This could be done a nicer way like using pysvn perhaps?
-svn co --non-interactive https://svn.greenbirdsystems.com/conduit/trunk conduit
+svn co --non-interactive https://svn.gnome.org/conduit/trunk conduit
 cd conduit
 
 SVNREV=`svnversion .`
 
 # Now get rid of all the horrible ".svn" directories.
-# They rot the mind.
+# Yeah, I could have exported instead of checking out, but then how would I
+# get the revision number?
 find -name "\.svn" | xargs rm -rf
 
 # Hack out the version number from configure.ac. A VERSION file would be nice :)
@@ -62,7 +58,9 @@ cd "conduit-$VERSION+svn$SVNREV"
 
 # Now get Jose Carlos Garcia Sogo's packaging.
 # No point in duplicating work.
-svn export svn://svn.tribulaciones.org/srv/svn/conduit/trunk/debian
+git clone git://git.debian.org/git/users/jsogo/conduit.git temp
+mv temp/debian .
+rm -rf temp
 
 # This will return true on every run apart from the initial run.
 # Only use jsogo's changelog if our running one doesn't already exist.
@@ -78,19 +76,19 @@ DEBEMAIL="debian@conduit-project.org" DEBFULLNAME="Conduit Packages" dch -v "$VE
 dpkg-buildpackage -rfakeroot -uc -us
 
 # Copy all the nice generated files to the publishing directory
-cp ../*.deb $PUBLISHDIR
-cp ../*.diff.gz $PUBLISHDIR
-cp ../*.orig.tar.gz $PUBLISHDIR
-cp ../*.dsc $PUBLISHDIR
+cp ../*.deb "$PUBLISHDIR"
+cp ../*.diff.gz "$PUBLISHDIR"
+cp ../*.orig.tar.gz "$PUBLISHDIR"
+cp ../*.dsc "$PUBLISHDIR"
 
 # Put the updated changelog file in its stored place.
-cp debian/changelog $CHANGELOGDIR
+cp debian/changelog "$CHANGELOGDIR"
 
 # Get out of the temporary directory.
-cd $PUBLISHDIR
+cd "$PUBLISHDIR"
 
 # Get rid of the temporary directory.
-rm -rf $TMPDIR
+rm -rf "$TMPDIR"
 
 # Generate Packages and Packages.gz files for using as an APT package source.
 dpkg-scanpackages . /dev/null | tee Packages | gzip -9 > Packages.gz

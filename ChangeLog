@@ -1,3 +1,12 @@
+2008-01-13  Jonny Lamb  <jonnylamb@jonnylamb.com>
+
+	* scripts/build-stationary-packages.sh: Updated Conduit SVN address
+	and enabled handling paths with spaces in them.
+
+	* scripts/build-svn-packages.sh: Updated Conduit SVN address, enabled
+	handling paths with spaces in them, and updated jsogo's packaging repo
+	address to his git one.
+
 2008-01-13  John Stowers <john.stowers@gmail.com>
 
 	* test/python-tests/TestCoreDatatypes.py:

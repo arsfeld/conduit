@@ -3,11 +3,6 @@
 # Generates automated Debian packages for Conduit <http://conduit-project.org>
 # Author: Jonny Lamb <jonnylamb@jonnylamb.com>
 #
-# Things to note:
-#  * svn.greenbirdsystems.com's certificate has expired, and needs accepting permanently.
-#    To do this, simply do "svn co https://svn.greenbirdsystems.com/conduit/trunk conduit"
-#    yourself somewhere and press "p" when prompted.
-#
 # Requirements:
 #  For this script to work:
 #   * devscripts, dpkg-dev, subversion, gnome-common
@@ -31,12 +26,12 @@ PUBLISHDIR=/tmp/conduit/packages
 
 # Magic continues below.
 
-mkdir -p $TMPDIR
-cd $TMPDIR
+mkdir -p "$TMPDIR"
+cd "$TMPDIR"
 
 # First checkout trunk so that the SVN version can be determined.
 # This could be done a nicer way like using pysvn perhaps?
-svn co --non-interactive https://svn.greenbirdsystems.com/conduit/trunk conduit
+svn co --non-interactive https://svn.gnome.org/conduit/trunk conduit
 cd conduit
 
 SVNREV=`svnversion .`
@@ -61,7 +56,7 @@ mv conduit "conduit-$VERSION+svn$SVNREV"
 cd "conduit-$VERSION+svn$SVNREV"
 
 # Get the debian/ directory.
-cp -r $DEBIANDIR .
+cp -r "$DEBIANDIR" .
 
 # Add a new changelog entry.
 DEBEMAIL="debian@conduit-project.org" DEBFULLNAME="Conduit Packages" dch -v "$VERSION+svn$SVNREV-1" "New upstream SVN version."
@@ -70,19 +65,19 @@ DEBEMAIL="debian@conduit-project.org" DEBFULLNAME="Conduit Packages" dch -v "$VE
 dpkg-buildpackage -rfakeroot -uc -us
 
 # Copy all the nice generated files to the publishing directory
-cp ../*.deb $PUBLISHDIR
-cp ../*.diff.gz $PUBLISHDIR
-cp ../*.orig.tar.gz $PUBLISHDIR
-cp ../*.dsc $PUBLISHDIR
+cp ../*.deb "$PUBLISHDIR"
+cp ../*.diff.gz "$PUBLISHDIR"
+cp ../*.orig.tar.gz "$PUBLISHDIR"
+cp ../*.dsc "$PUBLISHDIR"
 
 # Put the updated changelog file in its stored place.
-cp debian/changelog $DEBIANDIR
+cp debian/changelog "$DEBIANDIR"
 
 # Get out of the temporary directory.
-cd $PUBLISHDIR
+cd "$PUBLISHDIR"
 
 # Get rid of the temporary directory.
-rm -rf $TMPDIR
+rm -rf "$TMPDIR"
 
 # Generate Packages and Packages.gz files for using as an APT package source.
 dpkg-scanpackages . /dev/null | tee Packages | gzip -9 > Packages.gz
