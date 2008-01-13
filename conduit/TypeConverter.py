@@ -4,6 +4,7 @@ Holds the TypeConverter class
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import traceback
 import logging
 log = logging.getLogger("TypeConverter")
 
@@ -192,6 +193,7 @@ class TypeConverter:
                         to = self.convertables[from_type][to_type](data, **args)
                         newdata = self._retain_info_in_conversion(fromdata=data, todata=to)
                     except Exception:
+                        log.debug(traceback.format_exc())
                         raise Exceptions.ConversionError(from_type, to_type)
                 else:
                     return data
@@ -202,6 +204,7 @@ class TypeConverter:
                     to = self.convertables[from_type][to_type](data, **args)
                     newdata = self._retain_info_in_conversion(fromdata=data, todata=to)
                 except Exception:
+                    log.debug(traceback.format_exc())
                     raise Exceptions.ConversionError(from_type, to_type)
             else:
                 raise Exceptions.ConversionDoesntExistError(from_type, to_type)

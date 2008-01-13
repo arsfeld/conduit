@@ -165,6 +165,7 @@ class DataType(object):
         data['mtime'] = self.get_mtime()
         data['uid'] = self.get_UID()
         data['open_uri'] = self.get_open_URI()
+        data['tags'] = self.get_tags()
         return data
 
     def __setstate__(self, data):
@@ -174,3 +175,5 @@ class DataType(object):
         self.set_mtime(data['mtime'])
         self.set_UID(data['uid'])
         self.set_open_URI(data['open_uri'])
+        self.set_tags(data['tags'])
+        

@@ -19,7 +19,7 @@ class Photo(File.File):
         File.File.__init__(self, URI, **kwargs)
         self.pb = None
 
-    def get_pixbuf(self):
+    def get_photo_pixbuf(self):
         """
         Defer actually getting the pixbuf till as
         late as possible, as it is really only needed for
@@ -30,11 +30,18 @@ class Photo(File.File):
             self.pb = gtk.gdk.pixbuf_new_from_file(self.get_local_uri())
         return self.pb
 
-    def get_size(self):
+    def get_photo_size(self):
         """
         Returns the pb size, width, height
         """
-        self.get_pixbuf()
-        return self.pb.get_width(),self.pb.get_height()        
+        self.get_photo_pixbuf()
+        return self.pb.get_width(),self.pb.get_height()
+        
+    def __getstate__(self):
+        return File.File.__getstate__(self)
+
+    def __setstate__(self, data):
+        self.pb = None
+        File.File.__setstate__(self, data)
 
 

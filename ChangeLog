@@ -1,5 +1,21 @@
 2008-01-13  John Stowers <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreDatatypes.py:
+	* conduit/datatypes/DataType.py: Pickle improvemets
+
+	* conduit/modules/PhotoConverterModule.py:
+	* conduit/datatypes/Audio.py:
+	* conduit/datatypes/Photo.py:
+	* conduit/datatypes/Video.py: Rename functions to avoid collision with
+	File.get_size()
+
+	* conduit/TypeConverter.py: Print traceback when conversion fails
+	
+	* conduit/modules/FspotModule/FspotDbusModule.py: Oh DBus why wont you 
+	marshall dbus.String to str
+
+2008-01-13  John Stowers <john.stowers@gmail.com>
+
 	* conduit/modules/NetworkModule/Client.py:
 	* conduit/modules/NetworkModule/Server.py: Be more robust when dataproviders
 	become available or unavailable

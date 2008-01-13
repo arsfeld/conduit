@@ -44,7 +44,7 @@ class PixbufPhotoConverter:
         """
         import gtk.gdk
 
-        pb = photo.get_pixbuf()
+        pb = photo.get_photo_pixbuf()
         out_file = photo.to_tempfile()
 
         if doResize:
@@ -70,7 +70,7 @@ class PixbufPhotoConverter:
 
         #resize if necessary
         if newSize != NO_RESIZE:
-            w,h = photo.get_size()
+            w,h = photo.get_photo_size()
             width,height = Utils.get_proportional_resize(
                                 desiredW=int(newSize.split('x')[0]),
                                 desiredH=int(newSize.split('x')[1]),

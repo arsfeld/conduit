@@ -15,10 +15,10 @@ class Video(File.File):
     def __init__(self, URI, **kwargs):
         File.File.__init__(self, URI, **kwargs)
 
-    def get_duration(self):
+    def get_video_duration(self):
         return None
 
-    def get_size(self):
+    def get_video_size(self):
         return None,None
 
 

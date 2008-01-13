@@ -13,11 +13,11 @@ class Audio(File.File):
     def __init__(self, URI, **kwargs):
         File.File.__init__(self, URI, **kwargs)
 
-    def get_artist(self):
+    def get_audio_artist(self):
         return None
 
-    def get_album(self):
+    def get_audio_album(self):
         return None
 
-    def get_duration(self):
+    def get_audio_duration(self):
         return None

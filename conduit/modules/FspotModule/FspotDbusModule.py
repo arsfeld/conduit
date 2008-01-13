@@ -86,7 +86,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         return the list of photo id's
         """
         Image.ImageTwoWay.get_all(self)
-        return list (str(photo_id) for photo_id in self.photos)
+        return [str(photo_id) for photo_id in self.photos]
 
     def get(self, LUID):
         """
@@ -95,8 +95,10 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         Image.ImageTwoWay.get(self, LUID)
 
         properties = self.photo_remote.GetPhotoProperties (LUID)
-        photouri = properties['Uri']
-        tags = properties['Tags'].split(',')
+        
+        #FIXME: Oh python-dbus, why wont you marshall dbus.String to str...
+        photouri =  str(properties['Uri'])
+        tags =      str(properties['Tags']).split(',')
 
         f = Photo.Photo(URI=photouri)
         f.set_UID(LUID)
@@ -125,7 +127,6 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
                 self.tag_remote.GetTagByName (tag)
             except:
                 self.tag_remote.CreateTag (fspot_tag)
-
             tags.append (tag)
 
         # import the photo
