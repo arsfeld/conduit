@@ -17,8 +17,12 @@ ok("file:///home exists", Vfs.uri_exists("file:///home") == True)
 ok("/home exists", Vfs.uri_exists("/home") == True)
 ok("/foo/bar does not exist", Vfs.uri_exists("/foo/bar") == False)
 
-# Test the folder scanner theading stuff
 tmpdiruri = Utils.new_tempdir()
+newtmpdiruri = Vfs.uri_join(tmpdiruri, "foo", "bar", "baz")
+Vfs.uri_make_directory_and_parents(newtmpdiruri)
+ok("Made directory and parents: %s" % newtmpdiruri, Vfs.uri_exists(newtmpdiruri) == True)
+
+# Test the folder scanner theading stuff
 fileuri = Utils.new_tempfile("bla").get_local_uri()
 stm = Vfs.FolderScannerThreadManager(maxConcurrentThreads=1)
 

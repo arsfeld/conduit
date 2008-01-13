@@ -11,7 +11,8 @@ except ImportError:
     from gnome import gnomevfs # for maemo
 
 import conduit
-from conduit.datatypes import DataType
+import conduit.datatypes.DataType as DataType
+import conduit.Vfs as Vfs
 
 class File(DataType.DataType):
     
@@ -99,29 +100,6 @@ class File(DataType.DataType):
                 self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
             else:
                 log.warn("Cannot get info on non-existant file %s" % self.URI)
-
-    def _make_directory_and_parents(self, directory):
-        """
-        Because gnomevfs.make_dir does not perform as mkdir -p this function
-        is required to make a heirarchy of directories.
-
-        @param directory: A directory that does not exist
-        @type directory: gnomevfs.URI
-        """
-        exists = False
-        dirs = []
-        while not exists:
-            dirs.append(directory)
-            directory = directory.parent
-            exists = gnomevfs.exists(directory)
-
-        dirs.reverse()
-        for d in dirs:
-            log.debug("Making directory %s" % d)
-            gnomevfs.make_directory(
-                d,
-                gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
-                )
 
     def _defer_rename(self, filename):
         """
@@ -309,9 +287,9 @@ class File(DataType.DataType):
         log.debug("Transfering File %s -> %s" % (self.URI, newURI))
 
         #recursively create all parent dirs if needed
-        parent = newURI.parent
+        parent = str(newURI.parent)
         if not gnomevfs.exists(parent):
-            self._make_directory_and_parents(parent)
+            Vfs.uri_make_directory_and_parents(parent)
 
         #Copy the file
         result = gnomevfs.xfer_uri(

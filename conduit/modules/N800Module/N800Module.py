@@ -6,7 +6,6 @@ transferring them to the n800
 Copyright 2007: Jaime Frutos Morales, John Stowers
 License: GPLv2
 """
-import os.path
 import logging
 log = logging.getLogger("modules.N800")
 
@@ -18,6 +17,7 @@ import conduit.dataproviders.VolumeFactory as VolumeFactory
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
 import conduit.Exceptions as Exceptions
+import conduit.Vfs as Vfs
 
 from gettext import gettext as _
 
@@ -61,7 +61,7 @@ class N800Base(FileDataProvider.FolderTwoWay):
 
     def __init__(self, mount, udi, folder):
         FileDataProvider.FolderTwoWay.__init__(self,
-                            folder,
+                            "file://"+folder,
                             "N800",
                             False,
                             False
@@ -92,10 +92,10 @@ class N800Base(FileDataProvider.FolderTwoWay):
         dialog.run()
 
     def refresh(self):
-        if not os.path.exists(self.folder):
+        if not Vfs.uri_exists(self.folder):
             try:
-                os.mkdir(self.folder)
-            except OSError:
+                Vfs.uri_make_directory_and_parents(self.folder)
+            except:
                 raise Exceptions.RefreshError("Error Creating Directory")
         FileDataProvider.FolderTwoWay.refresh(self)
         
@@ -129,7 +129,7 @@ class N800FolderTwoWay(N800Base):
                     self,
                     mount=args[0],
                     udi=args[1],
-                    folder=os.path.join(args[0],self.DEFAULT_FOLDER)
+                    folder=Vfs.uri_join(args[0],self.DEFAULT_FOLDER)
                     )
                     
     def configure(self, window):
@@ -155,7 +155,7 @@ class N800AudioTwoWay(N800Base):
                     self,
                     mount=args[0],
                     udi=args[1],
-                    folder=os.path.join(args[0],self.DEFAULT_FOLDER)
+                    folder=Vfs.uri_join(args[0],self.DEFAULT_FOLDER)
                     )
         self.encodings =  Audio.PRESET_ENCODINGS.copy()
         self.encoding = "ogg"
@@ -179,7 +179,7 @@ class N800VideoTwoWay(N800Base):
                     self,
                     mount=args[0],
                     udi=args[1],
-                    folder=os.path.join(args[0],self.DEFAULT_FOLDER)
+                    folder=Vfs.uri_join(args[0],self.DEFAULT_FOLDER)
                     )
         self.encodings =  Video.PRESET_ENCODINGS.copy()
         self.encoding = "ogg"
@@ -203,7 +203,7 @@ class N800PhotoTwoWay(N800Base):
                     self,
                     mount=args[0],
                     udi=args[1],
-                    folder=os.path.join(args[0],self.DEFAULT_FOLDER)
+                    folder=Vfs.uri_join(args[0],self.DEFAULT_FOLDER)
                     )
         self.encodings =  Photo.PRESET_ENCODINGS.copy()
         #Add size = 800x480 to the default photo encodings

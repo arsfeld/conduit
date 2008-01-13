@@ -10,6 +10,12 @@ except ImportError:
 #
 # URI Functions
 #
+def uri_join(*args):
+    """
+    Joins multiple uri components
+    """
+    return os.path.join(*args)
+
 def uri_open(uri):
     """
     Opens a gnomevfs or xdg compatible uri.
@@ -117,6 +123,31 @@ def uri_exists(uri):
     except Exception, err:
         print err
         return False
+        
+def uri_make_directory_and_parents(uri):
+    """
+    Because gnomevfs.make_dir does not perform as mkdir -p this function
+    is required to make a heirarchy of directories.
+
+    @param uri: A directory that does not exist
+    @type uri: str
+    """
+    exists = False
+    dirs = []
+
+    directory = gnomevfs.URI(uri)
+    while not exists:
+        dirs.append(directory)
+        directory = directory.parent
+        exists = gnomevfs.exists(directory)
+
+    dirs.reverse()
+    for d in dirs:
+        log.debug("Making directory %s" % d)
+        gnomevfs.make_directory(
+            d,
+            gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
+            )
 
 #
 # For monitoring locations

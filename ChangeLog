@@ -1,3 +1,12 @@
+2008-01-14  John Stowers <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* conduit/datatypes/File.py:
+	* test/python-tests/TestCoreVfs.py: Move make_directory_and_parents
+	to Vfs and add uri_join
+	
+	* conduit/modules/N800Module/N800Module.py: Use the new uri functions
+
 2008-01-13  Jonny Lamb  <jonnylamb@jonnylamb.com>
 
 	* scripts/build-stationary-packages.sh: Updated Conduit SVN address
