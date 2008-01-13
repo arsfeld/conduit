@@ -1,5 +1,11 @@
 2008-01-13  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/NetworkModule/Server.py: Be more robust when dataproviders
+	become available or unavailable
+
+2008-01-13  John Stowers <john.stowers@gmail.com>
+
 	* conduit/modules/NetworkModule/Client.py: Remove race condition modifying
 	a dict while iterating.
 	

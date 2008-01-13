@@ -83,7 +83,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
     def _dataprovider_added(self, cond, dpw):
         sharedDpw,networkEndpoint = self._get_shared_dps(cond)
         if sharedDpw != None:
-            if sharedDpw.get_UID() not in self.shared:
+            if sharedDpw.get_UID() not in self.shared and sharedDpw.module != None:
                 #Update the network enpoint to have the same input and output
                 #types as the shared DP. The proper solution here is to
                 #have the network endpoint also be a client to the remote dp,
@@ -96,6 +96,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
     def _dataprovider_removed(self, cond, dpw):
         if dpw.get_UID() in self.shared:
             self.unshare_dataprovider(dpw)
+            cond._parameters_changed()
             
     def list_shared_dataproviders(self):
         info = []

@@ -9,6 +9,7 @@ import threading
 import time
 import gobject
 import logging
+import socket
 log = logging.getLogger("modules.Network")
 
 import Peers
@@ -78,15 +79,14 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
                 self.dataprovider_removed(dp)
             self.dataproviders.remove(url)
                     
-    def dataprovider_process(self, huh, response):
+    def dataprovider_process(self, peerLister):
         """
         """
-        # get some local refs
-        hostUrl = response.url
+        hostUrl = peerLister.url
         currentSharedDps = self.dataproviders[hostUrl]
         #A remote dps uid is the url + the original dp uid
         remoteSharedDps = {}
-        for dpInfo in response.data_out:
+        for dpInfo in peerLister.data_out:
             remoteUid = "%s-%s" % (hostUrl,dpInfo['uid'])
             remoteSharedDps[remoteUid] = dpInfo
 
@@ -149,8 +149,7 @@ class _PeerLister(threading.Thread, gobject.GObject):
     """
     __gsignals__ =  { 
                     "complete": 
-                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_PYOBJECT])      #request,
+                        (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
     FREQ = 5
@@ -172,9 +171,14 @@ class _PeerLister(threading.Thread, gobject.GObject):
         #Gross cancellable spinning loop...
         while not self.stopped:
             while self._ticks > (self.FREQ / self.SLEEP):
-                self.data_out = server.list_shared_dataproviders()
-                gobject.idle_add(self.emit, "complete", self)
-                self._ticks = 0
+                try:
+                    self.data_out = server.list_shared_dataproviders()
+                    gobject.idle_add(self.emit, "complete")
+                    self._ticks = 0
+                except socket.error:
+                    #If the server has died or not started yet
+                    pass
+                                   
             else:
                 time.sleep(self.SLEEP)
                 self._ticks += 1
