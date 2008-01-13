@@ -126,7 +126,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             try:
                 self.tag_remote.GetTagByName (tag)
             except:
-                self.tag_remote.CreateTag (fspot_tag)
+                self.tag_remote.CreateTag (tag)
             tags.append (tag)
 
         # import the photo
