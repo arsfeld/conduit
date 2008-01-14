@@ -220,6 +220,6 @@ echo $FOOTER >> $indexfile
 #upload results
 if [ $do_upload -ne 0 ] ; then
     echo "UPLOADING"
-    rsync -tzr $LOGDIR/ root@greenbirdsystems.com:/var/www/conduit-project.org/tests
+    rsync -qtzr $LOGDIR/ root@greenbirdsystems.com:/var/www/conduit-project.org/tests
 fi
 

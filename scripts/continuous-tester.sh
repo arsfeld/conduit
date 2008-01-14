@@ -20,6 +20,7 @@ Options:\n\
 FORCE=no
 DOCS=yes
 CNT=-1
+LOOP=no
 #Check the arguments.
 for option in "$@"; do
   case "$option" in
@@ -31,7 +32,8 @@ for option in "$@"; do
     -d | --disable-docs)
       DOCS=no ;;
     -l | --loop)
-      CNT=1 ;;
+      CNT=1
+      LOOP=yes ;;
     -*)
       echo "Unrecognized option: $option\n\n$USAGE"
       exit 1 ;;
@@ -67,16 +69,22 @@ while [ $CNT -ne 0 ]; do
 
         #Build API docs
         if [ $DOCS = "yes" ]; then
-            ./scripts/make-doc.sh &>/dev/null
-            ./scripts/upload-doc.sh &>/dev/null
+            echo "`date` Building API Docs" | tee -a $LOGFILE
+            ./scripts/make-doc.sh --quiet
+            ./scripts/upload-doc.sh
         fi
     fi
     
-    echo "`date` Sleeping" | tee -a $LOGFILE
-    sleep $SLEEP_TIME
+    #Dont sleep if not run in loop
+    if [ $LOOP = "yes" ]; then
+        echo "`date` Sleeping" | tee -a $LOGFILE
+        sleep $SLEEP_TIME
+    fi
+
     CNT=`expr $CNT + 1`
 done
 
+echo "`date` Finished" | tee -a $LOGFILE
 cd - &>/dev/null
 
 

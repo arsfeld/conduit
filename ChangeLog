@@ -1,5 +1,15 @@
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/continuous-tester.sh: Add date stamp, don't sleep when not 
+	looping and quiet output of doc scripts
+	
+	* scripts/make-doc.sh: Add --quiet command line argument
+	
+	* scripts/run-tests.sh:
+	* scripts/upload-doc.sh: Quiet rsync output
+
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
 	* scripts/continuous-tester.sh: Enalbe code coverage and remember to svn up
 
 	* scripts/run-tests.sh: Add timestamp to test results
