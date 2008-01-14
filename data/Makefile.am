@@ -46,6 +46,7 @@ resources_DATA = \
 	smugmug.png \
 	boxdotnet.png \
 	flickr.png \
+	shutterfly.png \
 	youtube.png
 
 conduitbindir = $(libdir)/conduit

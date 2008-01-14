@@ -1,3 +1,17 @@
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
+	* Makefile.am:
+	* conduit/modules/NetworkModule/Makefile.am:
+	* data/Makefile.am: Misc autotools fixes
+
+	* conduit/Settings.py: make save settings and gtkmozembed browser default
+	
+	* scripts/continuous-tester.sh: New script that continually runs the 
+	conduit test suite when it detects that SVN has changed
+
+	* test/python-tests/TestCoreSyncWithConversion.py: Test mapping retention
+	through the conversion barrier
+
 2008-01-14  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/ModuleWrapper.py: Refactor to use keyword args in the constructor

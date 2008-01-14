@@ -8,10 +8,10 @@ doap.rdf: doap.rdf.in Makefile.am
 	    -e s/\@DATE\@/`date +%F`/g \
 	< $< > $@
 
-WEBROOT := root@www.greenbirdsystems.com:/var/www/conduit-project.org/files/releases
 release: dist doap.rdf
 	svn cp ../trunk/ ../tags/$(VERSION)	
-	scp $(PACKAGE)-$(VERSION).tar.gz $(WEBROOT)
+	scp $(PACKAGE)-$(VERSION).tar.gz jstowers@master.gnome.org
+	ssh jstowers@master.gnome.org install-module $(PACKAGE)-$(VERSION).tar.gz
 
 DISTCLEANFILES = \
 	intltool-extract \
@@ -30,10 +30,10 @@ EXTRA_DIST = \
 	doap.rdf.in \
 	gnome-doc-utils.make
 
-#Update ChangeLog, NEWS and TODO from http://www.conduit-project.org
+#Update NEWS and TODO from http://www.conduit-project.org
 #Ugly autofoo to support make distcheck pass
 dist-hook:
-	@echo "Generating Changelog, NEWS, TODO"
+	@echo "Generating NEWS, TODO"
 	@if test -d $(top_srcdir)/.svn ; then \
 		wget -q -O $(distdir)/NEWS "http://www.conduit-project.org/wiki/$(VERSION)?format=txt" ; \
 		wget -q -O $(distdir)/TODO "http://www.conduit-project.org/wiki/TODO?format=txt" ; \
