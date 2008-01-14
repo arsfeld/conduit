@@ -23,6 +23,7 @@ MODULES = {
     "TestWebTwoWay" :           { "type": "dataprovider" },
     "TestFileSource" :          { "type": "dataprovider" },
     "TestFileSink" :            { "type": "dataprovider" },
+    "TestFileTwoWay" :          { "type": "dataprovider" },
     "TestImageSink" :           { "type": "dataprovider" },
     "TestVideoSink" :           { "type": "dataprovider" },
     "TestAudioSink" :           { "type": "dataprovider" },
@@ -107,6 +108,9 @@ class _TestBase(DataProvider.DataProviderBase):
         self.aList = []
         self.count = 0
         
+    def _change_detected(self, *args):
+        gobject.timeout_add(3000, self.emit_change_detected)    
+        
     def initialize(self):
         return True
 
@@ -162,7 +166,13 @@ class _TestBase(DataProvider.DataProviderBase):
                     "Widget" : gtk.Entry,
                     "Callback" : setNumData,
                     "InitialValue" : self.numData
-                    } 
+                    },
+                    {
+                    "Name" : "Emit Change Detected",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : self._change_detected,
+                    "InitialValue" : False
+                    }
                 ]
         dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
         dialog.run()
@@ -239,13 +249,6 @@ class TestSource(_TestBase, DataProvider.DataSource):
         DataProvider.DataSource.__init__(self)
         self.data = []
         self.numData = 10
-        
-        #signal we have new data in a few seconds
-        gobject.timeout_add(3000, self._emit_change)
-
-    def _emit_change(self):
-        self.emit_change_detected()
-        return False
         
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -373,8 +376,25 @@ class TestFileSink(_TestBase, DataProvider.DataSink):
     def put(self, data, overwrite, LUID=None):
         log.debug("Putting file: %s" % data._get_text_uri())
         DataProvider.DataSink.put(self, data, overwrite, LUID)
-        newData = TestDataType(data.get_size())
-        return newData.get_rid()
+        if LUID == None:
+            LUID = data.get_UID()
+        f = File.File(URI=LUID)
+        f.set_UID(LUID)
+        return f.get_rid()
+        
+class TestFileTwoWay(TestFileSource, TestFileSink):
+
+    _name_ = "Test File Two Way"
+    _description_ = "Sync Files"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "twoway"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+
+    def __init__(self, *args):
+        TestFileSource.__init__(self)
+        TestFileSink.__init__(self)
 
 class TestImageSink(_TestBase, Image.ImageSink):
 

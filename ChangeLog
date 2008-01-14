@@ -1,5 +1,13 @@
 2008-01-14  John Stowers <john.stowers@gmail.com>
 
+	* conduit/modules/TestModule.py: Add TestFileTwoWay and change the
+	default behaviour for emitting change_detected to require configuring the
+	dataprovider
+	
+	* test/python-tests/TestCoreSyncTestDataProviders.py: Test TestFileTwoWay
+
+2008-01-14  John Stowers <john.stowers@gmail.com>
+
 	* conduit/dataproviders/DataProvider.py: Add get_status()
 
 	* conduit/modules/NetworkModule/Server.py: Add is_configured() to return

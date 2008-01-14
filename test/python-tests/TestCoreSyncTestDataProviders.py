@@ -133,7 +133,7 @@ ok("Sync completed", aborted == False)
 ###
 ok("---- ONE WAY: TEST FILE/IMAGE SINK", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.prepare(
         test.get_dataprovider("TestFileSource"), 
         test.get_dataprovider("TestFileSink")
@@ -143,7 +143,22 @@ test.add_extra_sink(
         )
 test.set_two_way_sync(False)
 test.sync(debug=False)
-aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
+aborted,errored,conflicted = test.get_sync_result()
+ok("Sync completed without conflicts", aborted == False and errored == False and conflicted == False)
+
+###
+#Test file and image sink
+###
+ok("---- TWO WAY: TEST FILE", True)
+test = SimpleSyncTest()
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
+test.prepare(
+        test.get_dataprovider("TestFileTwoWay"), 
+        test.get_dataprovider("TestFileTwoWay")
+        )
+test.set_two_way_sync(True)
+test.sync(debug=False)
+aborted,errored,conflicted = test.get_sync_result()
+ok("Sync completed without conflicts", aborted == False and errored == False and conflicted == False)
 
 finished()
