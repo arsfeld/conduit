@@ -457,12 +457,12 @@ class DBusInterface(DBusItem):
         @param key: Key of the DP to create
         @returns: The new DP
         """
-        dp = self.moduleManager.get_new_module_instance(key)
-        if dp == None:
+        dpw = self.moduleManager.get_module_wrapper_with_instance(key)
+        if dpw == None:
             raise ConduitException("Could not find dataprovider with key: %s" % key)
 
         i = Utils.uuid_string()
-        new = DataProviderDBusItem(dp, i)
+        new = DataProviderDBusItem(dpw, i)
         EXPORTED_OBJECTS[new.get_path()] = new
         return new
 

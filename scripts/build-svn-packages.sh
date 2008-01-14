@@ -31,7 +31,7 @@ cd "$TMPDIR"
 
 # First checkout trunk so that the SVN version can be determined.
 # This could be done a nicer way like using pysvn perhaps?
-svn co --non-interactive https://svn.gnome.org/conduit/trunk conduit
+svn co --non-interactive http://svn.gnome.org/svn/conduit/trunk conduit
 cd conduit
 
 SVNREV=`svnversion .`

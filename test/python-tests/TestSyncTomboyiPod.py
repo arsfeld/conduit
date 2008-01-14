@@ -10,7 +10,6 @@ import conduit.Synchronization as Synchronization
 
 from conduit.datatypes import COMPARISON_EQUAL
 from conduit.modules import iPodModule
-from conduit.ModuleWrapper import ModuleWrapper
 
 #setup the test
 test = SimpleSyncTest()

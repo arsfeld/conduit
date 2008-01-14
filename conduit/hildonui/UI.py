@@ -112,7 +112,7 @@ class MainWindow(hildon.Program):
         #signal and NOT here
         if dataproviderKey != "":
             #Add a new instance if the dataprovider to the canvas.
-            new = self.moduleManager.get_new_module_instance(dataproviderKey)
+            new = self.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
             self.canvas.add_dataprovider_to_canvas(dataproviderKey, new, x, y)
         
         context.finish(True, True, etime)

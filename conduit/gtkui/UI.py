@@ -239,12 +239,12 @@ class MainWindow:
             string = "%s %s %s %s" % (CONVERT_FROM_MESSAGE, froms, CONVERT_INTO_MESSAGE, tos)
             converterListStore.append( (string,) )
         dataProviderListStore = gtk.ListStore( str, bool )
-        for i in self.moduleManager.get_modules_by_type("sink"):
-            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
-        for i in self.moduleManager.get_modules_by_type("source"):
-            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
-        for i in self.moduleManager.get_modules_by_type("twoway"):
-            dataProviderListStore.append(("Name: %s\nDescription: %s\n(type:%s in:%s out:%s)" % (i.name, i.description, i.module_type, i.get_input_type(), i.get_output_type()), i.enabled))
+        #get all dataproviders
+        for i in self.moduleManager.get_modules_by_type("sink","source","twoway"):
+            dataProviderListStore.append(("Name: %s\nDescription: %s)" % (i.name, i.description), True))
+        #include files that could not be loaded
+        for f in self.moduleManager.invalidFiles:
+            dataProviderListStore.append(("Error loading file: %s" % f, False))
 
         #construct the dialog
         tree = gtk.glade.XML(self.gladeFile, "PreferencesDialog")
@@ -296,7 +296,7 @@ class MainWindow:
                                         gtk.CellRendererText(), 
                                         text=0)
                                         )                                                   
-        dataproviderTreeView.append_column(gtk.TreeViewColumn(_("Enabled"), 
+        dataproviderTreeView.append_column(gtk.TreeViewColumn(_("Loaded"), 
                                         gtk.CellRendererToggle(), 
                                         active=1)
                                         )                                        
@@ -420,7 +420,7 @@ class MainWindow:
         #signal and NOT here
         if dataproviderKey != "":
             #Add a new instance if the dataprovider to the canvas.
-            new = self.moduleManager.get_new_module_instance(dataproviderKey)
+            new = self.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
             self.canvas.add_dataprovider_to_canvas(dataproviderKey, new, x, y)
         
         context.finish(True, True, etime)

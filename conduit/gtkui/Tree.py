@@ -27,18 +27,11 @@ class CategoryWrapper(ModuleWrapper):
     def __init__(self, category):
         ModuleWrapper.__init__(
                             self,
-                            category.name,  #name: shows in name column
-                            None,           #description: shows in description column
-                            category.icon,  #icon name
-                            "category",     #module_type: used to cancel drag and drop
-                            category,       #category: untranslated version on Name 
-                            None,           #in_type: N/A
-                            None,           #out_type: N/A
-                            None,           #classname: N/A
-                            (),             #initargs: N/A
-                            category,       #object instance: N/A
-                            True)           #enabled: True but N/A
-
+                            name=category.name,
+                            icon_name=category.icon,
+                            module_type="category",
+                            category=category
+                            )
        
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """

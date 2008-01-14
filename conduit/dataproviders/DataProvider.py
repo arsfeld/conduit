@@ -502,16 +502,19 @@ class DataProviderFactory(gobject.GObject):
     def emit_added(self, klass, initargs=(), category=None):
         if category == None:
             category = getattr(klass, "_category_", conduit.dataproviders.CATEGORY_TEST)
-        dpw = ModuleWrapper.ModuleWrapper (   
-                    getattr(klass, "_name_", ""),
-                    getattr(klass, "_description_", ""),
-                    getattr(klass, "_icon_", ""),
-                    getattr(klass, "_module_type_", ""),
-                    category,
-                    getattr(klass, "_in_type_", ""),
-                    getattr(klass, "_out_type_", ""),
-                    klass.__name__,     #classname
-                    initargs,
+        dpw = ModuleWrapper.ModuleWrapper(   
+                    name=getattr(klass, "_name_", ""),
+                    description=getattr(klass, "_description_", ""),
+                    icon_name=getattr(klass, "_icon_", ""),
+                    module_type=getattr(klass, "_module_type_", ""),
+                    category=category,
+                    in_type=getattr(klass, "_in_type_", ""),
+                    out_type=getattr(klass, "_out_type_", ""),
+                    filename=__file__,
+                    classname=klass.__name__,
+                    initargs=initargs,
+                    module=None,
+                    enabled=True
                     )
         log.debug("DataProviderFactory %s: Emitting dataprovider-available for %s" % (self, dpw.get_key()))
         self.emit("dataprovider-available", dpw, klass)

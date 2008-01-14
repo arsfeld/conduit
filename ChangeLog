@@ -1,3 +1,20 @@
+2008-01-14  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/ModuleWrapper.py: Refactor to use keyword args in the constructor
+
+	* conduit/DBus.py:
+	* conduit/Module.py:
+	* conduit/SyncSet.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/gtkui/Tree.py:
+	* conduit/hildonui/UI.py:
+	* test/python-tests/TestSyncTomboyiPod.py:
+	* test/python-tests/common.py: Update to new ModuleWrapper API
+	
+	* conduit/gtkui/UI.py: Display files that failed to load in the prefs window
+	
+	* scripts/build-svn-packages.sh: Fix repo url
+
 2008-01-14  John Stowers <john.stowers@gmail.com>
 
 	* conduit/modules/TestModule.py: Add TestFileTwoWay and change the

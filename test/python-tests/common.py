@@ -260,7 +260,7 @@ class SimpleTest(object):
         wrapper = None
         for dp in self.model.get_all_modules():
             if dp.classname == name:
-                wrapper = self.model.get_new_module_instance(dp.get_key())
+                wrapper = self.model.get_module_wrapper_with_instance(dp.get_key())
 
         ok("Find DataProviderWrapper '%s'" % name, wrapper != None, die)
         return wrapper
@@ -274,20 +274,11 @@ class SimpleTest(object):
         return factory
 
     def wrap_dataprovider(self, dp):
-        wrapper = ModuleWrapper.ModuleWrapper (   
-                    getattr(dp, "_name_", ""),
-                    getattr(dp, "_description_", ""),
-                    getattr(dp, "_icon_", ""),
-                    getattr(dp, "_module_type_", ""),
-                    None,
-                    getattr(dp, "_in_type_", ""),
-                    getattr(dp, "_out_type_", ""),
-                    dp.__class__.__name__,     #classname
-                    tuple([]),
-                    dp,
-                    True
-                    )
-
+        wrapper = ModuleWrapper.ModuleWrapper(   
+                        classname=dp.__class__.__name__,
+                        module=dp,
+                        enabled=True
+                        )
         return wrapper
 
     def networked_dataprovider(self, dp):

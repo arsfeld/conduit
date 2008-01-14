@@ -54,7 +54,7 @@ class SyncSet(gobject.GObject):
         location and configures it with the given settings
         """
         log.debug("Restoring %s to (source=%s)" % (wrapperKey,trySourceFirst))
-        wrapper = self.moduleManager.get_new_module_instance(wrapperKey)
+        wrapper = self.moduleManager.get_module_wrapper_with_instance(wrapperKey)
         wrapper.set_name(dpName)
         if wrapper is not None:
             for i in dpxml.childNodes:
@@ -69,7 +69,7 @@ class SyncSet(gobject.GObject):
         key = dpw.get_key()
         for c in self.get_all_conduits():
             for dp in c.get_dataproviders_by_key(key):
-                new = self.moduleManager.get_new_module_instance(key)
+                new = self.moduleManager.get_module_wrapper_with_instance(key)
                 #retain configuration information
                 new.set_configuration_xml(dp.get_configuration_xml())
                 new.set_name(dp.get_name())
