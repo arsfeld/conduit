@@ -28,18 +28,16 @@ try:
     # Test local <--> local
     test_full_set(host, source, sink, datatype, dataset)
 
-    if datatype in ("contact", "note"):
-        # Test networked <--> local
-        newsource = host.networked_dataprovider(source)
-        test_full_set(host, newsource, sink, datatype, dataset)
+    # Test networked <--> local
+    newsource = host.networked_dataprovider(source)
+    test_full_set(host, newsource, sink, datatype, dataset)
         
-        # Test local <--> networked
-        newsink = host.networked_dataprovider(sink)
-        test_full_set(host, source, newsink, datatype, dataset)
+    # Test local <--> networked
+    newsink = host.networked_dataprovider(sink)
+    test_full_set(host, source, newsink, datatype, dataset)
 
-        # Test networked <--> networked
-        test_full_set(host, newsource, newsink, datatype, dataset)
-
+    # Test networked <--> networked
+    test_full_set(host, newsource, newsink, datatype, dataset)
 except:
     sys.excepthook(*sys.exc_info())
     ok("Unhandled borkage", False)

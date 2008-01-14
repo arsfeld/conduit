@@ -1,3 +1,10 @@
+2008-01-14  John Carr <john.carr@unrouted.co.uk>
+
+	* test/python-tests/AutoGenerate.py:
+	* test/python-tests/common.py:
+	* test/python-tests/AutoSoup.py:
+	Fixes to test suite so that it reflects recent changes in Conduit SVN
+
 2008-01-14  John Stowers <john.stowers@gmail.com>
 
 	* conduit/Vfs.py:

@@ -231,9 +231,12 @@ class SimpleTest(object):
                             ]
 
         self.model = Module.ModuleManager(dirs_to_search)
+        conduit.GLOBALS.moduleManager = self.model
         self.model.load_all()
         self.type_converter = TypeConverter.TypeConverter(self.model)
+        conduit.GLOBALS.typeManager = self.type_converter
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
+        conduit.GLOBALS.syncManager = self.sync_manager
 
         ok("Environment ready", self.model != None and self.type_converter != None and self.sync_manager != None)
 
@@ -292,7 +295,7 @@ class SimpleTest(object):
             factory = self.model.dataproviderFactories[i]
             if str(factory).find("NetworkServerFactory") != -1:
                 found = True
-                factory.share_dataprovider(conduit, dp)
+                factory.share_dataprovider(dp)
                 break
 
         if found == False:
