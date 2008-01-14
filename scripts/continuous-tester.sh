@@ -3,7 +3,7 @@
 TEST_DIR='/tmp/conduittestdir'
 LOGFILE='/home/john/Desktop/conduit-test.log'
 SVN_REPO='http://svn.gnome.org/svn/conduit/trunk'
-TEST_OPTIONS=''
+TEST_OPTIONS='cu'
 SLEEP_TIME='1h'
 
 ME=`basename $0`
@@ -57,6 +57,7 @@ while [ $CNT -ne 0 ]; do
         echo "`date` Running Test (Revision $LVERSION)" | tee -a $LOGFILE
         #Run tests (dbus-launch sets a private session bus incase we are
         #being run from a VT
+        svn up . &>>$LOGFILE
         dbus-launch ./scripts/run-tests.sh -$TEST_OPTIONS &>>$LOGFILE
         
         #Build packages

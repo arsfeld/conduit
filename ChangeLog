@@ -1,5 +1,13 @@
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/continuous-tester.sh: Enalbe code coverage and remember to svn up
+
+	* scripts/run-tests.sh: Add timestamp to test results
+
+	* tools/conduit-client: Fix typo in help
+
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
 	* Makefile.am:
 	* conduit/modules/NetworkModule/Makefile.am:
 	* data/Makefile.am: Misc autotools fixes

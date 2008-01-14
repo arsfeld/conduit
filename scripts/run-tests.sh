@@ -115,7 +115,7 @@ if [ $do_list -ne 0 ] ; then
 fi
 
 #-------------------------------------------------------------------------------
-HEADER="<html><head><title>Conduit Test Results</title></head><body>"
+HEADER="<html><head><title>Conduit Test Results (`date`)</title></head><body>"
 STYLE="<style type=\"text/css\"> pre.abort { background-color: #f99; } pre.fail { background-color: #fcc; } pre.normal { background-color: white; } pre.skip { color: #999; }</style>"
 FOOTER="</body></html>"
 

@@ -100,7 +100,8 @@ def usage():
             "Usage:\n\n" + \
             "conduit-client -s SinkName [OPTIONS] files...\n\n" + \
             "Options:\n\n" + \
-            "   -c, --sink-configuration    Display Help\n" + \
+            "   -h, --help                  Display Help\n" + \
+            "   -c, --sink-configuration    XML Configuration for the sink\n" + \
             "   -k, --keep                  Dont delete conduit after sync\n" + \
             "   -l, --list-dataproviders    List available dataprovders\n" + \
             "   -x, --dont-start            Dont start conduit (must be running)\n" + \
