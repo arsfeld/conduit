@@ -262,8 +262,16 @@ class SimpleTest(object):
             if dp.classname == name:
                 wrapper = self.model.get_new_module_instance(dp.get_key())
 
-        ok("Find wrapper '%s'" % name, wrapper != None, die)
+        ok("Find DataProviderWrapper '%s'" % name, wrapper != None, die)
         return wrapper
+
+    def get_dataprovider_factory(self, className, die=True):
+        factory = None
+        for f in self.model.dataproviderFactories:
+            if f.__class__.__name__ == className:
+                factory = f
+        ok("Find DataProviderFactory '%s'" % className, factory != None, die)
+        return factory
 
     def wrap_dataprovider(self, dp):
         wrapper = ModuleWrapper.ModuleWrapper (   
@@ -286,29 +294,24 @@ class SimpleTest(object):
         """
         Dirty evil cludge so we can test networked sync...
         """
-        found = False
+        factory = self.get_dataprovider_factory("NetworkServerFactory")
+        try:
+            server = factory.share_dataprovider(dp)
+            ok("Created new DataProviderServer", server != None)
+        except:
+            ok("Created new DataProviderServer", False)
+            
 
         conduit = Conduit.Conduit(self.sync_manager)
-
-        #fixme: need cleaner way to get networked factory..
-        for i in range(0, len(self.model.dataproviderFactories)):
-            factory = self.model.dataproviderFactories[i]
-            if str(factory).find("NetworkServerFactory") != -1:
-                found = True
-                factory.share_dataprovider(dp)
-                break
-
-        if found == False:
-            return None
-
         time.sleep(1)
 
-        for i in range(0, len(self.model.dataproviderFactories)):
-            factory = self.model.dataproviderFactories[i]
-            if str(factory).find("NetworkClientFactory") != -1:
-                newdp = factory.dataprovider_create("http://localhost:3400/", conduit.uid, None)
-                ok("Created new DataProviderClient", newdp != None)
-                return self.wrap_dataprovider( newdp() )
+        factory = self.get_dataprovider_factory("NetworkClientFactory")
+        try:
+            newdp = factory.dataprovider_create("http://localhost", conduit.uid, server.get_info())
+            ok("Created new DataProviderClient", newdp != None)
+            return self.wrap_dataprovider( newdp() )
+        except:
+            ok("Created new DataProviderClient", False)
 
     def configure(self, source={}, sink={}):
         if len(source) > 0:

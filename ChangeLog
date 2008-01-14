@@ -1,3 +1,13 @@
+2008-01-14  John Stowers <john.stowers@gmail.com>
+
+	* conduit/modules/NetworkModule/Server.py: Return the server from 
+	share_dataprovider so the tests can use it
+
+	* test/python-tests/common.py: Add get_dataprovider_factory function and
+	update networked_dataprovider to the new API
+	
+	* test/python-tests/TestDataProviderNetwork.py: Add simple test
+
 2008-01-14  John Carr <john.carr@unrouted.co.uk>
 
 	* test/python-tests/AutoGenerate.py:

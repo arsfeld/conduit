@@ -118,6 +118,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         server.start()
         self.shared[dpw.get_UID()] = server
         self.DP_PORT += 1
+        return server
 
     def unshare_dataprovider(self, dpw):
         """
