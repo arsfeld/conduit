@@ -85,9 +85,7 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
         if sharedDpw != None:
             if sharedDpw.get_UID() not in self.shared and sharedDpw.module != None:
                 #Update the network enpoint to have the same input and output
-                #types as the shared DP. The proper solution here is to
-                #have the network endpoint also be a client to the remote dp,
-                #but thats not going to happen yet
+                #types as the shared DP.
                 networkEndpoint.module.input_type = sharedDpw.module.get_input_type()
                 networkEndpoint.module.output_type = sharedDpw.module.get_output_type()
                 cond._parameters_changed()
@@ -146,8 +144,18 @@ class NetworkEndpoint(DataProvider.TwoWay):
         self.output_type = ""
 
     def is_busy(self):
+        #Stop right click menu
         return True
-        
+
+    def is_configured(self):
+        #Prevent initiating a sync on the server end by pretending we are
+        #not configured
+        return False
+
+    def get_status(self):
+        #Always show status as ready
+        return DataProvider.STATUS_NONE
+
     def get_input_type(self):
         return self.input_type
         

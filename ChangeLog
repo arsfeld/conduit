@@ -1,5 +1,17 @@
 2008-01-14  John Stowers <john.stowers@gmail.com>
 
+	* conduit/dataproviders/DataProvider.py: Add get_status()
+
+	* conduit/modules/NetworkModule/Server.py: Add is_configured() to return
+	False so that a sync cannot be initiated from the Server end
+	
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Marshall some more functions
+	over xmlrpc so the GUI displays sensible messages on both ends
+	
+	* test/python-tests/data/1.png: Add test image for photo tests
+
+2008-01-14  John Stowers <john.stowers@gmail.com>
+
 	* conduit/modules/NetworkModule/Server.py: Return the server from 
 	share_dataprovider so the tests can use it
 

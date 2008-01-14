@@ -163,6 +163,18 @@ class DataProviderClient(DataProvider.TwoWay):
     def get_UID(self):
         return self.uid
         
+    @Utils.log_function_call(clog)
+    def set_status(self, newStatus):
+        self.server.set_status(newStatus)
+
+    @Utils.log_function_call(clog)
+    def get_status(self):
+        return self.server.get_status()
+        
+    @Utils.log_function_call(clog)
+    def get_status_text(self):
+        return self.server.get_status_text()
+        
 class DataproviderServer(StoppableXMLRPCServer):
     """
     Wraps a dataproviderwrapper in order to pickle args
@@ -186,6 +198,13 @@ class DataproviderServer(StoppableXMLRPCServer):
         self.register_function(self.put)
         self.register_function(self.delete)
         self.register_function(self.finish)
+        
+        #These functions will never throw exceptions so register them in
+        #the module directly
+        self.register_function(self.dpw.module.set_status)
+        self.register_function(self.dpw.module.get_status)
+        self.register_function(self.dpw.module.get_status_text)
+
 
     def get_info(self):
         """
@@ -245,3 +264,4 @@ class DataproviderServer(StoppableXMLRPCServer):
             self.dpw.module.finish(aborted, error, conflict)
         except Exception, e:
             return marshal_exception_to_fault(e)
+

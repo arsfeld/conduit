@@ -142,7 +142,7 @@ class DataProviderBase(gobject.GObject):
         @param newStatus: The new status
         @type newStatus: C{int}
         """
-        if newStatus != self.status:
+        if newStatus != self.get_status():
             self.status = newStatus
             self.__emit_status_changed()
         
@@ -158,7 +158,7 @@ class DataProviderBase(gobject.GObject):
         @returns: a textual representation of the current dataprover status
         @rtype: C{str}
         """
-        s = self.status
+        s = self.get_status()
         if s == STATUS_NONE:
             return _("Ready")
         elif s == STATUS_CHANGE_DETECTED:
@@ -194,7 +194,7 @@ class DataProviderBase(gobject.GObject):
         @todo: This simple test introduces a few (many) corner cases where 
         the function will return the wrong result. Think about this harder
         """
-        s = self.status
+        s = self.get_status()
         if s == STATUS_REFRESH:
             return True
         elif s == STATUS_SYNC:
