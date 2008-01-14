@@ -1,5 +1,9 @@
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/continuous-tester.sh: Run scripts with full path
+
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
 	* scripts/continuous-tester.sh: Add date stamp, don't sleep when not 
 	looping and quiet output of doc scripts
 	

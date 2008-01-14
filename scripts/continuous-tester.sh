@@ -59,8 +59,8 @@ while [ $CNT -ne 0 ]; do
         echo "`date` Running Test (Revision $LVERSION)" | tee -a $LOGFILE
         #Run tests (dbus-launch sets a private session bus incase we are
         #being run from a VT
-        svn up . &>>$LOGFILE
-        dbus-launch ./scripts/run-tests.sh -$TEST_OPTIONS &>>$LOGFILE
+        svn up . 
+        dbus-launch $TEST_DIR/scripts/run-tests.sh -$TEST_OPTIONS 
         
         #Build packages
         #./autogen.sh && make && make dist &>/dev/null
@@ -70,8 +70,8 @@ while [ $CNT -ne 0 ]; do
         #Build API docs
         if [ $DOCS = "yes" ]; then
             echo "`date` Building API Docs" | tee -a $LOGFILE
-            ./scripts/make-doc.sh --quiet
-            ./scripts/upload-doc.sh
+            $TEST_DIR/scripts/make-doc.sh --quiet
+            $TEST_DIR/scripts/upload-doc.sh
         fi
     fi
     
