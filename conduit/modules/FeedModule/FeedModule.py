@@ -41,26 +41,24 @@ class RSSSource(DataProvider.DataSource):
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
         
-        #self.feedUrl = "http://www.flickr.com/services/feeds/photos_public.gne?id=44124362632@N01&format=rss_200_enc"
-        #self.feedUrl = "http://www.lugradio.org/episodes.ogg.rss"
         self.feedUrl = ""
-        self.files = None
+        self.files = {}
 
-        self.allowedTypes = []
         self.limit = 0        
         self.downloadPhotos = True
         self.downloadAudio = True
+        self.downloadVideo = True
 
         mimetypes.init()
 
         # loop through all mime types and detect common mime types
         for m in mimetypes.types_map.values():
             if m[:6] == "image/":
-                self.PHOTO_TYPES.append(m)
+                RSSSource.PHOTO_TYPES.append(m)
             elif m[:6] == "audio/":
-                self.AUDIO_TYPES.append(m)
+                RSSSource.AUDIO_TYPES.append(m)
             elif m[:6] == "video/":
-                self.VIDEO_TYPES.append(m)
+                RSSSource.VIDEO_TYPES.append(m)
 
         # why on gods green earth is there an application/ogg :(
         self.AUDIO_TYPES.append("application/ogg")
@@ -81,6 +79,7 @@ class RSSSource(DataProvider.DataSource):
         limitSb = tree.get_widget("limitnumber")        
         photosCb = tree.get_widget("downloadphotos")
         audioCb = tree.get_widget("downloadaudio")
+        videoCb = tree.get_widget("downloadvideo")
         
         #preload the widgets
         if self.limit > 0:
@@ -91,7 +90,8 @@ class RSSSource(DataProvider.DataSource):
         url.set_text(self.feedUrl)
         photosCb.set_active(self.downloadPhotos)
         audioCb.set_active(self.downloadAudio)
-        
+        videoCb.set_active(self.downloadVideo)
+                
         dlg = tree.get_widget("RSSSourceConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
@@ -100,21 +100,25 @@ class RSSSource(DataProvider.DataSource):
             if limitCb.get_active():
                 #Need to cast to a float cause it returns an int
                 self.limit = int(limitSb.get_value())
-            self.allowedTypes = []
-            if photosCb.get_active():
-                self.allowedTypes += RSSSource.PHOTO_TYPES
-            if audioCb.get_active():
-                self.allowedTypes += RSSSource.AUDIO_TYPES
-            self.downloadAudio = audioCb.get_active()
             self.downloadPhotos = photosCb.get_active()
+            self.downloadAudio = audioCb.get_active()
+            self.downloadVideo = videoCb.get_active()
             
         dlg.destroy()            
-        log.debug(self.allowedTypes)
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
 
-        self.files = []
+        #Add allowed mimetypes to filter
+        allowedTypes = []
+        if self.downloadPhotos:
+            allowedTypes += RSSSource.PHOTO_TYPES
+        if self.downloadAudio:
+            allowedTypes += RSSSource.AUDIO_TYPES
+        if self.downloadVideo:
+            allowedTypes += RSSSource.VIDEO_TYPES
+
+        self.files = {}
         try:
             url_info = urllib2.urlopen(self.feedUrl)
             if (url_info):
@@ -133,13 +137,14 @@ class RSSSource(DataProvider.DataSource):
                             t = c.get("type")
                         if c.tag == "title":
                             title = c.text
-                        
+                            
                         #Check if we have all the info
                         if url and t and title:
-                            if t in self.allowedTypes:
+                            log.debug("Got enclosure %s %s (%s)" % (title,url,t))
+                            if t in allowedTypes:
                                 if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
                                     allreadyInserted.append(url)
-                                    self.files.append(url)
+                                    self.files[url] = (title,t)
                             else:
                                 log.debug("Enclosure %s is on non-allowed type (%s)" % (title,t))
         except:
@@ -148,34 +153,37 @@ class RSSSource(DataProvider.DataSource):
 
     def get_all(self):
         DataProvider.DataSource.get_all(self)                            
-        return self.files
+        return self.files.keys()
             
-    def get(self, LUID):
-        DataProvider.DataSource.get(self, LUID)
+    def get(self, url):
+        DataProvider.DataSource.get(self, url)
         #Make a file
-        f = File.File(LUID)
-
-        #create the correct extension
-        # use python built in mimetypes (utilises /etc/mime.types)
-        #  fix to use pygtk when they are out of api freeze and can fix 349619?
+        f = File.File(URI=url)
+        f.set_UID(url)
+        f.set_open_URI(url)
+        
+        #create the correct extension and filename
         try:
+            title,t = self.files[url]
             ext = mimetypes.guess_extension(t)
+            f.force_new_filename(title)
+            f.force_new_file_extension(ext)
         except:
-            ext = ""
+            log.warn("Error setting filename\n%s" % traceback.format_exc())
 
         return f
 
     def finish(self, aborted, error, conflict):
         DataProvider.DataSource.finish(self)
-        self.files = None
+        self.files = {}
 
     def get_configuration(self):
         return {
             "feedUrl" : self.feedUrl,
-            "allowedTypes" : str(self.allowedTypes),
             "limit" : self.limit,
             "downloadPhotos" : self.downloadPhotos,
-            "downloadAudio" : self.downloadAudio
+            "downloadAudio" : self.downloadAudio,
+            "downloadVideo" : self.downloadVideo
             }
 
     def get_UID(self):

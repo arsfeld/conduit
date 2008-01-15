@@ -141,13 +141,16 @@ class File(DataType.DataType):
 
     def _set_filename(self, filename):
         newInfo = gnomevfs.FileInfo()
-        newInfo.name = filename
-
-        oldname = self.get_filename()
-        olduri = self._get_text_uri()
-        newuri = olduri.replace(oldname, filename)
         
+        #FIXME: Gnomevfs complains if name is unicode
+        filename =  str(filename)
+        oldname =   str(self.get_filename())
+
         if filename != oldname:
+            newInfo.name = filename
+            olduri = self._get_text_uri()
+            newuri = olduri.replace(oldname, filename)
+
             log.debug("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
             gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
             #close so the file info is re-read

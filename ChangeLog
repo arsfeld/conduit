@@ -1,3 +1,14 @@
+2008-01-16  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/datatypes/File.py: When setting filename, ensure it is a string
+	because gnomevfs does not like unicode
+	
+	* conduit/modules/FeedModule/FeedModule.py:
+	* conduit/modules/FeedModule/config.glade: Add support for video enclosures
+    and retain the title and extension when downloading
+    
+	* test/python-tests/TestDataProviderFeed.py: Add test for RSSSource
+
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/DeltaProvider.py:
