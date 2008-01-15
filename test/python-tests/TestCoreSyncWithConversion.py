@@ -109,8 +109,6 @@ test.set_two_way_sync(True)
 so,sk = test.sync(debug=DB_DEBUG)
 ok("Sync'd data", so == 2 and sk == 2)
 
-
-
 #Modify t
 sink.mtime=datetime.datetime(2007,2,24)
 test.sync(debug=DB_DEBUG)
@@ -119,7 +117,7 @@ maps = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(
                             sourceUID=sink.get_UID(),
                             sinkUID=source.get_UID()
                             )
-print maps
-#ok("MappingDB saved all relationships
+
+test.sync(debug=DB_DEBUG)
 
 finished()

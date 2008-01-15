@@ -161,4 +161,23 @@ test.sync(debug=False)
 aborted,errored,conflicted = test.get_sync_result()
 ok("Sync completed without conflicts", aborted == False and errored == False and conflicted == False)
 
+
+###
+#Test folder sink
+###
+ok("---- TWO WAY: TEST FILE", True)
+test = SimpleSyncTest()
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
+
+#add a file to source and sink
+source = test.get_dataprovider("TestFolderTwoWay")
+source.module.add(None)
+sink = test.get_dataprovider("TestFolderTwoWay")
+sink.module.add(None)
+test.prepare(source, sink)
+test.set_two_way_sync(True)
+test.sync(debug=False)
+aborted,errored,conflicted = test.get_sync_result()
+ok("Sync completed without conflicts", aborted == False and errored == False and conflicted == False)
+
 finished()

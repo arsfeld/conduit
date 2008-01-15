@@ -129,6 +129,30 @@ class File(DataType.DataType):
             return True
         else:
             return False
+
+    def _set_file_mtime(self, mtime):
+        timestamp = conduit.Utils.datetime_get_timestamp(mtime)
+        log.debug("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
+        newInfo = gnomevfs.FileInfo()
+        newInfo.mtime = timestamp
+        gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
+        #close so the file info is re-read
+        self._close_file()
+
+    def _set_filename(self, filename):
+        newInfo = gnomevfs.FileInfo()
+        newInfo.name = filename
+
+        oldname = self.get_filename()
+        olduri = self._get_text_uri()
+        newuri = olduri.replace(oldname, filename)
+        
+        if filename != oldname:
+            log.debug("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
+            gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
+            #close so the file info is re-read
+            self.URI = gnomevfs.URI(newuri)
+            self._close_file()
             
     def set_from_instance(self, f):
         """
@@ -193,19 +217,7 @@ class File(DataType.DataType):
             self._defer_rename(filename)
         else:
             try:
-                newInfo = gnomevfs.FileInfo()
-                newInfo.name = filename
-
-                oldname = self.get_filename()
-                olduri = self._get_text_uri()
-                newuri = olduri.replace(oldname, filename)
-                
-                if filename != oldname:
-                    log.debug("Trying to rename file %s (%s) -> %s (%s)" % (olduri,oldname,newuri,filename))
-                    gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_NAME)
-                    #close so the file info is re-read
-                    self.URI = gnomevfs.URI(newuri)
-                    self._close_file()
+                self._set_filename(filename)
             except gnomevfs.NotSupportedError:
                 #dunno what this is
                 self._defer_rename(filename)
@@ -236,13 +248,7 @@ class File(DataType.DataType):
             self._defer_new_mtime(mtime)
         else:
             try:
-                timestamp = conduit.Utils.datetime_get_timestamp(mtime)
-                log.debug("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
-                newInfo = gnomevfs.FileInfo()
-                newInfo.mtime = timestamp
-                gnomevfs.set_file_info(self.URI,newInfo,gnomevfs.SET_FILE_INFO_TIME)
-                #close so the file info is re-read
-                self._close_file()
+                self._set_file_mtime(mtime)
             except gnomevfs.NotSupportedError:
                 #dunno what this is
                 self._defer_new_mtime(mtime)
@@ -252,7 +258,6 @@ class File(DataType.DataType):
             except gnomevfs.NotPermittedError:
                 #file is on readonly filesystem
                 self._defer_new_mtime(mtime)
-
 
     def transfer(self, newURIString, overwrite=False, cancel_function=None):
         """

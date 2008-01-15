@@ -27,24 +27,25 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _icon_ = "preferences-desktop"
     
     DEFAULT_WHITELIST = [
-            '/apps/metacity/*',
-            '/desktop/gnome/applications/*',
-            '/desktop/gnome/background/*',
-            '/desktop/gnome/interface/*',
-            '/desktop/gnome/url-handlers/*'
-        ]
+                '/apps/metacity/*',
+                '/desktop/gnome/applications/*',
+                '/desktop/gnome/background/*',
+                '/desktop/gnome/interface/*',
+                '/desktop/gnome/url-handlers/*'
+                ]
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
 
         self.whitelist = self.DEFAULT_WHITELIST
+        self.awaitingChanges = {}
 
         self.gconf = gconf.client_get_default()
         self.gconf.add_dir('/', gconf.CLIENT_PRELOAD_NONE)
-        self.gconf.notify_add('/', self.on_change)
+        self.gconf.notify_add('/', self._on_change)
 
-    def _onthelist(self, key):
+    def _in_the_list(self, key):
         for pattern in self.whitelist:
             if fnmatch.fnmatch(key, pattern):
                 return True
@@ -55,7 +56,7 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         for x in self.gconf.all_dirs(path):
             entries += self._get_all(x)
         for x in self.gconf.all_entries(path):
-            if self._onthelist(x.key):
+            if self._in_the_list(x.key):
                 entries.append(x.key)
         return entries
 
@@ -97,16 +98,39 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def _to_gconf(self, key, value):
         t = self._gconf_type(key)
         if t == gconf.VALUE_INT:
-            self.gconf.set_int(key, int(value))
+            val = int(value)
+            func = self.gconf.set_int
         elif t == gconf.VALUE_STRING:
-            self.gconf.set_string(key, str(value))
+            val = str(value)
+            func = self.gconf.set_string
         elif t == gconf.VALUE_BOOL:
-            self.gconf.set_bool(key, bool(value))
+            val = bool(value)
+            func = self.gconf.set_bool
         elif t == gconf.VALUE_FLOAT:
-            self.gconf.set_float(key, float(value))
+            val = float(value)
+            func = self.gconf.set_float
         elif t == gconf.VALUE_LIST:
-            value = [self._from_gconf(x) for x in value]
-            self.gconf.set_list(key, eval(value))
+            val = eval([self._from_gconf(x) for x in value])
+            func = self.gconf.set_list
+        else:
+            log.warn("Unknown gconf key: %s" % key)
+            return
+
+        #We will get a notification that a key has changed.
+        #ignore it (because we made the change)
+        self.awaitingChanges[key] = val
+        #bit of a dance to ensure that we edit awaitingChanges before we
+        #make the change
+        func(key, val)
+
+    def _on_change(self, client, id, entry, data):
+        if self._in_the_list(entry.key):
+            #check to see if the change was one of ours
+            try:
+                del(self.awaitingChanges[entry.key])
+            except KeyError:
+                #the change wasnt from us
+                self.handle_modified(entry.key)
 
     def refresh(self):
         pass
@@ -144,9 +168,5 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def delete(self, uid):
         self.gconf.unset(uid)
 
-    def on_change(self, client, id, entry, data):
-        if self._onthelist(entry.key):
-            self.handle_modified(entry.key)
-        
     def get_UID(self):
         return self.__class__.__name__

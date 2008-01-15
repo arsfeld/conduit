@@ -13,6 +13,7 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.SimpleFactory as SimpleFactory
 import conduit.dataproviders.Image as Image
+import conduit.dataproviders.File as FileDataProvider
 import conduit.Exceptions as Exceptions
 import conduit.Web as Web
 from conduit.datatypes import Rid, DataType, Text, Video, Audio, File
@@ -24,6 +25,7 @@ MODULES = {
     "TestFileSource" :          { "type": "dataprovider" },
     "TestFileSink" :            { "type": "dataprovider" },
     "TestFileTwoWay" :          { "type": "dataprovider" },
+    "TestFolderTwoWay" :        { "type": "dataprovider" },
     "TestImageSink" :           { "type": "dataprovider" },
     "TestVideoSink" :           { "type": "dataprovider" },
     "TestAudioSink" :           { "type": "dataprovider" },
@@ -347,8 +349,8 @@ class TestFileSource(_TestBase, DataProvider.DataSource):
     def get_all(self):
         DataProvider.DataSource.get_all(self)
         files = [
-            os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"),
-            __file__
+            "file://"+os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"),
+            "file://"+__file__
             ]
         return files
         
@@ -372,15 +374,16 @@ class TestFileSink(_TestBase, DataProvider.DataSink):
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
+        self.folder = "file://"+Utils.new_tempdir()
 
     def put(self, data, overwrite, LUID=None):
         log.debug("Putting file: %s" % data._get_text_uri())
         DataProvider.DataSink.put(self, data, overwrite, LUID)
         if LUID == None:
-            LUID = data.get_UID()
-        f = File.File(URI=LUID)
-        f.set_UID(LUID)
-        return f.get_rid()
+            LUID = self.folder+os.sep+data.get_filename()
+        data.transfer(LUID,overwrite)
+        data.set_UID(LUID)
+        return data.get_rid()
         
 class TestFileTwoWay(TestFileSource, TestFileSink):
 
@@ -395,6 +398,35 @@ class TestFileTwoWay(TestFileSource, TestFileSink):
     def __init__(self, *args):
         TestFileSource.__init__(self)
         TestFileSink.__init__(self)
+
+class TestFolderTwoWay(FileDataProvider.FolderTwoWay):
+
+    _name_ = "Test Folder Two Way"
+    _description_ = "Sync Folders"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "twoway"
+    _in_type_ = "file"
+    _out_type_ = "file"
+    _icon_ = "text-x-generic"
+
+    def __init__(self, *args):
+        #Put a single tempfile into a tempdir
+        FileDataProvider.FolderTwoWay.__init__(
+                            self,
+                            folder= "file://"+Utils.new_tempdir(),
+                            folderGroupName="Test",
+                            includeHidden=False,
+                            compareIgnoreMtime=False
+                            )
+        self.need_configuration(False)
+
+    def get_UID(self):
+        return self.folder
+
+    def add(self, LUID):
+        #Add a temp file to folder
+        tmpfile = Utils.new_tempfile(Utils.random_string())
+        self.put(tmpfile,True,None)
 
 class TestImageSink(_TestBase, Image.ImageSink):
 

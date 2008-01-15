@@ -35,15 +35,15 @@ class Rid(object):
     def __eq__(self, other):
         if other == None:
             return False
-        log.debug("EQ: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash))
-        log.debug("EQ Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash)))
+        #log.debug("EQ: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash))
+        #log.debug("EQ Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash)))
         return self.uid == other.uid and self.mtime == other.mtime and self.hash == other.hash
         
     def __ne__(self, other):
         if other == None:
             return True
-        log.debug("NE: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash))
-        log.debug("NE Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash)))
+        #log.debug("NE: UID:%s mtime:%s hash:%s" % (self.uid != other.uid, self.mtime != other.mtime, self.hash != other.hash))
+        #log.debug("NE Types: UID:%sv%s mtime:%sv%s hash:%sv%s" % (type(self.uid),type(other.uid),type(self.mtime),type(other.mtime),type(self.hash),type(other.hash)))
         return self.uid != other.uid or self.mtime != other.mtime or self.hash != other.hash
 
     def __hash__(self):

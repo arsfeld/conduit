@@ -1,5 +1,27 @@
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/DeltaProvider.py:
+	* conduit/datatypes/__init__.py:
+	* test/python-tests/TestCoreSyncWithConversion.py: Small fixes
+
+	* conduit/datatypes/File.py: Split the force_new_{mtime,filename} out so
+	they can be called directly
+	
+	* conduit/modules/GConfModule/GConfModule.py: Dont trigger an autosync if
+	we were responsible for the change
+
+	* scripts/continuous-tester.sh:
+	* scripts/upload-doc.sh: Use getopt. dbus-launch optional. Misc fixes
+
+	* conduit/modules/TestModule.py: Add TestFolderTwoWay 
+
+	* test/python-tests/TestCoreSyncTestDataProviders.py: Test TestFolderTwoWay
+
+	* test/python-tests/TestSyncGConfFolder.py: Add test. Illustrates bug where
+	a mapping gets reversed on the 3rd modification.
+
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
 	* scripts/run-tests.sh:
 	* scripts/upload-doc.sh: Delete extraneous files on server during rsync
 

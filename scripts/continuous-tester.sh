@@ -1,7 +1,7 @@
 #!/bin/sh
 #Continuously builds and tests conduit from GNOME svn
-TEST_DIR='/tmp/conduittestdir'
-LOGFILE='/home/john/Desktop/conduit-test.log'
+TEST_DIR='/home/john/testing/conduit'
+LOGFILE='/home/john/testing/conduit-test.log'
 SVN_REPO='http://svn.gnome.org/svn/conduit/trunk'
 TEST_OPTIONS='cu'
 SLEEP_TIME='1h'
@@ -13,31 +13,30 @@ $ME [OPTIONS]\n\
 Runs the conduit test suite and uploads the results. Defaults to only running\n\
 if the remote repository has changed\n\n\
 Options:\n\
-\t-f, --force\t\tRun the tests even if the repository has not changed\n\
-\t-d, --disable-docs\tDisable buliding of documentation\n\
-\t-l, --loop\t\tRuns in a never ending loop"
+\t-f\t\tRun the tests even if the repository has not changed\n\
+\t-d\t\tDisable buliding of documentation\n\
+\t-l\t\tRun in a never ending loop\n\
+\t-b\t\tRun with dbus-launch\n\
+\t-h\t\tShow this help message\n"
 
 FORCE=no
 DOCS=yes
 CNT=-1
 LOOP=no
-#Check the arguments.
-for option in "$@"; do
-  case "$option" in
-    -h | --help)
-      echo $USAGE
-      exit 0 ;;
-    -f | --force)
-      FORCE=yes ;;
-    -d | --disable-docs)
-      DOCS=no ;;
-    -l | --loop)
-      CNT=1
-      LOOP=yes ;;
-    -*)
-      echo "Unrecognized option: $option\n\n$USAGE"
-      exit 1 ;;
-  esac
+DBUS_LAUNCH=''
+while getopts "fdlbh" options
+do
+    case $options in
+        f )     FORCE=yes;;
+        d )     DOCS=no;;
+        l )     LOOP=yes
+                CNT=1;;
+        b )     DBUS_LAUNCH=dbus-launch;;
+        h )     echo $USAGE
+                exit 0;;
+        * )     echo $USAGE
+                exit 1;;
+    esac
 done
 
 if [ ! -d $TEST_DIR ]; then
@@ -60,7 +59,7 @@ while [ $CNT -ne 0 ]; do
         #being run from a VT
         svn up . 
         echo "`date` Running Test (Revision $RVERSION)" | tee -a $LOGFILE
-        dbus-launch $TEST_DIR/scripts/run-tests.sh -$TEST_OPTIONS 
+        $DBUS_LAUNCH $TEST_DIR/scripts/run-tests.sh -$TEST_OPTIONS 
         
         #Build packages
         #./autogen.sh && make && make dist &>/dev/null
