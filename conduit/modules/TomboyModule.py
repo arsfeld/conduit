@@ -19,12 +19,21 @@ MODULES = {
 	"TomboyNoteConverter" :     { "type": "converter"       }
 }
 
+def partition(txt, sep):
+    try:
+        return txt.partition(sep)
+    except:
+        if not sep in txt:
+            return (txt, '', '')
+        else:
+            return (txt[:txt.find(sep)], sep, txt[txt.find(sep)+len(sep):])
+
 class TomboyNote(Note.Note):
     def __init__(self, title, xmlContent):
         self.xmlContent = xmlContent
         #strip the xml
         text = xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
-        title, sep, contents = text.partition("\n")
+        title, sep, contents = partition(text, "\n")
         Note.Note.__init__(self, title, contents)
         
     def get_xml(self):
@@ -111,7 +120,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         log.debug("Getting note: %s" % uid)
         xmlContent=str(self.remoteTomboy.GetNoteContentsXml(uid))
         xmlContent=xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
-        title, sep, contents = xmlContent.partition("\n")
+        title, sep, contents = partition(xmlContent, "\n")
         n = Note.Note(
                 title=title,
                 contents=contents

@@ -56,7 +56,7 @@ class DataType(object):
         """
         log.debug("COMPARE: %s <----> %s " % (self.get_UID(), B.get_UID()))
 
-        if self.get_hash() == B.get_hash():
+        if self.get_rid() == B.get_rid():
             return conduit.datatypes.COMPARISON_EQUAL
 
         mtime1 = self.get_mtime()

@@ -1,3 +1,11 @@
+2008-01-16  John Carr <john.carr@unrouted.co.uk>
+
+	* conduit/datatypes/DataType.py: Use rid instead of hash when testing
+	if two datatypes are equal
+	
+	* conduit/modules/TomboyModule.py: Add a string.partition alternative for
+	those people using Python 2.4
+
 2008-01-16  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/datatypes/File.py: When setting filename, ensure it is a string
