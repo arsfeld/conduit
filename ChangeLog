@@ -1,3 +1,7 @@
+2008-01-16  John Stowers  <john.stowers@gmail.com>
+
+	* Makefile.am: Fix Makefile.am typo (so I can call make release)
+
 2008-01-16  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/datatypes/DataType.py: Use rid instead of hash when testing

@@ -10,7 +10,7 @@ doap.rdf: doap.rdf.in Makefile.am
 
 release: dist doap.rdf
 	svn cp ../trunk/ ../tags/$(VERSION)	
-	scp $(PACKAGE)-$(VERSION).tar.gz jstowers@master.gnome.org
+	scp $(PACKAGE)-$(VERSION).tar.gz jstowers@master.gnome.org:
 	ssh jstowers@master.gnome.org install-module $(PACKAGE)-$(VERSION).tar.gz
 
 DISTCLEANFILES = \
