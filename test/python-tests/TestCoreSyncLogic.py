@@ -7,7 +7,7 @@ from conduit.dataproviders.DataProvider import TwoWay
 
 import datetime
 
-class TestDataType(conduit.datatypes.DataType.DataType):
+class TestDataType(DataType.DataType):
     _name_ = "test"
     def __init__(self, data, **kwargs):
         """

@@ -215,8 +215,10 @@ class AvahiMonitor:
         """
         DBus callback when a new service is detected
         """
-        #if flags & LOOKUP_RESULT_OUR_OWN:
-        #    return
+        #Dont show networked dataproviders on localhost unless we are
+        #a development release
+        if not conduit.IS_DEVELOPMENT_VERSION and flags & LOOKUP_RESULT_OUR_OWN:
+            return
 
         service = self.server.ResolveService(
                                         interface, 

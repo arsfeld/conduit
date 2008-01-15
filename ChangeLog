@@ -1,5 +1,29 @@
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/MappingDB.py: Add debugging prints
+	
+	* conduit/Web.py:
+	* conduit/modules/FacebookModule/FacebookModule.py: When using the system
+	web browser (i.e. when under test) add a configurable sleep	delay
+	and sleep before the fist try_login call (because if you dont, facebook
+	invalidates your login credentials)
+	
+	* conduit/modules/GConfModule/GConfModule.py: Add ability to specify the
+	gconf paths to watch. No gui for this yet
+
+	* conduit/modules/NetworkModule/Peers.py:
+	* conduit/modules/NetworkModule/Server.py: Error checking when starting
+	the peer announcer to prevent hang on shutdown
+	
+	* scripts/continuous-tester.sh: Update before running tests
+	
+	* test/python-tests/TestCoreSyncLogic.py:
+	* test/python-tests/TestDataProviderFacebook.py: Add photo upload test
+
+	* test/python-tests/common.py: Explicitly set IS_DEVELOPMENT_VERSION
+
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
 	* scripts/continuous-tester.sh: Run scripts with full path
 
 2008-01-15  John Stowers  <john.stowers@gmail.com>

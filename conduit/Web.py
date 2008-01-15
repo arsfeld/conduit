@@ -152,14 +152,12 @@ class _SystemLogin(object):
 
         start_time = time.time()
         while not self._is_timed_out(start_time):
+            time.sleep(kwargs.get("sleep_time",2))        
             try:
                 if self.testFunc():
                     return
             except Exception, e:
-                log.debug("testFunc threw an error: %s" % e)
-                pass
-
-            time.sleep(2)
+                log.debug("Login function threw an error: %s" % e)
 
         raise Exception("Login timed out")
 

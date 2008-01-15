@@ -56,10 +56,10 @@ while [ $CNT -ne 0 ]; do
     RVERSION=`svn info http://svn.gnome.org/svn/conduit/trunk | sed -n 's/^Revision: \([0-9][0-9]*\).*/\1/p'`
 
     if [ "$LVERSION" != "$RVERSION" -o "$FORCE" = "yes" ]; then
-        echo "`date` Running Test (Revision $LVERSION)" | tee -a $LOGFILE
         #Run tests (dbus-launch sets a private session bus incase we are
         #being run from a VT
         svn up . 
+        echo "`date` Running Test (Revision $RVERSION)" | tee -a $LOGFILE
         dbus-launch $TEST_DIR/scripts/run-tests.sh -$TEST_OPTIONS 
         
         #Build packages

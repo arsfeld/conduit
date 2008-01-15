@@ -37,6 +37,7 @@ class FacebookSink(Image.ImageSink):
     def __init__(self, *args):
         Image.ImageSink.__init__(self)
         self.fapi = Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
+        self.browser = "gtkmozembed"
 
     def _upload_photo (self, uploadInfo):
         """
@@ -56,7 +57,10 @@ class FacebookSink(Image.ImageSink):
         url = self.fapi.get_login_url()
 
         #wait for log in
-        Web.LoginMagic("Log into Facebook", url, login_function=self._try_login, browser="gtkmozembed")
+        Web.LoginMagic("Log into Facebook", url, login_function=self._try_login, 
+                browser=self.browser,       #instance var so tests can set it to system
+                sleep_time=45,              #long sleep time to give time to login if using system browser
+                )
 
     def _try_login(self):
         """

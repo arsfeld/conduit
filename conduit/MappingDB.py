@@ -157,11 +157,13 @@ class MappingDB:
         Saves a mapping between the dataproviders
         """
         if mapping.oid == None:
+            #log.debug("New Mapping: %s" % mapping)
             self._db.insert(
                         table="mappings",
                         values=mapping.values()
                         )
         else:
+            #log.debug("Update Mapping: %s" % mapping)
             self._db.update(
                         table="mappings",
                         oid=mapping.oid,

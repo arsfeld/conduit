@@ -25,18 +25,20 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _in_type_ = "setting"
     _out_type_ = "setting"
     _icon_ = "preferences-desktop"
-
-    def __init__(self, *args):
-        DataProvider.TwoWay.__init__(self)
-        AutoSync.AutoSync.__init__(self)
-
-        self.whitelist = [
+    
+    DEFAULT_WHITELIST = [
             '/apps/metacity/*',
             '/desktop/gnome/applications/*',
             '/desktop/gnome/background/*',
             '/desktop/gnome/interface/*',
             '/desktop/gnome/url-handlers/*'
         ]
+
+    def __init__(self, *args):
+        DataProvider.TwoWay.__init__(self)
+        AutoSync.AutoSync.__init__(self)
+
+        self.whitelist = self.DEFAULT_WHITELIST
 
         self.gconf = gconf.client_get_default()
         self.gconf.add_dir('/', gconf.CLIENT_PRELOAD_NONE)
@@ -126,6 +128,13 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                         )
         s.set_UID(uid)
         return s
+        
+    def get_configuration(self):
+        return {"whitelist" : self.whitelist}
+        
+    def set_configuration(self, config):
+        self.whitelist = config.get("whitelist",self.DEFAULT_WHITELIST)
+        log.debug("%s" % self.whitelist)
 
     def put(self, setting, overwrite, uid=None):
         log.debug("%s: %s" % (setting.key, setting.value))

@@ -25,9 +25,10 @@ from conduit.datatypes import File, Note, Setting, Contact, Email, Text, Video, 
 from conduit.modules import TestModule
 
 # set up expected paths & variables 
-conduit.IS_INSTALLED =          False
-conduit.SHARED_DATA_DIR =       os.path.join(base_path,"data")
-conduit.SHARED_MODULE_DIR =     os.path.join(base_path,"conduit","modules")
+conduit.IS_INSTALLED =              False
+conduit.IS_DEVELOPMENT_VERSION =    True
+conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
+conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
 
 def ok(message, code, die=True):
     if type(code) == int:
