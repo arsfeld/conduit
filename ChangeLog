@@ -1,5 +1,10 @@
 2008-01-15  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/run-tests.sh:
+	* scripts/upload-doc.sh: Delete extraneous files on server during rsync
+
+2008-01-15  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/MappingDB.py: Add debugging prints
 	
 	* conduit/Web.py:

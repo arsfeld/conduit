@@ -6,4 +6,4 @@ if [ ! -f $APP ] ; then
     exit 1
 fi
 
-rsync -qtz doc/*.{html,gif,png,py,js,css} root@greenbirdsystems.com:/var/www/conduit-project.org/doc/conduit
+rsync -qtz --delete doc/*.{html,gif,png,py,js,css} root@greenbirdsystems.com:/var/www/conduit-project.org/doc/conduit
