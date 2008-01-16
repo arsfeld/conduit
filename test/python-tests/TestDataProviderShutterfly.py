@@ -51,15 +51,9 @@ if album_id:
     else:
        ok("Album id %s does not equal the one we're expecting %s" % (album_id, SAFE_ALBUM_ID), False) 
 
-info = shutter._get_photo_info (SAFE_PHOTO_ID)
-ok("Got photo info", info != None)
-
-url = shutter._get_raw_photo_url(info)
-ok("Got photo url (%s)" % url, url != None) 
-
 #Perform image tests
 test.do_image_dataprovider_tests(
-        supportsGet=False,
+        supportsGet=True,
         supportsDelete=True,
         safePhotoLUID=SAFE_PHOTO_ID,
         ext="jpg"

@@ -318,8 +318,15 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                     URI=        url,
                     group=      self.foldername
                     )
-        #FIXME: gnomevfs doesnt like unicode
-        f.force_new_filename(str(self.files[LUID]))
+        try:
+            #gnomevfs doesnt like unicode
+            f.force_new_filename(str(self.files[LUID]))
+        except KeyError:
+            #occurs on put() returning get() because we have
+            #not refreshed since. Not a problem because the point
+            #of put returning get() is to make the rids() in the same
+            #scheme, and not actually do something with the returned file. 
+            pass
         f.set_open_URI(url)
         f.set_UID(LUID)
 

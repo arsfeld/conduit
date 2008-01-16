@@ -68,10 +68,10 @@ class ShutterflySink(Image.ImageSink):
 		return self.sphotos.keys()
 	
 	def get(self, LUID):
-		Image.ImageSink.get(self, LUID)
+		#Image.ImageSink.get(self, LUID)
 		sphoto = self.sphotos[LUID]
 
-		f = ShutterflyPhoto(URI=sphoto.url)
+		f = Photo.Photo(URI=sphoto.url)
 		f.set_open_URI(sphoto.url)
 		f.set_UID(LUID)
 

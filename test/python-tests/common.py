@@ -330,32 +330,42 @@ class SimpleTest(object):
     def print_mapping_db(self):
         print conduit.GLOBALS.mappingDB.debug()
        
-    def do_dataprovider_tests(self, supportsGet, supportsDelete, safeLUID, ext="png", name="file"):
+    def do_dataprovider_tests(self, supportsGet, supportsDelete, safeLUID, data, name):
         """
-        Tests get(), put(), delete()
+        Tests get(), put(), delete(). Because some dps have a delay between 
+        data being put, and it being get()'able use safeLUID for the UID of
+        the data to get
         """
-        #Test get()
-        if supportsGet:
-            try:
-                f = self.sink.module.get(safeLUID)
-                ok("Got %s %s" % (name,safeLUID), f.exists())
-            except Exception, err:
-                traceback.print_exc()
-                ok("Got %s (%s)" % (name,err), False)
-
         #Test put()
-        f = File.File("http://files.conduit-project.org/screenshot.%s" % ext)
         try:
-            rid = self.sink.module.put(f, True)
+            rid = self.sink.module.put(data, True)
             uid = rid.get_UID()
             ok("Upload a %s (%s) " % (name,rid), True)
         except Exception, err:
             traceback.print_exc()        
             ok("Upload a %s (%s)" % (name,err), False)
+            
+        #Test get()
+        if supportsGet:
+            #default to getting the safe file
+            if safeLUID != None:
+                LUID = safeLUID
+                desc = "safe %s" % name
+            else:
+                LUID = uid
+                desc = name
+            
+            try:
+                self.sink.module.refresh()
+                f = self.sink.module.get(LUID)
+                ok("Got %s %s" % (desc,LUID), f != None)
+            except Exception, err:
+                traceback.print_exc()
+                ok("Got %s (%s)" % (desc,err), False)
 
         #Test put() to replace
         try:
-            rid = self.sink.module.put(f, True, uid)
+            rid = self.sink.module.put(data, True, uid)
             ok("Update a %s (%s)" % (name,rid), True)
         except Exception, err:
             traceback.print_exc()
@@ -387,12 +397,13 @@ class SimpleTest(object):
             except Exception, err:
                 traceback.print_exc()
                 ok("Got photo info/url (%s)" % err, False)
-
+        
+        data = Photo.Photo(URI="http://files.conduit-project.org/screenshot.%s" % ext)
         self.do_dataprovider_tests(
                     supportsGet,
                     supportsDelete,
                     safePhotoLUID, 
-                    ext,
+                    data,
                     "photo"
                     )
         

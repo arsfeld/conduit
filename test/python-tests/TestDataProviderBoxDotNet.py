@@ -36,10 +36,13 @@ folders = boxdotnet._get_folders()
 ok("Got expected folder %s" % SAFE_FOLDER, SAFE_FOLDER in folders)
 
 #Perform basic tests
+f = new_file(None)
 test.do_dataprovider_tests(
         supportsGet=True,
         supportsDelete=True,
-        safeLUID=SAFE_FILEID
+        safeLUID=SAFE_FILEID,
+        data=f,
+        name="file"
         )
 
 finished()

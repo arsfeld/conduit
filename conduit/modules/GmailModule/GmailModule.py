@@ -277,12 +277,12 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         
         msg = libgmail.GmailComposedMessage(
                                 to="", 
-                                subject=email.subject, 
-                                body=email.content,
+                                subject=email.get_subject(), 
+                                body="",
                                 filenames=attach)
 
         try:
-            draftMsg = self.ga.sendMessage(msg, asDraft = True)
+            draftMsg = self.ga.sendMessage(msg, asDraft=True)
             draftMsg.addLabel(self._label)
         except libgmail.GmailSendError:
             raise Exceptions.SyncronizeError("Error saving message")

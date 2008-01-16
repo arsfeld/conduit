@@ -9,13 +9,17 @@ import conduit.Utils as Utils
 
 if not is_online():
     skip()
+    
+#setup the test
+test = SimpleTest(sinkName="GmailEmailTwoWay")
+config = {
+    "username":     os.environ.get("TEST_USERNAME","conduitproject@gmail.com"),
+    "password":     os.environ["TEST_PASSWORD"],
+}
+test.configure(sink=config)
 
-#Dynamically load all datasources, datasinks and converters
-type_converter = SimpleTest().type_converter
-
-gmail = model.get_new_module_instance("GmailEmailTwoWay").module
-gmail.username = "%s@gmail.com" % os.environ['TEST_USERNAME']
-gmail.password = "%s" % os.environ['TEST_PASSWORD']
+#get the module directly so we can call some special functions on it
+gmail = test.get_sink().module
 
 #Log in
 try:
@@ -24,29 +28,14 @@ try:
 except Exception, err:
     ok("Logged in (%s)" % err, False)  
 
-#Send a remote file
-f = File.File("ssh://root@www.greenbirdsystems.com/root/sync/tests/new/newest")
-try:
-    email = type_converter.convert("file","email",f)
-    ok("Convert file to email (%s)" % email.get_open_URI(), True)
-    uid = gmail.put(email, True)
-    ok("Save a file to Gmail (UID:%s) "% uid, True)
-except Exception, err:
-    ok("Save a file to Gmail (%s)" % err, False)
-
-#Send an email to myself
-subject = Utils.random_string()
-email = Email.Email(
-                None,
-                to="",
-                subject=subject,
-                content="TestGmail.py"
-                )
-try:
-    uid = gmail.put(email, True)
-    ok("Sent Email (UID:%s) "% uid, True)
-except Exception, err:
-    ok("Sent Email (%s)" % err, False)
+e = new_email(None)
+test.do_dataprovider_tests(
+        supportsGet=False,
+        supportsDelete=False,
+        safeLUID=None,
+        data=e,
+        name="email"
+        )
                 
 finished()
 

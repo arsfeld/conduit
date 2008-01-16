@@ -4,8 +4,6 @@ from common import *
 import traceback
 import datetime
 
-from conduit.Module import ModuleManager
-from conduit.TypeConverter import TypeConverter
 import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
 
@@ -24,6 +22,11 @@ test.configure(sink=config)
 #get the module directly so we can call some special functions on it
 backpack = test.get_sink().module
 
+#The ID of the Test page
+SAFE_PAGEID=1352096
+#A Reliable note that will note be deleted
+SAFE_FILEID=2575890
+
 #Log in
 try:
     backpack.refresh()
@@ -31,51 +34,21 @@ try:
 except Exception, err:
     ok("Logged in (%s)" % err, False)  
 
-#Add a note
-title = Utils.random_string()
-mtime = datetime.datetime.today()
-n = Note.Note(
-            title=title,
-            modified=mtime,
-            contents="Test Note 1\n* list"
-            )
-try:
-    rid = backpack.put(n, True)
-    ok("Add a note (%s)" % rid, True)
-except Exception, err:
-    traceback.print_exc()
-    ok("Add a note (%s)" % err, False)
+#get the safe folder
+ok("Got page %s" % SAFE_PAGEID, SAFE_PAGEID == backpack.pageID)
 
-#Add another note
+#Perform basic tests
 n = Note.Note(
             title=Utils.random_string(),
             modified=datetime.datetime.today(),
-            contents="Test Note 2"
+            contents="Random Note\n* list"
             )
-try:
-    rid = backpack.put(n, True)
-    uid = rid.get_UID()
-    ok("Add another note (%s)" % rid, True)
-except Exception, err:
-    traceback.print_exc()
-    ok("Add another note (%s)" % err, False)
+test.do_dataprovider_tests(
+        supportsGet=True,
+        supportsDelete=True,
+        safeLUID=SAFE_FILEID,
+        data=n,
+        name="note"
+        )
 
-#now update that note
-n.contents = "Updated Note"
-try:
-    rid = backpack.put(n, True, uid)
-    ok("Update a note (%s)" % rid, True)
-except Exception, err:
-    traceback.print_exc()
-    ok("Update a note (%s)" % err, False)
-    
-try:
-    backpack.refresh()
-    backpack.delete(uid)
-    backpack.refresh()
-    ok("Delete a note (%s)" % rid, uid not in backpack.get_all())
-except Exception, err:
-    traceback.print_exc()
-    ok("Delete a note (%s)" % err, False)
-    
 finished()

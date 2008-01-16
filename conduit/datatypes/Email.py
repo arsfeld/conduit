@@ -79,6 +79,9 @@ class Email(DataType.DataType):
 
     def get_email_string(self):
         return self.email.as_string()
+    
+    def get_subject(self):        
+        return self.email['Subject']
 
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)

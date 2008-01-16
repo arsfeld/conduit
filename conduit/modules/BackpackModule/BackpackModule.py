@@ -1,6 +1,7 @@
 import os
 import sys
 import traceback
+import datetime
 from gettext import gettext as _
 import logging
 log = logging.getLogger("modules.Backpack")
@@ -59,7 +60,8 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
         self.storeInPage = "Conduit"
         self.pageID = None
         #there is no way to pragmatically see if a note exists so we list them
-        #and cache the results. key = note uid
+        #and cache the results. 
+        #title:(uid,timestamp,text)
         self._notes = {}
 
     def refresh(self):
@@ -83,9 +85,10 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
                     raise Exceptions.RefreshError
                     
         #Need to cache the existing note titles
+        self._notes = {}
         for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
-            self._notes[title] = uid
-            log.debug("Found existing note: %s (%s)" % (title, uid))
+            self._notes[title] = (uid,timestamp,text)
+            log.debug("Found existing note: %s (uid:%s timestamp:%s)" % (title, uid, timestamp))
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
@@ -117,9 +120,23 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
                 self.set_configured(True)
 
         dlg.destroy()
+
+    def get(self, LUID):
+        for title in self._notes:
+            uid,timestamp,content = self._notes[title]
+            if uid == LUID:
+                n = Note.Note(
+                    title=title,
+                    #FIXME: Backpack doesnt have mtime, only creation time
+                    modified=datetime.datetime.fromtimestamp(timestamp),
+                    contents=content
+                    )
+                n.set_UID(LUID)
+                return n
+        raise Exceptions.SyncronizeError("Could not find note %s" % LUID)
         
     def get_all(self):
-        return self._notes.values()
+        return [n[0] for n in self._notes.values()]
         
     def put(self, note, overwrite, LUID=None):
         DataProvider.DataSink.put(self, note, overwrite, LUID)
@@ -129,15 +146,14 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
         try:
             if note.title in self._notes:
                 log.debug("Updating Existing")
-                uid = self._notes[note.title]
+                uid,oldtimestamp,oldcontent = self._notes[note.title]
                 self.ba.notes.update(self.pageID,uid,note.title,note.contents)
             else:
                 log.debug("Creating New (title: %s)" % note.title)
-                uid,title,mtime,content = self.ba.notes.create(self.pageID,note.title,note.contents)
-                self._notes[note.title] = uid
+                uid,title,timestamp,content = self.ba.notes.create(self.pageID,note.title,note.contents)
+                self._notes[title] = (uid,timestamp,content)
         except backpack.BackpackError, err:
-            log.info("Could not sync note (%s)" % err)
-            raise Exceptions.SyncronizeError
+            raise Exceptions.SyncronizeError("Could not sync note (%s)" % err)
                 
         return Rid(uid=str(uid), mtime=None, hash=hash(None))
 

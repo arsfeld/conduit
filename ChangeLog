@@ -1,5 +1,23 @@
 2008-01-17  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/Email.py:
+	* conduit/modules/GmailModule/GmailModule.py: Fix to retain subject in put()
+
+	* conduit/modules/BackpackModule/BackpackModule.py: Implement get() and 
+	get_all(). Not two-way yet, but needed to implement these for tests.
+	
+	* conduit/modules/ShutterflyModule/ShutterflyModule.py: fix get()
+	
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* test/python-tests/TestDataProviderBackpack.py:
+	* test/python-tests/TestDataProviderBoxDotNet.py:
+	* test/python-tests/TestDataProviderGmail.py: Fix tests
+
+	* test/python-tests/common.py: Generalise do_dataprovider_test to support
+	and DataType
+
+2008-01-17  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/dataproviders/File.py:
 	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
 	* conduit/modules/GConfModule/GConfModule.py:
