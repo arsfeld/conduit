@@ -20,8 +20,8 @@ except Exception, err:
 #Send a remote file
 f = File.File("http://files.conduit-project.org/screenshot.png")
 try:
-    uid = facebook.put(f, True)
-    ok("Upload a photo (UID:%s) " % uid, True)
+    rid = facebook.put(f, True)
+    ok("Upload a photo (%s) " % rid, True)
 except Exception, err:
     ok("Upload a photo (%s)" % err, False)
 

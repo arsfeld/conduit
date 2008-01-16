@@ -6,7 +6,8 @@ import traceback
 import conduit.datatypes.File as File
 import conduit.Vfs as Vfs
 
-if not is_online() or not is_interactive():
+#Flickr is non-interactive once you have got a frob for the first time
+if not is_online():
     skip()
 
 #A Reliable photo_id of a photo that will not be deleted
