@@ -2,12 +2,9 @@
 from common import *
 
 import traceback
-import gnomevfs
 
-from conduit.Module import ModuleManager
-from conduit.TypeConverter import TypeConverter
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 
 if not is_online():
     skip()
@@ -22,8 +19,8 @@ SAFE_PHOTO_ID = "5073564926804065138"
 #setup the test
 test = SimpleTest(sinkName="PicasaTwoWay")
 config = {
-    "username":     os.environ['TEST_USERNAME'],
-    "password":     os.environ['TEST_PASSWORD'],
+    "username":     os.environ.get("TEST_USERNAME","conduitproject"),
+    "password":     os.environ["TEST_PASSWORD"],
     "album"   :     SAFE_ALBUM_NAME
 }
 test.configure(sink=config)
@@ -54,28 +51,11 @@ if picasa.galbum.id == SAFE_ALBUM_ID:
 else:
     ok("Album has an unexpected id: %s instead of %s" % (picasa.galbum.id, SAFE_ALBUM_ID), False)
 
-# Photo tests:
-# Loaded?
-ok("Loaded photos", picasa.gphotos != None)
-
-# Expected photo available?
-ok("Expected image available", picasa.gphotos.has_key (SAFE_PHOTO_ID))
-
-# Get info
-info = picasa._get_photo_info (SAFE_PHOTO_ID)
-ok("Got photo info", info != None)
-
-# Get url
-url = picasa._get_raw_photo_url (info)
-ok ("Got photo url %s" % url, url != None)
-ok ("Photo url is correct", gnomevfs.exists (gnomevfs.URI(url)))
-
-#Send a remote file
-f = File.File("http://files.conduit-project.org/screenshot.jpg")
-try:
-    uid = picasa.put(f, True)
-    ok("Upload a photo (UID:%s) " % uid, True)
-except Exception, err:
-    ok("Upload a photo (%s)" % err, False)
+#Perform image tests
+test.do_image_dataprovider_tests(
+        supportsGet=True,
+        supportsDelete=True,
+        safePhotoLUID=SAFE_PHOTO_ID
+        )
 
 finished()

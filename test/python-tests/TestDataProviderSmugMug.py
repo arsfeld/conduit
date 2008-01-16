@@ -2,12 +2,10 @@
 from common import *
 
 import traceback
-import gnomevfs
 
-from conduit.Module import ModuleManager
-from conduit.TypeConverter import TypeConverter
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 
 if not is_online():
     skip()
@@ -15,15 +13,15 @@ if not is_online():
 #A Reliable album name
 SAFE_ALBUM_NAME = "Conduit Test"
 # Album id of the Conduit test album
-SAFE_ALBUM_ID = '2944161'
+SAFE_ALBUM_ID = "2944161"
 # Image id of photo in test album
-SAFE_IMAGE_ID = '158962651'
+SAFE_IMAGE_ID = "158962651"
 
 #setup the test
 test = SimpleTest(sinkName="SmugMugTwoWay")
 config = {
-    "username":     os.environ['TEST_USERNAME'],
-    "password":     os.environ['TEST_PASSWORD'],
+    "username":     os.environ.get("TEST_USERNAME","conduitproject"),
+    "password":     os.environ["TEST_PASSWORD"],
     "album"   :     SAFE_ALBUM_NAME
 }
 test.configure(sink=config)
@@ -43,7 +41,6 @@ album_id = smugmug._get_album_id ()
 
 if album_id:
     ok("Got album id %s for album %s" % (album_id, SAFE_ALBUM_NAME), True)
-
     if album_id == SAFE_ALBUM_ID:
        ok("Album id %s equals the one we're expecting %s" % (album_id, SAFE_ALBUM_ID), True)
     else:
@@ -51,30 +48,11 @@ if album_id:
 else:
     ok("Didn't succeed in getting an album id...", False)
 
-# Test getting photo info and url
-info = smugmug._get_photo_info (SAFE_IMAGE_ID)
-ok("Got photo info", info != None)
-
-url = smugmug._get_raw_photo_url (info)
-ok ("Got photo url %s" % url, url != None)
-ok ("Photo url is correct", gnomevfs.exists (gnomevfs.URI(url)))
-   
-#Send a remote file
-f = File.File("http://files.conduit-project.org/screenshot.png")
-uid = None
-try:
-    rid = smugmug.put(f, True)
-    uid = rid.get_UID()
-    ok("Upload a photo (UID:%s) " % uid, True)
-except Exception, err:
-    ok("Upload a photo (%s)" % err, False)
-
-# try delete if upload succeeded
-if uid:
-    try:
-        smugmug.delete(uid)
-        ok("Delete succeeded", True)
-    except Exception, err:
-        ok("Delete failed %s" % err, False)
+#Perform image tests
+test.do_image_dataprovider_tests(
+        supportsGet=True,
+        supportsDelete=True,
+        safePhotoLUID=SAFE_IMAGE_ID
+        )
 
 finished()

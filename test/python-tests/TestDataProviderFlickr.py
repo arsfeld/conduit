@@ -2,13 +2,9 @@
 from common import *
 
 import traceback
-import gnomevfs
 
-from conduit.Module import ModuleManager
-from conduit.TypeConverter import TypeConverter
-import conduit.datatypes.Email as Email
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 
 if not is_online() or not is_interactive():
     skip()
@@ -19,7 +15,7 @@ SAFE_PHOTO_ID="404284530"
 #setup the test
 test = SimpleTest(sinkName="FlickrTwoWay")
 config = {
-    "username":     os.environ['TEST_USERNAME'],
+    "username":     os.environ.get("TEST_USERNAME","conduitproject"),
     "photoSetName": "Conduit",
     "showPublic":   False
 }
@@ -40,19 +36,11 @@ used,tot = flickr._get_user_quota()
 p = (float(used)/float(tot))*100.0
 ok("Used %2.1f%% of monthly badwidth quota (%skb/%skb)" % (p,used,tot) , used != -1 and tot != -1)
 
-#Test getting the info and URL of a photo
-info = flickr._get_photo_info(SAFE_PHOTO_ID)
-ok("Got photo info", info != None)
-url = flickr._get_raw_photo_url(info)
-ok("Got photo url (%s)" % url, url != None)
-ok("Photo url is correct", gnomevfs.exists(gnomevfs.URI(url)))
-
-#Send a remote file
-f = File.File("http://files.conduit-project.org/screenshot.png")
-try:
-    uid = flickr.put(f, True)
-    ok("Upload a photo (UID:%s) " % uid, True)
-except Exception, err:
-    ok("Upload a photo (%s)" % err, False)
+#Perform image tests
+test.do_image_dataprovider_tests(
+        supportsGet=True,
+        supportsDelete=True,
+        safePhotoLUID=SAFE_PHOTO_ID
+        )
 
 finished()

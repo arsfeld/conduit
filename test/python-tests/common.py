@@ -4,6 +4,7 @@ import os
 import glob
 import time
 import datetime
+import traceback
 
 # make sure we have conduit folder in path!
 my_path = os.path.dirname(__file__)
@@ -14,6 +15,7 @@ sys.path.insert(0, base_path)
 import conduit
 import conduit.Logging as Logging
 import conduit.Utils as Utils
+import conduit.Vfs as Vfs
 import conduit.Module as Module
 import conduit.TypeConverter as TypeConverter
 import conduit.Synchronization as Synchronization
@@ -327,7 +329,55 @@ class SimpleTest(object):
 
     def print_mapping_db(self):
         print conduit.GLOBALS.mappingDB.debug()
+        
+    def do_image_dataprovider_tests(self, supportsGet, supportsDelete, safePhotoLUID, ext="png"):
+        """
+        Tests get(), put(), delete() and Image dataprovider specific
+        functions
+        """
+        #Test get() and image specific friends
+        if supportsGet:
+            try:
+                info = self.sink.module._get_photo_info(safePhotoLUID)
+                ok("Got photo info", info != None)
+                url = self.sink.module._get_raw_photo_url(info)
+                ok("Got photo url (%s)" % url, url != None)
+                ok("Photo url is correct", Vfs.uri_exists(url))
+                f = self.sink.module.get(safePhotoLUID)
+                ok ("Got photo %s" % url, f.exists())
+            except Exception, err:
+                traceback.print_exc()
+                ok("Got photo (%s)" % err, False)
 
+        #Test put()
+        f = File.File("http://files.conduit-project.org/screenshot.%s" % ext)
+        try:
+            rid = self.sink.module.put(f, True)
+            uid = rid.get_UID()
+            ok("Upload a photo (%s) " % rid, True)
+        except Exception, err:
+            traceback.print_exc()        
+            ok("Upload a photo (%s)" % err, False)
+
+        #Test put() to replace a photo
+        try:
+            rid = self.sink.module.put(f, True, uid)
+            ok("Update a photo (%s)" % rid, True)
+        except Exception, err:
+            traceback.print_exc()
+            ok("Update a photo (%s)" % err, False)
+
+        #Test delete()
+        if supportsDelete:
+            try:
+                self.sink.module.refresh()
+                self.sink.module.delete(uid)
+                self.sink.module.refresh()
+                ok("Delete a photo (%s)" % rid, uid not in self.sink.module.get_all())
+            except Exception, err:
+                traceback.print_exc()
+                ok("Delete a photo (%s)" % err, False)
+        
 class SimpleSyncTest(SimpleTest):
     """
     Helper class to make setting up test-pairs as easy as possible

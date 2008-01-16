@@ -1,3 +1,13 @@
+2008-01-17  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/TestDataProviderFlickr.py:
+	* test/python-tests/TestDataProviderPicasa.py:
+	* test/python-tests/TestDataProviderShutterfly.py:
+	* test/python-tests/TestDataProviderSmugMug.py:
+	* test/python-tests/common.py: Move functions to ImageDataProvider specific 
+	functions into SimpleTest.do_image_dataprovider_tests(). Connect this up to
+	test the image DPs.
+
 2008-01-16  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/BackpackModule/BackpackModule.py: Fix refresh() behaviour

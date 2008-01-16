@@ -22,8 +22,8 @@ SAFE_PHOTO_ID = '47b7cf26b3127cceb04728a35c2600000020100AZOGbJw2buGKg'
 #setup the test
 test = SimpleTest(sinkName="ShutterflySink")
 config = {
-    "username":     os.environ['TEST_USERNAME'],
-    "password":     os.environ['TEST_PASSWORD'],
+    "username":     os.environ.get("TEST_USERNAME","conduitproject@gmail.com"),
+    "password":     os.environ["TEST_PASSWORD"],
     "album"   :     SAFE_ALBUM_NAME
 }
 test.configure(sink=config)
@@ -46,24 +46,24 @@ album_id = shutter.salbum.id
 
 if album_id:
     ok("Got album id %s for album %s" % (album_id, SAFE_ALBUM_NAME), True)
-
     if album_id == SAFE_ALBUM_ID:
        ok("Album id %s equals the one we're expecting %s" % (album_id, SAFE_ALBUM_ID), True)
     else:
        ok("Album id %s does not equal the one we're expecting %s" % (album_id, SAFE_ALBUM_ID), False) 
 
-# Test getting photo info and url
 info = shutter._get_photo_info (SAFE_PHOTO_ID)
 ok("Got photo info", info != None)
- 
-#Send a remote file
-f = File.File("http://files.conduit-project.org/screenshot.jpg")
-uid = None
-try:
-    uid = shutter.put(f, True)
-    ok("Upload a photo (UID:%s) " % uid, True)
-except Exception, err:
-    ok("Upload a photo (%s)" % err, False)
+
+url = shutter._get_raw_photo_url(info)
+ok("Got photo url (%s)" % url, url != None) 
+
+#Perform image tests
+test.do_image_dataprovider_tests(
+        supportsGet=False,
+        supportsDelete=True,
+        safePhotoLUID=SAFE_PHOTO_ID,
+        ext="jpg"
+        )
 
 finished()
 
