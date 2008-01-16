@@ -329,7 +329,49 @@ class SimpleTest(object):
 
     def print_mapping_db(self):
         print conduit.GLOBALS.mappingDB.debug()
-        
+       
+    def do_dataprovider_tests(self, supportsGet, supportsDelete, safeLUID, ext="png", name="file"):
+        """
+        Tests get(), put(), delete()
+        """
+        #Test get()
+        if supportsGet:
+            try:
+                f = self.sink.module.get(safeLUID)
+                ok("Got %s %s" % (name,safeLUID), f.exists())
+            except Exception, err:
+                traceback.print_exc()
+                ok("Got %s (%s)" % (name,err), False)
+
+        #Test put()
+        f = File.File("http://files.conduit-project.org/screenshot.%s" % ext)
+        try:
+            rid = self.sink.module.put(f, True)
+            uid = rid.get_UID()
+            ok("Upload a %s (%s) " % (name,rid), True)
+        except Exception, err:
+            traceback.print_exc()        
+            ok("Upload a %s (%s)" % (name,err), False)
+
+        #Test put() to replace
+        try:
+            rid = self.sink.module.put(f, True, uid)
+            ok("Update a %s (%s)" % (name,rid), True)
+        except Exception, err:
+            traceback.print_exc()
+            ok("Update a %s (%s)" % (name,err), False)
+
+        #Test delete()
+        if supportsDelete:
+            try:
+                self.sink.module.refresh()
+                self.sink.module.delete(uid)
+                self.sink.module.refresh()
+                ok("Delete a %s (%s)" % (name,rid), uid not in self.sink.module.get_all())
+            except Exception, err:
+                traceback.print_exc()
+                ok("Delete a %s (%s)" % (name,err), False)
+
     def do_image_dataprovider_tests(self, supportsGet, supportsDelete, safePhotoLUID, ext="png"):
         """
         Tests get(), put(), delete() and Image dataprovider specific
@@ -341,42 +383,18 @@ class SimpleTest(object):
                 info = self.sink.module._get_photo_info(safePhotoLUID)
                 ok("Got photo info", info != None)
                 url = self.sink.module._get_raw_photo_url(info)
-                ok("Got photo url (%s)" % url, url != None)
-                ok("Photo url is correct", Vfs.uri_exists(url))
-                f = self.sink.module.get(safePhotoLUID)
-                ok ("Got photo %s" % url, f.exists())
+                ok("Got photo url (%s)" % url, url != None and Vfs.uri_exists(url))
             except Exception, err:
                 traceback.print_exc()
-                ok("Got photo (%s)" % err, False)
+                ok("Got photo info/url (%s)" % err, False)
 
-        #Test put()
-        f = File.File("http://files.conduit-project.org/screenshot.%s" % ext)
-        try:
-            rid = self.sink.module.put(f, True)
-            uid = rid.get_UID()
-            ok("Upload a photo (%s) " % rid, True)
-        except Exception, err:
-            traceback.print_exc()        
-            ok("Upload a photo (%s)" % err, False)
-
-        #Test put() to replace a photo
-        try:
-            rid = self.sink.module.put(f, True, uid)
-            ok("Update a photo (%s)" % rid, True)
-        except Exception, err:
-            traceback.print_exc()
-            ok("Update a photo (%s)" % err, False)
-
-        #Test delete()
-        if supportsDelete:
-            try:
-                self.sink.module.refresh()
-                self.sink.module.delete(uid)
-                self.sink.module.refresh()
-                ok("Delete a photo (%s)" % rid, uid not in self.sink.module.get_all())
-            except Exception, err:
-                traceback.print_exc()
-                ok("Delete a photo (%s)" % err, False)
+        self.do_dataprovider_tests(
+                    supportsGet,
+                    supportsDelete,
+                    safePhotoLUID, 
+                    ext,
+                    "photo"
+                    )
         
 class SimpleSyncTest(SimpleTest):
     """

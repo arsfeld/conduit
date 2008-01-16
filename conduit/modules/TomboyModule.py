@@ -95,16 +95,11 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             return False
 
     def _update_note(self, uid, note):
-        """
-        @returns: A Rid for the note
-        """
         log.debug("Updating note uid: %s" % uid)
         xmlContent = '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
         ok = self.remoteTomboy.SetNoteContentsXml(uid, xmlContent)
         if not ok:
             raise Exceptions.SyncronizeError("Error setting Tomboy note content (uri: %s)" % uid)
-        n = self._get_note(uid)
-        return n.get_rid()
 
     def _get_note_mtime(self, uid):
         try:
@@ -131,13 +126,10 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         return n
 
     def _create_note(self, note):
-        """
-        @returns: A Rid for the created note
-        """
         uid = self.remoteTomboy.CreateNamedNote(note.get_title())
-        #fill out the note content
-        rid = self._update_note(str(uid), note)
-        return rid
+        uid = str(uid)
+        self._update_note(uid, note)
+        return uid
 
     def initialize(self):
         """
@@ -185,17 +177,16 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             log.debug("Comparing new %s with existing %s" % (note.get_title(),existingNote.get_title()))
             if comp == conduit.datatypes.COMPARISON_EQUAL:
                 log.info("Notes are equal")
-                rid = existingNote.get_rid()
             elif overwrite == True or comp == conduit.datatypes.COMPARISON_NEWER:
                 log.info("Updating note")
-                rid = self._update_note(LUID, note)
+                self._update_note(LUID, note)
             else:
                 raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
         else:                    
             log.info("Saving new Note")
-            rid = self._create_note(note)
+            LUID = self._create_note(note)
 
-        return rid
+        return self.get(LUID).get_rid()
 
     def delete(self, LUID):
         if self.remoteTomboy.NoteExists(LUID):

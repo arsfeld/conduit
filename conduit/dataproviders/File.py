@@ -229,12 +229,8 @@ class FolderTwoWay(DataProvider.TwoWay):
                         )
         if overwrite or comp == DataType.COMPARISON_NEWER:
             vfsFile.transfer(newURI, True)
-        vfsFile.set_UID(newURI)
 
-        #FIXME: I think we can return vfsFile.get_rid() because after transfer
-        #the file info (size,mtime) is reloaded, so we are not permuting anything in place
-        #also, we have set_UID to reflect the files destination ID
-        return vfsFile.get_rid()
+        return self.get(newURI).get_rid()
 
     def delete(self, LUID):
         f = File.File(URI=LUID)

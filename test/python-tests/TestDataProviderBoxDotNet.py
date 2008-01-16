@@ -1,6 +1,8 @@
 #common sets up the conduit environment
 from common import *
 
+import traceback
+
 import conduit.Utils as Utils
 import conduit.datatypes.File as File
 
@@ -8,48 +10,37 @@ if not is_online() or not is_interactive():
     skip()
 
 #A Reliable file that will note be deleted
-SAFE_FILENAME="conduit-icon.png"
-SAFE_FILEID=u'75007045'
+SAFE_FILENAME="conduit.png"
+SAFE_FILEID=u'124531811'
 SAFE_FOLDER="Test"
 
 #setup the test
-test = SimpleTest(sourceName="BoxDotNetTwoWay")
-
+test = SimpleTest(sinkName="BoxDotNetTwoWay")
 boxconfig = {
     "foldername":"Test"
 }
-test.configure(source=boxconfig)
+test.configure(sink=boxconfig)
 
 #get the module directly so we can call some special functions on it
-boxdotnet = test.get_source().module
+boxdotnet = test.get_sink().module
 
-#login
-boxdotnet._login()
-ok("Login OK", boxdotnet.token != None)
+#Log in
+try:
+    boxdotnet.refresh()
+    ok("Logged in", boxdotnet.token != None)
+except Exception, err:
+    ok("Logged in (%s)" % err, False) 
 
 #get the safe folder
 folders = boxdotnet._get_folders()
 ok("Got expected folder %s" % SAFE_FOLDER, SAFE_FOLDER in folders)
 
-#get the safe file
-files = boxdotnet.refresh()
-files = boxdotnet.get_all()
-ok("Got expected file %s" % SAFE_FILENAME, SAFE_FILEID in files)
-
-#transfer the file to the local disk
-tmpdir = Utils.new_tempdir()
-f = boxdotnet.get(SAFE_FILEID)
-f.transfer(tmpdir)
-ok("Transferred file to %s" % tmpdir, f.exists())
-ok("Filename retained in transfer", f.get_filename() == SAFE_FILENAME)
-
-#Send a remote file
-f = File.File("http://files.conduit-project.org/screenshot.png")
-try:
-    uid = boxdotnet.put(f, True)
-    ok("Upload a file (UID:%s) " % uid, True)
-except Exception, err:
-    ok("Upload a file (%s)" % err, False)
+#Perform basic tests
+test.do_dataprovider_tests(
+        supportsGet=True,
+        supportsDelete=True,
+        safeLUID=SAFE_FILEID
+        )
 
 finished()
 

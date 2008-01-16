@@ -145,7 +145,6 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if not node:
             log.debug("Could not find uid %s" % uid)
             return None
-            
         s = Setting.Setting(
                         key=uid,
                         value=self._from_gconf(node)
@@ -161,9 +160,11 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         log.debug("%s" % self.whitelist)
 
     def put(self, setting, overwrite, uid=None):
-        log.debug("%s: %s" % (setting.key, setting.value))
+        log.debug("Saving value in Gconf: %s=%s" % (setting.key, setting.value))
         self._to_gconf(setting.key, setting.value)
-        return setting.get_rid()
+        if uid == None:
+            uid = setting.key
+        return self.get(uid).get_rid()
 
     def delete(self, uid):
         self.gconf.unset(uid)

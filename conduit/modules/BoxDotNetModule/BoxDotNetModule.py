@@ -91,7 +91,8 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
     #------------------------------------------
     def _upload_file (self, file_path, filename):
         """
-        Upload the file to url
+        Upload the file to box.net
+        @returns: uid of the file
         """
         rsp = self.boxapi.upload(file_path, 
                         auth_token=self.token, 
@@ -101,12 +102,13 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                         )
 
         uid = rsp.files[0].file[0].attrib['id']
-        return Rid(uid=uid)
+        return uid
 
     def _replace_file (self, fileID, url, name):
         """
         Box.net automatically replaces files with same name, so we can
         use the plain upload method
+        @returns: uid of the file
         """
         return self._upload_file(url, name)
 
@@ -237,17 +239,18 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         #Gets the local URI (/foo/bar). If this is a remote file then
         #it is first transferred to the local filesystem
         fileURI = file.get_local_uri()
-
         mimeType = file.get_mimetype()
-        
-        #Check if we have already uploaded the file
-        if LUID != None:
-            id = self._get_file_info(LUID)
+
+        if LUID == None:
+            log.debug("Uploading file URI = %s, Mimetype = %s, Original Name = %s" % (fileURI, mimeType, originalName))
+            LUID = self._upload_file (fileURI, originalName)
+        else:
             #check if a file exists at that UID
-            if id:
+            id = self._get_file_info(LUID)
+            if id != None:
                 if overwrite == True:
-                    #replace the file
-                    return self._replace_file(LUID, fileURI, originalName)
+                    log.debug("Replacing file URI = %s, Mimetype = %s, Original Name = %s" % (fileURI, mimeType, originalName))
+                    LUID = self._replace_file(LUID, fileURI, originalName)
                 else:
                     #Only upload the file if it is newer than the Remote one
                     url = self._get_raw_file_url(id)
@@ -255,17 +258,11 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
 
                     #this is a limited test for equality type comparison
                     comp = file.compare(remoteFile,True)
-                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
-                            (file.get_filename(),remoteFile.get_filename(),comp))
+                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % (file.get_filename(),remoteFile.get_filename(),comp))
                     if comp != conduit.datatypes.COMPARISON_EQUAL:
                         raise Exceptions.SynchronizeConflictError(comp, file, remoteFile)
-                    else:
-                        return Rid(uid=LUID)
-
-        log.debug("Uploading file URI = %s, Mimetype = %s, Original Name = %s" % (fileURI, mimeType, originalName))
-
-        #upload the file
-        return self._upload_file (fileURI, originalName)
+            
+        return self.get(LUID).get_rid()
 
     def delete(self, LUID):
         """
@@ -275,7 +272,6 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                             auth_token=self.token,
                             target='file',
                             target_id=LUID)
-
 
     def configure(self, window):
         """
