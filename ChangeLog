@@ -1,3 +1,12 @@
+2008-01-16  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BackpackModule/BackpackModule.py: Fix refresh() behaviour
+	so that we dont recreate the backpack API everytime, but we do check for
+	new notes
+	
+	* test/python-tests/TestDataProviderBackpack.py: Fix test and add test
+	for deleting notes
+
 2008-01-16  Jeremy Slater <jasl8r@gmail.com>
 
 	* conduit/modules/ShutterflyModule/ShutterflyModule.py:

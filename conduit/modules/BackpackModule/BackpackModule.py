@@ -20,29 +20,28 @@ MODULES = {
 }
 
 class BackpackBase(DataProvider.DataProviderBase):
-    """
-    Simple wrapper to share gmail login stuff
-    """
     def __init__(self, *args):
+        DataProvider.DataProviderBase.__init__(self)
         self.username = ""
         self.apikey = ""
-
         self.ba = None
+        self.loggedIn = False
 
     def initialize(self):
         return True
     
     def refresh(self):
-        username = "http://" + self.username + ".backpackit.com/"
-        try:
-            self.ba = backpack.Backpack(username,self.apikey)
-            self.loggedIn = True
-        except backpack.BackpackError:
-            log.warn("Error logging into backpack (username %s)" % self.username)
-            raise Exceptions.RefreshError
+        if self.loggedIn == False:
+            username = "http://" + self.username + ".backpackit.com/"
+            try:
+                self.ba = backpack.Backpack(username,self.apikey)
+                self.loggedIn = True
+            except backpack.BackpackError:
+                log.warn("Error logging into backpack (username %s)" % self.username)
+                raise Exceptions.RefreshError
     
 
-class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
+class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
 
     _name_ = _("Backpack Notes")
     _description_ = _("Store things in Backpack Notes")
@@ -53,20 +52,19 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
     _icon_ = "backpack"
 
     def __init__(self, *args):
-        BackpackBase.__init__(self, *args)
         DataProvider.DataSink.__init__(self)
+        BackpackBase.__init__(self, *args)
         self.need_configuration(True)
         
         self.storeInPage = "Conduit"
         self.pageID = None
-
         #there is no way to pragmatically see if a note exists so we list them
         #and cache the results. key = note uid
         self._notes = {}
 
     def refresh(self):
-        BackpackBase.refresh(self)
         DataProvider.DataSink.refresh(self)
+        BackpackBase.refresh(self)
         #First search for the pageID of the named page to put notes in
         if self.pageID is None:
             pages = self.ba.page.list()
@@ -78,17 +76,16 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             #Didnt find the page so create one
             if self.pageID is None:
                 try:
-                    self.pageID, title = self.ba.page.create("Conduit")
+                    self.pageID, title = self.ba.page.create(self.storeInPage)
                     log.info("Created page %s (id: %s)" % (title, self.pageID))
                 except backpack.BackpackError, err:
                     log.info("Could not create page to store notes in (%s)" % err)
                     raise Exceptions.RefreshError
                     
-        #First put needs to cache the existing note titles and uris
-        if len(self._notes) == 0:
-            for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
-                self._notes[title] = uid
-            log.debug("Found existing notes: %s" % self._notes)
+        #Need to cache the existing note titles
+        for uid, title, timestamp, text in self.ba.notes.list(self.pageID):
+            self._notes[title] = uid
+            log.debug("Found existing note: %s (%s)" % (title, uid))
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
@@ -119,13 +116,14 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
             if len(self.username) > 0 and len(self.apikey) > 0:
                 self.set_configured(True)
 
-        dlg.destroy()    
+        dlg.destroy()
         
+    def get_all(self):
+        return self._notes.values()
         
     def put(self, note, overwrite, LUID=None):
         DataProvider.DataSink.put(self, note, overwrite, LUID)
 
-        #FIXME: implement overwrite and LUID behaviour
         #If all that went well then actually store some notes.
         uid = None
         try:
@@ -151,7 +149,7 @@ class BackpackNoteSink(BackpackBase, DataProvider.DataSink):
                 log.info("Could delete note (%s)" % err)
                 raise Exceptions.SyncronizeError
         else:
-            log.debug("Could not find note")
+            log.info("Could not find note")
 
     def get_UID(self):
         return "%s:%s" % (self.username,self.storeInPage)
