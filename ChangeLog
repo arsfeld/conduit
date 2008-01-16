@@ -1,3 +1,16 @@
+2008-01-16  Jeremy Slater <jasl8r@gmail.com>
+
+	* conduit/modules/ShutterflyModule/ShutterflyModule.py:
+	* conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:
+	Fixes:
+	Simultaneous logins now work
+	The correct LUID is returned after uploading a photo
+	Uploading no longer hangs, worked around a bug in urllib2
+
+	Additions:
+	delete() support
+	get() support (but Shutterfly is only a data sink for now)
+	
 2008-01-16  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/__init__.py:

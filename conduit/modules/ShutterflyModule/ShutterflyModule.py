@@ -9,6 +9,7 @@ import conduit.Utils as Utils
 from conduit.datatypes import Rid
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
+import conduit.datatypes.Photo as Photo
 
 Utils.dataprovider_add_dir_to_path(__file__, "shutterfly")
 from shutterfly import Shutterfly
@@ -16,8 +17,9 @@ from shutterfly import Shutterfly
 from gettext import gettext as _
 
 MODULES = {
-	"ShutterflySink" : {"type" : "dataprovider"}
+	"ShutterflySink" : {"type" : "dataprovider"},
 }
+
 
 class ShutterflySink(Image.ImageSink):
 	
@@ -37,7 +39,10 @@ class ShutterflySink(Image.ImageSink):
 		self.sapi = None
 		self.salbum = None
 		self.sphotos = None
-	
+
+	def _get_raw_photo_url(self, photoInfo):
+		return photoInfo.url
+
 	def _get_photo_info(self, id):
 		if self.sphotos.has_key(id):
 			return self.sphotos[id]
@@ -62,18 +67,33 @@ class ShutterflySink(Image.ImageSink):
 	def get_all(self):
 		return self.sphotos.keys()
 	
+	def get(self, LUID):
+		Image.ImageSink.get(self, LUID)
+		sphoto = self.sphotos[LUID]
+
+		f = ShutterflyPhoto(URI=sphoto.url)
+		f.set_open_URI(sphoto.url)
+		f.set_UID(LUID)
+
+		return f
+
 	def delete(self, LUID):
 		"""
 		Delete a photo by ID
+		Deleting a photo invalidates album length and photo index values.
+		We must reload the photos (or do something else...)
 		"""
 		if not self.sphotos.has_key(LUID):
 			log.warn("Photo does not exist")
 			return
+
+		try:
+			self.salbum.deletePhoto(self.sphotos[LUID])
+		except Exception, e:
+			raise Exceptions.SyncronizeError("Shutterfly Delete Error - Try Again.")
+
+		self.sphotos = self.salbum.getPhotos()
 		
-		# Need to figure out how to delete a photo (javascript hell)
-		#self.salbum.deletePhoto(self.sphotos[LUID])
-		del self.sphotos[LUID]
-	
 	def _upload_photo(self, uploadInfo):
 		"""
 		Upload to album
@@ -136,5 +156,5 @@ class ShutterflySink(Image.ImageSink):
 		return True
 	
 	def get_UID(self):
-		return self.username
+		return self.username+":"+self.album
 
