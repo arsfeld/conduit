@@ -1,5 +1,12 @@
 2008-01-18  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FacebookModule/FacebookModule.py:
+	* conduit/modules/FacebookModule/pyfacebook/__init__.py:
+	* conduit/modules/FacebookModule/pyfacebook/no-print-at-import.patch:
+	* scripts/update-3rdparty-libs.sh: Update to new pyfacebook
+
+2008-01-18  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FlickrModule/FlickrAPI/Makefile.am:
 	* conduit/modules/FlickrModule/FlickrAPI/PKG-INFO:
 	* conduit/modules/FlickrModule/FlickrAPI/flickrapi.py:

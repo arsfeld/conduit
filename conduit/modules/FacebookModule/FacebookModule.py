@@ -15,11 +15,17 @@ import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.File as File
 
-Utils.dataprovider_add_dir_to_path(__file__)
-from pyfacebook import Facebook, FacebookError
-
 from gettext import gettext as _
 
+try:
+    from pyfacebook import Facebook, FacebookError, VERSION
+except ImportError:
+    Utils.dataprovider_add_dir_to_path(__file__)
+    from pyfacebook import Facebook, FacebookError, VERSION
+    
+if VERSION < '0.1':
+    raise Exceptions.NotSupportedError("Incorrect pyfacebook version")
+    
 MODULES = {
     "FacebookSink" :          { "type": "dataprovider" }        
 }

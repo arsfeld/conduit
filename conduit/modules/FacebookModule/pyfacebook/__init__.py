@@ -38,8 +38,12 @@ try:
     import simplejson
     RESPONSE_FORMAT = 'JSON'
 except ImportError:
-    from xml.dom import minidom
-    RESPONSE_FORMAT = 'XML'
+    try:
+        from django.utils import simplejson
+        RESPONSE_FORMAT = 'JSON'
+    except ImportError:
+        from xml.dom import minidom
+        RESPONSE_FORMAT = 'XML'
 
 __all__ = ['Facebook']
 
@@ -139,13 +143,22 @@ METHODS = {
             ('image', str, []),
             ('invite', bool, []),
         ],
+
+        'sendEmail': [
+            ('recipients', list, []),
+            ('subject', str, []),
+            ('text', str, ['optional']),
+            ('fbml', str, ['optional']),
+        ]
     },
 
     # profile methods
     'profile': {
         'setFBML': [
-            ('markup', str, []),
             ('uid', int, ['optional']),
+            ('profile', str, ['optional']),
+            ('profile_action', str, ['optional']),
+            ('mobile_fbml', str, ['optional']),
         ],
 
         'getFBML': [
@@ -318,8 +331,9 @@ class Proxy(object):
         self._client = client
         self._name = name
 
-    def __call__(self, method, args=None):
-        self._client._add_session_args(args)
+    def __call__(self, method, args=None, add_session_args=True):
+        if add_session_args:
+            self._client._add_session_args(args)
 
         return self._client('%s.%s' % (self._name, method), args)
 
@@ -603,7 +617,7 @@ class Facebook(object):
         """Hashes arguments by joining key=value pairs, appending a secret, and then taking the MD5 hex digest."""
         hasher = md5.new(''.join(['%s=%s' % (x, args[x]) for x in sorted(args.keys())]))
         if secret:
-            hasher.updated(secret)
+            hasher.update(secret)
         elif self.secret:
             hasher.update(self.secret)
         else:
@@ -683,7 +697,7 @@ class Facebook(object):
             raise RuntimeError('Session key not set. Make sure auth.getSession has been called.')
 
         args['session_key'] = self.session_key
-        args['call_id'] = str(int(time.time()) * 1000)
+        args['call_id'] = str(int(time.time() * 1000))
 
         return args
 
@@ -732,6 +746,14 @@ class Facebook(object):
 
         """
         return 'http://www.facebook.com/%s.php?%s' % (page, urllib.urlencode(args))
+
+
+    def get_app_url(self, path=''):
+        """
+        Returns the URL for this app's canvas page, according to app_name.
+        
+        """
+        return 'http://apps.facebook.com/%s/%s' % (self.app_name, path)
 
 
     def get_add_url(self, next=None):
@@ -786,10 +808,80 @@ class Facebook(object):
 
         return self.get_url('login', **args)
 
+
     def login(self, popup=False):
         """Open a web browser telling the user to login to Facebook."""
         import webbrowser
         webbrowser.open(self.get_login_url(popup=popup))
+
+
+    def check_session(self, request):
+        """
+        Checks the given Django HttpRequest for Facebook parameters such as
+        POST variables or an auth token. If the session is valid, returns True
+        and this object can now be used to access the Facebook API. Otherwise,
+        it returns False, and the application should take the appropriate action
+        (either log the user in or have him add the application).
+
+        """
+        self.in_canvas = (request.POST.get('fb_sig_in_canvas') == '1')
+
+        if self.session_key and (self.uid or self.page_id):
+            return True
+
+        if request.method == 'POST':
+            params = self.validate_signature(request.POST)
+        else:
+            if 'installed' in request.GET:
+                self.added = True
+
+            if 'fb_page_id' in request.GET:
+                self.page_id = request.GET['fb_page_id']
+
+            if 'auth_token' in request.GET:
+                self.auth_token = request.GET['auth_token']
+
+                try:
+                    self.auth.getSession()
+                except FacebookError, e:
+                    self.auth_token = None
+                    return False
+
+                return True
+
+            params = self.validate_signature(request.GET)
+
+        if not params:
+            return False
+
+        if params.get('in_canvas') == '1':
+            self.in_canvas = True
+
+        if params.get('added') == '1':
+            self.added = True
+
+        if params.get('expires'):
+            self.session_key_expires = int(params['expires'])
+
+        if 'friends' in params:
+            if params['friends']:
+                self._friends = params['friends'].split(',')
+            else:
+                self._friends = []
+
+        if 'session_key' in params:
+            self.session_key = params['session_key']
+            if 'user' in params:
+                self.uid = params['user']
+            elif 'page_id' in params:
+                self.page_id = params['page_id']
+            else:
+                return False
+        else:
+            return False
+
+        return True
+
 
     def validate_signature(self, post, prefix='fb_sig', timeout=None):
         """
