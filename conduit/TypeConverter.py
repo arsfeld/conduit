@@ -150,7 +150,32 @@ class TypeConverter:
             if self.convertables[from_type].has_key(to_type):
                 return True
         return False
+        
+    def _convert(self, conversions, data):
+        if len(conversions) > 0:
+            from_type, to_type, args = conversions[0]
+            message = "Converting"
+            if from_type == to_type:
+                message = "Transcoding"
+                #No conversion needed, or module does not supply transcode.
+                if args == {} or not self._conversion_exists(from_type, to_type):
+                    #recurse
+                    log.debug("Skipping %s -> %s" % (from_type, to_type))
+                    return self._convert(conversions[1:],data)
 
+            log.debug("%s %s -> %s (args: %s)" % (message, from_type, to_type, args))
+            try:
+                #recurse
+                return self._convert(
+                                conversions[1:],
+                                self.convertables[from_type][to_type](data, **args)
+                                )
+            except Exception:
+                log.debug(traceback.format_exc())
+                raise Exceptions.ConversionError(from_type, to_type)
+        else:
+            return data
+                        
     def conversion_exists(self, from_type, to_type):
         """
         Checks if all conversion(s) exists to convert from from_type 
@@ -178,38 +203,13 @@ class TypeConverter:
         conversions = self._get_conversions(from_type, to_type)
         log.debug("Convert %s -> %s using %s" % (from_type, to_type, conversions))
 
-        newdata = data
-        for from_type, to_type, args in conversions:
-            conversionExists = self._conversion_exists(from_type, to_type)
-            #if fromtype and totype differ only through args, then check if that
-            #datatype has a transcode function (a convert function whose in and
-            #out types are the same)
-            if from_type == to_type:
-                if args == {}:
-                    return data
-                elif conversionExists == True:
-                    try:
-                        log.debug("Transcoding %s (args: %s)" % (from_type, args))
-                        to = self.convertables[from_type][to_type](data, **args)
-                        newdata = self._retain_info_in_conversion(fromdata=data, todata=to)
-                    except Exception:
-                        log.debug(traceback.format_exc())
-                        raise Exceptions.ConversionError(from_type, to_type)
-                else:
-                    return data
-            #perform the conversion
-            elif conversionExists == True:
-                try:
-                    log.debug("Converting %s -> %s (args: %s)" % (from_type, to_type, args))
-                    to = self.convertables[from_type][to_type](data, **args)
-                    newdata = self._retain_info_in_conversion(fromdata=data, todata=to)
-                except Exception:
-                    log.debug(traceback.format_exc())
-                    raise Exceptions.ConversionError(from_type, to_type)
-            else:
-                raise Exceptions.ConversionDoesntExistError(from_type, to_type)
-        
-        return newdata
+        if self.conversion_exists(from_type, to_type):
+            #recursively perform the needed conversions
+            newdata = self._convert(conversions, data)
+        else:
+            raise Exceptions.ConversionDoesntExistError(from_type, to_type)
+            
+        return self._retain_info_in_conversion(fromdata=data, todata=newdata)
 
     def get_convertables_list(self):
         """

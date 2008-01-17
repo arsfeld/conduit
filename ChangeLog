@@ -1,5 +1,11 @@
 2008-01-17  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/TypeConverter.py:
+	* test/python-tests/TestCoreConvertSubtypesArgs.py: Conversions are now
+	performed recursively. Fixes Tomboy <--> Folder sync bug
+
+2008-01-17  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/Email.py:
 	* conduit/modules/GmailModule/GmailModule.py: Fix to retain subject in put()
 
