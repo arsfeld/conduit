@@ -70,13 +70,14 @@ class Conduit(gobject.GObject):
 
         self.twoWaySyncEnabled = False
         self.slowSyncEnabled = False
-        
+        self.autoSyncEnabled = False
+
     def _parameters_changed(self):
         self.emit("parameters-changed")
         
     def _change_detected(self, arg):
         #Dont trigger a sync if we are already synchronising
-        if not self.is_busy():
+        if not self.is_busy() and self.do_auto_sync():
             log.debug("Triggering an auto sync...")
             self.sync()
 
@@ -233,6 +234,19 @@ class Conduit(gobject.GObject):
 
     def do_slow_sync(self):
         return self.slowSyncEnabled
+
+    def enable_auto_sync(self):
+        log.debug("Enabling Auto Sync")
+        self.autoSyncEnabled = True
+        self._parameters_changed()
+
+    def disable_auto_sync(self):
+        log.debug("Disabling Auto Sync")
+        self.autoSyncEnabled = False
+        self._parameters_changed()
+
+    def do_auto_sync(self):
+        return self.autoSyncEnabled
 
     def change_dataprovider(self, oldDpw, newDpw):
         """

@@ -174,6 +174,8 @@ class Canvas(goocanvas.Canvas):
                 self.twoWayMenuItem.set_active(self.selectedConduitItem.model.is_two_way())
                 #Set item ticked if two way sync enabled
                 self.slowSyncMenuItem.set_active(self.selectedConduitItem.model.slowSyncEnabled)
+                #Set item ticked if two way sync enabled
+                self.autoSyncMenuItem.set_active(self.selectedConduitItem.model.autoSyncEnabled)
                 #Show the menu                
                 if not self.selectedConduitItem.model.is_busy():
                     self.conduitMenu.popup(
@@ -355,6 +357,9 @@ class Canvas(goocanvas.Canvas):
         self.slowSyncMenuItem = conduitPopupXML.get_widget("slow_sync")
         self.slowSyncMenuItem.connect("toggled", self.on_slow_sync_toggle)
 
+        self.autoSyncMenuItem = conduitPopupXML.get_widget("auto_sync")
+        self.autoSyncMenuItem.connect("toggled", self.on_auto_sync_toggle)
+
         #connect the menu callbacks
         conduitPopupXML.signal_autoconnect(self)
         dataproviderPopupXML.signal_autoconnect(self)        
@@ -424,6 +429,15 @@ class Canvas(goocanvas.Canvas):
             self.selectedConduitItem.model.enable_slow_sync()
         else:
             self.selectedConduitItem.model.disable_slow_sync()
+
+    def on_auto_sync_toggle(self, widget):
+        """
+        Enables or disables slow sync of dataproviders.
+        """
+        if widget.get_active():
+            self.selectedConduitItem.model.enable_auto_sync()
+        else:
+            self.selectedConduitItem.model.disable_auto_sync()
 
     def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """

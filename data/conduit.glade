@@ -474,6 +474,14 @@
         <signal name="activate" handler="on_two_way_sync_group_clicked"/>
       </widget>
     </child>
+    <child>
+      <widget class="GtkCheckMenuItem" id="auto_sync">
+        <property name="visible">True</property>
+        <property name="label" translatable="yes">Always Up To Date</property>
+        <property name="use_underline">True</property>
+        <signal name="activate" handler="on_autosync_clicked"/>
+      </widget>
+    </child>
   </widget>
   <widget class="GtkMenu" id="DataProviderMenu">
     <child>

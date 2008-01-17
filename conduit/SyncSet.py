@@ -131,6 +131,7 @@ class SyncSet(gobject.GObject):
             conduitxml = doc.createElement("conduit")
             conduitxml.setAttribute("uid",cond.uid)
             conduitxml.setAttribute("twoway",str(cond.is_two_way()))
+            conduitxml.setAttribute("autosync",str(cond.do_auto_sync()))
             rootxml.appendChild(conduitxml)
             
             #Store the source
@@ -198,6 +199,10 @@ class SyncSet(gobject.GObject):
                 twoway = Settings.string_to_bool(conds.getAttribute("twoway"))
                 if twoway == True:
                     cond.enable_two_way_sync()
+
+                auto = Settings.string_to_bool(conds.getAttribute("autosync"))
+                if auto == True:
+                    cond.enable_auto_sync()
 
                 #each dataprovider
                 for i in conds.childNodes:
