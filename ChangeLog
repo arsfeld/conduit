@@ -1,3 +1,7 @@
+2008-01-18  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/N800Module/N800Module.py: Update to detect N810
+
 2008-01-18  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/FacebookModule/FacebookModule.py:
