@@ -1,3 +1,23 @@
+2008-01-18  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/FlickrModule/FlickrAPI/Makefile.am:
+	* conduit/modules/FlickrModule/FlickrAPI/PKG-INFO:
+	* conduit/modules/FlickrModule/FlickrAPI/flickrapi.py:
+	* conduit/modules/FlickrModule/FlickrAPI/get-token-for-username.patch:
+	* conduit/modules/FlickrModule/FlickrAPI/setup.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FlickrModule/Makefile.am:
+	* conduit/modules/FlickrModule/flickrapi/Makefile.am:
+	* conduit/modules/FlickrModule/flickrapi/__init__.py:
+	* conduit/modules/FlickrModule/flickrapi/multi-username.patch:
+	* conduit/modules/FlickrModule/flickrapi/multipart.py:
+	* conduit/modules/FlickrModule/flickrapi/reportinghttp.py:
+	* conduit/modules/FlickrModule/flickrapi/tokencache.py:
+	* conduit/modules/FlickrModule/flickrapi/xmlnode.py:
+	* configure.ac:
+	* scripts/update-3rdparty-libs.sh:
+	* test/python-tests/TestDataProviderFlickr.py: Update to new flickrapi
+
 2008-01-17  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/FspotModule/FspotModule.py:

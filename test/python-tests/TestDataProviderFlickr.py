@@ -33,9 +33,8 @@ except Exception, err:
     ok("Logged in (%s)" % err, False)  
 
 #Get user quota
-used,tot = flickr._get_user_quota()
-p = (float(used)/float(tot))*100.0
-ok("Used %2.1f%% of monthly badwidth quota (%skb/%skb)" % (p,used,tot) , used != -1 and tot != -1)
+used,tot,percent = flickr._get_user_quota()
+ok("Used %2.1f%% of monthly badwidth quota (%skb/%skb)" % (percent,used,tot) , used != -1 and tot != -1)
 
 #Perform image tests
 test.do_image_dataprovider_tests(

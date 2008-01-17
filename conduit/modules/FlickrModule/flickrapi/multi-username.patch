@@ -1,0 +1,60 @@
+--- conduit/modules/FlickrModule/flickrapi/__init__.py	2007-12-29 01:33:08.000000000 +1300
++++ conduit/modules/FlickrModule/flickrapi/__init__.py	2008-01-18 09:12:24.000000000 +1300
+@@ -8,7 +8,7 @@
+ .. _`the FlickrAPI homepage`: http://flickrapi.sf.net/
+ '''
+ 
+-__version__ = '0.16-beta0'
++__version__ = '0.16-beta0-CONDUIT'
+ __revision__ = '$Revision: 114 $'
+ __all__ = ('FlickrAPI', 'IllegalArgumentException', 'FlickrError',
+         'XMLNode', 'set_log_level', '__version__', '__revision__')
+@@ -113,12 +113,12 @@
+     flickrReplaceForm = "/services/replace/"
+ 
+     #-------------------------------------------------------------------
+-    def __init__(self, apiKey, secret=None, fail_on_error=True):
++    def __init__(self, apiKey, secret=None, fail_on_error=True, username=""):
+         """Construct a new FlickrAPI instance for a given API key and secret."""
+         
+         self.api_key = apiKey
+         self.secret = secret
+-        self.token_cache = TokenCache(apiKey)
++        self.token_cache = TokenCache(apiKey, username)
+         self.token = self.token_cache.token
+         self.fail_on_error = fail_on_error
+         
+--- conduit/modules/FlickrModule/flickrapi/tokencache.py	2007-09-06 01:21:47.000000000 +1200
++++ conduit/modules/FlickrModule/flickrapi/tokencache.py	2008-01-18 09:05:15.000000000 +1300
+@@ -13,10 +13,14 @@
+     The application is identified by the API key used.
+     '''
+     
+-    def __init__(self, api_key):
++    def __init__(self, api_key, username=""):
+         '''Creates a new token cache instance'''
+         
+         self.api_key = api_key
++        if username != "":
++            self.auth_filename = "%s-auth.xml" % username
++        else:
++            self.auth_filename = "auth.xml"
+         
+     def __getCachedTokenPath(self):
+         """Return the directory holding the app data."""
+@@ -24,7 +28,7 @@
+ 
+     def __getCachedTokenFilename(self):
+         """Return the full pathname of the cached token file."""
+-        return os.path.join(self.__getCachedTokenPath(), "auth.xml")
++        return os.path.join(self.__getCachedTokenPath(), self.auth_filename)
+ 
+     def __getCachedToken(self):
+         """Read and return a cached token, or None if not found.
+@@ -67,4 +71,4 @@
+         
+         os.unlink(self.__getCachedTokenFilename())
+         
+-    token = property(__getCachedToken, __setCachedToken, forget, "The cached token")
+\ No newline at end of file
++    token = property(__getCachedToken, __setCachedToken, forget, "The cached token")

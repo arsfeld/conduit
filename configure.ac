@@ -134,7 +134,7 @@ conduit/modules/EvolutionModule/Makefile
 conduit/modules/FileModule/Makefile
 conduit/modules/FeedModule/Makefile
 conduit/modules/FlickrModule/Makefile
-conduit/modules/FlickrModule/FlickrAPI/Makefile
+conduit/modules/FlickrModule/flickrapi/Makefile
 conduit/modules/FacebookModule/Makefile
 conduit/modules/FacebookModule/pyfacebook/Makefile
 conduit/modules/FspotModule/Makefile
