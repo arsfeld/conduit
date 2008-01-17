@@ -8,6 +8,7 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
+import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
 TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
@@ -29,7 +30,7 @@ def partition(txt, sep):
             return (txt[:txt.find(sep)], sep, txt[txt.find(sep)+len(sep):])
 
 class TomboyNote(Note.Note):
-    def __init__(self, title, xmlContent):
+    def __init__(self, xmlContent):
         self.xmlContent = xmlContent
         #strip the xml
         text = xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
@@ -49,13 +50,33 @@ class TomboyNote(Note.Note):
         Note.Note.__setstate__(self, data)
 
 class TomboyNoteConverter(object):
+    NOTE_EXTENSION = ".xml"
     def __init__(self):
         self.conversions =  {
-                "note,note/tomboy"  : self.convert_to_tomboy_note
+                "note,note/tomboy"  : self.note_to_tomboy_note,
+                "note/tomboy,file"  : self.tomboy_note_to_file,
+                "file,note/tomboy"  : self.file_to_tomboy_note,
         }
                             
-    def convert_to_tomboy_note(self, note, **kwargs):
-        xmlContent = '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
+    def note_to_tomboy_note(self, note, **kwargs):
+        n = TomboyNote(
+                '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
+                )
+        return n
+        
+    def tomboy_note_to_file(self, note, **kwargs):
+        f = File.TempFile(note.get_xml())
+        f.force_new_filename(note.get_title())
+        f.force_new_file_extension(TomboyNoteConverter.NOTE_EXTENSION)
+        return f
+        
+    def file_to_tomboy_note(self, f, **kwargs):        
+        note = None
+        title,ext = f.get_filename_and_extension()
+        if ext == TomboyNoteConverter.NOTE_EXTENSION:
+            note = TomboyNote(
+                        f.get_contents_as_text()
+                        )
         return note
 
 class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
@@ -96,8 +117,10 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
 
     def _update_note(self, uid, note):
         log.debug("Updating note uid: %s" % uid)
-        xmlContent = '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
-        ok = self.remoteTomboy.SetNoteContentsXml(uid, xmlContent)
+        ok = self.remoteTomboy.SetNoteContentsXml(
+                                    uid,
+                                    note.get_xml()
+                                    )
         if not ok:
             raise Exceptions.SyncronizeError("Error setting Tomboy note content (uri: %s)" % uid)
 
@@ -113,12 +136,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def _get_note(self, uid):
         #Get the whole xml and strip out the tags
         log.debug("Getting note: %s" % uid)
-        xmlContent=str(self.remoteTomboy.GetNoteContentsXml(uid))
-        xmlContent=xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
-        title, sep, contents = partition(xmlContent, "\n")
-        n = Note.Note(
-                title=title,
-                contents=contents
+        n = TomboyNote(
+                xmlContent=str(self.remoteTomboy.GetNoteContentsXml(uid))
                 )
         n.set_UID(str(uid))
         n.set_mtime(self._get_note_mtime(uid))

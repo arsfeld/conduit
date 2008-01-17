@@ -31,54 +31,21 @@ note = tomboy.get(notes[idx])
 ok("Got note #%s" % idx, note != None)
 ok("Got note title (%s)" % note.title, len(note.title) > 0)
 ok("Got note contents", len(note.contents) > 0)
+ok("Got note xml", len(note.get_xml()) > 0)
 
 #make a new note
-newnote = Note.Note(
-                    title="Conduit-"+Utils.random_string(),
-                    mtime=datetime.datetime.today(),
-                    contents="Conduit Test Note"
-                    )
-try:
-    rid = tomboy.put(newnote,False)
-    uid = rid.get_UID()
-    ok("Put new note (%s)" % uid, uid != None)
-except Exception, err:
-    traceback.print_exc()
-    ok("Put new note: %s" % err, False)
+note = Note.Note(
+                title="Conduit-"+Utils.random_string(),
+                contents="Conduit Test Note"
+                )
+tnote = test.type_converter.convert("note","note/tomboy",note)
 
-#modify the note and replace the old one
-teststr = Utils.random_string()
-newnote.contents += teststr
-try:
-    i = tomboy.put(newnote, True, uid)
-    ok("Overwrite the note", i.get_UID() == uid)
-except:
-    ok("Overwrite the note", False)
-
-#check the content was replace correctly
-try:
-    tomboy._get_note(uid).contents.index(teststr)
-    ok("Note was overwritten correctly", True)
-except:
-    traceback.print_exc()
-    ok("Note was overwritten correctly", False)
-
-#Try and overwrite the note with an older version. Check it conflicts
-olddate = datetime.datetime.fromtimestamp(0)
-newnote = tomboy._get_note(uid)
-newnote.set_mtime(olddate)
-try:
-    tomboy.put(newnote, False, uid)
-    ok("Oldnote conflicts with newnote", False)
-except Exceptions.SynchronizeConflictError, err:
-    comp = err.comparison
-    ok("Oldnote conflicts with newnote. Comparison: %s" % comp, comp == conduit.datatypes.COMPARISON_OLDER)
-
-#remove the note
-try:
-    tomboy.delete(uid)
-    ok("Deleted note (%s)" % uid, tomboy.remoteTomboy.NoteExists(uid) == False)
-except:
-    ok("Deleted note (%s)" % uid, False)
+test.do_dataprovider_tests(
+            supportsGet=True,
+            supportsDelete=True,
+            safeLUID=None,
+            data=tnote,
+            name="tomboy note"
+            )
 
 finished()

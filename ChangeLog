@@ -1,5 +1,15 @@
 2008-01-17  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/TypeConverter.py: Always use the most specific converter if
+	available
+	
+	* conduit/modules/TomboyModule.py:
+	* test/python-tests/TestDataProviderTomboy.py:
+	* test/python-tests/TestSyncTomboyFolder.py: Use a TomboyNote datatype
+	and implement converters. Update the tests to use this API
+
+2008-01-17  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/__init__.py:
 	* configure.ac: Post-release version bump
 

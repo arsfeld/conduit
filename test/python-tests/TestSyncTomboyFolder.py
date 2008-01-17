@@ -2,54 +2,32 @@
 from common import *
 
 import conduit.datatypes.File as File
-
-import time
+import conduit.Utils as Utils
 
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 
 #setup the conduit
 sourceW = test.get_dataprovider("TomboyNoteTwoWay")
 sinkW = test.get_dataprovider("FolderTwoWay")
 test.prepare(sourceW, sinkW)
 
-#prepare the test data
-folderDir = os.path.join(os.environ['TEST_DIRECTORY'],"folder")
-if not os.path.exists(folderDir):
-    os.mkdir(folderDir)
-
-tomboyFiles = get_files_from_data_dir("*.tomboy")
-for i in tomboyFiles:
-    f = File.File(i)
-    f.transfer(folderDir+"/"+f.get_filename(), True)
-
-time.sleep(1)
-
 #configure the source and sink
 config = {}
-config["folder"] = "file://"+folderDir
+config["folder"] = "file://"+Utils.new_tempdir()
 config["folderGroupName"] = "Tomboy"
 test.configure(sink=config)
 
 #check they refresh ok
 test.refresh()
-
 a = test.get_source_count()
-b = test.get_sink_count()
-ok("Got items to sync (%s,%s)" % (a,b), a > 0 and b == len(tomboyFiles))
+ok("Got notes to sync (%s)" % a, a > 0)
 
 #sync
 test.set_two_way_sync(True)
-test.sync()
-aborted = test.sync_aborted()
-ok("Sync completed", aborted == False)
-
-#Check the notes were all transferred
-test.refresh()
-a = test.get_source_count()
-b = test.get_sink_count()
+a,b = test.sync()
+abort,error,conflict = test.get_sync_result()
+ok("Sync completed", abort == False)
 ok("All notes transferred (%s,%s)" % (a,b), a == b)
-
-#test.print_mapping_db()
 
 finished()

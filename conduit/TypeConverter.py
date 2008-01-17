@@ -121,24 +121,28 @@ class TypeConverter:
         except ValueError: pass            
 
         if fromType != toType:
-            froms = fromType.split("/")
-            tos = toType.split("/")
-            if froms[0] == tos[0]:
-                #same base type, so only convert parent -> child e.g.
-                #file/audio -> file = file -> file
-                #file -> file/audio = file -> file/audio
-                conversions.append( (froms[0],"/".join(tos),args) )
+            #check first for and explicit conversion
+            if self._conversion_exists(fromType, toType):
+                conversions.append( (fromType, toType, args) )
             else:
-                #different base type, e.g.
-                #foo/bar -> bar/baz
-                if len(tos) > 1:
-                    #Two conversions are needed, a main type, and a subtype
-                    #conversion. remains is any necessary subtype conversion
-                    conversions.append( (froms[0], tos[0], {}) )
-                    conversions.append( (tos[0],"/".join(tos),args) )
+                froms = fromType.split("/")
+                tos = toType.split("/")
+                if froms[0] == tos[0]:
+                    #same base type, so only convert parent -> child e.g.
+                    #file/audio -> file = file -> file
+                    #file -> file/audio = file -> file/audio
+                    conversions.append( (froms[0],"/".join(tos),args) )
                 else:
-                    #Just a main type conversion is needed (remember the args)
-                    conversions.append( (froms[0], tos[0], args) )
+                    #different base type, e.g.
+                    #foo/bar -> bar/baz
+                    if len(tos) > 1:
+                        #Two conversions are needed, a main type, and a subtype
+                        #conversion. remains is any necessary subtype conversion
+                        conversions.append( (froms[0], tos[0], {}) )
+                        conversions.append( (tos[0],"/".join(tos),args) )
+                    else:
+                        #Just a main type conversion is needed (remember the args)
+                        conversions.append( (froms[0], tos[0], args) )
         else:
             conversions.append( (fromType, toType, args) )
 
