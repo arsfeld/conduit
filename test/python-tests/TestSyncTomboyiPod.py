@@ -23,9 +23,14 @@ ok("Created fake ipod at %s" % fakeIpodDir, True)
 klass = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
 
 #setup the conduit
-tomboy = test.get_dataprovider("TomboyNoteTwoWay")
-ipod = test.wrap_dataprovider(klass)
-test.prepare(tomboy, ipod)
+sourceW = test.get_dataprovider("TomboyNoteTwoWay")
+sinkW = test.wrap_dataprovider(klass)
+test.prepare(sourceW, sinkW)
+
+#check if tomboy running
+tomboy = sourceW.module
+if not Utils.dbus_service_available(tomboy.TOMBOY_DBUS_IFACE):
+    skip("tomboy not running")
 
 #check they refresh ok
 a,b = test.refresh()

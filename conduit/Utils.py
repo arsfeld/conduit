@@ -167,14 +167,20 @@ def uuid_string():
         data = md5.md5(data).hexdigest()
         return data
 
-def dbus_service_available(bus,interface):
+def dbus_service_available(interface, bus=None):
     """
     Checks if a dbus service is available on the given bus
+    @param interface: The interface to look for
+    @param bus: The bus to look on (optional)
     """
     try: 
         import dbus
     except: 
         return False
+        
+    if bus == None:        
+        bus = dbus.SessionBus()
+        
     obj = bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
     dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus') 
     avail = dbus_iface.ListNames()

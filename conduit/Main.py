@@ -79,7 +79,7 @@ class Application(dbus.service.Object):
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
         sessionBus = dbus.SessionBus()
-        if Utils.dbus_service_available(sessionBus, APPLICATION_DBUS_IFACE):
+        if Utils.dbus_service_available(APPLICATION_DBUS_IFACE, sessionBus):
             log.info("Conduit is already running")
             obj = sessionBus.get_object(APPLICATION_DBUS_IFACE, "/activate")
             conduitApp = dbus.Interface(obj, APPLICATION_DBUS_IFACE)

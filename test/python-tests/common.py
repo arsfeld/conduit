@@ -32,6 +32,18 @@ conduit.IS_DEVELOPMENT_VERSION =    True
 conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
 conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
 
+def is_online():
+    try:    
+        return os.environ["CONDUIT_ONLINE"] == "TRUE"
+    except KeyError:
+        return False
+        
+def is_interactive():
+    try:    
+        return os.environ["CONDUIT_INTERACTIVE"] == "TRUE"
+    except KeyError:
+        return False
+
 def ok(message, code, die=True):
     if type(code) == int:
         if code == -1:
@@ -52,8 +64,13 @@ def ok(message, code, die=True):
             print "[PASS] %s" % message
             return True
 
-def skip():
-    print "[SKIPPED]"
+def skip(msg="no reason given"):
+    if msg == "no reason given":
+        if not is_online():
+            msg = "not online"
+        elif not is_interactive():
+            msg = "interactive tests disabled"
+    print "[SKIPPED] (%s)" % msg
     sys.exit()
 
 def finished():
@@ -90,18 +107,6 @@ def read_data_file_from_data_dir(filename):
     path = os.path.join(os.path.dirname(__file__),"data",filename)
     return read_data_file(path)
 
-def is_online():
-    try:    
-        return os.environ["CONDUIT_ONLINE"] == "TRUE"
-    except KeyError:
-        return False
-        
-def is_interactive():
-    try:    
-        return os.environ["CONDUIT_INTERACTIVE"] == "TRUE"
-    except KeyError:
-        return False
-        
 def init_gnomevfs_authentication():
     import gnome.ui
     gnome.init(conduit.APPNAME, conduit.APPVERSION)

@@ -21,7 +21,7 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         self.vol_monitor = Vfs.VolumeMonitor()
         self.bus = dbus.SystemBus()
 
-        if Utils.dbus_service_available(self.bus,'org.freedesktop.Hal'):
+        if Utils.dbus_service_available('org.freedesktop.Hal', self.bus):
             log.info("HAL Initialized")
             self.vol_monitor.connect("volume-mounted",self._volume_mounted_cb)
             self.vol_monitor.connect("volume-unmounted",self._volume_unmounted_cb)

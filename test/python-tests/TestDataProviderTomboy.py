@@ -15,6 +15,10 @@ import traceback
 test = SimpleTest(sinkName="TomboyNoteTwoWay")
 tomboy = test.get_sink().module
 
+#check if tomboy running
+if not Utils.dbus_service_available(tomboy.TOMBOY_DBUS_IFACE):
+    skip("tomboy not running")
+
 try:
     tomboy.refresh()
     ok("Refresh Tomboy", True)

@@ -11,10 +11,6 @@ import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
-TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
-TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
-TOMBOY_MIN_VERSION = "0.5.10"
-
 MODULES = {
 	"TomboyNoteTwoWay" :        { "type": "dataprovider"    },
 	"TomboyNoteConverter" :     { "type": "converter"       }
@@ -90,6 +86,11 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _in_type_ = "note/tomboy"
     _out_type_ = "note/tomboy"
     _icon_ = "tomboy"
+    
+    TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
+    TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
+    TOMBOY_MIN_VERSION = "0.5.10"
+    
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
@@ -101,11 +102,11 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             self.remoteTomboy.connect_to_signal("NoteDeleted", lambda uid, x: self.handle_deleted(str(uid)))
 
     def _check_tomboy_version(self):
-        if Utils.dbus_service_available(self.bus,TOMBOY_DBUS_IFACE):
-            obj = self.bus.get_object(TOMBOY_DBUS_IFACE, TOMBOY_DBUS_PATH)
+        if Utils.dbus_service_available(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, self.bus):
+            obj = self.bus.get_object(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, TomboyNoteTwoWay.TOMBOY_DBUS_PATH)
             self.remoteTomboy = dbus.Interface(obj, "org.gnome.Tomboy.RemoteControl")
             version = str(self.remoteTomboy.Version())
-            if version >= TOMBOY_MIN_VERSION:
+            if version >= TomboyNoteTwoWay.TOMBOY_MIN_VERSION:
                 log.info("Using Tomboy Version %s" % version)
                 return True
             else:

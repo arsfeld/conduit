@@ -12,6 +12,11 @@ sourceW = test.get_dataprovider("TomboyNoteTwoWay")
 sinkW = test.get_dataprovider("FolderTwoWay")
 test.prepare(sourceW, sinkW)
 
+#check if tomboy running
+tomboy = sourceW.module
+if not Utils.dbus_service_available(tomboy.TOMBOY_DBUS_IFACE):
+    skip("tomboy not running")
+
 #configure the source and sink
 config = {}
 config["folder"] = "file://"+Utils.new_tempdir()

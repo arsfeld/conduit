@@ -1,3 +1,19 @@
+2008-01-18  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py:
+	* conduit/Utils.py:
+	* conduit/dataproviders/VolumeFactory.py:
+	* conduit/modules/TomboyModule.py: Change Utils.dbus_service_available 
+	so that the bus parameter is optional
+
+	* scripts/continuous-tester.sh:
+	* test/python-tests/TestDataProviderTomboy.py:
+	* test/python-tests/TestSyncTomboyFolder.py:
+	* test/python-tests/TestSyncTomboyiPod.py: Skip tomboy tests if tomboy
+	is not running
+
+	* test/python-tests/common.py: Run the sync tests by default
+
 2008-01-18  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/N800Module/N800Module.py: Update to detect N810

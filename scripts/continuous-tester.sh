@@ -3,7 +3,7 @@
 TEST_DIR='/home/john/testing/conduit'
 LOGFILE='/home/john/testing/conduit-test.log'
 SVN_REPO='http://svn.gnome.org/svn/conduit/trunk'
-TEST_OPTIONS='cuDN'
+TEST_OPTIONS='cuDSN'
 SLEEP_TIME='1h'
 
 ME=`basename $0`
