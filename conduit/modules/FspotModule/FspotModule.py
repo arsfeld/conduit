@@ -22,8 +22,8 @@ MODULES = {
 	"FspotSource" : { "type": "dataprovider" }
 }
 
-ID_IDX = 0
-NAME_IDX = 1
+NAME_IDX = 0
+ID_IDX = 1
 
 PHOTO_DB = os.path.join(os.path.expanduser("~"),".gnome2", "f-spot", "photos.db")
 
@@ -58,7 +58,7 @@ class FspotSource(DataProvider.DataSource):
             #Get a list of all tags for the config dialog
             cur.execute("SELECT id, name FROM tags ORDER BY name")
             for tagid, tagname in cur:
-                tags.append( (tagid,tagname) )
+                tags.append( (tagname,tagid) )
             con.close()
 
         return tags
@@ -132,14 +132,14 @@ class FspotSource(DataProvider.DataSource):
 						)
         tagtreeview = tree.get_widget("tagtreeview")
         #Build a list of all the tags
-        list_store = gtk.ListStore( gobject.TYPE_INT,       #ID_IDX
-                                    gobject.TYPE_STRING,    #NAME_IDX
+        list_store = gtk.ListStore( gobject.TYPE_STRING,    #NAME_IDX
+				     gobject.TYPE_INT,       #ID_IDX
                                     gobject.TYPE_BOOLEAN,   #active
                                     )
         #Fill the list store
         i = 0
         for t in self._get_all_tags():
-            list_store.append((t[ID_IDX],t[NAME_IDX],t[ID_IDX] in self.enabledTags))
+            list_store.append((t[NAME_IDX],t[ID_IDX],t[ID_IDX] in self.enabledTags))
             i += 1
         #Set up the treeview
         tagtreeview.set_model(list_store)
