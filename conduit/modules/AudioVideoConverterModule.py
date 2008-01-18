@@ -36,9 +36,7 @@ class FFmpegCommandLineConverter(Utils.CommandLineConverter):
         #audio options
         if kwargs.get('acodec', None):      command += "-acodec %(acodec)s "
         if kwargs.get('arate', None):       command += "-ar %(arate)s "
-        if kwargs.get('abitrate', None):
-            if kwargs.get('acodec', None) != 'ac3':
-                command += "-ab %(abitrate)s "
+#        if kwargs.get('abitrate', None):    command += "-ab %(abitrate)s "
         if kwargs.get('achannels', None):   command += "-ac %(achannels)s "
         #output file, overwrite and container format
         if kwargs.get('format', None):      command += "-f %(format)s "
@@ -91,6 +89,15 @@ class MencoderCommandLineConverter(Utils.CommandLineConverter):
         return conduit.GLOBALS.cancelled
             
 class AudioVideoConverter:
+
+    #These commands are run to determine attributes about the file 
+    #(such as size and duration) prior to transcode. They should be
+    #Robust and work with ALL input files, even if the transode step may
+    #later fail
+
+    VIDEO_INSPECT_COMMAND = 'ffmpeg -an -y -t 0:0:0.001 -i "%s" -f image2 "%s" 2>&1'
+    AUDIO_INSPECT_COMMAND = 'ffmpeg -fs 1 -y -i "%s" -f wav "%s" 2>&1'
+
     def __init__(self):
         self.conversions =  {
                             "file/video,file/video"     :   self.transcode_video,    
@@ -98,16 +105,31 @@ class AudioVideoConverter:
                             "file/audio,file/audio"     :   self.transcode_audio,    
                             "file,file/audio"           :   self.file_to_audio
                             }
+                            
+    def _is_video(self, f):
+        mimetype = f.get_mimetype()
+        if mimetype.startswith("video/"):
+            return True
+        elif mimetype == "application/ogg":
+            return True
+        else:
+            log.debug("File is not video type: %s" % mimetype)
+            
+    def _is_audio(self, f):
+        mimetype = f.get_mimetype()
+        if mimetype.startswith("audio/"):
+            return True
+        else:
+            log.debug("File is not audio type: %s" % mimetype)
 
     def transcode_video(self, video, **kwargs):
-        if not video.get_mimetype().startswith("video/"):
-            log.debug("File is not video type")
+        if not self._is_video(video):
             return None
         input_file = video.get_local_uri()
         
         #run ffmpeg over the video to work out its format, and duration
         c = Utils.CommandLineConverter()
-        c.build_command('ffmpeg -fs 1 -y -i "%s" -f avi "%s" 2>&1')
+        c.build_command(AudioVideoConverter.VIDEO_INSPECT_COMMAND)
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
@@ -159,14 +181,13 @@ class AudioVideoConverter:
         return video
         
     def transcode_audio(self, audio, **kwargs):
-        if not audio.get_mimetype().startswith("audio/"):
-            log.debug("File is not audio type")
+        if not self._is_audio(audio):
             return None
         input_file = audio.get_local_uri()
 
         #run ffmpeg over the video to work out its format, and duration
         c = Utils.CommandLineConverter()
-        c.build_command('ffmpeg -fs 1 -y -i "%s" -f wav "%s" 2>&1')
+        c.build_command(AudioVideoConverter.AUDIO_INSPECT_COMMAND)
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
         if not ok:
@@ -207,8 +228,7 @@ class AudioVideoConverter:
         return audio
         
     def file_to_audio(self, f, **kwargs):
-        t = f.get_mimetype()
-        if t.startswith("audio/"):
+        if self._is_audio(f):
             a = Audio.Audio(
                         URI=f._get_text_uri()
                         )
@@ -221,8 +241,7 @@ class AudioVideoConverter:
             return None
 
     def file_to_video(self, f, **kwargs):
-        t = f.get_mimetype()
-        if t.startswith("video/"):
+        if self._is_video(f):
             v = Video.Video(
                         URI=f._get_text_uri()
                         )

@@ -1,5 +1,11 @@
 2008-01-19  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/Video.py:
+	* conduit/modules/AudioVideoConverterModule.py: Be more robust with
+	audio/video mimetype dectection and conversion
+
+2008-01-19  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/dataproviders/Image.py: Fix sync "crashing": NameError: 
 	global name 'Rid' is not defined. Reported by maxxer
 
