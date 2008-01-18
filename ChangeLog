@@ -1,3 +1,8 @@
+2008-01-19  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/Image.py: Fix sync "crashing": NameError: 
+	global name 'Rid' is not defined. Reported by maxxer
+
 2008-01-18  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Main.py:
