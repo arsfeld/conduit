@@ -7,10 +7,12 @@ log = logging.getLogger("modules.Google")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.Image as Image
 import conduit.Utils as Utils
 import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.Event as Event
+import conduit.datatypes.Photo as Photo
 
 from gettext import gettext as _
 
@@ -19,14 +21,27 @@ try:
     import gdata.calendar.service
     import gdata.service
     import gdata.calendar
+    import gdata.photos
+    import gdata.photos.service
     import atom
-    MODULES = {
-        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
-    }
 except ImportError:
-    MODULES = {
-    }
-    log.warn("Skipping GoogleCalendarTwoWay - GDATA is not available")
+    Utils.dataprovider_add_dir_to_path(__file__, "libgdata")
+    import vobject
+    import gdata.calendar.service
+    import gdata.service
+    import gdata.calendar
+    import gdata.photos
+    import gdata.photos.service
+    import atom
+
+# time format
+FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
+
+MODULES = {
+    "GoogleCalendarTwoWay" : { "type": "dataprovider" },
+    "PicasaTwoWay" :          { "type": "dataprovider" }        
+}
+
 
 class GoogleConnection(object):
     def __init__(self):
@@ -381,7 +396,7 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         import gtk
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
-                        "config.glade",
+                        "calendar-config.glade",
                         "GoogleCalendarConfigDialog"
                         )
 
@@ -502,4 +517,174 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
          
     def get_UID(self):
         return self.google.GetUsername()
+
+class PicasaTwoWay(Image.ImageTwoWay):
+
+    _name_ = _("Picasa")
+    _description_ = _("Sync your Google Picasa photos")
+    _icon_ = "picasa"
+
+    def __init__(self, *args):
+        Image.ImageTwoWay.__init__(self)
+        self.need_configuration(True)
+        
+        self.username = ""
+        self.password = ""
+        self.album = ""
+        self.imageSize = "None"
+
+        self.pws = gdata.photos.service.PhotosService()
+        self.galbum = None
+        self.gphoto_dict = None
+
+    def _get_raw_photo_url(self, photoInfo):
+        return photoInfo.GetMediaURL()
+
+    def _get_photo_info (self, id):
+        if self.gphoto_dict.has_key(id):
+            return self.gphoto_dict[id]
+        else:
+            return None
+            
+    def _get_photo_formats (self):
+        return ("image/jpeg", )
+        
+    def refresh(self):
+        Image.ImageTwoWay.refresh(self)
+        self._login()
+        self._get_album()
+        self._get_photos()
+
+    def get_all (self):
+        return self.gphoto_dict.keys()
+        
+    def get (self, LUID):
+        Image.ImageTwoWay.get (self, LUID)
+
+        gphoto = self.gphoto_dict[LUID]
+        url = gphoto.GetMediaURL()
+
+        f = Photo.Photo (URI=url)
+        f.force_new_mtime(self._get_photo_timestamp(gphoto))
+        f.set_open_URI(url)
+        f.set_UID(LUID)
+
+        return f
+
+    def delete(self, LUID):
+        if not self.gphoto_dict.has_key(LUID):
+            log.warn("Photo does not exit")
+            return
+
+        self.pws.Delete(self.gphoto_dict[LUID])
+        del self.gphoto_dict[LUID]
+
+    def _upload_photo (self, uploadInfo):
+        try:
+            gphoto = self.pws.InsertPhotoSimple (self.galbum, uploadInfo.name, '', uploadInfo.url)
+
+            for tag in uploadInfo.tags:
+                self.pws.InsertTag(gphoto, str(tag))
+
+            return Rid(uid=gphoto.gphoto_id.text)
+        except Exception, e:
+            raise Exceptions.SyncronizeError("Picasa Upload Error.")
+
+    def _login(self):
+        self.pws.ClientLogin(self.username, self.password)
+
+    def _get_album(self):
+        configured_album = None
+
+        albums = self.pws.GetUserFeed().entry
+
+        for album in albums:
+            if album.title.text != self.album:
+                continue
+
+            log.debug("Found album %s" % self.album)
+            configured_album = album
+            break
+
+        if not configured_album:
+            log.debug("Creating new album %s." % self.album)
+            configured_album = self.pws.InsertAlbum (self.album, '')
+
+        self.galbum = configured_album
+
+    def _get_photos(self):
+        self.gphoto_dict = {}
+
+        for photo in self.pws.GetFeed(self.galbum.GetPhotosUri()).entry:
+            self.gphoto_dict[photo.gphoto_id.text] = photo
+
+    def _get_photo_timestamp(self, gphoto):
+        from datetime import datetime
+        timestamp = gphoto.updated.text[0:-5]
+        try:
+            return datetime.strptime(timestamp, FORMAT_STRING)
+        except AttributeError:
+            import time
+            return datetime(*(time.strptime(timestamp, FORMAT_STRING)[0:6]))
+
+    def configure(self, window):
+        """
+        Configures the PicasaTwoWay
+        """
+        widget = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "picasa-config.glade", 
+                        "PicasaTwoWayConfigDialog")
+                        
+        #get a whole bunch of widgets
+        username = widget.get_widget("username")
+        password = widget.get_widget("password")
+        album = widget.get_widget("album")                
+        
+        #preload the widgets        
+        username.set_text(self.username)
+        password.set_text(self.password)
+        album.set_text (self.album)
+
+        resizecombobox = widget.get_widget("combobox1")
+        self._resize_combobox_build(resizecombobox, self.imageSize)
+        
+        dlg = widget.get_widget("PicasaTwoWayConfigDialog")
+        
+        response = Utils.run_dialog (dlg, window)
+
+        if response == True:
+            self.username = username.get_text()
+            self.password = password.get_text()
+            self.album = album.get_text()
+
+            self.imageSize = self._resize_combobox_get_active(resizecombobox)
+
+            self.set_configured(self.is_configured())
+
+        dlg.destroy()    
+        
+    def get_configuration(self):
+        return {
+            "imageSize" : self.imageSize,
+            "username" : self.username,
+            "password" : self.password,
+            "album" : self.album
+            }
+            
+    def is_configured (self):
+        if len(self.username) < 1:
+            return False
+        
+        if len(self.password) < 1:
+            return False
+            
+        if len(self.album) < 1:
+            return False
+            
+        return True
+
+    def get_UID(self):
+        return self.username
+            
 		

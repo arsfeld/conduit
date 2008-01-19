@@ -1,0 +1,2 @@
+SUBDIRS = atom gdata
+

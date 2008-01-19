@@ -1,3 +1,20 @@
+2008-01-20  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+	* configure.ac: include our gdata copy in the build
+	* conduit/modules/GoogleModule/libgdata/*: Include our own copy of
+	python-gdata. Currently at version 1.0.10; this will allow us to
+	remove code when it's shipped on all new distro versions.
+
+	* conduit/modules/Makefile.am: 
+	* conduit/modules/PicasaModule/*: remove PicasaModule directory, it
+	has moved to GoogleModule
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Move PicasaModule
+	code, try to import our own gdata copy when the system one doesn't
+	work, make PicasaTwoWay use the gdata bindings instead of our own
+	limited custom ones
+	* test/python-tests/TestDataProviderPicasa: change test to work with
+	new gdata bindings
+
 2008-01-19  John Stowers  <john.stowers@gmail.com>
 
 	* test/python-tests/common.py:

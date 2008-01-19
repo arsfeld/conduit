@@ -40,13 +40,13 @@ except Exception, err:
 ok("Loaded album", picasa.galbum != None)
 
 # Correct name?
-if picasa.galbum.name == SAFE_ALBUM_NAME:
-    ok("Album name is ok: expected '%s', received '%s'" % (SAFE_ALBUM_NAME, picasa.galbum.name), True)
+if picasa.galbum.title.text == SAFE_ALBUM_NAME:
+    ok("Album name is ok: expected '%s', received '%s'" % (SAFE_ALBUM_NAME, picasa.galbum.title.text), True)
 else:
-    ok("Album name is not ok: expected '%s', received '%s'" % (SAFE_ALBUM_NAME, picasa.galbum.name), False)
+    ok("Album name is not ok: expected '%s', received '%s'" % (SAFE_ALBUM_NAME, picasa.galbum.title.text), False)
 
 # Expected id?
-if picasa.galbum.id == SAFE_ALBUM_ID:
+if picasa.galbum.gphoto_id.text == SAFE_ALBUM_ID:
     ok("Album equals the one we're expecting: %s" % SAFE_ALBUM_ID, True)
 else:
     ok("Album has an unexpected id: %s instead of %s" % (picasa.galbum.id, SAFE_ALBUM_ID), False)
