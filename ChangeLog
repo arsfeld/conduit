@@ -1,5 +1,20 @@
 2008-01-19  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/common.py:
+	* test/python-tests/data/audio.list:
+	* test/python-tests/data/file.list:
+	* test/python-tests/data/image.list:
+	* test/python-tests/data/simple-1.vcard:
+	* test/python-tests/data/video.list: Add mechanism for specifying resources
+	that live on a local machine, and can be used as part of the test process.
+	This means that we can use local media, etc as resources for testing AV
+	conversion, and not have to get files from the web
+	
+	* test/python-tests/TestCoreConvertAudioVideo.py: Test AV conversion of
+	the local resources, as defined above
+
+2008-01-19  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/Video.py:
 	* conduit/modules/AudioVideoConverterModule.py: Be more robust with
 	audio/video mimetype dectection and conversion

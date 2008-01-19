@@ -5,6 +5,7 @@ import glob
 import time
 import datetime
 import traceback
+import ConfigParser
 
 # make sure we have conduit folder in path!
 my_path = os.path.dirname(__file__)
@@ -88,11 +89,14 @@ def my_except_hook(etype, evalue, etraceback):
     
 #Set a global exception hook for unhandled exceptions
 sys.excepthook = my_except_hook
+
+def get_data_dir():
+    return os.path.join(os.path.dirname(__file__),"data")
     
 #returns list of files that match the glob in the data dir
 def get_files_from_data_dir(glob_str):
     files = []
-    for i in glob.glob(os.path.join(os.path.dirname(__file__),"data",glob_str)):
+    for i in glob.glob(os.path.join(get_data_dir(),glob_str)):
         files.append(os.path.abspath(i))
     return files
 
@@ -104,13 +108,34 @@ def read_data_file(name):
 
 #returns the contents of the file called name in the data dir
 def read_data_file_from_data_dir(filename):
-    path = os.path.join(os.path.dirname(__file__),"data",filename)
+    path = os.path.join(get_data_dir(),filename)
     return read_data_file(path)
 
 def init_gnomevfs_authentication():
     import gnome.ui
     gnome.init(conduit.APPNAME, conduit.APPVERSION)
     gnome.ui.authentication_manager_init()     
+    
+def get_external_resources(typename):
+    #Reads the appropriate file (typename.list) and 
+    #returns a dict of name:uris beginning with subtypename
+    f = os.path.join(get_data_dir(),"%s.list" % typename)
+    data = {}
+    if os.path.exists(f):
+        config = ConfigParser.ConfigParser()
+        config.read(f)
+        #Default files first
+        if is_online():
+            for k,v in config.items('DEFAULT'):
+                data[k] = v
+
+        #Machine dependent items
+        section = Utils.get_user_string()
+        if config.has_section(section):
+            for k,v in config.items(section):
+                data[k] = v
+                
+    return data
     
 #Functions to construct new types
 def new_file(filename):

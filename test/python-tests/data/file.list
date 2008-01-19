@@ -1,0 +1,17 @@
+#So that we dont have to keep a bunch of files in svn or on the web
+#to run the test suite on different machines, this file allows locations
+#to be specified in a section (as returned by Utils.get_user_string())
+#
+#Note: Items in the default section should always be accessible
+#Note: If two items have the same key, the one in your section replaces
+#the one in the default section
+[DEFAULT]
+file1=http://tests.conduit-project.org/index.html
+file2=http://files.conduit-project.org/screenshot.jpg
+
+[john@nzjrs-desktop]
+local=/home/john/eBooks/Wiley Global Positioning Systems Inertial Navigation and Integration (2nd Edition).pdf
+ssh=ssh://root@greenbirdsystems.com/var/www/conduit-project.org/files/screenshot.jpg
+ftp=ftp://anonymous@192.168.1.1/Status/index.htm
+
+
