@@ -1,0 +1,31 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/dataprovider/23e61c630d824fd984bec8b3aac0b236">
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+  <interface name="org.conduit.DataProvider">
+    <method name="GetInformation">
+      <arg direction="out" type="a{ss}" />
+    </method>
+    <method name="Configure">
+    </method>
+    <method name="IsPending">
+      <arg direction="out" type="b" />
+    </method>
+    <method name="GetConfigurationXml">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="AddData">
+      <arg direction="in"  type="s" name="uri" />
+      <arg direction="out" type="b" />
+    </method>
+    <method name="IsConfigured">
+      <arg direction="out" type="b" />
+    </method>
+    <method name="SetConfigurationXml">
+      <arg direction="in"  type="s" name="xml" />
+    </method>
+  </interface>
+</node>

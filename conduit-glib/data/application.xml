@@ -1,0 +1,41 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="/">
+  <interface name="org.conduit.Application">
+    <method name="Quit">
+    </method>
+    <method name="NewSyncSet">
+      <arg direction="out" type="o" />
+    </method>
+    <signal name="DataproviderUnavailable">
+      <arg type="s" name="key" />
+    </signal>
+    <method name="BuildExporter">
+      <arg direction="in"  type="s" name="key" />
+      <arg direction="out" type="o" />
+    </method>
+    <method name="GetDataProvider">
+      <arg direction="in"  type="s" name="key" />
+      <arg direction="out" type="o" />
+    </method>
+    <method name="BuildConduit">
+      <arg direction="in"  type="o" name="source" />
+      <arg direction="in"  type="o" name="sink" />
+      <arg direction="out" type="o" />
+    </method>
+    <signal name="DataproviderAvailable">
+      <arg type="s" name="key" />
+    </signal>
+    <method name="GetAllDataProviders">
+      <arg direction="out" type="as" />
+    </method>
+  </interface>
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+  <node name="activate"/>
+  <node name="conduit"/>
+  <node name="dataprovider"/>
+  <node name="syncset"/>
+</node>

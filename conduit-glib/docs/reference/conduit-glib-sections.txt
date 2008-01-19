@@ -1,0 +1,11 @@
+<SECTION>
+<FILE>conduit-g-application</FILE>
+<TITLE>ConduitGApplication</TITLE>
+ConduitGApplication
+conduit_g_application_new
+conduit_g_application_get_dataprovider
+conduit_g_application_build_conduit
+<SUBSECTION Standard>
+conduit_g_application
+</SECTION>
+

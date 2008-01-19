@@ -1,0 +1,3 @@
+2008-01-19  John Stowers  <john.stowers@gmail.com>
+
+	* Add initial GObject bindings to the Conduit DBus API

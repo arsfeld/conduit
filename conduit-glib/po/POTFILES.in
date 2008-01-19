@@ -1,0 +1,7 @@
+# List of source files containing translatable strings.
+
+conduit-glib/conduit-g-application.c
+conduit-glib/conduit-g-dataprovider.c
+conduit-glib/conduit-g-conduit.c
+conduit-glib/conduit-g-syncset.c
+
