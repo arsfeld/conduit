@@ -1,5 +1,9 @@
 2008-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* configure.ac: Pass make distcheck
+
+2008-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FileModule/FileConfiguration.py:
 	* conduit/modules/FileModule/FileModule.py: Use set/get_current_folder_uri
 	in the folderchooser. Fixes bug #510523

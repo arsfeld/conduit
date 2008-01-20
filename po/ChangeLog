@@ -1,3 +1,7 @@
+2008-01-20  John Stowers  <john.stowers@gmail.com>
+
+	* POTFILES.in: Moved refs to picasa glade file
+
 2008-01-05  Stéphane Raimbault  <stephane.raimbault@gmail.com>
 
 	* conduit.pot: Updated.

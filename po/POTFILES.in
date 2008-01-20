@@ -33,12 +33,10 @@ conduit/modules/GConfModule/GConfModule.py
 conduit/modules/GmailModule/GmailModule.py
 conduit/modules/GmailModule/config.glade
 conduit/modules/GoogleModule/GoogleModule.py
-conduit/modules/GoogleModule/config.glade
+conduit/modules/GoogleModule/calendar-config.glade
+conduit/modules/GoogleModule/picasa-config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py
-conduit/modules/PicasaModule/PicasaModule.py
-conduit/modules/PicasaModule/config.glade
-conduit/modules/PicasaModule/PicasaAPI/picasaweb.py
 conduit/modules/RhythmboxModule/RhythmboxModule.py
 conduit/modules/RhythmboxModule/config.glade
 conduit/modules/ShutterflyModule/ShutterflyModule.py
