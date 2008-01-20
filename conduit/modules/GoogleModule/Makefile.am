@@ -1,4 +1,4 @@
-SUBDIRS = libgdata
+SUBDIRS = gdata atom
 
 conduit_handlersdir = $(libdir)/conduit/modules/GoogleModule
 conduit_handlers_PYTHON = GoogleModule.py

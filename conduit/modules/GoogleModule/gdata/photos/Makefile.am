@@ -1,4 +1,4 @@
-conduit_handlersdir = $(libdir)/conduit/modules/GoogleModule/libgdata/atom
+conduit_handlersdir = $(libdir)/conduit/modules/GoogleModule/gdata/photos
 conduit_handlers_PYTHON = __init__.py service.py
 
 clean-local:

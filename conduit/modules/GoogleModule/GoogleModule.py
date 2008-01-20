@@ -1,6 +1,7 @@
 import gobject
 import datetime
 import dateutil.parser
+import vobject
 from dateutil.tz import tzutc, tzlocal
 import logging
 log = logging.getLogger("modules.Google")
@@ -16,23 +17,16 @@ import conduit.datatypes.Photo as Photo
 
 from gettext import gettext as _
 
-try:
-    import vobject
-    import gdata.calendar.service
-    import gdata.service
-    import gdata.calendar
-    import gdata.photos
-    import gdata.photos.service
-    import atom
-except ImportError:
-    Utils.dataprovider_add_dir_to_path(__file__, "libgdata")
-    import vobject
-    import gdata.calendar.service
-    import gdata.service
-    import gdata.calendar
-    import gdata.photos
-    import gdata.photos.service
-    import atom
+#Distributors, if you ship python gdata >= 1.0.10 then remove this line
+#and the appropriate directories
+Utils.dataprovider_add_dir_to_path(__file__)
+import atom
+import gdata
+import gdata.service
+import gdata.photos
+import gdata.photos.service    
+import gdata.calendar
+import gdata.calendar.service
 
 # time format
 FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
