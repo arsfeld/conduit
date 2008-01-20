@@ -312,7 +312,7 @@ class _FolderTwoWayConfigurator:
 						"FolderTwoWayConfigDialog"
 						)
         self.folderChooser = tree.get_widget("filechooserbutton1")
-        self.folderChooser.set_uri(self.folder)
+        self.folderChooser.set_current_folder_uri(self.folder)
         self.folderEntry = tree.get_widget("entry1")
         self.folderEntry.set_text(self.folderGroupName)
         self.hiddenCb = tree.get_widget("hidden")
@@ -341,8 +341,9 @@ class _FolderTwoWayConfigurator:
                 dialog.emit_stop_by_name("response")
             else:
                 self.folderGroupName = self.folderEntry.get_text()
-                uri = self.folderChooser.get_uri()
-                self.folder = Vfs.uri_make_canonical(uri)
+                self.folder = Vfs.uri_make_canonical(
+                                    self.folderChooser.get_current_folder_uri()
+                                    )
                 self.includeHidden = self.hiddenCb.get_active()
                 self.compareIgnoreMtime = self.mtimeCb.get_active()
 

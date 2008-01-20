@@ -60,7 +60,7 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
     _name_ = _("Folder")
     _description_ = _("Synchronize folders")
 
-    DEFAULT_FOLDER = os.path.expanduser("~")
+    DEFAULT_FOLDER = "file://"+os.path.expanduser("~")
     DEFAULT_GROUP = "Home"
     DEFAULT_HIDDEN = False
     DEFAULT_COMPARE_IGNORE_MTIME = False

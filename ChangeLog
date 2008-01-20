@@ -1,3 +1,47 @@
+2008-01-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/FileModule/FileConfiguration.py:
+	* conduit/modules/FileModule/FileModule.py: Use set/get_current_folder_uri
+	in the folderchooser. Fixes bug #510523
+
+	* conduit/modules/FlickrModule/FlickrModule.py: Typo
+
+	* conduit/modules/GoogleModule/libgdata/Makefile.am: Oops, rm directory
+
+2008-01-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/Makefile.am:
+	* conduit/modules/GoogleModule/atom/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/calendar/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/exif/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/geo/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/media/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/photos/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/atom/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/atom/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/atom/service.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/gdata/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/auth.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/calendar/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/gdata/calendar/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/calendar/service.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/exif/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/gdata/exif/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/geo/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/gdata/geo/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/media/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/gdata/media/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/photos/Makefile.am:
+	* conduit/modules/GoogleModule/libgdata/gdata/photos/__init__.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/photos/service.py:
+	* conduit/modules/GoogleModule/libgdata/gdata/service.py:
+	* configure.ac: Move libgdata -> gdata to be consistent with other modules
+	and because it seems to be the easiest way to accomodate the case where
+	the user has gdata installed, but an older version without photo support
+
 2008-01-20  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* configure.ac: include our gdata copy in the build
 	* conduit/modules/GoogleModule/libgdata/*: Include our own copy of

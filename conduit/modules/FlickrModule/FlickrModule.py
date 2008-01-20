@@ -19,7 +19,7 @@ from gettext import gettext as _
 
 #We have to use our own flickrapi until the following is applied
 #http://sourceforge.net/tracker/index.php?func=detail&aid=1874067&group_id=203043&atid=984009
-Utils.dataprovider_add_dir_to_path(__file__, "")
+Utils.dataprovider_add_dir_to_path(__file__)
 import flickrapi
 if not flickrapi.__version__.endswith("CONDUIT"):
     raise Exceptions.NotSupportedError("Incorrect Flickrapi version")
