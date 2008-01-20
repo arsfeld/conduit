@@ -323,6 +323,9 @@ class IPodPhotoSink(IPodBase):
         self.albumName = "Conduit"
         self.album = None
         
+    def _set_sysinfo(self, modelnumstr, model):
+        gpod.itdb_device_set_sysinfo(self.db._itdb.device, modelnumstr, model)
+        
     def _get_photo_album(self):
         for album in self.db.PhotoAlbums:
             if album.name == self.albumName:
@@ -352,10 +355,11 @@ class IPodPhotoSink(IPodBase):
                 log.debug("Creating album %s" % self.albumName)
                 self.album = self.db.new_PhotoAlbum(title=self.albumName)
 
-#        self.uids = []
-#        for photo in self.db.PhotoAlbums[0]:
-#            self.uids.append(str(photo['id']))
-
+    def get_all(self):
+        uids = []
+        for photo in self._get_photo_album():
+            uids.append(str(photo['id']))
+        return uids
 
     def put(self, f, overwrite, LUID=None):
         photo = self.db.new_Photo(filename=f.get_local_uri())

@@ -353,9 +353,15 @@ class SimpleTest(object):
 
     def get_source(self):
         return self.source
+        
+    def set_source(self, source):
+        self.source = source
 
     def get_sink(self):
         return self.sink
+        
+    def set_sink(self, sink):
+        self.sink = sink
 
     def print_mapping_db(self):
         print conduit.GLOBALS.mappingDB.debug()
@@ -370,10 +376,10 @@ class SimpleTest(object):
         try:
             rid = self.sink.module.put(data, True)
             uid = rid.get_UID()
-            ok("Upload a %s (%s) " % (name,rid), True)
+            ok("Put a %s (%s) " % (name,rid), True)
         except Exception, err:
             traceback.print_exc()        
-            ok("Upload a %s (%s)" % (name,err), False)
+            ok("Put a %s (%s)" % (name,err), False)
             
         #Test get()
         if supportsGet:
@@ -388,18 +394,18 @@ class SimpleTest(object):
             try:
                 self.sink.module.refresh()
                 f = self.sink.module.get(LUID)
-                ok("Got %s %s" % (desc,LUID), f != None)
+                ok("Get %s %s" % (desc,LUID), f != None)
             except Exception, err:
                 traceback.print_exc()
-                ok("Got %s (%s)" % (desc,err), False)
+                ok("Get %s (%s)" % (desc,err), False)
 
         #Test put() to replace
         try:
             rid = self.sink.module.put(data, True, uid)
-            ok("Update a %s (%s)" % (name,rid), True)
+            ok("Update %s (%s)" % (name,rid), True)
         except Exception, err:
             traceback.print_exc()
-            ok("Update a %s (%s)" % (name,err), False)
+            ok("Update %s (%s)" % (name,err), False)
 
         #Test delete()
         if supportsDelete:
@@ -407,10 +413,10 @@ class SimpleTest(object):
                 self.sink.module.refresh()
                 self.sink.module.delete(uid)
                 self.sink.module.refresh()
-                ok("Delete a %s (%s)" % (name,rid), uid not in self.sink.module.get_all())
+                ok("Delete %s (%s)" % (name,rid), uid not in self.sink.module.get_all())
             except Exception, err:
                 traceback.print_exc()
-                ok("Delete a %s (%s)" % (name,err), False)
+                ok("Delete %s (%s)" % (name,err), False)
 
     def do_image_dataprovider_tests(self, supportsGet, supportsDelete, safePhotoLUID, ext="png"):
         """

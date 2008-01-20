@@ -1,5 +1,14 @@
 2008-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/iPodModule.py:
+	* test/python-tests/TestDataProvideriPod.py:
+	* test/python-tests/common.py:
+	* test/python-tests/data/resources-ipod/iTunes/iTunesDB.ext: Fix ipod photos
+	test (borrowed example test setup code from libgpod). Use the sample test
+	functions for the ipod tests
+
+2008-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* configure.ac: Pass make distcheck
 
 2008-01-20  John Stowers  <john.stowers@gmail.com>

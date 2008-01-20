@@ -1,14 +1,16 @@
 #common sets up the conduit environment
 from common import *
 
+import os.path
+import shutil
 import traceback
 
 import conduit.modules.iPodModule as iPodModule
+import conduit.Utils as Utils
+
 
 #simulate an ipod
-fakeIpodDir = os.path.join(os.environ['TEST_DIRECTORY'],"iPod")
-if not os.path.exists(fakeIpodDir):
-    os.mkdir(fakeIpodDir)
+fakeIpodDir = Utils.new_tempdir()
 ok("Created fake ipod at %s" % fakeIpodDir, os.path.exists(fakeIpodDir))
 
 ipodNoteDp = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
@@ -16,50 +18,39 @@ ipodContactsDp = iPodModule.IPodContactsTwoWay(fakeIpodDir,"")
 ipodCalendarDp = iPodModule.IPodCalendarTwoWay(fakeIpodDir,"")
 ipodPhotoDp = iPodModule.IPodPhotoSink(fakeIpodDir,"")
 
+#The ipod photo (and music AFAICT) require some initialization of 
+#a skeleton database file. 
+#This code, and example resources are taken from libgpod test suite
+control_dir = os.path.join(fakeIpodDir,'iPod_Control')
+photo_dir = os.path.join(control_dir, 'Photos')
+shutil.copytree(
+            os.path.join(get_data_dir(),'resources-ipod'),
+            control_dir
+            )
+os.mkdir(photo_dir)
+ipodPhotoDp._set_sysinfo("ModelNumStr", "MA450")
+
 TESTS = (
-#dpinstance,        #newdata_func,          #name
-(ipodNoteDp,        new_note,               "IPodNoteTwoWay"),
-(ipodContactsDp,    new_contact,            "IPodContactsTwoWay"),
-(ipodCalendarDp,    new_event,              "IPodCalendarTwoWay"),
-(ipodPhotoDp,       new_photo,              "IPodPhotoSink"),
+#dpinstance,        #newdata_func,          #name                   #twoway
+(ipodNoteDp,        new_note,               "IPodNoteTwoWay",       True),
+(ipodContactsDp,    new_contact,            "IPodContactsTwoWay",   True),
+(ipodCalendarDp,    new_event,              "IPodCalendarTwoWay",   True),
+(ipodPhotoDp,       new_photo,              "IPodPhotoSink",        False),
 )
 
-for dp, newdata_func, name in TESTS:
-    try:
-        dp.refresh()
-        ok("%s: Refresh" % name, True)
-    except Exception, err:
-        ok("%s: Refresh (%s)" % (name,err), False) 
-
-    #Make data and put it
+for dp, newdata_func, name, istwoway in TESTS:
+    test = SimpleTest()
+    test.set_sink(
+            test.wrap_dataprovider(dp)
+            )
+    
     newdata = newdata_func(None)
-    newtitle = newdata.get_UID()
-        
-    try:
-        rid = dp.put(newdata,False)
-        ok("%s: Put %s" % (name, newtitle), rid.get_UID() != None)
-    except Exception, err:
-        traceback.print_exc()
-        ok("%s: Put %s" % (name, err), False)
-
-    #Check that we saved the note back
-    dp.refresh()
-    ok("%s: Got all" % name, rid.get_UID() in dp.get_all())
-
-    data = dp.get(rid.get_UID())
-    comp = data.compare(newdata)
-    ok("%s: Got back idenitcal. Comparison %s" % (name, comp), comp == conduit.datatypes.COMPARISON_EQUAL, False)
-
-    #check we overwrite the data ok
-    try:
-        newrid = dp.put(newdata,True,rid.get_UID())
-        ok("%s: Overwrite %s" % (name, newtitle), newrid.get_UID() == rid.get_UID())
-    except Exception, err:
-        ok("%s: Overwrite %s" % (name, err), False)
-
-    #Check that we saved the data back
-    newdata = dp.get(newrid.get_UID())
-    comp = data.compare(newdata)
-    ok("%s: Got back idenitcal. Comparison %s" % (name, comp), comp == conduit.datatypes.COMPARISON_EQUAL, False)
+    test.do_dataprovider_tests(
+        supportsGet=istwoway,
+        supportsDelete=True,
+        safeLUID=None,
+        data=newdata,
+        name="%s:%s" % (name,dp._in_type_)
+        )
 
 finished()
