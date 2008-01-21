@@ -1,3 +1,10 @@
+2008-01-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/GmailModule/config.glade: Fix the config window
+	so that it saves configuration information and hides the password.
+	Fixes bug #511017 (Julian Rötter)
+
 2008-01-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GmailModule/GmailModule.py:

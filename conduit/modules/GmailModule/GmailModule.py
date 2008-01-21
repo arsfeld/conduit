@@ -184,11 +184,12 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             searchFolderEmailsCb.set_active(False)
             folderComboBox.set_sensitive(False)
         usernameEntry.set_text(self.username)
+        passwordEntry.set_text(self.password)
         
         dlg = tree.get_widget("GmailSourceConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == gtk.RESPONSE_OK:
+        if response == True:
             self.set_configured(True)
             if searchAllEmailsCb.get_active():
                 self.getAllEmail = True
