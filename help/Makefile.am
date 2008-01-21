@@ -5,4 +5,4 @@ DOC_MODULE = conduit
 DOC_ENTITIES = 
 DOC_INCLUDES = 
 DOC_FIGURES = figures/conduit.png
-DOC_LINGUAS = sv
+DOC_LINGUAS = es sv
