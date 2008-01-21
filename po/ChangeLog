@@ -1,3 +1,9 @@
+2008-01-21  Gil Forcada  <gforcada@gnome.org>
+
+	* LINGUAS: Added ca.
+	* ca.po: Added Catalan translation by David Planella.
+	* conduit.pot: Updated.
+
 2008-01-20  John Stowers  <john.stowers@gmail.com>
 
 	* POTFILES.in: Moved refs to picasa glade file
