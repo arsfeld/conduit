@@ -1,4 +1,23 @@
-== Version 0.1.6.1 ==
+== Version 0.1.8 ==
+libgmail.py
+    * Added 'search' method to contactLists that returns
+      an array of contacts who match a given search term
+      (at some point, the contacts API is long overdue
+       for a revamp, but for now, hey, why not)
+      This is a patch by Alex Chiang     --WD--
+    * libgmail now asks for the old Gmail interface,
+      so that it isn't broken by the new Gmail updates.
+      (Thanks to Aaron and Stu for work on this)
+      (Fixes SF bug #1822662)
+
+== Version 0.1.7 ==
+libgmail.py
+gmail_transport.py
+    * Applied patch that adds proxy support, both 
+      for passwordless and password-ful proxies 
+      (is that a word?), by Jose Rodriguez --WD+SZ--
+
+== Version 0.1.6.2 ==
 libgmail.py
     * Bugfix for attachment problems --WD--
       (SF Bug #1793026, Patch #1799605 by 'stephster')

@@ -14,7 +14,9 @@ from conduit.datatypes import Rid
 import conduit.datatypes.Email as Email
 import conduit.datatypes.Contact as Contact
 
-Utils.dataprovider_add_dir_to_path(__file__, "libgmail-0.1.6.2")
+#Distributors, we pretty much ship the most recent libgmail CVS because
+#its not supported by google, so tends to break often
+Utils.dataprovider_add_dir_to_path(__file__, "libgmail")
 import libgmail
 
 MODULES = {

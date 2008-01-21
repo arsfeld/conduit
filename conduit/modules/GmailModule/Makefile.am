@@ -1,4 +1,4 @@
-SUBDIRS = libgmail-0.1.6.2
+SUBDIRS = libgmail
 
 conduit_handlersdir = $(libdir)/conduit/modules/GmailModule
 conduit_handlers_PYTHON = GmailModule.py

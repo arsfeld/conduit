@@ -5,9 +5,9 @@
 ## To get the version number of the available libgmail version.
 ## Reminder: add date before next release. This attribute is also
 ## used in the setup script.
-Version = '0.1.6.2' # (Sep 2007)
+Version = '0.1.8' # (Nov 2007)
 
-# Original author: follower@myrealbox.com
+# Original author: follower@rancidbacon.com
 # Maintainers: Waseem (wdaher@mit.edu) and Stas Z (stas@linux.isbeter.nl)
 #
 # License: GPL 2.0
@@ -40,7 +40,10 @@ from email.MIMEText import MIMEText
 from email.MIMEMultipart import MIMEMultipart
 
 GMAIL_URL_LOGIN = "https://www.google.com/accounts/ServiceLoginBoxAuth"
-GMAIL_URL_GMAIL = "https://mail.google.com/mail/"
+GMAIL_URL_GMAIL = "https://mail.google.com/mail/?ui=1&"
+
+#  Set to any value to use proxy.
+PROXY_URL = None  # e.g. libgmail.PROXY_URL = 'myproxy.org:3128'
 
 # TODO: Get these on the fly?
 STANDARD_FOLDERS = [U_INBOX_SEARCH, U_STARRED_SEARCH,
@@ -204,7 +207,7 @@ class CookieJar:
 def _buildURL(**kwargs):
     """
     """
-    return "%s?%s" % (URL_GMAIL, urllib.urlencode(kwargs))
+    return "%s%s" % (URL_GMAIL, urllib.urlencode(kwargs))
 
 
 
@@ -287,7 +290,7 @@ class GmailAccount:
         self.domain = domain
         if self.domain:
             URL_LOGIN = "https://www.google.com/a/" + self.domain + "/LoginAction"
-            URL_GMAIL = "http://mail.google.com/a/" + self.domain + "/"
+            URL_GMAIL = "http://mail.google.com/a/" + self.domain + "/?"
         else:
             URL_LOGIN = GMAIL_URL_LOGIN
             URL_GMAIL = GMAIL_URL_GMAIL
@@ -295,7 +298,15 @@ class GmailAccount:
             self.name = name
             self._pw = pw
             self._cookieJar = CookieJar()
-            self.opener = urllib2.build_opener(
+
+            if PROXY_URL is not None:
+                import gmail_transport
+
+                self.opener = urllib2.build_opener(gmail_transport.ConnectHTTPHandler(proxy = PROXY_URL),
+                                  gmail_transport.ConnectHTTPSHandler(proxy = PROXY_URL),
+                                  SmartRedirectHandler(self._cookieJar))
+            else:
+                self.opener = urllib2.build_opener(
                                 urllib2.HTTPHandler(debuglevel=0),
                                 urllib2.HTTPSHandler(debuglevel=0),
                                 SmartRedirectHandler(self._cookieJar))
@@ -1187,7 +1198,22 @@ class GmailContactList:
             if entry.getId() == myId:
                 idList.append(entry)
         return idList
-    
+    def search(self, searchTerm):
+       """
+       This function returns a LIST
+       of GmailContacts whose name or
+       email address matches the 'searchTerm'.
+
+       Returns an empty list if no matches
+       were found.
+       """
+       searchResults = []
+       for entry in self.contactList:
+           p = re.compile(searchTerm, re.IGNORECASE)
+           if p.search(entry.getName()) or p.search(entry.getEmail()):
+               searchResults.append(entry)
+       return searchResults
+   
 class GmailSearchResult:
     """
     """
@@ -1202,7 +1228,8 @@ class GmailSearchResult:
             if not type(threadsInfo[0]) is types.ListType:
                 threadsInfo = [threadsInfo]
         except IndexError:
-            print "No messages found"
+            # print "No messages found"
+            pass            
             
         self._account = account
         self.search = search # TODO: Turn into object + format nicely.

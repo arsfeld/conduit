@@ -139,7 +139,7 @@ conduit/modules/FacebookModule/Makefile
 conduit/modules/FacebookModule/pyfacebook/Makefile
 conduit/modules/FspotModule/Makefile
 conduit/modules/GmailModule/Makefile
-conduit/modules/GmailModule/libgmail-0.1.6.2/Makefile
+conduit/modules/GmailModule/libgmail/Makefile
 conduit/modules/SmugMugModule/Makefile
 conduit/modules/SmugMugModule/SmugMugAPI/Makefile
 conduit/modules/YouTubeModule/Makefile

@@ -1,3 +1,25 @@
+2008-01-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/GmailModule/Makefile.am:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/CHANGELOG:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/COPYING:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/Makefile.am:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/PKG-INFO:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/README:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/lgconstants.py:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/libgmail.py:
+	* conduit/modules/GmailModule/libgmail-0.1.6.2/setup.py:
+	* conduit/modules/GmailModule/libgmail/CHANGELOG:
+	* conduit/modules/GmailModule/libgmail/COPYING:
+	* conduit/modules/GmailModule/libgmail/Makefile.am:
+	* conduit/modules/GmailModule/libgmail/README:
+	* conduit/modules/GmailModule/libgmail/gmail_transport.py:
+	* conduit/modules/GmailModule/libgmail/lgconstants.py:
+	* conduit/modules/GmailModule/libgmail/libgmail.py:
+	* configure.ac:
+	* scripts/update-3rdparty-libs.sh: Update libgmail to the CVS version
+
 2008-01-20  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/iPodModule.py:
