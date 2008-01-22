@@ -1,5 +1,10 @@
 2008-01-22  John Stowers  <john.stowers@gmail.com>
 
+	* tools/eog-plugin/conduit.py: Improve eog plugin to show status while 
+	synchronizing
+
+2008-01-22  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GmailModule/GmailModule.py:
 	* test/python-tests/TestDataProviderGmail.py: Fix GmailEmailTwoWay and
 	add working test

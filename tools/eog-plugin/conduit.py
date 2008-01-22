@@ -1,5 +1,4 @@
 import os
-
 import eog
 import gtk, gtk.glade
 import dbus, dbus.glib
@@ -19,12 +18,18 @@ SUPPORTED_SINKS = {
     "FlickrTwoWay"      :   "Upload to Flickr",
     "PicasaTwoWay"      :   "Upload to Picasa",
     "SmugMugTwoWay"     :   "Upload to SmugMug",
-    "BoxDotNetTwoWay"   :   "Upload to Box.net"
+    "BoxDotNetTwoWay"   :   "Upload to Box.net",
+    "TestImageSink"     :   "Test"
 }
 
 ICON_SIZE = 24
 
 CONFIG_PATH='~/.conduit/eog-plugin'
+
+PB_IDX=0
+NAME_IDX=1
+URI_IDX=2
+STATUS_IDX=3
 
 class ConduitWrapper:
     def __init__(self, conduit, name, store):
@@ -33,8 +38,18 @@ class ConduitWrapper:
         self.store = store
         self.rowref = None
         self.configured = False
-
         self.pendingSync = False
+        
+        self.conduit.connect_to_signal(
+                        "SyncProgress",
+                        self._on_sync_progress,
+                        dbus_interface=CONDUIT_DBUS_IFACE
+                        )
+        self.conduit.connect_to_signal(
+                        "SyncCompleted",
+                        self._on_sync_completed,
+                        dbus_interface=CONDUIT_DBUS_IFACE
+                        )
 
     def _get_configuration(self):
         """
@@ -71,7 +86,12 @@ class ConduitWrapper:
             info = self.conduit.SinkGetInformation(dbus_interface=EXPORTER_DBUS_IFACE)
             pb = gtk.gdk.pixbuf_new_from_file_at_size(info['icon_path'], ICON_SIZE, ICON_SIZE)
             desc = SUPPORTED_SINKS[self.name]
-            self.rowref = self.store.append(None,(pb, desc, ""))
+            self.rowref = self.store.append(None,(
+                                pb,         #PB_IDX
+                                desc,       #NAME_IDX
+                                "",         #URI_IDX
+                                "ready")    #STATUS_IDX
+                                )
         return self.rowref
 
     def _configure_reply_handler(self):            
@@ -79,7 +99,6 @@ class ConduitWrapper:
         xml = self.conduit.SinkGetConfigurationXml()
         self._save_configuration(xml)
         self.configured = True
-        print "Configured"
 
         #check if a sync was waiting for the conduit (sink) to be configured
         if self.pendingSync == True:
@@ -88,14 +107,36 @@ class ConduitWrapper:
 
     def _configure_error_handler(self, error):
         pass
-
+        
+    def _on_sync_progress(self, progress):
+        rowref = self._get_rowref()
+        self.store.set_value(rowref, STATUS_IDX, "finished")
+        
+    def _on_sync_completed(self, abort, error, conflict):
+        #FIXME:
+        #on error or abort, add to the conduit gui syncset to allow
+        #the user to debug it. 
+        rowref = self._get_rowref()
+        #update the status
+        self.store.set_value(rowref, STATUS_IDX, "finished")
+        #tell the view to redraw
+        self.store.row_changed(
+                    self.store.get_path(rowref),
+                    rowref
+                    )
+        
     def add_photo(self, pixbuf, uri):
         ok = self.conduit.AddData(uri,dbus_interface=EXPORTER_DBUS_IFACE)
         if ok == True:
             #add to the store
             rowref = self._get_rowref()
             filename = uri.split("/")[-1]
-            self.store.append(rowref,(pixbuf, filename, uri))
+            self.store.append(rowref,(
+                        pixbuf,         #PB_IDX
+                        filename,       #NAME_IDX
+                        uri,            #URI_IDX
+                        "")             #STATUS_IDX
+                        )
 
     def sync(self):
         if self.configured == True:
@@ -120,9 +161,10 @@ class ConduitApplicationWrapper:
         self.conduits = {}
         #the liststore with icons of the images to be uploaded        
         self.store = gtk.TreeStore(
-                            gtk.gdk.Pixbuf,     #thumb
-                            str,                #filename
-                            str                 #uri
+                            gtk.gdk.Pixbuf,     #PB_IDX
+                            str,                #NAME_IDX
+                            str,                #URI_IDX
+                            str                 #STATUS_IDX
                             )
 
         #setup the DBus connection
@@ -133,7 +175,6 @@ class ConduitApplicationWrapper:
                 remote_object = dbus.SessionBus().get_object(APPLICATION_DBUS_IFACE,"/")
                 self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
                 self.dps = self.app.GetAllDataProviders() 
-
             except dbus.exceptions.DBusException:
                 self.app = None
                 print "Conduit unavailable"
@@ -204,19 +245,21 @@ class ConduitPlugin(eog.Plugin):
         box = gtk.VBox()
         view = gtk.TreeView(self.conduit.store)
         view.connect("row-activated", self._on_row_activated)
-
+        view.set_headers_visible(False)
 
         box.pack_start(view,expand=True,fill=True)
         bbox = gtk.HButtonBox()
         box.pack_start(bbox,expand=False)
         
-        #two colums, a icon and a description/name
+        #two colums, an icon and a description/name
         col0 = gtk.TreeViewColumn("Pic", gtk.CellRendererPixbuf(), pixbuf=0)
-        col1 = gtk.TreeViewColumn("Name", gtk.CellRendererText(), text=1)
         view.append_column(col0)
+        #second colum is the dataprovider name + status, or the filename 
+        nameRenderer = gtk.CellRendererText()
+        col1 = gtk.TreeViewColumn("Name", nameRenderer)
+        col1.set_cell_data_func(nameRenderer, self._name_data_func)
         view.append_column(col1)
-        view.set_headers_visible(False)
-
+        
         #upload and clear button
         okbtn = gtk.Button(stock=gtk.STOCK_OK)
         okbtn.connect("clicked",self._on_sync_clicked)
@@ -225,7 +268,7 @@ class ConduitPlugin(eog.Plugin):
         bbox.pack_start(clearbtn)
 
         sidebar = window.get_sidebar()
-        sidebar.add_page("Conduit", box)
+        sidebar.add_page("Photo Uploads", box)
         sidebar.show_all()
 
     def _prepare_tools_menu(self, window):
@@ -256,6 +299,15 @@ class ConduitPlugin(eog.Plugin):
     			    action=sinkName,
     			    type=gtk.UI_MANAGER_MENUITEM, 
     			    top=False)
+    			    
+    def _name_data_func(self, column, cell_renderer, tree_model, rowref):
+        name = tree_model.get_value(rowref, NAME_IDX)
+        #render the headers different to the data
+        if tree_model.iter_depth(rowref) == 0:
+            status = tree_model.get_value(rowref, STATUS_IDX)
+            name = "%s <i>(%s)</i>" % (name,status)
+
+        cell_renderer.set_property("markup", name)
 
     def activate(self, window):
         #the sidebar and menu integration must be done once per eog window instance
