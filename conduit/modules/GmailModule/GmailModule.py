@@ -18,6 +18,7 @@ import conduit.datatypes.Contact as Contact
 #its not supported by google, so tends to break often
 Utils.dataprovider_add_dir_to_path(__file__, "libgmail")
 import libgmail
+import lgconstants
 
 MODULES = {
     "GmailEmailTwoWay" :    { "type": "dataprovider" },
@@ -44,6 +45,9 @@ class GmailBase(DataProvider.DataProviderBase):
         if self.loggedIn == False:
             if "@" in self.username:
                 user, domain = self.username.split("@")
+                #FIXME: Libgmail dies if the specified domain is just a gmail one
+                if domain in ("gmail.com", "googlemail.com"):
+                    domain = None
             else:
                 user = self.username
                 domain = None
@@ -99,9 +103,9 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         self.getUnreadEmail = False
         self.getWithLabel = ""
         self.getInFolder = ""
-        self.mails = None
+        self.mails = {}
 
-        #For bookkeeping 
+        #For bookkeeping, always add a conduit label
         self._label = "%s-%s" % (conduit.APPNAME,conduit.APPVERSION)
         
     def configure(self, window):
@@ -217,54 +221,42 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         self.mails = {}
 
         if self.loggedIn:
+            result = []
             if self.getAllEmail:
                 log.debug("Getting all Email")
-                pass
+                result = self.ga.getMessagesByFolder(lgconstants.U_INBOX_SEARCH)
             else:
                 if self.getUnreadEmail:
                     log.debug("Getting Unread Email")                
-                    #FIXME: These TODO notes taken from libgmail examples
-                    #Check if these TODOs have been answered at a future
-                    #date
-                    # TODO: Work out at what stage messages get marked as 'read'.
-                    #       (as I think of it, it happens when I retrieve the
-                    #        messages in the threads, should really preserve read/unread
-                    #        state then.)
-                    # TODO: Fix this so it does not retrieve messages that have already
-                    #       been read. ("unread" is a property of thread in this case?)
-                    #       Is this even possible without caching stuff ourselves,
-                    #       maybe use "archive" as the equivalent of read?
                     result = self.ga.getUnreadMessages()
-                    if len(result):                    
-                        for thread in result:
-                            for message in thread:
-                                mail = Email.Email()
-                                mail.set_from_email_string(message.source)
-                                self.mails[message.id] = mail              
-                elif len(self.getWithLabel) > 0:
+                elif self.getWithLabel != None and len(self.getWithLabel) > 0:
                     log.debug("Getting Email Labelled: %s" % self.getWithLabel)                
                     result = self.ga.getMessagesByLabel(self.getWithLabel)
-                    if len(result):
-                        for thread in result:
-                            for message in thread:
-                                mail = Email.Email()
-                                mail.set_from_email_string(message.source)
-                                self.mails[message.id] = mail
-                elif len(self.getInFolder) > 0:
+                elif self.getInFolder != None and len(self.getInFolder) > 0:
                     log.debug("Getting Email in Folder: %s" % self.getInFolder)                
                     result = self.ga.getMessagesByFolder(self.getInFolder)
-                    if len(result):
-                        for thread in result:
-                            for message in thread:
-                                mail = Email.Email()
-                                mail.set_from_email_string(message.source)
-                                self.mails[message.id] = mail
+                else:
+                    log.debug("Not getting any email")
+
+            if len(result):                    
+                for thread in result:
+                    for message in thread:
+                        mail = Email.Email()
+                        mail.set_from_email_string(message.source)
+                        self.mails[message.id] = mail                          
+
         else:
-            raise Exceptions.SyncronizeFatalError
+            raise Exceptions.SyncronizeFatalError("Not logged in")
                 
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)
-        return self.mails[LUID]
+        mail = self.mails.get(LUID)
+        if mail == None:
+            mail = Email.Email()
+            mail.set_from_email_string(
+                    self.ga.getRawMessage(LUID)
+                    )
+        return mail
 
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
@@ -290,8 +282,9 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         except libgmail.GmailSendError:
             raise Exceptions.SyncronizeError("Error saving message")
         except Exception, err:
+            traceback.print_exc()
             raise Exceptions.SyncronizeError("Error adding label %s to message" % self._label)
-
+            
         return Rid(uid=draftMsg.id)
 
     def finish(self, aborted, error, conflict):

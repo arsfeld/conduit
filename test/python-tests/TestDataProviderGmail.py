@@ -13,8 +13,8 @@ if not is_online():
 #setup the test
 test = SimpleTest(sinkName="GmailEmailTwoWay")
 config = {
-    "username":     os.environ.get("TEST_USERNAME","conduitproject@gmail.com"),
-    "password":     os.environ["TEST_PASSWORD"],
+    "username":     os.environ.get("TEST_USERNAME","conduitproject"),
+    "password":     os.environ["TEST_PASSWORD"]
 }
 test.configure(sink=config)
 
@@ -30,12 +30,12 @@ except Exception, err:
 
 e = new_email(None)
 test.do_dataprovider_tests(
-        supportsGet=False,
+        supportsGet=True,
         supportsDelete=False,
-        safeLUID=None,
+        safeLUID='110fb3737234b8de',
         data=e,
         name="email"
         )
-                
+
 finished()
 
