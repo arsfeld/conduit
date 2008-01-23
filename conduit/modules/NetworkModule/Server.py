@@ -114,11 +114,11 @@ class NetworkServerFactory(DataProvider.DataProviderFactory):
 
     def quit(self):
         #stop all the xmlrpc servers
+        for server in self.shared.values():
+            server.stop()
+
         if self.peerAnnouncer != None:
             self.peerAnnouncer.stop()
-    
-        for server in self.shared.values():
-            server.stop()           
 
     def share_dataprovider(self, dpw):
         """

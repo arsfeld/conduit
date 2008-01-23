@@ -77,13 +77,18 @@ class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
         while not inputObjects and not self.closed:
             try:
                 inputObjects, outputObjects, errorObjects = select.select([self.socket], [], [], 0.2)
-                return self.socket.accept()
+                sock, addr = self.socket.accept()
+                return (sock, addr)
+            except socket.timeout:
+                if self.closed:
+                    raise
+            except socket.error:
+                #Occurs at shutdown, raise to stop serving
+                if self.closed:
+                    raise
             except select.error:
                 #Occurs sometimes at start up, race condition, ignore
                 pass
-            except socket.error:
-                #Occurs at shutdown, raise to stop serving
-                raise
                 
     def start(self):
         threading.Thread(target=self.serve).start()

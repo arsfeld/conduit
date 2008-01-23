@@ -18,7 +18,9 @@ SUPPORTED_SINKS = {
     "FlickrTwoWay"      :   "Upload to Flickr",
     "PicasaTwoWay"      :   "Upload to Picasa",
     "SmugMugTwoWay"     :   "Upload to SmugMug",
+    "ShutterflySink"    :   "Upload to Shutterfly",
     "BoxDotNetTwoWay"   :   "Upload to Box.net",
+    "FacebookSink"      :   "Upload to Facebook",
     "TestImageSink"     :   "Test"
 }
 
@@ -113,18 +115,28 @@ class ConduitWrapper:
         self.store.set_value(rowref, STATUS_IDX, "finished")
         
     def _on_sync_completed(self, abort, error, conflict):
-        #FIXME:
-        #on error or abort, add to the conduit gui syncset to allow
-        #the user to debug it. 
         rowref = self._get_rowref()
-        #update the status
-        self.store.set_value(rowref, STATUS_IDX, "finished")
-        #tell the view to redraw
-        self.store.row_changed(
-                    self.store.get_path(rowref),
-                    rowref
-                    )
-        
+        if abort == False and error == False:
+            self.clear()
+            #update the status
+            self.store.set_value(rowref, STATUS_IDX, "finished")
+        else:
+            #show the error message in the conduit gui
+            self.store.set_value(rowref, STATUS_IDX, "error")
+
+    def clear(self):
+        rowref = self._get_rowref()
+        #Delete all the images from the list of images to upload
+        delete = []
+        child = self.store.iter_children(rowref)
+        while child != None:
+            delete.append(child)
+            child = self.store.iter_next(child)
+        #need to do in two steps so we dont modify the store while 
+        #iterating
+        for d in delete:
+            self.store.remove(d)
+
     def add_photo(self, pixbuf, uri):
         ok = self.conduit.AddData(uri,dbus_interface=EXPORTER_DBUS_IFACE)
         if ok == True:
@@ -154,10 +166,9 @@ class ConduitWrapper:
                                 )
 
 class ConduitApplicationWrapper:
-    def __init__(self):
-        #conduit dbus application
+    def __init__(self, startConduit, addToGui):
+        self.addToGui = addToGui
         self.app = None
-        #the conduit dbus objects
         self.conduits = {}
         #the liststore with icons of the images to be uploaded        
         self.store = gtk.TreeStore(
@@ -167,18 +178,16 @@ class ConduitApplicationWrapper:
                             str                 #STATUS_IDX
                             )
 
-        #setup the DBus connection
-        self._connect_to_conduit_application()
-
-    def _connect_to_conduit_application(self):
-            try:
-                remote_object = dbus.SessionBus().get_object(APPLICATION_DBUS_IFACE,"/")
-                self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
-                self.dps = self.app.GetAllDataProviders() 
-            except dbus.exceptions.DBusException:
-                self.app = None
-                print "Conduit unavailable"
-
+        if startConduit:
+            self.start()
+        else:
+            obj = self.bus.get_object('org.freedesktop.DBus', '/org/freedesktop/DBus') 
+            dbus_iface = dbus.Interface(obj, 'org.freedesktop.DBus')
+            if dbus_iface.NameHasOwner(APPLICATION_DBUS_IFACE):
+                self.start()
+            else:
+                raise Exception("Could not connect to conduit")
+        
     def _build_conduit(self, sinkName):
         if sinkName in self.dps:
             print "Building exporter conduit %s" % sinkName
@@ -191,31 +200,50 @@ class ConduitApplicationWrapper:
             if name not in self.conduits:
                 self._build_conduit(name)
 
-            imageuri = eogImage.get_uri_for_display()
-            
-            #proportionally scale the pixbuf            
-            thumb = eogImage.get_thumbnail()
-            pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
+            if eogImage != None:
+                #proportionally scale the pixbuf            
+                thumb = eogImage.get_thumbnail()
+                pb = thumb.scale_simple(ICON_SIZE,ICON_SIZE,gtk.gdk.INTERP_BILINEAR)
 
-            #add the photo to the remote condui and the liststore
-            print "Upload ", name, eogImage
-            self.conduits[name].add_photo(pixbuf=pb,uri=imageuri)
+                #add the photo to the remote condui and the liststore
+                self.conduits[name].add_photo(
+                                        pixbuf=pb,
+                                        uri=eogImage.get_uri_for_display()
+                                        )
+
+
+    def start(self):
+        if not self.connected():
+            try:
+                remote_object = dbus.SessionBus().get_object(APPLICATION_DBUS_IFACE,"/")
+                self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
+                self.dps = self.app.GetAllDataProviders() 
+            except dbus.exceptions.DBusException:
+                self.app = None
+                print "Conduit unavailable"
 
     def sync(self):
-        for c in self.conduits:
-            self.conduits[c].sync()
+        if self.connected():
+            for c in self.conduits:
+                self.conduits[c].sync()
+
+    def clear(self):
+        if self.connected():
+            for c in self.conduits:
+                self.conduits[c].clear()
 
     def connected(self):
-        #are we connected to conduit dbus interface
         return self.app != None
 
 class ConduitPlugin(eog.Plugin):
     def __init__(self):
         self.dir = os.path.abspath(os.path.join(__file__, ".."))
         self.gladefile = os.path.join(self.dir, "config.glade")
-        
-        self.window = None
-        self.conduit = ConduitApplicationWrapper()
+
+        self.conduit = ConduitApplicationWrapper(
+                                        startConduit=True,
+                                        addToGui=False
+                                        )
 
     def _on_upload_clicked(self, sender, window):
         currentImage = window.get_image()
@@ -224,6 +252,9 @@ class ConduitPlugin(eog.Plugin):
 
     def _on_sync_clicked(self, *args):
         self.conduit.sync()
+
+    def _on_clear_clicked(self, *args):
+        self.conduit.clear()
 
     def _on_row_activated(self, treeview, path, view_column):
         #check the user didnt click a header row
@@ -261,11 +292,15 @@ class ConduitPlugin(eog.Plugin):
         view.append_column(col1)
         
         #upload and clear button
-        okbtn = gtk.Button(stock=gtk.STOCK_OK)
+        okbtn = gtk.Button(label="Synchronize")
+        okbtn.set_image(
+                gtk.image_new_from_stock(gtk.STOCK_REFRESH,gtk.ICON_SIZE_BUTTON)
+                )
         okbtn.connect("clicked",self._on_sync_clicked)
         clearbtn = gtk.Button(stock=gtk.STOCK_CLEAR)
-        bbox.pack_start(okbtn)
-        bbox.pack_start(clearbtn)
+        clearbtn.connect("clicked",self._on_clear_clicked)        
+        bbox.pack_start(okbtn,expand=True)
+        bbox.pack_start(clearbtn,expand=True)
 
         sidebar = window.get_sidebar()
         sidebar.add_page("Photo Uploads", box)
@@ -305,24 +340,20 @@ class ConduitPlugin(eog.Plugin):
         #render the headers different to the data
         if tree_model.iter_depth(rowref) == 0:
             status = tree_model.get_value(rowref, STATUS_IDX)
-            name = "%s <i>(%s)</i>" % (name,status)
-
+            name = '%s <span foreground="grey" style="italic">(%s)</span>' % (name,status)
         cell_renderer.set_property("markup", name)
 
     def activate(self, window):
         #the sidebar and menu integration must be done once per eog window instance
-        print "ACTIVATE"
-        self.window = window
         if self.conduit.connected() == True:
             self._prepare_sidebar(window) 
             self._prepare_tools_menu(window)
 
-
     def deactivate(self, window):
-        print "DEACTIVATE"
+        pass
 
     def update_ui(self, window):
-        print "UPDATE"
+        pass
 
     def is_configurable(self):
         return False

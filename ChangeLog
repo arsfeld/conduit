@@ -1,3 +1,16 @@
+2008-01-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py: Improve help message
+
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/NetworkModule/Server.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Dont create a new Peerlister
+	every time. Small improvements to hopefully improve cancellation.
+
+	* tools/eog-plugin/conduit.py:
+	* tools/eog-plugin/config.glade: Add Facebook and ShutterFly support. Clear
+	the sidebar when sync finishes
+
 2008-01-22  John Stowers  <john.stowers@gmail.com>
 
 	* tools/eog-plugin/conduit.py: Improve eog plugin to show status while 

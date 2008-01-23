@@ -53,12 +53,15 @@ class Application(dbus.service.Object):
         iconify = False
         self.ui = "gtk"
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "hs:ciu:", 
-                ["help", "settings=", "console", "iconify", "ui="])
+            opts, args = getopt.getopt(sys.argv[1:], "hvs:ciu:", 
+                ["help", "version", "settings=", "console", "iconify", "ui="])
             #parse args
             for o, a in opts:
                 if o in ("-h", "--help"):
                     self._usage()
+                    sys.exit(0)
+                if o in ("-v", "--version"):
+                    print "%s %s" % (conduit.APPNAME, conduit.APPVERSION)
                     sys.exit(0)
                 if o in ("-s", "--settings"):
                      self.settingsFile = os.path.join(os.getcwd(), a)
@@ -161,14 +164,18 @@ class Application(dbus.service.Object):
             self.Quit()
 
     def _usage(self):
-        print """Conduit: Usage
-$ %s [OPTIONS]
-
+        print """Usage: conduit [OPTIONS] - Synchronize things
 OPTIONS:
-    -h, --help          Print this help notice.
-    -c, --console       Launch Conduit with no GUI) (default=no).
-    -s, --settings=FILE Override saving conduit settings to FILE
-    -i, --iconify       Iconify on startup (default=no)""" % sys.argv[0]
+    -h, --help          Show this message.
+    -c, --console       Launch with no GUI.
+                        (default=no)
+    -s, --settings=FILE Save settings to FILE.
+                        (default=~/.conduit/settings.xml)
+    -i, --iconify       Iconify on startup.
+                        (default=no)
+    -u, --ui=NAME       Run with the specified UI
+                        (default=gtk)
+    -v, --version       Show version information"""
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='b')
     def HasGUI(self):

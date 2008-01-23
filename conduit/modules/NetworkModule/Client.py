@@ -30,14 +30,14 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
 
         self.categories = {}
         self.dataproviders = {}
-        self.peers = []
+        self.peers = {}
         try:
             self.monitor = Peers.AvahiMonitor(self.host_available, self.host_removed)
         except:
             log.warn("Error starting client")
 
     def quit(self):
-        for p in self.peers:
+        for p in self.peers.values():
             p.stop()
 
     def host_available(self, name, host, address, port, extra_info):
@@ -45,40 +45,34 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
         Callback which is triggered when a dataprovider is advertised on 
         a remote conduit instance
         """
-        log.debug("Remote host '%s' detected" % host)
-
-        # Path to remote data services
         url = "http://%s" % host
+        log.debug("Remote host '%s' detected" % url)
 
-        # Create a categories group for this host?
-        if not self.categories.has_key(url):
+        if not self.peers.has_key(url):
+            #Create a category group for this host
             self.categories[url] = DataProviderCategory.DataProviderCategory("On %s" % host, "computer", host)
-        
-        # Create a dataproviders list for this host
-        self.dataproviders[url] = {}
-
-        # Request all dp's for this host. Because there is no
-        # avahi signal when the text entry in a avahi publish group
-        # is changed, we must poll detected peers....
-        request = _PeerLister(url, port)
-        request.connect("complete", self.dataprovider_process)
-        request.start()
-        self.peers.append(request)
+            # Create a dataproviders list for this host
+            self.dataproviders[url] = {}
+            # Request all dp's for this host. Because there is no
+            # avahi signal when the text entry in a avahi publish group
+            # is changed, we must poll detected peers....
+            request = _PeerLister(url, port)
+            request.connect("complete", self.dataprovider_process)
+            request.start()
+            self.peers[url] = request
 
     def host_removed(self, url):
         """
         Callback which is triggered when a host is no longer available
         """
         log.debug("Remote host '%s' removed" % url)
-
-        if self.categories.has_key(url):
+        if self.peers.has_key(url):
             self.categories.remove(url)
-        
-        if self.dataproviders.has_key(url):
-            for uid, dp in self.dataproviders[url].iteritems():
+            for uid, dp in self.dataproviders[url].items():
                 self.dataprovider_removed(dp)
             self.dataproviders.remove(url)
-                    
+            self.peers.remove(url)
+
     def dataprovider_process(self, peerLister):
         """
         """
@@ -170,15 +164,14 @@ class _PeerLister(threading.Thread, gobject.GObject):
         server = xmlrpclib.Server("%s:%s/" % (self.url,self.port))
         #Gross cancellable spinning loop...
         while not self.stopped:
-            while self._ticks > (self.FREQ / self.SLEEP):
+            if self._ticks > (self.FREQ / self.SLEEP):
                 try:
                     self.data_out = server.list_shared_dataproviders()
                     gobject.idle_add(self.emit, "complete")
-                    self._ticks = 0
-                except socket.error:
+                except:
                     #If the server has died or not started yet
                     pass
-                                   
+                self._ticks = 0
             else:
                 time.sleep(self.SLEEP)
                 self._ticks += 1
