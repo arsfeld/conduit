@@ -558,10 +558,13 @@ class PicasaTwoWay(Image.ImageTwoWay):
         gphoto = self.gphoto_dict[LUID]
         url = gphoto.GetMediaURL()
 
+        tags = (tag.title.text for tag in self.pws.GetFeed(gphoto.GetTagsUri()).entry)
+
         f = Photo.Photo (URI=url)
         f.force_new_mtime(self._get_photo_timestamp(gphoto))
         f.set_open_URI(url)
         f.set_UID(LUID)
+        f.set_tags(tags)
 
         return f
 

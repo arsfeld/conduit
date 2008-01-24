@@ -1,3 +1,13 @@
+2008-01-24  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/FspotModule/FspotDbusModule.py: Handle error when
+	delete fails; and more important: the module is configured ok when no
+	tag is selected.  When it's used as source it will sync the complete
+	f-spot db, when it's used as sink no additional tags will be
+	introduced
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Adds the photo tags
+	when we're getting a file
+
 2008-01-23  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Main.py: Improve help message

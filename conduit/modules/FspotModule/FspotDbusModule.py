@@ -141,7 +141,10 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         Remove the photo from the f-spot catalog
         TODO: add support for deleting from drive also
         """
-        self.photo_remote.RemovePhoto (LUID)
+        try:
+            self.photo_remote.RemovePhoto (LUID)
+        except Exception, ex: # the photo is probably gone in f-spot
+            log.warn("Delete failed (%s)", ex)
     
     def finish(self, aborted, error, conflict):
         """
@@ -230,7 +233,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         return {"tags": self.enabledTags}
 
     def is_configured (self):
-        return len(self.enabledTags) > 0
+        return True
 
     def get_UID(self):
         return Utils.get_user_string()
