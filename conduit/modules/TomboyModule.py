@@ -16,33 +16,24 @@ MODULES = {
 	"TomboyNoteConverter" :     { "type": "converter"       }
 }
 
-def partition(txt, sep):
-    try:
-        return txt.partition(sep)
-    except:
-        if not sep in txt:
-            return (txt, '', '')
-        else:
-            return (txt[:txt.find(sep)], sep, txt[txt.find(sep)+len(sep):])
-
 class TomboyNote(Note.Note):
-    def __init__(self, xmlContent):
-        self.xmlContent = xmlContent
-        #strip the xml
-        text = xmlContent.replace('<note-content version="0.1">','').replace('</note-content>','')
-        title, sep, contents = partition(text, "\n")
+    """
+    Stores both the text and xml representations of the note
+    """
+    def __init__(self, title, contents, xml):
         Note.Note.__init__(self, title, contents)
+        self.xml = xml
         
     def get_xml(self):
-        return self.xmlContent
+        return self.xml
         
     def __getstate__(self):
         data = Note.Note.__getstate__(self)
-        data["xml"] = self.xmlContent
+        data["xml"] = self.xml
         return data
 
     def __setstate__(self, data):
-        self.xmlContent = data["xml"]
+        self.xml = data["xml"]
         Note.Note.__setstate__(self, data)
 
 class TomboyNoteConverter(object):
@@ -56,23 +47,39 @@ class TomboyNoteConverter(object):
                             
     def note_to_tomboy_note(self, note, **kwargs):
         n = TomboyNote(
-                '<note-content version="0.1">%s\n%s</note-content>' % (note.get_title(), note.get_contents())
+                title=note.get_title(),
+                contents=note.get_contents(),
+                xml=None
                 )
         return n
         
     def tomboy_note_to_file(self, note, **kwargs):
-        f = File.TempFile(note.get_xml())
-        f.force_new_filename(note.get_title())
+        content = note.get_xml()
+        #Old tomboy made this note, fallback to plain text
+        if content == None:
+            content = note.get_contents()
+        f = File.TempFile(content)
+        f.force_new_filename(note.get_title().replace(" ","_"))
         f.force_new_file_extension(TomboyNoteConverter.NOTE_EXTENSION)
         return f
         
     def file_to_tomboy_note(self, f, **kwargs):        
-        note = None
         title,ext = f.get_filename_and_extension()
-        if ext == TomboyNoteConverter.NOTE_EXTENSION:
+        text = f.get_contents_as_text()
+        #A tomboy formatted XML file
+        if text.startswith('<?xml version="1.0" encoding="utf-8"?>') and text.find('xmlns="http://beatniksoftware.com/tomboy">') > 0:
             note = TomboyNote(
-                        f.get_contents_as_text()
-                        )
+                    title=title,
+                    contents=None,
+                    xml=text
+                    )
+        #A bog standard text file
+        else:
+            note = TomboyNote(
+                    title=title,
+                    contents=text,
+                    xml=None
+                    )
         return note
 
 class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
@@ -90,38 +97,49 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
     TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
     TOMBOY_MIN_VERSION = "0.5.10"
+    TOMBOY_COMPLETE_XML_VERSION = "0.9.0"
     
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
         self.notes = []
-        self.bus = dbus.SessionBus()
-        if self._check_tomboy_version():
-            self.remoteTomboy.connect_to_signal("NoteAdded", lambda uid: self.handle_added(str(uid)))
-            self.remoteTomboy.connect_to_signal("NoteSaved", lambda uid: self.handle_modified(str(uid)))
-            self.remoteTomboy.connect_to_signal("NoteDeleted", lambda uid, x: self.handle_deleted(str(uid)))
+        self.remoteTomboy = None
+        self.supportsCompleteXML = False
 
-    def _check_tomboy_version(self):
-        if Utils.dbus_service_available(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, self.bus):
-            obj = self.bus.get_object(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, TomboyNoteTwoWay.TOMBOY_DBUS_PATH)
-            self.remoteTomboy = dbus.Interface(obj, "org.gnome.Tomboy.RemoteControl")
-            version = str(self.remoteTomboy.Version())
+        self._connect_to_tomboy()
+
+    def _connect_to_tomboy(self):
+        if self.remoteTomboy != None:
+            return True
+
+        bus = dbus.SessionBus()
+        if Utils.dbus_service_available(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, bus):
+            obj = bus.get_object(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, TomboyNoteTwoWay.TOMBOY_DBUS_PATH)
+            app = dbus.Interface(obj, "org.gnome.Tomboy.RemoteControl")
+            version = str(app.Version())
             if version >= TomboyNoteTwoWay.TOMBOY_MIN_VERSION:
+                self.remoteTomboy = app
+                self.remoteTomboy.connect_to_signal("NoteAdded", lambda uid: self.handle_added(str(uid)))
+                self.remoteTomboy.connect_to_signal("NoteSaved", lambda uid: self.handle_modified(str(uid)))
+                self.remoteTomboy.connect_to_signal("NoteDeleted", lambda uid, x: self.handle_deleted(str(uid)))
+                self.supportsCompleteXML = version >= TomboyNoteTwoWay.TOMBOY_COMPLETE_XML_VERSION
                 log.info("Using Tomboy Version %s" % version)
                 return True
-            else:
-                log.warn("Incompatible Tomboy Version %s" % version)
-                return False
-        else:
-            log.warn("Tomboy DBus interface not found")
-            return False
+        return False
 
     def _update_note(self, uid, note):
         log.debug("Updating note uid: %s" % uid)
-        ok = self.remoteTomboy.SetNoteContentsXml(
+        if note.get_xml() != None:
+            ok = self.remoteTomboy.SetNoteCompleteXml(
                                     uid,
                                     note.get_xml()
                                     )
+        else:
+            ok = self.remoteTomboy.SetNoteContents(
+                                    uid,
+                                    note.get_contents()
+                                    )
+
         if not ok:
             raise Exceptions.SyncronizeError("Error setting Tomboy note content (uri: %s)" % uid)
 
@@ -137,8 +155,15 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def _get_note(self, uid):
         #Get the whole xml and strip out the tags
         log.debug("Getting note: %s" % uid)
+
+        xml = None
+        if self.supportsCompleteXML:
+            xml = str(self.remoteTomboy.GetNoteCompleteXml(uid))
+
         n = TomboyNote(
-                xmlContent=str(self.remoteTomboy.GetNoteContentsXml(uid))
+                title=str(self.remoteTomboy.GetNoteTitle(uid)),
+                contents=str(self.remoteTomboy.GetNoteContents(uid)),
+                xml=xml
                 )
         n.set_UID(str(uid))
         n.set_mtime(self._get_note_mtime(uid))
@@ -146,8 +171,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         return n
 
     def _create_note(self, note):
-        uid = self.remoteTomboy.CreateNamedNote(note.get_title())
-        uid = str(uid)
+        uid = str(self.remoteTomboy.CreateNamedNote(note.get_title()))
         self._update_note(uid, note)
         return uid
 
@@ -160,10 +184,10 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.notes = []
-        if self._check_tomboy_version():
+        if self._connect_to_tomboy():
             self.notes = [str(i) for i in self.remoteTomboy.ListAllNotes()]
         else:
-            raise Exceptions.RefreshError
+            raise Exceptions.RefreshError("Tomboy not available")
                 
     def get(self, uri):
         DataProvider.TwoWay.get(self, uri)
@@ -178,11 +202,10 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         Stores a Note in Tomboy.
         """
         DataProvider.TwoWay.put(self, note, overwrite, LUID)
-        existingNote = None
-
         log.debug("Put note LUID: %s" % LUID)
 
         #Check if the note, or one with same title exists
+        existingNote = None
         if LUID != None:
             if self.remoteTomboy.NoteExists(LUID):
                 existingNote = self._get_note(LUID)

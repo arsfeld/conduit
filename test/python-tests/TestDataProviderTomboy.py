@@ -35,7 +35,6 @@ note = tomboy.get(notes[idx])
 ok("Got note #%s" % idx, note != None)
 ok("Got note title (%s)" % note.title, len(note.title) > 0)
 ok("Got note contents", len(note.contents) > 0)
-ok("Got note xml", len(note.get_xml()) > 0)
 
 #make a new note
 note = Note.Note(
