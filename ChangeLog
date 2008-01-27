@@ -1,3 +1,11 @@
+2008-01-24  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/FspotModule.py:
+	* conduit/modules/FspotDbusModule.py: Move the dbus dataprovider in
+	the FspotModule.py file, remove the old file.  No longer load the
+	FSpotSource dataprovider, but always load the FSpotDBusTwoWay and
+	error on refresh when the dbus interface is not there.  This more or
+	less fixes #512146.  (Thx for J. Stowers for the original patch)
+
 2008-01-26  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/TomboyModule.py:
