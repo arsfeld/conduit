@@ -142,7 +142,6 @@ conduit/modules/GmailModule/Makefile
 conduit/modules/GmailModule/libgmail/Makefile
 conduit/modules/SmugMugModule/Makefile
 conduit/modules/SmugMugModule/SmugMugAPI/Makefile
-conduit/modules/YouTubeModule/Makefile
 conduit/modules/GoogleModule/Makefile
 conduit/modules/GoogleModule/atom/Makefile
 conduit/modules/GoogleModule/gdata/Makefile

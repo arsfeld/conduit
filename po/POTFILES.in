@@ -26,7 +26,6 @@ conduit/modules/FileModule/FileModule.py
 conduit/modules/FileModule/config.glade
 conduit/modules/FlickrModule/FlickrModule.py
 conduit/modules/FlickrModule/config.glade
-conduit/modules/FspotModule/FspotDbusModule.py
 conduit/modules/FspotModule/FspotModule.py
 conduit/modules/FspotModule/config.glade
 conduit/modules/GConfModule/GConfModule.py
@@ -35,6 +34,7 @@ conduit/modules/GmailModule/config.glade
 conduit/modules/GoogleModule/GoogleModule.py
 conduit/modules/GoogleModule/calendar-config.glade
 conduit/modules/GoogleModule/picasa-config.glade
+conduit/modules/GoogleModule/youtube-config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py
 conduit/modules/RhythmboxModule/RhythmboxModule.py
@@ -44,5 +44,3 @@ conduit/modules/ShutterflyModule/shutterfly.glade
 conduit/modules/ShutterflyModule/shutterfly/shutterfly.py
 conduit/modules/SmugMugModule/SmugMugModule.py
 conduit/modules/SmugMugModule/config.glade
-conduit/modules/YouTubeModule/YouTubeModule.py
-conduit/modules/YouTubeModule/config.glade
