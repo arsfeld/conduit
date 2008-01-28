@@ -1,4 +1,14 @@
-2008-01-24  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-01-28  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/GoogleModule/youtube-config.glade:
+	* conduit/modules/GoogleModule/Makefile.am:
+	* conduit/modules/GoogleModule/GoogleModule.py: move youtube dataprovider
+	to GoogleModule, and make it use gdata api (original patch by Renato Araujo
+	Oliveira Filho)
+
+	* conduit/modules/Makefile.am: deleted and moved to GoogleModule
+	* conduit/modules/YouTubeModule/*: deleted and moved to GoogleModule
+
+2008-01-27  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/modules/FspotModule.py:
 	* conduit/modules/FspotDbusModule.py: Move the dbus dataprovider in
 	the FspotModule.py file, remove the old file.  No longer load the

@@ -10,7 +10,6 @@ SUBDIRS = \
 	GmailModule \
 	SmugMugModule \
 	EvolutionModule \
-	YouTubeModule \
 	GoogleModule \
 	ShutterflyModule \
 	RhythmboxModule \

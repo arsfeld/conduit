@@ -14,8 +14,11 @@ import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Photo as Photo
+import conduit.datatypes.Video as Video
 
 from gettext import gettext as _
+
+import re
 
 #Distributors, if you ship python gdata >= 1.0.10 then remove this line
 #and the appropriate directories
@@ -33,7 +36,8 @@ FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
 
 MODULES = {
     "GoogleCalendarTwoWay" : { "type": "dataprovider" },
-    "PicasaTwoWay" :          { "type": "dataprovider" }        
+    "PicasaTwoWay" :         { "type": "dataprovider" },
+    "YouTubeSource" :        { "type": "dataprovider" },       
 }
 
 
@@ -684,4 +688,192 @@ class PicasaTwoWay(Image.ImageTwoWay):
     def get_UID(self):
         return self.username
             
-		
+class YouTubeSource(DataProvider.DataSource):
+    _name_ = _("YouTube")
+    _description_ = _("Sync data from YouTube")
+    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _module_type_ = "source"
+    _out_type_ = "file/video"
+    _icon_ = "youtube"
+
+    _const_users_feed = "http://gdata.youtube.com/feeds/users"
+    _const_std_feeds = "http://gdata.youtube.com/feeds/standardfeeds"
+    _video_name_re = re.compile(r', "t": "([^"]+)"')
+
+    #Config args
+    max = 0
+    #filter type {0 = mostviewed, 1 = toprated, 2 = user}
+    filter_type = 0
+    #filter user type {0 = upload, 1 = favorites}
+    user_filter_type = 0
+    username = ""
+
+
+    def __init__(self, *args):
+        DataProvider.DataSource.__init__(self)
+        self.entries = None
+
+    def initialize(self):
+        return True
+
+    def configure(self, window):
+        tree = Utils.dataprovider_glade_get_widget (
+                __file__,
+                "youtube-config.glade",
+                "YouTubeSourceConfigDialog") 
+
+        dlg = tree.get_widget ("YouTubeSourceConfigDialog")
+        mostviewedRb = tree.get_widget("mostviewed")
+        topratedRb = tree.get_widget("toprated")
+        byuserRb = tree.get_widget("byuser")
+        user_frame = tree.get_widget("frame")
+        uploadedbyRb = tree.get_widget("uploadedby")
+        favoritesofRb = tree.get_widget("favoritesof")
+        user = tree.get_widget("user")
+        maxdownloads = tree.get_widget("maxdownloads")
+
+        byuserRb.connect("toggled", self._filter_user_toggled_cb, user_frame)
+
+        if self.filter_type == 0:
+            mostviewedRb.set_active(True)
+        elif self.filter_type == 1:
+            topratedRb.set_active(True)
+        else:
+            byuserRb.set_active(True)
+            user_frame.set_sensitive(True)
+            if self.user_filter_type == 0:
+                uploadedbyRb.set_active(True)
+            else:
+                favoritesofRb.set_active(True)
+            user.set_text(self.username)
+
+        log.debug("Max")
+        log.debug(self.max)
+        maxdownloads.set_value(self.max)
+
+        response = Utils.run_dialog(dlg, window)
+        if response == True:
+            if mostviewedRb.get_active():
+                self.filter_type = 0
+            elif topratedRb.get_active():
+                self.filter_type = 1
+            else:
+                self.filter_type = 2
+                if uploadedbyRb.get_active():
+                    self.user_filter_type = 0
+                else:
+                    self.user_filter_type = 1
+                self.username = user.get_text()
+            self.max = int(maxdownloads.get_value())
+
+        dlg.destroy()
+
+    def refresh(self):
+        DataProvider.DataSource.refresh(self)
+
+        self.entries = {}
+        try:
+            feedUrl = ""
+            if self.filter_type == 0:
+                videos = self._most_viewed ()
+            elif self.filter_type == 1:
+                videos = self._top_rated ()
+            else:
+                if self.usr_filter_type == 0:
+                    videos = self._videos_upload_by (self.username)
+                else:
+                    videos = self._favorite_videos (self.username)
+
+            for video in videos:
+                self.entries[video.title.text] = self._get_flv_video_url (video.link[1].href)
+        except Exception, err:
+            log.debug("Error getting/parsing feed (%s)" % err)
+            raise Exceptions.RefreshError
+
+    def get_all(self):
+        return self.entries.keys()
+
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
+        url = self.entries[LUID]
+        log.debug("Title: '%s', Url: '%s'"%(LUID, url))
+
+        f = Video.Video(URI=url)
+        f.set_open_URI(url)
+        f.set_UID(LUID)
+        f.force_new_filename (str(LUID) + ".flv")
+
+        return f
+
+    def finish(self, aborted, error, conflict):
+        DataProvider.DataSource.finish(self)
+        self.files = None
+
+    def get_configuration(self):
+        return {
+            "filter_type" : self.filter_type,
+            "user_filter_type" : self.user_filter_type,
+            "username" : self.username,
+            "max" : self.max
+        }
+
+
+    def get_UID(self):
+        return Utils.get_user_string()
+
+    #ui callbacks
+    def _filter_user_toggled_cb (self, toggle, frame):
+        frame.set_sensitive(toggle.get_active())
+
+
+    """
+    Code based on youtube client from : Philippe Normand (phil at base-art dot net)
+    """
+    def _format_url (self, url):
+        if self.max > 0:
+            url = ("%s?max-results=%d" % (url, self.max))
+
+        return url
+
+    def _request(self, feed, *params):
+        service = gdata.service.GDataService(server="gdata.youtube.com")
+        return service.Get(feed % params)
+
+    def _top_rated(self):
+        url = self._format_url ("%s/top_rated" % self._const_std_feeds)
+        return self._request(url).entry
+
+    def _most_viewed(self):
+        url = self._format_url ("%s/most_viewed" % self._const_std_feeds)
+        return self._request(url).entry
+
+    def _videos_upload_by(self, username):
+        url = self._format_url ("%s/%s/uploads" % (self._const_users_feed, username))
+        return self._request(url).entry
+
+    def _favorite_videos(self, username):
+        url = self._format_url ("%s/%s/favorites" % (self._const_users_feed, username))
+        return self._request(url).entry
+
+
+    # Generic extract step
+    def _get_flv_video_url (self, url):
+        import urllib2
+        flv_url = ''
+        doc = urllib2.urlopen(url)
+        data = doc.read()
+
+        # extract video name
+        match = self._video_name_re.search(data)
+        if match is not None:
+            video_name = match.group(1)
+
+            # extract video id
+            url_splited = url.split("watch?v=")
+            video_id = url_splited[1]
+
+            flv_url = "http://www.youtube.com/get_video?video_id=%s&t=%s"
+            flv_url = flv_url % (video_id, video_name)
+
+        return flv_url
+
