@@ -1,3 +1,10 @@
+2008-02-01  Luca Ferretti  <elle.uca@libero.it>
+
+	* LINGUAS:
+	* it.po: Added Italian translation by Gianvito Cavasoli.
+
+	* conduit.pot: removed, shouldn't be in svn.
+
 2008-01-21  Gil Forcada  <gforcada@gnome.org>
 
 	* LINGUAS: Added ca.
