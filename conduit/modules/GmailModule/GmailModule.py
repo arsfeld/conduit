@@ -1,6 +1,5 @@
 from gettext import gettext as _
 import traceback
-import vobject
 import logging
 log = logging.getLogger("modules.Gmail")
 
@@ -326,21 +325,14 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
         if self.loggedIn:
             log.debug("Getting all contacts as vcards")
             pageData = self.ga._retrievePage(GmailContactSource.VCARD_EXPORT_URI)
-            print pageData
-            #for txt in vobject.readComponents(pageData):
-            #    contact = Contact.Contact()
-            #    contact.set_from_vcard_string(txt)
-            #    #FIXME: Get the email
-            #    self.contacts[i] = contact
-            
+            for c in Contact.parse_vcf(pageData):
+                self.contacts[c.get_emails()[0]] = c
             #FIXME: Libgmail is not really reliable....
             #result = self.ga.getContacts().getAllContacts()
             #for c in result:
             #   contact = Contact.Contact()
             #   contact.set_from_vcard_string(c.getVCard())
-            #FIXME: Get the email
-            #   self.contacts[c.email] = contact
-            
+            #   self.contacts[c.get_emails()[0]] = contact
         else:
             raise Exceptions.SyncronizeFatalError
 
@@ -351,8 +343,8 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
     def get(self, LUID):
         DataProvider.DataSource.get(self, LUID)
         c = self.contacts[LUID]
-        c.set_UID(c)
-        return self.contacts[LUID]
+        c.set_UID(LUID)
+        return c
 
     def finish(self, aborted, error, conflict):
         DataProvider.DataSource.finish(self)
