@@ -1,14 +1,12 @@
-import os
-import sys
 from gettext import gettext as _
 import traceback
+import vobject
 import logging
 log = logging.getLogger("modules.Gmail")
 
 import conduit
 import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.Email as Email
@@ -22,10 +20,8 @@ import lgconstants
 
 MODULES = {
     "GmailEmailTwoWay" :    { "type": "dataprovider" },
-#    "GmailContactTwoWay" :  { "type": "dataprovider" },
+    "GmailContactSource" :  { "type": "dataprovider" },
 }
-
-GOOGLE_CAT = DataProviderCategory.DataProviderCategory("Google", "applications-internet")
 
 class GmailBase(DataProvider.DataProviderBase):
     """
@@ -85,9 +81,9 @@ class GmailBase(DataProvider.DataProviderBase):
             
 class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
-    _name_ = _("Email")
-    _description_ = _("Sync your Gmail emails")
-    _category_ = GOOGLE_CAT
+    _name_ = _("Gmail Emails")
+    _description_ = _("Sync your emails")
+    _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "email"
     _out_type_ = "email"
@@ -302,85 +298,82 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             }            
         
      
-class GmailContactTwoWay(GmailBase, DataProvider.TwoWay):
+class GmailContactSource(GmailBase, DataProvider.DataSource):
 
-    _name_ = _("Contacts")
-    _description_ = _("Sync your Gmail contacts")
-    _category_ = GOOGLE_CAT
-    _module_type_ = "twoway"
+    _name_ = _("Gmail Contacts")
+    _description_ = _("Sync your contacts")
+    _category_ = conduit.dataproviders.CATEGORY_OFFICE
+    _module_type_ = "source"
     _in_type_ = "contact"
     _out_type_ = "contact"
     _icon_ = "contact-new"
+    
+    VCARD_EXPORT_URI = "http://mail.google.com/mail/contacts/data/export?exportType=ALL&groupToExport=&out=VCARD"
 
     def __init__(self, *args):
         GmailBase.__init__(self, *args)
-        DataProvider.TwoWay.__init__(self)
-        self.need_configuration(True)
-
-        self.contacts = None
-        self.username = ""
-        self.password = ""
+        DataProvider.DataSource.__init__(self)
+        self.contacts = {}
 
     def initialize(self):
         return True
 
     def refresh(self):
-        DataProvider.TwoWay.refresh(self)
+        DataProvider.DataSource.refresh(self)
         GmailBase.refresh(self)
-
+        
         self.contacts = {}
-
         if self.loggedIn:
-            result = self.ga.getContacts().getAllContacts()
-            for c in result:
-                #FIXME: When Contact can load a vcard file, use that instead!
-               contact = Contact.Contact()
-               contact.set_from_vcard_string(c.getVCard())
-               contact.set_UID(c.email)
-               self.contacts[c.email] = contact
+            log.debug("Getting all contacts as vcards")
+            pageData = self.ga._retrievePage(GmailContactSource.VCARD_EXPORT_URI)
+            print pageData
+            #for txt in vobject.readComponents(pageData):
+            #    contact = Contact.Contact()
+            #    contact.set_from_vcard_string(txt)
+            #    #FIXME: Get the email
+            #    self.contacts[i] = contact
+            
+            #FIXME: Libgmail is not really reliable....
+            #result = self.ga.getContacts().getAllContacts()
+            #for c in result:
+            #   contact = Contact.Contact()
+            #   contact.set_from_vcard_string(c.getVCard())
+            #FIXME: Get the email
+            #   self.contacts[c.email] = contact
+            
         else:
             raise Exceptions.SyncronizeFatalError
 
     def get_all(self):
-        DataProvider.TwoWay.get_all(self)
-        return [x for x in self.contacts.iterkeys()]
+        DataProvider.DataSource.get_all(self)
+        return self.contacts.keys()
 
     def get(self, LUID):
-        DataProvider.TwoWay.get(self, LUID)
+        DataProvider.DataSource.get(self, LUID)
+        c = self.contacts[LUID]
+        c.set_UID(c)
         return self.contacts[LUID]
 
-    def put(self, contact, overwrite, LUID=None):
-        DataProvider.TwoWay.put(self, contact, overwrite, LUID)
-        #return Rid(uid=)
-
     def finish(self, aborted, error, conflict):
-        DataProvider.TwoWay.finish(self)
-        self.contacts = None
+        DataProvider.DataSource.finish(self)
+        self.contacts = {}
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
-                        "config.glade", 
-                        "FlickrTwoWayConfigDialog")
-        
-        #get a whole bunch of widgets
-        searchLabelEmailsCb = tree.get_widget("searchLabelEmails")
-        labelEntry = tree.get_widget("labels")
-        usernameEntry = tree.get_widget("username")
-        passwordEntry = tree.get_widget("password")
-        
-        #preload the widgets
+                        "config.glade",
+                        "GmailContactSourceConfigDialog")
+        usernameEntry = tree.get_widget("username2")
+        passwordEntry = tree.get_widget("password2")
         usernameEntry.set_text(self.username)
+        passwordEntry.set_text(self.password)
         
-        dlg = tree.get_widget("GmailSinkConfigDialog")
-        dlg.set_transient_for(window)
-        
-        response = dlg.run()
+        dlg = tree.get_widget("GmailContactSourceConfigDialog")
+        response = Utils.run_dialog (dlg, window)
         if response == True:
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
-                self.set_configured(True)
         dlg.destroy()
 
     def get_configuration(self):

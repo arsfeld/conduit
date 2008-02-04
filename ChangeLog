@@ -1,3 +1,10 @@
+2008-02-05  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/GmailModule/config.glade: First attempt at getting all 
+	gmail contacts via the export to vcard URL. This should be sufficient, 
+	and probbably the best way to get a oneway gmail contact dp going.
+
 2008-02-04  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Settings.py:
