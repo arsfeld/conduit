@@ -61,18 +61,21 @@ class Canvas(goocanvas.Canvas):
     """
     This class manages many objects
     """
-    CANVAS_WIDTH = 450
-    CANVAS_HEIGHT = 450
     WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
-
     def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu, conduitMenu):
         """
         Draws an empty canvas of the appropriate size
         """
         #setup the canvas
         goocanvas.Canvas.__init__(self)
-        self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
-        self.set_size_request(Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
+        self.set_bounds(0, 0, 
+                conduit.GLOBALS.settings.get("gui_initial_canvas_width"),
+                conduit.GLOBALS.settings.get("gui_initial_canvas_height")
+                )
+        self.set_size_request(
+                conduit.GLOBALS.settings.get("gui_initial_canvas_width"),
+                conduit.GLOBALS.settings.get("gui_initial_canvas_height")
+                )
         self.root = self.get_root_item()
 
         self.sync_manager = syncManager

@@ -1,3 +1,9 @@
+2008-02-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/gtkui/Canvas.py: Specify the initial canvas size in gconf to make
+	things easier to adjust on small screens (like the eeepc)
+
 2008-01-28  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/modules/GoogleModule/youtube-config.glade:
 	* conduit/modules/GoogleModule/Makefile.am:
