@@ -38,7 +38,6 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
-        self.need_configuration(True)
 
         self.boxapi = None
         self.user_id = None
@@ -295,12 +294,9 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
             # get the values from the widgets
             self.foldername = foldername.get_text()
 
-            #user must enter their username
-            self.set_configured(self.is_configured())
-
         dlg.destroy()
 
-    def is_configured (self):
+    def is_configured (self, isSource, isTwoWay):
         return len (self.foldername) > 0
 
     def get_configuration(self):

@@ -51,10 +51,6 @@ class DataProviderBase(gobject.GObject):
         self.icon = None
         self.status = STATUS_NONE
 
-        #track the state of widget configuration
-        self.need_configuration(False)
-        self.set_configured(False)
-
     def __emit_status_changed(self):
         """
         Emits a 'status-changed' signal to the main loop.
@@ -202,20 +198,6 @@ class DataProviderBase(gobject.GObject):
         else:
             return False
 
-    def need_configuration(self, need):
-        """
-        Derived classes should call this function in their constructor if they
-        require configuration before they can operate
-        """
-        self.needConfiguration = need
-
-    def set_configured(self, configured):
-        """
-        Sets if the widget has been configured or not. Derived classes may call 
-        this for example, to ensure the user enters the configure menu
-        """
-        self.isConfigured = configured
-            
     def configure(self, window):
         """
         Show a configuration box for configuring the dataprovider instance.
@@ -225,13 +207,14 @@ class DataProviderBase(gobject.GObject):
         @type window: {gtk.Window}
         """
         log.debug("configure() not overridden by derived class %s" % self._name_)
-        self.set_configured(True)
 
-    def is_configured(self):
+    def is_configured(self, isSource, isTwoWay):
         """
         Checks if the dp has been configured or not (and if it needs to be)
+        @param isSource: True if the dataprovider is in the source position
+        @param isTwoway: True if the dataprovider is a member of a two-way sync
         """
-        return (not self.needConfiguration) or self.isConfigured
+        return True
         
     def get_configuration(self):
         """

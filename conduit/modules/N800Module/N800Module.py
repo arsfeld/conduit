@@ -66,7 +66,6 @@ class N800Base(FileDataProvider.FolderTwoWay):
                             False,
                             False
                             )
-        self.need_configuration(False)
         self.mount = mount
         self.udi = udi
         self.encodings =  {}
@@ -132,10 +131,6 @@ class N800FolderTwoWay(N800Base):
                     folder=Vfs.uri_join(args[0],self.DEFAULT_FOLDER)
                     )
                     
-    def configure(self, window):
-        #No need to configure encodings for Files
-        self.set_configured(True)                    
-
 class N800AudioTwoWay(N800Base):
     """
     TwoWay dataprovider for synchronizing a folder on a N800

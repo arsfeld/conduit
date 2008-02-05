@@ -32,9 +32,6 @@ class ImageSink(DataProvider.DataSink):
 
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
-        self.need_configuration(True)
-        
-        self.username = ""
 
     def initialize(self):
         return True
@@ -154,9 +151,6 @@ class ImageSink(DataProvider.DataSink):
     def delete(self, LUID):
         pass
  
-    def is_configured (self):
-        return False
-        
     def get_input_conversion_args(self):
         args = {
                 "formats" :             ','.join(self._get_photo_formats()),
@@ -167,7 +161,6 @@ class ImageSink(DataProvider.DataSink):
         
     def set_configuration(self, config):
         DataProvider.DataSink.set_configuration(self, config)
-        self.set_configured(self.is_configured())
     
 class ImageTwoWay(DataProvider.DataSource, ImageSink):
     """

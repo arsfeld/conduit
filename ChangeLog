@@ -1,3 +1,27 @@
+2008-02-06  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Synchronization.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/dataproviders/File.py:
+	* conduit/dataproviders/Image.py:
+	* conduit/modules/BackpackModule/BackpackModule.py:
+	* conduit/modules/BansheeModule/BansheeModule.py:
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/FileModule/FileModule.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FspotModule/FspotModule.py:
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/N800Module/N800Module.py:
+	* conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py:
+	* conduit/modules/RhythmboxModule/RhythmboxModule.py:
+	* conduit/modules/ShutterflyModule/ShutterflyModule.py:
+	* conduit/modules/SmugMugModule/SmugMugModule.py:
+	* conduit/modules/TestModule.py: Change is_configuration prototype
+	to accept a isSource and a isTwoWay argument. This gives dataproviders
+	enough information to make their configuration dependant on whether they
+	are source/sink or one/two-way. Fixes bug #510091
+
 2008-02-05  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GmailModule/GmailModule.py: Share some more code with

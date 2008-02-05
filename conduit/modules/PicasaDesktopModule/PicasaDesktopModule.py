@@ -38,7 +38,6 @@ class PicasaDesktopSource(DataProvider.DataSource):
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-        self.need_configuration(False)
         self.albums = []
         self.enabledAlbums = []
         
@@ -199,8 +198,6 @@ class PicasaDesktopSource(DataProvider.DataSource):
         dlg = tree.get_widget("PicasaDesktopConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self.set_configured(True)
         dlg.destroy()
         
         print self.enabledAlbums

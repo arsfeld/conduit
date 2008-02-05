@@ -43,7 +43,6 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-        self.need_configuration(True)
 
         self.enabledTags = []
         self.photos = []
@@ -52,7 +51,6 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.tag_remote = None
 
         self._connect_to_fspot()
-
         self._hookup_signal_handlers()
 
     def _connect_to_fspot(self):
@@ -242,22 +240,15 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         dlg.set_transient_for(window)
 
         response = dlg.run()
-        if response == True:
-            self.set_configured(True)
         dlg.destroy()
 
     def set_configuration(self, config):
         self.enabledTags = []
         for tag in config.get("tags", []):
             self.enabledTags.append(str(tag))
-
-        self.set_configured(True)
             
     def get_configuration(self):
         return {"tags": self.enabledTags}
-
-    def is_configured (self):
-        return True
 
     def get_UID(self):
         return Utils.get_user_string()
@@ -285,8 +276,6 @@ class FspotSource(DataProvider.DataSource):
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-
-        self.need_configuration(True)
         #Settings
         self.enabledTags = []
         self.photos = []
@@ -402,8 +391,6 @@ class FspotSource(DataProvider.DataSource):
         dlg = tree.get_widget("FspotConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self.set_configured(True)
         dlg.destroy()
 
     def set_configuration(self, config):
@@ -411,8 +398,6 @@ class FspotSource(DataProvider.DataSource):
         for tag in config.get("tags", []):
             self.enabledTags.append(int(tag))
 
-        self.set_configured(True)
-            
     def get_configuration(self):
         strTags = []
         for tag in self.enabledTags:

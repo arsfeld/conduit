@@ -30,7 +30,6 @@ class ShutterflySink(Image.ImageSink):
 	
 	def __init__(self, *args):
 		Image.ImageSink.__init__(self)
-		self.need_configuration(True)
 		
 		self.username = ""
 		self.password = ""
@@ -131,8 +130,6 @@ class ShutterflySink(Image.ImageSink):
 			self.username = username.get_text()
 			self.password = password.get_text()
 			self.album = album.get_text()
-			
-			self.set_configured(self.is_configured())
 		
 		dlg.destroy()
 	
@@ -143,7 +140,7 @@ class ShutterflySink(Image.ImageSink):
 			"album" : self.album
 			}
 	
-	def is_configured(self):
+	def is_configured(self, isSource, isTwoWay):
 		if len(self.username) < 1:
 			return False
 		

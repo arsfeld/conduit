@@ -30,6 +30,13 @@ class BackpackBase(DataProvider.DataProviderBase):
 
     def initialize(self):
         return True
+
+    def is_configured (self, isSource, isTwoWay):
+        if len(self.username) < 1:
+            return False
+        if len(self.apikey) < 1:
+            return False
+        return True
     
     def refresh(self):
         if self.loggedIn == False:
@@ -55,8 +62,7 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
         BackpackBase.__init__(self, *args)
-        self.need_configuration(True)
-        
+
         self.storeInPage = "Conduit"
         self.pageID = None
         #there is no way to pragmatically see if a note exists so we list them
@@ -114,11 +120,6 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
             self.storeInPage = pagenameEntry.get_text()
             if apikeyEntry.get_text() != self.apikey:
                 self.apikey = apikeyEntry.get_text()
-
-            #user must enter their username
-            if len(self.username) > 0 and len(self.apikey) > 0:
-                self.set_configured(True)
-
         dlg.destroy()
 
     def get(self, LUID):
@@ -169,11 +170,6 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
 
     def get_UID(self):
         return "%s:%s" % (self.username,self.storeInPage)
-
-    def set_configuration(self, config):
-        DataProvider.DataSink.set_configuration(self, config)
-        if len(self.username) > 0 and len(self.apikey) > 0:
-            self.set_configured(True)
 
     def get_configuration(self):
         return {

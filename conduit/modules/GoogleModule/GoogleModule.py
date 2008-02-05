@@ -356,8 +356,6 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         DataProvider.TwoWay.__init__(self)
         self.google = GoogleConnection()
         self.events = dict()
-        self.need_configuration(True)
-        self.set_configured(False)
         
     def _loadCalendars(self, widget, tree):
         import gtk, gtk.gdk
@@ -423,7 +421,6 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         response = Utils.run_dialog(dlg, window)
         if response == True:
             self.google.SetCalendar( store.get_value(sourceComboBox.get_active_iter(), 1) )
-            self.set_configured(True)
         dlg.destroy()  
         
     def refresh(self):
@@ -450,7 +447,14 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         conduitEvent.set_open_URI(LUID)
         conduitEvent.set_mtime(event.GetMTime())
         conduitEvent.set_UID(event.GetUID())
-        return conduitEvent          
+        return conduitEvent
+        
+    def is_configured (self, isSource, isTwoWay):
+        if len(self.google.GetUsername()) < 1:
+            return False
+        if len(self.google.GetPassword()) < 1:
+            return False
+        return True   
                    
     def _createEvent(self, conduitEvent):
         googleEvent = GoogleEvent.FromICalFormat( conduitEvent.get_ical_string() )
@@ -501,7 +505,6 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
         if self.google is not None:
             config['username'] = self.google.GetUsername()
             config['password'] = self.google.GetPassword()
-        config['isConfigured'] = self.isConfigured
         return config
             
     def set_configuration(self, config):
@@ -511,7 +514,6 @@ class GoogleCalendarTwoWay(DataProvider.TwoWay):
             self.google.SetPassword(config['password'])
         if ('selectedCalendarName' in config) and ('selectedCalendarURI' in config):
             self.google.SetCalendar( GoogleCalendar(config['selectedCalendarName'], config['selectedCalendarURI']) )
-        self.set_configured( config['isConfigured'] )
          
     def get_UID(self):
         return self.google.GetUsername()
@@ -524,7 +526,6 @@ class PicasaTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-        self.need_configuration(True)
         
         self.username = ""
         self.password = ""
@@ -651,18 +652,12 @@ class PicasaTwoWay(Image.ImageTwoWay):
         self._resize_combobox_build(resizecombobox, self.imageSize)
         
         dlg = widget.get_widget("PicasaTwoWayConfigDialog")
-        
         response = Utils.run_dialog (dlg, window)
-
         if response == True:
             self.username = username.get_text()
             self.password = password.get_text()
             self.album = album.get_text()
-
             self.imageSize = self._resize_combobox_get_active(resizecombobox)
-
-            self.set_configured(self.is_configured())
-
         dlg.destroy()    
         
     def get_configuration(self):
@@ -673,16 +668,13 @@ class PicasaTwoWay(Image.ImageTwoWay):
             "album" : self.album
             }
             
-    def is_configured (self):
+    def is_configured (self, isSource, isTwoWay):
         if len(self.username) < 1:
             return False
-        
         if len(self.password) < 1:
             return False
-            
         if len(self.album) < 1:
             return False
-            
         return True
 
     def get_UID(self):

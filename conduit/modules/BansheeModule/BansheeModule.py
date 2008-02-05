@@ -62,6 +62,9 @@ class BansheeSource(DataProvider.DataSource):
 
     def initialize(self):
         return True
+
+    def is_configured(self, isSource, isTwoWay):
+        return len(self.playlists) > 0
         
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -147,15 +150,12 @@ class BansheeSource(DataProvider.DataSource):
         dlg = tree.get_widget("BansheeConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self.set_configured(True)
         dlg.destroy()
 
     def set_configuration(self, config):
         self.playlists = []
         for playlist in config.get("playlists", []):
             self.playlists.append(playlist)
-        self.set_configured(True)
             
     def get_configuration(self):
         return { "playlists" : self.playlists }

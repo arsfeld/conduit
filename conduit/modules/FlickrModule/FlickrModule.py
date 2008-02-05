@@ -70,8 +70,6 @@ class FlickrTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-        self.need_configuration(True)
-        
         self.fapi = None
         self.token = None
         self.photoSetName = ""
@@ -267,13 +265,9 @@ class FlickrTwoWay(Image.ImageTwoWay):
             self.showPublic = publicCb.get_active()
             self.username = username.get_text()
             self.imageSize = self._resize_combobox_get_active(resizecombobox)
-
-            #user must enter their username
-            self.set_configured(self.is_configured())
-
         dlg.destroy()    
        
-    def is_configured (self):
+    def is_configured (self, isSource, isTwoWay):
         return len (self.username) > 0
         
     def get_configuration(self):

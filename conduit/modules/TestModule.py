@@ -418,7 +418,6 @@ class TestFolderTwoWay(FileDataProvider.FolderTwoWay):
                             includeHidden=False,
                             compareIgnoreMtime=False
                             )
-        self.need_configuration(False)
 
     def get_UID(self):
         return self.folder
@@ -607,13 +606,16 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
-        self.need_configuration(True)
+        self.isConfigured = False
         
     def configure(self, window):
-        self.set_configured(True)
+        self.isConfigured = True
 
     def set_configuration(self, config):
-        self.set_configured(True)
+        self.isConfigured = True
+
+    def is_configured(self, isSource, isTwoWay):
+        return self.isConfigured
 
 class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
 

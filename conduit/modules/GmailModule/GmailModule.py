@@ -29,11 +29,17 @@ class GmailBase(DataProvider.DataProviderBase):
     def __init__(self, *args):
         self.username = ""
         self.password = ""
-
         self.loggedIn = False
         self.ga = None
     
     def initialize(self):
+        return True
+
+    def is_configured (self, isSource, isTwoWay):
+        if len(self.username) < 1:
+            return False
+        if len(self.password) < 1:
+            return False
         return True
 
     def refresh(self):
@@ -77,8 +83,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
     def __init__(self, *args):
         GmailBase.__init__(self, *args)
         DataProvider.TwoWay.__init__(self)
-        self.need_configuration(True)
-        
+
         #What emails should the source return??
         self.getAllEmail = False
         self.getUnreadEmail = False
@@ -175,7 +180,6 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         
         response = Utils.run_dialog (dlg, window)
         if response == True:
-            self.set_configured(True)
             if searchAllEmailsCb.get_active():
                 self.getAllEmail = True
                 self.getUnreadEmail = False

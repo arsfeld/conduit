@@ -32,8 +32,6 @@ class SmugMugTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-        self.need_configuration(True)
-        
         self.password = ""
         self.album = ""
         self.imageSize = "None"
@@ -134,8 +132,6 @@ class SmugMugTwoWay(Image.ImageTwoWay):
             self.password = password.get_text()
             self.album = album.get_text()
             self.imageSize = self._resize_combobox_get_active(resizecombobox)
-            self.set_configured(self.is_configured())
-
         dlg.destroy()    
         
     def get_configuration(self):
@@ -146,7 +142,7 @@ class SmugMugTwoWay(Image.ImageTwoWay):
             "album" : self.album
             }
             
-    def is_configured (self):
+    def is_configured (self, isSource, isTwoWay):
         if len(self.username) < 1:
             return False
         

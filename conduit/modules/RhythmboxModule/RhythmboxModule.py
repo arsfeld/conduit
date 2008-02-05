@@ -142,8 +142,6 @@ class RhythmboxSource(DataProvider.DataSource):
         dlg = tree.get_widget("RBConfigDialog")
 
         response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self.set_configured(True)
         dlg.destroy()
 
     def refresh(self):

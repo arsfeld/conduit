@@ -618,13 +618,17 @@ class SyncWorker(_ThreadedWorker):
 
                 #Check dps have been configured
                 if self.state is self.CONFIGURE_STATE:
-                    if not self.source.module.is_configured():
+                    if not self.source.module.is_configured(
+                                                    isSource=True,
+                                                    isTwoWay=self.cond.is_two_way()):
                         self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
                         #Cannot continue if source not configured
                         raise Exceptions.StopSync(self.state)
         
                     for sink in self.sinks:
-                        if not sink.module.is_configured():
+                        if not sink.module.is_configured(
+                                                    isSource=False,
+                                                    isTwoWay=self.cond.is_two_way()):
                             sinkDidntConfigureOK[sink] = True
                             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED
                     #Need to have at least one successfully configured sink
@@ -767,7 +771,9 @@ class RefreshDataProviderWorker(_ThreadedWorker):
             log.debug("Refresh %s beginning" % self)
             self.cond.emit("sync-started")
 
-            if not self.dataproviderWrapper.module.is_configured():
+            if not self.dataproviderWrapper.module.is_configured(
+                                                isSource=self.cond.get_dataprovider_position(self.dataproviderWrapper)[0]==0,
+                                                isTwoWay=self.cond.is_two_way()):
                 self.dataproviderWrapper.module.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
                 #Cannot continue if source not configured
                 raise Exceptions.StopSync(self.state)

@@ -165,8 +165,6 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def __init__(self, folder, folderGroupName, includeHidden, compareIgnoreMtime):
         DataProvider.TwoWay.__init__(self)
-        self.need_configuration(True)
-
         self.folder = folder
         self.folderGroupName = folderGroupName
         self.includeHidden = includeHidden
@@ -176,6 +174,9 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def initialize(self):
         return True
+
+    def is_configured(self, isSource, isTwoWay):
+        return Vfs.uri_exists(self.folder)
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -260,7 +261,6 @@ class FolderTwoWay(DataProvider.TwoWay):
         f = File.File(URI=LUID)
         if f.exists() and f.is_directory():
             self.folder = f._get_text_uri()
-            self.set_configured(True)
             return True
         return False
 

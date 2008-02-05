@@ -73,8 +73,6 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
                 FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME
                 )
         AutoSync.AutoSync.__init__(self)
-        self.need_configuration(True)
-
         self._monitor_folder_id = None
 
     def __del__(self):
@@ -87,7 +85,6 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         import FileConfiguration
         f = FileConfiguration._FolderTwoWayConfigurator(window, self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime)
         self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime = f.show_dialog()
-        self.set_configured(True)
         self._monitor_folder()
         
     def set_configuration(self, config):
@@ -95,8 +92,6 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
         self.includeHidden = config.get("includeHidden", FolderTwoWay.DEFAULT_HIDDEN)
         self.compareIgnoreMtime = config.get("compareIgnoreMtime", FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME)
-
-        self.set_configured(True)
         self._monitor_folder()
 
     def get_configuration(self):
