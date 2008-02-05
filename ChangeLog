@@ -1,5 +1,13 @@
 2008-02-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GmailModule/GmailModule.py: Share some more code with
+	the GmailEmailTwoWay dataprovider
+	
+	* test/python-tests/TestDataProviderGmail.py:
+	* test/python-tests/common.py: Test GmailContactSource
+
+2008-02-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/Contact.py:
 	* conduit/modules/GmailModule/GmailModule.py:
 	* test/python-tests/TestCoreContact.py: Add a function to parse a vcf file

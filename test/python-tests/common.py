@@ -373,13 +373,14 @@ class SimpleTest(object):
         the data to get
         """
         #Test put()
-        try:
-            rid = self.sink.module.put(data, True)
-            uid = rid.get_UID()
-            ok("Put a %s (%s) " % (name,rid), True)
-        except Exception, err:
-            traceback.print_exc()        
-            ok("Put a %s (%s)" % (name,err), False)
+        if data:
+            try:
+                rid = self.sink.module.put(data, True)
+                uid = rid.get_UID()
+                ok("Put a %s (%s) " % (name,rid), True)
+            except Exception, err:
+                traceback.print_exc()        
+                ok("Put a %s (%s)" % (name,err), False)
             
         #Test get()
         if supportsGet:
@@ -400,12 +401,13 @@ class SimpleTest(object):
                 ok("Get %s (%s)" % (desc,err), False)
 
         #Test put() to replace
-        try:
-            rid = self.sink.module.put(data, True, uid)
-            ok("Update %s (%s)" % (name,rid), True)
-        except Exception, err:
-            traceback.print_exc()
-            ok("Update %s (%s)" % (name,err), False)
+        if data:
+            try:
+                rid = self.sink.module.put(data, True, uid)
+                ok("Update %s (%s)" % (name,rid), True)
+            except Exception, err:
+                traceback.print_exc()
+                ok("Update %s (%s)" % (name,err), False)
 
         #Test delete()
         if supportsDelete:

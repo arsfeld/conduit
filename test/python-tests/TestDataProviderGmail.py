@@ -36,6 +36,17 @@ test.do_dataprovider_tests(
         data=e,
         name="email"
         )
+        
+#Now test the contact source
+test = SimpleTest(sinkName="GmailContactSource")
+test.configure(sink=config)
+test.do_dataprovider_tests(
+        supportsGet=True,
+        supportsDelete=False,
+        safeLUID="john.stowers@gmail.com",
+        data=None,
+        name="contact"
+        )
 
 finished()
 

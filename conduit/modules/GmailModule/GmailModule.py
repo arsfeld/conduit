@@ -58,26 +58,12 @@ class GmailBase(DataProvider.DataProviderBase):
     def get_UID(self):
         return self.username
 
-    def _message_exists(self, msgid):
-        """
-        Utility function to check if a message exists. Does so by searching
-        the raw message contents for certain seemingly compulsory strings;
-        (taken from RFC 822)
-            1)  Received
-            2)  Date
-            4)  Subject
-        I do it this way because if the message is not found then gmail returns
-        a help message that may change in future. RFC822 wont change.
-        """
-        raw = self.ga.getRawMessage(msgid)
-        try:
-            raw.index("Received")
-            raw.index("Date")
-            raw.index("Subject")
-            return True
-        except ValueError:
-            return False
-            
+    def get_configuration(self):
+        return {
+            "username" : self.username,
+            "password" : self.password,
+            }
+
 class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
     _name_ = _("Gmail Emails")
@@ -287,16 +273,14 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         self.mails = None
 
     def get_configuration(self):
-        return {
-            "username" : self.username,
-            "password" : self.password,
-            "getAllEmail" : self.getAllEmail,
-            "getUnreadEmail" : self.getUnreadEmail,
-            "getWithLabel" : self.getWithLabel,
-            "getInFolder" : self.getInFolder
-            }            
-        
-     
+        conf = GmailBase.get_configuration(self)
+        conf.update({
+                "getAllEmail" : self.getAllEmail,
+                "getUnreadEmail" : self.getUnreadEmail,
+                "getWithLabel" : self.getWithLabel,
+                "getInFolder" : self.getInFolder})
+        return conf
+
 class GmailContactSource(GmailBase, DataProvider.DataSource):
 
     _name_ = _("Gmail Contacts")
@@ -367,10 +351,4 @@ class GmailContactSource(GmailBase, DataProvider.DataSource):
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
         dlg.destroy()
-
-    def get_configuration(self):
-        return {
-            "username" : self.username,
-            "password" : self.password,
-            }
 
