@@ -159,9 +159,6 @@ class ImageSink(DataProvider.DataSink):
                 }
         return args
         
-    def set_configuration(self, config):
-        DataProvider.DataSink.set_configuration(self, config)
-    
 class ImageTwoWay(DataProvider.DataSource, ImageSink):
     """
     Abstract Base Class for ImageTwoWay dataproviders

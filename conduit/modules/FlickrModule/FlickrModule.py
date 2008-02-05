@@ -72,6 +72,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         Image.ImageTwoWay.__init__(self)
         self.fapi = None
         self.token = None
+        self.username = ""
         self.photoSetName = ""
         self.showPublic = True
         self.photoSetId = None

@@ -526,12 +526,10 @@ class PicasaTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-        
         self.username = ""
         self.password = ""
         self.album = ""
         self.imageSize = "None"
-
         self.pws = gdata.photos.service.PhotosService()
         self.galbum = None
         self.gphoto_dict = None

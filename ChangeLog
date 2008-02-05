@@ -1,5 +1,14 @@
 2008-02-06  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/dataproviders/Image.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/ShutterflyModule/ShutterflyModule.py:
+	* conduit/modules/SmugMugModule/SmugMugModule.py: Add username property
+	back to relevant modules. The last commit broke it.
+
+2008-02-06  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Synchronization.py:
 	* conduit/dataproviders/DataProvider.py:
 	* conduit/dataproviders/File.py:

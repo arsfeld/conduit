@@ -32,6 +32,7 @@ class SmugMugTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
+        self.username = ""
         self.password = ""
         self.album = ""
         self.imageSize = "None"

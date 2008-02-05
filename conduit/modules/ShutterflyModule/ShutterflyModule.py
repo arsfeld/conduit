@@ -30,11 +30,9 @@ class ShutterflySink(Image.ImageSink):
 	
 	def __init__(self, *args):
 		Image.ImageSink.__init__(self)
-		
 		self.username = ""
 		self.password = ""
 		self.album = ""
-		
 		self.sapi = None
 		self.salbum = None
 		self.sphotos = None
@@ -143,13 +141,10 @@ class ShutterflySink(Image.ImageSink):
 	def is_configured(self, isSource, isTwoWay):
 		if len(self.username) < 1:
 			return False
-		
 		if len(self.password) < 1:
 			return False
-		
 		if len(self.album) < 1:
 			return False
-		
 		return True
 	
 	def get_UID(self):
