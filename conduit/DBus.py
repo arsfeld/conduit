@@ -300,11 +300,11 @@ class DataProviderDBusItem(DBusItem):
         self._print("IsPending")
         return self.dataprovider.module == None
         
-    @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='', out_signature='b')
-    def IsConfigured(self):
+    @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='bb', out_signature='b')
+    def IsConfigured(self, isSource, isTwoWay):
         self._print("IsConfigured")
         if self.dataprovider.module != None:
-            return self.dataprovider.module.is_configured()
+            return self.dataprovider.module.is_configured(isSource, isTwoWay)
         return False
 
     @dbus.service.method(DATAPROVIDER_DBUS_IFACE, in_signature='', out_signature='a{ss}')

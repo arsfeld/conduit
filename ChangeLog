@@ -1,3 +1,6 @@
+2008-02-06  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/DBus.py: fix dbus exposed IsConfigured method
+
 2008-02-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py:
