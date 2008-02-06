@@ -14,7 +14,7 @@ namespace Conduit {
 
 		IDictionary<string, string> GetInformation ();
 
-		bool IsConfigured ();
+		bool IsConfigured (bool isSource, bool isTwoWay);
 
 		bool IsPending ();
 
@@ -50,8 +50,8 @@ namespace Conduit {
 			return dbus_dataprovider.GetInformation (); 
 		}
 
-		public bool IsConfigured () {
-			return dbus_dataprovider.IsConfigured (); 
+		public bool IsConfigured (bool isSource, bool isTwoWay) {
+			return dbus_dataprovider.IsConfigured (isSource, isTwoWay); 
 		}
 
 		public bool IsPending () {

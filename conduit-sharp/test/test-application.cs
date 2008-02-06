@@ -11,7 +11,7 @@ public class Program {
 		foreach (KeyValuePair<string, string> keyPair in dp.GetInformation())
 			Console.WriteLine("{0} {1}", keyPair.Key, keyPair.Value);
 		
-		Console.WriteLine("Configured: {0}", dp.IsConfigured());
+		Console.WriteLine("Configured: {0}", dp.IsConfigured(true, true));
 		
 	}
 }
