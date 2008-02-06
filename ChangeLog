@@ -1,5 +1,10 @@
 2008-02-06  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Web.py: Implement a better approach to lazy importing 
+	gtkmozembed which fixes bug #512379.
+
+2008-02-06  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/common.py: Test is_configured() in all configure calls.
 
 2008-02-06  John Stowers  <john.stowers@gmail.com>

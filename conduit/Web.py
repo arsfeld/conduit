@@ -2,6 +2,7 @@
 Functions for dealing with web urls, generally used for
 logging into web sites for authorization
 """
+import sys
 import os
 import gobject
 import webbrowser
@@ -77,10 +78,10 @@ class _MozEmbedWebBrowser(_WebBrowser):
     def __init__(self):
         _WebBrowser.__init__(self)
 
-        #lazy import
-        try:
-            gtkmozembed
-        except NameError:
+        #lazy import and other hoops necessary because
+        #set_profile path must be the first call to gtkmozembed
+        #after it is imported
+        if 'gtkmozembed' not in sys.modules:
             import gtkmozembed
             global gtkmozembed
             gtkmozembed.set_profile_path(get_profile_subdir('mozilla'), 'default')
