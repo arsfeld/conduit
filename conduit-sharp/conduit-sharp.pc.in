@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+gapidir=${prefix}/share/gapi-2.0
+
+Name: conduit-sharp
+Description: conduit-sharp - Conduit C#/Mono Bindings
+Version: @VERSION@
+Libs: -r:${libdir}/mono/conduit-sharp/conduit-sharp.dll
+

@@ -1,0 +1,20 @@
+<Combine name="src" fileversion="2.0">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry build="True" name="src" configuration="Debug" />
+      <Entry build="True" name="test" configuration="Debug" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry build="True" name="src" configuration="Release" />
+      <Entry build="True" name="test" configuration="Release" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="test" single="True">
+    <Execute type="None" entry="src" />
+    <Execute type="None" entry="test" />
+  </StartMode>
+  <Entries>
+    <Entry filename="./src/src.mdp" />
+    <Entry filename="./test/test.mdp" />
+  </Entries>
+</Combine>
