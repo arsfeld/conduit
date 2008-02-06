@@ -1,5 +1,10 @@
 2008-02-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py: Fix PicasaTwoWay
+	set_configuration bug introduced in last commit
+
+2008-02-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py:
 	* test/python-tests/TestDataProviderGoogle.py: Cleanup GoogleModule.py to
 	match our coding convention and share more code in the GoogleBase

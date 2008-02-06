@@ -656,6 +656,11 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
             "imageSize" :   self.imageSize,
             "album"     :   self.album})
         return conf
+        
+    def set_configuration(self, config):
+        GoogleBase.set_configuration(self, config)
+        self.imageSize = config.get("imageSize","None")
+        self.album = config.get("album","")
             
     def is_configured (self, isSource, isTwoWay):
         if not GoogleBase.is_configured(self, isSource, isTwoWay):
