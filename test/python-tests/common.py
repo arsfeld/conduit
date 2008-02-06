@@ -341,13 +341,19 @@ class SimpleTest(object):
         if len(source) > 0:
             try:
                 self.source.module.set_configuration(source)
-                ok("Source configured", True)
+                ok("Source configured", 
+                        self.source.module.is_configured(
+                                            isSource=True,
+                                            isTwoWay=False))
             except:
                 ok("Source configured", False)
         if len(sink) > 0:
             try:
                 self.sink.module.set_configuration(sink)
-                ok("Sink configured", True)
+                ok("Sink configured",
+                        self.sink.module.is_configured(
+                                            isSource=False,
+                                            isTwoWay=False))
             except:
                 ok("Sink configured", False)
 
@@ -474,14 +480,20 @@ class SimpleSyncTest(SimpleTest):
         if len(source) > 0:
             try:
                 self.source.module.set_configuration(source)
-                ok("Source configured", True)
+                ok("Source configured",
+                        self.source.module.is_configured(
+                                            isSource=True,
+                                            isTwoWay=self.conduit.is_two_way()))
             except:
                 ok("Source configured", False)
         if len(sink) > 0:
             for i in xrange(0, len(self.conduit.datasinks)):
                 try:
                     self.get_sink(i).module.set_configuration(sink)
-                    ok("Sink %s configured" % i, True)
+                    ok("Sink %s configured" % i,
+                            self.get_sink(i).module.is_configured(
+                                            isSource=False,
+                                            isTwoWay=self.conduit.is_two_way()))
                 except:
                     ok("Sink %s configured" % i, False)
 
