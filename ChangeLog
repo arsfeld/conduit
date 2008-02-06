@@ -1,4 +1,11 @@
-2008-02-06  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-02-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/TestDataProviderGoogle.py: Cleanup GoogleModule.py to
+	match our coding convention and share more code in the GoogleBase
+	class. Fixes bug #514729
+
+2008-02-06  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/DBus.py: fix dbus exposed IsConfigured method
 
 2008-02-07  John Stowers  <john.stowers@gmail.com>

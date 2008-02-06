@@ -7,6 +7,7 @@ import conduit.Utils as Utils
 import random
 
 SAFE_CALENDAR_NAME="Conduit Project"
+SAFE_EVENT_UID="cee1p5i0ta73dfgjcn9l94allg@google.com"
 MAX_YOUTUBE_VIDEOS=5
 
 if not is_online():
@@ -25,8 +26,8 @@ google = test.get_sink().module
 
 #check we can get the calendar
 found = False
-for cal in google.google.Calendars():
-    if cal.GetName() == SAFE_CALENDAR_NAME:
+for cal in google._get_all_calendars():
+    if cal.get_name() == SAFE_CALENDAR_NAME:
         found = True
         break
         
@@ -52,7 +53,7 @@ event.set_from_ical_string(ics)
 test.do_dataprovider_tests(
         supportsGet=True,
         supportsDelete=False,
-        safeLUID=None,
+        safeLUID=SAFE_EVENT_UID,
         data=event,
         name="event"
         )
@@ -60,7 +61,7 @@ test.do_dataprovider_tests(
 #Now a very simple youtube test...
 test = SimpleTest(sourceName="YouTubeSource")
 config = {
-    "max"   :   MAX_YOUTUBE_VIDEOS
+    "max_downloads" :   MAX_YOUTUBE_VIDEOS
 }
 test.configure(source=config)
 youtube = test.get_source().module
