@@ -1,15 +1,10 @@
 #common sets up the conduit environment
 from common import *
 
-from conduit.Module import ModuleManager
-import conduit.Exceptions as Exceptions
-import conduit.datatypes.File as File
 import conduit.datatypes.Note as Note
 import conduit.Utils as Utils
 
 import random
-import datetime
-import traceback
 
 #setup the test
 test = SimpleTest(sinkName="TomboyNoteTwoWay")

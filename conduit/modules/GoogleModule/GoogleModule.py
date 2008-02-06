@@ -103,11 +103,11 @@ class GoogleCalendar(object):
         self.uri = uri
         self.name = name
     
+    @classmethod
     def FromGoogleFormat(cls, calendar):
         uri = calendar.id.text.split('/')[-1]
         name = calendar.title.text
         return cls(name, uri)
-    FromGoogleFormat = classmethod(FromGoogleFormat)
         
     def __eq__(self, other):
         if other is None:
@@ -202,6 +202,7 @@ class GoogleEvent(object):
         self.status = kwargs.get('status', None)
         self.editLink = kwargs.get('editLink', None)
 
+    @classmethod
     def FromICalFormat(cls, iCalString):
         args = dict()
         log.debug('Importing from iCal Event :\n'+iCalString)
@@ -226,8 +227,8 @@ class GoogleEvent(object):
         if 'dtend' in iCalEvent.contents:
             args['endTime'] = ConvertMadnessToDateTime(iCalEvent.dtend)
         return cls(**args)
-    FromICalFormat = classmethod(FromICalFormat)
 
+    @classmethod
     def FromGoogleFormat(cls, googleEvent):
         args = dict()
         log.debug('Importing from Google Event :\n'+str(googleEvent))
@@ -259,7 +260,6 @@ class GoogleEvent(object):
             ParseGoogleRecur(googleEvent.recurrence.text, args)
         args['editLink'] = googleEvent.GetEditLink().href
         return cls(**args)
-    FromGoogleFormat = classmethod(FromGoogleFormat)
   
     def GetUID(self):
         return self.uid

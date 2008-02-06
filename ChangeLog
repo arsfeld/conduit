@@ -1,3 +1,11 @@
+2008-02-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/TestDataProviderTomboy.py: Minor code cleanups
+	
+	* test/python-tests/TestDataProviderGoogle.py: Add test for the
+	GoogleCalendar and Youtube dataproviders
+
 2008-02-06  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Web.py: Implement a better approach to lazy importing 
