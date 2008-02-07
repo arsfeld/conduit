@@ -1,3 +1,7 @@
+2008-02-07  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+	* conduit/data/conduit.glade: Fix #512540 by making the Conflict
+	Preferences a bit better
+
 2008-02-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py: Fix PicasaTwoWay
