@@ -1,6 +1,12 @@
+2008-02-08  John Stowers  <john.stowers@gmail.com>
+
+	* doc/ExampleModule.py: Make the example dataprovider twoway and 
+	more exemplary and remove the live.gnome.org xmlrpc business because
+	thats broken with the new moinmoin version anyway.
+
 2008-02-07  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
-	* conduit/data/conduit.glade: Fix #512540 by making the Conflict
-	Preferences a bit better
+	* conduit/data/conduit.glade: Make the Conflict	Preferences a bit 
+	better.	Fixes bug #512540
 
 2008-02-07  John Stowers  <john.stowers@gmail.com>
 

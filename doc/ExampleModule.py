@@ -1,7 +1,9 @@
 """
 An Example DataSource and DataType implementation.
 """
-import xmlrpclib
+import random
+import logging
+log = logging.getLogger("modules.Example")
 
 import conduit
 import conduit.Exceptions as Exceptions
@@ -10,48 +12,69 @@ import conduit.datatypes.DataType as DataType
 import conduit.dataproviders.DataProvider as DataProvider
 
 MODULES = {
-    "MoinMoinDataSource" :  { "type": "dataprovider" },
-    "WikiPageConverter" :   { "type": "converter" }
+    "ExampleDataProviderTwoWay" :   { "type": "dataprovider" },
+    "ExampleConverter"          :   { "type": "converter" }
 }
 
-class MoinMoinDataSource(DataProvider.DataSource):
+class ExampleDataProviderTwoWay(DataProvider.TwoWay):
     """
-    This datasource fetches pages from the GNOME wiki.
-    DataSources are presumed to be one-way, that is they are a source
-    of data and should implement the get() and get_num_items() methods
-
-    @ivar self.pages: A array of page names
-    @type self.pages: C{string}[]
+    An example dataprovider demonstrating how to partition
+    funtionality in such a way
     """
 
-    WIKI_ADDRESS = "http://live.gnome.org/"
-
-    _name_ = "GNOME Wiki"
-    _description_ = "Get Pages from the GNOME Wiki"
-    _category_ = conduit.dataproviders.CATEGORY_FILES
-    _module_type_ = "source"
-    _in_type_ = "wikipage"
-    _out_type_ = "wikipage"
+    _name_ = "Example Dataprovider"
+    _description_ = "Demonstrates a Twoway Dataprovider"
+    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _module_type_ = "twoway"
+    _in_type_ = "exampledata"
+    _out_type_ = "exampledata"
     _icon_ = "applications-internet"
+
+    DEFAULT_FOO_VALUE = 42
 
     def __init__(self):
         """
-        A DataSource constructor should call the base constructor with 
-        three arguments
-         1. The name of the datasource
-         2. A short description
-         3. An icon name
-        The name and description are typically the same values as specified
-        in the MODULES dict at the top of the file
+        Constructor should call the base constructor and initialize
+        all variables that are restored from configuration
         """
-        DataProvider.DataSource.__init__(self)
+        DataProvider.TwoWay.__init__(self)
+        self.data = []
+        self.foo = 0
 
-        conduit.log("Hello World!")
-        
-        #class specific
-        self.srcwiki = None
-        self.pages = []
-        
+    def _data_exists(self, LUID):
+        """
+        @returns: True if data at the LUID exists
+        """
+        return random.randint(0,1)
+
+    def _get_data(self, LUID):
+        """
+        @returns: A ExampleDataType with the specified LUID
+        """
+        data = ExampleDataType(
+                        uri=LUID,
+                        data=self.foo*random.randint(1,100)
+                        )
+        return data
+
+    def _put_data(self, data):
+        """
+        @returns: Rid
+        """
+        data = ExampleDataType(
+                        uri=random.randint(1,100),
+                        data=self.foo*random.randint(1,100)
+                        )
+        return data.get_rid()
+
+    def _replace_data(self, LUID, data):
+        """
+        Some dataproviders assign a new LUID when data is replaced. This
+        is the purpose of having replace in a different function to _put
+        """
+        data.set_UID(random.randint(1,100))
+        return data.get_rid()
+
     def configure(self, window):
         """
         Uses the L{conduit.DataProvider.DataProviderSimpleConfigurator} class
@@ -68,18 +91,15 @@ class MoinMoinDataSource(DataProvider.DataSource):
         import gtk
         import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
         
-        def set_pages(param):
-            self.pages = param.split(',')
+        def set_foo(param):
+            self.foo = int(param)
         
-        #Make the list into a comma seperated string for display
-        pageString = ",".join(self.pages)
-        #Define the items in the configure dialogue
         items = [
                     {
-                    "Name" : "Page Name to Synchronize:",
+                    "Name" : "Value of Foo:",
                     "Widget" : gtk.Entry,
-                    "Callback" : set_pages,
-                    "InitialValue" : pageString
+                    "Callback" : set_foo,
+                    "InitialValue" : str(self.foo)
                     }                    
                 ]
         #We just use a simple configuration dialog
@@ -90,31 +110,22 @@ class MoinMoinDataSource(DataProvider.DataSource):
     def refresh(self):
         """
         The refresh method should do whatever is needed to ensure that a 
-        subseuent call to get_num_items returns the correct result.
+        subseqent call to get_all returns the correct result.
 
         The refresh method is always called before the sync step. DataSources 
-        should always call the base classes refresh() method
+        should always call the base classes refresh() method.
         """
-        DataProvider.DataSource.refresh(self)
-        if self.srcwiki is None:
-            try:
-                #use_datetime tells xmlrpc to return python datetime objects
-                #for the page modification date
-                self.srcwiki = xmlrpclib.ServerProxy(
-                                            uri="http://live.gnome.org/?action=xmlrpc2",
-                                            use_datetime=True
-                                            )
-            except:
-                raise Exceptions.RefreshError
+        DataProvider.TwoWay.refresh(self)
+        self.data = [str(random.randint(1,100)) for i in range(10)]
 
     def get_all(self):
         """
         Returns the LUIDs of all items to synchronize.        
         DataSources should always call the base classes get_all() method
+        @return: A list of string LUIDs
         """
-        DataProvider.DataSource.get_all(self)
-        #the LUID for the page is its full url    
-        return [MoinMoinDataSource.WIKI_ADDRESS+p for p in self.pages]
+        DataProvider.TwoWay.get_all(self)
+        return self.data
             
     def get(self, LUID):
         """
@@ -122,29 +133,46 @@ class MoinMoinDataSource(DataProvider.DataSource):
         @param LUID: A LUID which uniquely represents data to return
         @type LUID: C{str}
         """
-        DataProvider.DataSource.get(self, LUID)
-
-        #recover the page name from the full LUID string
-        pagename = LUID.replace(MoinMoinDataSource.WIKI_ADDRESS,"")
-
-        #get the page meta info, name, modified, etc
-        pageinfo = self.srcwiki.getPageInfo(pagename)
-
-        #Make a new page data type
-        page = WikiPageDataType(
-                            uri=LUID,
-                            name=pageinfo["name"],
-                            modified=pageinfo["lastModified"],
-                            contents=self.srcwiki.getPage(pagename)
-                            )
-
+        DataProvider.TwoWay.get(self, LUID)
+        data = self._get_data(LUID)
         #datatypes can be shared between modules. For this reason it is
-        #always good to explicity set parameters like the LUID
-        #even though in this case (we are the only one using the wikipage datatype)
-        #they are set in the constructor of the dataype itself
-        page.set_UID(LUID)
-        page.set_open_URI(LUID)
-        return page
+        #necessary tp explicity set parameters like the LUID
+        data.set_UID(LUID)
+        data.set_open_URI("file:///home/")
+        return data
+
+    def put(self, data, overwrite, LUID):
+        """
+        @returns: The Rid of the page at location LUID
+        """
+        DataProvider.TwoWay.put(self, data, overwrite, LUID)
+        #If LUID is None, then we have once-upon-a-time uploaded this data
+        if LUID != None:
+            #Check if the remote data exists (i.e. has it been deleted)
+            if self._data_exists(LUID):
+                #The remote page exists
+                if overwrite == False:
+                    #Only replace the data if it is newer than the remote one
+                    oldData = self._get_data(LUID)
+                    comp = data.compare(oldData)
+                    if comp == conduit.datatypes.COMPARISON_NEWER:
+                        return self._replace_data(LUID, data)
+                    elif comp == conduit.datatypes.COMPARISON_EQUAL:
+                        #We are the same, so return either rid
+                        return oldData.get_rid()
+                    else:
+                        #If we are older that the remote page, or if the two could not
+                        #be compared, then we must ask the user what to do via a conflict
+                        raise Exceptions.SynchronizeConflictError(comp, data, oldData)
+
+        #If we get here then the data is new
+        return self._put_data(data)
+
+    def delete(self, LUID):
+        """
+        Not all dataproviders support delete
+        """
+        DataProvider.TwoWay.delete(self, LUID)
             
     def get_configuration(self):
         """
@@ -155,73 +183,66 @@ class MoinMoinDataSource(DataProvider.DataSource):
         internal variable that should be restored when the user saves
         their settings. 
         """
-        return {"pages" : self.pages}
+        return {"foo" : self.foo}
+
+    def set_configuration(self, config):
+        """
+        If you override this function then you are responsible for 
+        checking the sanity of values in the config dict, including setting
+        any instance variables to sane defaults
+        """
+        self.foo = config.get("foo",ExampleDataProviderTwoWay.DEFAULT_FOO_VALUE)
+
+    def is_configured(self, isSource, isTwoWay):
+        """
+        @returns: True if this instance has been correctly configured, and data
+        can be retrieved/stored into it
+        """
+        return self.foo != 0
 
     def get_UID(self):
         """
         @returns: A string uniquely representing this dataprovider.
         """
-        return MoinMoinDataSource.WIKI_ADDRESS
+        return "Example UID %s" % self.foo
         
-class WikiPageDataType(DataType.DataType):
+class ExampleDataType(DataType.DataType):
     """
     A sample L{conduit.DataType.DataType} used to represent a page from
     the GNOME wiki.
 
     DataSources should try to used the supplied types (Note, File, etc) but
     if they must define their own then this class shows how. 
-
-    @ivar self.contents: The raw HTML page contents
-    @type self.contents: C{string}
-    @ivar self.name: The page name
-    @type self.name: C{string}
-    @ivar self.modified: The date the page was modified
-    @type self.modified: C{string}
     """
     
-    _name_ = "wikipage"
+    _name_ = "exampledata"
 
     def __init__(self, uri, **kwargs):
         """
-        Derived DataTypes should always call the base constructor 
-        with a string represting the name of the new datatype.
-
-        This name shoud should correspond to that specified in the MODULES dict
+        It is recommended to have compulsory parameters and then
+        kwargs as arguments to the constructor
         """
         DataType.DataType.__init__(self)
-                            
-        #Instance variables
-        self.contents = kwargs.get("contents","")
-        self.name = kwargs.get("name", "")
-        self.modified = kwargs.get("modified",None)
-
-        #In the constructor of datatypes remember to call the following
-        #base constructor functions. This allows certain information to be
-        #preserved through conversions and comparison
-        self.set_open_URI(uri)
-        self.set_mtime(self.modified)
-
-    def get_wikipage_string(self):
-        """
-        Returns the raw HTML for the page
-        """
-        return self.contents
-
-    def get_wikipage_name(self):
-        """
-        Returns the page name
-        """
-        return self.name
+        self.data = kwargs.get("data",0)
 
     def __str__(self):
         """
-        The result of str may be shown to the user. It should represent a
-        small descriptive snippet of the Datatype. It does not necessarily need
-        to be the entire raw textual representation of the data
+        The result of str may be shown to the user if there is a conflict.
+        It should represent a small descriptive snippet of the Datatype.
         """
-        return self.name
-        
-class WikiPageConverter:
+        return self.get_string()
+
+    def get_hash(self):
+        """
+        The hash should be able to detect if the data has been modified, irrespective
+        of the mtime - i.e. use the page contents directly
+        """
+        return hash(self.data)
+
+    def get_string(self):
+        return "string %d" % self.data
+
+class ExampleConverter:
     """
     An example showing how to convert data from one type to another
     
@@ -229,12 +250,6 @@ class WikiPageConverter:
     converter (methods) for it, because it is likely that other DataSources, 
     such as the ones that ship with conduit will not know how to deal with
     the new DataType.
-
-    The absolute minimum is to define a conversion to text as this will make
-    one way sync with most datasinks possible. This conversion will generally
-    lose information so in general it is better to define many conversion
-    functions so that as much information is preserved when the data is
-    passed to the sunsequent DataSink
 
     @ivar self.conversions: A dictionary mapping conversions to functions
     which perform the conversion
@@ -251,18 +266,16 @@ class WikiPageConverter:
                                 }
         """
         self.conversions =  {    
-                            "wikipage,file"   : self.wikipage_to_file
+                            "exampledata,file"   : self.exampledata_to_file
                             }
                             
 
-    def wikipage_to_file(self, page, **kwargs):
+    def exampledata_to_file(self, data, **kwargs):
         """
-        The conversion function for converting wikipages to raw text. Does
-        not do anythong particuarly smart.
+        Converts exampledata to a file containing the text
         """
         f = Utils.new_tempfile(
-                        contents=page.get_wikipage_string()
+                        contents=data.get_string()
                         )
-        f.force_new_filename(page.get_wikipage_name())
         return f
 
