@@ -1,4 +1,8 @@
 2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/GoogleModule/youtube-config.glade: Switch position
+	of the ok and cancel button.
+
+2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/modules/GoogleModule/GoogleModule.py: Youtube changed
 	apparently changed for data format, use a new trick to get the flv
 	files. Fixes #514589.
