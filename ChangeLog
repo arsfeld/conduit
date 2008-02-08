@@ -1,3 +1,9 @@
+2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/FlickrModule/flickrapi/__init__.py:
+	* conduit/modules/FlickrModule/flickrapi/reportinghttp.py:
+	* conduit/modules/FlickrModule/flickrapi/multi-username.patch: Remove
+	the code that changes the configuration of our logger.  Fixes #515270.
+
 2008-02-08  John Stowers  <john.stowers@gmail.com>
 
 	* doc/ExampleModule.py: Make the example dataprovider twoway and 

@@ -50,9 +50,7 @@ from flickrapi.xmlnode import XMLNode
 from flickrapi.multipart import Part, Multipart, FilePart
 from flickrapi import reportinghttp
 
-logging.basicConfig()
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
 
 ########################################################################
 # Exceptions

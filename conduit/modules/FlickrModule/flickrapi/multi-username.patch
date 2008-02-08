@@ -1,5 +1,5 @@
---- conduit/modules/FlickrModule/flickrapi/__init__.py	2007-12-29 01:33:08.000000000 +1300
-+++ conduit/modules/FlickrModule/flickrapi/__init__.py	2008-01-18 09:12:24.000000000 +1300
+--- conduit/modules/FlickrModule/flickrapi/__init__.py	2008-02-08 21:47:20.000000000 +0100
++++ conduit/modules/FlickrModule/flickrapi/__init__.py	2008-02-08 21:48:05.000000000 +0100
 @@ -8,7 +8,7 @@
  .. _`the FlickrAPI homepage`: http://flickrapi.sf.net/
  '''
@@ -9,7 +9,17 @@
  __revision__ = '$Revision: 114 $'
  __all__ = ('FlickrAPI', 'IllegalArgumentException', 'FlickrError',
          'XMLNode', 'set_log_level', '__version__', '__revision__')
-@@ -113,12 +113,12 @@
+@@ -50,9 +50,7 @@
+ from flickrapi.multipart import Part, Multipart, FilePart
+ from flickrapi import reportinghttp
+ 
+-logging.basicConfig()
+ LOG = logging.getLogger(__name__)
+-LOG.setLevel(logging.INFO)
+ 
+ ########################################################################
+ # Exceptions
+@@ -113,12 +111,12 @@
      flickrReplaceForm = "/services/replace/"
  
      #-------------------------------------------------------------------
@@ -24,8 +34,18 @@
          self.token = self.token_cache.token
          self.fail_on_error = fail_on_error
          
---- conduit/modules/FlickrModule/flickrapi/tokencache.py	2007-09-06 01:21:47.000000000 +1200
-+++ conduit/modules/FlickrModule/flickrapi/tokencache.py	2008-01-18 09:05:15.000000000 +1300
+--- conduit/modules/FlickrModule/flickrapi/reportinghttp.py	2008-02-08 21:46:21.000000000 +0100
++++ conduit/modules/FlickrModule/flickrapi/reportinghttp.py	2008-02-08 21:48:19.000000000 +0100
+@@ -9,7 +9,6 @@
+ 
+ __all__ = ['urlopen']
+ 
+-logging.basicConfig()
+ LOG = logging.getLogger(__name__)
+ 
+ progress_callback = None
+--- conduit/modules/FlickrModule/flickrapi/tokencache.py	2008-02-08 21:47:20.000000000 +0100
++++ conduit/modules/FlickrModule/flickrapi/tokencache.py	2008-02-08 21:46:37.000000000 +0100
 @@ -13,10 +13,14 @@
      The application is identified by the API key used.
      '''
