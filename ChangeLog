@@ -1,4 +1,9 @@
 2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/GoogleModule/GoogleModule.py: Youtube changed
+	apparently changed for data format, use a new trick to get the flv
+	files. Fixes #514589.
+
+2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/modules/FlickrModule/flickrapi/__init__.py:
 	* conduit/modules/FlickrModule/flickrapi/reportinghttp.py:
 	* conduit/modules/FlickrModule/flickrapi/multi-username.patch: Remove

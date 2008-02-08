@@ -18,8 +18,6 @@ import conduit.datatypes.Video as Video
 
 from gettext import gettext as _
 
-import re
-
 #Distributors, if you ship python gdata >= 1.0.10 then remove this line
 #and the appropriate directories
 Utils.dataprovider_add_dir_to_path(__file__)
@@ -684,7 +682,6 @@ class YouTubeSource(DataProvider.DataSource):
 
     USERS_FEED = "http://gdata.youtube.com/feeds/users"
     STD_FEEDS = "http://gdata.youtube.com/feeds/standardfeeds"
-    VIDEO_NAME_RE = re.compile(r', "t": "([^"]+)"')
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
@@ -765,7 +762,7 @@ class YouTubeSource(DataProvider.DataSource):
                     videos = self._favorite_videos (self.username)
 
             for video in videos:
-                self.entries[video.title.text] = self._get_flv_video_url (video.link[1].href)
+                self.entries[video.title.text] = self._get_flv_video_url (video.link[0].href)
         except Exception, err:
             log.debug("Error getting/parsing feed (%s)" % err)
             raise Exceptions.RefreshError
@@ -830,22 +827,21 @@ class YouTubeSource(DataProvider.DataSource):
 
     # Generic extract step
     def _get_flv_video_url (self, url):
-        import urllib2
+        """
+        Previous code from here [1] was no longer working, 
+        therefore we try the trick from here [2]
+        [1] http://svn.pythonfr.org/public/pythonfr/video/youtube_client.py
+        [2] http://www.abdulqabiz.com/blog/archives/general/update_getting_youtu.php
+        """
         flv_url = ''
         doc = urllib2.urlopen(url)
-        data = doc.read()
 
-        # extract video name
-        match = YouTubeSource.VIDEO_NAME_RE.search(data)
-        if match is not None:
-            video_name = match.group(1)
+        # extract video id
+        url_splited = url.split("watch?v=")
+        video_id = url_splited[1]
 
-            # extract video id
-            url_splited = url.split("watch?v=")
-            video_id = url_splited[1]
-
-            flv_url = "http://www.youtube.com/get_video?video_id=%s&t=%s"
-            flv_url = flv_url % (video_id, video_name)
+        flv_url = "http://cache.googlevideo.com/get_video?video_id=%s&origin=youtube"
+        flv_url = flv_url % video_id
 
         return flv_url
 
