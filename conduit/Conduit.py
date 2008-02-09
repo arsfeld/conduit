@@ -13,7 +13,15 @@ import conduit.Utils as Utils
 
 CONFLICT_POLICY_NAMES = ("conflict", "deleted")
 CONFLICT_POLICY_VALUES = ("ask","skip","replace")
-
+CONFLICT_POLICY_VALUE_ICONS = {
+    "conflict_ask"      :   "conduit-conflict-skip",
+    "conflict_skip"     :   "conduit-conflict-skip",
+    "conflict_replace"  :   "conduit-conflict-right",
+    "deleted_ask"       :   "conduit-conflict-skip",
+    "deleted_skip"      :   "conduit-conflict-skip",
+    "deleted_replace"   :   "conduit-conflict-delete"
+}
+    
 class Conduit(gobject.GObject):
     """
     Model of a Conduit, which is a one-to-many bridge of DataSources to

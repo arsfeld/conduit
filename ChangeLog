@@ -1,5 +1,11 @@
 2008-02-10  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Conduit.py:
+	* conduit/gtkui/UI.py: Show the conflict resolution icons in the
+	preferences dialog to help the user become familiar with them.
+
+2008-02-10  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py:
 	* data/conduit.glade: Add a 'developer' submenu to the help menu if the 
 	user is running a development version. This submenu contains items 

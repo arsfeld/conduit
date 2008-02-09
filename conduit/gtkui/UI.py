@@ -330,9 +330,16 @@ class MainWindow:
 
         #restore the current policy
         for policyName in Conduit.CONFLICT_POLICY_NAMES:
-            policyValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
-            widgetName = "%s_%s" % (policyName,policyValue)
-            tree.get_widget(widgetName).set_active(True)
+            currentValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
+            for policyValue in Conduit.CONFLICT_POLICY_VALUES:
+                widgetName = "%s_%s" % (policyName,policyValue)
+                widget = tree.get_widget(widgetName)
+                widget.set_image(
+                        gtk.image_new_from_icon_name(
+                                Conduit.CONFLICT_POLICY_VALUE_ICONS[widgetName],
+                                gtk.ICON_SIZE_MENU))
+                if currentValue == policyValue:
+                    widget.set_active(True)
                                         
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
