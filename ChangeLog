@@ -1,3 +1,11 @@
+2008-02-10  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/UI.py:
+	* data/conduit.glade: Add a 'developer' submenu to the help menu if the 
+	user is running a development version. This submenu contains items 
+	which link to the newly improved developer documentation. The linked 
+	pages are displayed in conduit's built in web browser.
+
 2008-02-09  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Conduit.py:

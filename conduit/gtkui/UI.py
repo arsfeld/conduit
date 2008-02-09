@@ -11,18 +11,28 @@ import gtk, gtk.glade
 import gnome.ui
 import os.path
 import gettext
+import threading
 from gettext import gettext as _
 import logging
 log = logging.getLogger("gtkui.UI")
 
 import conduit
+import conduit.Web as Web
 import conduit.Conduit as Conduit
-from conduit.gtkui.Canvas import Canvas
-from conduit.gtkui.Tree import DataProviderTreeModel, DataProviderTreeView
-from conduit.gtkui.ConflictResolver import ConflictResolver
-from conduit.gtkui.Database import GenericDBListStore
+import conduit.gtkui.Canvas as Canvas
+import conduit.gtkui.Tree as Tree
+import conduit.gtkui.ConflictResolver as ConflictResolver
+import conduit.gtkui.Database as Database
+
 
 DEFAULT_CONDUIT_BROWSER = "gtkmozembed"
+DEVELOPER_WEB_LINKS = (
+#name,                      #url
+("Introduction",            "http://www.conduit-project.org/wiki/Development"),
+("Writing a Data Provider", "http://www.conduit-project.org/wiki/WritingADataProvider"),
+("API Documentation",       "http://doc.conduit-project.org/conduit/"),
+("Test Results",            "http://tests.conduit-project.org/")
+)
 
 #set up the gettext system and locales
 for module in gtk.glade, gettext:
@@ -78,21 +88,21 @@ class MainWindow:
         
         #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("MainWindow")
+        self.mainWindow.set_position(gtk.WIN_POS_CENTER)
+        self.mainWindow.set_icon_name("conduit")
         title = "%s" % conduit.APPNAME
         if conduit.IS_DEVELOPMENT_VERSION:
             title = title + " - %s (Development Version)" % conduit.APPVERSION
         if not conduit.IS_INSTALLED:
             title = title + " - Running Uninstalled"
         self.mainWindow.set_title(title)
-        self.mainWindow.set_position(gtk.WIN_POS_CENTER)
-        self.mainWindow.set_icon_name("conduit")
-        
+
         #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
 
         #start up the canvas
-        self.canvas = Canvas(
+        self.canvas = Canvas.Canvas(
                         parentWindow=self.mainWindow,
                         typeConverter=self.type_converter,
                         syncManager=self.sync_manager,
@@ -104,13 +114,13 @@ class MainWindow:
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
         
         # Populate the tree model
-        self.dataproviderTreeModel = DataProviderTreeModel() 
+        self.dataproviderTreeModel = Tree.DataProviderTreeModel() 
         dataproviderScrolledWindow = self.widgets.get_widget("scrolledwindow2")
-        self.dataproviderTreeView = DataProviderTreeView(self.dataproviderTreeModel)
+        self.dataproviderTreeView = Tree.DataProviderTreeView(self.dataproviderTreeModel)
         dataproviderScrolledWindow.add(self.dataproviderTreeView)
 
         #Set up the expander used for resolving sync conflicts
-        self.conflictResolver = ConflictResolver(self.widgets)
+        self.conflictResolver = ConflictResolver.ConflictResolver(self.widgets)
 
         #setup the module manager
         self.moduleManager = moduleManager
@@ -124,7 +134,36 @@ class MainWindow:
         self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
         self.dataproviderTreeView.expand_all()
         self.window_state = 0
-
+        
+        #if running a development version, add some developer specific links
+        #to the help menu
+        if conduit.IS_DEVELOPMENT_VERSION:
+            helpMenu = self.widgets.get_widget("help_menu")
+            developersMenuItem = gtk.ImageMenuItem("Developers")
+            developersMenuItem.set_image(
+                                gtk.image_new_from_icon_name(
+                                        "applications-development",
+                                        gtk.ICON_SIZE_MENU))
+            developersMenu = gtk.Menu()
+            developersMenuItem.set_submenu(developersMenu)
+            helpMenu.prepend(developersMenuItem)
+            for name,url in DEVELOPER_WEB_LINKS:
+                item = gtk.ImageMenuItem(name)
+                item.set_image(
+                        gtk.image_new_from_icon_name(
+                                "applications-internet",
+                                gtk.ICON_SIZE_MENU))
+                item.connect("activate",self.on_developer_menu_item_clicked,name,url)
+                developersMenu.append(item)
+                
+                
+    def on_developer_menu_item_clicked(self, menuitem, name, url):
+        threading.Thread(
+                    target=Web.LoginMagic,
+                    args=(name, url),
+                    kwargs={"login_function":lambda: True}
+                    ).start()
+        
     def on_conduit_added(self, syncset, cond):
         cond.connect("sync-started", self.on_sync_started)
         cond.connect("sync-completed", self.on_sync_completed)
@@ -248,7 +287,7 @@ class MainWindow:
                 treeview.append_column(column)
                 index = index + 1
 
-            store = GenericDBListStore("mappings", db)
+            store = Database.GenericDBListStore("mappings", db)
             treeview.set_model(store)            
             
             sw = gtk.ScrolledWindow()

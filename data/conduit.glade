@@ -17,7 +17,7 @@
           <widget class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkMenuItem" id="file1">
+              <widget class="GtkMenuItem" id="file_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
@@ -66,7 +66,7 @@
               </widget>
             </child>
             <child>
-              <widget class="GtkMenuItem" id="edit">
+              <widget class="GtkMenuItem" id="edit_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Edit</property>
                 <property name="use_underline">True</property>
@@ -106,7 +106,7 @@
               </widget>
             </child>
             <child>
-              <widget class="GtkMenuItem" id="help">
+              <widget class="GtkMenuItem" id="help_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
@@ -516,7 +516,6 @@
                 <property name="label" translatable="yes">Replace the Older Item</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
-                <property name="group">conflict_ask</property>
               </widget>
             </child>
             <child>
@@ -525,7 +524,6 @@
                 <property name="label" translatable="yes">Skip</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
-                <property name="group">conflict_ask</property>
               </widget>
             </child>
           </widget>
@@ -559,7 +557,6 @@
                 <property name="label" translatable="yes">Delete the Corresponding Item</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
-                <property name="group">deleted_ask</property>
               </widget>
             </child>
             <child>
@@ -569,7 +566,6 @@
                 <property name="label" translatable="yes">Skip</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
-                <property name="group">deleted_ask</property>
               </widget>
             </child>
           </widget>
