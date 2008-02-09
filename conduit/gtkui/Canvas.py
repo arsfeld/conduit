@@ -61,7 +61,7 @@ class Canvas(goocanvas.Canvas):
     """
     This class manages many objects
     """
-    WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
+    WELCOME_MESSAGE = _("Drag a Data Provider here to continue")
     def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu, conduitMenu):
         """
         Draws an empty canvas of the appropriate size
