@@ -132,6 +132,11 @@ class SyncSet(gobject.GObject):
             conduitxml.setAttribute("uid",cond.uid)
             conduitxml.setAttribute("twoway",str(cond.is_two_way()))
             conduitxml.setAttribute("autosync",str(cond.do_auto_sync()))
+            for policyName in Conduit.CONFLICT_POLICY_NAMES:
+                conduitxml.setAttribute(
+                                "%s_policy" % policyName,
+                                cond.get_policy(policyName)
+                                )
             rootxml.appendChild(conduitxml)
             
             #Store the source
@@ -199,10 +204,14 @@ class SyncSet(gobject.GObject):
                 twoway = Settings.string_to_bool(conds.getAttribute("twoway"))
                 if twoway == True:
                     cond.enable_two_way_sync()
-
                 auto = Settings.string_to_bool(conds.getAttribute("autosync"))
                 if auto == True:
                     cond.enable_auto_sync()
+                for policyName in Conduit.CONFLICT_POLICY_NAMES:
+                    cond.set_policy(
+                                policyName,
+                                conds.getAttribute("%s_policy" % policyName)
+                                )
 
                 #each dataprovider
                 for i in conds.childNodes:

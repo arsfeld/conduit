@@ -15,8 +15,8 @@ import logging
 log = logging.getLogger("gtkui.Canvas")
 
 import conduit
-from conduit.Conduit import Conduit
-from conduit.gtkui.Tree import DND_TARGETS
+import conduit.Conduit as Conduit
+import conduit.gtkui.Tree
 
 #Tango colors taken from 
 #http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
@@ -86,7 +86,7 @@ class Canvas(goocanvas.Canvas):
 
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                        DND_TARGETS,
+                        conduit.gtkui.Tree.DND_TARGETS,
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         self.connect('size-allocate', self._canvas_resized)
@@ -179,6 +179,12 @@ class Canvas(goocanvas.Canvas):
                 self.slowSyncMenuItem.set_active(self.selectedConduitItem.model.slowSyncEnabled)
                 #Set item ticked if two way sync enabled
                 self.autoSyncMenuItem.set_active(self.selectedConduitItem.model.autoSyncEnabled)
+                #Set the conflict and delete policy
+                for policyName in Conduit.CONFLICT_POLICY_NAMES:
+                    policyValue = self.selectedConduitItem.model.get_policy(policyName)
+                    widgetName = "%s_%s" % (policyName,policyValue)
+                    self.policyWidgets[widgetName].set_active(True)
+
                 #Show the menu                
                 if not self.selectedConduitItem.model.is_busy():
                     self.conduitMenu.popup(
@@ -363,10 +369,19 @@ class Canvas(goocanvas.Canvas):
         self.autoSyncMenuItem = conduitPopupXML.get_widget("auto_sync")
         self.autoSyncMenuItem.connect("toggled", self.on_auto_sync_toggle)
 
+        #connect the conflict popups
+        self.policyWidgets = {}
+        for policyName in Conduit.CONFLICT_POLICY_NAMES:
+            for policyValue in Conduit.CONFLICT_POLICY_VALUES:
+                widgetName = "%s_%s" % (policyName,policyValue)
+                #store the widget and connect to toggled signal
+                widget = conduitPopupXML.get_widget(widgetName)
+                widget.connect("toggled", self.on_policy_toggle, policyName, policyValue)
+                self.policyWidgets[widgetName] = widget
+                
         #connect the menu callbacks
         conduitPopupXML.signal_autoconnect(self)
         dataproviderPopupXML.signal_autoconnect(self)        
-
 
     def on_delete_conduit_clicked(self, widget):
         """
@@ -442,6 +457,10 @@ class Canvas(goocanvas.Canvas):
         else:
             self.selectedConduitItem.model.disable_auto_sync()
 
+    def on_policy_toggle(self, widget, policyName, policyValue):
+        if widget.get_active():
+            self.selectedConduitItem.model.set_policy(policyName, policyValue)
+
     def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
         """
         Adds a new dataprovider to the Canvas
@@ -464,7 +483,7 @@ class Canvas(goocanvas.Canvas):
             trySourceFirst = False
 
         if existing == None:
-            cond = Conduit(self.sync_manager)
+            cond = Conduit.Conduit(self.sync_manager)
             cond.add_dataprovider(dataproviderWrapper, trySourceFirst)
             self.model.add_conduit(cond)
 

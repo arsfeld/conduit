@@ -83,8 +83,8 @@ class Settings(gobject.GObject):
         'save_on_exit'              :   True,           #Is the sync set saved on exit automatically?
         'enable_network'            :   True,           #Should conduit look for other conduits on the local network
         'enable_removable_devices'  :   True,           #Should conduit support iPods, USB keys, etc
-        'twoway_policy_conflict'    :   "ask",          #ask,replace,skip
-        'twoway_policy_deleted'     :   "ask",          #ask,replace,skip
+        'default_policy_conflict'   :   "ask",          #Default conflict policy for new Conduits, ask,replace,skip
+        'default_policy_deleted'    :   "ask",          #Default deleted policy for new Conduits, ask,replace,skip
         'gui_expanded_columns'      :   [],             #list of expanded column paths in the treeview
         'gui_hpane_postion'         :   250,            #The hpane seperating the canvas and treeview position
         'gui_window_size'           :   [],             #W,H

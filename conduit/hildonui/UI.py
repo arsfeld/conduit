@@ -34,10 +34,6 @@ class MainWindow(hildon.Program):
         self.moduleManager = moduleManager
         self.type_converter = typeConverter
         self.sync_manager = syncManager
-        self.sync_manager.set_twoway_policy({
-                "conflict"  :   conduit.GLOBALS.settings.get("twoway_policy_conflict"),
-                "deleted"   :   conduit.GLOBALS.settings.get("twoway_policy_deleted")}
-                )
         self.syncSet = None
 
         self.mainWindow = hildon.Window()

@@ -8,7 +8,11 @@ import gobject
 import logging
 log = logging.getLogger("Conduit")
 
+import conduit
 import conduit.Utils as Utils
+
+CONFLICT_POLICY_NAMES = ("conflict", "deleted")
+CONFLICT_POLICY_VALUES = ("ask","skip","replace")
 
 class Conduit(gobject.GObject):
     """
@@ -67,10 +71,16 @@ class Conduit(gobject.GObject):
         #a conduit can hold one datasource and many datasinks (wrappers)
         self.datasource = None
         self.datasinks = []
-
         self.twoWaySyncEnabled = False
         self.slowSyncEnabled = False
         self.autoSyncEnabled = False
+        self.conflictPolicy = ""
+        self.deletedPolicy = ""
+        
+        #set conduits to have the default conflict/deleted policy
+        for policyName in CONFLICT_POLICY_NAMES:
+            policyValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
+            self.set_policy(policyName,policyValue)
 
     def _parameters_changed(self):
         self.emit("parameters-changed")
@@ -247,6 +257,25 @@ class Conduit(gobject.GObject):
 
     def do_auto_sync(self):
         return self.autoSyncEnabled
+
+    def get_policy(self, policy):
+        if policy not in CONFLICT_POLICY_NAMES:
+            raise Exception("Unknown policy: %s" % policy)
+        if policy == "conflict":
+            return self.conflictPolicy
+        else:
+            return self.deletedPolicy
+        
+    def set_policy(self, policy, value):
+        log.debug("Setting %s policy: %s" % (policy,value))
+        if policy not in CONFLICT_POLICY_NAMES:
+            raise Exception("Unknown policy: %s" % policy)
+        if value not in CONFLICT_POLICY_VALUES:
+            raise Exception("Unknown policy value: %s" % policy)
+        if policy == "conflict":
+            self.conflictPolicy = value
+        else:
+            self.deletedPolicy = value
 
     def change_dataprovider(self, oldDpw, newDpw):
         """

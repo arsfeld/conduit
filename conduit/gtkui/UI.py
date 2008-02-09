@@ -16,6 +16,7 @@ import logging
 log = logging.getLogger("gtkui.UI")
 
 import conduit
+import conduit.Conduit as Conduit
 from conduit.gtkui.Canvas import Canvas
 from conduit.gtkui.Tree import DataProviderTreeModel, DataProviderTreeView
 from conduit.gtkui.ConflictResolver import ConflictResolver
@@ -74,10 +75,6 @@ class MainWindow:
         #type converter and sync manager
         self.type_converter = typeConverter
         self.sync_manager = syncManager
-        self.sync_manager.set_twoway_policy({
-                "conflict"  :   conduit.GLOBALS.settings.get("twoway_policy_conflict"),
-                "deleted"   :   conduit.GLOBALS.settings.get("twoway_policy_deleted")}
-                )
         
         #Initialize the mainWindow
         self.mainWindow = self.widgets.get_widget("MainWindow")
@@ -205,25 +202,6 @@ class MainWindow:
         Show the properties of the current sync set (status, conflicts, etc
         Edit the sync specific properties
         """
-        def restore_policy_state(policy, ask_rb, replace_rb, skip_rb):
-            pref = conduit.GLOBALS.settings.get("twoway_policy_%s" % policy)
-            if pref == "skip":
-                skip_rb.set_active(True)
-            elif pref == "replace":
-                replace_rb.set_active(True)
-            else:
-                ask_rb.set_active(True)
-
-        def save_policy_state(policy, ask_rb, replace_rb, skip_rb):
-            if skip_rb.get_active() == True:
-                i = "skip"
-            elif replace_rb.get_active() == True:
-                i = "replace"
-            else:            
-                i = "ask"
-            conduit.GLOBALS.settings.set("twoway_policy_%s" % policy, i)
-            return i
-
         def on_clear_button_clicked(sender, treeview, sqliteListStore):
             treeview.set_model(None)
             conduit.GLOBALS.mappingDB.delete()
@@ -311,17 +289,11 @@ class MainWindow:
         web_browser_check = tree.get_widget("web_check")
         web_browser_check.set_active(conduit.GLOBALS.settings.get("web_login_browser") != "system")
 
-
-        #get the radiobuttons where the user sets their policy
-        conflict_ask_rb = tree.get_widget("conflict_ask_rb")
-        conflict_replace_rb = tree.get_widget("conflict_replace_rb")
-        conflict_skip_rb = tree.get_widget("conflict_skip_rb")
-        deleted_ask_rb = tree.get_widget("deleted_ask_rb")
-        deleted_replace_rb = tree.get_widget("deleted_replace_rb")
-        deleted_skip_rb = tree.get_widget("deleted_skip_rb")
-        #set initial conditions        
-        restore_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
-        restore_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
+        #restore the current policy
+        for policyName in Conduit.CONFLICT_POLICY_NAMES:
+            policyValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
+            widgetName = "%s_%s" % (policyName,policyValue)
+            tree.get_widget(widgetName).set_active(True)
                                         
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
@@ -335,10 +307,14 @@ class MainWindow:
                 conduit.GLOBALS.settings.set("web_login_browser", DEFAULT_CONDUIT_BROWSER)
             else:
                 conduit.GLOBALS.settings.set("web_login_browser", "system")
-            policy = {}
-            policy["conflict"] = save_policy_state("conflict", conflict_ask_rb, conflict_replace_rb, conflict_skip_rb)
-            policy["deleted"] = save_policy_state("deleted", deleted_ask_rb, deleted_replace_rb, deleted_skip_rb)
-            self.sync_manager.set_twoway_policy(policy)
+            #save the current policy
+            for policyName in Conduit.CONFLICT_POLICY_NAMES:
+                for policyValue in Conduit.CONFLICT_POLICY_VALUES:
+                    widgetName = "%s_%s" % (policyName,policyValue)
+                    if tree.get_widget(widgetName).get_active() == True:
+                        conduit.GLOBALS.settings.set(
+                                "default_policy_%s" % policyName,
+                                policyValue)
         dialog.destroy()                
 
 

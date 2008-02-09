@@ -548,7 +548,8 @@ class SimpleSyncTest(SimpleTest):
             self.conduit.disable_two_way_sync()
 
     def set_two_way_policy(self, policy):
-        self.sync_manager.set_twoway_policy(policy)
+        for policyName, policyValue in policy.items():
+            self.conduit.set_policy(policyName, policyValue)
 
     def get_two_way_sync(self):
         return self.conduit.is_two_way()

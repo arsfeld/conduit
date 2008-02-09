@@ -1,5 +1,18 @@
 2008-02-09  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Conduit.py:
+	* conduit/Settings.py:
+	* conduit/SyncSet.py:
+	* conduit/Synchronization.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/UI.py:
+	* conduit/hildonui/UI.py:
+	* data/conduit.glade:
+	* test/python-tests/common.py: Conflict settings are now per Conduit,
+	with a configurable default in the preferences window. Fixes bug #510094
+
+2008-02-09  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/hildonui/Canvas.py:
 	* data/conduit.glade: Change Dataprovider to Data Provider in all UI
 	strings. Patch from Ted Percival

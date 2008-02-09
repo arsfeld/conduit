@@ -73,9 +73,6 @@ class SyncManager:
         self.syncWorkers = {}
         self.typeConverter = typeConverter
 
-        #Two way sync policy
-        self.policy = {"conflict":"skip","deleted":"skip"}
-
     def _cancel_sync_thread(self, cond):
         log.warn("Conduit already in queue (alive: %s)" % self.syncWorkers[cond].isAlive())
         #If the thread is alive then cancel it
@@ -100,13 +97,6 @@ class SyncManager:
         Returns true if cond is currently undergoing sync, refresh etc
         """
         return cond in self.syncWorkers
-
-    def set_twoway_policy(self, policy):
-        """
-        FIXME: Should be a per conduit setting
-        """
-        log.debug("Setting sync policy: %s" % policy)
-        self.policy = policy
 
     def cancel_all(self):
         """
@@ -142,7 +132,7 @@ class SyncManager:
             log.info("Refresh already in progress")
             self.join_one(cond)
 
-        threadedWorker = SyncWorker(self.typeConverter, cond, False, self.policy)
+        threadedWorker = SyncWorker(self.typeConverter, cond, False)
         self._start_worker_thread(cond, threadedWorker)
 
     def sync_conduit(self, cond):
@@ -150,7 +140,7 @@ class SyncManager:
             log.info("Sync already in progress")
             self.join_one(cond)
 
-        threadedWorker = SyncWorker(self.typeConverter, cond, True, self.policy)
+        threadedWorker = SyncWorker(self.typeConverter, cond, True)
         self._start_worker_thread(cond, threadedWorker)
 
     def did_sync_abort(self, cond):
@@ -250,14 +240,13 @@ class SyncWorker(_ThreadedWorker):
     Operates on a per Conduit basis, so a single SyncWorker may synchronize
     one source with many sinks within a single conduit
     """
-    def __init__(self, typeConverter, cond, do_sync, policy):
+    def __init__(self, typeConverter, cond, do_sync):
         _ThreadedWorker.__init__(self)
         self.typeConverter = typeConverter
         self.cond = cond
         self.source = cond.datasource
         self.sinks = cond.datasinks
         self.do_sync = do_sync
-        self.policy = policy
 
         if self.cond.is_two_way():
             self.setName("%s <--> %s" % (self.source, self.sinks[0]))
@@ -338,9 +327,9 @@ class SyncWorker(_ThreadedWorker):
         sourceDataLUID is the original UID of the data that has been deleted
         sinkDataLUID is the uid of the data in sink that should now be deleted
         """
-        if self.policy["deleted"] == "skip":
+        if self.cond.get_policy("deleted") == "skip":
             log.debug("Deleted Policy: Skipping")
-        elif self.policy["deleted"] == "ask":
+        elif self.cond.get_policy("deleted") == "ask":
             log.debug("Deleted Policy: Ask")
 
             #FIXME: Delete should be handled differently from conflict
@@ -371,7 +360,7 @@ class SyncWorker(_ThreadedWorker):
                     )
             self.cond.emit("sync-conflict", c)
 
-        elif self.policy["deleted"] == "replace":
+        elif self.cond.get_policy("deleted") == "replace":
             log.debug("Deleted Policy: Delete")
             #FIXME: Delete should be handled differently from conflict
             self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
@@ -383,9 +372,9 @@ class SyncWorker(_ThreadedWorker):
         the conflict up to the GUI or skipping altogether
         """
         if comparison == COMPARISON_EQUAL or comparison == COMPARISON_UNKNOWN or comparison == COMPARISON_OLDER:
-            if self.policy["conflict"] == "skip":
+            if self.cond.get_policy("conflict") == "skip":
                 log.debug("Conflict Policy: Skipping")
-            elif self.policy["conflict"] == "ask":
+            elif self.cond.get_policy("conflict") == "ask":
                 log.debug("Conflict Policy: Ask")
                 self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
@@ -407,7 +396,7 @@ class SyncWorker(_ThreadedWorker):
                         )
                 self.cond.emit("sync-conflict", c)
 
-            elif self.policy["conflict"] == "replace":
+            elif self.cond.get_policy("conflict") == "replace":
                 log.debug("Conflict Policy: Replace")
                 self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
