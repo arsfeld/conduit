@@ -1,3 +1,9 @@
+2008-02-09  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/hildonui/Canvas.py:
+	* data/conduit.glade: Change Dataprovider to Data Provider in all UI
+	strings. Patch from Ted Percival
+
 2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/modules/GoogleModule/youtube-config.glade: Switch position
 	of the ok and cancel button.

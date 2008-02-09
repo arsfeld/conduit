@@ -26,7 +26,7 @@ msgid "Synchronization for GNOME"
 msgstr "Синхронизация в GNOME"
 
 #: ../conduit/Canvas.py:68
-msgid "Drag a Dataprovider here to continue"
+msgid "Drag a Data Provider here to continue"
 msgstr "Перетащите сюда источник данных"
 
 #: ../conduit/DataProvider.py:173
@@ -486,11 +486,8 @@ msgid "Data Conversions"
 msgstr "Преобразователи данных"
 
 #: ../data/conduit.glade.h:13
-msgid "Data Providers"
-msgstr "Источники данных"
-
 #: ../data/conduit.glade.h:14
-msgid "Dataproviders"
+msgid "Data Providers"
 msgstr "Источники данных"
 
 #: ../data/conduit.glade.h:15

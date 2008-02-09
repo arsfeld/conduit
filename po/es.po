@@ -81,11 +81,8 @@ msgid "Data Conversions"
 msgstr ""
 
 #: ../data/conduit.glade.h:13
-msgid "Data Providers"
-msgstr ""
-
 #: ../data/conduit.glade.h:14
-msgid "Dataproviders"
+msgid "Data Providers"
 msgstr ""
 
 #: ../data/conduit.glade.h:15
@@ -185,7 +182,7 @@ msgid "dialog1"
 msgstr "diálogo1"
 
 #: ../conduit/gtkui/Canvas.py:66 ../conduit/hildonui/Canvas.py:68
-msgid "Drag a Dataprovider here to continue"
+msgid "Drag a Data Provider here to continue"
 msgstr ""
 
 #. Visible column0 is

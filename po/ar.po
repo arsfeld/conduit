@@ -84,12 +84,9 @@ msgid "Data Conversions"
 msgstr "تحويل البيانات"
 
 #: ../data/conduit.glade.h:13
+#: ../data/conduit.glade.h:14
 msgid "Data Providers"
 msgstr "مزوّدات البيانات"
-
-#: ../data/conduit.glade.h:14
-msgid "Dataproviders"
-msgstr ""
 
 #: ../data/conduit.glade.h:15
 msgid "Delete Group"
@@ -198,7 +195,7 @@ msgstr "dialog1"
 
 #: ../conduit/gtkui/Canvas.py:66
 #: ../conduit/hildonui/Canvas.py:39
-msgid "Drag a Dataprovider here to continue"
+msgid "Drag a Data Provider here to continue"
 msgstr ""
 
 #. Visible column0 is

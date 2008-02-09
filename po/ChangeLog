@@ -1,3 +1,14 @@
+2008-02-09  John Stowers  <john.stowers@gmail.com>
+
+	* ar.po:
+	* ca.po:
+	* es.po:
+	* fr.po:
+	* it.po:
+	* pt_BR.po:
+	* ru.po:
+	* sv.po: Change Dataprovider to Data Provider
+
 2008-02-08  Luca Ferretti  <elle.uca@libero.it>
 
 	* it.po: Updated Italian translation by Gianvito Cavasoli.

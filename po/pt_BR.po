@@ -32,7 +32,7 @@ msgid "Synchronization for GNOME"
 msgstr "Sincronização para GNOME"
 
 #: ../conduit/Canvas.py:68
-msgid "Drag a Dataprovider here to continue"
+msgid "Drag a Data Provider here to continue"
 msgstr "Arraste um Provedor de dados para cá para continuar"
 
 #: ../conduit/DataProvider.py:173
@@ -504,12 +504,9 @@ msgid "Data Conversions"
 msgstr "Conversões de Dados"
 
 #: ../data/conduit.glade.h:13
+#: ../data/conduit.glade.h:14
 msgid "Data Providers"
 msgstr "Provedores de Dados"
-
-#: ../data/conduit.glade.h:14
-msgid "Dataproviders"
-msgstr "Provedores de dados"
 
 #: ../data/conduit.glade.h:15
 msgid "Delete Group"

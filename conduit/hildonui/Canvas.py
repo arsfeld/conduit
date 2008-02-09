@@ -32,7 +32,7 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
     """
     CANVAS_WIDTH = 450
     CANVAS_HEIGHT = 450
-    WELCOME_MESSAGE = _("Drag a Dataprovider here to continue")
+    WELCOME_MESSAGE = _("Drag a Data Provider here to continue")
 
     __gsignals__ = {
         "position-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])    # The canvas

@@ -158,7 +158,7 @@
                 <child>
                   <widget class="GtkLabel" id="label1">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Dataproviders</property>
+                    <property name="label" translatable="yes">Data Providers</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
