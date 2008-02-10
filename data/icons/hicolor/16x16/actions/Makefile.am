@@ -8,7 +8,8 @@ icons_DATA = \
 	conduit-conflict-delete.png \
 	conduit-conflict-right.png \
 	conduit-conflict-left.png \
-	conduit-conflict-skip.png
+	conduit-conflict-skip.png \
+	conduit-conflict-ask.png
 
 noinst_DATA = 
 

@@ -649,14 +649,11 @@ class TestConflict(_TestBase, DataProvider.DataSink):
         _TestBase.__init__(self)
         DataProvider.DataSink.__init__(self)
 
-    def refresh(self):
-        DataProvider.DataSink.refresh(self)
-
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
+        newData = TestDataType(data.get_UID())
         if not overwrite:
-            raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, TestDataType('0'))
-        newData = TestDataType(data.get_UID()+self._name_)
+            raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, newData)
         return newData.get_rid()
 
     def get_UID(self):

@@ -1,5 +1,18 @@
 2008-02-10  John Stowers  <john.stowers@gmail.com>
 
+	* data/conduit.glade: Add conflict_* and deleted_* radio items to a group
+	so that only one can be active at a time.
+	
+	* conduit/Conduit.py:
+	* conduit/Conflict.py:
+	* conduit/gtkui/ConflictResolver.py:
+	* conduit/modules/TestModule.py:
+	* data/icons/hicolor/16x16/actions/Makefile.am: Add an icon for 
+	conflict-skip and swap the function of conflict-ask. The states for conflict
+	resolution (by the user) are now ask->skip->put/delete->skip
+
+2008-02-10  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Conduit.py:
 	* conduit/gtkui/UI.py: Show the conflict resolution icons in the
 	preferences dialog to help the user become familiar with them.

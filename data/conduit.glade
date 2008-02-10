@@ -516,6 +516,7 @@
                 <property name="label" translatable="yes">Replace the Older Item</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
+                <property name="group">conflict_ask</property>
               </widget>
             </child>
             <child>
@@ -524,6 +525,7 @@
                 <property name="label" translatable="yes">Skip</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
+                <property name="group">conflict_ask</property>
               </widget>
             </child>
           </widget>
@@ -557,6 +559,7 @@
                 <property name="label" translatable="yes">Delete the Corresponding Item</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
+                <property name="group">deleted_ask</property>
               </widget>
             </child>
             <child>
@@ -566,6 +569,7 @@
                 <property name="label" translatable="yes">Skip</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
+                <property name="group">deleted_ask</property>
               </widget>
             </child>
           </widget>

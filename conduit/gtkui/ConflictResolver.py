@@ -209,9 +209,9 @@ class ConflictResolver:
         if (source,sink) not in self.partnerships:
             #create a header row
             header = ConflictHeader(source, sink)
-            self.partnerships[(source,sink)] = self.model.append(None, (header, Conflict.CONFLICT_SKIP) )
+            self.partnerships[(source,sink)] = self.model.append(None, (header, Conflict.CONFLICT_ASK) )
 
-        self.model.append(self.partnerships[(source,sink)], (conflict, Conflict.CONFLICT_SKIP) )  
+        self.model.append(self.partnerships[(source,sink)], (conflict, Conflict.CONFLICT_ASK) )  
 
         #FIXME: Do this properly with model signals and a count function
         #update the expander label and the standalone window title
@@ -260,8 +260,12 @@ class ConflictResolver:
             conflict = model[path][CONFLICT_IDX]
 
             #do as the user inducated with the arrow
-            if direction == Conflict.CONFLICT_SKIP:
+            if direction == Conflict.CONFLICT_ASK:
                 log.debug("Not resolving")
+                return
+            elif direction == Conflict.CONFLICT_SKIP:
+                log.debug("Skipping conflict")
+                resolved.append(rowref)
                 return
             elif direction == Conflict.CONFLICT_COPY_SOURCE_TO_SINK:
                 log.debug("Resolving source data --> sink")
@@ -405,15 +409,22 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-skip",16,0)
         elif direction == Conflict.CONFLICT_DELETE:
             self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-delete",16,0)
+        elif direction == Conflict.CONFLICT_ASK:
+            self.image = gtk.icon_theme_get_default().load_icon("conduit-conflict-ask",16,0)
         else:
             self.image = None
 
     def on_activate(self, event, widget, path, background_area, cell_area, flags):
         model = widget.get_model()
-        #Click toggles between --> and <-- and -x- but only within the list
-        #of valid choices
         conflict = model[path][CONFLICT_IDX]
-        curIdx = list(conflict.choices).index(model[path][DIRECTION_IDX])
+        #Click toggles between --> and <-- and -x- but only within the list
+        #of valid choices. If at the end of the valid choices, then loop around
+        try:
+            curIdx = list(conflict.choices).index(model[path][DIRECTION_IDX])
+        except ValueError:
+            #Because CONFLICT_ASK is never a valid choice, its just the default
+            #to make the user have to acknowledge the conflict
+            curIdx = 0
 
         if curIdx == len(conflict.choices) - 1:
             model[path][DIRECTION_IDX] = conflict.choices[0]
