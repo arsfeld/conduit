@@ -4,13 +4,12 @@ from common import *
 import conduit.datatypes.File as File
 import conduit.Utils as Utils
 
-test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
-
 #setup the conduit
+test = SimpleSyncTest()
 sourceW = test.get_dataprovider("TomboyNoteTwoWay")
 sinkW = test.get_dataprovider("FolderTwoWay")
 test.prepare(sourceW, sinkW)
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 
 #check if tomboy running
 tomboy = sourceW.module

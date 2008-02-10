@@ -6,11 +6,11 @@ from common import *
 ###
 ok("---- ONE WAY: SHOULD ERROR", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestSource"), 
         test.get_dataprovider("TestSink")
         )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 config = {}
 config["numData"] = 5
 config["errorAfter"] = 2
@@ -28,11 +28,11 @@ ok("Non fatal error trapped", error == True)
 ###
 ok("---- ONE WAY: SHOULD ABORT (Fail Refresh)", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestSource"), 
         test.get_dataprovider("TestSinkFailRefresh")
         )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 
 test.set_two_way_sync(False)
 test.sync(debug=False)
@@ -44,11 +44,11 @@ ok("Sync aborted due to no refreshing sinks", aborted == True)
 ###
 ok("---- ONE WAY: SHOULD ABORT (Not Configured)", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestSource"), 
         test.get_dataprovider("TestSinkNeedConfigure")
         )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 
 test.set_two_way_sync(False)
 test.sync(debug=False)
@@ -60,11 +60,11 @@ ok("Sync aborted due to no configured sinks", aborted == True)
 ###
 ok("---- ONE WAY: SHOULD CONFLICT", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestSource"), 
         test.get_dataprovider("TestConflict")
         )
+test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 
 test.set_two_way_sync(False)
 test.sync(debug=False)
@@ -78,11 +78,11 @@ ok("Conflict trapped", conflict == True)
 ###
 ok("---- TWO WAY:", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestTwoWay"), 
         test.get_dataprovider("TestTwoWay")
         )
+test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
 
 test.set_two_way_sync(True)
 test.sync(debug=False)
@@ -94,7 +94,6 @@ ok("Sync completed", aborted == False)
 ###
 ok("---- ONE WAY: MUCH DATA", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestSource"), 
         test.get_dataprovider("TestSink")
@@ -102,6 +101,7 @@ test.prepare(
 test.add_extra_sink(
         test.get_dataprovider("TestSink")
         )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 
 config = {}
 config["numData"] = 500
@@ -118,11 +118,11 @@ ok("Sync completed", aborted == False)
 ###
 ok("---- ONE WAY: CONVERSION ARGS", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 test.prepare(
         test.get_dataprovider("TestSource"), 
         test.get_dataprovider("TestConversionArgs")
         )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 test.set_two_way_sync(False)
 test.sync(debug=False)
 aborted = test.sync_aborted()
@@ -133,7 +133,6 @@ ok("Sync completed", aborted == False)
 ###
 ok("---- ONE WAY: TEST FILE/IMAGE SINK", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.prepare(
         test.get_dataprovider("TestFileSource"), 
         test.get_dataprovider("TestFileSink")
@@ -141,6 +140,7 @@ test.prepare(
 test.add_extra_sink(
         test.get_dataprovider("TestImageSink")
         )
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.set_two_way_sync(False)
 test.sync(debug=False)
 aborted,errored,conflicted = test.get_sync_result()
@@ -151,11 +151,11 @@ ok("Sync completed without conflicts", aborted == False and errored == False and
 ###
 ok("---- TWO WAY: TEST FILE", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.prepare(
         test.get_dataprovider("TestFileTwoWay"), 
         test.get_dataprovider("TestFileTwoWay")
         )
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.set_two_way_sync(True)
 test.sync(debug=False)
 aborted,errored,conflicted = test.get_sync_result()
@@ -167,14 +167,13 @@ ok("Sync completed without conflicts", aborted == False and errored == False and
 ###
 ok("---- TWO WAY: TEST FILE", True)
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
-
 #add a file to source and sink
 source = test.get_dataprovider("TestFolderTwoWay")
 source.module.add(None)
 sink = test.get_dataprovider("TestFolderTwoWay")
 sink.module.add(None)
 test.prepare(source, sink)
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.set_two_way_sync(True)
 test.sync(debug=False)
 aborted,errored,conflicted = test.get_sync_result()

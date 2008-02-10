@@ -1,6 +1,7 @@
 import gobject
 import datetime
 import dateutil.parser
+import urllib2
 import vobject
 from dateutil.tz import tzutc, tzlocal
 import logging

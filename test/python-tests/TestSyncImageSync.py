@@ -9,6 +9,7 @@ test.prepare(
         test.get_dataprovider("FileSource"), 
         test.get_dataprovider("TestImageSink")
         )
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.set_two_way_sync(False)
 
 #add a file

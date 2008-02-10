@@ -104,6 +104,7 @@ test.prepare(
         sourceDpw, 
         sinkDpw
         )
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 test.set_two_way_sync(True)
 
 ################################################################################
@@ -135,9 +136,10 @@ reset_dataproviders(source, sink)
 source.added = ['1','2','3']
 sink.added = ['4','5']
 
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 a,b = test.sync(debug=DB_DEBUG)
 abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase one: add different data to each side", abort == False and error == False and conflict == False)
+ok("2Way: Sync completed: phase one: add different data to each side  (no conflicts)", abort == False and error == False and conflict == False)
 mappings = get_mappings(sourceDpw, sinkDpw)
 ok("2Way: 5 mappings exist", len(mappings) == 5)
 ok("2Way: 3x data put into sink", sink.num_put == 3 and sink.num_del == 0)
@@ -148,9 +150,10 @@ reset_dataproviders(source, sink)
 source.modified = ['4','5']
 sink.modified = ['1','2']
 
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
 a,b = test.sync(debug=DB_DEBUG)
 abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase two: modify some", abort == False and error == False and conflict == False)
+ok("2Way: Sync completed: phase two: modify some (no conflicts)", abort == False and error == False and conflict == False)
 mappings = get_mappings(sourceDpw, sinkDpw)
 ok("2Way: 5 mappings exist", len(mappings) == 5)
 ok("2Way: 2x data put into sink", sink.num_put == 2 and sink.num_del == 0)
@@ -161,6 +164,7 @@ reset_dataproviders(source, sink)
 source.deleted = ['4']
 sink.deleted = ['2']
 
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 a,b = test.sync(debug=DB_DEBUG)
 abort,error,conflict = test.get_sync_result()
 ok("2Way: Sync completed: phase two: delete some (delete policy: skip)", abort == False and error == False and conflict == False)

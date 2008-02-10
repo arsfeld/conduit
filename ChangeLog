@@ -1,5 +1,16 @@
 2008-02-10  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py: Fix test. Import urllib2
+
+	* test/python-tests/TestCoreSyncLogic.py:
+	* test/python-tests/TestCoreSyncTestDataProviders.py:
+	* test/python-tests/TestSyncImageSync.py:
+	* test/python-tests/TestSyncTomboyFolder.py:
+	* test/python-tests/TestSyncTomboyiPod.py: Fix conflict tests. 
+	Call set_two_way_sync_policy() after prepare()
+
+2008-02-10  John Stowers  <john.stowers@gmail.com>
+
 	* data/conduit.glade: Add conflict_* and deleted_* radio items to a group
 	so that only one can be active at a time.
 	

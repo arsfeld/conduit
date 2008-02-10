@@ -13,7 +13,6 @@ from conduit.modules import iPodModule
 
 #setup the test
 test = SimpleSyncTest()
-test.set_two_way_policy({"conflict":"replace","deleted":"replace"})
 
 #Make a fake iPod so we dont damage a real one
 fakeIpodDir = os.path.join(os.environ['TEST_DIRECTORY'],"iPod")
@@ -26,6 +25,7 @@ klass = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
 sourceW = test.get_dataprovider("TomboyNoteTwoWay")
 sinkW = test.wrap_dataprovider(klass)
 test.prepare(sourceW, sinkW)
+test.set_two_way_policy({"conflict":"replace","deleted":"replace"})
 
 #check if tomboy running
 tomboy = sourceW.module
