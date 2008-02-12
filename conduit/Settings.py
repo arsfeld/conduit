@@ -91,6 +91,7 @@ class Settings(gobject.GObject):
         'gui_minimize_to_tray'      :   False,          #Behaviour when one minimizes the main window, should it iconify?
         'gui_initial_canvas_height' :   450,            #Reduce to ~300 for eepc, etc
         'gui_initial_canvas_width'  :   450,            #Reduce for eepc, etc
+        'gui_use_rgba_colormap'     :   False,          #Seems to corrupt gtkmozembed on some systems
         'web_login_browser'         :   "gtkmozembed"   #When loggin into websites use: "system","gtkmozembed","webkit","gtkhtml"
     }
     CONDUIT_GCONF_DIR = "/apps/conduit/"

@@ -1,5 +1,14 @@
 2008-02-12  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Settings.py:
+	* conduit/gtkui/UI.py: Make the rgba colormap a gconf option until I can
+	work out why it corrupts screen rendering on my system
+	
+	* conduit/modules/FileModule/FileConfiguration.py: Finally save and restore
+	the selected folder correctly. Fixes bug #510523
+
+2008-02-12  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py: Disable rgba colormap, it breaks the gtkmozembed
 	browser in weird ways
 	
