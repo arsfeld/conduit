@@ -139,7 +139,7 @@ class MainWindow:
 
         #final GUI setup
         self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
-        self.dataproviderTreeView.expand_all()
+        self.dataproviderTreeView.set_expand_rows()
         self.window_state = 0
         
         #if running a development version, add some developer specific links
@@ -464,8 +464,15 @@ class MainWindow:
         self.syncSet.save_to_xml()
 
         #GUI settings
-        conduit.GLOBALS.settings.set("gui_hpane_postion", self.hpane.get_position())
-        conduit.GLOBALS.settings.set("gui_window_size", self.mainWindow.get_size())
+        conduit.GLOBALS.settings.set(
+                            "gui_hpane_postion",
+                            self.hpane.get_position())
+        conduit.GLOBALS.settings.set(
+                            "gui_window_size",
+                            self.mainWindow.get_size())
+        conduit.GLOBALS.settings.set(
+                            "gui_expanded_rows",
+                            self.dataproviderTreeView.get_expanded_rows())        
 
 class SplashScreen:
     """

@@ -1,3 +1,10 @@
+2008-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/gtkui/Tree.py:
+	* conduit/gtkui/UI.py: Save and restore expanded dataprovider treeview
+	categories. Disabled by default until it gets more testing.
+
 2008-02-12  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Settings.py:

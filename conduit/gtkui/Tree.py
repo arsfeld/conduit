@@ -32,6 +32,8 @@ class CategoryWrapper(ModuleWrapper):
                             module_type="category",
                             category=category
                             )
+    def get_UID(self):
+        return self.name
        
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
@@ -359,9 +361,34 @@ class DataProviderTreeView(gtk.TreeView):
         #self.connect('drag-begin', self.on_drag_begin)
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)
+        
+    def get_expanded_rows(self):
+        model = self.get_model()
+        expanded = []
+        for c in model.cats:
+            try:
+                path = model.on_get_path(c)
+                if self.row_expanded(model.on_get_path(c)):
+                    expanded.append(c.get_UID())
+            except KeyError: pass
+        return expanded
 
-    def expand_all(self):
-        #FIXME: Work around a (py)gtk 2.8 bug
+    def set_expand_rows(self):
+        if conduit.GLOBALS.settings.get("gui_restore_expanded_rows") == True:
+            model = self.get_model()
+            cols = conduit.GLOBALS.settings.get("gui_expanded_rows")
+            for c in model.cats:
+                try:
+                    path = model.on_get_path(c)
+                    if c.get_UID() in cols:
+                        self.expand_row(path, False)
+                    else:
+                        self.collapse_row(path)
+                except KeyError:
+                    #expand all
+                    break
+            return
+        #Work around a (py)gtk 2.8 bug
         if gtk.pygtk_version >= (2,10,0):
             gtk.TreeView.expand_all(self)
         
@@ -392,11 +419,5 @@ class DataProviderTreeView(gtk.TreeView):
         self.emit_stop_by_name('drag-data-delete')      
         #context.finish(True, True, etime)        
         
-    def get_expanded_rows(self):
-        def map_expanded_rows_func(treeview, path):
-            expanded.append(path)
 
-        expanded = []
-        self.map_expanded_rows(map_expanded_rows_func)
-        return expanded
 
