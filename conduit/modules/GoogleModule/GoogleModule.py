@@ -1,7 +1,6 @@
 import gobject
 import datetime
 import dateutil.parser
-import urllib2
 import vobject
 from dateutil.tz import tzutc, tzlocal
 import logging
@@ -835,7 +834,6 @@ class YouTubeSource(DataProvider.DataSource):
         [2] http://www.abdulqabiz.com/blog/archives/general/update_getting_youtu.php
         """
         flv_url = ''
-        doc = urllib2.urlopen(url)
 
         # extract video id
         url_splited = url.split("watch?v=")
