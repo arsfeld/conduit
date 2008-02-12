@@ -82,9 +82,6 @@ class FacebookSink(Image.ImageSink):
         if self.fapi.uid == None:
             self._login()
 
-    def is_configured (self):
-        return True
-
     def get_UID(self):
         return ""
         return self.fapi.uid

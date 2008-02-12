@@ -1,3 +1,11 @@
+2008-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/UI.py: Disable rgba colormap, it breaks the gtkmozembed
+	browser in weird ways
+	
+	* conduit/modules/FacebookModule/FacebookModule.py: Update to new 
+	is_configured() API
+
 2008-02-11  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/UI.py: Added RGBA support for conduit.
