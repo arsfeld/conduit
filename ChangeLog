@@ -1,3 +1,9 @@
+2008-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/*
+	* data/*:
+	* tools/*: Add more svn:ignores
+
 2008-02-13  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 
 	* conduit/modules/GoogleModule/GoogleModule.py: don't import urllib2,
