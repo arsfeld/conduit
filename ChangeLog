@@ -1,3 +1,8 @@
+2008-02-14  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/TestCoreSettings.py: Fix settings test
+	s/gui_expanded_columns/gui_expanded_rows
+
 2008-02-13  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/*

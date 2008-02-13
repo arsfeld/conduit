@@ -7,9 +7,8 @@ s = Settings.Settings()
 
 #Value not important. Needed to compare TYPES
 SETTINGS = {
-        'gui_expanded_columns'      :   (),
+        'gui_expanded_rows'         :   [],
         'gui_hpane_postion'         :   250,
-        'gui_window_size'           :   (),
         'gui_minimize_to_tray'      :   False,
         'web_login_browser'         :   "system"
 }
