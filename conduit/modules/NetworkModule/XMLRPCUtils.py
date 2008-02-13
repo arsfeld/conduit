@@ -103,7 +103,10 @@ class DataProviderClient(DataProvider.TwoWay):
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         clog.info("Connecting to remote DP on %s" % self.url)
-        self.server = xmlrpclib.Server(self.url)
+        #Add use_datetime arg for >= python 2.5
+        self.server = xmlrpclib.Server(
+                                    self.url,
+                                    allow_none=True)
 
     @Utils.log_function_call(clog)
     def refresh(self):

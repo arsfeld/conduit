@@ -1,5 +1,10 @@
 2008-02-14  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Add allow_none to Sever
+	objects. This should fix the two way network sync bugs people were seeing
+
+2008-02-14  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/TestCoreSettings.py: Fix settings test
 	s/gui_expanded_columns/gui_expanded_rows
 
