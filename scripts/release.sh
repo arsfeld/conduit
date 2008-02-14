@@ -5,12 +5,11 @@ if [ ! -f $APP ] ; then
     exit 1
 fi
 
-#FIXME: Add version number command
 ./scripts/maintainer.py \
-    --debug \
     --revision=0.3.6 \
     --package-name=Conduit \
     --package-version=0.3.7 \
     --package-module=conduit \
     --release-note-template=scripts/release-template.txt \
-    --create-release-note
+    --create-release-note \
+    $*

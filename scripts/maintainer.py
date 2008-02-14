@@ -982,13 +982,6 @@ if opts.tag and not opts.confirm:
 	print 'To continue, you must supply the --confirm option'
 	sys.exit()
 
-if opts.tag and not opts.confirm:
-	print 'This will create a new tag on your SVN repository!!'
-	print 'Are you sure you want to continue?'
-	print
-	print 'To continue, you must supply the --confirm option'
-	sys.exit()
-
 if opts.get_bugs:
         bugs = get_bugs(opts.revision)
 	if len(bugs) < 1:

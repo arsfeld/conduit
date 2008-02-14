@@ -1,6 +1,11 @@
 2008-02-14  John Stowers  <john.stowers@gmail.com>
 
-	* scripts/maintainer.py:
+	* scripts/maintainer.py: Remove duplicate function
+	* scripts/release.sh: Pass inferior arguments
+
+2008-02-14  John Stowers  <john.stowers@gmail.com>
+
+	* scripts/maintainer.py: Split versoin into majmin version for download url
 	* scripts/release-template.txt: Fix download URL in release template
 
 2008-02-14  John Stowers  <john.stowers@gmail.com>
