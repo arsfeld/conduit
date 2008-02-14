@@ -1,6 +1,6 @@
 2008-02-14  John Stowers  <john.stowers@gmail.com>
 
-	* conduit/modules/NetworkModule/XMLRPCUtils.py: Add allow_none to Sever
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Add allow_none to Server
 	objects. This should fix the two way network sync bugs people were seeing
 
 2008-02-14  John Stowers  <john.stowers@gmail.com>
@@ -10,7 +10,7 @@
 
 2008-02-13  John Stowers  <john.stowers@gmail.com>
 
-	* conduit/*
+	* conduit/*:
 	* data/*:
 	* tools/*: Add more svn:ignores
 
