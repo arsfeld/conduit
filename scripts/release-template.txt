@@ -1,0 +1,59 @@
+Hey Everyone!
+
+I am proud to announce the release of $name $version
+ * Download: $download
+   $md5sums
+
+What is it?
+===========
+$about
+
+Conduit manages the synchronization and conversion of data into other formats. 
+For example, Conduit allows you to;
+ * Synchronize your Tomboy notes with another computer
+ * Synchronize your your PIM data to your mobile phone, iPod, 
+   Nokia Internet tablet, or between computers
+ * Upload photos to Flickr, Picasa, SmugMug, ShutterFly and your iPod, 
+ * ... and many more
+
+Any combination you can imagine, Conduit will take care of the conversion 
+and synchronization.
+
+Where can I find out more?
+==========================
+ * Website: $website
+ * Screenshots/Screencast: http://www.conduit-project.org/wiki/Screenshots
+ * Mailing List: http://mail.gnome.org/mailman/listinfo/conduit-list
+ * Bugs: http://bugzilla.gnome.org/enter_bug.cgi?product=conduit
+
+What's New?
+===========
+$news
+
+Bugs Fixed:
+===========
+$fixed
+
+Translations:
+=============
+$translations
+
+Manual Translations:
+====================
+$help_translations
+
+What Can Conduit Do:
+====================
+For a list of all the services that conduit supports see
+ * http://www.conduit-project.org/wiki/SyncStatus
+
+Conduit can perform one-way and two-synchronization (and conversion/transcoding)
+of data between locations. In one-way sync/export conduit will only replace
+exising data if the new copy has been modified. It can also optionally delete 
+data if the original has been deleted.
+
+Conduit has a complete DBus interface to allow other application authors to 
+use Conduit to perform the synchronization and export tasks of their 
+applications.
+
+$footer

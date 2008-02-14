@@ -1,1 +1,16 @@
+* Update to the latest versions of our shipped static libraries
+  * flickrapi (fixes many Flickr bugs)
+  * pyfacebook
+  * python-gdata (and use this for Picasa support)
+  * libgmail
+* The Eye of gnome plugin now shows status while synchronizing
+* Add support for syncing Gmail contacts
+* Add a 'developer' submenu to the help menu.
+  This is shown if the user is running a development version and contains 
+  items which link to the newly improved developer documentation.
+  The linked pages are displayed in conduit's built in web browser.
+* Make the Conflict preferences per Conduit
+* Add descriptive icons to the preferences menu
+* Improvements in two-way contact/tomboy/calendar sync over the network
+* Use maintainer.py to make the release
 

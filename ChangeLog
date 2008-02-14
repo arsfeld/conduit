@@ -1,5 +1,13 @@
 2008-02-14  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS:
+	* scripts/maintainer.py:
+	* scripts/release-template.txt:
+	* scripts/release.sh: Add maintainer.py to help me do releases more
+	frequently
+
+2008-02-14  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/NetworkModule/XMLRPCUtils.py: Add allow_none to Server
 	objects. This should fix the two way network sync bugs people were seeing
 
