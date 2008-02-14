@@ -7,6 +7,15 @@ PRESET_ENCODINGS = {
     "jpeg":{'formats':'image/jpeg','default-format':'image/jpeg'},
     "png":{'formats':'image/png','default-format':'image/png'}
     }
+    
+def mimetype_is_photo(mimetype):
+    """
+    @returns: True if the given mimetype string represents an image file
+    """
+    if mimetype.startswith("image/"):
+        return True
+    else:
+        return False
 
 class Photo(File.File):
     """

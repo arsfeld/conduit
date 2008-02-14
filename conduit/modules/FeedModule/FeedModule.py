@@ -3,9 +3,7 @@ try:
 except:
     from xml.etree import ElementTree
 
-import mimetypes
 import traceback
-
 import urllib2
 import os
 from os.path import abspath, expanduser
@@ -19,6 +17,9 @@ import conduit.Utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
+import conduit.datatypes.Audio as Audio
+import conduit.datatypes.Video as Video
+import conduit.datatypes.Photo as Photo
 
 MODULES = {
     "RSSSource" : { "type": "dataprovider" }    
@@ -34,34 +35,24 @@ class RSSSource(DataProvider.DataSource):
     _out_type_ = "file"
     _icon_ = "feed"
 
-    PHOTO_TYPES = []
-    AUDIO_TYPES = []
-    VIDEO_TYPES = []
-
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-        
         self.feedUrl = ""
         self.files = {}
-
         self.limit = 0        
         self.downloadPhotos = True
         self.downloadAudio = True
         self.downloadVideo = True
-
-        mimetypes.init()
-
-        # loop through all mime types and detect common mime types
-        for m in mimetypes.types_map.values():
-            if m[:6] == "image/":
-                RSSSource.PHOTO_TYPES.append(m)
-            elif m[:6] == "audio/":
-                RSSSource.AUDIO_TYPES.append(m)
-            elif m[:6] == "video/":
-                RSSSource.VIDEO_TYPES.append(m)
-
-        # why on gods green earth is there an application/ogg :(
-        self.AUDIO_TYPES.append("application/ogg")
+        
+    def _is_allowed_type(self, mimetype):
+        ok = False
+        if not ok and self.downloadPhotos:
+            ok = Photo.mimetype_is_photo(mimetype)
+        if not ok and self.downloadAudio:
+            ok = Audio.mimetype_is_audio(mimetype)
+        if not ok and self.downloadVideo:
+            ok = Video.mimetype_is_video(mimetype)
+        return ok
 
     def initialize(self):
         return True
@@ -70,8 +61,8 @@ class RSSSource(DataProvider.DataSource):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
-						"RSSSourceConfigDialog"
-						)
+                        "RSSSourceConfigDialog"
+                        )
         
         #get a whole bunch of widgets
         url = tree.get_widget("url")
@@ -108,16 +99,6 @@ class RSSSource(DataProvider.DataSource):
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-
-        #Add allowed mimetypes to filter
-        allowedTypes = []
-        if self.downloadPhotos:
-            allowedTypes += RSSSource.PHOTO_TYPES
-        if self.downloadAudio:
-            allowedTypes += RSSSource.AUDIO_TYPES
-        if self.downloadVideo:
-            allowedTypes += RSSSource.VIDEO_TYPES
-
         self.files = {}
         try:
             url_info = urllib2.urlopen(self.feedUrl)
@@ -141,12 +122,12 @@ class RSSSource(DataProvider.DataSource):
                         #Check if we have all the info
                         if url and t and title:
                             log.debug("Got enclosure %s %s (%s)" % (title,url,t))
-                            if t in allowedTypes:
+                            if self._is_allowed_type(t):
                                 if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
                                     allreadyInserted.append(url)
                                     self.files[url] = (title,t)
                             else:
-                                log.debug("Enclosure %s is on non-allowed type (%s)" % (title,t))
+                                log.debug("Enclosure %s is an illegal type (%s)" % (title,t))
         except:
             log.info("Error getting/parsing feed \n%s" % traceback.format_exc())
             raise Exceptions.RefreshError
@@ -161,11 +142,11 @@ class RSSSource(DataProvider.DataSource):
         f = File.File(URI=url)
         f.set_UID(url)
         f.set_open_URI(url)
+        name, ext = f.get_filename_and_extension()
         
-        #create the correct extension and filename
+        #create the correct filename and retain the original extension
         try:
             title,t = self.files[url]
-            ext = mimetypes.guess_extension(t)
             f.force_new_filename(title)
             f.force_new_file_extension(ext)
         except:

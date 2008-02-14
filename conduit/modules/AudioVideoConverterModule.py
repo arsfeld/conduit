@@ -106,24 +106,10 @@ class AudioVideoConverter:
                             "file,file/audio"           :   self.file_to_audio
                             }
                             
-    def _is_video(self, f):
-        mimetype = f.get_mimetype()
-        if mimetype.startswith("video/"):
-            return True
-        elif mimetype == "application/ogg":
-            return True
-        else:
-            log.debug("File is not video type: %s" % mimetype)
-            
-    def _is_audio(self, f):
-        mimetype = f.get_mimetype()
-        if mimetype.startswith("audio/"):
-            return True
-        else:
-            log.debug("File is not audio type: %s" % mimetype)
-
     def transcode_video(self, video, **kwargs):
-        if not self._is_video(video):
+        mimetype = video.get_mimetype()
+        if not Video.mimetype_is_video(mimetype):
+            log.debug("File %s is not video type: %s" % (video,mimetype))
             return None
         input_file = video.get_local_uri()
         
@@ -181,7 +167,9 @@ class AudioVideoConverter:
         return video
         
     def transcode_audio(self, audio, **kwargs):
-        if not self._is_audio(audio):
+        mimetype = audio.get_mimetype()
+        if not Audio.mimetype_is_audio(mimetype):
+            log.debug("File %s is not audio type: %s" % (audio,mimetype))
             return None
         input_file = audio.get_local_uri()
 
@@ -228,7 +216,8 @@ class AudioVideoConverter:
         return audio
         
     def file_to_audio(self, f, **kwargs):
-        if self._is_audio(f):
+        mimetype = f.get_mimetype()
+        if Audio.mimetype_is_audio(mimetype):
             a = Audio.Audio(
                         URI=f._get_text_uri()
                         )
@@ -241,7 +230,8 @@ class AudioVideoConverter:
             return None
 
     def file_to_video(self, f, **kwargs):
-        if self._is_video(f):
+        mimetype = f.get_mimetype()
+        if Video.mimetype_is_video(mimetype):
             v = Video.Video(
                         URI=f._get_text_uri()
                         )

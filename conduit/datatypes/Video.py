@@ -12,6 +12,17 @@ PRESET_ENCODINGS = {
     "flv":{"arate":22050,"abitrate":32,"format":"flv","acodec":"mp3","mencoder":True,"file_extension":"flv"}   
     }
 
+def mimetype_is_video(mimetype):
+    """
+    @returns: True if the given mimetype string represents a video file
+    """
+    if mimetype.startswith("video/"):
+        return True
+    elif mimetype == "application/ogg":
+        return True
+    else:
+        return False
+
 class Video(File.File):
 
     _name_ = "file/video"

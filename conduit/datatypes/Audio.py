@@ -5,6 +5,17 @@ PRESET_ENCODINGS = {
     "ogg":{"acodec":"vorbis","format":"ogg","file_extension":"ogg"},
     "wav":{"acodec":"pcm_mulaw","format":"wav","file_extension":"wav"}
     }
+    
+def mimetype_is_audio(mimetype):
+    """
+    @returns: True if the given mimetype string represents an audio file
+    """
+    if mimetype.startswith("audio/"):
+        return True
+    elif mimetype == "application/ogg":
+        return True
+    else:
+        return False
 
 class Audio(File.File):
 

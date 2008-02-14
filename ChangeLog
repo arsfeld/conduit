@@ -1,5 +1,16 @@
 2008-02-15  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/Audio.py:
+	* conduit/datatypes/Photo.py:
+	* conduit/datatypes/Video.py:
+	* conduit/modules/AudioVideoConverterModule.py:
+	* conduit/modules/FeedModule/FeedModule.py: Put the common mimetype testing
+	logic into the appropriate datatype. Fixes bug #516523
+
+	* test/python-tests/TestDataProviderFeed.py: Add an mp3 podcast feed test
+
+2008-02-15  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py: Better approach to supporting RGBA colormaps.
 	Fixes bug #515648 (Jon Bolt, Andrea Cimitan)
 
