@@ -1,5 +1,10 @@
 2008-02-15  John Stowers  <john.stowers@gmail.com>
 
+	* data/conduit.desktop.in.in: Pull in debian patches which make the 
+	desktop file xdg compliant. Fixes bug #516567 (Jose Carlos Garcia Sogo)
+
+2008-02-15  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/Audio.py:
 	* conduit/datatypes/Photo.py:
 	* conduit/datatypes/Video.py:
