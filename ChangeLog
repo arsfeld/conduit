@@ -14,7 +14,7 @@
 	* data/*:
 	* tools/*: Add more svn:ignores
 
-2008-02-13  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-02-13  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py: don't import urllib2,
 	we don't need it anymore
@@ -45,8 +45,7 @@
 
 2008-02-11  John Stowers  <john.stowers@gmail.com>
 
-	* conduit/gtkui/UI.py: Added RGBA support for conduit.
-	Fixes bug #515648 (Jon Bolt)
+	* conduit/gtkui/UI.py: Added RGBA support for conduit. Fixes #515648 (Jon Bolt)
 
 2008-02-10  John Stowers  <john.stowers@gmail.com>
 
@@ -105,16 +104,16 @@
 	* data/conduit.glade: Change Dataprovider to Data Provider in all UI
 	strings. Patch from Ted Percival
 
-2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/modules/GoogleModule/youtube-config.glade: Switch position
 	of the ok and cancel button.
 
-2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/modules/GoogleModule/GoogleModule.py: Youtube changed
 	apparently changed for data format, use a new trick to get the flv
 	files. Fixes #514589.
 
-2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/modules/FlickrModule/flickrapi/__init__.py:
 	* conduit/modules/FlickrModule/flickrapi/reportinghttp.py:
 	* conduit/modules/FlickrModule/flickrapi/multi-username.patch: Remove
@@ -247,7 +246,7 @@
 	* conduit/modules/TomboyModule.py:
 	* test/python-tests/TestDataProviderTomboy.py: Update to use the newer
 	Tomboy S/GetNoteComplete API. This finally allows lossless sync of Tomboy
-	notes including metadata such as tags.
+	notes including metadata such as tags. Fixes bug #510107
 
 2008-01-24  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/modules/FspotModule/FspotDbusModule.py: Handle error when
@@ -382,7 +381,8 @@
 	* conduit/modules/GoogleModule/GoogleModule.py: Move PicasaModule
 	code, try to import our own gdata copy when the system one doesn't
 	work, make PicasaTwoWay use the gdata bindings instead of our own
-	limited custom ones
+	limited custom ones. Fixes #510471
+	
 	* test/python-tests/TestDataProviderPicasa: change test to work with
 	new gdata bindings
 
@@ -463,7 +463,7 @@
 
 	* conduit/modules/FspotModule/FspotModule.py:
 	* conduit/modules/FspotModule/config.glade: Sort the tags by name and
-	allow search as you type in the config window. Fixes bug #355797 (maxxer)
+	allow search as you type in the config window. Fixes bug #509021 (maxxer)
 
 2008-01-17  John Stowers  <john.stowers@gmail.com>
 
@@ -910,7 +910,7 @@
 2008-01-10  John Carr <john.carr@unrouted.co.uk>
 
 	*  conduit/modules/FspotModule/FspotModule.py:
-	Sort tags properly (patch from maxxer)
+	Sort tags properly. Fixes #508645 (maxxer)
 
 2008-01-11  John Stowers <john.stowers@gmail.com>
 
@@ -991,7 +991,7 @@
 	* conduit/Vfs.py: Add functions to strip illegal filesystem characters.
 	Borrowed from soundjuicer #321436
 
-2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py:
 	* conduit/hildonui/UI.py: Add sync all button and some general cleanup
@@ -1046,7 +1046,7 @@
 	* conduit/Makefile.am: Fix some missing autofoo that was stopping
 	clean installs running correctly
 
-2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/hildonui/UI.py:
 	* conduit/hildonui/Canvas.py: add context menus to conduit and 
 	dataprovider items, re-order the methods to make code clearer, 
