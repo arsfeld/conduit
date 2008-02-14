@@ -1,5 +1,10 @@
 2008-02-14  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/__init__.py:
+	* configure.ac: Version bump 0.3.8
+
+2008-02-14  John Stowers  <john.stowers@gmail.com>
+
 	* scripts/maintainer.py: Remove duplicate function
 	* scripts/release.sh: Pass inferior arguments
 
