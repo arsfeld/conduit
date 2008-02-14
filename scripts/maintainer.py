@@ -709,7 +709,7 @@ def create_release_note(tag, template_file):
         bugs = get_bugs(tag)
        
         download = 'http://download.gnome.org/sources/%s/%s/' % (package_name.lower(), 
-                                                                 package_version)
+                                                                 package_version[0:3])
 
         # Get an MD5 sum of the tarballs.
         md5sums = ''

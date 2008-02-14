@@ -1,8 +1,7 @@
 Hey Everyone!
 
-I am proud to announce the release of $name $version
- * Download: $download
-   $md5sums
+I am proud to announce that $name $version is now available for download from:
+ * $download
 
 What is it?
 ===========

@@ -1,5 +1,10 @@
 2008-02-14  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/maintainer.py:
+	* scripts/release-template.txt: Fix download URL in release template
+
+2008-02-14  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS:
 	* scripts/maintainer.py:
 	* scripts/release-template.txt:
