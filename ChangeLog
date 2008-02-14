@@ -105,15 +105,18 @@
 	strings. Patch from Ted Percival
 
 2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/GoogleModule/youtube-config.glade: Switch position
 	of the ok and cancel button.
 
 2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: Youtube changed
 	apparently changed for data format, use a new trick to get the flv
 	files. Fixes #514589.
 
 2008-02-08  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/FlickrModule/flickrapi/__init__.py:
 	* conduit/modules/FlickrModule/flickrapi/reportinghttp.py:
 	* conduit/modules/FlickrModule/flickrapi/multi-username.patch: Remove
@@ -126,6 +129,7 @@
 	thats broken with the new moinmoin version anyway.
 
 2008-02-07  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/data/conduit.glade: Make the Conflict	Preferences a bit 
 	better.	Fixes bug #512540
 
@@ -142,6 +146,7 @@
 	class. Fixes bug #514729
 
 2008-02-06  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/DBus.py: fix dbus exposed IsConfigured method
 
 2008-02-07  John Stowers  <john.stowers@gmail.com>
@@ -224,6 +229,7 @@
 	things easier to adjust on small screens (like the eeepc)
 
 2008-01-28  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/GoogleModule/youtube-config.glade:
 	* conduit/modules/GoogleModule/Makefile.am:
 	* conduit/modules/GoogleModule/GoogleModule.py: move youtube dataprovider
@@ -234,6 +240,7 @@
 	* conduit/modules/YouTubeModule/*: deleted and moved to GoogleModule
 
 2008-01-27  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/FspotModule.py:
 	* conduit/modules/FspotDbusModule.py: Move the dbus dataprovider in
 	the FspotModule.py file, remove the old file.  No longer load the
@@ -249,6 +256,7 @@
 	notes including metadata such as tags. Fixes bug #510107
 
 2008-01-24  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/FspotModule/FspotDbusModule.py: Handle error when
 	delete fails; and more important: the module is configured ok when no
 	tag is selected.  When it's used as source it will sync the complete
@@ -369,6 +377,7 @@
 	the user has gdata installed, but an older version without photo support
 
 2008-01-20  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* configure.ac: include our gdata copy in the build
 	* conduit/modules/GoogleModule/libgdata/*: Include our own copy of
 	python-gdata. Currently at version 1.0.10; this will allow us to
@@ -992,6 +1001,7 @@
 	Borrowed from soundjuicer #321436
 
 2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py:
 	* conduit/hildonui/UI.py: Add sync all button and some general cleanup
@@ -1047,6 +1057,7 @@
 	clean installs running correctly
 
 2007-12-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/hildonui/UI.py:
 	* conduit/hildonui/Canvas.py: add context menus to conduit and 
 	dataprovider items, re-order the methods to make code clearer, 
