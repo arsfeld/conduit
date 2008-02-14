@@ -92,9 +92,8 @@ class MainWindow:
         if conduit.GLOBALS.settings.get("gui_use_rgba_colormap") == True:
             screen = self.mainWindow.get_screen()
             colormap = screen.get_rgba_colormap()
-            if colormap == None:
-                colormap = screen.get_rgb_colormap()
-            gtk.widget_set_default_colormap(colormap)       
+            if colormap:
+                gtk.widget_set_default_colormap(colormap)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_name("conduit")
         title = "%s" % conduit.APPNAME

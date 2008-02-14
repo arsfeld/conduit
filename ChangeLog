@@ -1,5 +1,10 @@
 2008-02-15  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/UI.py: Better approach to supporting RGBA colormaps.
+	Fixes bug #515648 (Jon Bolt, Andrea Cimitan)
+
+2008-02-15  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/gdata/media/Makefile.am: s/libgdata/gdata
 	Fixes bug #516410
 
