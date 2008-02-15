@@ -1,5 +1,19 @@
 2008-02-15  John Stowers  <john.stowers@gmail.com>
 
+	* data/icons/hicolor/26x26/Makefile.am:
+	* data/icons/hicolor/26x26/apps/Makefile.am: Remove unused icon	size.
+
+	* configure.ac:
+	* data/icons/hicolor/24x24/apps/Makefile.am:
+	* data/icons/hicolor/Makefile.am:
+	* data/icons/hicolor/scalable/apps/conduit.svg:
+	* data/logo.svg:
+	* website/conduit-32.svg:
+	* website/conduit_header.svg: Updated conduit icons and artwork. 
+	Contributed by mejogid.
+
+2008-02-15  John Stowers  <john.stowers@gmail.com>
+
 	* data/conduit.desktop.in.in: Pull in debian patches which make the 
 	desktop file xdg compliant. Fixes bug #516567 (Jose Carlos Garcia Sogo)
 
