@@ -1,5 +1,12 @@
 2008-02-15  John Stowers  <john.stowers@gmail.com>
 
+	* configure.ac:
+	* data/icons/hicolor/26x26/Makefile.am:
+	* data/icons/hicolor/26x26/apps/Makefile.am:
+	* data/icons/hicolor/Makefile.am: Restore the 26x26 icon needed by maemo.
+
+2008-02-15  John Stowers  <john.stowers@gmail.com>
+
 	* data/icons/hicolor/26x26/Makefile.am:
 	* data/icons/hicolor/26x26/apps/Makefile.am: Remove unused icon	size.
 
