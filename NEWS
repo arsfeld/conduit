@@ -1,3 +1,5 @@
+NEW in 0.3.7:
+==============
 * Update to the latest versions of our shipped static libraries
   * flickrapi (fixes many Flickr bugs)
   * pyfacebook
@@ -13,4 +15,25 @@
 * Add descriptive icons to the preferences menu
 * Improvements in two-way contact/tomboy/calendar sync over the network
 * Use maintainer.py to make the release
+* Fixed #508645, sort f-spot tag by name (maxxer)
+* Fixed #509021, F-Spot dataproviders glade incompatibility (maxxer)
+* Fixed #510091, Make configuration of dps dependant on their position (John Stowers)
+* Fixed #510094, Conflict Settings should be per conduit (John Stowers)
+* Fixed #510107, Add support for tomboy tags (and notebooks) (John Stowers)
+* Fixed #510129, Picasa should use google gdata bindings (Renato Araujo Oliveira Filho)
+* Fixed #510471, picasa upload should keep filename (Thomas Van Machelen)
+* Fixed #510523, folder dataprovider changes folder (John Stowers)
+* Fixed #511017, [GmailModule] Configure dialogue doesn't save data (Julian Rötter)
+* Fixed #512379, Python warnings about gtkmozembed declaration (John Stowers)
+* Fixed #512540, Mirror/Delete Option for One-Way-Sync (Thomas Van Machelen)
+* Fixed #514589, YouTube - Folder synchronization bug (Thomas Van Machelen)
+* Fixed #514729, GoogleModule.py is a mess (John Stowers)
+* Fixed #515270, Logger prints entries twice (Thomas Van Machelen)
 
+Translations:
+* Updated ca: Gil Forcada
+* Updated sv: John Stowers
+* Updated it: Luca Ferretti
+
+Help Manual Translations:
+* Updated es: Jorge Gonzalez
