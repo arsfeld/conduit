@@ -1,0 +1,5 @@
+2008-02-17  John Stowers  <john.stowers@gmail.com>
+
+	* release.sh: Dont always generate release notes
+	* maintainer.py: Convert all remaining spaces to tabs
+

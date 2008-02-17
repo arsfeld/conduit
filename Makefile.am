@@ -30,16 +30,4 @@ EXTRA_DIST = \
 	doap.rdf.in \
 	gnome-doc-utils.make
 
-#Update NEWS and TODO from http://www.conduit-project.org
-#Ugly autofoo to support make distcheck pass
-dist-hook:
-	@echo "Generating NEWS, TODO"
-	@if test -d $(top_srcdir)/.svn ; then \
-		wget -q -O $(distdir)/NEWS "http://www.conduit-project.org/wiki/$(VERSION)?format=txt" ; \
-		wget -q -O $(distdir)/TODO "http://www.conduit-project.org/wiki/TODO?format=txt" ; \
-	else \
-		touch $(distdir)/NEWS; \
-		touch $(distdir)/TODO; \
-	fi
-
 

@@ -267,38 +267,38 @@ def get_svn_url():
 	return info[start:end]
 
 def get_bugs(tag):
-        get_package_info()
+	get_package_info()
 
 	if vc_command == 'cvs':
 		cmd = '%s diff %s -r %s ChangeLog' % (vc_command, vc_parameters, tag)
 	elif vc_command == 'svn':
-                url = get_svn_url()
-                root = get_svn_root()
+		url = get_svn_url()
+		root = get_svn_root()
 
 		revision = "%s/tags/%s" % (root, tag)
 		if opts.debug: 
-	        	print 'Using SVN root: %s...' % (root) 
-	        	print 'Using SVN diff url1: %s...' % (url) 
-	        	print 'Using SVN diff url2: %s...' % (revision) 
+			print 'Using SVN root: %s...' % (root) 
+			print 'Using SVN diff url1: %s...' % (url) 
+			print 'Using SVN diff url2: %s...' % (revision) 
 
 		cmd = '%s diff %s %s/ChangeLog %s/ChangeLog' % (vc_command, vc_parameters, revision, url)
 	else:
 		print 'Version control system unrecognised, not cvs or svn'
 		sys.exit(1)
 
-        bugs = ''
-        
-        # Pattern to match ChangeLog entry
-        exp = '^\+(?P<date>[0-9][0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]) ' \
-              '(?P<name>.*) <*@*>*'
-        changelog_pattern = re.compile(exp, re.S | re.M)
+	bugs = ''
+	
+	# Pattern to match ChangeLog entry
+	exp = '^\+(?P<date>[0-9][0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]) ' \
+		  '(?P<name>.*) <*@*>*'
+	changelog_pattern = re.compile(exp, re.S | re.M)
 
-        # Patter to match bug fixers name, e.g.: "#123456 (Martyn Russell)"
-        exp = '.*#(?P<bug>[0-9]+)(.*\((?P<name>.*)\))?'
-        bugfix_pattern = re.compile(exp, re.S | re.M)
+	# Patter to match bug fixers name, e.g.: "#123456 (Martyn Russell)"
+	exp = '.*#(?P<bug>[0-9]+)(.*\((?P<name>.*)\))?'
+	bugfix_pattern = re.compile(exp, re.S | re.M)
 
 	if opts.debug: 
-	        print 'Retrieving bug changes since tag: %s...' % (tag) 
+		print 'Retrieving bug changes since tag: %s...' % (tag) 
 
 	pos = 0
 	changes = os.popen(cmd).read()
@@ -321,11 +321,11 @@ def get_bugs(tag):
 			break
 
 		# Check this is a change 	
-                if not line[0] == '+':
-                        continue
+		if not line[0] == '+':
+			continue
 
 		# Get committer details
-                match = changelog_pattern.match(line)
+		match = changelog_pattern.match(line)
 		if match:
 			last_committer = match.group('name')	
 			continue
@@ -352,76 +352,75 @@ def get_bugs(tag):
 			method = 'patch'
 
 		# Set name for bug
-                bug_names[bug] = name
+		bug_names[bug] = name
 
 		if bugs.find(bug) > -1:
 			continue
 
 		# Add bug to list
-                if not bugs == '':
-                       	bugs = bugs + ','
-
-               	bugs = bugs + bug
-                
-        return bugs
+		if not bugs == '':
+			bugs = bugs + ','
+		bugs = bugs + bug
+		
+	return bugs
 
 def get_summary(bugs):
 	if bugs == '':
 		return 'No summary due to no bugs';
 
-        # Bugzilla query to use
-        query = 'http://bugzilla.gnome.org/buglist.cgi?ctype=csv' \
-                '&bug_status=RESOLVED,CLOSED,VERIFIED' \
-                '&resolution=FIXED' \
-                '&bug_id='
-        query = query + bugs.replace(',', '%2c')
+	# Bugzilla query to use
+	query = 'http://bugzilla.gnome.org/buglist.cgi?ctype=csv' \
+		'&bug_status=RESOLVED,CLOSED,VERIFIED' \
+		'&resolution=FIXED' \
+		'&bug_id='
+	query = query + bugs.replace(',', '%2c')
 
 	if opts.debug:
-	        print 'Retrieving bug information for: %s...' % (bugs)
+		print 'Retrieving bug information for: %s...' % (bugs)
 
-        f = urllib.urlopen(query)
-        s = f.read()
-        f.close()
+	f = urllib.urlopen(query)
+	s = f.read()
+	f.close()
 
-        col_bug_id = -1
-        col_description = -1
+	col_bug_id = -1
+	col_description = -1
 
-        reader = csv.reader(s.splitlines(1))
-        header = reader.next()
-        i = 0
+	reader = csv.reader(s.splitlines(1))
+	header = reader.next()
+	i = 0
 
-        for col in header:
-                if col == 'bug_id':
-                        col_bug_id = i
-                if col == 'short_short_desc':
-                        col_description = i
+	for col in header:
+		if col == 'bug_id':
+			col_bug_id = i
+		if col == 'short_short_desc':
+			col_description = i
 
-                i = i + 1
+		i = i + 1
 
-        if col_bug_id == -1 or col_description == -1:
-                print 'Could not identify the bug id or description columns'
-                sys.exit()
+	if col_bug_id == -1 or col_description == -1:
+		print 'Could not identify the bug id or description columns'
+		sys.exit()
 
-        summary = ''
+	summary = ''
 
 	if opts.html:
 		summary += '<ul>'
 	
-        for row in reader:
-                bug_number = row[col_bug_id]
-                description = row[col_description]
-                who = bug_names[bug_number]
+	for row in reader:
+		bug_number = row[col_bug_id]
+		description = row[col_description]
+		who = bug_names[bug_number]
 
-                if len(summary) > 0:
-                        summary += '\n'
+		if len(summary) > 0:
+			summary += '\n'
 
-                if opts.html:
-                        link = "http://bugzilla.gnome.org/show_bug.cgi?id=%s" % (bug_number)
-                        bug = "<a href=\"%s\">#%s</a>" % (link, bug_number)
-                else:
-                        bug = "#%s" % (bug_number)
+		if opts.html:
+			link = "http://bugzilla.gnome.org/show_bug.cgi?id=%s" % (bug_number)
+			bug = "<a href=\"%s\">#%s</a>" % (link, bug_number)
+		else:
+			bug = "#%s" % (bug_number)
 
-	        text = 'Fixed %s, %s (%s)' % (bug, description, who)
+		text = 'Fixed %s, %s (%s)' % (bug, description, who)
 
 		if opts.html:
 			summary += '<li>%s</li>' % (text)
@@ -434,22 +433,22 @@ def get_summary(bugs):
 	if summary == '':
 		summary = 'None'
 
-        return summary
+	return summary
 
 def get_translators(tag, dir):
-        get_package_info()
+	get_package_info()
 
 	if vc_command == 'cvs':
-                cmd = '%s diff -u -r %s %s/ChangeLog' % (vc_command, tag, dir)
+		cmd = '%s diff -u -r %s %s/ChangeLog' % (vc_command, tag, dir)
 	elif vc_command == 'svn':
-                url = get_svn_url()
-                root = get_svn_root()
+		url = get_svn_url()
+		root = get_svn_root()
 
 		revision = "%s/tags/%s" % (root, tag)
 		if opts.debug: 
-	        	print 'Using SVN root: %s...' % (root) 
-	        	print 'Using SVN diff url1: %s...' % (url) 
-	        	print 'Using SVN diff url2: %s...' % (revision) 
+			print 'Using SVN root: %s...' % (root) 
+			print 'Using SVN diff url1: %s...' % (url) 
+			print 'Using SVN diff url2: %s...' % (revision) 
 
 		cmd = '%s diff %s %s/%s/ChangeLog %s/%s/ChangeLog' % (vc_command, vc_parameters, revision, dir, url, dir)
 	else:
@@ -457,19 +456,19 @@ def get_translators(tag, dir):
 		sys.exit(1)
 
 
-        translators = {}
+	translators = {}
 
-        # Pattern to match ChangeLog entry
-        exp = '^\+(?P<date>[0-9][0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]) ' \
-              '(?P<name>.*) <*@*>*'
-        changelog_pattern = re.compile(exp, re.S | re.M)
+	# Pattern to match ChangeLog entry
+	exp = '^\+(?P<date>[0-9][0-9][0-9][0-9]\-[0-9][0-9]\-[0-9][0-9]) ' \
+		  '(?P<name>.*) <*@*>*'
+	changelog_pattern = re.compile(exp, re.S | re.M)
 
-        # Pattern to match language and sponsored name for change, e.g.: 
-        # "en_GB.po: Updated by (Martyn Russell)"
-        exp = '.*\* (.*/)?(?P<lang>.*).po: (.*\((?P<name>.*)\))?'
-        lang_pattern = re.compile(exp, re.S | re.M)
+	# Pattern to match language and sponsored name for change, e.g.: 
+	# "en_GB.po: Updated by (Martyn Russell)"
+	exp = '.*\* (.*/)?(?P<lang>.*).po: (.*\((?P<name>.*)\))?'
+	lang_pattern = re.compile(exp, re.S | re.M)
 
-        if opts.debug:
+	if opts.debug:
 		print 'Retrieving PO changes for %s dir since tag: %s...' % (dir, tag) 
 
 	pos = 0
@@ -493,11 +492,11 @@ def get_translators(tag, dir):
 			break
 
 		# Check this is a change 	
-                if not line[0] == '+':
-                        continue
+		if not line[0] == '+':
+			continue
 
 		# Get committer details
-                match = changelog_pattern.match(line)
+		match = changelog_pattern.match(line)
 		if match:
 			last_committer = match.group('name')	
 			continue
@@ -521,24 +520,24 @@ def get_translators(tag, dir):
 			name = name.replace('+', ' ')
 			name = name.strip()
 
-                if translators.has_key(lang):
-                        if translators[lang].find(name) > -1:
-                                continue;	
+		if translators.has_key(lang):
+			if translators[lang].find(name) > -1:
+				continue;	
 
-                        translators[lang] += ', ' + name 
-                else:
-                        translators[lang] = name
+			translators[lang] += ', ' + name 
+		else:
+			translators[lang] = name
 
 	summary = ''
 
 	if opts.html:
 		summary += '<ul>'
 	
-        for lang in translators:
-                if len(summary) > 0:
-                        summary += '\n'
+	for lang in translators:
+		if len(summary) > 0:
+			summary += '\n'
 
-                text = 'Updated %s: %s' % (lang, translators[lang])
+		text = 'Updated %s: %s' % (lang, translators[lang])
 
 		if opts.html:
 			summary += '<li>%s</li>' % (text)
@@ -551,45 +550,45 @@ def get_translators(tag, dir):
 	if summary == '':
 		summary = 'None'
 
-        return summary
+	return summary
 
 def get_description():
-        get_package_info()
+	get_package_info()
 
 	if opts.debug:
-	        print 'Retrieving product descripton for %s ...' % (package_name)
+		print 'Retrieving product descripton for %s ...' % (package_name)
 
 	query = 'http://bugzilla.gnome.org/browse.cgi?product=%s' % (package_module)
-        f = urllib.urlopen(query)
-        s = f.read()
-        f.close()
+	f = urllib.urlopen(query)
+	s = f.read()
+	f.close()
 
-        if len(s) < 1:
-                return ''
-        
-        #
-        # HACK ALERT! HACK ALERT!
-        #
-        # This is likely to change if the Bugzilla page formatting changes, so 
-        # we put a lot of debugging in here.
+	if len(s) < 1:
+		return ''
+	
+	#
+	# HACK ALERT! HACK ALERT!
+	#
+	# This is likely to change if the Bugzilla page formatting changes, so 
+	# we put a lot of debugging in here.
 
-        s1 = '<p><i>'
-        i = s.find(s1)
-        if i == -1:
-        	if opts.debug:
-        	       	print 'Could not find string "%s"' % (s1) 
-        
-                return ''
+	s1 = '<p><i>'
+	i = s.find(s1)
+	if i == -1:
+		if opts.debug:
+			print 'Could not find string "%s"' % (s1) 
+	
+		return ''
 	
 	start = i + len(s1)
 
-        s2 = '</i></p>'
-        end = s.find(s2, i + 1)
-        if end == -1:
-        	if opts.debug:
-        	       	print 'Could not find string "%s"' % (s2) 
-        
-                return ''
+	s2 = '</i></p>'
+	end = s.find(s2, i + 1)
+	if end == -1:
+		if opts.debug:
+			print 'Could not find string "%s"' % (s2) 
+	
+		return ''
 	
 	# Get description
 	description = s[start:end]
@@ -597,53 +596,53 @@ def get_description():
 	return description
 
 def get_website():
-        get_package_info()
+	get_package_info()
 
 	if opts.debug:
-	        print 'Retrieving product website for %s ...' % (package_name)
+		print 'Retrieving product website for %s ...' % (package_name)
 
 	query = 'http://bugzilla.gnome.org/browse.cgi?product=%s' % (package_module)
-        f = urllib.urlopen(query)
-        s = f.read()
-        f.close()
+	f = urllib.urlopen(query)
+	s = f.read()
+	f.close()
 
-        if len(s) < 1:
-                return ''
+	if len(s) < 1:
+		return ''
 
 	# Get Homepage
 	s1 = "GNOME SVN"
 	i = s.find(s1)
-        if i == -1:
-                if opts.debug:
-        	       	print 'Could not find string "%s"' % (s1) 
-        
-                return ''
+	if i == -1:
+		if opts.debug:
+			print 'Could not find string "%s"' % (s1) 
+	
+		return ''
 
 	s1 = "href"
 	i = s.find(s1, i)
-        if i == -1:
-        	if opts.debug:
-        	       	print 'Could not find string "%s"' % (s1) 
-        
-                return ''
-        
-        start = i + 6
+	if i == -1:
+		if opts.debug:
+			print 'Could not find string "%s"' % (s1) 
+	
+		return ''
+	
+	start = i + 6
 
-        s2 = '">'
-        end = s.find(s2, start)
-        if end == -1:
-        	if opts.debug:
-        	       	print 'Could not find string "%s"' % (s2) 
-        
-                return ''
+	s2 = '">'
+	end = s.find(s2, start)
+	if end == -1:
+		if opts.debug:
+			print 'Could not find string "%s"' % (s2) 
+	
+		return ''
 	
 	return s[start:end]
 
 def get_default_template():
-        if opts.html:
-                return template_in_html
+	if opts.html:
+		return template_in_html
 
-        return template
+	return template
 
 def get_news():
 	f = open ('NEWS', 'r')
@@ -652,179 +651,179 @@ def get_news():
 	start = s.find ('NEW in '+ package_version)
 	start = s.find ('\n', start) + 1
 	start = s.find ('\n', start) + 1
-        end = s.find ('NEW in', start) - 1
-        return s[start:end]
+	end = s.find ('NEW in', start) - 1
+	return s[start:end]
 
 def create_release_note(tag, template_file):
-        # Open template file
-        if template_file == '' or template_file == 'DEFAULT':
-                if opts.debug:
-                        print 'Using DEFAULT template'
+	# Open template file
+	if template_file == '' or template_file == 'DEFAULT':
+		if opts.debug:
+			print 'Using DEFAULT template'
 
-                s = get_default_template()
-        else:
-                if opts.debug:
-                        print 'Using template file "%s"' % (template_file)
+		s = get_default_template()
+	else:
+		if opts.debug:
+			print 'Using template file "%s"' % (template_file)
 
-                f = open(template_file, 'r')
-                s = f.read()
-                f.close()
+		f = open(template_file, 'r')
+		s = f.read()
+		f.close()
 
-        if len(s) < 1: 
-                print 'Template file was empty or does not exist'
-                sys.exit(1)
+	if len(s) < 1: 
+		print 'Template file was empty or does not exist'
+		sys.exit(1)
 
-        # Check we have everything
-        if s.find('$download') == -1:
-                print 'Could not find "$download" in template'
-                sys.exit(1)
+	# Check we have everything
+	if s.find('$download') == -1:
+		print 'Could not find "$download" in template'
+		sys.exit(1)
 
-        if s.find('$news') == -1:
-                print 'Could not find "$news" in template'
-                sys.exit(1)
+	if s.find('$news') == -1:
+		print 'Could not find "$news" in template'
+		sys.exit(1)
 
-        if s.find('$fixed') == -1:
-                print 'Could not find "$fixed" in template'
-                sys.exit(1)
+	if s.find('$fixed') == -1:
+		print 'Could not find "$fixed" in template'
+		sys.exit(1)
 
-        if s.find('$translations') == -1:
-                print 'Could not find "$translations" in template'
-                sys.exit(1)
+	if s.find('$translations') == -1:
+		print 'Could not find "$translations" in template'
+		sys.exit(1)
 
-        if s.find('$help_translations') == -1:
-                print 'Could not find "$help_translations" in template'
-                sys.exit(1)
+	if s.find('$help_translations') == -1:
+		print 'Could not find "$help_translations" in template'
+		sys.exit(1)
 
-        # Get date for footer
-        today = datetime.date.today()
-        date = today.strftime(format_date) 
+	# Get date for footer
+	today = datetime.date.today()
+	date = today.strftime(format_date) 
 
-        # Get package name and version
-        get_package_info()
+	# Get package name and version
+	get_package_info()
 
-        # Set up variables
-        name = package_name
-        version = package_version
+	# Set up variables
+	name = package_name
+	version = package_version
 
-        bugs = get_bugs(tag)
-       
-        download = 'http://download.gnome.org/sources/%s/%s/' % (package_name.lower(), 
-                                                                 package_version[0:3])
+	bugs = get_bugs(tag)
 
-        # Get an MD5 sum of the tarballs.
-        md5sums = ''
-        
-        cmd = 'md5sum %s-%s.tar.gz' % (package_name.lower(), package_version)
-        md5sums += os.popen(cmd).read()
+	download = 'http://download.gnome.org/sources/%s/%s/' % (package_name.lower(), 
+								 package_version[0:3])
 
-        cmd = 'md5sum %s-%s.tar.bz2' % (package_name.lower(), package_version)
-        md5sums += os.popen(cmd).read()
+	# Get an MD5 sum of the tarballs.
+	md5sums = ''
+	
+	cmd = 'md5sum %s-%s.tar.gz' % (package_name.lower(), package_version)
+	md5sums += os.popen(cmd).read()
 
-        if opts.html:
-                md5sums = md5sums.replace('\n', '<br>\n')
-        
-        about = get_description()
-        website = get_website()
+	cmd = 'md5sum %s-%s.tar.bz2' % (package_name.lower(), package_version)
+	md5sums += os.popen(cmd).read()
+
+	if opts.html:
+		md5sums = md5sums.replace('\n', '<br>\n')
+	
+	about = get_description()
+	website = get_website()
 
 	news = get_news()
 
-        fixed = get_summary(bugs)
-        translations = get_translators(tag, po_dir)
-        help_translations = get_translators(tag, help_dir)
-        
-        footer = '%s\n%s team' % (date, package_name)
+	fixed = get_summary(bugs)
+	translations = get_translators(tag, po_dir)
+	help_translations = get_translators(tag, help_dir)
+	
+	footer = '%s\n%s team' % (date, package_name)
 
-        if opts.html:
-                footer = footer.replace('\n', '<br>\n')
-                footer = '<p>%s</p>' % footer
+	if opts.html:
+		footer = footer.replace('\n', '<br>\n')
+		footer = '<p>%s</p>' % footer
 
-        # Substitute variables
-        t = Template(s)
-        text = t.substitute(locals())
+	# Substitute variables
+	t = Template(s)
+	text = t.substitute(locals())
 
-        return text
+	return text
 
 def create_release_email(to, tag, template_file):
-        release_note = create_release_note(tag, template_file)
+	release_note = create_release_note(tag, template_file)
 
-        t = Template(release_note)
-        text = t.substitute(locals())
+	t = Template(release_note)
+	text = t.substitute(locals())
 
 	body = ''
 
  	for line in text.splitlines():
 		body = body + line + '%0d'
 
-        # Get package name and version
-        get_package_info()
+	# Get package name and version
+	get_package_info()
 
-        subject = 'ANNOUNCE: %s %s released' % (package_name, package_version)
+	subject = 'ANNOUNCE: %s %s released' % (package_name, package_version)
 
 	url = 'mailto:%s?subject=%s&body=%s' % (to, subject, body)
 	
-        return url;
+	return url;
 
 def upload_tarball():
-        get_package_info()
+	get_package_info()
 
-        # This is the tarball we are going to upload
-        username = opts.upload
-        tarball = '%s-%s.tar.gz' % (package_name.lower(), package_version)
+	# This is the tarball we are going to upload
+	username = opts.upload
+	tarball = '%s-%s.tar.gz' % (package_name.lower(), package_version)
 
-        print 'Attempting to upload tarball: %s to master.gnome.org...' % (tarball)
-                
-        cmd = 'scp %s %s@%s:' % (tarball, username, upload_server)
-        fp = os.popen(cmd)
+	print 'Attempting to upload tarball: %s to master.gnome.org...' % (tarball)
+		
+	cmd = 'scp %s %s@%s:' % (tarball, username, upload_server)
+	fp = os.popen(cmd)
 	retval = fp.read()
 	status = fp.close()
 
-        if status and (not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0):
-                print 'Unable to upload your tarball'
-        else:
-                print 'Sucessfully uploaded tarball'
+	if status and (not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0):
+		print 'Unable to upload your tarball'
+	else:
+		print 'Sucessfully uploaded tarball'
 
-        print 'Attempting to install-module using tarball: %s...' % (tarball)
-                
-        cmd = 'ssh %s@%s install-module -u %s' % (username, upload_server, tarball)
-        success = os.popen(cmd).read()
+	print 'Attempting to install-module using tarball: %s...' % (tarball)
+		
+	cmd = 'ssh %s@%s install-module -u %s' % (username, upload_server, tarball)
+	success = os.popen(cmd).read()
 
-        # Make sure we check the return value
-        fp = os.popen(cmd)
+	# Make sure we check the return value
+	fp = os.popen(cmd)
 	retval = fp.read()
 	status = fp.close()
 
-        if status and (not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0):
-                print 'Unable to install module'
-        else:
-                print 'Sucessfully installed module'
+	if status and (not os.WIFEXITED(status) or os.WEXITSTATUS(status) != 0):
+		print 'Unable to install module'
+	else:
+		print 'Sucessfully installed module'
 
 
 def update_news():
-        get_package_info()
+	get_package_info()
 
-        bugs = get_bugs(opts.revision)
+	bugs = get_bugs(opts.revision)
 	if len(bugs) < 1:
-                print 'No bugs were found to update the NEWS file with'
-                sys.exit()
+		print 'No bugs were found to update the NEWS file with'
+		sys.exit()
 
-        summary = get_summary(bugs)
+	summary = get_summary(bugs)
 	if len(summary) < 1:
-                print 'No summary was available to update the NEWS file with'
-                sys.exit()
+		print 'No summary was available to update the NEWS file with'
+		sys.exit()
 
-        po_translators = get_translators(opts.revision, po_dir)
-        help_translators = get_translators(opts.revision, help_dir)
-        output = template_update_news % (package_version, summary, po_translators, help_translators)
-        
-        f = open('NEWS', 'r')
-        s = f.read()
-        f.close()
+	po_translators = get_translators(opts.revision, po_dir)
+	help_translators = get_translators(opts.revision, help_dir)
+	output = template_update_news % (package_version, summary, po_translators, help_translators)
+	
+	f = open('NEWS', 'r')
+	s = f.read()
+	f.close()
 
-        output += s;
+	output += s;
 
-        f = open('NEWS', 'w')
-        f.write(output)
-        f.close()
+	f = open('NEWS', 'w')
+	f.write(output)
+	f.close()
 
 def tag_svn():
 	get_package_info()
@@ -854,89 +853,89 @@ def tag_svn():
 # Start
 #
 usage = "usage: %s -r <revision or tag> [options]\n" \
-        "       %s --help" % (sys.argv[0], sys.argv[0])
+	"       %s --help" % (sys.argv[0], sys.argv[0])
 
 popt = optparse.OptionParser(usage)
 popt.add_option('-v', '--version',
-                action = 'count', 
-                dest = 'version',
-                help = 'show version information')
+		action = 'count', 
+		dest = 'version',
+		help = 'show version information')
 popt.add_option('-d', '--debug',
-                action = 'count', 
-                dest = 'debug',
-                help = 'show additional debugging')
+		action = 'count', 
+		dest = 'debug',
+		help = 'show additional debugging')
 popt.add_option('-l', '--html',
-                action = 'count', 
-                dest = 'html',
-                help = 'write output in HTML')
+		action = 'count', 
+		dest = 'html',
+		help = 'write output in HTML')
 popt.add_option('-c', '--confirm',
-                action = 'count', 
-                dest = 'confirm',
-                help = 'this is required for some actions as confirmation')
+		action = 'count', 
+		dest = 'confirm',
+		help = 'this is required for some actions as confirmation')
 popt.add_option('-b', '--get-bugs',
-                action = 'count', 
-                dest = 'get_bugs', 
-                help = 'get a list of bugs fixed')
+		action = 'count', 
+		dest = 'get_bugs', 
+		help = 'get a list of bugs fixed')
 popt.add_option('-s', '--get-summary',
-                action = 'count', 
-                dest = 'get_summary',
-                help = 'get summary of bugs from Bugzilla')
+		action = 'count', 
+		dest = 'get_summary',
+		help = 'get summary of bugs from Bugzilla')
 popt.add_option('-t', '--get-translators',
-                action = 'count', 
-                dest = 'get_translators',
-                help = 'get translation updates')
+		action = 'count', 
+		dest = 'get_translators',
+		help = 'get translation updates')
 popt.add_option('-o', '--get-manual-translators',
-                action = 'count', 
-                dest = 'get_manual_translators',
-                help = 'get manual translation updates')
+		action = 'count', 
+		dest = 'get_manual_translators',
+		help = 'get manual translation updates')
 popt.add_option('-e', '--get-description',
-                action = 'count', 
-                dest = 'get_description',
-                help = 'get the description in bugzilla for this product')
+		action = 'count', 
+		dest = 'get_description',
+		help = 'get the description in bugzilla for this product')
 popt.add_option('-i', '--get-website',
-                action = 'count', 
-                dest = 'get_website',
-                help = 'get the website in bugzilla for this product')
+		action = 'count', 
+		dest = 'get_website',
+		help = 'get the website in bugzilla for this product')
 popt.add_option('-w', '--update-news',
-                action = 'count', 
-                dest = 'update_news',
-                help = 'update the news with the bugs fixed and translations')
+		action = 'count', 
+		dest = 'update_news',
+		help = 'update the news with the bugs fixed and translations')
 popt.add_option('-a', '--create-release-note',
-                action = 'count',
-                dest = 'create_release_note',
-                help = 'create a release note (can be used with -n)')
+		action = 'count',
+		dest = 'create_release_note',
+		help = 'create a release note (can be used with -n)')
 popt.add_option('-n', '--release-note-template',
-                action = 'store', 
-                dest = 'release_note_template',
-                help = 'file to use for release note template or "DEFAULT"')
+		action = 'store', 
+		dest = 'release_note_template',
+		help = 'file to use for release note template or "DEFAULT"')
 popt.add_option('-m', '--create-release-email',
-                action = 'store',
-                dest = 'create_release_email',
-                help = 'who to address the mail to (can be used with -n)')
+		action = 'store',
+		dest = 'create_release_email',
+		help = 'who to address the mail to (can be used with -n)')
 popt.add_option('-u', '--upload',
-                action = 'store', 
-                dest = 'upload',
-                help = 'user name to use when uploading tarball to master.gnome.org')
+		action = 'store', 
+		dest = 'upload',
+		help = 'user name to use when uploading tarball to master.gnome.org')
 popt.add_option('-g', '--tag',
-                action = 'store', 
-                dest = 'tag',
-                help = 'Tag to add in SVN')
+		action = 'store', 
+		dest = 'tag',
+		help = 'Tag to add in SVN')
 popt.add_option('-r', '--revision',
-                action = 'store', 
-                dest = 'revision',
-                help = 'revision or tag to use with -s, -t, -o and -b')
+		action = 'store', 
+		dest = 'revision',
+		help = 'revision or tag to use with -s, -t, -o and -b')
 popt.add_option('-p', '--package-name',
-                action = 'store', 
-                dest = 'package_name',
-                help = 'the package name (if not using config.h)')
+		action = 'store', 
+		dest = 'package_name',
+		help = 'the package name (if not using config.h)')
 popt.add_option('-V', '--package-version',
-                action = 'store', 
-                dest = 'package_version',
-                help = 'the package version (if not using config.h)')
+		action = 'store', 
+		dest = 'package_version',
+		help = 'the package version (if not using config.h)')
 popt.add_option('-M', '--package-module',
-                action = 'store', 
-                dest = 'package_module',
-                help = 'the package module name in bugzilla (if not using config.h)')
+		action = 'store', 
+		dest = 'package_module',
+		help = 'the package module name in bugzilla (if not using config.h)')
 
 errors = False
 need_tag = False
@@ -953,20 +952,20 @@ if not opts.get_bugs and not opts.get_summary and \
    not opts.create_release_email and not opts.upload and \
    not opts.get_description and not opts.get_website and \
    not opts.update_news and not opts.tag:
-        print 'No option specified'
-        print usage
-        sys.exit()       
+	print 'No option specified'
+	print usage
+	sys.exit()
 
 if opts.get_bugs or opts.get_summary or \
    opts.get_translators or opts.get_manual_translators or \
    opts.create_release_note or opts.create_release_email or \
    opts.update_news:
-        need_tag = True
+	need_tag = True
 
 if need_tag and not opts.revision:
-        print 'No tag specified'
-        print usage
-        sys.exit()
+	print 'No tag specified'
+	print usage
+	sys.exit()
 
 if opts.upload and not opts.confirm:
 	print 'Uploading WILL *INSTALL* your tarball with install-module!!'
@@ -983,117 +982,117 @@ if opts.tag and not opts.confirm:
 	sys.exit()
 
 if opts.get_bugs:
-        bugs = get_bugs(opts.revision)
+	bugs = get_bugs(opts.revision)
 	if len(bugs) < 1:
-        	print 'No bugs found fixed'
-                sys.exit(0)
+		print 'No bugs found fixed'
+		sys.exit(0)
 
-        if opts.debug:
-        	print '\nBugs:'
+	if opts.debug:
+		print '\nBugs:'
 
-        print bugs
+	print bugs
 
 if opts.get_summary:
-        bugs = get_bugs(opts.revision)
+	bugs = get_bugs(opts.revision)
 	if len(bugs) < 1:
-        	print 'No bugs found fixed'
-                sys.exit(0)
+		print 'No bugs found fixed'
+		sys.exit(0)
 
-        summary = get_summary(bugs)
+	summary = get_summary(bugs)
 	if len(summary) < 1:
-        	print 'Could not get summary for bug fixes: %s' % (bugs)
-                sys.exit(0)
+		print 'Could not get summary for bug fixes: %s' % (bugs)
+		sys.exit(0)
 
-       	if opts.debug:
-       		print '\nSummary:' 
+		if opts.debug:
+			print '\nSummary:' 
 
-       	print summary
+	print summary
 
 if opts.get_translators:
-        translators = get_translators(opts.revision, po_dir)
+	translators = get_translators(opts.revision, po_dir)
 	if len(translators) < 1:
 		print 'No translation updates found'
 		sys.exit(0)
 
-        if opts.debug:
-        	print '\nTranslators:' 
+	if opts.debug:
+		print '\nTranslators:' 
 
-        print translators
+	print translators
 
 if opts.get_manual_translators:
-        translators = get_translators(opts.revision, help_dir)
+	translators = get_translators(opts.revision, help_dir)
 	if len(translators) < 1:
 		print 'No manual translation updates found'
 		sys.exit(0)
 
-        if opts.debug:
-        	print '\nManual Translators:' 
+	if opts.debug:
+		print '\nManual Translators:' 
 
-        print translators
+	print translators
 
 if opts.get_description:
-        description = get_description()
-        if len(description) < 1:
-                print 'No description was found in bugzilla'
-                sys.exit(0)
+	description = get_description()
+	if len(description) < 1:
+		print 'No description was found in bugzilla'
+		sys.exit(0)
 
-        if opts.debug:
-                print '\nDescription:'
+	if opts.debug:
+		print '\nDescription:'
 
-        print description
+	print description
 
 if opts.get_website:
-        website = get_website()
-        if len(website) < 1:
-                print 'No website was found in bugzilla'
-                sys.exit(0)
+	website = get_website()
+	if len(website) < 1:
+		print 'No website was found in bugzilla'
+		sys.exit(0)
 
-        if opts.debug:
-                print '\nWebsite:'
+	if opts.debug:
+		print '\nWebsite:'
 
-        print website
+	print website
 
 if opts.create_release_note:
-        if opts.release_note_template:
-                release_note = create_release_note(opts.revision, 
-                                                   opts.release_note_template)
-        else:
-                release_note = create_release_note(opts.revision, 
-                                                   'DEFAULT')
+	if opts.release_note_template:
+		release_note = create_release_note(opts.revision, 
+						   opts.release_note_template)
+	else:
+		release_note = create_release_note(opts.revision, 
+						   'DEFAULT')
 
 
-        if opts.debug:
-	        print '\nRelease Note:' 
+	if opts.debug:
+		print '\nRelease Note:' 
 
-        print release_note
-        
+	print release_note
+	
 if opts.create_release_email:
-        if opts.release_note_template:
-                url = create_release_email(opts.create_release_email, 
-                                           opts.revision, 
-                                           opts.release_note_template)
-        else:
-                url = create_release_email(opts.create_release_email, 
-                                           opts.revision, 
-                                           'DEFAULT')
+	if opts.release_note_template:
+		url = create_release_email(opts.create_release_email, 
+					   opts.revision, 
+					   opts.release_note_template)
+	else:
+		url = create_release_email(opts.create_release_email, 
+					   opts.revision, 
+					   'DEFAULT')
 
-        if opts.debug:
-	        print '\nCreating email...' 
+	if opts.debug:
+		print '\nCreating email...' 
 
-        gnomevfs.url_show(url)
-        
+	gnomevfs.url_show(url)
+	
 if opts.upload:
-        upload_tarball()
+	upload_tarball()
 
 if opts.update_news:
-        if opts.debug:
-	        print '\nUpdating News:' 
+	if opts.debug:
+		print '\nUpdating News:' 
 
-        update_news()
+	update_news()
 
-        if opts.debug:
-	        print '\nUpdated!' 
+	if opts.debug:
+		print '\nUpdated!' 
 
 if opts.tag:
-        tag_svn()
+	tag_svn()
 
