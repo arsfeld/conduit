@@ -103,7 +103,7 @@ Translations:
 =============
 $translations
 
-Manual Translations:
+Help Manual Translations:
 ====================
 $help_translations
 
@@ -648,10 +648,13 @@ def get_news():
 	f = open ('NEWS', 'r')
 	s = f.read()
 	f.close()
-	start = s.find ('NEW in '+ package_version)
+	start = s.find ('NEW in %s' % package_version)
+	#skip the '========='
 	start = s.find ('\n', start) + 1
+	#go to the next line
 	start = s.find ('\n', start) + 1
-	end = s.find ('NEW in', start) - 1
+	#stop at the last news entry
+	end = s.find ('NEW in %s' % opts.revision, start) - 1
 	return s[start:end]
 
 def create_release_note(tag, template_file):
@@ -896,6 +899,10 @@ popt.add_option('-i', '--get-website',
 		action = 'count', 
 		dest = 'get_website',
 		help = 'get the website in bugzilla for this product')
+popt.add_option('-N', '--get-news',
+		action = 'count', 
+		dest = 'get_news',
+		help = 'get the new items from the NEWS file')
 popt.add_option('-w', '--update-news',
 		action = 'count', 
 		dest = 'update_news',
@@ -951,7 +958,7 @@ if not opts.get_bugs and not opts.get_summary and \
    not opts.release_note_template and not opts.create_release_note and \
    not opts.create_release_email and not opts.upload and \
    not opts.get_description and not opts.get_website and \
-   not opts.update_news and not opts.tag:
+   not opts.update_news and not opts.tag and not opts.get_news:
 	print 'No option specified'
 	print usage
 	sys.exit()
@@ -959,7 +966,7 @@ if not opts.get_bugs and not opts.get_summary and \
 if opts.get_bugs or opts.get_summary or \
    opts.get_translators or opts.get_manual_translators or \
    opts.create_release_note or opts.create_release_email or \
-   opts.update_news:
+   opts.update_news or opts.get_news:
 	need_tag = True
 
 if need_tag and not opts.revision:
@@ -1083,6 +1090,11 @@ if opts.create_release_email:
 	
 if opts.upload:
 	upload_tarball()
+
+if opts.get_news:
+	if opts.debug:
+		print '\nNews:'
+	print get_news()
 
 if opts.update_news:
 	if opts.debug:

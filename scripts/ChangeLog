@@ -1,3 +1,9 @@
+2008-02-18  John Stowers  <john.stowers@gmail.com>
+
+	* maintainer.py: Add the option to print the NEWS before it is
+	written back to the file. s/Manual Translation/Help Manual Translations/
+	so that we are consistant everywhere
+
 2008-02-17  John Stowers  <john.stowers@gmail.com>
 
 	* release.sh: Dont always generate release notes
