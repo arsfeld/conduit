@@ -85,14 +85,12 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.__init__(self)
 
         #What emails should the source return??
+        self.saveWithLabel = "%s-%s" % (conduit.APPNAME,conduit.APPVERSION)
         self.getAllEmail = False
         self.getUnreadEmail = False
         self.getWithLabel = ""
         self.getInFolder = ""
         self.mails = {}
-
-        #For bookkeeping, always add a conduit label
-        self._label = "%s-%s" % (conduit.APPNAME,conduit.APPVERSION)
         
     def configure(self, window):
         """
@@ -155,6 +153,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         searchLabelEmailsCb = tree.get_widget("searchLabelEmails")
         searchFolderEmailsCb = tree.get_widget("searchFolderEmails")
         labelEntry = tree.get_widget("labels")
+        saveLabelEntry = tree.get_widget("saveLabel")
         usernameEntry = tree.get_widget("username")
         passwordEntry = tree.get_widget("password")
         
@@ -175,6 +174,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             folderComboBox.set_sensitive(False)
         usernameEntry.set_text(self.username)
         passwordEntry.set_text(self.password)
+        saveLabelEntry.set_text(self.saveWithLabel)
         
         dlg = tree.get_widget("GmailSourceConfigDialog")
         
@@ -197,6 +197,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
             self.username = usernameEntry.get_text()
             if passwordEntry.get_text() != self.password:
                 self.password = passwordEntry.get_text()
+        self.saveWithLabel = saveLabelEntry.get_text()
         dlg.destroy()
 
     def refresh(self):
@@ -263,12 +264,12 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
 
         try:
             draftMsg = self.ga.sendMessage(msg, asDraft=True)
-            draftMsg.addLabel(self._label)
+            draftMsg.addLabel(self.saveWithLabel)
         except libgmail.GmailSendError:
             raise Exceptions.SyncronizeError("Error saving message")
         except Exception, err:
             traceback.print_exc()
-            raise Exceptions.SyncronizeError("Error adding label %s to message" % self._label)
+            raise Exceptions.SyncronizeError("Error adding label %s to message" % self.saveWithLabel)
             
         return Rid(uid=draftMsg.id)
 
@@ -282,7 +283,8 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
                 "getAllEmail" : self.getAllEmail,
                 "getUnreadEmail" : self.getUnreadEmail,
                 "getWithLabel" : self.getWithLabel,
-                "getInFolder" : self.getInFolder})
+                "getInFolder" : self.getInFolder,
+                "saveWithLabel" : self.saveWithLabel})
         return conf
 
 class GmailContactSource(GmailBase, DataProvider.DataSource):

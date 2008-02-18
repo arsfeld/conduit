@@ -1,3 +1,9 @@
+2008-02-19  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/GmailModule/config.glade: Add ability to specify your
+	own labels when saving emails.
+
 2008-02-18  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:
