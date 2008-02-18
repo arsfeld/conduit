@@ -143,15 +143,16 @@ $footer
 '''
 
 template_update_news = '''
-NEW in %s:
+NEW in $version:
 ==============
-%s
+$news
+$fixed
 
 Translations:
-%s
+$translations
 
 Help Manual Translations:
-%s
+$help_translations
 
 '''
 
@@ -644,7 +645,7 @@ def get_default_template():
 
 	return template
 
-def get_news():
+def get_news_items():
 	f = open ('NEWS', 'r')
 	s = f.read()
 	f.close()
@@ -728,7 +729,7 @@ def create_release_note(tag, template_file):
 	about = get_description()
 	website = get_website()
 
-	news = get_news()
+	news = get_news_items()
 
 	fixed = get_summary(bugs)
 	translations = get_translators(tag, po_dir)
@@ -801,7 +802,7 @@ def upload_tarball():
 		print 'Sucessfully installed module'
 
 
-def update_news():
+def get_news():
 	get_package_info()
 
 	bugs = get_bugs(opts.revision)
@@ -809,24 +810,30 @@ def update_news():
 		print 'No bugs were found to update the NEWS file with'
 		sys.exit()
 
-	summary = get_summary(bugs)
-	if len(summary) < 1:
+	fixed = get_summary(bugs)
+	if len(fixed) < 1:
 		print 'No summary was available to update the NEWS file with'
 		sys.exit()
 
-	po_translators = get_translators(opts.revision, po_dir)
-	help_translators = get_translators(opts.revision, help_dir)
-	output = template_update_news % (package_version, summary, po_translators, help_translators)
+	translations = get_translators(opts.revision, po_dir)
+	help_translations = get_translators(opts.revision, help_dir)
 	
+	version = package_version
+	news = get_news_items()
+	t = Template(template_update_news)
+	output = t.substitute(locals())
+
 	f = open('NEWS', 'r')
 	s = f.read()
 	f.close()
 
-	output += s;
+	#We replace the current NEWS with our one which includes
+	#bugs fixed, and translations. Therefor we need to skip over
+	#all content up until the previous revision
+	start = s.find ('NEW in %s' % opts.revision) - 1
 
-	f = open('NEWS', 'w')
-	f.write(output)
-	f.close()
+	output += s[start:]
+	print output
 
 def tag_svn():
 	get_package_info()
@@ -899,14 +906,14 @@ popt.add_option('-i', '--get-website',
 		action = 'count', 
 		dest = 'get_website',
 		help = 'get the website in bugzilla for this product')
+popt.add_option('-I', '--get-news-items',
+		action = 'count', 
+		dest = 'get_news_items',
+		help = 'get the new items from the NEWS file')
 popt.add_option('-N', '--get-news',
 		action = 'count', 
 		dest = 'get_news',
-		help = 'get the new items from the NEWS file')
-popt.add_option('-w', '--update-news',
-		action = 'count', 
-		dest = 'update_news',
-		help = 'update the news with the bugs fixed and translations')
+		help = 'get the complete NEWS, including bugs fixed and translations')
 popt.add_option('-a', '--create-release-note',
 		action = 'count',
 		dest = 'create_release_note',
@@ -958,7 +965,7 @@ if not opts.get_bugs and not opts.get_summary and \
    not opts.release_note_template and not opts.create_release_note and \
    not opts.create_release_email and not opts.upload and \
    not opts.get_description and not opts.get_website and \
-   not opts.update_news and not opts.tag and not opts.get_news:
+   not opts.tag and not opts.get_news and not opts.get_news_items:
 	print 'No option specified'
 	print usage
 	sys.exit()
@@ -966,7 +973,7 @@ if not opts.get_bugs and not opts.get_summary and \
 if opts.get_bugs or opts.get_summary or \
    opts.get_translators or opts.get_manual_translators or \
    opts.create_release_note or opts.create_release_email or \
-   opts.update_news or opts.get_news:
+   opts.get_news or opts.get_news_items:
 	need_tag = True
 
 if need_tag and not opts.revision:
@@ -1091,19 +1098,15 @@ if opts.create_release_email:
 if opts.upload:
 	upload_tarball()
 
+if opts.get_news_items:
+	if opts.debug:
+		print '\nNews Items:'
+	print get_news_items()
+
 if opts.get_news:
 	if opts.debug:
 		print '\nNews:'
 	print get_news()
-
-if opts.update_news:
-	if opts.debug:
-		print '\nUpdating News:' 
-
-	update_news()
-
-	if opts.debug:
-		print '\nUpdated!' 
 
 if opts.tag:
 	tag_svn()
