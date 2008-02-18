@@ -536,7 +536,15 @@ class AboutDialog(gtk.AboutDialog):
         self.set_version(conduit.APPVERSION)
         self.set_comments("Synchronisation for GNOME")
         self.set_website("http://www.conduit-project.org")
-        self.set_authors(["John Stowers","John Carr","Thomas Van Machelen","Jonny Lamb"])
+        self.set_authors([
+        		"John Stowers",
+        		"John Carr",
+        		"Thomas Van Machelen",
+        		"Jonny Lamb"])
+        self.set_artists([
+        		"John Stowers",
+        		"mejogid",
+        		"The Tango Project (http://tango.freedesktop.org)"])
         self.set_logo_icon_name("conduit")
 
 class StatusIcon(gtk.StatusIcon):

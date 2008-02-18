@@ -1,5 +1,11 @@
 2008-02-19  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/UI.py:
+	* data/COPYING:
+	* data/Makefile.am: Attribute tango derived icons to satisfy cc-by-sa 2.5
+
+2008-02-19  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GmailModule/GmailModule.py:
 	* conduit/modules/GmailModule/config.glade: Add ability to specify your
 	own labels when saving emails.

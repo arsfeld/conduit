@@ -94,6 +94,7 @@ EXTRA_DIST = \
 	$(pkgconfig_in_files) \
 	$(dbusservice_in_files) \
 	conduit.desktop.in.in \
-	conduit-autostart.desktop.in.in
+	conduit-autostart.desktop.in.in \
+	COPYING
 	
 CLEANFILES = conduit.desktop org.conduit.service
