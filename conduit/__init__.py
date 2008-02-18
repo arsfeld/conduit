@@ -43,7 +43,7 @@ if IS_INSTALLED:
         sys.path.insert(0, PYTHONDIR)
 else:
     APPNAME =                   "Conduit"
-    APPVERSION =                "0.3.8"
+    APPVERSION =                "0.3.9"
     LOCALE_DIR =                os.path.join(_dirname, "po")
     SHARED_DATA_DIR =           os.path.join(_dirname, "data")
     GLADE_FILE =                os.path.join(_dirname, "data","conduit.glade")
