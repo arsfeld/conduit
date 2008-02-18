@@ -1,6 +1,16 @@
 NEW in 0.3.8:
 ==============
 * New icons (mejogid)
+* Fixed #515648, [Patch] Added RGBA support for conduit (Jon Bolt, Andrea Cimitan)
+* Fixed #516410, Error in GoogleModule loading (John Stowers)
+* Fixed #516523, RSS FEED of mp3 doesn't download (John Stowers)
+* Fixed #516567, Please fix conduit.desktop file... (Jose Carlos Garcia Sogo)
+
+Translations:
+None
+
+Help Manual Translations:
+None
 
 NEW in 0.3.7:
 ==============
@@ -41,3 +51,5 @@ Translations:
 
 Help Manual Translations:
 * Updated es: Jorge Gonzalez
+
+None
