@@ -4,6 +4,8 @@ SOURCES = \
 	Application.cs		\
 	Conduit.cs		\
 	DataProvider.cs		\
+	Delegates.cs		\
+	Exporter.cs		\
 	SyncSet.cs		\
 	Util.cs
 

@@ -12,6 +12,5 @@ public class Program {
 			Console.WriteLine("{0} {1}", keyPair.Key, keyPair.Value);
 		
 		Console.WriteLine("Configured: {0}", dp.IsConfigured(true, true));
-		
 	}
 }

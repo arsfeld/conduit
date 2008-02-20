@@ -12,15 +12,21 @@ namespace Conduit {
 		void RestoreFromXml (string path);
 
 		void SaveToXml (string path);
+
+		event KeyCallBack ConduitAdded;
+		event KeyCallBack ConduitRemoved;
 	}
 
 	public class SyncSet {
 
+		private ISyncSet syncset_proxy;
 		private ObjectPath path;
-		private ISyncSet dbus_syncset;
 
 		private static SyncSet gui;
 		private static SyncSet dbus;
+
+		public event KeyCallBack ConduitAdded;
+		public event KeyCallBack ConduitRemoved;
 
 		public static SyncSet Gui {
 			get {
@@ -45,24 +51,38 @@ namespace Conduit {
 		}
 
 	 	private SyncSet (ObjectPath path) {
-			dbus_syncset = Util.GetObject<ISyncSet> (path);
+			syncset_proxy = Util.GetObject<ISyncSet> (path);
 			this.path = path;
+
+			// hookup events
+			syncset_proxy.ConduitAdded += HandleConduitAdded;
+			syncset_proxy.ConduitRemoved += HandleConduitRemoved;
 		}
 
 		public void AddConduit (Conduit conduit) {
-			dbus_syncset.AddConduit (conduit.Path); 
+			syncset_proxy.AddConduit (conduit.Path); 
 		}
 
 		public void DeleteConduit (Conduit conduit) {
-			dbus_syncset.DeleteConduit (conduit.Path); 
+			syncset_proxy.DeleteConduit (conduit.Path); 
 		}
 
 		public void SaveToXml (string path) {
-			dbus_syncset.SaveToXml (path);
+			syncset_proxy.SaveToXml (path);
 		}
 
 		public void RestoreFromXml (string path) {
-			dbus_syncset.RestoreFromXml (path); 
+			syncset_proxy.RestoreFromXml (path); 
+		}
+
+		private void HandleConduitAdded (string key) {
+			if (ConduitAdded != null)
+			 	ConduitAdded (key); 
+		}
+
+		private void HandleConduitRemoved (string key) {
+			if (ConduitRemoved != null)
+			 	ConduitRemoved (key); 
 		}
 	}
 }

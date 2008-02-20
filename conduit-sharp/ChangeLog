@@ -1,3 +1,19 @@
+2008-02-20  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
+	* src/Delegates: move delegates into separate file
+
+	* src/Application.cs:
+	* src/Conduit.cs:
+	* src/Exporter.cs:
+	* src/SyncSet.cs: add missing pieces of the dbus api, more objects,
+	more methods
+
+	* test/test-conduit.cs: add test for conduit, demonstrating events
+	handling
+
+	* configure.ac: depend on gtk-sharp, and ndesk-dbus-glib as well
+	for demonstrating its usage in test-conduit
+
 2008-02-06  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* src/DataProvider.cs: fix IsConfigured api
 	* test/test-application.cs: reflect change

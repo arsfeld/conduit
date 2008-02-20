@@ -18,5 +18,7 @@
   </Contents>
   <References>
     <ProjectReference type="Project" localcopy="True" refto="src" />
+    <ProjectReference type="Gac" localcopy="True" refto="NDesk.DBus, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099" />
+    <ProjectReference type="Gac" localcopy="True" refto="NDesk.DBus.GLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099" />
   </References>
 </Project>

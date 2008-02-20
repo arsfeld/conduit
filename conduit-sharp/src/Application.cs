@@ -1,12 +1,13 @@
 using System;
 using NDesk.DBus;
+
 namespace Conduit {
  	[Interface("org.conduit.Application")]
-	internal interface IApplication {
+	internal interface IApplication  {
 
 	 	ObjectPath BuildConduit (ObjectPath source, ObjectPath sink);
 
-	 	ObjectPath BuildConduit (string key);
+	 	ObjectPath BuildExporter (string key);
 
 		string[] GetAllDataProviders (); 
 
@@ -15,31 +16,59 @@ namespace Conduit {
 		ObjectPath NewSyncSet ();
 
 		void Quit ();
+
+		event KeyCallBack DataproviderAvailable;
+
+		event KeyCallBack DataproviderUnavailable;
 	}
 
 	public class Application {
-		private IApplication dbus_application = null;
+		public event KeyCallBack DataProviderAvailable;
+		public event KeyCallBack DataProviderUnavailable;
+
+		private IApplication application_proxy = null;
 
 		public Application() {
 			if (!Bus.Session.NameHasOwner(Util.APPLICATION_BUSNAME))
 				throw new Exception("Conduit is not available.");
-			
-	        dbus_application = Util.GetObject<IApplication> (new ObjectPath ("/"));
+		
+			// get proxy	
+			application_proxy = Util.GetObject<IApplication> (new ObjectPath ("/"));
+
+			// connect to events to raise our own
+			application_proxy.DataproviderAvailable += HandleDataProviderAvailable;
+			application_proxy.DataproviderUnavailable += HandleDataProviderUnavailable;
 		}
 
 		public Conduit BuildConduit (DataProvider source, DataProvider sink) {
-			ObjectPath path = dbus_application.BuildConduit (source.Path, sink.Path); 
+			ObjectPath path = application_proxy.BuildConduit (source.Path, sink.Path); 
 			return new Conduit (path);
 		}
 
+		public Exporter BuildExporter (string key) {
+		 	ObjectPath path = application_proxy.BuildExporter (key);
+			return new Exporter (path);
+		}
+
 		public string[] GetAllDataProviders () {
-			return dbus_application.GetAllDataProviders (); 
+			return application_proxy.GetAllDataProviders (); 
 		}
 
 		public DataProvider GetDataProvider (string key) {
-			ObjectPath path = dbus_application.GetDataProvider (key); 
+			ObjectPath path = application_proxy.GetDataProvider (key); 
 			return new DataProvider (path);
 		}
+		
+		// Proxy event handlers
 
+		private void HandleDataProviderAvailable (string key) {
+			if (DataProviderAvailable != null)
+			 	DataProviderAvailable (key); 
+		}
+
+		private void HandleDataProviderUnavailable (string key) {
+			if (DataProviderUnavailable != null)
+			 	DataProviderUnavailable (key); 
+		}
 	}
 }
