@@ -24,28 +24,17 @@ GNOME_DOC_INIT
 ################################################################################
 AM_PATH_PYTHON(2.4)
 
-AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, yes, no)
-if test "x$HAVE_PKGCONFIG" = "xno"; then
-  AC_MSG_ERROR(you need to have pkgconfig installed !)
-fi
-
 ################################################################################
 # Check for neccessary python modules (that dont install pc files)
 ################################################################################
 AM_CHECK_PYMOD([vobject], , , AC_MSG_ERROR([Python module vobject required to run Conduit]))
-
-AM_CHECK_PYMOD([goocanvas], , , AC_MSG_ERROR([Python module goocanvas required to run Conduit]))
-AM_CHECK_PYMOD_VERSION([goocanvas], [pygoocanvas_version], [0.9.0], , AC_MSG_ERROR([Python module goocanvas >= 0.9.0 required to run Conduit]))
-
 AM_CHECK_PYMOD([dateutil], , , AC_MSG_ERROR([Python module dateutil required to run Conduit]))
-
-#AM_CHECK_PYMOD_VERSION([pysqlite2.dbapi2], [version], [2.3.0], , AC_MSG_ERROR([Python module pysqlite2 >= 2.3.0 required to run Conduit]))
+AM_CHECK_PYMOD_VERSION([goocanvas], [pygoocanvas_version], [0.9.0], , AC_MSG_ERROR([Python module goocanvas >= 0.9.0 required to run Conduit]))
+AM_CHECK_PYMOD_VERSION([dbus], [__version__], [0.80.0], , AC_MSG_ERROR([Python module dbus >= 0.80.0 required to run Conduit]))
 
 ################################################################################
 # DBus
 ################################################################################
-PKG_CHECK_MODULES(DBUS, [ dbus-1 >= 0.93 ])
-
 AC_ARG_WITH([session_bus_services_dir],
             AC_HELP_STRING([--with-session-bus-services-dir], [Path to DBus services directory]))
 
