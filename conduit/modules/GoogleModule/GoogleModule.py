@@ -756,7 +756,7 @@ class YouTubeSource(DataProvider.DataSource):
             elif self.filter_type == 1:
                 videos = self._top_rated ()
             else:
-                if self.usr_filter_type == 0:
+                if self.user_filter_type == 0:
                     videos = self._videos_upload_by (self.username)
                 else:
                     videos = self._favorite_videos (self.username)
@@ -832,6 +832,11 @@ class YouTubeSource(DataProvider.DataSource):
         therefore we try the trick from here [2]
         [1] http://svn.pythonfr.org/public/pythonfr/video/youtube_client.py
         [2] http://www.abdulqabiz.com/blog/archives/general/update_getting_youtu.php
+
+        #FIXME:
+        Method 2 doesnt work for old youtube videos, method 1 doesnt work
+        for new youtube videos. e.g.
+        http://www.youtube.com/watch?v=BWE1tH93G9U
         """
         flv_url = ''
 

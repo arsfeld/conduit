@@ -1,3 +1,8 @@
+2008-02-26  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Fix youtube bug which failed
+	at returning videos added or favorited by a specific user.
+
 2008-02-23  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:
