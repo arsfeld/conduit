@@ -85,7 +85,7 @@ class GmailEmailTwoWay(GmailBase, DataProvider.TwoWay):
         DataProvider.TwoWay.__init__(self)
 
         #What emails should the source return??
-        self.saveWithLabel = "%s-%s" % (conduit.APPNAME,conduit.APPVERSION)
+        self.saveWithLabel = "Conduit-%s" % conduit.VERSION
         self.getAllEmail = False
         self.getUnreadEmail = False
         self.getWithLabel = ""

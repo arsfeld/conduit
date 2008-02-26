@@ -94,13 +94,12 @@ AC_SUBST(EOG_PLUGIN_DIR)
 AC_SUBST(VERSION)
 AC_SUBST(PACKAGE)
 
-AS_AC_EXPAND(LOCALEDIR, $localedir)
-AS_AC_EXPAND(PKGDATADIR, $datarootdir/$PACKAGE)
-AS_AC_EXPAND(ICONDIR, $datarootdir/$PACKAGE/icons)
-AS_AC_EXPAND(LIBDIR, $libdir)
-AS_AC_EXPAND(MODULEDIR, $libdir/$PACKAGE/modules)
 AS_AC_EXPAND(PYTHONDIR, $pythondir)
 AS_AC_EXPAND(BINDIR, $bindir)
+AS_AC_EXPAND(LIBDIR, $libdir)
+AS_AC_EXPAND(LOCALEDIR, $localedir)
+AS_AC_EXPAND(PKGDATADIR, $datarootdir/$PACKAGE)
+AS_AC_EXPAND(MODULEDIR, $libdir/$PACKAGE/modules)
 
 ################################################################################
 #-------------------------------------------------------------------------------

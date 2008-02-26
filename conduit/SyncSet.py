@@ -123,7 +123,7 @@ class SyncSet(gobject.GObject):
         #Build the application settings xml document
         doc = xml.dom.minidom.Document()
         rootxml = doc.createElement("conduit-application")
-        rootxml.setAttribute("version", conduit.APPVERSION)
+        rootxml.setAttribute("version", conduit.VERSION)
         doc.appendChild(rootxml)
         
         #Store the conduits
@@ -189,7 +189,7 @@ class SyncSet(gobject.GObject):
             doc = xml.dom.minidom.parse(xmlSettingFilePath)
             xmlVersion = doc.documentElement.getAttribute("version")
             #And check it is the correct version        
-            if xmlVersion != conduit.APPVERSION:
+            if xmlVersion != conduit.VERSION:
                 log.info("%s xml file is incorrect version" % xmlSettingFilePath)
                 os.remove(xmlSettingFilePath)
                 return

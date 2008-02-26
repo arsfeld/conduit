@@ -48,7 +48,6 @@ class MainWindow:
         Constructs the mainwindow. Throws up a splash screen to cover 
         the most time consuming pieces
         """
-        gnome.init(conduit.APPNAME, conduit.APPVERSION, properties={gnome.PARAM_APP_DATADIR:'/usr/share'})
         gnome.ui.authentication_manager_init()        
 
         self.conduitApplication = conduitApplication
@@ -96,9 +95,9 @@ class MainWindow:
                 gtk.widget_set_default_colormap(colormap)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
         self.mainWindow.set_icon_name("conduit")
-        title = "%s" % conduit.APPNAME
+        title = "Conduit"
         if conduit.IS_DEVELOPMENT_VERSION:
-            title = title + " - %s (Development Version)" % conduit.APPVERSION
+            title = title + " - %s (Development Version)" % conduit.VERSION
         if not conduit.IS_INSTALLED:
             title = title + " - Running Uninstalled"
         self.mainWindow.set_title(title)
@@ -383,7 +382,16 @@ class MainWindow:
         """
         Display help
         """
-        gnome.help_display(conduit.APPNAME, None)
+        if conduit.IS_INSTALLED:
+            uri = "ghelp:conduit"
+        else:
+            #if we are not installed then launch the ghelp uri with a full path
+            uri = "ghelp:%s" % os.path.join(conduit.DIRECTORY,"help","C","conduit.xml")
+        log.debug("Launching help: %s" % uri)
+        gobject.spawn_async(
+                    argv=("xdg-open",uri),
+                    flags=gobject.SPAWN_SEARCH_PATH | gobject.SPAWN_STDOUT_TO_DEV_NULL | gobject.SPAWN_STDERR_TO_DEV_NULL
+                    )
 
     def on_window_state_event(self, widget, event):
         visible = self.is_visible()
@@ -532,8 +540,8 @@ class SplashScreen:
 class AboutDialog(gtk.AboutDialog):
     def __init__(self):
         gtk.AboutDialog.__init__(self)
-        self.set_name(conduit.APPNAME)
-        self.set_version(conduit.APPVERSION)
+        self.set_name("Conduit")
+        self.set_version(conduit.VERSION)
         self.set_comments("Synchronisation for GNOME")
         self.set_website("http://www.conduit-project.org")
         self.set_authors([

@@ -1,3 +1,18 @@
+2008-02-27  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py:
+	* conduit/SyncSet.py:
+	* conduit/__init__.py:
+	* conduit/defs.py.in:
+	* conduit/gtkui/UI.py:
+	* conduit/hildonui/UI.py:
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/NetworkModule/Peers.py:
+	* configure.ac: Removed some unused autoconf expansions in defs.py.in
+	s/conduit.APPVERSION/conduit.VERSION/ and replace Conduit.APPNAME with
+	a hardcoded 'Conduit'. Remove gnome.init and gnome.help_display and just 
+	open a ghelp URI directly (makes help work when uninstalled)
+
 2008-02-26  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py: Fix youtube bug which failed

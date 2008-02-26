@@ -28,8 +28,8 @@ gobject.threads_init()
 ################################################################################
 # Global Constants
 ################################################################################
-_dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-IS_INSTALLED = not os.path.exists(os.path.join(_dirname,"ChangeLog"))
+DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+IS_INSTALLED = not os.path.exists(os.path.join(DIRECTORY,"ChangeLog"))
 IS_DEVELOPMENT_VERSION = True
 
 # Check the profile directory to prevent crashes when saving settings, etc
@@ -42,12 +42,11 @@ if IS_INSTALLED:
     if not PYTHONDIR in sys.path:
         sys.path.insert(0, PYTHONDIR)
 else:
-    APPNAME =                   "Conduit"
-    APPVERSION =                "0.3.9"
-    LOCALE_DIR =                os.path.join(_dirname, "po")
-    SHARED_DATA_DIR =           os.path.join(_dirname, "data")
-    GLADE_FILE =                os.path.join(_dirname, "data","conduit.glade")
-    SHARED_MODULE_DIR =         os.path.join(_dirname, "conduit", "modules")
+    VERSION =                   "0.3.9"
+    LOCALE_DIR =                os.path.join(DIRECTORY, "po")
+    SHARED_DATA_DIR =           os.path.join(DIRECTORY, "data")
+    GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
+    SHARED_MODULE_DIR =         os.path.join(DIRECTORY, "conduit", "modules")
 
 import Globals
 GLOBALS = Globals.Globals()

@@ -165,7 +165,7 @@ class AvahiAdvertiser:
                 AVAHI_SERVICE_DOMAIN,   #domain
                 '',                     #host
                 self.port,              #port
-                string_array_to_txt_array(["version=%s" % conduit.APPVERSION])
+                string_array_to_txt_array(["version=%s" % conduit.VERSION])
                 )
         self.group.Commit()
             
@@ -243,7 +243,7 @@ class AvahiMonitor:
 
         # Check if the service is local and then check the 
         # conduit versions are identical
-        if extra.has_key("version") and extra["version"] == conduit.APPVERSION:
+        if extra.has_key("version") and extra["version"] == conduit.VERSION:
             self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
         else:
             log.debug("Ignoring %s because remote conduit is different version" % name)

@@ -35,12 +35,11 @@ class Application(dbus.service.Object):
         self.gui = None
         self.statusIcon = None
         self.dbus = None
-
         self.guiSyncSet = None
         self.dbusSyncSet = None
-        
         self.uiLib = None
 
+        gobject.set_application_name("Conduit")
         #Default command line values
         if conduit.IS_DEVELOPMENT_VERSION:
             self.settingsFile = os.path.join(conduit.USER_DIR, "settings-dev.xml")
@@ -61,7 +60,7 @@ class Application(dbus.service.Object):
                     self._usage()
                     sys.exit(0)
                 if o in ("-v", "--version"):
-                    print "%s %s" % (conduit.APPNAME, conduit.APPVERSION)
+                    print "Conduit %s" % conduit.VERSION
                     sys.exit(0)
                 if o in ("-s", "--settings"):
                      self.settingsFile = os.path.join(os.getcwd(), a)
@@ -76,7 +75,7 @@ class Application(dbus.service.Object):
             self._usage()
             sys.exit(1)
 
-        log.info("Conduit v%s Installed: %s" % (conduit.APPVERSION, conduit.IS_INSTALLED))
+        log.info("Conduit v%s Installed: %s" % (conduit.VERSION, conduit.IS_INSTALLED))
         log.info("Using UI: %s" % self.ui)
         
         #Make conduit single instance. If conduit is already running then
