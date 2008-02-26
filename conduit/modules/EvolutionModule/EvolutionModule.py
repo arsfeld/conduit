@@ -30,8 +30,9 @@ import conduit.datatypes.Note as Note
 class EvoBase(DataProvider.TwoWay):
     def __init__(self, sourceURI, *args):
         DataProvider.TwoWay.__init__(self)
-        self.defaultURI = sourceURI
-        self.sourceURI = sourceURI
+        self.defaultSourceURI = sourceURI
+        self.selectedSourceURI = sourceURI
+        self.allSourceURIs = []
         self.uids = None
 
     def _get_object(self, uid):
@@ -93,7 +94,7 @@ class EvoBase(DataProvider.TwoWay):
         DataProvider.TwoWay.finish(self)
         self.uids = None
 
-    def configure(self, window, selected, sources, name):
+    def configure(self, window, name):
         import gtk
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -115,30 +116,28 @@ class EvoBase(DataProvider.TwoWay):
         sourceComboBox.add_attribute(cell, 'text', 0)
         sourceComboBox.set_active(0)
         
-        for name,uri in sources:
+        for name,uri in self.allSourceURIs:
             rowref = store.append( (name, uri) )
-            if uri == selected:
+            if uri == self.selectedSourceURI:
                 sourceComboBox.set_active_iter(rowref)
         
         dlg = tree.get_widget("EvolutionConfigDialog")
         
         response = Utils.run_dialog (dlg, window)
         if response == True:
-            selected = store.get_value(sourceComboBox.get_active_iter(), 1)
-
+            self.selectedSourceURI = store.get_value(sourceComboBox.get_active_iter(), 1)
         dlg.destroy()  
-        return selected
 
     def get_configuration(self):
         return {
-            "sourceURI" : self.sourceURI
+            "sourceURI" : self.selectedSourceURI
             }
 
     def set_configuration(self, config):
-        self.sourceURI = config.get("sourceURI", self.defaultURI)
+        self.selectedSourceURI = config.get("sourceURI", self.defaultSourceURI)
 
     def get_UID(self):
-        return self.sourceURI
+        return self.selectedSourceURI
 
 
 class EvoContactTwoWay(EvoBase):
@@ -155,7 +154,7 @@ class EvoContactTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoContactTwoWay.DEFAULT_ADDRESSBOOK_URI)
-        self._addressBooks = evolution.ebook.list_addressbooks()
+        self.allSourceURIs = evolution.ebook.list_addressbooks()
 
     def _get_object(self, LUID):
         """
@@ -186,17 +185,12 @@ class EvoContactTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         
-        self.book = evolution.ebook.open_addressbook(self.sourceURI)
+        self.book = evolution.ebook.open_addressbook(self.selectedSourceURI)
         for i in self.book.get_all_contacts():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.sourceURI = EvoBase.configure(self, 
-                                    window, 
-                                    self.sourceURI, 
-                                    self._addressBooks,
-                                    "Addressbook"
-                                    )
+        EvoBase.configure(self, window, "Addressbook")
 
 class EvoCalendarTwoWay(EvoBase):
 
@@ -212,7 +206,7 @@ class EvoCalendarTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)
-        self._calendarURIs = evolution.ecal.list_calendars()
+        self.allSourceURIs = evolution.ecal.list_calendars()
 
     def _get_object(self, LUID):
         """
@@ -247,19 +241,14 @@ class EvoCalendarTwoWay(EvoBase):
         EvoBase.refresh(self)
         
         self.calendar = evolution.ecal.open_calendar_source(
-                            self.sourceURI, 
+                            self.selectedSourceURI, 
                             evolution.ecal.CAL_SOURCE_TYPE_EVENT
                             )
         for i in self.calendar.get_all_objects():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.sourceURI = EvoBase.configure(self, 
-                                    window, 
-                                    self.sourceURI, 
-                                    self._calendarURIs,
-                                    "Calendar"
-                                    )
+        EvoBase.configure(self, window, "Calendar")
 
 class EvoTasksTwoWay(EvoBase):
 
@@ -275,7 +264,7 @@ class EvoTasksTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoTasksTwoWay.DEFAULT_TASK_URI)
-        self._uris = evolution.ecal.list_task_sources()
+        self.allSourceURIs = evolution.ecal.list_task_sources()
 
     def _get_object(self, LUID):
         raw = self.tasks.get_object(LUID, "")
@@ -309,19 +298,14 @@ class EvoTasksTwoWay(EvoBase):
     def refresh(self):
         EvoBase.refresh(self)
         self.tasks = evolution.ecal.open_calendar_source(
-                        self.sourceURI, 
+                        self.selectedSourceURI, 
                         evolution.ecal.CAL_SOURCE_TYPE_TODO
                         )
         for i in self.tasks.get_all_objects():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.sourceURI = EvoBase.configure(self, 
-                                    window, 
-                                    self.sourceURI, 
-                                    self._uris,
-                                    "Tasks"
-                                    )
+        EvoBase.configure(self, window, "Tasks")
 
 class EvoMemoTwoWay(EvoBase):
 
@@ -337,15 +321,14 @@ class EvoMemoTwoWay(EvoBase):
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoMemoTwoWay.DEFAULT_MEMO_URI)
-        self.source = None
-        self._memoSources = evolution.ecal.list_memo_sources()
+        self.allSourceURIs = evolution.ecal.list_memo_sources()
 
     def _get_object(self, LUID):
         """
         Retrieve a specific contact object from evolution
         FIXME: In 0.5 this will replace get(...)
         """	
-        obj = self.source.get_object(LUID, "")
+        obj = self.memos.get_object(LUID, "")
         mtime = datetime.datetime.fromtimestamp(obj.get_modified())
         note = Note.Note(
                     title=obj.get_summary(),
@@ -366,7 +349,7 @@ class EvoMemoTwoWay(EvoBase):
         obj.set_summary(note.title)
         if note.contents != None:
             obj.set_description(note.contents)
-        uid = self.source.add_object(obj)
+        uid = self.memos.add_object(obj)
         
         if uid != None:
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
@@ -376,25 +359,19 @@ class EvoMemoTwoWay(EvoBase):
 
     def _delete_object(self, uid):
         try:
-            return self.source.remove_object(self.source.get_object(uid, ""))
+            return self.memos.remove_object(self.memos.get_object(uid, ""))
         except:
             return False
 
     def refresh(self):
         EvoBase.refresh(self)
-        self.source = evolution.ecal.open_calendar_source(
-                        self.sourceURI, 
+        self.memos = evolution.ecal.open_calendar_source(
+                        self.selectedSourceURI, 
                         evolution.ecal.CAL_SOURCE_TYPE_JOURNAL
                         )
-        for i in self.source.get_all_objects():
+        for i in self.memos.get_all_objects():
             self.uids.append(i.get_uid())
 
     def configure(self, window):
-        self.sourceURI = EvoBase.configure(self, 
-                                    window, 
-                                    self.sourceURI, 
-                                    self._memoSources,
-                                    "Memo Source"
-                                    )
-
+        EvoBase.configure(self, window, "Memos")
 

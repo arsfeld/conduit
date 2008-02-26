@@ -1,5 +1,13 @@
 2008-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	Move some more common code into EvoBase class
+	
+	* test/python-tests/TestDataProviderEvolution.py:
+	* test/python-tests/TestSyncEvolutionFolder.py: Add evolution tests
+
+2008-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Main.py:
 	* conduit/SyncSet.py:
 	* conduit/__init__.py:
