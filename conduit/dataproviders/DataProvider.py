@@ -40,6 +40,14 @@ class DataProviderBase(gobject.GObject):
                     "status-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
                     "change-detected": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
+                    
+    _name_ = ""
+    _description_ = ""
+    _icon_ = ""
+    _module_type_ = "dataprovider"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _out_type_ = ""
+    _in_type_ = ""
     
     def __init__(self):
         """

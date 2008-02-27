@@ -183,6 +183,9 @@ class DataProviderClient(DataProvider.TwoWay):
     def get_status_text(self):
         return self.server.get_status_text()
         
+    def get_name(self):
+        return "Remote %s" % self._name_
+        
 class DataproviderServer(StoppableXMLRPCServer):
     """
     Wraps a dataproviderwrapper in order to pickle args

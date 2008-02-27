@@ -40,13 +40,8 @@ class Application(dbus.service.Object):
         self.uiLib = None
 
         gobject.set_application_name("Conduit")
-        #Default command line values
-        if conduit.IS_DEVELOPMENT_VERSION:
-            self.settingsFile = os.path.join(conduit.USER_DIR, "settings-dev.xml")
-            dbFile = os.path.join(conduit.USER_DIR, "mapping-dev.db")
-        else:
-            self.settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
-            dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
+        self.settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
+        self.dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
 
         buildGUI = True
         iconify = False
@@ -121,7 +116,7 @@ class Application(dbus.service.Object):
         conduit.GLOBALS.moduleManager.load_all()
         conduit.GLOBALS.typeConverter = TypeConverter(conduit.GLOBALS.moduleManager)
         conduit.GLOBALS.syncManager = SyncManager(conduit.GLOBALS.typeConverter)
-        conduit.GLOBALS.mappingDB = MappingDB(dbFile)
+        conduit.GLOBALS.mappingDB = MappingDB(self.dbFile)
         conduit.GLOBALS.mainloop = gobject.MainLoop()
         
         #Build both syncsets and put on the bus as early as possible

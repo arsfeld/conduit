@@ -1,5 +1,18 @@
 2008-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Main.py: Remove -dev suffixes from config/db files
+	
+	* conduit/__init__.py: Store conduit configuration in fd.o compliant
+	$XDG_CONFIG_HOME. Fixes bug #518592
+	
+	* conduit/dataproviders/DataProvider.py: Add class props to base class to
+	fix network sync errors with one-way data sources
+	
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Differentiate remote data
+	providers on the canvas by prefixing their name with 'Remote '
+
+2008-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/ModuleWrapper.py:
 	* conduit/dataproviders/DataProvider.py:
 	* conduit/gtkui/Canvas.py: Add get_name() to the DataProviderBase class

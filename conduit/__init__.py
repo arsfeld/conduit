@@ -33,7 +33,12 @@ IS_INSTALLED = not os.path.exists(os.path.join(DIRECTORY,"ChangeLog"))
 IS_DEVELOPMENT_VERSION = True
 
 # Check the profile directory to prevent crashes when saving settings, etc
-USER_DIR = os.path.join(os.environ['HOME'],".conduit")
+USER_DIR = os.path.join(
+                os.environ.get(
+                    "XDG_CONFIG_HOME",
+    			    os.path.join(os.environ['HOME'], ".config")),
+    			"conduit"
+    			)
 if not os.path.exists(USER_DIR):
     os.mkdir(USER_DIR)
 
