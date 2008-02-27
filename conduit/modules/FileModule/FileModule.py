@@ -105,6 +105,9 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
 
     def get_UID(self):
         return "%s:%s" % (self.folder, self.folderGroupName)
+        
+    def get_name(self):
+        return self.folderGroupName
 
     def _monitor_folder(self):
         if self._monitor_folder_id != None:

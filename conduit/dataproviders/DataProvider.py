@@ -358,8 +358,13 @@ class DataProviderBase(gobject.GObject):
             return self._out_type_
         else:
             return "%s?%s" % (self._out_type_, Utils.encode_conversion_args(args))
-
-
+            
+    def get_name(self):
+        """
+        @returns: The DataProvider name, to be displayed in the UI
+        """
+        return self._name_
+        
 class DataSource(DataProviderBase):
     """
     Base Class for DataSources.

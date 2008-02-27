@@ -74,7 +74,10 @@ class ModuleWrapper:
         """
         @returns: The dataproviders user readable name
         """
-        return self.name
+        if self.module == None:
+            return self.name
+        else:
+            return self.module.get_name()
         
     def set_name(self, name):
         """

@@ -420,6 +420,7 @@ class Canvas(goocanvas.Canvas):
         log.info("Configuring %s" % dp)
         #May block
         dp.configure(self.parentWindow)
+        self.selectedDataproviderItem.update_appearance()
 
     def on_refresh_dataprovider_clicked(self, widget):
         """
@@ -586,23 +587,6 @@ class DataProviderCanvasItem(_CanvasItem):
             else:
                 log.warn("Unknown module type: Cannot get fill color")
 
-    def _update_appearance(self):
-        #the image
-        pb = self._get_icon()
-        pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
-        pby = int((1*self.WIDGET_HEIGHT/3) - (pb.get_height()/2))
-        self.image.set_property("pixbuf",pb)
-
-        self.name.set_property("text",self.model.get_name())
-
-        if self.model.module == None:
-            statusText = self.PENDING_MESSAGE
-        else:
-            statusText = self.model.module.get_status_text()
-        self.statusText.set_property("text",statusText)
-
-        self.box.set_property("fill_color_rgba",self._get_fill_color())
-
     def _get_icon(self):
         return self.model.get_icon()        
 
@@ -655,10 +639,27 @@ class DataProviderCanvasItem(_CanvasItem):
     def _on_status_changed(self, dataprovider):
         msg = dataprovider.get_status_text()
         self.statusText.set_property("text", msg)
+        
+    def update_appearance(self):
+        #the image
+        pb = self._get_icon()
+        pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
+        pby = int((1*self.WIDGET_HEIGHT/3) - (pb.get_height()/2))
+        self.image.set_property("pixbuf",pb)
+
+        self.name.set_property("text",self.model.get_name())
+
+        if self.model.module == None:
+            statusText = self.PENDING_MESSAGE
+        else:
+            statusText = self.model.module.get_status_text()
+        self.statusText.set_property("text",statusText)
+
+        self.box.set_property("fill_color_rgba",self._get_fill_color())
 
     def set_model(self, model):
         self.model = model
-        self._update_appearance()
+        self.update_appearance()
         if self.model.module != None:
             self.model.module.connect("change-detected", self._on_change_detected)
             self.model.module.connect("status-changed", self._on_status_changed)
@@ -777,9 +778,7 @@ class ConduitCanvasItem(_CanvasItem):
         except KeyError: pass
 
     def _on_conduit_parameters_changed(self, cond):
-        #update the twowayness of the connectors
-        for c in self.connectorItems.values():
-            c.set_two_way(self.model.is_two_way())
+        self.update_appearance()
 
     def _on_conduit_dataprovider_changed(self, cond, olddpw, newdpw):
         for item in [self.sourceItem] + self.sinkDpItems:
@@ -829,6 +828,11 @@ class ConduitCanvasItem(_CanvasItem):
                     except IndexError:
                         break
 
+
+    def update_appearance(self):
+        #update the twowayness of the connectors
+        for c in self.connectorItems.values():
+            c.set_two_way(self.model.is_two_way())
 
     def add_dataprovider_canvas_item(self, item):
         self._position_dataprovider(item)

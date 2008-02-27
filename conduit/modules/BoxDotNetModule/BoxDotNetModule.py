@@ -331,5 +331,11 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
         return self.files.keys()
+        
+    def get_name(self):
+        if len(self.foldername) > 0:
+            return self.foldername
+        else:
+            return self._name_
 
 

@@ -1,5 +1,17 @@
 2008-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/ModuleWrapper.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/gtkui/Canvas.py: Add get_name() to the DataProviderBase class
+	which provides a way for dataproviders to change the name they
+	are displayed as on the Canvas.
+
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/FileModule/FileModule.py: Use the selected folder as
+	the display name. Fixes bug #512230
+
+2008-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/TestCoreSyncLogic.py:
 	Refactor tests to share more code and add the basis for slow-sync
 	tests.
