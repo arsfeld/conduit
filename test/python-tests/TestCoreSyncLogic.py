@@ -50,6 +50,9 @@ class TestShell(TwoWay):
     def refresh(self):
         TwoWay.refresh(self)
 
+    def get_all(self):
+        return self.added + self.modified
+
     def get_changes(self):
         return self.added, self.modified, self.deleted
 
@@ -89,7 +92,25 @@ def reset_dataproviders(source, sink):
     sink.added = []
     sink.modified = []
     sink.deleted = []
-    
+
+def sync_and_check_result(name,description,test,expectedResult,expectedMappings, **kwargs):
+    sex = kwargs.get("sourceExpects", ())
+    skex = kwargs.get("sinkExpects", ())
+    sdpw = test.get_source()
+    skdpw = test.get_sink()
+    #peform the sync
+    test.sync(debug=DB_DEBUG)
+    a,e,c = test.get_sync_result()
+    ok("%s: Result OK (%s)" % (name,description), (a,e,c) == expectedResult)
+    #check we stored all the expected mappings
+    mappings = get_mappings(sdpw, skdpw)
+    ok("%s: %s mappings exist" % (name,expectedMappings), len(mappings) == expectedMappings)
+    #check the data was transferred in the right direction
+    if sex:
+        ok("%s: Source: put=%s del=%s" % (name,sex[0],sex[1]), sdpw.module.num_put == sex[0] and sdpw.module.num_del == sex[1])
+    if skex:
+        ok("%s: Sink: put=%s del=%s" % (name,skex[0],skex[1]), skdpw.module.num_put == skex[0] and skdpw.module.num_del == skex[1])
+
 #print out the mapping DB each sync?
 DB_DEBUG = False
 
@@ -135,63 +156,65 @@ ok("Prep: Test d unequal to a", a.compare(d) == COMPARISON_UNEQUAL)
 reset_dataproviders(source, sink)
 source.added = ['1','2','3']
 sink.added = ['4','5']
-
 test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase one: add different data to each side  (no conflicts)", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 5 mappings exist", len(mappings) == 5)
-ok("2Way: 3x data put into sink", sink.num_put == 3 and sink.num_del == 0)
-ok("2Way: 2x data put into source", source.num_put == 2 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="add data",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=5,
+        sinkExpects=(3,0),
+        sourceExpects=(2,0))
 
 #phase two: modify some
 reset_dataproviders(source, sink)
 source.modified = ['4','5']
 sink.modified = ['1','2']
-
 test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase two: modify some (no conflicts)", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 5 mappings exist", len(mappings) == 5)
-ok("2Way: 2x data put into sink", sink.num_put == 2 and sink.num_del == 0)
-ok("2Way: 2x data put into source", source.num_put == 2 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="modify some (no conflicts)",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=5,
+        sinkExpects=(2,0),
+        sourceExpects=(2,0))
 
 #phase two: delete some (delete policy: skip)
 reset_dataproviders(source, sink)
 source.deleted = ['4']
 sink.deleted = ['2']
-
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase two: delete some (delete policy: skip)", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 5 mappings exist", len(mappings) == 5)
-ok("2Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 0x data del from source", source.num_put == 0 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="delete some (delete policy: skip)",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=5,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 #phase two: delete some (delete policy: ask)
 test.set_two_way_policy({"conflict":"skip","deleted":"ask"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase two: delete some (delete policy: ask)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 5 mappings exist", len(mappings) == 5)
-ok("2Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 0x data del from source", source.num_put == 0 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="delete some (delete policy: ask)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=5,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 #phase two: delete some (delete policy: replace)
 test.set_two_way_policy({"conflict":"skip","deleted":"replace"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase two: delete some (delete policy: replace)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 3 mappings exist", len(mappings) == 3)
-ok("2Way: 1x data del from sink", sink.num_put == 0 and sink.num_del == 1)
-ok("2Way: 1x data del from source", source.num_put == 0 and source.num_del == 1)
+sync_and_check_result(
+        name="2Way",
+        description="delete some (delete policy: replace)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=3,
+        sinkExpects=(0,1),
+        sourceExpects=(0,1))
 
 #phase three: modify both (modify policy: skip)
 reset_dataproviders(source, sink)
@@ -201,73 +224,77 @@ source.LUID_mtimes['1'] = '1'
 sink.modified = ['1','5']
 #make sink data 5 newer than source data 5
 sink.LUID_mtimes['5'] = '1'
-
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase three: modify both (modify policy: skip)", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 3 mappings exist", len(mappings) == 3)
-ok("2Way: 0x data put from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 0x data put from source", source.num_put == 0 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="modify both (conflict policy: skip)",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=3,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 #phase three: modify both (modify policy: ask)
 test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase three: modify both (modify policy: ask) %s,%s,%s" % (abort,error,conflict), abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 3 mappings exist", len(mappings) == 3)
-ok("2Way: 0x data put from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 0x data put from source", source.num_put == 0 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="modify both (conflict policy: ask)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=3,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 #phase three: modify both (modify policy: replace)
 test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase three: modify both (modify policy: replace)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 3 mappings exist", len(mappings) == 3)
-ok("2Way: 1x data put from sink", sink.num_put == 1 and sink.num_del == 0)
-ok("2Way: 1x data put from source", source.num_put == 1 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="modify both (conflict policy: replace)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=3,
+        sinkExpects=(1,0),
+        sourceExpects=(1,0))
 
 #phase four: test mod and delete (delete policy: skip)
+test.set_two_way_policy({"conflict":"replace","deleted":"skip"})
 reset_dataproviders(source, sink)
 source.modified = ['3']
 sink.deleted = ['3']
-
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase four: mod+del (delete policy: skip)", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 3 mappings exist", len(mappings) == 3)
-ok("2Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 0x data del from source", source.num_put == 0 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="mod+del (delete policy: skip)",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=3,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 #phase four: test mod and delete (delete policy: ask)
 test.set_two_way_policy({"conflict":"skip","deleted":"ask"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase four: mod+del (delete policy: ask)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 3 mappings exist", len(mappings) == 3)
-ok("2Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 0x data del from source", source.num_put == 0 and source.num_del == 0)
+sync_and_check_result(
+        name="2Way",
+        description="mod+del (delete policy: ask)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=3,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 #phase four: test mod and delete (delete policy: replace)
 test.set_two_way_policy({"conflict":"skip","deleted":"replace"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("2Way: Sync completed: phase four: mod+del (delete policy: replace)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("2Way: 2 mappings exist", len(mappings) == 2)
-ok("2Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
-ok("2Way: 1x data del from source", source.num_put == 0 and source.num_del == 1)
+sync_and_check_result(
+        name="2Way",
+        description="mod+del (delete policy: replace)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=2,
+        sinkExpects=(0,0),
+        sourceExpects=(0,1))
 
 ################################################################################
 # ONE WAY SYNC WITH ONE SOURCE AND ONE SINK
 ################################################################################
-conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sourceDpw.get_UID(), sinkDpw.get_UID())
 sourceDpw.module_type = "source"
 sinkDpw.module_type = "sink"
 test.prepare(
@@ -279,51 +306,97 @@ test.set_two_way_sync(False)
 #phase one: add data
 reset_dataproviders(source, sink)
 source.added = ['1','2','3','4','5']
-
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("1Way: Sync completed: phase one: add data", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("1Way: 5 mappings exist", len(mappings) == 5)
-ok("1Way: 5x data put into sink", sink.num_put == 5 and sink.num_del == 0)
+sync_and_check_result(
+        name="1Way",
+        description="add data",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=5,
+        sinkExpects=(5,0),
+        sourceExpects=(0,0))
 
 #phase two: mod data
 reset_dataproviders(source, sink)
 source.modified = ['1','2','3']
-
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("1Way: Sync completed: phase two: mod data", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("1Way: 5 mappings exist", len(mappings) == 5)
-ok("1Way: 3x data put into sink", sink.num_put == 3 and sink.num_del == 0)
+sync_and_check_result(
+        name="1Way",
+        description="modify data",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=5,
+        sinkExpects=(3,0),
+        sourceExpects=(0,0))
 
 #phase three: delete data
 reset_dataproviders(source, sink)
 source.deleted = ['1','2','3']
-
 test.set_two_way_policy({"conflict":"ask","deleted":"skip"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("1Way: Sync completed: phase three: delete data (delete policy: skip)", abort == False and error == False and conflict == False)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("1Way: 5 mappings exist", len(mappings) == 5)
-ok("1Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
+sync_and_check_result(
+        name="1Way",
+        description="delete data (delete policy: skip)",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=5,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("1Way: Sync completed: phase three: delete data (delete policy: ask)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("1Way: 5 mappings exist", len(mappings) == 5)
-ok("1Way: 0x data del from sink", sink.num_put == 0 and sink.num_del == 0)
+sync_and_check_result(
+        name="1Way",
+        description="delete data (delete policy: ask)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=5,
+        sinkExpects=(0,0),
+        sourceExpects=(0,0))
 
 test.set_two_way_policy({"conflict":"ask","deleted":"replace"})
-a,b = test.sync(debug=DB_DEBUG)
-abort,error,conflict = test.get_sync_result()
-ok("1Way: Sync completed: phase three: delete data (delete policy: replace)", abort == False and error == False and conflict == True)
-mappings = get_mappings(sourceDpw, sinkDpw)
-ok("1Way: 2 mappings exist", len(mappings) == 2)
-ok("1Way: 3x data del from sink", sink.num_put == 0 and sink.num_del == 3)
+sync_and_check_result(
+        name="1Way",
+        description="delete data (delete policy: replace)",
+        test=test,
+        expectedResult=(False,False,True),
+        expectedMappings=2,
+        sinkExpects=(0,3),
+        sourceExpects=(0,0))
+
+################################################################################
+# SLOW SYNC
+################################################################################
+class TestShellGetAll(TestShell):
+    def get_changes(self):
+        raise NotImplementedError
+
+source = TestShellGetAll(uid="X")
+sink = TestShellGetAll(uid="Y")
+sourceDpw = test.wrap_dataprovider(source)
+sinkDpw = test.wrap_dataprovider(sink)
+test.prepare(
+        sourceDpw, 
+        sinkDpw
+        )
+test.set_two_way_policy({"conflict":"ask","deleted":"ask"})
+
+#phase one: add data
+reset_dataproviders(source, sink)
+source.added = ['1','2','3']
+sync_and_check_result(
+        name="Slow",
+        description="add data",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=3,
+        sinkExpects=(3,0))
+
+#phase one: add data
+reset_dataproviders(source, sink)
+source.added = ['1','2','3']
+sync_and_check_result(
+        name="Slow",
+        description="no new data",
+        test=test,
+        expectedResult=(False,False,False),
+        expectedMappings=3,
+        sinkExpects=(0,0))
 
 finished()

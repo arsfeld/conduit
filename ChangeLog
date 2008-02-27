@@ -1,5 +1,11 @@
 2008-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreSyncLogic.py:
+	Refactor tests to share more code and add the basis for slow-sync
+	tests.
+
+2008-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/EvolutionModule/EvolutionModule.py:
 	Move some more common code into EvoBase class
 	
