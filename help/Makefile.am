@@ -4,5 +4,10 @@ dist-hook: doc-dist-hook
 DOC_MODULE = conduit
 DOC_ENTITIES = 
 DOC_INCLUDES = 
-DOC_FIGURES = figures/conduit.png
 DOC_LINGUAS = es sv
+
+DOC_FIGURES = \
+    figures/conduit.png \
+    figures/conduit-gui-parts.png \
+    figures/conduit-dp.png \
+    figures/conduit-folder-configuration.png

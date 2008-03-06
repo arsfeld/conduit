@@ -1,6 +1,11 @@
+2008-03-06  John Stowers  <john.stowers@gmail.com>
+
+	* Makefile.am:
+	* C/figures/*: Add some more screenshots of parts of the Conduit UI
+
 2008-01-21  Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
-        * es/es.po: Added Spanish translation.
+	* es/es.po: Added Spanish translation.
 	* Makefile.am: Added es to DOC_LINGUAS
 
 2007-12-16  Daniel Nylander <po@danielnylander.se>
