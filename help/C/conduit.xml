@@ -5,7 +5,7 @@
   <!ENTITY appversion "1.0">
   <!ENTITY manrevision "1.0">
   <!ENTITY date "February 2006">
-  <!ENTITY app "<application>My application</application>">
+  <!ENTITY app "<application>Conduit Synchronizer</application>">
   <!ENTITY appname "Conduit">
 ]>
 
@@ -22,165 +22,256 @@
     <publisher>
       <publishername> GNOME Documentation Project </publishername>
     </publisher>
-
     <authorgroup>
-      <author role="maintainer">
+      <author>
         <firstname>John</firstname>
         <surname>Stowers</surname>
       </author>
+      <author>
+        <firstname>Brent</firstname>
+        <surname>Gueth</surname>
+      </author>
     </authorgroup>
-
-    <revhistory>
-      <revision>
-        <revnumber>&appname; Manual &manrevision;</revnumber>
-        <date>2006-02-04</date>
-      </revision>
-    </revhistory>
-
     <releaseinfo>This manual describes version &appversion; of &appname;</releaseinfo>
   </articleinfo>
-
   <section>
-    <title>Introduction</title>
+    <title>What is Conduit</title>
     <para>
-      Conduit is a synchronization solution for GNOME which allows the
-      user to take their emails, files, bookmarks, and any other type
-      of personal information and synchronize that data with another
-      computer, an online service, or even another electronic device.
-    </para>
-
-    <para>
-      Conduit manages the synchronization and conversion of data into
-      other formats. For example, conduit allows you to;
-    </para>
-
-    <itemizedlist>
-      <listitem>
-	<para>
-	  Synchronize your tomboy notes to a file on a remote computer
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Synchronize your emails to your mobile phone
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  Synchronize your bookmarks to delicious, gmail, or even your
-	  own webserver
-	</para>
-      </listitem>
-
-      <listitem>
-	<para>
-	  and many more... 
-	</para>
-      </listitem>
-    </itemizedlist>
-
-    <para>
-      Any combination you can imagine, Conduit will take care of the
-      conversion and synchronization.
-    </para>
-
-    <section>
-      <title>What Can Conduit Do</title>
-
-      <para>
-	From an end user perspective Conduit has reached the level of
-	being useful. Conduit can currently perform the following sync
-	partnerships;
-      </para>
-      
+      <ulink type="http" url="http://www.conduit-project.org">Conduit</ulink> is a synchronization application for GNOME. It allows you to synchronize your files, photos, emails, contacts, notes, calendar data and any other type of personal information and synchronize that data with another computer, an online service, or even another electronic device. Conduit manages the synchronization and conversion of data into other formats. For example, Conduit allows you to; </para>
       <itemizedlist>
-	<listitem>
-	  <para>
-	    Two way file/folder sync on gnomevfs volumes and to/from Box.net
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Two way Tomboy note sync via gnomevfs volumes
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Two way Tomboy note sync via ipod notes
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    One way sync of files/folders of photos to Flickr, Smugmug and Picasa	    
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    One way sync of FSpot tagged photos to Flickr, Smugmug and Picasa	    
-	  </para>
-	</listitem>
-	
-
-	<listitem>
-	  <para>
-	    Sync and export of Evolution memos and tasks to ipod and to a folder.  
-	  </para>
-	</listitem>
+        <listitem>
+          <para>Synchronize your <ulink type="http" url="http://www.gnome.org/projects/tomboy/">Tomboy notes</ulink> with another computer </para>
+        </listitem>
+        <listitem>
+          <para>Synchronize your your PIM data to your mobile phone, <ulink type="http" url="http://en.wikipedia.org/wiki/IPod">iPod</ulink>, <ulink type="http" url="http://en.wikipedia.org/wiki/Nokia_N800">Nokia Internet tablet</ulink>, or between computers </para>
+        </listitem>
+        <listitem>
+          <para>Upload photos to <ulink type="http" url="http://www.flickr.com">Flickr</ulink>, <ulink type="http" url="http://picasaweb.google.com">Picasa</ulink>, <ulink type="http" url="http://www.smugmug.com">Smugmug</ulink>, <ulink type="http" url="http://shutterfly.com">Shutterfly</ulink> and your iPod,  </para>
+        </listitem>
+        <listitem>... and many more </listitem>
       </itemizedlist>
-      
-      <para>
-	In the one way sync/export case Conduit is smart in the sense that if
-	a piece of data has not been modified then it will not be
-	synchronized/exported again, it will replace the existing data. In
-	addition if data is subsequently removed from a source then its
-	corresponding data will also be deleted.
-      </para>
-      
-      <para>
-	Conduit has a full featured DBus interface to allow other application
-	authors to use Conduit to perform the synchronization and export tasks
-	of their applications.
-      </para>
+      <para>Any combination you can imagine, Conduit will take care of the conversion and synchronization.   </para>
+      <section>
+        <title>Use Cases</title>
+        <itemizedlist>
+          <listitem>
+            <para>Fred wants to sync his tomboy notes with <ulink type="http" url="http://www.google.com/notebook">Google notebook</ulink> </para>
+          </listitem>
+          <listitem>
+            <para>Joey wants to sync whatever is on his desktop to his <ulink type="http" url="http://www.backpackit.com">backpack account</ulink> </para>
+          </listitem>
+          <listitem>Nellie wants to keep a directory on his laptop and his desktop in sync </listitem>
+          <listitem>Paul wants to keep his evolution contacts in sync with his mobile phone </listitem>
+          <listitem>Steve wants to keep his gnome preferences in sync between his two computers </listitem>
+          <listitem>
+            <para>John wants to keep a directory of <ulink type="http" url="http://openoffice.org">OpenOffice</ulink> documents in sync with copies held on <ulink type="http" url="http://docs.google.com">Google Docs</ulink> </para>
+          </listitem>
+          <listitem>Pete wants to have photos saved to his server to be pushed to an external back up (usb hard drive / off-site ftp)  </listitem>
+        </itemizedlist>
+      </section>
+      <section>
+        <title>Introduction</title>
+        <para>Conduit's goals are to synchronize your data as seamlessly as possible, be it from from remote device or remote websites. It is about extending your life as you see it needs to be, no longer constrained by data, devices or formats. Conduit enables you to take your data where you want when you want. All of your mobile devices could be synchronized automatically by Conduit. Home file back-ups to a remote server? Synced automatically. </para>
+        <para>It may sometimes seem that Conduit is overly complicated, one of the design goals has always been to make the interface as simple and intuitive as possible. However  Conduit is much more powerful then the simplistic design may lead on. This documentation will describe all the configuration options for groups and data providers, while the following gives some examples of items you may wish to synchronize; </para>
+        <itemizedlist>
+          <listitem>
+            <para>A <ulink type="http" url="http://www.gnome.org">GNOME</ulink> user might store information in a wide variety of places on the desktop including; </para>
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <ulink type="http" url="http://www.gnome.org/projects/evolution/">Evolution</ulink> (email, calendar, address book) </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <ulink type="http" url="http://www.gnome.org/projects/tomboy/">Tomboy</ulink> (notes) </para>
+              </listitem>
+              <listitem>Directories (important files) </listitem>
+              <listitem>Photos </listitem>
+              <listitem>Bookmarks (web and feeds) </listitem>
+              <listitem>Music  </listitem>
+            </itemizedlist>
+          </listitem>
+          <listitem>The user might also use one of the many popular online services including <itemizedlist><listitem><para><ulink type="http" url="http://del.icio.us">Delicious</ulink> (bookmarks) </para></listitem><listitem><para><ulink type="http" url="http://www.gmail.com">Gmail</ulink> (bookmarks, calendar, feeds, email, photos) </para></listitem><listitem><para><ulink type="http" url="http://www.flickr.com">Flickr</ulink> (photos)  </para></listitem></itemizedlist></listitem>
+          <listitem>They probably also own another electronic device such as <itemizedlist><listitem>A second laptop, also running GNOME </listitem><listitem>A mobile phone </listitem><listitem><para>A <ulink type="http" url="http://www.nokia.com">Nokia</ulink> 770/800 </para></listitem><listitem><para>A <ulink type="http" url="http://www.palm.com">Palm</ulink> or <ulink type="http" url="http://www.microsoft.com/windowsmobile/default.mspx">Windows Mobile</ulink> Pocket PC </para></listitem><listitem>An iPod  </listitem></itemizedlist></listitem>
+        </itemizedlist>
+        <para>Its hard enough keeping your information organized when limited to the desktop, let alone the added burden of keeping your information in sync with any of the other services or devices listed above. </para>
+        <para>Our goal for Conduit is to allow GNOME users to keep their information in sync. Irrespective of the type, irrespective of the way in which that information is stored. Conduit should just work. </para>
+      </section>
     </section>
-    
     <section>
-      <title>Whats Planned For Future</title>
-      
-      <itemizedlist>
-	<listitem>
-	  <para>
-	    SyncML support
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Google gdata support (Notes, docs, base)
-	  </para>
-	</listitem>
-
-	<listitem>
-	  <para>
-	    Direct PC-PC sync over local LAN using Avahi
-	  </para>
-	</listitem>
-      </itemizedlist>
+      <title>Understanding the Conduit Interface</title>
+      <section>
+        <title>Introduction</title>
+        <para>Conduit has a few basic concepts worth understanding before you begin. Knowing these concepts will help you discover things that you never knew you could keep in sync, for example, uploading photos right from your mobile phone to Picasa! </para>
+        <para>
+          <figure id="conduit-FIG-gui-parts">
+            <title>Conduit GUI</title>
+            <screenshot>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="figures/conduit-gui-parts.png" format="PNG"/>
+                </imageobject>
+                <caption>
+                  <para>The Parts of the Conduit GUI</para>
+                </caption>
+                </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
+        <para><xref linkend="conduit-FIG-gui-parts" /> shows the Conduit interface's four main components;</para>
+        <orderedlist numeration="arabic">
+          <listitem>The Menu <itemizedlist><listitem>The file, edit and help menus store operations which apply to all groups. For more information on the contents of these menus, see below </listitem></itemizedlist></listitem>
+          <listitem>The Data Provider Pane <itemizedlist><listitem>Located on the left hand side of the window, lists all of the data providers that are detected and ready for use on your system.  </listitem><listitem><para>Data providers are the source or destination of data you wish to sync. Please refer to the <emphasis>Data Provider</emphasis> section of the documentation to receive instructions on how to configure each data provider.  </para></listitem></itemizedlist></listitem>
+          <listitem>The Canvas Pane <itemizedlist><listitem><para>Used to create groups of data providers to synchronize. Drag a data source to the left of the canvas pane and one or more data sinks to the right of the data pane to create a group.   For more explanation on groups please check the <emphasis>Groups</emphasis> section of the documentation. </para></listitem></itemizedlist></listitem>
+          <listitem>The Conflicts Pane <itemizedlist><listitem><para>If you receive any conflict notifications while trying to run a sync job they will be listed here.  For information on how to deal with possible conflicts please check the <emphasis>Conflicts and Resolutions</emphasis> section of the documentation.  </para></listitem></itemizedlist></listitem>
+        </orderedlist>
+      </section>
+      <section>
+        <title>The Menu</title>
+        <section>
+          <title>The File Menu</title>
+          <itemizedlist>
+            <listitem>Save Conduit saves all configured groups when you exit the application. If you have unchecked this option, then all data providers, groups, and the configruation of both, is saved when you select this item. </listitem>
+            <listitem>Synchronize All <para>Synchronizes all groups at the same time. You can still run each sync group separately (see the <emphasis>Groups</emphasis> section), but this saves you the time of having to select and manually going through each group to start the sync process.  </para></listitem>
+            <listitem>Quit Closes conduit. You will br prompted to stop any synchronization currently in progress. </listitem>
+          </itemizedlist>
+        </section>
+        <section>
+          <title>The Edit Menu</title>
+          <itemizedlist>
+            <listitem>Clear Canvas Removes all configurations, data providers, and groups from the canvas pane. This allows you start using the canvas as it was a clean slate. The best time to use this is when you are re-configuring a large portion of your sync groups. There is no quick way to revert back after selecting this setting.    </listitem>
+            <listitem>Preferences <para>Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see the <emphasis>Conduit Preferences</emphasis> section of the documentation.  </para></listitem>
+          </itemizedlist>
+        </section>
+        <section>
+          <title>The Help Menu</title>
+          <itemizedlist>
+            <listitem>Developers If you are developer, and interested in contributing to Conduit, then this option includes links to all the appropriate documentation. </listitem>
+            <listitem>Contents </listitem>
+            <listitem>About Shows the version number and a list of Conduit developers.  </listitem>
+          </itemizedlist>
+        </section>
+      </section>
+      <section>
+        <title>The Web Login Window</title>
+        <para>Sometimes you will be required to log into a website associated with certain data providers. The frequency at which you may have to log in is not determined by Conduit, but by the security policy of the respective data provider. For example, Box.net requires you to log in every time Conduit is run, whereas Flickr only requires you to log in once, to give permission to Conduit to upload photos. If you are required to log into a website, and you have selected the 'use built in web browser' from the Conduit preferences, then a window will pop up like the one shown below. </para>
+        <para>
+          <figure id="conduit-FIG-login">
+            <title>Conduit Login Window</title>
+            <screenshot>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="figures/conduit-login.png" format="PNG"/>
+                </imageobject>
+                <caption>
+                  <para>The window shown when logging into data provider websites</para>
+                </caption>
+                </mediaobject>
+            </screenshot>
+        </figure>
+      </para>
+      </section>
+      <section>
+        <title>Data Providers and Groups</title>
+        <para>Conduit represents the things your want to synchronize graphically. When data providers get added to the canvas, the get arranged into so called groups. A group is a collection of data providers that share data. In the figure below you will see the following parts </para>
+        <para>
+          <figure id="conduit-FIG-dp-parts">
+            <title>Conduit Depicts Synchronizations Graphically</title>
+            <screenshot>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="figures/conduit-dp.png" format="PNG"/>
+                </imageobject>
+                <caption>
+                  <para>Parts of a Synchronization Group</para>
+                </caption>
+                </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
+        <orderedlist numeration="arabic">
+          <listitem>A data provider for synchronizing two whose status indicates that it is ready to be synchronized. </listitem>
+          <listitem>A group containing two folder dataproviders. The arrow has two ends, indicating that the two dataproviders will undergo a two way syncronization, that is data will flow in both directions, and both folders will contain the same information once the sync finishes. </listitem>
+          <listitem>A second folder data provider. By convention, data providers that lie on the right had side of groups are called data sinks. This is because during a one way sync, data can only flow into them </listitem>
+          <listitem>A Facebook and Picasa data provider for uploading images to those sites. Notice that that the group has three data providers, and the arrow has changed to indicate that data will flow in only one direction, that is images will be uploaded from F-Spot to Facebook and Picasa. </listitem>
+        </orderedlist>
+      </section>
     </section>
-  </section>
-  
-  <section>
-    <title>How to use the GUI</title>
-    <para>
-      Grab a dataprovider from the left panel and drag it on to the
-      canvas on the right.  Right click on the icon in the canvas to
-      bring up a context menu.  Double click to configure the item.
-    </para>
-  </section>
+    <section>
+      <title>Synchronizing Something</title>
+      <para>This section describes the steps required to synchronize two data providers. The example given illustrates how to synchronize two folders but the concepts are applicable to anything you wish to synchronize. If you need more information on specific settings please refer to the corresponding section of the documentation.   </para>
+      <section>
+        <title>Introduction</title>
+        <para>The image above contains two groups. This section will describe the steps to recreate those groups. </para>
+        <itemizedlist>
+          <listitem>The top group depicts a two way synchronization of two folders </listitem>
+          <listitem>The bottom group depicts a one way sync of images, from F-Spot to Facebook, and to the Picasa web albums. </listitem>
+        </itemizedlist>
+      </section>
+      <section>
+        <title>Example 1: Synchronizing Two Folders</title>
+        <para>The following steps will recreate the two way synchronization group shown as <emphasis>#1</emphasis> in the figure above. </para>
+        <orderedlist numeration="arabic">
+          <listitem>On your desktop create three folders named folder1, folder2, and folder3.  Drag a file of your choice into folder1.  </listitem>
+          <listitem>Start Conduit </listitem>
+          <listitem>
+            <para>Add a data provider for <emphasis>folder1</emphasis> </para>
+            <para>From the data provider pane, drag the folder data provider and drop it on the left hand side of the canvas pane. This will be the data source that we are going to sync from.</para>
+          </listitem>
+          <listitem>
+            <para>Configure <emphasis>folder1</emphasis> </para>
+            <para>Double click on the data provider you recently dropped on the canvas. This will bring up the folder configuration window as shown below. Enter something memorable in the name field and change the <emphasis>Folder Location</emphasis> to the folder you created in step 1. 
+              <figure id="conduit-FIG-dp-folder-config">
+                <title>Configuring Folder 1</title>
+                  <screenshot>
+                    <mediaobject>
+                      <imageobject>
+                        <imagedata fileref="figures/conduit-folder-configuration.png" format="PNG"/>
+                      </imageobject>
+                  </mediaobject>
+                </screenshot>
+              </figure>
+            </para>
+          </listitem>
+          <listitem>
+            <para>Add a data provider for <emphasis>folder2</emphasis> </para>
+            <para>Drag another folder data provider from the pane on the left. This time drop it adjacent to the folder1 dataprovider. This should result in an arrow connecting it to folder1 being created. </para>
+          </listitem>
+          <listitem>
+            <para>Configure <emphasis>folder2</emphasis> </para>
+            <para>Configure the data provider so that its <emphasis>Folder Location</emphasis> points to <emphasis>folder2</emphasis> on the desktop, and importantly, its <emphasis>Folder Name</emphasis> is the same as that entered in step <emphasis>#4</emphasis>.</para>
+          </listitem>
+          <listitem>
+            <para>Configure the synchronization parameters</para>
+            <para>Right click on the associated group, and under sync options, select a two way sync. Since this is just a basic run through on how to setup a sync we are not going to go through any advanced syncing options in this section of the documentation.   If you wish more information on the options available, please see the <emphasis>Groups</emphasis> section of the documentation.  </para>
+          </listitem>
+          <listitem>Synchronize the two folders by right clicking on them and selecting sync, or from the file menu. Once the sync is finished you should the file that you placed in folder1 on your desktop within folder2. </listitem>
+        </orderedlist>
+      </section>
+      <section>
+        <title>Example 2: Exporting Images to Multiple Destinations</title>
+        <para>The second group shown in <xref linkend="conduit-FIG-dp-parts" /> shows a single F-Spot data source exporting its photos to two data sinks, a Fackbook one, and a Picasa one.</para>
+        <orderedlist numeration="arabic">
+          <listitem>Start Conduit </listitem>
+          <listitem>Start F-Spot </listitem>
+          <listitem>Drag a F-Spot data provider from the data provider pane and drop it onto an empty spot on the canvas. A new group containing just the F-Spot data provider will be created.</listitem>
+          <listitem>Drag Facebook and Picasa data providers into the Group that was just created.</listitem>
+          <listitem>Configure the data providers by double clicking on them.</listitem>
+          <listitem>Now synchronize the group to upload photos. You will be prompted to log into facebook using the Conduit login window, shown in  <xref linkend="conduit-FIG-login" /></listitem>
+        </orderedlist>
+      </section>
+      <section>
+        <title>Summary</title>
+        <para>All sync operations work exactly like this. The only difference is the data you are syncing and the providers you are using. You always follow the same sequence of steps, </para>
+        <orderedlist numeration="arabic">
+          <listitem>Add dataproviders to create a new group, or to an existing group. </listitem>
+          <listitem>
+            <para>Configure the data providers. Each data provider requires a unique configuration. For reference on these please the <emphasis>Data Providers</emphasis> section of the documentation.  </para>
+          </listitem>
+          <listitem>Configure the group, selecting what should happen on conflict, etc. </listitem>
+          <listitem>Synchronize the dataproviders as you wish. </listitem>
+        </orderedlist>
+      </section>
+    </section>
 </article>
 

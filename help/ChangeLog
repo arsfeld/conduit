@@ -1,5 +1,11 @@
 2008-03-06  John Stowers  <john.stowers@gmail.com>
 
+	* C/conduit.xml:
+	* Makefile.am: The first import of the new Conduit Documentation.
+	Contributed by Brent Gueth <creeva@gmail.com>
+
+2008-03-06  John Stowers  <john.stowers@gmail.com>
+
 	* Makefile.am:
 	* C/figures/*: Add some more screenshots of parts of the Conduit UI
 
