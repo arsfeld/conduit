@@ -1,3 +1,7 @@
+2008-03-07  John Stowers  <john.stowers@gmail.com>
+
+	* C/conduit.xml: Add simple docs about the conduit prefs window.
+
 2008-03-06  John Stowers  <john.stowers@gmail.com>
 
 	* C/figures/source/*: Add soure SVGs used to make screenshots

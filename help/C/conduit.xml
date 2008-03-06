@@ -153,6 +153,46 @@
         </section>
       </section>
       <section>
+        <title>The Preferences Window</title>
+        <para>The Conduit preferences is accesed from the edit menu. Any setting or change that you make within the preferences menu effect all of your sync groups and basic Conduit operations.</para>
+        <section>
+          <title>Configuration Tab</title>
+          <para>The configuration tab is where all of Conduit's global settings are configured.   There are six global settings: </para>
+          <itemizedlist>
+            <listitem>
+              <para>Save Settings on Exit</para>
+              <para>Instructs Conduit that all configured dataproviders and groups should be saved when the application exits </para>
+            </listitem>
+            <listitem>
+              <para>Show Status Icon</para>
+              <para>Shows a status icon in the notification area. This icon animates to indicate a sync is in progress.</para>
+            </listitem>
+            <listitem>
+              <para>Minimize to Notification Area</para>
+              <para>Instructs Conduit to minimize to the notification area instead of to the panel</para>
+            </listitem>
+            <listitem>
+              <para>Use Built in Web Browser</para>
+              <para>When a data provider requires that you log onto a website, this option tells conduit to use its own web browser to do so.</para>
+            </listitem>
+            <listitem>When an Item Has Been Deleted </listitem>
+            <listitem>Where There is a Two Way Conflict </listitem>
+          </itemizedlist>
+        </section>
+        <section>
+          <title>Data Providers Tab</title>
+          <para>This tab shows a list of the data providers that are currently installed.  </para>
+        </section>
+        <section>
+          <title>Data Conversions Tab</title>
+          <para>This tab lists the data conversions that Conduit is capable of performing. </para>
+        </section>
+        <section>
+          <title>Mapping DB</title>
+          <para>This is a list of the UID that Conduit uses to maintain accurate sync data from different sources.  Here you have the option to clear the mapping database. </para>
+        </section>
+      </section>
+      <section>
         <title>The Web Login Window</title>
         <para>Sometimes you will be required to log into a website associated with certain data providers. The frequency at which you may have to log in is not determined by Conduit, but by the security policy of the respective data provider. For example, Box.net requires you to log in every time Conduit is run, whereas Flickr only requires you to log in once, to give permission to Conduit to upload photos. If you are required to log into a website, and you have selected the 'use built in web browser' from the Conduit preferences, then a window will pop up like the one shown below. </para>
         <para>
@@ -168,8 +208,8 @@
                 </caption>
                 </mediaobject>
             </screenshot>
-        </figure>
-      </para>
+          </figure>
+        </para>
       </section>
       <section>
         <title>Data Providers and Groups</title>
