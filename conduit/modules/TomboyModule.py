@@ -210,9 +210,9 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
             if self.remoteTomboy.NoteExists(LUID):
                 existingNote = self._get_note(LUID)
         else:
-            uid = self.remoteTomboy.FindNote(note.get_title())
-            if uid != "":
-                existingNote = self._get_note(str(uid))
+            LUID = self.remoteTomboy.FindNote(note.get_title())
+            if LUID != "":
+                existingNote = self._get_note(str(LUID))
 
         #compare with the existing note
         if existingNote != None:
