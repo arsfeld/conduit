@@ -1,3 +1,10 @@
+2008-03-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Utils.py:
+	* conduit/modules/TomboyModule.py:
+	* test/python-tests/TestCoreUtil.py: Always extract the note title from
+	the tomboy xml file.
+
 2008-03-06  John Carr <john.carr@unrouted.co.uk>
 
 	*conduit/modules/TomboyModule.py: Fix a typo (should handle syncing two

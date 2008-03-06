@@ -46,11 +46,17 @@ m = Utils.Memstats()
 VmSize,VmRSS,VmStack = m.calculate()
 ok("Memstats: size:%s rss:%s stack:%s" % (VmSize,VmRSS,VmStack), VmSize > 0 and VmRSS > 0 and VmStack > 0)
 
-# Test the shink command line executer
+# Test the shiny command line executer
 conv = Utils.CommandLineConverter()
 conv.build_command("ls %s %s")
 cmdok,output = conv.convert("/tmp","/dev/null",callback=None,save_output=True)
 
 ok("Command executed ok", cmdok == True and len(output) > 0)
+
+ok("Simple xml tag extractor", 
+        Utils.xml_extract_value_from_tag("tag", "<tag>foo tag bar</tag>") == "foo tag bar")
+ok("Simple xml tag extractor", 
+        Utils.xml_extract_value_from_tag("tag", "<nottag>tag</nottag>") == None)
+
 
 finished()

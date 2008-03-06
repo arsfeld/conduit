@@ -273,6 +273,18 @@ def log_function_call(log):
         return newf
     return decorator
 
+def xml_extract_value_from_tag(tag, text):
+    """
+    Returns the contents of the xml tag or None. Uses a simple regex.   
+
+    Taken from:
+    http://immike.net/blog/2007/04/06/5-regular-expressions-every-web-programmer-should-know/
+    """
+    ans = re.compile("<%(tag)s[^>]*>(.*?)</%(tag)s>" % {"tag":tag}).findall(text)
+    if ans:
+        return ans[0]
+    else:
+        return None
 #
 # Memstats
 #
