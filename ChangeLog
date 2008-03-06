@@ -1,3 +1,8 @@
+2008-03-06  John Carr <john.carr@unrouted.co.uk>
+
+	*conduit/modules/TomboyModule.py: Fix a typo (should handle syncing two
+	existing tomboys together better now)
+
 2008-02-27  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Main.py: Remove -dev suffixes from config/db files
