@@ -1,5 +1,15 @@
 2008-03-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Main.py:
+	* conduit/Synchronization.py:
+	* conduit/gtkui/UI.py: Add the ability to cancel synchronization without
+	quitting conduit. Fixes bug #510124
+	
+	* data/conduit.glade: Add Cancel options to the main menu, and to the tray
+	icon.
+
+2008-03-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Utils.py:
 	* conduit/modules/TomboyModule.py:
 	* test/python-tests/TestCoreUtil.py: Always extract the note title from

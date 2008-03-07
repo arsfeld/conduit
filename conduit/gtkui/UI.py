@@ -69,7 +69,8 @@ class MainWindow:
         
         dic = { "on_mainwindow_delete" : self.on_window_closed,
                 "on_mainwindow_state_event" : self.on_window_state_event,
-                "on_synchronize_activate" : self.on_synchronize_all_clicked,      
+                "on_synchronize_activate" : self.on_synchronize_all_clicked,
+                "on_cancel_activate" : self.on_cancel_all_clicked,  
                 "on_quit_activate" : self.on_window_closed,
                 "on_clear_canvas_activate" : self.on_clear_canvas,
                 "on_preferences_activate" : self.on_conduit_preferences,
@@ -78,7 +79,6 @@ class MainWindow:
                 "on_save1_activate" : self.save_settings,
                 None : None
                 }
-         
         self.widgets.signal_autoconnect(dic)
 
         #type converter and sync manager
@@ -136,6 +136,7 @@ class MainWindow:
         self.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_unavailable)
 
         #final GUI setup
+        self.cancelSyncButton = self.widgets.get_widget('cancel')
         self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
         self.dataproviderTreeView.set_expand_rows()
         self.window_state = 0
@@ -207,10 +208,13 @@ class MainWindow:
         return (not minimized) and self.mainWindow.get_property('visible')
 
     def on_sync_started(self, thread):
-        log.debug("GUI got sync started")
+        self.cancelSyncButton.set_property("sensitive", True)
 
     def on_sync_completed(self, thread, aborted, error, conflict):
-        log.debug("GUI got sync completed")
+        self.cancelSyncButton.set_property(
+                "sensitive",
+                conduit.GLOBALS.syncManager.is_busy()
+                )
        
     def on_dataprovider_available(self, loader, dataprovider):
         """
@@ -229,11 +233,13 @@ class MainWindow:
         """
         Synchronize all valid conduits on the canvas
         """
-        for conduit in self.syncSet.get_all_conduits():
-            if conduit.datasource is not None and len(conduit.datasinks) > 0:
-                self.sync_manager.sync_conduit(conduit)
-            else:
-                log.info("Conduit must have a datasource and a datasink")        
+        self.conduitApplication.Synchronize()
+                
+    def on_cancel_all_clicked(self, widget):
+        """
+        Cancels all currently runnings syncs
+        """
+        self.conduitApplication.Cancel()
 
     def on_clear_canvas(self, widget):
         """
@@ -432,11 +438,6 @@ class MainWindow:
         #DBus interface which will tidy up any pending running
         #non gui tasks
         if quit:
-            #FIXME: I want to do this call over DBus but this hangs. Why?
-            #sessionBus = dbus.SessionBus()
-            #obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")
-            #conduitApp = dbus.Interface(obj, conduit.DBUS_IFACE)
-            #conduitApp.Quit()
             self.conduitApplication.Quit()
         
         
@@ -568,6 +569,7 @@ class StatusIcon(gtk.StatusIcon):
              <menubar name="Menubar">
               <menu action="Menu">
                <menuitem action="Sync"/>
+               <menuitem action="Cancel"/>
                <menuitem action="Quit"/>
                <separator/>
                <menuitem action="About"/>
@@ -577,7 +579,8 @@ class StatusIcon(gtk.StatusIcon):
         '''
         actions = [
             ('Menu',  None, 'Menu'),
-            ('Sync', gtk.STOCK_EXECUTE, _("_Synchronize"), None, _("Synchronize all dataproviders"), self.on_synchronize),
+            ('Sync', gtk.STOCK_EXECUTE, _("_Synchronize All"), None, _("Synchronizes All Groups"), self.on_synchronize),
+            ('Cancel', gtk.STOCK_CANCEL, _("_Cancel Synchronization"), None, _("Cancels Currently Synchronizing Groups"), self.on_cancel),
             ('Quit', gtk.STOCK_QUIT, _("_Quit"), None, _("Close Conduit"), self.on_quit),
             ('About', gtk.STOCK_ABOUT, _("_About"), None, _("About Conduit"), self.on_about)]
         ag = gtk.ActionGroup('Actions')
@@ -585,47 +588,43 @@ class StatusIcon(gtk.StatusIcon):
         self.manager = gtk.UIManager()
         self.manager.insert_action_group(ag, 0)
         self.manager.add_ui_from_string(menu)
-        self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent        
+        self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent
+        self.cancelButton = self.manager.get_widget('/Menubar/Menu/Cancel')   
         self.connect('popup-menu', self.on_popup_menu)
         self.connect('activate', self.on_click)
 
         #start with the application icon
         self._reset_states()
-        self._go_to_idle_state()
+        self.set_from_icon_name("conduit")
         self.set_tooltip("Conduit")
         self.set_visible(True)
 
     def _reset_states(self):
-        self.running = 0
+        self.running = False
         self.conflict = False
         self.animated_idx = 0
         self.animated_icons = range(1,8)
 
-    def _go_to_idle_state(self):
-        self.set_from_icon_name("conduit")
-        self.set_tooltip(_("Synchronization Complete"))
-
-    def _go_to_conflict_state(self):
-        self.set_from_icon_name("dialog-error")
-        self.set_tooltip(_("Synchronization Error"))
-
-    def _go_to_running_state(self):
+    def _animate_icon_timeout(self):
         self.set_tooltip(_("Synchronizing"))
         if self.animated_idx == self.animated_icons[-1]:
             self.animated_idx = 1
         else:
             self.animated_idx += 1
         self.set_from_icon_name("conduit-progress-%d" % self.animated_idx)
-        if self.running == 0:
+        if not self.animating:
             if self.conflict:
-                self._go_to_conflict_state()
                 self._reset_states()
+                self.set_from_icon_name("dialog-error")
+                self.set_tooltip(_("Synchronization Error"))
             else:
-                self._go_to_idle_state()
                 self._reset_states()
-
+                self.set_from_icon_name("conduit")
+                self.set_tooltip(_("Synchronization Complete"))
+            self.cancelButton.set_property("sensitive", False)
             return False
         else:
+            self.cancelButton.set_property("sensitive", True)
             return True
 
     def on_conduit_added(self, syncset, cond):
@@ -638,33 +637,26 @@ class StatusIcon(gtk.StatusIcon):
         pass
 
     def _on_sync_started(self, cond):
-        self.running += 1
-        gobject.timeout_add(100, self._go_to_running_state)
-        log.debug("Icon got sync started")
+        if not self.animating:
+            self.animating = True
+            gobject.timeout_add(100, self._animate_icon_timeout)
 
     def _on_sync_completed(self, cond, aborted, error, conflict):
-        self.running -= 1
-        log.debug("Icon got sync completed %s (error: %s)" % (self.running, error))
+        self.animating = conduit.GLOBALS.syncManager.is_busy()
 
     def _on_sync_conflict(self, cond, conflict):
         self.conflict = True
-        log.debug("Icon got sync conflict")
 
     def on_synchronize(self, data):
-        #sessionBus = dbus.SessionBus()
-        #obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")
-        #conduitApp = dbus.Interface(obj, conduit.DBUS_IFACE)
-        #conduitApp.Synchronize()
         self.conduitApplication.Synchronize()
+        
+    def on_cancel(self, data):
+        self.conduitApplication.Cancel()
 
     def on_popup_menu(self, status, button, time):
         self.menu.popup(None, None, None, button, time)
 
     def on_quit(self, data):
-        #sessionBus = dbus.SessionBus()
-        #obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")
-        #conduitApp = dbus.Interface(obj, conduit.DBUS_IFACE)
-        #conduitApp.Quit()
         self.conduitApplication.Quit()
 
     def on_about(self, data):

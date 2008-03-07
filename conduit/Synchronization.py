@@ -87,16 +87,28 @@ class SyncManager:
             del(self.syncWorkers[cond])
 
     def _start_worker_thread(self, cond, worker):
+        log.info("Setting global cancel flag")
+        conduit.GLOBALS.cancelled = False
+
         log.debug("Starting worker: %s" % worker)
         cond.connect("sync-completed", self._on_sync_completed, worker)
         self.syncWorkers[cond] = worker
         self.syncWorkers[cond].start()
+        
+    def is_busy(self):
+        """
+        Returns true if any conduit is currently undergoing a sync
+        """
+        for cond in self.syncWorkers:
+            if self.syncWorkers[cond].isAlive():
+                return True
+        return False
 
     def sync_in_progress(self, cond):
         """
         Returns true if cond is currently undergoing sync, refresh etc
         """
-        return cond in self.syncWorkers
+        return cond in self.syncWorkers and self.syncWorkers[cond].isAlive()
 
     def cancel_all(self):
         """

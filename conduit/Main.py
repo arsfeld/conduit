@@ -224,19 +224,15 @@ OPTIONS:
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Quit(self):
+        #Hide the GUI first, so we feel responsive    
         log.info("Closing application")
         if self.gui != None:
             self.gui.mainWindow.hide()
             if conduit.GLOBALS.settings.get("save_on_exit") == True:
                 self.gui.save_settings(None)
 
-        #flag the global cancellation object
-        log.info("Setting global cancel flag")
-        conduit.GLOBALS.cancelled = True
-
-        #cancel all conduits
-        log.info("Stopping Synchronization threads")
-        conduit.GLOBALS.syncManager.cancel_all()
+        #Cancel all syncs
+        self.Cancel()
 
         #give the dataprovider factories time to shut down
         log.info("Closing dataprovider factories")
@@ -246,14 +242,28 @@ OPTIONS:
         log.info("Unitializing dataproviders")
         self.guiSyncSet.quit()
         self.dbusSyncSet.quit()
-        
+
         #Save the mapping DB
         conduit.GLOBALS.mappingDB.save()
         conduit.GLOBALS.mappingDB.close()
-
+        
         conduit.GLOBALS.mainloop.quit()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
     def Synchronize(self):
-        if self.gui != None:
-            self.gui.on_synchronize_all_clicked(None)
+        for cond in self.guiSyncSet.get_all_conduits():
+            if cond.datasource is not None and len(cond.datasinks) > 0:
+                conduit.GLOBALS.syncManager.sync_conduit(cond)
+            else:
+                log.info("Conduit must have a datasource and a datasink")
+                
+    @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')
+    def Cancel(self):
+        #flag the global cancellation object
+        log.info("Setting global cancel flag")
+        conduit.GLOBALS.cancelled = True
+
+        #cancel all conduits
+        log.info("Stopping Synchronization threads")
+        conduit.GLOBALS.syncManager.cancel_all()
+
