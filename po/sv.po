@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-19 21:24+0100\n"
-"PO-Revision-Date: 2008-02-19 21:32+0100\n"
+"POT-Creation-Date: 2008-03-07 20:37+0100\n"
+"PO-Revision-Date: 2008-03-07 20:38+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -52,158 +52,171 @@ msgid "Ask Me What to do"
 msgstr "Fråga mig vad som ska göras"
 
 #: ../data/conduit.glade.h:6
+msgid "Cancel Currently Synchronizing Groups"
+msgstr "Avbryt aktuella synkroniseringsgrupper"
+
+#: ../data/conduit.glade.h:7
+msgid "Cancel Synchronization"
+msgstr "Avbryt synkronisering"
+
+#: ../data/conduit.glade.h:8
 msgid "Clear Canvas"
 msgstr "Töm"
 
-#: ../data/conduit.glade.h:7
+#: ../data/conduit.glade.h:9
 msgid "Compare"
 msgstr "Jämför"
 
-#: ../data/conduit.glade.h:8
+#: ../data/conduit.glade.h:10
 msgid "Conduit Properties"
 msgstr "Egenskaper för Conduit"
 
-#: ../data/conduit.glade.h:9
+#: ../data/conduit.glade.h:11
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: ../data/conduit.glade.h:10
+#: ../data/conduit.glade.h:12
 msgid "Configure Item"
 msgstr "Konfigurera objekt"
 
-#: ../data/conduit.glade.h:11
+#: ../data/conduit.glade.h:13
 msgid "Configure the Synchronization Settings for this Item"
 msgstr "Konfigurera synkroniseringsinställningar för det här objektet"
 
-#: ../data/conduit.glade.h:12
+#: ../data/conduit.glade.h:14
 msgid "Conflict Options"
 msgstr "Alternativ för konflikter"
 
-#: ../data/conduit.glade.h:13
+#: ../data/conduit.glade.h:15
 msgid "Conflicts"
 msgstr "Konflikter"
 
-#: ../data/conduit.glade.h:14
+#: ../data/conduit.glade.h:16
 msgid "Contents"
 msgstr "Innehåll"
 
-#: ../data/conduit.glade.h:15
+#: ../data/conduit.glade.h:17
 msgid "Data Conversions"
 msgstr "Datakonverteringar"
 
-#: ../data/conduit.glade.h:16
+#: ../data/conduit.glade.h:18
 msgid "Data Providers"
 msgstr "Dataleverantörer"
 
-#: ../data/conduit.glade.h:17
+#: ../data/conduit.glade.h:19
 msgid "Delete Group"
 msgstr "Ta bort grupp"
 
-#: ../data/conduit.glade.h:18
+#: ../data/conduit.glade.h:20
 msgid "Delete Item"
 msgstr "Ta bort objekt"
 
-#: ../data/conduit.glade.h:19
+#: ../data/conduit.glade.h:21
 msgid "Delete Options"
 msgstr "Alternativ för borttagning"
 
-#: ../data/conduit.glade.h:20
+#: ../data/conduit.glade.h:22
 msgid "Delete from the Corresponding Sink"
 msgstr "Ta bort från motsvarande sink"
 
-#: ../data/conduit.glade.h:21
+#: ../data/conduit.glade.h:23
 msgid "Delete the Corresponding Item"
 msgstr "Ta bort motsvarande objekt"
 
-#: ../data/conduit.glade.h:22
+#: ../data/conduit.glade.h:24
 msgid "Editor"
 msgstr "Redigerare"
 
-#: ../data/conduit.glade.h:23
+#: ../data/conduit.glade.h:25
 msgid "Minimize to Notification Area"
 msgstr "Minimera till notifieringsyta"
 
-#: ../data/conduit.glade.h:24
+#: ../data/conduit.glade.h:26
 msgid "Refresh Group"
 msgstr "Uppdatera grupp"
 
-#: ../data/conduit.glade.h:25
+#: ../data/conduit.glade.h:27
 msgid "Refresh Item"
 msgstr "Uppdatera objekt"
 
-#: ../data/conduit.glade.h:26
+#: ../data/conduit.glade.h:28
 msgid "Replace the Older Item"
 msgstr "Ersätt det äldre objektet"
 
-#: ../data/conduit.glade.h:27
+#: ../data/conduit.glade.h:29
 msgid "Resolve Conflicts"
 msgstr "Lös konflikter"
 
-#: ../data/conduit.glade.h:28
+#: ../data/conduit.glade.h:30
 msgid "Save Settings on Exit."
 msgstr "Spara inställningar vid avslut."
 
-#: ../data/conduit.glade.h:29
+#: ../data/conduit.glade.h:31
 msgid "Show Status Icon"
 msgstr "Visa statusikon"
 
-#: ../data/conduit.glade.h:30
+#: ../data/conduit.glade.h:32
 msgid "Skip"
 msgstr "Hoppa över"
 
-#: ../data/conduit.glade.h:31
+#: ../data/conduit.glade.h:33
 msgid "Slow Sync"
 msgstr "Långsam synkronisering"
 
-#: ../data/conduit.glade.h:32
+#: ../data/conduit.glade.h:34
 msgid "Sync Options"
 msgstr "Synkalternativ"
 
-#: ../data/conduit.glade.h:33
+#: ../data/conduit.glade.h:35
 msgid "Synchronize All"
 msgstr "Synkronisera allt"
 
-#: ../data/conduit.glade.h:34
+#: ../data/conduit.glade.h:36
 msgid "Synchronize Group"
 msgstr "Synkronisera grupp"
 
-#: ../data/conduit.glade.h:35
+#: ../data/conduit.glade.h:37
+#: ../conduit/gtkui/UI.py:582
+msgid "Synchronizes All Groups"
+msgstr "Synkroniserar alla grupper"
+
+#: ../data/conduit.glade.h:38
 msgid "Title"
 msgstr "Titel"
 
-#: ../data/conduit.glade.h:36
+#: ../data/conduit.glade.h:39
 msgid "Two Way Sync"
 msgstr "Tvåvägssynkroniering"
 
-#: ../data/conduit.glade.h:37
+#: ../data/conduit.glade.h:40
 msgid "Use Built in Web Browser"
 msgstr "Använd inbyggd webbläsare"
 
-#: ../data/conduit.glade.h:38
+#: ../data/conduit.glade.h:41
 msgid "When There is a Conflict..."
 msgstr "När en konflikt inträffar..."
 
-#: ../data/conduit.glade.h:39
+#: ../data/conduit.glade.h:42
 msgid "When There is a Two Way Conflict"
 msgstr "När en tvåvägskonflikt inträffar"
 
-#: ../data/conduit.glade.h:40
+#: ../data/conduit.glade.h:43
 msgid "When an Item Has Been Deleted"
 msgstr "När ett objekt har tagits bort"
 
-#: ../data/conduit.glade.h:41
+#: ../data/conduit.glade.h:44
 msgid "When an Item is Deleted..."
 msgstr "När ett objekt har tagits bort..."
 
-#: ../data/conduit.glade.h:42
+#: ../data/conduit.glade.h:45
 msgid "_Edit"
 msgstr "R_edigera"
 
-#: ../data/conduit.glade.h:43
+#: ../data/conduit.glade.h:46
 msgid "_File"
 msgstr "_Arkiv"
 
-#: ../data/conduit.glade.h:44
+#: ../data/conduit.glade.h:47
 msgid "_Help"
 msgstr "_Hjälp"
 
@@ -235,119 +248,123 @@ msgid "Conflicts (%s)"
 msgstr "Konflikter (%s)"
 
 #. Build some liststores to display
-#: ../conduit/gtkui/UI.py:256
+#: ../conduit/gtkui/UI.py:261
 msgid "Convert from"
 msgstr "Konvertera från"
 
-#: ../conduit/gtkui/UI.py:257
+#: ../conduit/gtkui/UI.py:262
 msgid "into"
 msgstr "till"
 
-#: ../conduit/gtkui/UI.py:312
+#: ../conduit/gtkui/UI.py:317
 msgid "Conversions Available"
 msgstr "Konversioner tillgängliga"
 
-#: ../conduit/gtkui/UI.py:318
+#: ../conduit/gtkui/UI.py:323
 #: ../conduit/gtkui/Tree.py:332
 #: ../conduit/modules/FileModule/FileConfiguration.py:104
 msgid "Name"
 msgstr "Namn"
 
 # FIXME. Kolla denna
-#: ../conduit/gtkui/UI.py:322
+#: ../conduit/gtkui/UI.py:327
 msgid "Loaded"
 msgstr "Inläst"
 
-#: ../conduit/gtkui/UI.py:411
+#: ../conduit/gtkui/UI.py:425
 #: ../conduit/hildonui/UI.py:135
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Synkronisering pågår. Vill du avbryta den?"
 
-#: ../conduit/gtkui/UI.py:572
-msgid "_Synchronize"
-msgstr "_Synkronisera"
+#: ../conduit/gtkui/UI.py:582
+msgid "_Synchronize All"
+msgstr "_Synkronisera allt"
 
-#: ../conduit/gtkui/UI.py:572
-msgid "Synchronize all dataproviders"
-msgstr "Synkronisera alla dataleverantörer"
+#: ../conduit/gtkui/UI.py:583
+msgid "_Cancel Synchronization"
+msgstr "_Avbryt synkronisering"
 
-#: ../conduit/gtkui/UI.py:573
+#: ../conduit/gtkui/UI.py:583
+msgid "Cancels Currently Synchronizing Groups"
+msgstr "Avbryter aktuella synkroniseringsgrupper"
+
+#: ../conduit/gtkui/UI.py:584
 msgid "_Quit"
 msgstr "_Avsluta"
 
-#: ../conduit/gtkui/UI.py:573
+#: ../conduit/gtkui/UI.py:584
 msgid "Close Conduit"
 msgstr "Stäng Conduit"
 
-#: ../conduit/gtkui/UI.py:574
+#: ../conduit/gtkui/UI.py:585
 msgid "_About"
 msgstr "_Om"
 
-#: ../conduit/gtkui/UI.py:574
+#: ../conduit/gtkui/UI.py:585
 msgid "About Conduit"
 msgstr "Om Conduit"
 
-#: ../conduit/gtkui/UI.py:598
-msgid "Synchronization Complete"
-msgstr "Synkronisering färdigställd"
+#: ../conduit/gtkui/UI.py:609
+msgid "Synchronizing"
+msgstr "Synkronisering"
 
-#: ../conduit/gtkui/UI.py:602
+#: ../conduit/gtkui/UI.py:619
 msgid "Synchronization Error"
 msgstr "Fel vid synkronisering"
 
-#: ../conduit/gtkui/UI.py:605
-msgid "Synchronizing"
-msgstr "Synkronisering"
+#: ../conduit/gtkui/UI.py:623
+msgid "Synchronization Complete"
+msgstr "Synkronisering färdigställd"
 
 #: ../conduit/gtkui/Tree.py:347
 msgid "Description"
 msgstr "Beskrivning"
 
-#: ../conduit/dataproviders/DataProvider.py:159
+#: ../conduit/dataproviders/DataProvider.py:167
 msgid "Ready"
 msgstr "Redo"
 
-#: ../conduit/dataproviders/DataProvider.py:161
+#: ../conduit/dataproviders/DataProvider.py:169
 msgid "New data to sync"
 msgstr "Nytt data att synkronisera"
 
-#: ../conduit/dataproviders/DataProvider.py:163
+#: ../conduit/dataproviders/DataProvider.py:171
 msgid "Refreshing..."
 msgstr "Uppdaterar..."
 
-#: ../conduit/dataproviders/DataProvider.py:165
+#: ../conduit/dataproviders/DataProvider.py:173
 msgid "Refreshed OK"
 msgstr "Uppdatering OK"
 
-#: ../conduit/dataproviders/DataProvider.py:167
+#: ../conduit/dataproviders/DataProvider.py:175
 msgid "Error Refreshing"
 msgstr "Fel vid uppdatering"
 
-#: ../conduit/dataproviders/DataProvider.py:169
+#: ../conduit/dataproviders/DataProvider.py:177
 msgid "Synchronizing..."
 msgstr "Synkroniserar..."
 
-#: ../conduit/dataproviders/DataProvider.py:171
+#: ../conduit/dataproviders/DataProvider.py:179
 msgid "Synchronized OK"
 msgstr "Synkronisering OK"
 
-#: ../conduit/dataproviders/DataProvider.py:173
+#: ../conduit/dataproviders/DataProvider.py:181
 msgid "Error Synchronizing"
 msgstr "Fel vid synkronisering"
 
-#: ../conduit/dataproviders/DataProvider.py:175
+#: ../conduit/dataproviders/DataProvider.py:183
 msgid "Synchronization Skipped"
 msgstr "Synkroniseringen hoppades över"
 
-#: ../conduit/dataproviders/DataProvider.py:177
+#: ../conduit/dataproviders/DataProvider.py:185
 msgid "Synchronization Cancelled"
 msgstr "Synkroniseringen avbröts"
 
-#: ../conduit/dataproviders/DataProvider.py:179
+#: ../conduit/dataproviders/DataProvider.py:187
 msgid "Synchronization Conflict"
 msgstr "Konflikt i synkronisering"
 
-#: ../conduit/dataproviders/DataProvider.py:181
+#: ../conduit/dataproviders/DataProvider.py:189
 msgid "Not Configured Correctly"
 msgstr "Inte konfigurerad korrekt"
 
@@ -439,42 +456,42 @@ msgstr "Synkronisera dina Box.net-filer"
 msgid "Folder:"
 msgstr "Mapp:"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:107
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
 #, python-format
 msgid "Select %s:"
 msgstr "Välj %s:"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
 #: ../conduit/modules/OSyncEvoModule.py:26
 msgid "Evolution Contacts"
 msgstr "Evolution-kontakter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:149
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
 #: ../conduit/modules/GmailModule/GmailModule.py:293
 msgid "Sync your contacts"
 msgstr "Synkronisera dina kontakter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:205
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
 msgid "Evolution Calendar"
 msgstr "Evolution-kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:206
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:200
 msgid "Sync your calendar"
 msgstr "Synkronisera din kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:268
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
 msgid "Evolution Tasks"
 msgstr "Evolution-uppgifter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:269
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:258
 msgid "Sync your tasks"
 msgstr "Synkronisera dina uppgifter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:330
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
 msgid "Evolution Memos"
 msgstr "Evolution-memon"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:331
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:315
 msgid "Sync your memos"
 msgstr "Synkronisera dina memon"
 
@@ -996,6 +1013,10 @@ msgstr "Windows Mobile-attgöra"
 msgid "Sync your devices tasks"
 msgstr "Synkronisera uppgifter från dina enheter"
 
+#~ msgid "_Synchronize"
+#~ msgstr "_Synkronisera"
+#~ msgid "Synchronize all dataproviders"
+#~ msgstr "Synkronisera alla dataleverantörer"
 #~ msgid "dialog1"
 #~ msgstr "dialog1"
 #~ msgid "F-Spot DBus Photos"
