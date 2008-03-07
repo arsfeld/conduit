@@ -14,6 +14,9 @@ import conduit
 import conduit.datatypes.DataType as DataType
 import conduit.Vfs as Vfs
 
+class FileTransferError(Exception):
+    pass
+
 class File(DataType.DataType):
     
     _name_ = "file"
@@ -300,15 +303,18 @@ class File(DataType.DataType):
             Vfs.uri_make_directory_and_parents(parent)
 
         #Copy the file
-        result = gnomevfs.xfer_uri(
-                    source_uri=self.URI,
-                    target_uri=newURI,
-                    xfer_options=gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                    error_mode=gnomevfs.XFER_ERROR_MODE_ABORT,
-                    overwrite_mode=mode,
-                    progress_callback=self._xfer_progress_callback,
-                    data=cancel_function
-                    )
+        try:        
+            result = gnomevfs.xfer_uri(
+                        source_uri=self.URI,
+                        target_uri=newURI,
+                        xfer_options=gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
+                        error_mode=gnomevfs.XFER_ERROR_MODE_ABORT,
+                        overwrite_mode=mode,
+                        progress_callback=self._xfer_progress_callback,
+                        data=cancel_function
+                        )
+        except gnomevfs.InterruptedError:
+            raise FileTransferError
 
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI

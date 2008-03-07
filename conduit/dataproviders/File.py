@@ -8,6 +8,7 @@ import conduit.datatypes as DataType
 import conduit.datatypes.File as File
 import conduit.Vfs as Vfs
 import conduit.Database as DB
+import conduit.Exceptions as Exceptions
 
 TYPE_FILE = "0"
 TYPE_FOLDER = "1"
@@ -229,7 +230,10 @@ class FolderTwoWay(DataProvider.TwoWay):
                         sizeOnly=self.compareIgnoreMtime
                         )
         if overwrite or comp == DataType.COMPARISON_NEWER:
-            vfsFile.transfer(newURI, True)
+            try:
+                vfsFile.transfer(newURI, True)
+            except File.FileTransferError:
+                raise Exceptions.SyncronizeFatalError("Transfer Cancelled")
 
         return self.get(newURI).get_rid()
 

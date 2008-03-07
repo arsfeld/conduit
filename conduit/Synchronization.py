@@ -277,20 +277,6 @@ class SyncWorker(_ThreadedWorker):
         except Exceptions.SyncronizeError, err:
             log.warn("%s\n%s" % (err, traceback.format_exc()))                     
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
-            log.debug("ERROR GETTING DATA")
-        except Exceptions.SyncronizeFatalError, err:
-            log.warn("%s\n%s" % (err, traceback.format_exc()))
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
-            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
-            #Cannot continue
-            raise Exceptions.StopSync(self.state)                  
-        except Exception:       
-            #Cannot continue
-            log.critical("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-            raise Exceptions.StopSync(self.state)
-
         return data
 
     def _put_data(self, source, sink, sourceData, sourceDataRid):
@@ -301,6 +287,9 @@ class SyncWorker(_ThreadedWorker):
         if sourceData != None:
             try:
                 put_data(source, sink, sourceData, sourceDataRid, False)
+            except Exceptions.SyncronizeError, err:
+                log.warn("%s\n%s" % (err, traceback.format_exc()))                     
+                self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SynchronizeConflictError, err:
                 comp = err.comparison
                 if comp == COMPARISON_OLDER:
@@ -328,9 +317,7 @@ class SyncWorker(_ThreadedWorker):
             self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
         except Exception:       
             log.critical("UNKNOWN CONVERSION ERROR\n%s" % traceback.format_exc())
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-            source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-            raise Exceptions.StopSync(self.state)
+            self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
         return newdata
 
     def _apply_deleted_policy(self, sourceWrapper, sourceDataLUID, sinkWrapper, sinkDataLUID):
@@ -696,15 +683,28 @@ class SyncWorker(_ThreadedWorker):
                         self.check_thread_not_cancelled([self.source, sink])
                         #only sync with those sinks that refresh'd OK
                         if sink not in sinkDidntRefreshOK:
-                            #now perform a one or two way sync depending on the user prefs
-                            #and the capabilities of the dataprovider
-                            if  self.cond.is_two_way():
-                                #two way
-                                self.two_way_sync(self.source, sink)
-                            else:
-                                #one way
-                                self.one_way_sync(self.source, sink)
-     
+                            try:
+                                #now perform a one or two way sync depending on the user prefs
+                                #and the capabilities of the dataprovider
+                                if  self.cond.is_two_way():
+                                    #two way
+                                    self.two_way_sync(self.source, sink)
+                                else:
+                                    #one way
+                                    self.one_way_sync(self.source, sink)
+                            except Exceptions.SyncronizeFatalError, err:
+                                log.warn("%s\n%s" % (err, traceback.format_exc()))
+                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                                  
+                                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)                             
+                                #cannot continue with this source, sink pair
+                                continue
+                            except Exception:       
+                                log.critical("UNKNOWN SYNCHRONIZATION ERROR\n%s" % traceback.format_exc())
+                                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                                self.source.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
+                                #cannot continue with this source, sink pair
+                                continue
+
                     #Done go clean up
                     self.state = self.DONE_STATE
 

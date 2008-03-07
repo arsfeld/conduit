@@ -1,5 +1,16 @@
 2008-03-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Synchronization.py: Refactor error handling to be more robust. 
+    Synchronizations should always complete, even if some data is missed. 
+	This should improve the reports of conduit synchronization stopping mid
+	way.
+	
+	* conduit/dataproviders/File.py:
+	* conduit/datatypes/File.py: Throw a FileTransferError if the user
+	cancels the sync.
+
+2008-03-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Main.py:
 	* conduit/Synchronization.py:
 	* conduit/gtkui/UI.py: Add the ability to cancel synchronization without
