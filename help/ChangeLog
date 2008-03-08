@@ -1,3 +1,7 @@
+2008-03-09  John Stowers  <john.stowers@gmail.com>
+
+	* C/conduit.xml: Fix build
+
 2008-03-07  John Stowers  <john.stowers@gmail.com>
 
 	* C/conduit.xml: Add simple docs about the conduit prefs window.

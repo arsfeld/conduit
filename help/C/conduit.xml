@@ -22,8 +22,9 @@
     <publisher>
       <publishername> GNOME Documentation Project </publishername>
     </publisher>
+
     <authorgroup>
-      <author>
+      <author role="maintainer">
         <firstname>John</firstname>
         <surname>Stowers</surname>
       </author>
@@ -32,8 +33,17 @@
         <surname>Gueth</surname>
       </author>
     </authorgroup>
+
+    <revhistory>
+      <revision>
+        <revnumber>&appname; Manual &manrevision;</revnumber>
+        <date>2008-01-03</date>
+      </revision>
+    </revhistory>
+
     <releaseinfo>This manual describes version &appversion; of &appname;</releaseinfo>
   </articleinfo>
+    
   <section>
     <title>What is Conduit</title>
     <para>
