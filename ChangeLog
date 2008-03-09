@@ -1,3 +1,8 @@
+2008-03-09  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/modules/GoogleModule/GoogleModule.py: revert to using the
+	old method for getting youtube videos; but use the correct href.
+	Fixes #518704
+
 2008-03-09  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/TestModule.py:
