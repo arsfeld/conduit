@@ -76,6 +76,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     def _get_category_by_name(self, category_name):
         idx = self._get_category_index_by_name(category_name)
         return self.cats[idx]
+        
+    def _rebuild_path_mappings(self):
+        self.pathMappings = {}
+        for i, cat in enumerate(self.cats):
+            self.pathMappings[cat] = (i, )
+            for j, dp in enumerate(self.dataproviders[i]):
+                self.pathMappings[dp] = (i, j)
 
     def add_dataproviders(self, dpw=[]):
         """
@@ -149,14 +156,6 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             del self.cats[i]
         
         self._rebuild_path_mappings()
-
-    def _rebuild_path_mappings(self):
-        self.pathMappings = {}
-
-        for i, cat in enumerate(self.cats):
-            self.pathMappings[cat] = (i, )
-            for j, dp in enumerate(self.dataproviders[i]):
-                self.pathMappings[dp] = (i, j)
 
     def on_get_flags(self):
         """
@@ -358,7 +357,6 @@ class DataProviderTreeView(gtk.TreeView):
         self.drag_source_set(           gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
                                         DND_TARGETS,
                                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
-        #self.connect('drag-begin', self.on_drag_begin)
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)
         
@@ -392,15 +390,6 @@ class DataProviderTreeView(gtk.TreeView):
         if gtk.pygtk_version >= (2,10,0):
             gtk.TreeView.expand_all(self)
         
-    def on_drag_begin(self, treeview, context):
-        pass
-        #treeselection = treeview.get_selection()
-        #model, iter = treeselection.get_selected()
-        #categoryHeading = model.get_value(iter, 4)
-        #if categoryHeading:
-        #    log.debug("Aborting DND")
-        #    context.drag_abort()
-
     def on_drag_data_get(self, treeview, context, selection, target_id, etime):
         """
         Get the data to be dropped by on_drag_data_received().

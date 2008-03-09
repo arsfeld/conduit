@@ -1,5 +1,14 @@
 2008-03-09  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS:
+	* conduit/Settings.py: Restore expanded treeview columns by default.
+	
+	* conduit/gtkui/Tree.py: Remove unused unworking DND cancel code.
+
+	* data/conduit.glade: Fix warning about unknown radio button groups
+
+2008-03-09  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Tree.py: Print category name in debug message
 		
 	* conduit/gtkui/UI.py: Tidy up the code for animating the status icon.

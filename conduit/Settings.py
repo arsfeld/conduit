@@ -86,7 +86,7 @@ class Settings(gobject.GObject):
         'default_policy_conflict'   :   "ask",          #Default conflict policy for new Conduits, ask,replace,skip
         'default_policy_deleted'    :   "ask",          #Default deleted policy for new Conduits, ask,replace,skip
         'gui_expanded_rows'         :   [],             #list of expanded column paths in the treeview
-        'gui_restore_expanded_rows' :   False,          #Shoud we expand columns at startup
+        'gui_restore_expanded_rows' :   True,           #Shoud we expand columns at startup
         'gui_hpane_postion'         :   250,            #The hpane seperating the canvas and treeview position
         'gui_window_size'           :   [],             #W,H
         'gui_minimize_to_tray'      :   False,          #Behaviour when one minimizes the main window, should it iconify?

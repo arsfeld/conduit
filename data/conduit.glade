@@ -526,7 +526,6 @@
                 <property name="label" translatable="yes">Ask Me What to do</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
-                <property name="group">conflict_ask</property>
               </widget>
             </child>
             <child>
@@ -570,7 +569,6 @@
                 <property name="label" translatable="yes">Ask Me What to Do</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
-                <property name="group">deleted_ask</property>
               </widget>
             </child>
             <child>
