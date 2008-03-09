@@ -1,3 +1,9 @@
+2008-03-09  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Tree.py: Print category name in debug message
+		
+	* conduit/gtkui/UI.py: Tidy up the code for animating the status icon.
+
 2008-03-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Synchronization.py: Refactor error handling to be more robust. 
