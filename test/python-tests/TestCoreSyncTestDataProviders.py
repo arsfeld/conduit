@@ -24,13 +24,37 @@ error = test.sync_errored()
 ok("Non fatal error trapped", error == True)
 
 ###
-#One way, should abort (fail refresh)
+#One way, should abort, but still put data in second sink
 ###
-ok("---- ONE WAY: SHOULD ABORT (Fail Refresh)", True)
+ok("---- ONE WAY: SHOULD ABORT", True)
 test = SimpleSyncTest()
 test.prepare(
         test.get_dataprovider("TestSource"), 
-        test.get_dataprovider("TestSinkFailRefresh")
+        test.get_dataprovider("TestSink")
+        )
+test.add_extra_sink(
+        test.get_dataprovider("TestSink")
+        )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+config = {}
+config["numData"] = 5
+config["errorAfter"] = 2
+config["errorFatal"] = True
+test.configure(source=config, sink=config)
+
+test.set_two_way_sync(False)
+test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync completed", aborted == False)
+
+###
+#One way, should abort (sink fail refresh)
+###
+ok("---- ONE WAY: SHOULD ABORT (Sink Fail Refresh)", True)
+test = SimpleSyncTest()
+test.prepare(
+        test.get_dataprovider("TestSource"), 
+        test.get_dataprovider("TestFailRefresh")
         )
 test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
 
@@ -38,6 +62,22 @@ test.set_two_way_sync(False)
 test.sync(debug=False)
 aborted = test.sync_aborted()
 ok("Sync aborted due to no refreshing sinks", aborted == True)
+
+###
+#One way, should abort (source fail refresh)
+###
+ok("---- ONE WAY: SHOULD ABORT (Source Fail Refresh)", True)
+test = SimpleSyncTest()
+test.prepare(
+        test.get_dataprovider("TestFailRefresh"),
+        test.get_dataprovider("TestSink")
+        )
+test.set_two_way_policy({"conflict":"skip","deleted":"skip"})
+
+test.set_two_way_sync(False)
+test.sync(debug=False)
+aborted = test.sync_aborted()
+ok("Sync aborted due to source fail refresh", aborted == True)
 
 ###
 #One way, should abort (not configured)

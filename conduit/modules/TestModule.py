@@ -32,7 +32,7 @@ MODULES = {
     "TestConflict" :            { "type": "dataprovider" },
     "TestConversionArgs" :      { "type": "dataprovider" },
     "TestTwoWay" :              { "type": "dataprovider" },
-    "TestSinkFailRefresh" :     { "type": "dataprovider" },
+    "TestFailRefresh" :     { "type": "dataprovider" },
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
 #    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
@@ -98,6 +98,7 @@ class _TestBase(DataProvider.DataProviderBase):
         DataProvider.DataProviderBase.__init__(self)
         #Through an error on the nth time through
         self.errorAfter = 999
+        self.errorFatal = False
         self.newHash = False
         self.newMtime = False
         self.slow = False
@@ -122,6 +123,8 @@ class _TestBase(DataProvider.DataProviderBase):
 
         def setError(param):
             self.errorAfter = int(param)
+        def setErrorFatal(param):
+            self.errorFatal = bool(param)
         def setSlow(param):
             self.slow = bool(param)
         def setNewHash(param):
@@ -138,6 +141,12 @@ class _TestBase(DataProvider.DataProviderBase):
                     "Widget" : gtk.Entry,
                     "Callback" : setError,
                     "InitialValue" : self.errorAfter
+                    },
+                    {
+                    "Name" : "Error is Fatal?",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : setErrorFatal,
+                    "InitialValue" : self.errorFatal
                     },
                     {
                     "Name" : "Take a Long Time?",
@@ -185,6 +194,7 @@ class _TestBase(DataProvider.DataProviderBase):
     def get_configuration(self):
         return {
             "errorAfter" : self.errorAfter,
+            "errorFatal" : self.errorFatal,
             "slow" : self.slow,
             "newHash" : self.newHash,
             "newMtime" : self.newMtime,
@@ -273,7 +283,10 @@ class TestSource(_TestBase, DataProvider.DataSource):
 
         index = int(LUID)
         if index >= self.errorAfter:
-            raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
+            if self.errorFatal:
+                raise Exceptions.SyncronizeFatalError("Error After:%s Count:%s" % (self.errorAfter, index))
+            else:
+                raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, index))
 
         mtime = DEFAULT_MTIME
         if self.newMtime:
@@ -312,7 +325,10 @@ class TestSink(_TestBase, DataProvider.DataSink):
         if self.slow:
             time.sleep(1)    
         if self.count >= self.errorAfter:
-            raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, self.count))
+            if self.errorFatal:
+                raise Exceptions.SyncronizeFatalError("Error After:%s Count:%s" % (self.errorAfter, self.count))
+            else:
+                raise Exceptions.SyncronizeError("Error After:%s Count:%s" % (self.errorAfter, self.count))
         self.count += 1
         newData = TestDataType(data.get_UID())
         return newData.get_rid()
@@ -617,22 +633,21 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
     def is_configured(self, isSource, isTwoWay):
         return self.isConfigured
 
-class TestSinkFailRefresh(_TestBase, DataProvider.DataSink):
+class TestFailRefresh(TestTwoWay):
 
     _name_ = "Test Fail Refresh"
     _description_ = "Fails Refresh"
     _category_ = conduit.dataproviders.CATEGORY_TEST
-    _module_type_ = "sink"
+    _module_type_ = "twoway"
     _in_type_ = "test_type"
     _out_type_ = "test_type"
     _icon_ = "dialog-error"
 
     def __init__(self, *args):
-        _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
+        TestTwoWay.__init__(self)
         
     def refresh(self):
-        DataProvider.DataSink.refresh(self)
+        TestTwoWay.refresh(self)
         raise Exceptions.RefreshError
 
 class TestConflict(_TestBase, DataProvider.DataSink):

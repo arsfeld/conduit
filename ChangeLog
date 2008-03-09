@@ -1,5 +1,12 @@
 2008-03-09  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/TestModule.py:
+	* test/python-tests/TestCoreConduit.py:
+	* test/python-tests/TestCoreSyncTestDataProviders.py: Make the fail refresh
+	sink twoway, and test some more error paths.
+
+2008-03-09  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS:
 	* conduit/Settings.py: Restore expanded treeview columns by default.
 	

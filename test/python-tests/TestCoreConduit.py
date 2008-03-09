@@ -11,7 +11,7 @@ ok("Conduit Not busy", cond.is_busy() == False)
 #add some dataproviders in different places
 dps = test.get_dataprovider("TestSource")
 dpk1 = test.get_dataprovider("TestSink")
-dpk2 = test.get_dataprovider("TestSinkFailRefresh")
+dpk2 = test.get_dataprovider("TestFailRefresh")
 dptw1 = test.get_dataprovider("TestTwoWay")
 dptw2 = test.get_dataprovider("TestTwoWay") 
 dptw3 = test.get_dataprovider("TestTwoWay") 
