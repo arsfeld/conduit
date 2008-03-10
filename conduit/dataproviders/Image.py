@@ -12,11 +12,12 @@ class UploadInfo:
     and keep the _upload_info method on the ImageSink retain
     its api
     """
-    def __init__ (self, url, mimeType, name=None, tags=None):
+    def __init__ (self, url, mimeType, name=None, tags=None, caption=None):
         self.url = url
         self.mimeType = mimeType
         self.name = name
         self.tags = tags
+        self.caption = caption
 
 class ImageSink(DataProvider.DataSink):
     """
@@ -118,8 +119,9 @@ class ImageSink(DataProvider.DataSink):
         photoURI = photo.get_local_uri()
         mimeType = photo.get_mimetype()
         tags = photo.get_tags ()
+        caption = photo.get_caption()
 
-        uploadInfo = UploadInfo(photoURI, mimeType, originalName, tags)
+        uploadInfo = UploadInfo(photoURI, mimeType, originalName, tags, caption)
        
         #Check if we have already uploaded the photo
         if LUID != None:

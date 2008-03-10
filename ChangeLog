@@ -1,3 +1,10 @@
+2008-03-09  Matt Brown  <matt@mattb.net.nz>:
+	* conduit/dataproviders/Image.py:
+	* conduit/datatypes/Photo.py: 
+	* conduit/modules/FspotModule/FspotModule.py: Add caption support 
+	to photo datatype and Image dataprovider. Modify F-Spot provider to
+	set captions on images retrived from F-Spot. Fixes #521194
+
 2008-03-09  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 	* conduit/modules/GoogleModule/GoogleModule.py: revert to using the
 	old method for getting youtube videos; but use the correct href.

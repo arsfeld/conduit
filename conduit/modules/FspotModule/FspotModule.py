@@ -119,6 +119,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         f.set_UID(LUID)
         f.set_open_URI(photouri)
         f.set_tags(tags)
+        f.set_caption(str(properties['Description']))
         return f
 
     def _upload_photo (self, uploadInfo):

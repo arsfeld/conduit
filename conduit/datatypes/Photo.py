@@ -27,6 +27,7 @@ class Photo(File.File):
     def __init__(self, URI, **kwargs):
         File.File.__init__(self, URI, **kwargs)
         self.pb = None
+        self._caption = None
 
     def get_photo_pixbuf(self):
         """
@@ -45,12 +46,27 @@ class Photo(File.File):
         """
         self.get_photo_pixbuf()
         return self.pb.get_width(),self.pb.get_height()
+
+    def get_caption(self):
+        """
+        @returns: the photo's caption
+        """
+        return self._caption
+
+    def set_caption(self, caption):
+        """
+        Sets the tags of the datatype
+        """
+        self._caption = caption
         
     def __getstate__(self):
-        return File.File.__getstate__(self)
+        data = File.File.__getstate__(self)
+        data["caption"] = self._caption
+        return data
 
     def __setstate__(self, data):
         self.pb = None
+        self._caption = data["caption"]
         File.File.__setstate__(self, data)
 
 
