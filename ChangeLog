@@ -1,4 +1,11 @@
-2008-03-09  Matt Brown  <matt@mattb.net.nz>:
+2008-03-10  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+	* conduit/gtkui/UI.py: Set flag that we should check if the
+	SyncManager is busy in the next animation cycle instead of trying to
+	stop the animation directly when the sync completes.  Sometimes the
+	SyncManager reports to be still busy even though the sync has
+	completed.  Fixes #521349
+
+2008-03-10  Matt Brown  <matt@mattb.net.nz>:
 	* conduit/dataproviders/Image.py:
 	* conduit/datatypes/Photo.py: 
 	* conduit/modules/FspotModule/FspotModule.py: Add caption support 

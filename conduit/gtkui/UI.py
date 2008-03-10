@@ -590,6 +590,7 @@ class StatusIcon(gtk.StatusIcon):
         self.connect('activate', self.on_click)
 
         self.animating = False
+        self.check_animate = False
         self.conflict = False
         self.animated_idx = 0
         self.animated_icons = range(1,8)
@@ -608,7 +609,12 @@ class StatusIcon(gtk.StatusIcon):
             else:
                 self.animated_idx += 1
                 self.set_from_icon_name("conduit-progress-%d" % self.animated_idx)
+            # re-check animation?                
+            if self.check_animate:
+                self.animating =  conduit.GLOBALS.syncManager.is_busy()
+                self.check_animate = False
             return True
+
         else: 
             if self.conflict:
                 self.set_from_icon_name("dialog-error")
@@ -636,7 +642,8 @@ class StatusIcon(gtk.StatusIcon):
             gobject.timeout_add(100, self._animate_icon_timeout)
 
     def _on_sync_completed(self, cond, aborted, error, conflict):
-        self.animating = conduit.GLOBALS.syncManager.is_busy()
+        # check need for animation on next iteration
+        self.check_animate = True
 
     def _on_sync_conflict(self, cond, conflict):
         self.conflict = True
