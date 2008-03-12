@@ -159,7 +159,7 @@ class NetworkEndpoint(DataProvider.TwoWay):
         #Stop right click menu
         return True
 
-    def is_configured(self):
+    def is_configured(self, isSource, isTwoWay):
         #Prevent initiating a sync on the server end by pretending we are
         #not configured
         return False

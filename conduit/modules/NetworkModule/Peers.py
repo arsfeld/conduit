@@ -159,12 +159,12 @@ class AvahiAdvertiser:
         self.group.AddService(
                 IF_UNSPEC,        #interface
                 PROTO_UNSPEC,     #protocol
-                0,                      #flags
+                dbus.UInt32(0),         #flags
                 self.hostname,          #name
                 AVAHI_SERVICE_NAME,     #service type
                 AVAHI_SERVICE_DOMAIN,   #domain
                 '',                     #host
-                self.port,              #port
+                dbus.UInt16(self.port), #port
                 string_array_to_txt_array(["version=%s" % conduit.VERSION])
                 )
         self.group.Commit()

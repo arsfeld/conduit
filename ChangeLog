@@ -1,3 +1,11 @@
+2008-03-13  Chris Rivera <chrismrivera@gmail.com>
+
+	* conduit/modules/NetworkModule/Peers.py: Use correct dbus 
+	types for avahi AddService().
+	
+	* conduit/modules/NetworkModule/Server.py: Adds missing parameters to 
+	is_configured()
+
 2008-03-13  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Tree.py: Remove magic numbers and unneeded columns in the 
