@@ -34,6 +34,12 @@ class CategoryWrapper(ModuleWrapper):
                             )
     def get_UID(self):
         return self.name
+
+IDX_ICON = 0
+IDX_NAME = 1
+IDX_DESCRIPTION = 2
+IDX_KEY = 3
+COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str)
        
 class DataProviderTreeModel(gtk.GenericTreeModel):
     """
@@ -43,8 +49,6 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     @ivar modules: The array of modules under this treeviews control.
     @type modules: L{conduit.ModuleManager.ModuleWrapper}[]
     """
-    COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool, str)
-
     def __init__(self):
         """
         TreeModel constructor
@@ -180,13 +184,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         """
         on_get_n_columns(
         """
-        return len(self.COLUMN_TYPES)
+        return len(COLUMN_TYPES)
 
     def on_get_column_type(self, n):
         """
         on_get_column_type(
         """
-        return self.COLUMN_TYPES[n]
+        return COLUMN_TYPES[n]
 
     def on_get_iter(self, path, debug=False):
         """
@@ -226,28 +230,26 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         on_get_value(
         """
         #print "on_get_value: rowref = %s column = %s" % (rowref, column)
-        if column is 0:
+        if column is IDX_ICON:
             return rowref.get_descriptive_icon()
-        elif column is 1:
+        elif column is IDX_NAME:
             if self._is_category_heading(rowref):
                 return "<b>"+rowref.name+"</b>"
             else:
                 return rowref.name
-        elif column is 2:
+        elif column is IDX_DESCRIPTION:
             return rowref.description
         #Used internally from the TreeView to get the key used by the canvas to 
         #reinstantiate new dataproviders
-        elif column is 3:
+        elif column is IDX_KEY:
             if self._is_category_heading(rowref):
                 return ""
             else:
                 return rowref.get_key()
         #Used internally from the TreeView to see if this is a category heading
         #and subsequently cancel the drag and drop
-        elif column is 4:        
+        elif column is IDX_IS_CATEGORY:        
             return self._is_category_heading(rowref)
-        elif column is 5:
-            return rowref.module_type
 
     def on_iter_next(self, rowref):
         """
@@ -343,20 +345,14 @@ class DataProviderTreeView(gtk.TreeView):
         textRenderer = gtk.CellRendererText()
         tvcolumn0 = gtk.TreeViewColumn(_("Name"))
         tvcolumn0.pack_start(pixbufRenderer, False)
-        tvcolumn0.add_attribute(pixbufRenderer, 'pixbuf', 0)
+        tvcolumn0.add_attribute(pixbufRenderer, 'pixbuf', IDX_ICON)
         tvcolumn0.pack_start(textRenderer, True)
-        #FIXME: Changing this from text to markup 
-        #adds 3mb+ mem usage (1.5mb VM + 1.5mb RSS)
-        tvcolumn0.add_attribute(textRenderer, 'markup', 1)
-        #FIXME: How to clamp to a min width?? The following doesnt work
-        #tvcolumn0.set_min_width(200)
-        #tvcolumn0.set_resizable(False)
-        #tvcolumn0.set_sizing(gtk.TREE_VIEW_COLUMN_GROW_ONLY)
+        tvcolumn0.add_attribute(textRenderer, 'markup', IDX_NAME)
         self.append_column(tvcolumn0)
 
         # Second column is a description
         if conduit.GLOBALS.settings.get("show_dp_description") == True:
-            tvcolumn1 = gtk.TreeViewColumn(_("Description"), gtk.CellRendererText(), text=2)
+            tvcolumn1 = gtk.TreeViewColumn(_("Description"), gtk.CellRendererText(), text=IDX_DESCRIPTION)
             self.append_column(tvcolumn1)
             self.set_headers_visible(True)
         else:
@@ -411,7 +407,7 @@ class DataProviderTreeView(gtk.TreeView):
         treeselection = treeview.get_selection()
         model, iter = treeselection.get_selected()
         #get the classname
-        data = model.get_value(iter, 3)
+        data = model.get_value(iter, IDX_KEY)
         selection.set(selection.target, 8, data)
         
     def on_drag_data_delete (self, context, etime):

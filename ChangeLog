@@ -1,5 +1,10 @@
 2008-03-13  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Tree.py: Remove magic numbers and unneeded columns in the 
+	dataprovider treemodel.
+
+2008-03-13  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Tree.py:
 	* conduit/gtkui/UI.py:
 	* conduit/hildonui/List.py:
