@@ -13,16 +13,23 @@ class DataProviderBox(gtk.VBox):
     def __init__(self):
         gtk.VBox.__init__(self)
 
+        # MODEL
         # keep a dict of category - dp list
         self.categories = {}
-
-        # category combo
         self.combo = gtk.combo_box_new_text ()
+        self.dp_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
+        # populate with dataproviders
+        self.add_dataproviders(
+            conduit.GLOBALS.moduleManager.get_modules_by_type("source","sink","twoway")
+            )
+        conduit.GLOBALS.moduleManager.connect("dataprovider-available", self.on_dataprovider_available)
+        conduit.GLOBALS.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_unavailable)
+
+        # VIEW
+        # category combo
         self.combo.connect ("changed", self.on_combo_changed)
         self.pack_start(self.combo, False, False)
-
         # tree view
-        self.dp_store = gtk.ListStore(gtk.gdk.Pixbuf, str, str)
         self.tree = gtk.TreeView (self.dp_store)
         col = gtk.TreeViewColumn()
         render_pixbuf = gtk.CellRendererPixbuf()
@@ -45,6 +52,13 @@ class DataProviderBox(gtk.VBox):
         self.tree.connect('drag-data-delete', self.on_drag_data_delete)
 
         self.pack_start(self.tree, True, True)
+        
+    def on_dataprovider_available(self, loader, dataprovider):
+        if dataprovider.enabled:
+            self.add_dataprovider (dataprovider)
+
+    def on_dataprovider_unavailable (self, loader, dataprovider):
+        self.remove_dataprovider (dataprovider)
 
     def add_dataproviders(self, dpw=[]):
         """
@@ -55,9 +69,9 @@ class DataProviderBox(gtk.VBox):
         
         #Add them to the module
         for mod in module_wrapper_list:
-            self.add_dataprovider(mod, True)
+            self.add_dataprovider(mod)
  
-    def add_dataprovider (self, dpw, signal=True):
+    def add_dataprovider (self, dpw):
         """
         Adds a new dataprovider
         """

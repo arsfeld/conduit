@@ -45,7 +45,7 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
     """
     COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str, bool, str)
 
-    def __init__(self, module_wrapper_list=[]):
+    def __init__(self):
         """
         TreeModel constructor
         
@@ -60,8 +60,12 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         self.cats = []
 
         #Add dataproviders
-        self.add_dataproviders(module_wrapper_list)
-        
+        self.add_dataproviders(
+                conduit.GLOBALS.moduleManager.get_modules_by_type("source","sink","twoway")
+                )
+        conduit.GLOBALS.moduleManager.connect("dataprovider-available",self._on_dataprovider_available)
+        conduit.GLOBALS.moduleManager.connect("dataprovider-unavailable", self._on_dataprovider_unavailable)
+
     def _is_category_heading(self, rowref):
         return rowref.module_type == "category"
 
@@ -83,6 +87,13 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             self.pathMappings[cat] = (i, )
             for j, dp in enumerate(self.dataproviders[i]):
                 self.pathMappings[dp] = (i, j)
+                
+    def _on_dataprovider_available(self, loader, dataprovider):
+        if dataprovider.enabled == True:
+            self.add_dataprovider(dataprovider)
+
+    def _on_dataprovider_unavailable(self, unloader, dataprovider):
+        self.remove_dataprovider(dataprovider)
 
     def add_dataproviders(self, dpw=[]):
         """
@@ -93,7 +104,9 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         
         #Add them to the module
         for mod in module_wrapper_list:
-            self.add_dataprovider(mod, True)
+            #dont signal the GUI to update, providing this model
+            #is added to a view after it has finished being constructed
+            self.add_dataprovider(mod, False)
                 
     def add_dataprovider(self, dpw, signal=True):
         """

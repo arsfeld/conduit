@@ -1,3 +1,13 @@
+2008-03-13  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Tree.py:
+	* conduit/gtkui/UI.py:
+	* conduit/hildonui/List.py:
+	* conduit/hildonui/UI.py: Connect to, and use the GLOBAL.moduleManager
+	from the tree/list model classes. Get sources, sinks and twoways at once
+	and dont emit signals at initial load. Seems to make Conduit start
+	quicker.
+
 2008-03-12  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 	* conduit/Vfs.py: Don't escape the filename, it only causes sync
 	conflicts when working with unicode objects

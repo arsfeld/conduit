@@ -127,14 +127,6 @@ class MainWindow:
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver.ConflictResolver(self.widgets)
 
-        #setup the module manager
-        self.moduleManager = moduleManager
-        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
-        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
-        self.dataproviderTreeModel.add_dataproviders(self.moduleManager.get_modules_by_type("twoway"))
-        self.moduleManager.connect("dataprovider-available", self.on_dataprovider_available)
-        self.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_unavailable)
-
         #final GUI setup
         self.cancelSyncButton = self.widgets.get_widget('cancel')
         self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
@@ -212,19 +204,6 @@ class MainWindow:
                 conduit.GLOBALS.syncManager.is_busy()
                 )
        
-    def on_dataprovider_available(self, loader, dataprovider):
-        """
-        Adds the new dataprovider to the treeview
-        """
-        if dataprovider.enabled == True:
-            self.dataproviderTreeModel.add_dataprovider(dataprovider)
-
-    def on_dataprovider_unavailable(self, unloader, dataprovider):
-        """
-        Removes the dataprovider from the treeview and replaces it with pending dataproviders
-        """
-        self.dataproviderTreeModel.remove_dataprovider(dataprovider)
-        
     def on_synchronize_all_clicked(self, widget):
         """
         Synchronize all valid conduits on the canvas
@@ -264,10 +243,10 @@ class MainWindow:
             converterListStore.append( (string,) )
         dataProviderListStore = gtk.ListStore( str, bool )
         #get all dataproviders
-        for i in self.moduleManager.get_modules_by_type("sink","source","twoway"):
+        for i in conduit.GLOBALS.moduleManager.get_modules_by_type("sink","source","twoway"):
             dataProviderListStore.append(("Name: %s\nDescription: %s)" % (i.name, i.description), True))
         #include files that could not be loaded
-        for f in self.moduleManager.invalidFiles:
+        for f in conduit.GLOBALS.moduleManager.invalidFiles:
             dataProviderListStore.append(("Error loading file: %s" % f, False))
 
         #construct the dialog
@@ -453,7 +432,7 @@ class MainWindow:
         #signal and NOT here
         if dataproviderKey != "":
             #Add a new instance if the dataprovider to the canvas.
-            new = self.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
+            new = conduit.GLOBALS.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
             self.canvas.add_dataprovider_to_canvas(dataproviderKey, new, x, y)
         
         context.finish(True, True, etime)

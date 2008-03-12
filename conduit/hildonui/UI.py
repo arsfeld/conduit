@@ -31,7 +31,6 @@ class MainWindow(hildon.Program):
             log.debug("Adding %s to icon theme search path" % (i))
 
         self.conduitApplication = conduitApplication
-        self.moduleManager = moduleManager
         self.type_converter = typeConverter
         self.sync_manager = syncManager
         self.syncSet = None
@@ -44,12 +43,7 @@ class MainWindow(hildon.Program):
         self.add_window(self.mainWindow)
 
         self.provider_box = DataProviderBox ()
-        self.provider_box.add_dataproviders(self.moduleManager.get_modules_by_type("source"))
-        self.provider_box.add_dataproviders(self.moduleManager.get_modules_by_type("sink"))
-        self.provider_box.add_dataproviders(self.moduleManager.get_modules_by_type("twoway"))
         self.provider_box.combo.set_active (0)
-        self.moduleManager.connect("dataprovider-available", self.on_dataprovider_available)
-        self.moduleManager.connect("dataprovider-unavailable", self.on_dataprovider_unavailable)
 
         # FIXME: we should do something hildon specific
         self.canvas = Canvas(
@@ -108,7 +102,7 @@ class MainWindow(hildon.Program):
         #signal and NOT here
         if dataproviderKey != "":
             #Add a new instance if the dataprovider to the canvas.
-            new = self.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
+            new = conduit.GLOBALS.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
             self.canvas.add_dataprovider_to_canvas(dataproviderKey, new, x, y)
         
         context.finish(True, True, etime)
@@ -149,19 +143,7 @@ class MainWindow(hildon.Program):
         #non gui tasks
         if quit:
             log.debug("Quitting...")
-            #FIXME: I want to do this call over DBus but this hangs. Why?
-            #sessionBus = dbus.SessionBus()
-            #obj = sessionBus.get_object(conduit.DBUS_IFACE, "/activate")
-            #conduitApp = dbus.Interface(obj, conduit.DBUS_IFACE)
-            #conduitApp.Quit()
             self.conduitApplication.Quit()
-
-    def on_dataprovider_available(self, loader, dataprovider):
-        if dataprovider.enabled:
-            self.provider_box.add_dataprovider (dataprovider)
-
-    def on_dataprovider_unavailable (self, loader, dataprovider):
-        self.provider_box.remove_dataprovider (dataprovider)
 
 class ConduitToolbar(gtk.Toolbar):
     def __init__(self, syncSet, canvas):
