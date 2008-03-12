@@ -1,3 +1,9 @@
+2008-03-12  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+	* conduit/Vfs.py: Don't escape the filename, it only causes sync
+	conflicts when working with unicode objects
+	* conduit/DeltraProvider.py: Make sure everything is converted to
+	unicode when comparing.  Fixes #519708
+
 2008-03-12  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Vfs.py: Remove unneeded print

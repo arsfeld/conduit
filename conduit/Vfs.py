@@ -310,7 +310,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             try: fileinfo = hdir.next()
             except StopIteration: continue;
             while fileinfo:
-                filename = uri_escape(fileinfo.name)
+                filename = fileinfo.name
                 if filename in [".","..",CONFIG_FILE_NAME]: 
                         pass
                 else:

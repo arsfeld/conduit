@@ -32,7 +32,9 @@ class DeltaProvider:
         for i in self.me.module.get_all():
             #Maybe we should be unicode....
             assert type(i) in [str,unicode], "LUID Must be str not %s" % type(i)
-            allItems.append(i)
+            #Make sure the are in unicode to assure good comparison with mapping UID's
+            allItems.append(unicode(i))
+
         log.debug("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
         #In order to detect deletions we need to fetch all the existing relationships.
@@ -63,5 +65,4 @@ class DeltaProvider:
         #now all that remains in rids is data which has been deleted,
         #and all that remains in allItems is new data
         return allItems, modified, rids.keys()
-
 
