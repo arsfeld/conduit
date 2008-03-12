@@ -215,14 +215,15 @@ class FolderTwoWay(DataProvider.TwoWay):
             newURI = self.folder+os.sep+vfsFile.get_filename()
         else:
             #Look for corresponding groups
+            relpath = vfsFile.get_relative_uri()
             if self.folderGroupName == vfsFile.group:
                 log.debug("FolderTwoWay: Found corresponding group")
                 #put in the folder
-                newURI = self.folder+vfsFile.relpath
+                newURI = self.folder+relpath
             else:
                 log.debug("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
                 #unknown. Store in the dir but recreate the group
-                newURI = self.folder+os.sep+os.path.join(vfsFile.group+vfsFile.relpath)
+                newURI = self.folder+os.sep+os.path.join(vfsFile.group+relpath)
 
         destFile = File.File(URI=newURI)
         comp = vfsFile.compare(

@@ -38,9 +38,6 @@ class File(DataType.DataType):
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
-        
-        #calculate the relative path
-        self.relpath = self._get_text_uri().replace(self.basePath,"")
 
         #instance
         self.fileInfo = None
@@ -170,7 +167,6 @@ class File(DataType.DataType):
         self.URI = f.URI
         self.basePath = f.basePath
         self.group = f.group
-        self.relpath = f.relpath
         self.fileInfo = f.fileInfo
         self.fileExists = f.fileExists
         self.triedOpen = f.triedOpen
@@ -422,6 +418,12 @@ class File(DataType.DataType):
             return u
         else:
             return self.to_tempfile()
+            
+    def get_relative_uri(self):
+        """
+        @returns: The files URI relative to its basepath
+        """
+        return self._get_text_uri().replace(self.basePath,"")
 
     def compare(self, B, sizeOnly=False, existOnly=False):
         """
@@ -486,7 +488,6 @@ class File(DataType.DataType):
         data = DataType.DataType.__getstate__(self)
         data['basePath'] = self.basePath
         data['group'] = self.group
-        data['relpath'] = self.relpath
         data['filename'] = self.get_filename()
         data['filemtime'] = self.get_mtime()
 
@@ -503,7 +504,6 @@ class File(DataType.DataType):
         self.URI = gnomevfs.URI(name)
         self.basePath = data['basePath']
         self.group = data['group']
-        self.relpath = data['relpath']
         self._defer_rename(data['filename'])
         self._defer_new_mtime(data['filemtime'])
 

@@ -1,3 +1,4 @@
+#coding: utf-8
 import sys
 import cgitb
 import os
@@ -6,6 +7,7 @@ import time
 import datetime
 import traceback
 import ConfigParser
+import random
 
 # make sure we have conduit folder in path!
 my_path = os.path.dirname(__file__)
@@ -136,7 +138,12 @@ def get_external_resources(typename):
                 data[k] = v
                 
     return data
-    
+
+def get_unicode_character():
+    #Convenience function to get a unicode character.
+    UNICODE_CHARS = ('Ä','á','æ','é','Ë','Ü')
+    return UNICODE_CHARS[random.randint(0,len(UNICODE_CHARS)-1)]
+
 #Functions to construct new types
 def new_file(filename):
     if filename == None:

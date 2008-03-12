@@ -121,7 +121,7 @@ def uri_exists(uri):
     try:
         return gnomevfs.exists(gnomevfs.URI(uri)) == 1
     except Exception, err:
-        print err
+        log.warn("Error checking if location exists")
         return False
         
 def uri_make_directory_and_parents(uri):

@@ -7,7 +7,6 @@ from conduit.datatypes import COMPARISON_EQUAL
 
 import os.path
 import traceback
-import random
 import time
 
 #Repeat syncs a few times to check for duplicate mapping bugs, etc
@@ -36,7 +35,8 @@ if not os.path.exists(sinkDir):
 
 FILES = []
 for i in range(0, NUM_FILES):
-    name = Utils.random_string()
+    #test unicode
+    name = "%s UNICODE %s" % (Utils.random_string(), get_unicode_character())
     contents = Utils.random_string()
     f = File.TempFile(contents)
     f.force_new_filename(name)
