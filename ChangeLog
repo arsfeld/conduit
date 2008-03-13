@@ -43,6 +43,7 @@
 	quicker.
 
 2008-03-12  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/Vfs.py: Don't escape the filename, it only causes sync
 	conflicts when working with unicode objects
 	* conduit/DeltraProvider.py: Make sure everything is converted to
@@ -59,6 +60,7 @@
 	* test/python-tests/common.py: Test Unicode filenames
 
 2008-03-10  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/gtkui/UI.py: Set flag that we should check if the
 	SyncManager is busy in the next animation cycle instead of trying to
 	stop the animation directly when the sync completes.  Sometimes the
@@ -66,6 +68,7 @@
 	completed.  Fixes #521349
 
 2008-03-10  Matt Brown  <matt@mattb.net.nz>
+
 	* conduit/dataproviders/Image.py:
 	* conduit/datatypes/Photo.py: 
 	* conduit/modules/FspotModule/FspotModule.py: Add caption support 
@@ -73,6 +76,7 @@
 	set captions on images retrived from F-Spot. Fixes #521194
 
 2008-03-09  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: revert to using the
 	old method for getting youtube videos; but use the correct href.
 	Fixes #518704
