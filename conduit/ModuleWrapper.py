@@ -15,48 +15,68 @@ class ModuleWrapper:
                             "type"
                             ]
     	
-    def __init__ (self, **kwargs):
+    def __init__ (self, klass, initargs, category):
         """
-        Constructor for ModuleWrapper. A convenient wrapper around a dynamically
-        loaded module.
+        Initializes the ModuleWrapper with an uninstantiated class
+       
+        @param klass: The klass this wrapper wraps
+        @param initargs: The arguments used to instantiate klass
+        @param category: The category
         
-        @keyword name: The name of the contained module
-        @keyword description: The description of the contained module
-        @keyword icon_name: The name of an icon representing the contained module
-        @keyword module_type: The type of the contained module (e.g. sink, source)
-        @keyword category: The category of the contained module
-        @keyword in_type: The name of the datatype that the module accepts (put())
-        @keyword out_type: The name of the datatype that the module produces (get())
-        @keyword filename: The filename from which the module was loaded
-        @keyword classname: The classname used to instanciate another module instance
-        @keyword initargs: The arguments passed to the new module if created
-        @keyword module: An instance of the described module
-        @keyword loaded: Whether the module was loaded corectly 
+        @ivar name: The name of the contained module
+        @ivar description: The description of the contained module
+        @ivar icon_name: The name of an icon representing the contained module
+        @ivar module_type: The type of the contained module (e.g. sink, source)
+        @ivar category: The category of the contained module
+        @ivar in_type: The name of the datatype that the module accepts (put())
+        @ivar out_type: The name of the datatype that the module produces (get())
+        @ivar classname: The classname used to instanciate another module instance
+        @ivar initargs: The arguments passed to the new module if created
+        @ivar module: An instance of the described module
         """
-        self.name =                 kwargs.get("name","")
-        self.description =          kwargs.get("description","")
-        self.icon_name =            kwargs.get("icon_name","image-missing")
-        self.module_type =          kwargs.get('module_type',"twoway")
-        self.category =             kwargs.get('category',"")
-        self.in_type =              kwargs.get('in_type',"")
-        self.out_type =             kwargs.get('out_type',"")
-        self.filename =             kwargs.get('filename',"")
-        self.classname =            kwargs.get('classname',"")
-        self.initargs =             kwargs.get('initargs',())
-        self.module =               kwargs.get('module',None)
-        self.enabled =              kwargs.get('enabled',True)
+        if type(initargs) != tuple:
+            raise Exception("Module init args must be a tuple")
+        
+        self.klass =                klass
+        self.initargs =             initargs
+        self.category =             category
+        
+        #extract class parameters
+        if klass:
+            self.name =             getattr(klass, "_name_", "")
+            self.description =      getattr(klass, "_description_", "")
+            self.icon_name =        getattr(klass, "_icon_", "")
+            self.module_type =      getattr(klass, "_module_type_", "")
+            self.in_type =          getattr(klass, "_in_type_", "")
+            self.out_type =         getattr(klass, "_out_type_", "")
+            self.classname =        klass.__name__
 
-        #Initargs must be a tuple or a list for get_key() to work
-        if type(self.initargs) != tuple:
-            log.warn("init args must be a tuple (was:%s type:%s)" % (self.initargs,type(self.initargs)))
-            raise Exception
-        
+        self.dndKey = None
+        self.enabled = True
+        self.module = None
         self.icon_path = ""
         self.icon = {}
         self.descriptiveIcon = None
 
     def __str__(self):
         return "Wrapper: %s %s (UID: %s)" % (self.get_name(), self.module_type, self.get_UID())
+
+    # Keys serve two goals in conduit, nominally related to dataprovider factories.
+    # and instantiating dataproviders
+    #
+    # 1. Keys act as a match pattern for instantiating the same class multiple times
+    # with different configurations, such as when the user has multiple iPods connected.
+    # This matching is tested when conduit restores saved dataproviders, if the key
+    # is not known to Conduit, then a pending dataprovider is inserted in its place
+    #
+    # 2. They are also serve a way to show the same class in multiple categories
+    def get_dnd_key(self):
+        if self.dndKey:
+            return self.dndKey
+        return self.get_key()
+        
+    def set_dnd_key(self, dndKey):
+        self.dndKey = dndKey
 
     def get_key(self):
         """
@@ -224,16 +244,23 @@ class ModuleWrapper:
 
     def configure(self, window):
         self.module.configure(window)
+        
+    def instantiate_module(self):
+        self.module = self.klass(*self.initargs)
 
 class PendingDataproviderWrapper(ModuleWrapper):
     def __init__(self, key):
         ModuleWrapper.__init__(
                     self,
-                    module_type="twoway",
-                    classname=key.split(':')[0],
-                    module=None,
-                    enabled=False
+                    klass=None,
+                    initargs=(),
+                    category=None
                     )
+        self.icon_name="image-loading"
+        self.module_type="twoway"
+        self.classname=key.split(':')[0]
+        self.enabled=False
+
         self.key = key
         self.xmltext = ""
 

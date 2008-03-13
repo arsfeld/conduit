@@ -27,18 +27,22 @@ class CategoryWrapper(ModuleWrapper):
     def __init__(self, category):
         ModuleWrapper.__init__(
                             self,
-                            name=category.name,
-                            icon_name=category.icon,
-                            module_type="category",
+                            klass=None,
+                            initargs=(),
                             category=category
                             )
+        self.name=category.name
+        self.classname=category.name
+        self.icon_name=category.icon
+        self.module_type="category"
+
     def get_UID(self):
         return self.name
 
 IDX_ICON = 0
 IDX_NAME = 1
 IDX_DESCRIPTION = 2
-IDX_KEY = 3
+IDX_DND_KEY = 3
 COLUMN_TYPES = (gtk.gdk.Pixbuf, str, str, str)
        
 class DataProviderTreeModel(gtk.GenericTreeModel):
@@ -241,11 +245,11 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
             return rowref.description
         #Used internally from the TreeView to get the key used by the canvas to 
         #reinstantiate new dataproviders
-        elif column is IDX_KEY:
+        elif column is IDX_DND_KEY:
             if self._is_category_heading(rowref):
                 return ""
             else:
-                return rowref.get_key()
+                return rowref.get_dnd_key()
         #Used internally from the TreeView to see if this is a category heading
         #and subsequently cancel the drag and drop
         elif column is IDX_IS_CATEGORY:        
@@ -407,7 +411,7 @@ class DataProviderTreeView(gtk.TreeView):
         treeselection = treeview.get_selection()
         model, iter = treeselection.get_selected()
         #get the classname
-        data = model.get_value(iter, IDX_KEY)
+        data = model.get_value(iter, IDX_DND_KEY)
         selection.set(selection.target, 8, data)
         
     def on_drag_data_delete (self, context, etime):

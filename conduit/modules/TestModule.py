@@ -9,6 +9,7 @@ log = logging.getLogger("modules.Test")
 
 import conduit
 import conduit.Utils as Utils
+import conduit.TypeConverter as TypeConverter
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.SimpleFactory as SimpleFactory
@@ -32,7 +33,7 @@ MODULES = {
     "TestConflict" :            { "type": "dataprovider" },
     "TestConversionArgs" :      { "type": "dataprovider" },
     "TestTwoWay" :              { "type": "dataprovider" },
-    "TestFailRefresh" :     { "type": "dataprovider" },
+    "TestFailRefresh" :         { "type": "dataprovider" },
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
 #    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
@@ -255,12 +256,14 @@ class TestSource(_TestBase, DataProvider.DataSource):
     _in_type_ = "test_type"
     _out_type_ = "test_type"
     _icon_ = "go-next"
+    
+    DEFAULT_NUM_DATA = 10
 
     def __init__(self, *args):
         _TestBase.__init__(self)
         DataProvider.DataSource.__init__(self)
         self.data = []
-        self.numData = 10
+        self.numData = self.DEFAULT_NUM_DATA
         
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -674,7 +677,7 @@ class TestConflict(_TestBase, DataProvider.DataSink):
     def get_UID(self):
         return Utils.random_string()
 
-class TestConverter:
+class TestConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {
                 "test_type,test_type"   : self.transcode,
@@ -726,9 +729,10 @@ class TestFactory(DataProvider.DataProviderFactory):
 
     def make_three(self, *args):
         self.key3 = self.emit_added(
-                             klass=type("DynamicTestSource3", (TestSource, ), {"_name_":"Dynamic Source 3"}),
-                             initargs=("Baz","Foo"), 
-                             category=conduit.dataproviders.CATEGORY_TEST)
+                             klass=type("TestSource", (TestSource, ), {"_name_":"Preconfigured Test Source", "DEFAULT_NUM_DATA":20}),
+                             initargs=(), 
+                             category=conduit.dataproviders.CATEGORY_TEST,
+                             customKey="CustomKey")
         #run once
         return False
 

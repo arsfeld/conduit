@@ -46,8 +46,6 @@ class ModuleManager(gobject.GObject):
         @type dirs: C{string[]}
         """
         gobject.GObject.__init__(self)
-        #Dict of loaded classes, key is classname, value is class
-        self.classRegistry = {}
         #Dict of loaded modulewrappers. key is wrapper.get_key()
         #Stored seperate to the classes because dynamic dataproviders may
         #use the same class but with different initargs (diff keys)
@@ -59,7 +57,7 @@ class ModuleManager(gobject.GObject):
         #scan all dirs for files in the right format (*Module/*Module.py)
         self.filelist = self._build_filelist_from_directories(dirs)
 
-    def _on_dynamic_dataprovider_available(self, monitor, dpw, klass):
+    def _on_dynamic_dataprovider_added(self, monitor, dpw, klass):
         """
         Store the ipod so it can be retrieved later by the treeview/model
         emit a signal so it is added to the GUI
@@ -67,17 +65,13 @@ class ModuleManager(gobject.GObject):
         log.info("Dynamic dataprovider (%s) available by %s" % (dpw, monitor))
         self._append_module(dpw, klass)
 
-    def _on_dynamic_dataprovider_unavailable(self, monitor, key):
+    def _on_dynamic_dataprovider_removed(self, monitor, key):
         log.info("Dynamic dataprovider (%s) unavailable by %s" % (key, monitor))
         self._remove_module(key)
 
     def _emit_available(self, dataproviderWrapper):
         if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
             self.emit("dataprovider-available", dataproviderWrapper)
-        else:
-            #Dont emit a signal when a datatype of converter is loaded as I dont
-            #think signal emission is useful in that case
-            pass
 
     def _emit_unavailable(self, dataproviderWrapper):
         if dataproviderWrapper.module_type in ["source", "sink", "twoway"]:
@@ -116,34 +110,14 @@ class ModuleManager(gobject.GObject):
         return res            
        
     def _is_module(self, filename):
-        """
-        Tests whether the filename has the appropriate extension.
-        """
-        endswith = "Module.py"
-        isModule = filename[-len(endswith):] == endswith
-        return isModule
+        return filename.endswith("Module.py")
 
     def _is_module_dir(self, dirname):
-        endswith = "Module"
-        isModuleDir = dirname[-len(endswith):] == endswith
-        return isModuleDir
+        return dirname.endswith("Module")
         
     def _append_module(self, wrapper, klass):
-        """
-        Checks if the given module (checks by classname) is already loaded
-        into the modulelist array, if not it is added to that array
-        
-        @param module: The module to append.
-        @type module: L{conduit.ModuleManager.ModuleWrapper}
-        """
-        #Check if the class is unique
-        classname = klass.__name__
-        if classname not in self.classRegistry:
-            self.classRegistry[classname] = klass
-        else:
-            log.warn("Class named %s allready loaded" % (classname))
         #Check if the wrapper is unique
-        key = wrapper.get_key()
+        key = wrapper.get_dnd_key()
         if key not in self.moduleWrappers:
             self.moduleWrappers[key] = wrapper
             #Emit a signal because this wrapper is new
@@ -189,7 +163,7 @@ class ModuleManager(gobject.GObject):
                     log.warn("Class %s in file %s does define a %s attribute. Skipping." % (modules, filename, i))
                     raise Exception
         return mods
-        
+
     def _load_modules_in_file(self, filename):
         """
         Loads all modules in the given file
@@ -200,21 +174,16 @@ class ModuleManager(gobject.GObject):
                 try:
                     klass = getattr(mod, modules)
                     if infos["type"] == "dataprovider" or infos["type"] == "converter":
-                        mod_wrapper = ModuleWrapper(   
-                                            name=getattr(klass, "_name_", ""),
-                                            description=getattr(klass, "_description_", ""),
-                                            icon_name=getattr(klass, "_icon_", ""),
-                                            module_type=getattr(klass, "_module_type_", infos["type"]),
-                                            category=getattr(klass, "_category_", CATEGORY_TEST),
-                                            in_type=getattr(klass, "_in_type_", ""),
-                                            out_type=getattr(klass, "_out_type_", ""),
-                                            filename=filename,
-                                            classname=klass.__name__,
-                                            initargs=(),
-                                            enabled=True
-                                            )
-                        #Save the module (signal is emitted _append_module
-                        self._append_module(mod_wrapper, klass)
+                        mod_wrapper = ModuleWrapper(
+                                        klass=klass,
+                                        initargs=(),
+                                        category=getattr(klass, "_category_", CATEGORY_TEST)
+                                        )
+                        #Save the module (signal is emitted in _append_module)
+                        self._append_module(
+                                mod_wrapper,
+                                klass
+                                )
                     elif infos["type"] == "dataprovider-factory":
                         # build a dict of kwargs to pass to factories
                         kwargs = {
@@ -224,22 +193,12 @@ class ModuleManager(gobject.GObject):
                         instance = klass(**kwargs)
                         self.dataproviderFactories.append(instance)
                     else:
-                        log.warn("Class %s is an unknown type: %s" % (klass.__name__, infos["type"]))
+                        log.warn("Class is an unknown type: %s" % klass)
                 except AttributeError:
                     log.warn("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
         except Exception, e:
-            log.warn("Error loading the file: %s.\n%s" % (filename, traceback.format_exc()))
+            log.warn("Error loading the file: %s\n%s" % (filename, traceback.format_exc()))
             self.invalidFiles.append(os.path.basename(filename))
-
-    def _instantiate_class(self, classname, initargs):
-        if type(initargs) != tuple:
-            log.warn("Could not make class %s. Initargs must be a tuple" % classname)
-            return None
-        if classname in self.classRegistry:
-            log.debug("Returning new instance: Classname=%s Initargs=%s" % (classname,initargs))
-            return self.classRegistry[classname](*initargs)
-        else:
-            log.warn("Could not find class named %s" % classname)
 
     def load_all(self):
         """
@@ -249,8 +208,8 @@ class ModuleManager(gobject.GObject):
             self._load_modules_in_file(f)
 
         for i in self.dataproviderFactories:
-            i.connect("dataprovider-unavailable", self._on_dynamic_dataprovider_unavailable)
-            i.connect("dataprovider-available", self._on_dynamic_dataprovider_available)
+            i.connect("dataprovider-removed", self._on_dynamic_dataprovider_removed)
+            i.connect("dataprovider-added", self._on_dynamic_dataprovider_added)
             i.probe()
 
         self.emit('all-modules-loaded')
@@ -280,23 +239,13 @@ class ModuleManager(gobject.GObject):
         if wrapperKey in self.moduleWrappers:
             #Get the existing wrapper
             m = self.moduleWrappers[wrapperKey]
-            #Get its construction args
-            classname = m.classname
-            initargs = m.initargs
-            mod_wrapper = ModuleWrapper(  
-                                name=m.name, 
-                                description=m.description,
-                                icon_name=m.icon_name, 
-                                module_type=m.module_type, 
-                                category=m.category, 
-                                in_type=m.in_type,
-                                out_type=m.out_type,
-                                filename=m.filename,
-                                classname=classname,
-                                initargs=initargs,
-                                module=self._instantiate_class(classname, initargs),
-                                enabled=True
-                                )
+            #Make a copy of it, containing an instantiated module
+            mod_wrapper = ModuleWrapper(
+                            klass=m.klass,
+                            initargs=m.initargs,
+                            category=m.category
+                            )
+            mod_wrapper.instantiate_module()
         else:
             log.warn("Could not find module wrapper: %s" % (wrapperKey))
             mod_wrapper = PendingDataproviderWrapper(wrapperKey)
@@ -310,7 +259,7 @@ class ModuleManager(gobject.GObject):
         """
         for i in self.moduleWrappers.values():
             if i.module_type == type_filter:
-                i.module = self._instantiate_class(i.classname, i.initargs)
+                i.instantiate_module()
 
     def quit(self):
         for dpf in self.dataproviderFactories:

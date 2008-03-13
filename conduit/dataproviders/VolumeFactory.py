@@ -47,20 +47,6 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
                 self.item_removed(device_udi)
         return False
 
-    def probe(self):
-        """
-        Called after VolumeFactory is initialised to detect already connected volumes
-        """
-        for volume in self.vol_monitor.get_mounted_volumes():
-            device_udi = volume.get_hal_udi()
-            if device_udi != None:
-                props = self._get_properties(device_udi)
-                if self.is_interesting(device_udi, props):
-                    mount, label = self._get_device_info(props)
-                    kwargs = { "mount": mount, "label": label }
-                    print device_udi, kwargs
-                    self.item_added(device_udi, **kwargs)
-
     def _get_properties(self, device_udi):
         try:
             device_dbus_obj = self.bus.get_object("org.freedesktop.Hal" ,device_udi)
@@ -82,6 +68,19 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
             label = ""
 
         return (mount, label)
+        
+    def probe(self):
+        """
+        Called after VolumeFactory is initialised to detect already connected volumes
+        """
+        for volume in self.vol_monitor.get_mounted_volumes():
+            device_udi = volume.get_hal_udi()
+            if device_udi != None:
+                props = self._get_properties(device_udi)
+                if self.is_interesting(device_udi, props):
+                    mount, label = self._get_device_info(props)
+                    kwargs = { "mount": mount, "label": label }
+                    self.item_added(device_udi, **kwargs)
 
     def get_args(self, udi, **kwargs):
         """ VolumeFactory passes mount point and udi to dataproviders """

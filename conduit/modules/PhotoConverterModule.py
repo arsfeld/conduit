@@ -3,6 +3,7 @@ log = logging.getLogger("modules.PhotoConverter")
 
 import conduit
 import conduit.Utils as Utils
+import conduit.TypeConverter as TypeConverter
 import conduit.datatypes.File as File
 import conduit.datatypes.Photo as Photo
 
@@ -12,7 +13,7 @@ MODULES = {
 
 NO_RESIZE = "None"
 
-class PixbufPhotoConverter:
+class PixbufPhotoConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {
                             "file/photo,file/photo"     :   self.transcode,    

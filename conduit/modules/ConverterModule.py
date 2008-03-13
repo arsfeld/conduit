@@ -2,8 +2,8 @@ import re
 import logging
 log = logging.getLogger("modules.Converter")
 
-import conduit
 import conduit.Utils as Utils
+import conduit.TypeConverter as TypeConverter
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Text as Text
@@ -21,7 +21,7 @@ MODULES = {
         "SettingConverter" :    { "type": "converter" }
 }
 
-class EmailConverter:
+class EmailConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {    
                             "email,text"    : self.email_to_text,
@@ -72,7 +72,7 @@ class EmailConverter:
         return email
 
 
-class NoteConverter:
+class NoteConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {  
                             "text,note"     : self.text_to_note,  
@@ -99,7 +99,7 @@ class NoteConverter:
         f.force_new_file_extension(".txt")
         return f
 
-class ContactConverter:
+class ContactConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {
                             "contact,file"    : self.contact_to_file,
@@ -124,7 +124,7 @@ class ContactConverter:
         c. set_from_vcard_string(f.get_contents_as_text())
         return c
 
-class EventConverter:
+class EventConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {    
                             "event,file"    : self.event_to_file,
@@ -154,7 +154,7 @@ class EventConverter:
         e.set_from_ical_string(text.get_string())
         return e
 
-class FileConverter:
+class FileConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {    
                             "text,file" : self.text_to_file,
@@ -184,7 +184,7 @@ class FileConverter:
                     )
         return note
        
-class SettingConverter(object):
+class SettingConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {    
                             "setting,text"    : self.setting_to_text,

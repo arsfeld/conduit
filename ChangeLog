@@ -1,3 +1,24 @@
+2008-03-14  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Module.py:
+	* conduit/ModuleWrapper.py:
+	* conduit/TypeConverter.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/dataproviders/VolumeFactory.py:
+	* conduit/gtkui/Tree.py:
+	* conduit/modules/AudioVideoConverterModule.py:
+	* conduit/modules/ConverterModule.py:
+	* conduit/modules/FileModule/FileModule.py:
+	* conduit/modules/NetworkModule/Client.py:
+	* conduit/modules/PhotoConverterModule.py:
+	* conduit/modules/TestModule.py:
+	* conduit/modules/TomboyModule.py:
+	* test/python-tests/common.py: Add the plumbing needed for better removable
+	volume support. This involves being able to specify your own keys (to
+	be used in DND from tree to canvas), while leaving the actual instantiating
+	key unchanged. I also cleaned up a number of other warts, such as making
+	ModuleWrapper have a much saner API.
+
 2008-03-13  Chris Rivera <chrismrivera@gmail.com>
 
 	* conduit/modules/NetworkModule/Peers.py: Use correct dbus 

@@ -4,6 +4,7 @@ import logging
 log = logging.getLogger("modules.Tomboy")
 
 import conduit
+import conduit.TypeConverter as TypeConverter
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
@@ -36,7 +37,7 @@ class TomboyNote(Note.Note):
         self.xml = data["xml"]
         Note.Note.__setstate__(self, data)
 
-class TomboyNoteConverter(object):
+class TomboyNoteConverter(TypeConverter.Converter):
     NOTE_EXTENSION = ".xml"
     def __init__(self):
         self.conversions =  {

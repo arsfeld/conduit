@@ -49,7 +49,7 @@ class DataProviderBase(gobject.GObject):
     _out_type_ = ""
     _in_type_ = ""
     
-    def __init__(self):
+    def __init__(self, *args):
         """
         All sync functionality should be provided by derived classes
         """
@@ -209,10 +209,7 @@ class DataProviderBase(gobject.GObject):
     def configure(self, window):
         """
         Show a configuration box for configuring the dataprovider instance.
-        This call may block
-        
-        @param window: The parent window (to show a modal diaconduit.log)
-        @type window: {gtk.Window}
+        @param window: The parent gtk.Window (to show a modal dialog)
         """
         log.debug("configure() not overridden by derived class %s" % self._name_)
 
@@ -485,40 +482,32 @@ class DataProviderFactory(gobject.GObject):
     dynamic dataproviders become available at runtime.
     """
     __gsignals__ = {
-        "dataprovider-available" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+        "dataprovider-added" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
             gobject.TYPE_PYOBJECT,      #Wrapper
             gobject.TYPE_PYOBJECT]),    #Class
-        "dataprovider-unavailable" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_STRING])     #Unique key
+        "dataprovider-removed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_STRING])       #Unique key
     }
+
+    _module_type_ = "dataprovider-factory"
 
     def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
 
-    def emit_added(self, klass, initargs=(), category=None):
-        if category == None:
-            category = getattr(klass, "_category_", conduit.dataproviders.CATEGORY_TEST)
+    def emit_added(self, klass, initargs, category, customKey=None):
         dpw = ModuleWrapper.ModuleWrapper(   
-                    name=getattr(klass, "_name_", ""),
-                    description=getattr(klass, "_description_", ""),
-                    icon_name=getattr(klass, "_icon_", ""),
-                    module_type=getattr(klass, "_module_type_", ""),
-                    category=category,
-                    in_type=getattr(klass, "_in_type_", ""),
-                    out_type=getattr(klass, "_out_type_", ""),
-                    filename=__file__,
-                    classname=klass.__name__,
+                    klass=klass,
                     initargs=initargs,
-                    module=None,
-                    enabled=True
+                    category=category
                     )
-        log.debug("DataProviderFactory %s: Emitting dataprovider-available for %s" % (self, dpw.get_key()))
-        self.emit("dataprovider-available", dpw, klass)
-        return dpw.get_key()
+        dpw.set_dnd_key(customKey)
+        log.debug("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_dnd_key()))
+        self.emit("dataprovider-added", dpw, klass)
+        return dpw.get_dnd_key()
 
     def emit_removed(self, key):
-        log.debug("DataProviderFactory %s: Emitting dataprovider-unavailable for %s" % (self, key))
-        self.emit("dataprovider-unavailable", key)
+        log.debug("DataProviderFactory %s: Emitting dataprovider-removed for %s" % (self, key))
+        self.emit("dataprovider-removed", key)
 
     def probe(self):
         pass

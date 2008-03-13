@@ -315,10 +315,11 @@ class SimpleTest(object):
 
     def wrap_dataprovider(self, dp):
         wrapper = ModuleWrapper.ModuleWrapper(   
-                        classname=dp.__class__.__name__,
-                        module=dp,
-                        enabled=True
+                        klass=dp.__class__,
+                        initargs=(),
+                        category=None
                         )
+        wrapper.module = dp
         return wrapper
 
     def networked_dataprovider(self, dp):

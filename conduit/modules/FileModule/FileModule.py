@@ -5,15 +5,17 @@ log = logging.getLogger("modules.File")
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
+import conduit.dataproviders.VolumeFactory as VolumeFactory
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Utils as Utils
 import conduit.Vfs as Vfs
 
 MODULES = {
-	"FileSource" :      { "type": "dataprovider" },
-	"FolderTwoWay" :    { "type": "dataprovider" },
-#    "USBFactory" :      { "type": "dataprovider-factory" }
+	"FileSource" :              { "type": "dataprovider" },
+	"FolderTwoWay" :            { "type": "dataprovider" },
+#    "RemovableDeviceFactory" :  { "type": "dataprovider-factory" }
 }
 
 class FileSource(FileDataProvider.FileSource):
@@ -66,11 +68,12 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
     DEFAULT_COMPARE_IGNORE_MTIME = False
 
     def __init__(self, *args):
+        print "#"*100,self.DEFAULT_FOLDER
         FileDataProvider.FolderTwoWay.__init__(self,
-                FolderTwoWay.DEFAULT_FOLDER,
-                FolderTwoWay.DEFAULT_GROUP,
-                FolderTwoWay.DEFAULT_HIDDEN,
-                FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME
+                self.DEFAULT_FOLDER,
+                self.DEFAULT_GROUP,
+                self.DEFAULT_HIDDEN,
+                self.DEFAULT_COMPARE_IGNORE_MTIME
                 )
         AutoSync.AutoSync.__init__(self)
         self._monitor_folder_id = None
@@ -79,7 +82,7 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         if self._monitor_folder_id != None:
             Vfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
-
+            
     def configure(self, window):
         Utils.dataprovider_add_dir_to_path(__file__, "")
         import FileConfiguration
@@ -88,10 +91,10 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         self._monitor_folder()
         
     def set_configuration(self, config):
-        self.folder = config.get("folder", FolderTwoWay.DEFAULT_FOLDER)
-        self.folderGroupName = config.get("folderGroupName", FolderTwoWay.DEFAULT_GROUP)
-        self.includeHidden = config.get("includeHidden", FolderTwoWay.DEFAULT_HIDDEN)
-        self.compareIgnoreMtime = config.get("compareIgnoreMtime", FolderTwoWay.DEFAULT_COMPARE_IGNORE_MTIME)
+        self.folder = config.get("folder", self.DEFAULT_FOLDER)
+        self.folderGroupName = config.get("folderGroupName", self.DEFAULT_GROUP)
+        self.includeHidden = config.get("includeHidden", self.DEFAULT_HIDDEN)
+        self.compareIgnoreMtime = config.get("compareIgnoreMtime", self.DEFAULT_COMPARE_IGNORE_MTIME)
         self._monitor_folder()
 
     def get_configuration(self):
@@ -128,46 +131,53 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         elif event == Vfs.MONITOR_EVENT_DELETED:
             self.handle_deleted(event_uri)
 
-class USBFactory(DataProvider.DataProviderFactory):
+class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
+
     def __init__(self, **kwargs):
-        DataProvider.DataProviderFactory.__init__(self, **kwargs)
+        VolumeFactory.VolumeFactory.__init__(self, **kwargs)
+        self.foo = {}
 
-        if kwargs.has_key("hal"):
-            self.hal = kwargs["hal"]
-            self.hal.connect("usb-added", self._usb_added)
-            self.hal.connect("usb-removed", self._usb_removed)
+    def _make_class(self, folder, name):
+        klass = type(
+                "FolderTwoWay",
+                (FolderTwoWay,),
+                {"DEFAULT_FOLDER":folder,"DEFAULT_GROUP":name}
+                )
+        return klass
 
-        self.usb = {}
-
-    def probe(self):
+    def emit_added(self, klass, initargs, category):
         """
-        Probe for USB Keys that are already attached
+        Override emit_added to allow duplictes.
         """
-        for device_type, udi, mount, name in self.hal.get_all_usb_keys():
-            self._usb_added(None, udi, mount, name)
+        VolumeFactory.VolumeFactory.emit_added(self, klass, initargs, category, customKey="12345")
 
-    def _usb_added(self, hal, udi, mount, name):
-        """
-        New USB key has been discovered
-        """
-        cat = DataProvider.DataProviderCategory(
-                    name,
-                    "drive-removable-media",
-                    mount)
+    def is_interesting(self, udi, props):
+        if props.has_key("info.parent") and props.has_key("info.parent") != "":
+            prop2 = self._get_properties(props["info.parent"])
+            if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
+                mount,label = self._get_device_info(props)
+                #check for the presence of a mount/.conduit file
+                #which describe the folder sync groups, and their names, 
+                #on this volume
+                #
+                #The format of this file is n lines in the form
+                # group_name|path
+                # group_name|path
+                path = Vfs.uri_join(mount,".conduit")
+                if Vfs.uri_exists(path):
+                    self.foo[udi] = [self._make_class("/tmp",i) for i in range(2)]
+                return True
+        return False
+    
+    def get_category(self, udi, **kwargs):
+        return DataProviderCategory.DataProviderCategory(
+                    kwargs['label'],
+                    "multimedia-player-ipod-video-white",
+                    udi)
 
-        keys = []
-        for klass in [FileSource]:
-            key = self.emit_added(
-                           klass,            # Dataprovider class
-                           (mount,udi,),     # Init args
-                           cat)              # Category..
-            keys.append(key)
-
-        self.usb[udi] = keys
-
-    def _usb_removed(self, hal, udi, mount, name):
-        for key in self.usb[udi]:
-            self.emit_removed(key)
-
-        del self.usb[udi]
+    def get_dataproviders(self, udi, **kwargs):
+         return self.foo[udi]
+         
+    def get_args(self, udi, **kwargs):
+        return ()
 

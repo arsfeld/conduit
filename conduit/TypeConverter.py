@@ -11,6 +11,9 @@ log = logging.getLogger("TypeConverter")
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 
+class Converter:
+    _module_type_ = "converter"
+
 class TypeConverter: 
     """
     Maintains a dictionary of dictionaries, indexed by the type converted FROM which

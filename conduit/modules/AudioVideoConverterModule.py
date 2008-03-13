@@ -4,6 +4,7 @@ log = logging.getLogger("modules.AVConverter")
 
 import conduit
 import conduit.Utils as Utils
+import conduit.TypeConverter as TypeConverter
 import conduit.datatypes.File as File
 import conduit.datatypes.Audio as Audio
 import conduit.datatypes.Video as Video
@@ -88,7 +89,7 @@ class MencoderCommandLineConverter(Utils.CommandLineConverter):
     def check_cancelled(self):
         return conduit.GLOBALS.cancelled
             
-class AudioVideoConverter:
+class AudioVideoConverter(TypeConverter.Converter):
 
     #These commands are run to determine attributes about the file 
     #(such as size and duration) prior to transcode. They should be

@@ -121,10 +121,10 @@ class NetworkClientFactory(DataProvider.DataProviderFactory):
 
         # Register the new dataprovider with Conduit
         key = self.emit_added(
-                                  newdp, 
-                                  (), #No init args, these are encoded as class params
-                                  self.categories[newdp.hostUrl]
-                             )
+                          klass=newdp, 
+                          initargs=(), #No init args, these are encoded as class params
+                          category=self.categories[newdp.hostUrl]
+                         )
 
         # Record the key so we can unregister the dp later (if needed)
         self.dataproviders[hostUrl][newdp.uid] = key
