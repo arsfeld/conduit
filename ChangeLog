@@ -1,5 +1,20 @@
 2008-03-14  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py:
+	* test/python-tests/TestCoreVfs.py: Add functions (and tests) for getting 
+	the root uri for a removable volume.
+	
+	* conduit/dataproviders/File.py:
+	* conduit/modules/FileModule/FileModule.py: Save the sync groups relative
+	path and group name if it is stored on a removable volume. When a removable
+	volume is inserted, check for this information and create a preconfigured
+	folder dataprovider. Fixes #511691
+	
+	* test/python-tests/TestDataProviderFolder.py:
+	* test/python-tests/data/folder.list: Tests for above.
+
+2008-03-14  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Module.py:
 	* conduit/ModuleWrapper.py:
 	* conduit/TypeConverter.py:

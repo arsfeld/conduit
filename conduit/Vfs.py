@@ -27,6 +27,40 @@ def uri_open(uri):
     APP = "gnome-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
     
+def uri_to_local_path(uri):
+    """
+    @returns: The local path (/foo/bar) for the given URI. Throws a 
+    RuntimeError (wtf??) if the uri is not a local one    
+    """
+    return gnomevfs.get_local_path_from_uri(uri)
+    
+def uri_get_volume_root_uri(uri):
+    """
+    @returns: The root path of the volume at the given uri, or None
+    """
+    try:
+        path = uri_to_local_path(uri)
+        return VolumeMonitor().get_volume_for_path(path).get_activation_uri()
+    except:
+        return None
+    
+def uri_is_on_removable_volume(uri):
+    """
+    @returns: True if the specified uri is on a removable volume, like a USB key
+    or removable/mountable disk.
+    """
+    #HACKISH
+    #return uri.count("/media/") != 0
+    scheme = gnomevfs.get_uri_scheme(uri)
+    if scheme == "file":
+        try:
+            path = uri_to_local_path(uri)
+            return VolumeMonitor().get_volume_for_path(path).is_user_visible()
+        except:
+            return False
+    return False
+    
+    
 def uri_get_filesystem_type(uri):
     """
     @returns: The filesystem that uri is stored on or None if it cannot
@@ -35,7 +69,7 @@ def uri_get_filesystem_type(uri):
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         try:
-            path = gnomevfs.get_local_path_from_uri(uri)
+            path = uri_to_local_path(uri)
             volume = VolumeMonitor().get_volume_for_path(path)
             return  volume.get_filesystem_type()
         except RuntimeError:
@@ -124,6 +158,16 @@ def uri_exists(uri):
         log.warn("Error checking if location exists")
         return False
         
+def uri_make_directory(uri):
+    """
+    Makes a directory with the default permissions. Does not catch any
+    error
+    """
+    gnomevfs.make_directory(
+            uri,
+            gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
+            )
+        
 def uri_make_directory_and_parents(uri):
     """
     Because gnomevfs.make_dir does not perform as mkdir -p this function
@@ -144,10 +188,7 @@ def uri_make_directory_and_parents(uri):
     dirs.reverse()
     for d in dirs:
         log.debug("Making directory %s" % d)
-        gnomevfs.make_directory(
-            d,
-            gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
-            )
+        uri_make_directory(d)
 
 #
 # For monitoring locations

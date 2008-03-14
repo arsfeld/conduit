@@ -1,0 +1,15 @@
+#So that we dont have to keep a bunch of files in svn or on the web
+#to run the test suite on different machines, this file allows locations
+#to be specified in a section (as returned by Utils.get_user_string())
+#
+#Note: Items in the default section should always be accessible
+#Note: If two items have the same key, the one in your section replaces
+#the one in the default section
+[DEFAULT]
+folder=file:///tmp
+
+[john@nzjrs-desktop]
+removable-volume=file:///media/media/MusicToSort/Kora
+ntfs-volume=file:///media/windows
+
+

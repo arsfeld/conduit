@@ -36,4 +36,18 @@ stm.join_all_threads()
 ok("Scanned /tmp ok - found %s" % fileuri, "file://"+fileuri in t1.get_uris())
 ok("Scanned %s ok (empty)" % tmpdiruri, t2.get_uris() == [])
 
+# Test the volume management stuff
+ntfsUri = get_external_resources('folder')['ntfs-volume']
+fstype = Vfs.uri_get_filesystem_type(ntfsUri)
+ok("Get filesystem type (%s)" % fstype,fstype == "ntfs")
+ok("Escape illegal chars in filenames", Vfs.uri_sanitize_for_filesystem("invalid:|name",fstype).count(":") == 0)
+
+localUri = get_external_resources('folder')['folder']
+ok("Local uri --> path", Vfs.uri_to_local_path(localUri) == "/tmp")
+ok("Local uri not removable", Vfs.uri_is_on_removable_volume(localUri) == False)
+
+removableUri = get_external_resources('folder')['removable-volume']
+ok("Removable volume detected removable", Vfs.uri_is_on_removable_volume(removableUri))
+ok("Removable volume calculate root path", Vfs.uri_get_volume_root_uri(removableUri) == "file:///media/media")
+
 finished()

@@ -15,7 +15,7 @@ import conduit.Vfs as Vfs
 MODULES = {
 	"FileSource" :              { "type": "dataprovider" },
 	"FolderTwoWay" :            { "type": "dataprovider" },
-#    "RemovableDeviceFactory" :  { "type": "dataprovider-factory" }
+    "RemovableDeviceFactory" :  { "type": "dataprovider-factory" }
 }
 
 class FileSource(FileDataProvider.FileSource):
@@ -68,7 +68,6 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
     DEFAULT_COMPARE_IGNORE_MTIME = False
 
     def __init__(self, *args):
-        print "#"*100,self.DEFAULT_FOLDER
         FileDataProvider.FolderTwoWay.__init__(self,
                 self.DEFAULT_FOLDER,
                 self.DEFAULT_GROUP,
@@ -135,9 +134,10 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
 
     def __init__(self, **kwargs):
         VolumeFactory.VolumeFactory.__init__(self, **kwargs)
-        self.foo = {}
+        self._volumes = []
 
     def _make_class(self, folder, name):
+        log.info("Creating preconfigured folder dataprovider: %s" % folder)
         klass = type(
                 "FolderTwoWay",
                 (FolderTwoWay,),
@@ -156,27 +156,27 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
             prop2 = self._get_properties(props["info.parent"])
             if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
                 mount,label = self._get_device_info(props)
-                #check for the presence of a mount/.conduit file
-                #which describe the folder sync groups, and their names, 
-                #on this volume
-                #
-                #The format of this file is n lines in the form
-                # group_name|path
-                # group_name|path
-                path = Vfs.uri_join(mount,".conduit")
-                if Vfs.uri_exists(path):
-                    self.foo[udi] = [self._make_class("/tmp",i) for i in range(2)]
+                log.info("Detected removable volume %s@%s" % (label,mount))
+                #check for the presence of a mount/.conduit group file
+                #which describe the folder sync groups, and their names,
+                mountUri = "file://%s" % mount
+                for relativeUri,name in FileDataProvider.read_removable_volume_group_file(mountUri):
+                    klass = self._make_class(
+                                        #uri is relative, make it absolute
+                                        "%s%s" % (mountUri,relativeUri),
+                                        name)
+                    self._volumes.append(klass)                                        
                 return True
         return False
     
     def get_category(self, udi, **kwargs):
         return DataProviderCategory.DataProviderCategory(
                     kwargs['label'],
-                    "multimedia-player-ipod-video-white",
+                    "drive-removable-media",
                     udi)
 
     def get_dataproviders(self, udi, **kwargs):
-         return self.foo[udi]
+         return self._volumes
          
     def get_args(self, udi, **kwargs):
         return ()
