@@ -50,6 +50,14 @@ class ModuleWrapper:
             self.in_type =          getattr(klass, "_in_type_", "")
             self.out_type =         getattr(klass, "_out_type_", "")
             self.classname =        klass.__name__
+        else:
+            self.name =             "Unknown"
+            self.description =      "Unknown"
+            self.icon_name =        "image-missing"
+            self.module_type =      ""
+            self.in_type =          ""
+            self.out_type =         ""
+            self.classname =        ""
 
         self.dndKey = None
         self.enabled = True

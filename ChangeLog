@@ -1,5 +1,11 @@
 2008-03-14  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/ModuleWrapper.py: Initialize variables better
+	
+	* conduit/dataproviders/__init__.py: Fix Media category icon
+
+2008-03-14  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py:
 	* test/python-tests/TestCoreVfs.py: Add functions (and tests) for getting 
 	the root uri for a removable volume.

@@ -7,5 +7,5 @@ CATEGORY_PHOTOS = DataProviderCategory.DataProviderCategory("Photos", "image-x-g
 CATEGORY_OFFICE = DataProviderCategory.DataProviderCategory("Office", "applications-office")
 CATEGORY_SETTINGS = DataProviderCategory.DataProviderCategory("Settings", "applications-system")
 CATEGORY_MISC = DataProviderCategory.DataProviderCategory("Miscellaneous", "applications-accessories")
-CATEGORY_MEDIA = DataProviderCategory.DataProviderCategory("Media", "applications-media")
+CATEGORY_MEDIA = DataProviderCategory.DataProviderCategory("Media", "applications-multimedia")
 CATEGORY_TEST = DataProviderCategory.DataProviderCategory("Test")
