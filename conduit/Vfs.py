@@ -49,14 +49,15 @@ def uri_is_on_removable_volume(uri):
     @returns: True if the specified uri is on a removable volume, like a USB key
     or removable/mountable disk.
     """
-    #HACKISH
-    #return uri.count("/media/") != 0
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
+        #FIXME: Unfortunately this approach actually works better than gnomevfs
+        #return uri.startswith("file:///media/")
         try:
             path = uri_to_local_path(uri)
             return VolumeMonitor().get_volume_for_path(path).is_user_visible()
-        except:
+        except Exception, e:
+            log.warn("Could not determine if uri on removable volume: %s" % uri)
             return False
     return False
     

@@ -136,20 +136,35 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
         VolumeFactory.VolumeFactory.__init__(self, **kwargs)
         self._volumes = []
 
-    def _make_class(self, folder, name):
+    def _make_class(self, udi, folder, name):
         log.info("Creating preconfigured folder dataprovider: %s" % folder)
+        info = {    
+            "DEFAULT_FOLDER":   folder,
+            "_udi_"         :   udi
+        }
+        if name:
+            info["DEFAULT_GROUP"] = name
+            info["_name_"] = name            
+        
         klass = type(
                 "FolderTwoWay",
                 (FolderTwoWay,),
-                {"DEFAULT_FOLDER":folder,"DEFAULT_GROUP":name}
+                info
                 )
         return klass
 
     def emit_added(self, klass, initargs, category):
         """
-        Override emit_added to allow duplictes.
+        Override emit_added to allow duplictes. The custom key is based on
+        the folder and the udi to allow multiple preconfigured groups per
+        usb key
         """
-        VolumeFactory.VolumeFactory.emit_added(self, klass, initargs, category, customKey="12345")
+        VolumeFactory.VolumeFactory.emit_added(self, 
+                        klass, 
+                        initargs, 
+                        category, 
+                        customKey="%s-%s" % (klass.DEFAULT_FOLDER, klass._udi_)
+                        )
 
     def is_interesting(self, udi, props):
         if props.has_key("info.parent") and props.has_key("info.parent") != "":
@@ -160,12 +175,24 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
                 #check for the presence of a mount/.conduit group file
                 #which describe the folder sync groups, and their names,
                 mountUri = "file://%s" % mount
-                for relativeUri,name in FileDataProvider.read_removable_volume_group_file(mountUri):
-                    klass = self._make_class(
-                                        #uri is relative, make it absolute
-                                        "%s%s" % (mountUri,relativeUri),
-                                        name)
-                    self._volumes.append(klass)                                        
+                
+                groups = FileDataProvider.read_removable_volume_group_file(mountUri)
+                if len(groups) > 0:
+                    for relativeUri,name in groups:
+                        klass = self._make_class(
+                                            udi=udi,
+                                            #uri is relative, make it absolute
+                                            folder="%s%s" % (mountUri,relativeUri),
+                                            name=name)
+                        self._volumes.append(klass)
+                else:
+                    if FileDataProvider.is_on_removable_volume(mountUri):
+                        klass = self._make_class(
+                                            udi=udi,
+                                            folder=mountUri,
+                                            name=None)
+                        self._volumes.append(klass)
+                        
                 return True
         return False
     
