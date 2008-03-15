@@ -29,7 +29,7 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
             log.warn("HAL Could not be Initialized")
 
     def _volume_mounted_cb(self, monitor, volume):
-        log.debug("Volume mounted")
+        log.info("Volume mounted")
         device_udi = volume.get_hal_udi()
         if device_udi :
             props = self._get_properties(device_udi)
@@ -40,7 +40,7 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         return True
 
     def _volume_unmounted_cb(self, monitor, volume):
-        log.debug("Volume Umounted")
+        log.info("Volume Umounted")
         device_udi = volume.get_hal_udi()
         if device_udi :
             if self.is_interesting(device_udi, self._get_properties(device_udi)):

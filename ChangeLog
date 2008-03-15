@@ -1,5 +1,11 @@
 2008-03-15  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/dataproviders/VolumeFactory.py:
+	* conduit/modules/FileModule/FileModule.py: Misc fixes to removable 
+	volume support.
+
+2008-03-15  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py:
 	* conduit/modules/FileModule/FileModule.py: Even if a removable volume
 	does not contain previously synchronized groups, still create a 

@@ -134,7 +134,8 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
 
     def __init__(self, **kwargs):
         VolumeFactory.VolumeFactory.__init__(self, **kwargs)
-        self._volumes = []
+        self._volumes = {}
+        self._categories = {}
 
     def _make_class(self, udi, folder, name):
         log.info("Creating preconfigured folder dataprovider: %s" % folder)
@@ -178,32 +179,35 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
                 
                 groups = FileDataProvider.read_removable_volume_group_file(mountUri)
                 if len(groups) > 0:
+                    self._volumes[udi] = []
                     for relativeUri,name in groups:
                         klass = self._make_class(
                                             udi=udi,
                                             #uri is relative, make it absolute
                                             folder="%s%s" % (mountUri,relativeUri),
                                             name=name)
-                        self._volumes.append(klass)
+                        self._volumes[udi].append(klass)
                 else:
                     if FileDataProvider.is_on_removable_volume(mountUri):
                         klass = self._make_class(
                                             udi=udi,
                                             folder=mountUri,
                                             name=None)
-                        self._volumes.append(klass)
+                        self._volumes[udi] = [klass]
                         
                 return True
         return False
     
     def get_category(self, udi, **kwargs):
-        return DataProviderCategory.DataProviderCategory(
+        if not self._categories.has_key(udi):
+            self._categories[udi] = DataProviderCategory.DataProviderCategory(
                     kwargs['label'],
                     "drive-removable-media",
                     udi)
+        return self._categories[udi]
 
     def get_dataproviders(self, udi, **kwargs):
-         return self._volumes
+         return self._volumes.get(udi,())
          
     def get_args(self, udi, **kwargs):
         return ()
