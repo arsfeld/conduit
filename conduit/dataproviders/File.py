@@ -225,6 +225,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.includeHidden = includeHidden
         self.compareIgnoreMtime = compareIgnoreMtime
 
+        self.fstype = None
         self.files = []
         
     def initialize(self):
@@ -235,11 +236,13 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
+        #cache the filesystem type for speed
+        self.fstype = Vfs.uri_get_filesystem_type(self.folder)
+
         #scan the folder
         scanThread = Vfs.FolderScanner(self.folder, self.includeHidden)
         scanThread.start()
         scanThread.join()
-
         self.files = scanThread.get_uris()
 
     def put(self, vfsFile, overwrite, LUID=None):
@@ -278,6 +281,10 @@ class FolderTwoWay(DataProvider.TwoWay):
                 log.debug("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
                 #unknown. Store in the dir but recreate the group
                 newURI = self.folder+os.sep+os.path.join(vfsFile.group+relpath)
+
+        #escape illegal filesystem characters
+        if self.fstype:
+            newURI = Vfs.uri_sanitize_for_filesystem(newURI, self.fstype)
 
         destFile = File.File(URI=newURI)
         comp = vfsFile.compare(

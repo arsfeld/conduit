@@ -12,8 +12,9 @@ import pydoc
 import logging
 log = logging.getLogger("Module")
 
-from conduit.dataproviders import CATEGORY_TEST
-from conduit.ModuleWrapper import ModuleWrapper, PendingDataproviderWrapper
+import conduit.dataproviders
+import conduit.ModuleWrapper as ModuleWrapper
+import conduit.Vfs as Vfs
 
 class ModuleManager(gobject.GObject):
     """
@@ -174,10 +175,10 @@ class ModuleManager(gobject.GObject):
                 try:
                     klass = getattr(mod, modules)
                     if infos["type"] == "dataprovider" or infos["type"] == "converter":
-                        mod_wrapper = ModuleWrapper(
+                        mod_wrapper = ModuleWrapper.ModuleWrapper(
                                         klass=klass,
                                         initargs=(),
-                                        category=getattr(klass, "_category_", CATEGORY_TEST)
+                                        category=getattr(klass, "_category_", conduit.dataproviders.CATEGORY_TEST)
                                         )
                         #Save the module (signal is emitted in _append_module)
                         self._append_module(
@@ -200,12 +201,23 @@ class ModuleManager(gobject.GObject):
             log.warn("Error loading the file: %s\n%s" % (filename, traceback.format_exc()))
             self.invalidFiles.append(os.path.basename(filename))
 
-    def load_all(self):
+    def load_all(self, whitelist, blacklist):
         """
-        Loads all classes in the configured paths
+        Loads all classes in the configured paths.
+
+        If whitelist and blacklist are supplied then the name of the file
+        is tested against them. Default policy is to load all modules unless
         """
         for f in self.filelist:
-            self._load_modules_in_file(f)
+            name, ext = Vfs.uri_get_filename_and_extension(f)
+            if whitelist:
+                if name in whitelist:
+                    self._load_modules_in_file(f)
+            elif blacklist:
+                if name not in blacklist: 
+                    self._load_modules_in_file(f)
+            else:            
+                self._load_modules_in_file(f)
 
         for i in self.dataproviderFactories:
             i.connect("dataprovider-removed", self._on_dynamic_dataprovider_removed)
@@ -240,7 +252,7 @@ class ModuleManager(gobject.GObject):
             #Get the existing wrapper
             m = self.moduleWrappers[wrapperKey]
             #Make a copy of it, containing an instantiated module
-            mod_wrapper = ModuleWrapper(
+            mod_wrapper = ModuleWrapper.ModuleWrapper(
                             klass=m.klass,
                             initargs=m.initargs,
                             category=m.category
@@ -248,7 +260,7 @@ class ModuleManager(gobject.GObject):
             mod_wrapper.instantiate_module()
         else:
             log.warn("Could not find module wrapper: %s" % (wrapperKey))
-            mod_wrapper = PendingDataproviderWrapper(wrapperKey)
+            mod_wrapper = ModuleWrapper.PendingDataproviderWrapper(wrapperKey)
 
         return mod_wrapper
 

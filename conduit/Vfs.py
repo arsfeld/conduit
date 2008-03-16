@@ -121,6 +121,12 @@ def uri_get_filename(uri):
     is it wasnt so slow
     """
     return uri.split(os.sep)[-1]
+
+def uri_get_filename_and_extension(uri):
+    """
+    Returns filename,file_extension
+    """
+    return os.path.splitext(uri_get_filename(uri))
     
 def uri_sanitize_for_filesystem(uri, filesystem=None):
     """
@@ -128,12 +134,27 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     given filesystem - particuarly fat and ntfs types
     """
     import string
-    if filesystem in ("vfat","ntfs"):
-        ILLEGAL_CHARS = "\\:*?\"<>|"
+
+    ILLEGAL_CHARS = {
+        "vfat"  :   "\\:*?\"<>|",
+        "ntfs"  :   "\\:*?\"<>|"
+    }
+
+    illegal = ILLEGAL_CHARS.get(filesystem,None)
+    if illegal:
+        #dont escape the scheme part
+        scheme = uri_get_protocol(uri)
+        if scheme:
+            start = uri.index("://")+3
+        else:
+            start = 0    
+        
         #replace illegal chars with a space
-        return uri.translate(string.maketrans(
-                                ILLEGAL_CHARS,
-                                " "*len(ILLEGAL_CHARS)))
+        return scheme+uri[start:].translate(string.maketrans(
+                                                illegal,
+                                                " "*len(illegal)
+                                                )
+                                            )
     return uri
     
 def uri_is_folder(uri):
@@ -283,9 +304,9 @@ class FolderScannerThreadManager(object):
                 try:
                     thread.join()
                     joinedThreads += 1
-                except AssertionError: 
+                except RuntimeError: 
                     #deal with not started threads
-                    time.sleep(1)
+                    time.sleep(0.1)
 
     def cancel_all_threads(self):
         """

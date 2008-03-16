@@ -12,7 +12,8 @@ safeunsafe = '%20%21%3C%3E%23%25%28%29%5B%5D%7B%7D'
 ok("Dont escape path characters",Vfs.uri_escape(safe+unsafe) == safe+safeunsafe)
 ok("Unescape back to original",Vfs.uri_unescape(safe+safeunsafe) == safe+unsafe)
 ok("Get protocol", Vfs.uri_get_protocol("file:///foo/bar") == "file://")
-ok("Get filename", Vfs.uri_get_filename("file:///foo/bar") == "bar")
+name, ext = Vfs.uri_get_filename_and_extension("file:///foo/bar.ext")
+ok("Get filename (%s,%s)" % (name,ext), name == "bar" and ext == ".ext")
 ok("file:///home exists", Vfs.uri_exists("file:///home") == True)
 ok("/home exists", Vfs.uri_exists("/home") == True)
 ok("/foo/bar does not exist", Vfs.uri_exists("/foo/bar") == False)
@@ -40,7 +41,10 @@ ok("Scanned %s ok (empty)" % tmpdiruri, t2.get_uris() == [])
 ntfsUri = get_external_resources('folder')['ntfs-volume']
 fstype = Vfs.uri_get_filesystem_type(ntfsUri)
 ok("Get filesystem type (%s)" % fstype,fstype == "ntfs")
-ok("Escape illegal chars in filenames", Vfs.uri_sanitize_for_filesystem("invalid:|name",fstype).count(":") == 0)
+ok("Escape illegal chars in filenames", 
+        Vfs.uri_sanitize_for_filesystem("invalid:name","ntfs") == "invalid name")
+ok("Escape illegal chars in uris", 
+        Vfs.uri_sanitize_for_filesystem("file:///i:n/i:n","ntfs") == "file:///i n/i n")
 
 localUri = get_external_resources('folder')['folder']
 ok("Local uri --> path", Vfs.uri_to_local_path(localUri) == "/tmp")

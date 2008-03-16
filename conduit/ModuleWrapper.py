@@ -2,6 +2,10 @@ import traceback
 import logging
 log = logging.getLogger("ModuleWrapper")
 
+COMPULSORY_ATTRIBUTES = (
+    "type",
+)
+
 class ModuleWrapper: 
     """
     A generic wrapper for any dynamically loaded module. Wraps the complexity
@@ -9,11 +13,6 @@ class ModuleWrapper:
     descriptive fields like name and description. Useful for classification 
     and searching for moldules of certain types, etc.
     """
-    
-    NUM_UID_DIGITS = 5
-    COMPULSORY_ATTRIBUTES = [
-                            "type"
-                            ]
     	
     def __init__ (self, klass, initargs, category):
         """

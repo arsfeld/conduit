@@ -1,3 +1,17 @@
+2008-03-16  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py: Add -w and -x switches to the command line arguments.
+	These allow you to whitelist/blacklist certain files from being loaded.
+	
+	* conduit/Module.py:
+	* conduit/ModuleWrapper.py:
+	* conduit/Vfs.py:
+	* conduit/dataproviders/File.py: Strip special characters from filenames
+	when synchronizing with legacy filesystems (fat, ntfs). Fixes #522436
+	
+	* test/python-tests/TestCoreVfs.py:
+	* test/python-tests/common.py: Tests for the above
+
 2008-03-15  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/dataproviders/VolumeFactory.py:
