@@ -7,6 +7,30 @@ NEW in 0.3.9:
 * Improved removable volume support (like USB keys). Now, inserting a USB
   key that has been synchronized on another computer will automatically create 
   a preconfigured dataprovider for synchronizing the folders of interest.
+* Fixed #510124, Cant cancel sync without closing conduit (John Stowers)
+* Fixed #511691, Improve removable folder support (John Stowers)
+* Fixed #512230, 'Folder' should display as folder_name (John Stowers)
+* Fixed #515328, There is NO documentation (Brent Gueth)
+* Fixed #518592, Get rid of .conduit and follow fd.o specifications (John Stowers)
+* Fixed #518704, Youtube download doesnt work for old videos (Thomas Van Machelen)
+* Fixed #519708, TomboyModole says note with unicode characters in title has disappeared (Thomas Van Machelen)
+* Fixed #521194, Add "caption" support to Photos/Images (Matt Brown)
+* Fixed #521349, Sync icons in status bar keep 'turning around' (Thomas Van Machelen)
+* Fixed #522436, Conduit fails to sync files with special character % in filename (John Stowers)
+
+Translations:
+* Updated fr: Stéphane Raimbault
+* Updated pt_BR: Leonardo Ferreira Fontenelle
+* Updated pt: Duarte Loreto
+* Updated ca: Gil Forcada
+* Updated it: Luca Ferretti
+* Updated sv: Daniel Nylander
+* Updated es: Jorge Gonzalez
+* Updated nb: Kjartan Maraas
+* Updated en_GB: Philip Withnall
+
+Help Manual Translations:
+* Updated C: John Stowers
 
 NEW in 0.3.8:
 ==============
