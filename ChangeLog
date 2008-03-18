@@ -1,3 +1,7 @@
+2008-03-19  John Stowers  <john.stowers@gmail.com>
+
+	* help/*: Add network sync docs. Fixes #515328 (Brent Gueth)
+
 2008-03-16  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Main.py: Add -w and -x switches to the command line arguments.

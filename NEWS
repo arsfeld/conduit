@@ -1,5 +1,6 @@
 NEW in 0.3.9:
 ==============
+* Add Conduit documentation (Brent Gueth)
 * You can now specify your own labels when saving emails
 * Removed the build dependency on dbus, just check for python-dbus > 0.80.0
 * Restore the expanded columns in the data provider pane

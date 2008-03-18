@@ -252,7 +252,7 @@
       <para>This section describes the steps required to synchronize two data providers. The example given illustrates how to synchronize two folders but the concepts are applicable to anything you wish to synchronize. If you need more information on specific settings please refer to the corresponding section of the documentation.   </para>
       <section>
         <title>Introduction</title>
-        <para>The image above contains two groups. This section will describe the steps to recreate those groups. </para>
+        <para><xref linkend="conduit-FIG-dp-parts" /> contains two groups. This section will describe the steps to recreate those groups. </para>
         <itemizedlist>
           <listitem>The top group depicts a two way synchronization of two folders </listitem>
           <listitem>The bottom group depicts a one way sync of images, from F-Spot to Facebook, and to the Picasa web albums. </listitem>
@@ -323,5 +323,57 @@
         </orderedlist>
       </section>
     </section>
+      <section>
+        <title>Network Synchronization</title>
+        <para>If you have two computers at home, Conduit can be used to synchronize the data between them, directly, without first having to store the data somewhere else first. The steps below will illustrate how to synchronize Tomboy notes on two computers, called nzjrs-desktop and nzjrs-laptop. The following key will be used to help explain the setup procedure.</para>
+        <para>
+          <figure id="conduit-FIG-network-sync-key">
+            <screenshot>
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="figures/network-sync-key.png" format="PNG"/>
+                </imageobject>
+                </mediaobject>
+            </screenshot>
+          </figure>
+        </para>
+        <tip>
+          <title>Network Synchronization Tip</title>
+          <para>The process below, although describing Tomboy note synchronization, could be suitably modified to synchronize all sorts of data between two computers, including Contacts, Calendar information, and even Fspot photos.</para>
+        </tip>
+        <orderedlist numeration="arabic">
+          <listitem>On the first computer create a synchronization group connecting Tomboy to the Network dataprovider, which is listed in the Miscellaneous category in the dataprovider pane. This makes tomnoy available for synchronization on the second computer.
+          <figure id="conduit-FIG-network-sync-pc1">
+            <title>Configuration of the First Computer</title>
+              <screenshot>
+                <mediaobject>
+                  <imageobject>
+                    <imagedata fileref="figures/network-sync-pc1.png" format="PNG"/>
+                  </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+          </listitem>
+          <listitem>After a short delay, this will result in a new category being created on the second computer. The category will take the name of the first computer, nzjrs-desktop in my case, and it shall contain any dataproviders currently available for synchronization.</listitem>
+          <listitem>Still on the second computer, drag the Tomboy dataprovider from the newly created category onto the canvas. Notice how its name is Remote Tomboy, indicating it refers to data on the remote, or first, computer
+          <figure id="conduit-FIG-network-sync-pc2">
+            <title>Configuration of the Second Computer</title>
+              <screenshot>
+                <mediaobject>
+                  <imageobject>
+                    <imagedata fileref="figures/network-sync-pc2.png" format="PNG"/>
+                  </imageobject>
+              </mediaobject>
+            </screenshot>
+          </figure>
+          </listitem>
+          <listitem>Finally, on the second computer, start the sync in the normal manner.</listitem>
+          <listitem>Your tomboy notes should now be synchronized between the two computers.</listitem>
+        </orderedlist>
+        <warning>
+          <title>File Synchronization</title>
+          <para>Due to performace and security reasons, we do not recommend using the network sync feature to synchronize large files between two computers. We hope to address this limitation in future.</para>
+        </warning>
+      </section>
 </article>
 
