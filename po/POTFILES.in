@@ -37,9 +37,6 @@ conduit/modules/GoogleModule/picasa-config.glade
 conduit/modules/GoogleModule/youtube-config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py
-conduit/modules/OSyncEvoModule.py
-conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py
-conduit/modules/PicasaDesktopModule/config.glade
 conduit/modules/RhythmboxModule/RhythmboxModule.py
 conduit/modules/RhythmboxModule/config.glade
 conduit/modules/ShutterflyModule/ShutterflyModule.py
@@ -47,5 +44,4 @@ conduit/modules/ShutterflyModule/shutterfly.glade
 conduit/modules/ShutterflyModule/shutterfly/shutterfly.py
 conduit/modules/SmugMugModule/SmugMugModule.py
 conduit/modules/SmugMugModule/config.glade
-conduit/modules/SynceModule.py
 
