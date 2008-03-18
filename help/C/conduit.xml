@@ -58,7 +58,7 @@
         <listitem>
           <para>Upload photos to <ulink type="http" url="http://www.flickr.com">Flickr</ulink>, <ulink type="http" url="http://picasaweb.google.com">Picasa</ulink>, <ulink type="http" url="http://www.smugmug.com">Smugmug</ulink>, <ulink type="http" url="http://shutterfly.com">Shutterfly</ulink> and your iPod,  </para>
         </listitem>
-        <listitem>... and many more </listitem>
+        <listitem><para>... and many more</para></listitem>
       </itemizedlist>
       <para>Any combination you can imagine, Conduit will take care of the conversion and synchronization.   </para>
       <section>
@@ -70,13 +70,13 @@
           <listitem>
             <para>Joey wants to sync whatever is on his desktop to his <ulink type="http" url="http://www.backpackit.com">backpack account</ulink> </para>
           </listitem>
-          <listitem>Nellie wants to keep a directory on his laptop and his desktop in sync </listitem>
-          <listitem>Paul wants to keep his evolution contacts in sync with his mobile phone </listitem>
-          <listitem>Steve wants to keep his gnome preferences in sync between his two computers </listitem>
+          <listitem><para>Nellie wants to keep a directory on his laptop and his desktop in sync</para></listitem>
+          <listitem><para>Paul wants to keep his evolution contacts in sync with his mobile phone</para></listitem>
+          <listitem><para>Steve wants to keep his gnome preferences in sync between his two computers</para></listitem>
           <listitem>
             <para>John wants to keep a directory of <ulink type="http" url="http://openoffice.org">OpenOffice</ulink> documents in sync with copies held on <ulink type="http" url="http://docs.google.com">Google Docs</ulink> </para>
           </listitem>
-          <listitem>Pete wants to have photos saved to his server to be pushed to an external back up (usb hard drive / off-site ftp)  </listitem>
+          <listitem><para>Pete wants to have photos saved to his server to be pushed to an external back up (usb hard drive / off-site ftp)</para></listitem>
         </itemizedlist>
       </section>
       <section>
@@ -95,14 +95,14 @@
                 <para>
                   <ulink type="http" url="http://www.gnome.org/projects/tomboy/">Tomboy</ulink> (notes) </para>
               </listitem>
-              <listitem>Directories (important files) </listitem>
-              <listitem>Photos </listitem>
-              <listitem>Bookmarks (web and feeds) </listitem>
-              <listitem>Music  </listitem>
+              <listitem><para>Directories (important files)</para></listitem>
+              <listitem><para>Photos</para></listitem>
+              <listitem><para>Bookmarks (web and feeds)</para></listitem>
+              <listitem><para>Music</para></listitem>
             </itemizedlist>
           </listitem>
-          <listitem>The user might also use one of the many popular online services including <itemizedlist><listitem><para><ulink type="http" url="http://del.icio.us">Delicious</ulink> (bookmarks) </para></listitem><listitem><para><ulink type="http" url="http://www.gmail.com">Gmail</ulink> (bookmarks, calendar, feeds, email, photos) </para></listitem><listitem><para><ulink type="http" url="http://www.flickr.com">Flickr</ulink> (photos)  </para></listitem></itemizedlist></listitem>
-          <listitem>They probably also own another electronic device such as <itemizedlist><listitem>A second laptop, also running GNOME </listitem><listitem>A mobile phone </listitem><listitem><para>A <ulink type="http" url="http://www.nokia.com">Nokia</ulink> 770/800 </para></listitem><listitem><para>A <ulink type="http" url="http://www.palm.com">Palm</ulink> or <ulink type="http" url="http://www.microsoft.com/windowsmobile/default.mspx">Windows Mobile</ulink> Pocket PC </para></listitem><listitem>An iPod  </listitem></itemizedlist></listitem>
+          <listitem><para>The user might also use one of the many popular online services including <itemizedlist><listitem><para><ulink type="http" url="http://del.icio.us">Delicious</ulink> (bookmarks) </para></listitem><listitem><para><ulink type="http" url="http://www.gmail.com">Gmail</ulink> (bookmarks, calendar, feeds, email, photos) </para></listitem><listitem><para><ulink type="http" url="http://www.flickr.com">Flickr</ulink> (photos)  </para></listitem></itemizedlist></para></listitem>
+          <listitem><para>They probably also own another electronic device such as <itemizedlist><listitem><para>A second laptop, also running GNOME</para></listitem><listitem><para>A mobile phone</para> </listitem><listitem><para>A <ulink type="http" url="http://www.nokia.com">Nokia</ulink> 770/800 </para></listitem><listitem><para>A <ulink type="http" url="http://www.palm.com">Palm</ulink> or <ulink type="http" url="http://www.microsoft.com/windowsmobile/default.mspx">Windows Mobile</ulink> Pocket PC </para></listitem><listitem><para>An iPod</para>  </listitem></itemizedlist></para></listitem>
         </itemizedlist>
         <para>Its hard enough keeping your information organized when limited to the desktop, let alone the added burden of keeping your information in sync with any of the other services or devices listed above. </para>
         <para>Our goal for Conduit is to allow GNOME users to keep their information in sync. Irrespective of the type, irrespective of the way in which that information is stored. Conduit should just work. </para>
@@ -130,10 +130,10 @@
         </para>
         <para><xref linkend="conduit-FIG-gui-parts" /> shows the Conduit interface's four main components;</para>
         <orderedlist numeration="arabic">
-          <listitem>The Menu <itemizedlist><listitem>The file, edit and help menus store operations which apply to all groups. For more information on the contents of these menus, see below </listitem></itemizedlist></listitem>
-          <listitem>The Data Provider Pane <itemizedlist><listitem>Located on the left hand side of the window, lists all of the data providers that are detected and ready for use on your system.  </listitem><listitem><para>Data providers are the source or destination of data you wish to sync. Please refer to the <emphasis>Data Provider</emphasis> section of the documentation to receive instructions on how to configure each data provider.  </para></listitem></itemizedlist></listitem>
-          <listitem>The Canvas Pane <itemizedlist><listitem><para>Used to create groups of data providers to synchronize. Drag a data source to the left of the canvas pane and one or more data sinks to the right of the data pane to create a group.   For more explanation on groups please check the <emphasis>Groups</emphasis> section of the documentation. </para></listitem></itemizedlist></listitem>
-          <listitem>The Conflicts Pane <itemizedlist><listitem><para>If you receive any conflict notifications while trying to run a sync job they will be listed here.  For information on how to deal with possible conflicts please check the <emphasis>Conflicts and Resolutions</emphasis> section of the documentation.  </para></listitem></itemizedlist></listitem>
+          <listitem><para>The Menu<itemizedlist><listitem><para>The file, edit and help menus store operations which apply to all groups. For more information on the contents of these menus, see below </para></listitem></itemizedlist></para></listitem>
+          <listitem><para>The Data Provider Pane <itemizedlist><listitem><para>Located on the left hand side of the window, lists all of the data providers that are detected and ready for use on your system.</para></listitem><listitem><para>Data providers are the source or destination of data you wish to sync. Please refer to the <emphasis>Data Provider</emphasis> section of the documentation to receive instructions on how to configure each data provider.</para></listitem></itemizedlist></para></listitem>
+          <listitem><para>The Canvas Pane <itemizedlist><listitem><para>Used to create groups of data providers to synchronize. Drag a data source to the left of the canvas pane and one or more data sinks to the right of the data pane to create a group.   For more explanation on groups please check the <emphasis>Groups</emphasis> section of the documentation. </para></listitem></itemizedlist></para></listitem>
+          <listitem><para>The Conflicts Pane <itemizedlist><listitem><para>If you receive any conflict notifications while trying to run a sync job they will be listed here.  For information on how to deal with possible conflicts please check the <emphasis>Conflicts and Resolutions</emphasis> section of the documentation.  </para></listitem></itemizedlist></para></listitem>
         </orderedlist>
       </section>
       <section>
@@ -141,24 +141,24 @@
         <section>
           <title>The File Menu</title>
           <itemizedlist>
-            <listitem>Save Conduit saves all configured groups when you exit the application. If you have unchecked this option, then all data providers, groups, and the configruation of both, is saved when you select this item. </listitem>
-            <listitem>Synchronize All <para>Synchronizes all groups at the same time. You can still run each sync group separately (see the <emphasis>Groups</emphasis> section), but this saves you the time of having to select and manually going through each group to start the sync process.  </para></listitem>
-            <listitem>Quit Closes conduit. You will br prompted to stop any synchronization currently in progress. </listitem>
+            <listitem><para>Save Conduit saves all configured groups when you exit the application. If you have unchecked this option, then all data providers, groups, and the configruation of both, is saved when you select this item.</para></listitem>
+            <listitem><para>Synchronize All Synchronizes all groups at the same time. You can still run each sync group separately (see the <emphasis>Groups</emphasis> section), but this saves you the time of having to select and manually going through each group to start the sync process.</para></listitem>
+            <listitem><para>Quit Closes conduit. You will br prompted to stop any synchronization currently in progress.</para></listitem>
           </itemizedlist>
         </section>
         <section>
           <title>The Edit Menu</title>
           <itemizedlist>
-            <listitem>Clear Canvas Removes all configurations, data providers, and groups from the canvas pane. This allows you start using the canvas as it was a clean slate. The best time to use this is when you are re-configuring a large portion of your sync groups. There is no quick way to revert back after selecting this setting.    </listitem>
-            <listitem>Preferences <para>Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see the <emphasis>Conduit Preferences</emphasis> section of the documentation.  </para></listitem>
+            <listitem><para>Clear Canvas Removes all configurations, data providers, and groups from the canvas pane. This allows you start using the canvas as it was a clean slate. The best time to use this is when you are re-configuring a large portion of your sync groups. There is no quick way to revert back after selecting this setting.</para></listitem>
+            <listitem><para>Preferences Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see the <emphasis>Conduit Preferences</emphasis> section of the documentation.</para></listitem>
           </itemizedlist>
         </section>
         <section>
           <title>The Help Menu</title>
           <itemizedlist>
-            <listitem>Developers If you are developer, and interested in contributing to Conduit, then this option includes links to all the appropriate documentation. </listitem>
-            <listitem>Contents </listitem>
-            <listitem>About Shows the version number and a list of Conduit developers.  </listitem>
+            <listitem><para>Developers If you are developer, and interested in contributing to Conduit, then this option includes links to all the appropriate documentation.</para></listitem>
+            <listitem><para>Contents</para></listitem>
+            <listitem><para>About Shows the version number and a list of Conduit developers.</para></listitem>
           </itemizedlist>
         </section>
       </section>
@@ -185,8 +185,8 @@
               <para>Use Built in Web Browser</para>
               <para>When a data provider requires that you log onto a website, this option tells conduit to use its own web browser to do so.</para>
             </listitem>
-            <listitem>When an Item Has Been Deleted </listitem>
-            <listitem>Where There is a Two Way Conflict </listitem>
+            <listitem><para>When an Item Has Been Deleted</para></listitem>
+            <listitem><para>Where There is a Two Way Conflict</para></listitem>
           </itemizedlist>
         </section>
         <section>
@@ -240,10 +240,10 @@
           </figure>
         </para>
         <orderedlist numeration="arabic">
-          <listitem>A data provider for synchronizing two whose status indicates that it is ready to be synchronized. </listitem>
-          <listitem>A group containing two folder dataproviders. The arrow has two ends, indicating that the two dataproviders will undergo a two way syncronization, that is data will flow in both directions, and both folders will contain the same information once the sync finishes. </listitem>
-          <listitem>A second folder data provider. By convention, data providers that lie on the right had side of groups are called data sinks. This is because during a one way sync, data can only flow into them </listitem>
-          <listitem>A Facebook and Picasa data provider for uploading images to those sites. Notice that that the group has three data providers, and the arrow has changed to indicate that data will flow in only one direction, that is images will be uploaded from F-Spot to Facebook and Picasa. </listitem>
+          <listitem><para>A data provider for synchronizing two whose status indicates that it is ready to be synchronized.</para></listitem>
+          <listitem><para>A group containing two folder dataproviders. The arrow has two ends, indicating that the two dataproviders will undergo a two way syncronization, that is data will flow in both directions, and both folders will contain the same information once the sync finishes.</para></listitem>
+          <listitem><para>A second folder data provider. By convention, data providers that lie on the right had side of groups are called data sinks. This is because during a one way sync, data can only flow into them.</para></listitem>
+          <listitem><para>A Facebook and Picasa data provider for uploading images to those sites. Notice that that the group has three data providers, and the arrow has changed to indicate that data will flow in only one direction, that is images will be uploaded from F-Spot to Facebook and Picasa.</para></listitem>
         </orderedlist>
       </section>
     </section>
@@ -254,16 +254,16 @@
         <title>Introduction</title>
         <para><xref linkend="conduit-FIG-dp-parts" /> contains two groups. This section will describe the steps to recreate those groups. </para>
         <itemizedlist>
-          <listitem>The top group depicts a two way synchronization of two folders </listitem>
-          <listitem>The bottom group depicts a one way sync of images, from F-Spot to Facebook, and to the Picasa web albums. </listitem>
+          <listitem><para>The top group depicts a two way synchronization of two folders</para></listitem>
+          <listitem><para>The bottom group depicts a one way sync of images, from F-Spot to Facebook, and to the Picasa web albums.</para></listitem>
         </itemizedlist>
       </section>
       <section>
         <title>Example 1: Synchronizing Two Folders</title>
         <para>The following steps will recreate the two way synchronization group shown as <emphasis>#1</emphasis> in the figure above. </para>
         <orderedlist numeration="arabic">
-          <listitem>On your desktop create three folders named folder1, folder2, and folder3.  Drag a file of your choice into folder1.  </listitem>
-          <listitem>Start Conduit </listitem>
+          <listitem><para>On your desktop create three folders named folder1, folder2, and folder3.  Drag a file of your choice into folder1.</para></listitem>
+          <listitem><para>Start Conduit</para></listitem>
           <listitem>
             <para>Add a data provider for <emphasis>folder1</emphasis> </para>
             <para>From the data provider pane, drag the folder data provider and drop it on the left hand side of the canvas pane. This will be the data source that we are going to sync from.</para>
@@ -295,31 +295,29 @@
             <para>Configure the synchronization parameters</para>
             <para>Right click on the associated group, and under sync options, select a two way sync. Since this is just a basic run through on how to setup a sync we are not going to go through any advanced syncing options in this section of the documentation.   If you wish more information on the options available, please see the <emphasis>Groups</emphasis> section of the documentation.  </para>
           </listitem>
-          <listitem>Synchronize the two folders by right clicking on them and selecting sync, or from the file menu. Once the sync is finished you should the file that you placed in folder1 on your desktop within folder2. </listitem>
+          <listitem><para>Synchronize the two folders by right clicking on them and selecting sync, or from the file menu. Once the sync is finished you should the file that you placed in folder1 on your desktop within folder2.</para></listitem>
         </orderedlist>
       </section>
       <section>
         <title>Example 2: Exporting Images to Multiple Destinations</title>
         <para>The second group shown in <xref linkend="conduit-FIG-dp-parts" /> shows a single F-Spot data source exporting its photos to two data sinks, a Fackbook one, and a Picasa one.</para>
         <orderedlist numeration="arabic">
-          <listitem>Start Conduit </listitem>
-          <listitem>Start F-Spot </listitem>
-          <listitem>Drag a F-Spot data provider from the data provider pane and drop it onto an empty spot on the canvas. A new group containing just the F-Spot data provider will be created.</listitem>
-          <listitem>Drag Facebook and Picasa data providers into the Group that was just created.</listitem>
-          <listitem>Configure the data providers by double clicking on them.</listitem>
-          <listitem>Now synchronize the group to upload photos. You will be prompted to log into facebook using the Conduit login window, shown in  <xref linkend="conduit-FIG-login" /></listitem>
+          <listitem><para>Start Conduit</para></listitem>
+          <listitem><para>Start F-Spot</para></listitem>
+          <listitem><para>Drag a F-Spot data provider from the data provider pane and drop it onto an empty spot on the canvas. A new group containing just the F-Spot data provider will be created.</para></listitem>
+          <listitem><para>Drag Facebook and Picasa data providers into the Group that was just created.</para></listitem>
+          <listitem><para>Configure the data providers by double clicking on them.</para></listitem>
+          <listitem><para>Now synchronize the group to upload photos. You will be prompted to log into facebook using the Conduit login window, shown in  <xref linkend="conduit-FIG-login" /></para></listitem>
         </orderedlist>
       </section>
       <section>
         <title>Summary</title>
         <para>All sync operations work exactly like this. The only difference is the data you are syncing and the providers you are using. You always follow the same sequence of steps, </para>
         <orderedlist numeration="arabic">
-          <listitem>Add dataproviders to create a new group, or to an existing group. </listitem>
-          <listitem>
-            <para>Configure the data providers. Each data provider requires a unique configuration. For reference on these please the <emphasis>Data Providers</emphasis> section of the documentation.  </para>
-          </listitem>
-          <listitem>Configure the group, selecting what should happen on conflict, etc. </listitem>
-          <listitem>Synchronize the dataproviders as you wish. </listitem>
+          <listitem><para>Add dataproviders to create a new group, or to an existing group.</para></listitem>
+          <listitem><para>Configure the data providers. Each data provider requires a unique configuration. For reference on these please the <emphasis>Data Providers</emphasis> section of the documentation.</para></listitem>
+          <listitem><para>Configure the group, selecting what should happen on conflict, etc.</para></listitem>
+          <listitem><para>Synchronize the dataproviders as you wish.</para></listitem>
         </orderedlist>
       </section>
     </section>
@@ -328,6 +326,7 @@
         <para>If you have two computers at home, Conduit can be used to synchronize the data between them, directly, without first having to store the data somewhere else first. The steps below will illustrate how to synchronize Tomboy notes on two computers, called nzjrs-desktop and nzjrs-laptop. The following key will be used to help explain the setup procedure.</para>
         <para>
           <figure id="conduit-FIG-network-sync-key">
+          <title></title>
             <screenshot>
               <mediaobject>
                 <imageobject>
@@ -342,7 +341,7 @@
           <para>The process below, although describing Tomboy note synchronization, could be suitably modified to synchronize all sorts of data between two computers, including Contacts, Calendar information, and even Fspot photos.</para>
         </tip>
         <orderedlist numeration="arabic">
-          <listitem>On the first computer create a synchronization group connecting Tomboy to the Network dataprovider, which is listed in the Miscellaneous category in the dataprovider pane. This makes tomnoy available for synchronization on the second computer.
+          <listitem><para>On the first computer create a synchronization group connecting Tomboy to the Network dataprovider, which is listed in the Miscellaneous category in the dataprovider pane. This makes tomnoy available for synchronization on the second computer.
           <figure id="conduit-FIG-network-sync-pc1">
             <title>Configuration of the First Computer</title>
               <screenshot>
@@ -353,9 +352,9 @@
               </mediaobject>
             </screenshot>
           </figure>
-          </listitem>
-          <listitem>After a short delay, this will result in a new category being created on the second computer. The category will take the name of the first computer, nzjrs-desktop in my case, and it shall contain any dataproviders currently available for synchronization.</listitem>
-          <listitem>Still on the second computer, drag the Tomboy dataprovider from the newly created category onto the canvas. Notice how its name is Remote Tomboy, indicating it refers to data on the remote, or first, computer
+          </para></listitem>
+          <listitem><para>After a short delay, this will result in a new category being created on the second computer. The category will take the name of the first computer, nzjrs-desktop in my case, and it shall contain any dataproviders currently available for synchronization.</para></listitem>
+          <listitem><para>Still on the second computer, drag the Tomboy dataprovider from the newly created category onto the canvas. Notice how its name is Remote Tomboy, indicating it refers to data on the remote, or first, computer
           <figure id="conduit-FIG-network-sync-pc2">
             <title>Configuration of the Second Computer</title>
               <screenshot>
@@ -366,9 +365,9 @@
               </mediaobject>
             </screenshot>
           </figure>
-          </listitem>
-          <listitem>Finally, on the second computer, start the sync in the normal manner.</listitem>
-          <listitem>Your tomboy notes should now be synchronized between the two computers.</listitem>
+          </para></listitem>
+          <listitem><para>Finally, on the second computer, start the sync in the normal manner.</para></listitem>
+          <listitem><para>Your tomboy notes should now be synchronized between the two computers.</para></listitem>
         </orderedlist>
         <warning>
           <title>File Synchronization</title>

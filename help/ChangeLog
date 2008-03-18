@@ -1,5 +1,9 @@
 2008-03-19  John Stowers  <john.stowers@gmail.com>
 
+	* C/conduit.xml: Add <para> tags to pass distcheck
+
+2008-03-19  John Stowers  <john.stowers@gmail.com>
+
 	* C/conduit.xml:
 	* C/figures/source/network-sync-key.svg:
 	* C/figures/source/pc-number.svg: Add network sync docs
