@@ -33,7 +33,8 @@ class DeltaProvider:
             #Maybe we should be unicode....
             assert type(i) in [str,unicode], "LUID Must be str not %s" % type(i)
             #Make sure the are in unicode to assure good comparison with mapping UID's
-            allItems.append(unicode(i))
+            #FIXME: Replace or ignore non unicode chars?
+            allItems.append(unicode(i,errors='replace'))
 
         log.debug("Delta: Got %s items\n%s" % (len(allItems), allItems))
 
