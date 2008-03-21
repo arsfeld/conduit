@@ -1,5 +1,10 @@
 2008-03-21  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py: Call update_appearance whenever a dp is
+	added to/removed from a conduit. Fixes #523575
+
+2008-03-21  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/dataproviders/File.py: Recreate the .conduit group file
 	every time, after parsing it. Fixes #523551
 

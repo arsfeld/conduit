@@ -830,6 +830,8 @@ class ConduitCanvasItem(_CanvasItem):
 
 
     def update_appearance(self):
+        self._resize_height()
+    
         #update the twowayness of the connectors
         for c in self.connectorItems.values():
             c.set_two_way(self.model.is_two_way())
@@ -879,9 +881,8 @@ class ConduitCanvasItem(_CanvasItem):
                     )
                 self.connectorItems[item] = c
 
-        self._resize_height()
         self._add_progress_text()
-
+        self.update_appearance()
 
     def delete_dataprovider_canvas_item(self, item):
         """
@@ -902,8 +903,8 @@ class ConduitCanvasItem(_CanvasItem):
             self.sinkDpItems.remove(item)
             self._delete_connector(item)
 
-        self._resize_height()
         self._remove_overlap()
+        self.update_appearance()
 
     def set_height(self, h):
         self.bounding_box.set_property("height",h)
