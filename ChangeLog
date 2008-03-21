@@ -1,3 +1,9 @@
+2008-03-21  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS:
+	* conduit/__init__.py:
+	* configure.ac: Version bump to 0.3.10
+
 2008-03-19  John Stowers  <john.stowers@gmail.com>
 
 	* help/*: Add network sync docs. Fixes #515328 (Brent Gueth)
