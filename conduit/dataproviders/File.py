@@ -29,43 +29,45 @@ def get_removable_volume_info(folderUri):
     return rooturi,path
     
 def save_removable_volume_group_file(folderUri, folderGroupName):
+    """
+    Saves a file on the root of the drive, in ini format, 
+    containing the uri and group
+    
+    e.g.
+    [DEFAULT]
+    relative/uri/from/volume/root = group name
+    """
     if is_on_removable_volume(folderUri):
         #write to the /volume/root/.conduit file
         rooturi,path = get_removable_volume_info(folderUri)
-        fp = open(path, "w+r")
         conf = ConfigParser.SafeConfigParser()
-        conf.readfp(fp)
-        #save the relative path, and the group name
-        #in INI format
-        #
-        #[DEFAULT]
-        #relative/uri/from/volume/root = group name
-        #
+        conf.read(path)
+        
         log.debug("Saving group (%s = %s) to %s" % (folderUri,folderGroupName,path))
         conf.set(
             "DEFAULT",
             folderUri.replace(rooturi,""),
             folderGroupName
             )
+        fp = open(path, 'w')
         conf.write(fp)
         fp.close()
         return True
     return False
 
 def read_removable_volume_group_file(folderUri):
+    items = []
     if is_on_removable_volume(folderUri):
         #read from the /volume/root/.conduit file
         rooturi,path = get_removable_volume_info(folderUri)
-        if Vfs.uri_exists(path):
-            conf = ConfigParser.SafeConfigParser()
-            fp = open(path, "r")
-            conf.readfp(fp)
-            items = conf.items("DEFAULT")
-            fp.close()                
-            for i,j in items:
-                log.debug("Read group (%s = %s)" % (i,j))
-            return items
-    return ()
+        conf = ConfigParser.SafeConfigParser()
+        conf.read(path)
+        for p,n in conf.items("DEFAULT"):
+            log.debug("Read group (%s = %s)" % (p,n))
+            #check the path still exists on the volume
+            if Vfs.uri_exists(rooturi+p):
+                items.append((p,n))
+    return items
 
 class FileSource(DataProvider.DataSource, Vfs.FolderScannerThreadManager):
 
@@ -322,8 +324,11 @@ class FolderTwoWay(DataProvider.TwoWay):
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.files = []
-        #Save the .group file to the root of this volume (if it is removable)
-        save_removable_volume_group_file(self.folder, self.folderGroupName)
+        try:
+            #Save the .group file to the root of this volume (if it is removable)
+            save_removable_volume_group_file(self.folder, self.folderGroupName)
+        except Exception, e:
+            log.warn("Error saving volume group file: %s" % e)
 
     def add(self, LUID):
         f = File.File(URI=LUID)

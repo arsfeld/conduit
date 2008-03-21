@@ -1,5 +1,10 @@
 2008-03-21  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/dataproviders/File.py: Recreate the .conduit group file
+	every time, after parsing it. Fixes #523551
+
+2008-03-21  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS:
 	* conduit/__init__.py:
 	* configure.ac: Version bump to 0.3.10
