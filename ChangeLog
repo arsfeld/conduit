@@ -1,5 +1,10 @@
 2008-03-21  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py: Implement hackish word breaking and ellipsizing
+	to stop dataprovider names getting too big. Fixes #523579
+
+2008-03-21  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py: Call update_appearance whenever a dp is
 	added to/removed from a conduit. Fixes #523575
 

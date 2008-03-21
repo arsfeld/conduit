@@ -567,12 +567,36 @@ class DataProviderCanvasItem(_CanvasItem):
 
     NAME_FONT = "Sans 8"
     STATUS_FONT = "Sans 7"
+    MAX_TEXT_LENGTH = 10
+    MAX_TEXT_LINES = 2
 
     def __init__(self, parent, model):
         _CanvasItem.__init__(self, parent, model)
 
         self._build_widget()
         self.set_model(model)
+        
+    def _get_model_name(self):
+        #FIXME: Goocanvas.Text does not ellipsize text,
+        #so we do it...... poorly
+        text = ""
+        lines = 1
+        for word in self.model.get_name().split(" "):
+            if len(word) > self.MAX_TEXT_LENGTH:
+                word = word[0:self.MAX_TEXT_LENGTH] + "... "
+            else:
+                word = word + " "
+
+            #gross guess for how much of the space we have used
+            if (len(text)+len(word))  > (self.MAX_TEXT_LENGTH*self.MAX_TEXT_LINES):
+                #append final elipsis
+                if not word.endswith("... "):
+                    text = text + "..."
+                break
+            else:
+                text = text + word
+            
+        return text
 
     def _get_fill_color(self):
         if self.model.module == None:
@@ -612,7 +636,7 @@ class DataProviderCanvasItem(_CanvasItem):
         self.name = goocanvas.Text(  x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
                                 y=int(1*self.WIDGET_HEIGHT/3), 
                                 width=3*self.WIDGET_WIDTH/5, 
-                                text=self.model.get_name(), 
+                                text=self._get_model_name(), 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font=self.NAME_FONT
                                 )
@@ -647,7 +671,7 @@ class DataProviderCanvasItem(_CanvasItem):
         pby = int((1*self.WIDGET_HEIGHT/3) - (pb.get_height()/2))
         self.image.set_property("pixbuf",pb)
 
-        self.name.set_property("text",self.model.get_name())
+        self.name.set_property("text",self._get_model_name())
 
         if self.model.module == None:
             statusText = self.PENDING_MESSAGE
