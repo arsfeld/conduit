@@ -97,8 +97,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     
     TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
     TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"
-    TOMBOY_MIN_VERSION = "0.5.10"
-    TOMBOY_COMPLETE_XML_VERSION = "0.9.0"
+    TOMBOY_MIN_VERSION = (0, 5, 10)
+    TOMBOY_COMPLETE_XML_VERSION = (0 ,9 ,0)
     
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
@@ -117,14 +117,14 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if Utils.dbus_service_available(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, bus):
             obj = bus.get_object(TomboyNoteTwoWay.TOMBOY_DBUS_IFACE, TomboyNoteTwoWay.TOMBOY_DBUS_PATH)
             app = dbus.Interface(obj, "org.gnome.Tomboy.RemoteControl")
-            version = str(app.Version())
+            version = tuple(int(item) for item in str(app.Version()).split('.'))
             if version >= TomboyNoteTwoWay.TOMBOY_MIN_VERSION:
                 self.remoteTomboy = app
                 self.remoteTomboy.connect_to_signal("NoteAdded", lambda uid: self.handle_added(str(uid)))
                 self.remoteTomboy.connect_to_signal("NoteSaved", lambda uid: self.handle_modified(str(uid)))
                 self.remoteTomboy.connect_to_signal("NoteDeleted", lambda uid, x: self.handle_deleted(str(uid)))
                 self.supportsCompleteXML = version >= TomboyNoteTwoWay.TOMBOY_COMPLETE_XML_VERSION
-                log.info("Using Tomboy Version %s" % version)
+                log.info("Using Tomboy Version %s" % str(version))
                 return True
         return False
 

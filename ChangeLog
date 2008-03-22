@@ -1,3 +1,8 @@
+2008-03-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
+	* conduit/modules/TomboyModule.py: Use tuples instead of strings for
+	checking the Tomboy version. Fixes #523692
+
 2008-03-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Canvas.py: Implement hackish word breaking and ellipsizing
