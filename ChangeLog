@@ -1,3 +1,9 @@
+2008-03-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+
+	* conduit/modules/FspotModule/config.glade:
+	* conduit/modules/FspotModule/FspotModule.py:  Add possibility to
+	configuration dialog to create tags in F-Spot.  Fixes #517536
+
 2008-03-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 
 	* conduit/modules/TomboyModule.py: Use tuples instead of strings for

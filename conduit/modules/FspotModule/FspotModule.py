@@ -50,6 +50,8 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.photo_remote = None
         self.tag_remote = None
 
+        self.list_store = None
+
         self._connect_to_fspot()
         self._hookup_signal_handlers()
 
@@ -139,10 +141,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 
         # add tags from upload info
         for tag in uploadInfo.tags:
-            try:
-                self.tag_remote.GetTagByName (tag)
-            except:
-                self.tag_remote.CreateTag (tag)
+            self._create_tag (tag)
             tags.append (tag)
 
         # import the photo
@@ -181,12 +180,32 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.photo_remote.FinishRoll ()
         self.has_roll = False
 
+    def _create_tag (self, tag):
+        # Check if remote is read only
+        if self.tag_remote.IsReadOnly ():
+            return
+
+        # Now see if we can create the tag
+        try:
+            self.tag_remote.GetTagByName (tag)
+        except:
+            self.tag_remote.CreateTag (tag)        
+
     def handle_photoremote_down(self):
         self.photo_remote = None
         self.tag_remote = None
 
     def configure(self, window):
         import gtk
+        def create_tags_clicked_cb(button):
+            text = self.tags_entry.get_text()
+            if not text:
+                return
+            tags = text.split(',')
+            for tag in tags:
+                self._create_tag (tag.strip ())
+            refresh_list_store()                
+
         def col1_toggled_cb(cell, path, model ):
             #not because we get this cb before change state
             checked = not cell.get_active()
@@ -202,6 +221,20 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             log.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
             return
 
+        def refresh_list_store ():
+            #Build a list of all the tags
+            if not self.list_store:
+                self.list_store = gtk.ListStore(gobject.TYPE_STRING,    #NAME_IDX
+                                                gobject.TYPE_BOOLEAN,   #active
+                                               )
+            else:
+                self.list_store.clear ()                
+            #Fill the list store
+            i = 0
+            for tag in self._get_all_tags():
+                self.list_store.append((tag,tag in self.enabledTags))
+                i += 1
+
         #Fspot must be running
         if not self._connect_to_fspot():
             return
@@ -212,17 +245,9 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 						"FspotConfigDialog"
 						)
         tagtreeview = tree.get_widget("tagtreeview")
-        #Build a list of all the tags
-        list_store = gtk.ListStore(gobject.TYPE_STRING,    #NAME_IDX
-                                   gobject.TYPE_BOOLEAN,   #active
-                                  )
-        #Fill the list store
-        i = 0
-        for tag in self._get_all_tags():
-            list_store.append((tag,tag in self.enabledTags))
-            i += 1
-        #Set up the treeview
-        tagtreeview.set_model(list_store)
+        refresh_list_store()
+        tagtreeview.set_model(self.list_store)
+
         #column 1 is the tag name
         tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
                                     gtk.CellRendererText(), 
@@ -231,16 +256,21 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         #column 2 is a checkbox for selecting the tag to sync
         renderer1 = gtk.CellRendererToggle()
         renderer1.set_property('activatable', True)
-        renderer1.connect( 'toggled', col1_toggled_cb, list_store )
+        renderer1.connect( 'toggled', col1_toggled_cb, self.list_store )
         tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
                                     renderer1, 
                                     active=1)
                                     )
+  
+        # Area for creating additional tags
+        create_button = tree.get_widget ('create_button')
+        self.tags_entry = tree.get_widget ('tags_entry')
+        create_button.connect('clicked', create_tags_clicked_cb)
 
         dlg = tree.get_widget("FspotConfigDialog")
         dlg.set_transient_for(window)
 
-        response = dlg.run()
+        response = Utils.run_dialog (dlg, window)
         dlg.destroy()
 
     def set_configuration(self, config):
