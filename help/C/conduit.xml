@@ -53,7 +53,7 @@
           <para>Synchronize your <ulink type="http" url="http://www.gnome.org/projects/tomboy/">Tomboy notes</ulink> with another computer </para>
         </listitem>
         <listitem>
-          <para>Synchronize your your PIM data to your mobile phone, <ulink type="http" url="http://en.wikipedia.org/wiki/IPod">iPod</ulink>, <ulink type="http" url="http://en.wikipedia.org/wiki/Nokia_N800">Nokia Internet tablet</ulink>, or between computers </para>
+          <para>Synchronize your PIM data to your mobile phone, <ulink type="http" url="http://en.wikipedia.org/wiki/IPod">iPod</ulink>, <ulink type="http" url="http://en.wikipedia.org/wiki/Nokia_N800">Nokia Internet tablet</ulink>, or between computers </para>
         </listitem>
         <listitem>
           <para>Upload photos to <ulink type="http" url="http://www.flickr.com">Flickr</ulink>, <ulink type="http" url="http://picasaweb.google.com">Picasa</ulink>, <ulink type="http" url="http://www.smugmug.com">Smugmug</ulink>, <ulink type="http" url="http://shutterfly.com">Shutterfly</ulink> and your iPod,  </para>
@@ -81,7 +81,7 @@
       </section>
       <section>
         <title>Introduction</title>
-        <para>Conduit's goals are to synchronize your data as seamlessly as possible, be it from from remote device or remote websites. It is about extending your life as you see it needs to be, no longer constrained by data, devices or formats. Conduit enables you to take your data where you want when you want. All of your mobile devices could be synchronized automatically by Conduit. Home file back-ups to a remote server? Synced automatically. </para>
+        <para>Conduit's goals are to synchronize your data as seamlessly as possible, be it from remote device or remote websites. It is about extending your life as you see it needs to be, no longer constrained by data, devices or formats. Conduit enables you to take your data where you want when you want. All of your mobile devices could be synchronized automatically by Conduit. Home file back-ups to a remote server? Synced automatically. </para>
         <para>It may sometimes seem that Conduit is overly complicated, one of the design goals has always been to make the interface as simple and intuitive as possible. However  Conduit is much more powerful then the simplistic design may lead on. This documentation will describe all the configuration options for groups and data providers, while the following gives some examples of items you may wish to synchronize; </para>
         <itemizedlist>
           <listitem>
@@ -130,63 +130,63 @@
         </para>
         <para><xref linkend="conduit-FIG-gui-parts" /> shows the Conduit interface's four main components;</para>
         <orderedlist numeration="arabic">
-          <listitem><para>The Menu<itemizedlist><listitem><para>The file, edit and help menus store operations which apply to all groups. For more information on the contents of these menus, see below </para></listitem></itemizedlist></para></listitem>
+          <listitem><para>The Menu<itemizedlist><listitem><para>The file, edit and help menus store operations which apply to all groups. For more information on the contents of these menus, see below. </para></listitem></itemizedlist></para></listitem>
           <listitem><para>The Data Provider Pane <itemizedlist><listitem><para>Located on the left hand side of the window, lists all of the data providers that are detected and ready for use on your system.</para></listitem><listitem><para>Data providers are the source or destination of data you wish to sync. Please refer to the <emphasis>Data Provider</emphasis> section of the documentation to receive instructions on how to configure each data provider.</para></listitem></itemizedlist></para></listitem>
-          <listitem><para>The Canvas Pane <itemizedlist><listitem><para>Used to create groups of data providers to synchronize. Drag a data source to the left of the canvas pane and one or more data sinks to the right of the data pane to create a group.   For more explanation on groups please check the <emphasis>Groups</emphasis> section of the documentation. </para></listitem></itemizedlist></para></listitem>
+          <listitem><para>The Canvas Pane <itemizedlist><listitem><para>Used to create groups of data providers to synchronize. Drag a data source to the left of the canvas pane and one or more data sinks to the right of the data pane to create a group.   For more explanation on groups please check <xref linkend="conduit-providers-and-groups" />. </para></listitem></itemizedlist></para></listitem>
           <listitem><para>The Conflicts Pane <itemizedlist><listitem><para>If you receive any conflict notifications while trying to run a sync job they will be listed here.  For information on how to deal with possible conflicts please check the <emphasis>Conflicts and Resolutions</emphasis> section of the documentation.  </para></listitem></itemizedlist></para></listitem>
         </orderedlist>
       </section>
-      <section>
-        <title>The Menu</title>
+      <section id="conduit-menus">
+        <title>The Menus</title>
         <section>
           <title>The File Menu</title>
           <itemizedlist>
-            <listitem><para>Save Conduit saves all configured groups when you exit the application. If you have unchecked this option, then all data providers, groups, and the configruation of both, is saved when you select this item.</para></listitem>
-            <listitem><para>Synchronize All Synchronizes all groups at the same time. You can still run each sync group separately (see the <emphasis>Groups</emphasis> section), but this saves you the time of having to select and manually going through each group to start the sync process.</para></listitem>
-            <listitem><para>Quit Closes conduit. You will br prompted to stop any synchronization currently in progress.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Save</guimenuitem> </menuchoice> Conduit saves all configured groups when you exit the application. If you have unchecked this option, then all data providers, groups, and the configruation of both, is saved when you select this item.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Synchronize All</guimenuitem> </menuchoice> Synchronizes all groups at the same time. You can still run each sync group separately (see the <emphasis>Groups</emphasis> section), but this saves you the time of having to select and manually going through each group to start the sync process.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Quit</guimenuitem> </menuchoice> Closes conduit. You will be prompted to stop any synchronization currently in progress.</para></listitem>
           </itemizedlist>
         </section>
         <section>
           <title>The Edit Menu</title>
           <itemizedlist>
-            <listitem><para>Clear Canvas Removes all configurations, data providers, and groups from the canvas pane. This allows you start using the canvas as it was a clean slate. The best time to use this is when you are re-configuring a large portion of your sync groups. There is no quick way to revert back after selecting this setting.</para></listitem>
-            <listitem><para>Preferences Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see the <emphasis>Conduit Preferences</emphasis> section of the documentation.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>Edit</guimenu> <guimenuitem>Clear Canvas</guimenuitem> </menuchoice> Removes all configurations, data providers, and groups from the canvas pane. This allows you start using the canvas as it was a clean slate. The best time to use this is when you are re-configuring a large portion of your sync groups. There is no quick way to revert back after selecting this setting.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>Edit</guimenu> <guimenuitem>Preferences</guimenuitem> </menuchoice> Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see the <emphasis>Conduit Preferences</emphasis> section of the documentation.</para></listitem>
           </itemizedlist>
         </section>
         <section>
           <title>The Help Menu</title>
           <itemizedlist>
-            <listitem><para>Developers If you are developer, and interested in contributing to Conduit, then this option includes links to all the appropriate documentation.</para></listitem>
-            <listitem><para>Contents</para></listitem>
-            <listitem><para>About Shows the version number and a list of Conduit developers.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>Help</guimenu> <guimenuitem>Developers</guimenuitem> </menuchoice> If you are developer, and interested in contributing to Conduit, then this option includes links to all the appropriate documentation.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>Help</guimenu> <guimenuitem>Contents</guimenuitem> </menuchoice> Shows this help document.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>Help</guimenu> <guimenuitem>About</guimenuitem> </menuchoice> Shows the version number and a list of Conduit developers.</para></listitem>
           </itemizedlist>
         </section>
       </section>
       <section>
         <title>The Preferences Window</title>
-        <para>The Conduit preferences is accesed from the edit menu. Any setting or change that you make within the preferences menu effect all of your sync groups and basic Conduit operations.</para>
+        <para>The Conduit preferences is accessed from the Edit menu. Any setting or change that you make within the preferences menu affect all of your sync groups and basic Conduit operations.</para>
         <section>
           <title>Configuration Tab</title>
           <para>The configuration tab is where all of Conduit's global settings are configured.   There are six global settings: </para>
           <itemizedlist>
             <listitem>
-              <para>Save Settings on Exit</para>
-              <para>Instructs Conduit that all configured dataproviders and groups should be saved when the application exits </para>
+              <para><guilabel>Save Settings on Exit</guilabel></para>
+              <para>Instructs Conduit that all configured dataproviders and groups should be saved when the application exits. </para>
             </listitem>
             <listitem>
-              <para>Show Status Icon</para>
+              <para><guilabel>Show Status Icon</guilabel></para>
               <para>Shows a status icon in the notification area. This icon animates to indicate a sync is in progress.</para>
             </listitem>
             <listitem>
-              <para>Minimize to Notification Area</para>
-              <para>Instructs Conduit to minimize to the notification area instead of to the panel</para>
+              <para><guilabel>Minimize to Notification Area</guilabel></para>
+              <para>Instructs Conduit to minimize to the notification area instead of to the panel.</para>
             </listitem>
             <listitem>
-              <para>Use Built in Web Browser</para>
-              <para>When a data provider requires that you log onto a website, this option tells conduit to use its own web browser to do so.</para>
+              <para><guilabel>Use Built in Web Browser</guilabel></para>
+              <para>When a data provider requires that you log onto a website, this option tells Conduit to use its own web browser to do so.</para>
             </listitem>
-            <listitem><para>When an Item Has Been Deleted</para></listitem>
-            <listitem><para>Where There is a Two Way Conflict</para></listitem>
+            <listitem><para><guilabel>When an Item Has Been Deleted</guilabel></para></listitem>
+            <listitem><para><guilabel>Where There is a Two Way Conflict</guilabel></para></listitem>
           </itemizedlist>
         </section>
         <section>
@@ -204,7 +204,7 @@
       </section>
       <section>
         <title>The Web Login Window</title>
-        <para>Sometimes you will be required to log into a website associated with certain data providers. The frequency at which you may have to log in is not determined by Conduit, but by the security policy of the respective data provider. For example, Box.net requires you to log in every time Conduit is run, whereas Flickr only requires you to log in once, to give permission to Conduit to upload photos. If you are required to log into a website, and you have selected the 'use built in web browser' from the Conduit preferences, then a window will pop up like the one shown below. </para>
+        <para>Sometimes you will be required to log into a website associated with certain data providers. The frequency at which you may have to log in is not determined by Conduit, but by the security policy of the respective data provider. For example, Box.net requires you to log in every time Conduit is run, whereas Flickr only requires you to log in once, to give permission to Conduit to upload photos. If you are required to log into a website, and you have selected the <guilabel>Use Built in Web Browser</guilabel> from the Conduit preferences, then a window will pop up like the one shown below. </para>
         <para>
           <figure id="conduit-FIG-login">
             <title>Conduit Login Window</title>
@@ -221,9 +221,9 @@
           </figure>
         </para>
       </section>
-      <section>
+      <section id="conduit-providers-and-groups">
         <title>Data Providers and Groups</title>
-        <para>Conduit represents the things your want to synchronize graphically. When data providers get added to the canvas, the get arranged into so called groups. A group is a collection of data providers that share data. In the figure below you will see the following parts </para>
+        <para>Conduit represents the things your want to synchronize graphically. When data providers get added to the canvas, they get arranged into so called groups. A group is a collection of data providers that share data. In the figure below you will see the following parts </para>
         <para>
           <figure id="conduit-FIG-dp-parts">
             <title>Conduit Depicts Synchronizations Graphically</title>
@@ -240,9 +240,9 @@
           </figure>
         </para>
         <orderedlist numeration="arabic">
-          <listitem><para>A data provider for synchronizing two whose status indicates that it is ready to be synchronized.</para></listitem>
-          <listitem><para>A group containing two folder dataproviders. The arrow has two ends, indicating that the two dataproviders will undergo a two way syncronization, that is data will flow in both directions, and both folders will contain the same information once the sync finishes.</para></listitem>
-          <listitem><para>A second folder data provider. By convention, data providers that lie on the right had side of groups are called data sinks. This is because during a one way sync, data can only flow into them.</para></listitem>
+          <listitem><para>A data provider for synchronizing two way whose status indicates that it is ready to be synchronized.</para></listitem>
+          <listitem><para>A group containing two folder dataproviders. The arrow has two ends, indicating that the two dataproviders will undergo a two way synchronization, that is data will flow in both directions, and both folders will contain the same information once the sync finishes.</para></listitem>
+          <listitem><para>A second folder data provider. By convention, data providers that lie on the right side of groups are called data sinks. This is because during a one way sync, data can only flow into them.</para></listitem>
           <listitem><para>A Facebook and Picasa data provider for uploading images to those sites. Notice that that the group has three data providers, and the arrow has changed to indicate that data will flow in only one direction, that is images will be uploaded from F-Spot to Facebook and Picasa.</para></listitem>
         </orderedlist>
       </section>
@@ -293,21 +293,21 @@
           </listitem>
           <listitem>
             <para>Configure the synchronization parameters</para>
-            <para>Right click on the associated group, and under sync options, select a two way sync. Since this is just a basic run through on how to setup a sync we are not going to go through any advanced syncing options in this section of the documentation.   If you wish more information on the options available, please see the <emphasis>Groups</emphasis> section of the documentation.  </para>
+            <para>Right click on the associated group, and under sync options, select a two way sync. Since this is just a basic run through on how to setup a sync we are not going to go through any advanced syncing options in this section of the documentation.   If you wish more information on the options available, please see <xref linkend="conduit-providers-and-groups" />.  </para>
           </listitem>
-          <listitem><para>Synchronize the two folders by right clicking on them and selecting sync, or from the file menu. Once the sync is finished you should the file that you placed in folder1 on your desktop within folder2.</para></listitem>
+          <listitem><para>Synchronize the two folders by right clicking on them and selecting sync, or from the File menu. Once the sync is finished you should see the file that you placed in folder1 on your desktop within folder2.</para></listitem>
         </orderedlist>
       </section>
       <section>
         <title>Example 2: Exporting Images to Multiple Destinations</title>
-        <para>The second group shown in <xref linkend="conduit-FIG-dp-parts" /> shows a single F-Spot data source exporting its photos to two data sinks, a Fackbook one, and a Picasa one.</para>
+        <para>The second group shown in <xref linkend="conduit-FIG-dp-parts" /> shows a single F-Spot data source exporting its photos to two data sinks, a Facebook one, and a Picasa one.</para>
         <orderedlist numeration="arabic">
           <listitem><para>Start Conduit</para></listitem>
           <listitem><para>Start F-Spot</para></listitem>
           <listitem><para>Drag a F-Spot data provider from the data provider pane and drop it onto an empty spot on the canvas. A new group containing just the F-Spot data provider will be created.</para></listitem>
           <listitem><para>Drag Facebook and Picasa data providers into the Group that was just created.</para></listitem>
           <listitem><para>Configure the data providers by double clicking on them.</para></listitem>
-          <listitem><para>Now synchronize the group to upload photos. You will be prompted to log into facebook using the Conduit login window, shown in  <xref linkend="conduit-FIG-login" /></para></listitem>
+          <listitem><para>Now synchronize the group to upload photos. You will be prompted to log into Facebook using the Conduit login window, shown in  <xref linkend="conduit-FIG-login" />.</para></listitem>
         </orderedlist>
       </section>
       <section>
@@ -325,23 +325,18 @@
         <title>Network Synchronization</title>
         <para>If you have two computers at home, Conduit can be used to synchronize the data between them, directly, without first having to store the data somewhere else first. The steps below will illustrate how to synchronize Tomboy notes on two computers, called nzjrs-desktop and nzjrs-laptop. The following key will be used to help explain the setup procedure.</para>
         <para>
-          <figure id="conduit-FIG-network-sync-key">
-          <title></title>
-            <screenshot>
-              <mediaobject>
-                <imageobject>
-                  <imagedata fileref="figures/network-sync-key.png" format="PNG"/>
-                </imageobject>
-                </mediaobject>
-            </screenshot>
-          </figure>
+        <itemizedlist>
+          <listitem><para><inlinegraphic format="PNG" fileref="figures/network-pc1.png"/> Image taken on the first computer.</para></listitem>
+          <listitem><para><inlinegraphic format="PNG" fileref="figures/network-pc2.png"/> Image taken on the second computer.</para></listitem>
+        </itemizedlist>
         </para>
+        
         <tip>
           <title>Network Synchronization Tip</title>
-          <para>The process below, although describing Tomboy note synchronization, could be suitably modified to synchronize all sorts of data between two computers, including Contacts, Calendar information, and even Fspot photos.</para>
+          <para>The process below, although describing Tomboy note synchronization, could be suitably modified to synchronize all sorts of data between two computers, including Contacts, Calendar information, and even F-Spot photos.</para>
         </tip>
         <orderedlist numeration="arabic">
-          <listitem><para>On the first computer create a synchronization group connecting Tomboy to the Network dataprovider, which is listed in the Miscellaneous category in the dataprovider pane. This makes tomnoy available for synchronization on the second computer.
+          <listitem><para>On the first computer create a synchronization group connecting Tomboy to the Network dataprovider, which is listed in the Miscellaneous category in the dataprovider pane. This makes Tomboy available for synchronization on the second computer.
           <figure id="conduit-FIG-network-sync-pc1">
             <title>Configuration of the First Computer</title>
               <screenshot>
@@ -354,7 +349,7 @@
           </figure>
           </para></listitem>
           <listitem><para>After a short delay, this will result in a new category being created on the second computer. The category will take the name of the first computer, nzjrs-desktop in my case, and it shall contain any dataproviders currently available for synchronization.</para></listitem>
-          <listitem><para>Still on the second computer, drag the Tomboy dataprovider from the newly created category onto the canvas. Notice how its name is Remote Tomboy, indicating it refers to data on the remote, or first, computer
+          <listitem><para>Still on the second computer, drag the Tomboy dataprovider from the newly created category onto the canvas. Notice how its name is Remote Tomboy, indicating it refers to data on the remote, or first, computer.
           <figure id="conduit-FIG-network-sync-pc2">
             <title>Configuration of the Second Computer</title>
               <screenshot>
@@ -371,7 +366,7 @@
         </orderedlist>
         <warning>
           <title>File Synchronization</title>
-          <para>Due to performace and security reasons, we do not recommend using the network sync feature to synchronize large files between two computers. We hope to address this limitation in future.</para>
+          <para>Due to performance and security reasons, we do not recommend using the network sync feature to synchronize large files between two computers. We hope to address this limitation in the future.</para>
         </warning>
       </section>
 </article>
