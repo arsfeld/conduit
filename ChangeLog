@@ -1,5 +1,10 @@
 2008-03-26  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py: Joining unstarted threads either throws an AssertionError
+	or a RuntimeError, depending on the phase of the moon. Catch both.
+
+2008-03-26  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/*.py:
 	* test/python-tests/*.py: Move Utils.py to its own module, conduit.utils
 	Fixes #520748 (Claude Paroz)
@@ -16,7 +21,7 @@
 	* data/conduit.glade: Limit capitalization to titles and menu items. Fixed
 	typo. Fixes #517928
 
-2008-03-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
+2008-03-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 
 	* conduit/modules/FspotModule/config.glade:
 	* conduit/modules/FspotModule/FspotModule.py:  Add possibility to

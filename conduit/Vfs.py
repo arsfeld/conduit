@@ -304,7 +304,7 @@ class FolderScannerThreadManager(object):
                 try:
                     thread.join()
                     joinedThreads += 1
-                except RuntimeError: 
+                except (RuntimeError, AssertionError):
                     #deal with not started threads
                     time.sleep(0.1)
 
