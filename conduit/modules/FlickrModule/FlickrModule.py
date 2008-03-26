@@ -21,13 +21,16 @@ from gettext import gettext as _
 #http://sourceforge.net/tracker/index.php?func=detail&aid=1874067&group_id=203043&atid=984009
 Utils.dataprovider_add_dir_to_path(__file__)
 import flickrapi
-if not flickrapi.__version__.endswith("CONDUIT"):
-    raise Exceptions.NotSupportedError("Incorrect Flickrapi version")
 
-MODULES = {
-	"FlickrTwoWay" :          { "type": "dataprovider" }        
-}
-
+if flickrapi.__version__.endswith("CONDUIT"):
+    MODULES = {
+    	"FlickrTwoWay" :          { "type": "dataprovider" }        
+    }
+    log.info("Module Information: %s" % Utils.get_module_information(flickrapi, "__version__"))
+else:
+    MODULES = {}
+    log.info("Flickr support disabled")
+    
 class MyFlickrAPI(flickrapi.FlickrAPI):
     def __init__(self, apiKey, secret, username):
             flickrapi.FlickrAPI.__init__(self, 

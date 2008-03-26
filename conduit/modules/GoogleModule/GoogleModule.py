@@ -1,8 +1,10 @@
+import re
 import gobject
 import datetime
 import dateutil.parser
 import vobject
 from dateutil.tz import tzutc, tzlocal
+from gettext import gettext as _
 import logging
 log = logging.getLogger("modules.Google")
 
@@ -16,36 +18,37 @@ import conduit.datatypes.Event as Event
 import conduit.datatypes.Photo as Photo
 import conduit.datatypes.Video as Video
 
-from gettext import gettext as _
-
-import re
-
 #Distributors, if you ship python gdata >= 1.0.10 then remove this line
 #and the appropriate directories
 Utils.dataprovider_add_dir_to_path(__file__)
-import atom
-import gdata
-import gdata.service
-import gdata.photos
-import gdata.photos.service    
-import gdata.calendar
-import gdata.calendar.service
+try:
+    import atom
+    import gdata
+    import gdata.service
+    import gdata.photos
+    import gdata.photos.service    
+    import gdata.calendar
+    import gdata.calendar.service
+
+    MODULES = {
+        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
+        "PicasaTwoWay" :         { "type": "dataprovider" },
+        "YouTubeSource" :        { "type": "dataprovider" },       
+    }
+    log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
+except (ImportError, AttributeError):
+    MODULES = {}
+    log.info("Google support disabled")
 
 # time format
 FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
-
-MODULES = {
-    "GoogleCalendarTwoWay" : { "type": "dataprovider" },
-    "PicasaTwoWay" :         { "type": "dataprovider" },
-    "YouTubeSource" :        { "type": "dataprovider" },       
-}
 
 class GoogleBase(object):
     def __init__(self):
         self.username = ""
         self.password = ""
         self.loggedIn = False
-
+        
     def _do_login(self):
         raise NotImplementedError
 

@@ -95,7 +95,6 @@ class ModuleManager(gobject.GObject):
 
         while len(directories) > 0:
             d = directories.pop(0)
-            log.debug("Reading directory %s" % d)
             try:
                 if not os.path.exists(d):
                     continue

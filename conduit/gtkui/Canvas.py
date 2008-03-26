@@ -102,6 +102,8 @@ class Canvas(goocanvas.Canvas):
 
         #model is a SyncSet, not set till later because it is loaded from xml
         self.model = None
+        
+        log.info("Goocanvas version: %s" % str(goocanvas.pygoocanvas_version))
 
     def _show_welcome_message(self):
         """
@@ -320,7 +322,6 @@ class Canvas(goocanvas.Canvas):
                 for i in xrange(0, len(items)):
                     try:
                         overlap = items[i].get_bottom() - items[i+1].get_top()
-                        log.debug("Overlap: %s %s ----> %s" % (overlap,i,i+1))
                         if overlap != 0.0:
                             #translate all those below
                             for item in items[i+1:]:

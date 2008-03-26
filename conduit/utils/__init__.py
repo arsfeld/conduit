@@ -111,7 +111,6 @@ def dataprovider_add_dir_to_path(dataproviderfile, directory=""):
     """
     path = os.path.join(dataproviderfile, "..", directory)
     path = os.path.abspath(path)
-    log.debug("Adding %s to python path" % path)
     sys.path.insert(0,path)
 
 def dataprovider_glade_get_widget(dataproviderfile, gladefilename, widget):
@@ -281,5 +280,21 @@ def xml_extract_value_from_tag(tag, text):
         return ans[0]
     else:
         return None
-            
+        
+def get_module_information(module, versionAttributeName):
+    """
+    Prints the name, location and version of the supplied module
+    """
+    version = ""
+    if versionAttributeName:
+        try:
+            version = " v%s" % str(getattr(module, versionAttributeName))
+        except: pass
+        
+    path = ""
+    try:
+        path = " (%s)" % module.__file__
+    except: pass
+        
+    return "%s%s%s" % (module.__name__, version, path)
 

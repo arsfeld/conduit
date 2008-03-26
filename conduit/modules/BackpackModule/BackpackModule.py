@@ -19,6 +19,7 @@ import backpack
 MODULES = {
 	"BackpackNoteSink" : { "type": "dataprovider" }
 }
+log.info("Module Information: %s" % Utils.get_module_information(backpack, None))
 
 class BackpackBase(DataProvider.DataProviderBase):
     def __init__(self, *args):

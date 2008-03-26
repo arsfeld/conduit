@@ -275,7 +275,6 @@ class Conduit(gobject.GObject):
             return self.deletedPolicy
         
     def set_policy(self, policy, value):
-        log.debug("Setting %s policy: %s" % (policy,value))
         if policy not in CONFLICT_POLICY_NAMES:
             raise Exception("Unknown policy: %s" % policy)
         if value not in CONFLICT_POLICY_VALUES:

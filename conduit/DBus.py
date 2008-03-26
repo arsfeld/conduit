@@ -20,6 +20,8 @@ import conduit.SyncSet as SyncSet
 ERROR = -1
 SUCCESS = 0
 
+DEBUG_ALL_CALLS = False
+
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 SYNCSET_DBUS_IFACE="org.conduit.SyncSet"
 CONDUIT_DBUS_IFACE="org.conduit.Conduit"
@@ -129,7 +131,8 @@ class DBusItem(dbus.service.Object):
         return self.__dbus_object_path__
 
     def _print(self, message):
-        log.debug("DBus Message from %s: %s" % (self.get_path(), message))
+        if DEBUG_ALL_CALLS:
+            log.debug("DBus Message from %s: %s" % (self.get_path(), message))
 
 class ConduitDBusItem(DBusItem):
     def __init__(self, sync_manager, conduit, uuid):

@@ -6,6 +6,7 @@ import conduit.utils.CommandLineConverter as CommandLineConverter
 
 import datetime
 import os.path
+import sys
 
 #Test resizing an image 200wx100h
 w,h = Utils.get_proportional_resize(100,None,200,100)
@@ -60,5 +61,10 @@ ok("Simple xml tag extractor",
 ok("Simple xml tag extractor", 
         Utils.xml_extract_value_from_tag("tag", "<nottag>tag</nottag>") == None)
 
+info = Utils.get_module_information(os, None)
+ok("Library Information: %s" % info, len(info) > 0)
+
+info = Utils.get_module_information(sys, 'version_info')
+ok("System Information: %s" % info, len(info) > 0)
 
 finished()

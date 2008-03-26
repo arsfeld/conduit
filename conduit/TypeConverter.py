@@ -149,7 +149,6 @@ class TypeConverter:
         else:
             conversions.append( (fromType, toType, args) )
 
-        log.debug(conversions)
         return conversions
 
     def _conversion_exists(self, from_type, to_type):

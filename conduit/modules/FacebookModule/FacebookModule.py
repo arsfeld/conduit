@@ -18,17 +18,19 @@ import conduit.datatypes.File as File
 from gettext import gettext as _
 
 try:
-    from pyfacebook import Facebook, FacebookError, VERSION
+    import pyfacebook
 except ImportError:
     Utils.dataprovider_add_dir_to_path(__file__)
-    from pyfacebook import Facebook, FacebookError, VERSION
+    import pyfacebook
     
-if VERSION < '0.1':
-    raise Exceptions.NotSupportedError("Incorrect pyfacebook version")
-    
-MODULES = {
-    "FacebookSink" :          { "type": "dataprovider" }        
-}
+if pyfacebook.VERSION < '0.1':
+    log.info("Facebook support disabled")
+    MODULES = {}
+else:
+    log.info("Module Information: %s" % Utils.get_module_information(pyfacebook, 'VERSION'))
+    MODULES = {
+        "FacebookSink" :          { "type": "dataprovider" }        
+    }
 
 class FacebookSink(Image.ImageSink):
 
@@ -42,7 +44,7 @@ class FacebookSink(Image.ImageSink):
 
     def __init__(self, *args):
         Image.ImageSink.__init__(self)
-        self.fapi = Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
+        self.fapi = pyfacebook.Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
         self.browser = "gtkmozembed"
 
     def _upload_photo (self, uploadInfo):
@@ -52,7 +54,7 @@ class FacebookSink(Image.ImageSink):
         try:
             rsp = self.fapi.photos.upload(uploadInfo.url)
             return Rid(uid=rsp["pid"])
-        except FacebookError, f:
+        except pyfacebook.FacebookError, f:
             raise Exceptions.SyncronizeError("Facebook Upload Error %s" % f)
 
     def _login(self):

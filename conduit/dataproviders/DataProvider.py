@@ -211,7 +211,7 @@ class DataProviderBase(gobject.GObject):
         Show a configuration box for configuring the dataprovider instance.
         @param window: The parent gtk.Window (to show a modal dialog)
         """
-        log.debug("configure() not overridden by derived class %s" % self._name_)
+        pass
 
     def is_configured(self, isSource, isTwoWay):
         """
@@ -229,7 +229,6 @@ class DataProviderBase(gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
-        log.debug("get_configuration() not overridden by derived class %s" % self._name_)
         return {}
 
     def get_configuration_xml(self):
@@ -262,12 +261,10 @@ class DataProviderBase(gobject.GObject):
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        log.debug("set_configuration() not overridden by derived class %s" % self._name_)
         for c in config:
             #Perform these checks to stop malformed xml from stomping on
             #unintended variables or posing a security risk by overwriting methods
             if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
-                log.debug("Setting %s to %s" % (c, config[c]))
                 setattr(self,c,config[c])
             else:
                 log.warn("Not restoring %s setting: Exists=%s Callable=%s" % (
@@ -300,7 +297,6 @@ class DataProviderBase(gobject.GObject):
                             #fallback to string type
                             log.warn("Cannot convert string (%s) to native type %s\n" % (raw, vtype, traceback.format_exc()))
                             data = str(raw)
-                        log.debug("Read Setting: Name=%s Value=%s Type=%s" % (s.localName, data, type(data)))
                         settings[s.localName] = data
 
             try:

@@ -78,7 +78,7 @@ class Application(dbus.service.Object):
             sys.exit(1)
 
         log.info("Conduit v%s Installed: %s" % (conduit.VERSION, conduit.IS_INSTALLED))
-        log.info("Using UI: %s" % self.ui)
+        log.info("Python: %s" % sys.version)
         
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
@@ -106,6 +106,7 @@ class Application(dbus.service.Object):
         
         #Throw up a splash screen ASAP. Dont show anything if launched via --console.
         if buildGUI:
+            log.info("Using UI: %s" % self.ui)
             self.ImportGUI()
             if not iconify:
                 self.ShowSplash()

@@ -32,8 +32,10 @@ MODULES = {
 try:
     import gpod
     LIBGPOD_PHOTOS = gpod.version_info >= (0,6,0)
-except:
+    log.info("Module Information: %s" % Utils.get_module_information(gpod, 'version_info'))
+except ImportError:
     LIBGPOD_PHOTOS = False
+    log.info("iPod photo support disabled")
 
 def _string_to_unqiue_file(txt, base_uri, prefix, postfix=''):
     for i in range(1, 10000):

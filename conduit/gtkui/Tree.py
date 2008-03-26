@@ -127,11 +127,9 @@ class DataProviderTreeModel(gtk.GenericTreeModel):
         built (in the constructor)
         @type signal: C{bool}
         """
-        log.debug("Adding DataProvider %s to TreeModel" % dpw)
         #Do we need to create a category first?
         i = self._get_category_index_by_name(dpw.category)
         if i == None:
-            log.debug("Creating Category: %s" % dpw.category.name)
             new_cat = CategoryWrapper(dpw.category)
             self.cats.append(new_cat)
             i = self.cats.index(new_cat)

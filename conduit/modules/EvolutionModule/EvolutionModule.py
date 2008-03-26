@@ -1,4 +1,16 @@
+import datetime
+import gobject
 from gettext import gettext as _
+import logging
+log = logging.getLogger("modules.Evolution")
+
+import conduit
+import conduit.dataproviders.DataProvider as DataProvider
+import conduit.utils as Utils
+import conduit.Exceptions as Exceptions
+import conduit.datatypes.Contact as Contact
+import conduit.datatypes.Event as Event
+import conduit.datatypes.Note as Note
 
 MODULES = {}
 try:
@@ -10,22 +22,9 @@ try:
                 "EvoTasksTwoWay"    : { "type": "dataprovider" },
                 "EvoMemoTwoWay"     : { "type": "dataprovider" },
         }
-except:
-    pass
-    
-import datetime
-import gobject
-import logging
-log = logging.getLogger("modules.Evolution")
-
-import conduit
-import conduit.dataproviders.DataProvider as DataProvider
-import conduit.utils as Utils
-import conduit.Exceptions as Exceptions
-from conduit.datatypes import Rid
-import conduit.datatypes.Contact as Contact
-import conduit.datatypes.Event as Event
-import conduit.datatypes.Note as Note
+        log.info("Module Information: %s" % Utils.get_module_information(evolution, '__version__'))
+except ImportError:
+    log.info("Evolution support disabled")
 
 class EvoBase(DataProvider.TwoWay):
     def __init__(self, sourceURI, *args):
@@ -171,7 +170,7 @@ class EvoContactTwoWay(EvoBase):
         obj = evolution.ebook.EContact(vcard=contact.get_vcard_string())
         if self.book.add_contact(obj):
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
+            return conduit.datatypes.Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating contact")
 
@@ -227,7 +226,7 @@ class EvoCalendarTwoWay(EvoBase):
         obj = evolution.ecal.ECalComponent(evolution.ecal.CAL_COMPONENT_EVENT, event.get_ical_string())
         if self.calendar.add_object(obj):
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
+            return conduit.datatypes.Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating event")
 
@@ -285,7 +284,7 @@ class EvoTasksTwoWay(EvoBase):
                     )
         if self.tasks.add_object(obj):
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
+            return conduit.datatypes.Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating event")
 
@@ -353,7 +352,7 @@ class EvoMemoTwoWay(EvoBase):
         
         if uid != None:
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return Rid(uid=uid, mtime=mtime, hash=mtime)
+            return conduit.datatypes.Rid(uid=uid, mtime=mtime, hash=mtime)
         else:
             raise Exceptions.SyncronizeError("Error creating memo")
 

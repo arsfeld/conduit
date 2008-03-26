@@ -1,3 +1,26 @@
+2008-03-27  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Conduit.py:
+	* conduit/DBus.py:
+	* conduit/Main.py:
+	* conduit/Module.py:
+	* conduit/TypeConverter.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/Tree.py:
+	* conduit/gtkui/UI.py:
+	* conduit/modules/BackpackModule/BackpackModule.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* conduit/modules/FacebookModule/FacebookModule.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/iPodModule.py:
+	* conduit/utils/__init__.py:
+	* test/python-tests/TestCoreUtil.py: Remove some of the useless debug print
+	at application startup. Add utils.get_module_information which prints the
+	version and location of a loaded module. Use this new function to print
+	version information about gdata, pyfacebook, etc
+
 2008-03-26  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/TestModule.py: Disable annoying SimpleFactory test

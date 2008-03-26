@@ -62,7 +62,6 @@ class MainWindow:
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
-            log.debug("Adding %s to icon theme search path" % (i))
 
         self.gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
         self.widgets = gtk.glade.XML(self.gladeFile, "MainWindow")
