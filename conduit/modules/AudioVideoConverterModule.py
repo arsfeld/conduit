@@ -3,7 +3,8 @@ import logging
 log = logging.getLogger("modules.AVConverter")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
+import conduit.utils.CommandLineConverter as CommandLineConverter
 import conduit.TypeConverter as TypeConverter
 import conduit.datatypes.File as File
 import conduit.datatypes.Audio as Audio
@@ -16,9 +17,9 @@ if Utils.program_installed("ffmpeg"):
 else:
     MODULES = {}
 
-class FFmpegCommandLineConverter(Utils.CommandLineConverter):
+class FFmpegCommandLineConverter(CommandLineConverter.CommandLineConverter):
     def __init__(self, duration=None):
-        Utils.CommandLineConverter.__init__(self)
+        CommandLineConverter.CommandLineConverter.__init__(self)
         self.duration = duration
         self.percentage_match = re.compile('time=?(\d+\.\d+)')
 
@@ -51,9 +52,9 @@ class FFmpegCommandLineConverter(Utils.CommandLineConverter):
     def check_cancelled(self):
         return conduit.GLOBALS.cancelled
 
-class MencoderCommandLineConverter(Utils.CommandLineConverter):
+class MencoderCommandLineConverter(CommandLineConverter.CommandLineConverter):
     def __init__(self):
-        Utils.CommandLineConverter.__init__(self)
+        CommandLineConverter.CommandLineConverter.__init__(self)
         self.percentage_match = re.compile('(\d+)%')
 
     def build_command(self, **kwargs):
@@ -115,7 +116,7 @@ class AudioVideoConverter(TypeConverter.Converter):
         input_file = video.get_local_uri()
         
         #run ffmpeg over the video to work out its format, and duration
-        c = Utils.CommandLineConverter()
+        c = CommandLineConverter.CommandLineConverter()
         c.build_command(AudioVideoConverter.VIDEO_INSPECT_COMMAND)
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 
@@ -175,7 +176,7 @@ class AudioVideoConverter(TypeConverter.Converter):
         input_file = audio.get_local_uri()
 
         #run ffmpeg over the video to work out its format, and duration
-        c = Utils.CommandLineConverter()
+        c = CommandLineConverter.CommandLineConverter()
         c.build_command(AudioVideoConverter.AUDIO_INSPECT_COMMAND)
         ok,output = c.convert(input_file,"/dev/null",save_output=True)
 

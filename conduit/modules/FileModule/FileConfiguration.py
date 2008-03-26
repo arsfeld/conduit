@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger("modules.File")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Vfs as Vfs
 import conduit.gtkui.Database as Database
 import conduit.dataproviders.File as FileDataProvider

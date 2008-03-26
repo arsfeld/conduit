@@ -9,7 +9,7 @@ import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
 import conduit.dataproviders.VolumeFactory as VolumeFactory
 import conduit.dataproviders.AutoSync as AutoSync
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Vfs as Vfs
 
 MODULES = {

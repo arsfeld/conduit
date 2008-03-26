@@ -2,7 +2,7 @@ import gobject
 import dbus
 import dbus.glib
 
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.dataproviders.SimpleFactory as SimpleFactory
 
 class HalFactory(SimpleFactory.SimpleFactory):

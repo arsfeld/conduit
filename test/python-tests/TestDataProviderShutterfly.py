@@ -7,7 +7,7 @@ import gnomevfs
 from conduit.Module import ModuleManager
 from conduit.TypeConverter import TypeConverter
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 if not is_online():
     skip()

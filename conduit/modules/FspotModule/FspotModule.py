@@ -5,7 +5,7 @@ import logging
 log = logging.getLogger("modules.Fspot")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Photo as Photo

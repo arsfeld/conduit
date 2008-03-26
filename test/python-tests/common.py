@@ -17,7 +17,7 @@ sys.path.insert(0, base_path)
 # import main conduit module and datatypes
 import conduit
 import conduit.Logging as Logging
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Vfs as Vfs
 import conduit.Module as Module
 import conduit.TypeConverter as TypeConverter

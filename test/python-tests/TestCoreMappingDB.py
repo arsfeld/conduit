@@ -2,7 +2,7 @@
 from common import *
 
 import conduit.MappingDB as MappingDB
-import conduit.Utils as Utils
+import conduit.utils as Utils
 from conduit.datatypes import Rid
 
 import datetime

@@ -8,7 +8,7 @@ import logging
 log = logging.getLogger("modules.BoxDotNet")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Web as Web
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.Exceptions as Exceptions

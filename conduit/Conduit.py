@@ -9,7 +9,7 @@ import logging
 log = logging.getLogger("Conduit")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 CONFLICT_POLICY_NAMES = ("conflict", "deleted")
 CONFLICT_POLICY_VALUES = ("ask","skip","replace")

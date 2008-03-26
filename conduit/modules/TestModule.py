@@ -8,7 +8,8 @@ import logging
 log = logging.getLogger("modules.Test")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
+import conduit.utils.Memstats as Memstats
 import conduit.TypeConverter as TypeConverter
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
@@ -37,7 +38,7 @@ MODULES = {
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
 #    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
-#    "TestSimpleFactory" :       { "type": "dataprovider-factory" },
+    "TestSimpleFactory" :       { "type": "dataprovider-factory" },
     "TestConverter" :           { "type": "converter" }
 }
 
@@ -748,7 +749,7 @@ class TestFactoryRemoval(DataProvider.DataProviderFactory):
     def __init__(self, **kwargs):
         DataProvider.DataProviderFactory.__init__(self, **kwargs)
         self.count = 200
-        self.stats = Utils.Memstats()
+        self.stats = Memstats.Memstats()
         self.cat = DataProviderCategory.DataProviderCategory(
                     "TestHotplug",
                     "emblem-system",
@@ -785,7 +786,7 @@ class TestSimpleFactory(SimpleFactory.SimpleFactory):
         SimpleFactory.SimpleFactory.__init__(self, **kwargs)
         gobject.timeout_add(5000, self._added)
         self.count = 200
-        self.stats = Utils.Memstats()
+        self.stats = Memstats.Memstats()
 
     def get_category(self, key, **kwargs):
         return DataProviderCategory.DataProviderCategory(

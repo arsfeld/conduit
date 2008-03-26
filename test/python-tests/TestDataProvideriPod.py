@@ -6,7 +6,7 @@ import shutil
 import traceback
 
 import conduit.modules.iPodModule as iPodModule
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 
 #simulate an ipod

@@ -5,7 +5,7 @@ import logging
 log = logging.getLogger("modules.Shutterfly")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 from conduit.datatypes import Rid
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions

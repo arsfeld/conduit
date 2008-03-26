@@ -1,7 +1,7 @@
 #common sets up the conduit environment
 from common import *
 
-import conduit.Utils as Utils
+import conduit.utils as Utils
 from conduit.Module import ModuleManager
 from conduit.TypeConverter import TypeConverter
 

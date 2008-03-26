@@ -19,7 +19,7 @@ except:
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.Audio as Audio
 
 from gettext import gettext as _ 

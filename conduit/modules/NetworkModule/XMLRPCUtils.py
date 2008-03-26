@@ -20,7 +20,7 @@ slog = logging.getLogger("modules.Network.S")
 
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 XML_RPC_EASY_EXCEPTIONS = (
     "RefreshError",

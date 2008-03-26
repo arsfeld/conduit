@@ -1,6 +1,6 @@
 #common sets up the conduit environment
 from common import *
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.DataType as DataType
 import conduit.Exceptions as Exceptions
 

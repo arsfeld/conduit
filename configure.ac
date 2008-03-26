@@ -108,6 +108,7 @@ AC_OUTPUT(
 Makefile
 conduit/defs.py
 conduit/Makefile
+conduit/utils/Makefile
 conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
 conduit/gtkui/Makefile

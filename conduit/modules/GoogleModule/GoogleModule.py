@@ -9,7 +9,7 @@ log = logging.getLogger("modules.Google")
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.Image as Image
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
 import conduit.datatypes.Event as Event

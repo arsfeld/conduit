@@ -11,7 +11,7 @@ except ImportError:
     from sqlite3 import dbapi2 as sqlite
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Audio as Audio

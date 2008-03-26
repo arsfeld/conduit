@@ -10,7 +10,7 @@ import conduit.dataproviders.AutoSync as AutoSync
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.Note as Note
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 MODULES = {
 	"TomboyNoteTwoWay" :        { "type": "dataprovider"    },

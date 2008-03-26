@@ -3,7 +3,7 @@ from common import *
 
 import traceback
 
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.File as File
 
 if not is_online() or not is_interactive():

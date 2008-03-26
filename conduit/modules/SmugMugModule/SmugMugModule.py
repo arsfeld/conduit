@@ -8,7 +8,7 @@ import logging
 log = logging.getLogger("modules.SmugMug")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.dataproviders.Image as Image
 import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid

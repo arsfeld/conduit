@@ -9,7 +9,7 @@ import logging
 log = logging.getLogger("TypeConverter")
 
 import conduit.Exceptions as Exceptions
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 class Converter:
     _module_type_ = "converter"

@@ -13,7 +13,7 @@ log = logging.getLogger("dataproviders.DataProvider")
 
 import conduit
 import conduit.ModuleWrapper as ModuleWrapper
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Settings as Settings
 
 #Constants used in the sync state machine

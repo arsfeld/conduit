@@ -1,7 +1,7 @@
 #common sets up the conduit environment
 from common import *
 
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.File as File
 from conduit.datatypes import COMPARISON_EQUAL
 

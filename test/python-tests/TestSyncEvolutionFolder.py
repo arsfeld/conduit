@@ -1,6 +1,6 @@
 #common sets up the conduit environment
 from common import *
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 SAFE_TASK_URI="file:///home/john/.evolution/tasks/local/1204062882.7099.2@nzjrs-desktop"
 SAFE_MEMO_URI="file:///home/john/.evolution/memos/local/1204062871.7099.1@nzjrs-desktop"

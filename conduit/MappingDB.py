@@ -6,7 +6,7 @@ log = logging.getLogger("MappingDB")
 
 import conduit
 import conduit.datatypes
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Database as Database
 
 DB_FIELDS = ("sourceUID","sourceDataLUID","sourceDataMtime","sourceDataHash","sinkUID","sinkDataLUID","sinkDataMtime","sinkDataHash")

@@ -3,7 +3,7 @@ from common import *
 
 import conduit
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Vfs as Vfs
 
 import os

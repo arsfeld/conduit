@@ -1,7 +1,7 @@
 #common sets up the conduit environment
 from common import *
 import conduit.datatypes.Email as Email
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 e = Email.Email(
             to="me",

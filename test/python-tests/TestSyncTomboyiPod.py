@@ -2,7 +2,7 @@
 from common import *
 
 import conduit.Module as Module
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.File as File
 import conduit.Conduit as Conduit
 import conduit.TypeConverter as TypeConverter

@@ -2,7 +2,7 @@ import re
 import logging
 log = logging.getLogger("modules.Converter")
 
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.TypeConverter as TypeConverter
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event

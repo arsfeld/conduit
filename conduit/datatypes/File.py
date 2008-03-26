@@ -131,7 +131,7 @@ class File(DataType.DataType):
             return False
 
     def _set_file_mtime(self, mtime):
-        timestamp = conduit.Utils.datetime_get_timestamp(mtime)
+        timestamp = conduit.utils.datetime_get_timestamp(mtime)
         log.debug("Setting mtime of %s to %s (%s)" % (self.URI, timestamp, type(timestamp)))
         newInfo = gnomevfs.FileInfo()
         newInfo.mtime = timestamp

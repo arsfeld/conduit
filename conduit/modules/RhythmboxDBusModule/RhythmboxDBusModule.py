@@ -15,7 +15,7 @@ log = logging.getLogger("modules.RhythmboxDBus")
 import conduit
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.Audio as Audio
 import dbus
 try:

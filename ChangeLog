@@ -1,5 +1,11 @@
 2008-03-26  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/*.py:
+	* test/python-tests/*.py: Move Utils.py to its own module, conduit.utils
+	Fixes #520748 (Claude Paroz)
+
+2008-03-26  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/RhythmboxDBusModule/Makefile.am:
 	* conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py:
 	* conduit/modules/RhythmboxDBusModule/config.glade: Add experimental

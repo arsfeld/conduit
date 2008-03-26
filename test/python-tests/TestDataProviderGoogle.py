@@ -2,7 +2,7 @@
 from common import *
 
 import conduit.datatypes.Event as Event
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 import random
 

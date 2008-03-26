@@ -13,7 +13,7 @@ import logging
 log = logging.getLogger("DBus")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Conduit as Conduit
 import conduit.SyncSet as SyncSet
 

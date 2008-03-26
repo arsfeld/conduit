@@ -8,7 +8,7 @@ import logging
 log = logging.getLogger("Main")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 from conduit.Module import ModuleManager
 from conduit.MappingDB import MappingDB
 from conduit.TypeConverter import TypeConverter

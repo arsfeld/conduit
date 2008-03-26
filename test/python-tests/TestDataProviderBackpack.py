@@ -5,7 +5,7 @@ import traceback
 import datetime
 
 import conduit.datatypes.Note as Note
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 if not is_online():
     skip()

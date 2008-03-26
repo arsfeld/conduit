@@ -1,6 +1,8 @@
 #common sets up the conduit environment
 from common import *
-import conduit.Utils as Utils
+import conduit.utils as Utils
+import conduit.utils.Memstats as Memstats
+import conduit.utils.CommandLineConverter as CommandLineConverter
 
 import datetime
 import os.path
@@ -42,12 +44,12 @@ dt = datetime.datetime(1970, 1, 1, 12, 0)
 ok("Datetime to unix timestamp", Utils.datetime_get_timestamp(dt) == ts)
 ok("Unix timestamp to datetime", Utils.datetime_from_timestamp(ts) == dt)
 
-m = Utils.Memstats()
+m = Memstats.Memstats()
 VmSize,VmRSS,VmStack = m.calculate()
 ok("Memstats: size:%s rss:%s stack:%s" % (VmSize,VmRSS,VmStack), VmSize > 0 and VmRSS > 0 and VmStack > 0)
 
 # Test the shiny command line executer
-conv = Utils.CommandLineConverter()
+conv = CommandLineConverter.CommandLineConverter()
 conv.build_command("ls %s %s")
 cmdok,output = conv.convert("/tmp","/dev/null",callback=None,save_output=True)
 

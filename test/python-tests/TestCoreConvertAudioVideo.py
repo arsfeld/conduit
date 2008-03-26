@@ -5,7 +5,7 @@ import traceback
 import conduit.datatypes.File as File
 import conduit.datatypes.Video as Video
 import conduit.datatypes.Audio as Audio
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 
 test = SimpleTest()

@@ -4,7 +4,7 @@ from common import *
 import os
 import conduit
 import conduit.datatypes.File as File
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 #check construction arg type checking
 try:

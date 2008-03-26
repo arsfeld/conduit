@@ -19,7 +19,7 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.VolumeFactory as VolumeFactory
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event

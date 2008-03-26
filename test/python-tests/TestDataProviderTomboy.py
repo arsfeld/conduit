@@ -2,7 +2,7 @@
 from common import *
 
 import conduit.datatypes.Note as Note
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 import random
 

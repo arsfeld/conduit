@@ -4,7 +4,7 @@ log = logging.getLogger("dataproviders.SimpleFactory")
 
 import conduit
 import conduit.dataproviders.SimpleFactory as SimpleFactory
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.Vfs as Vfs
 
 import dbus

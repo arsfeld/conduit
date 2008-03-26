@@ -28,7 +28,7 @@ import logging
 log = logging.getLogger("gtkui.Database")
 
 import conduit.Database as DB
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 class GenericDBListStore(gtk.GenericTreeModel):
     """

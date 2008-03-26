@@ -1,7 +1,7 @@
 #common sets up the conduit environment
 from common import *
 import conduit.Vfs as Vfs
-import conduit.Utils as Utils
+import conduit.utils as Utils
 
 ok("URI make canonical", Vfs.uri_make_canonical("file:///foo/bar/baz/../../bar//") == "file:///foo/bar")
 

@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger("modules.PhotoConverter")
 
 import conduit
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.TypeConverter as TypeConverter
 import conduit.datatypes.File as File
 import conduit.datatypes.Photo as Photo
