@@ -1,3 +1,10 @@
+2008-03-26  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/RhythmboxDBusModule/Makefile.am:
+	* conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py:
+	* conduit/modules/RhythmboxDBusModule/config.glade: Add experimental
+	Rhythmbox (via DBus) music dataprovider. Fixes #510127 (Alexandre Rosenfeld)
+
 2008-03-26  Claude Paroz <claude@2xlibre.net>
 
 	* data/conduit.glade: Limit capitalization to titles and menu items. Fixed
