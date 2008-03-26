@@ -38,7 +38,7 @@ MODULES = {
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
 #    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
-    "TestSimpleFactory" :       { "type": "dataprovider-factory" },
+#    "TestSimpleFactory" :       { "type": "dataprovider-factory" },
     "TestConverter" :           { "type": "converter" }
 }
 

@@ -1,5 +1,12 @@
 2008-03-26  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/TestModule.py: Disable annoying SimpleFactory test
+	
+	* conduit/modules/TomboyModule.py: Replace slashes in note titles with
+	underscores. Fixes #524451
+
+2008-03-26  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py: Joining unstarted threads either throws an AssertionError
 	or a RuntimeError, depending on the phase of the moon. Catch both.
 

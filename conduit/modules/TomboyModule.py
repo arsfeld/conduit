@@ -1,6 +1,7 @@
 import dbus
 import dbus.glib
 import logging
+import string
 log = logging.getLogger("modules.Tomboy")
 
 import conduit
@@ -39,6 +40,7 @@ class TomboyNote(Note.Note):
 
 class TomboyNoteConverter(TypeConverter.Converter):
     NOTE_EXTENSION = ".xml"
+    ILLEGAL_TITLE_CHARS = " /"
     def __init__(self):
         self.conversions =  {
                 "note,note/tomboy"  : self.note_to_tomboy_note,
@@ -59,9 +61,18 @@ class TomboyNoteConverter(TypeConverter.Converter):
         #Old tomboy made this note, fallback to plain text
         if content == None:
             content = note.get_contents()
+
+        #replace the following characters in the note
+        #title with an underscore
+        filename = note.get_title().translate(
+                                        string.maketrans(
+                                                self.ILLEGAL_TITLE_CHARS,
+                                                "_"*len(self.ILLEGAL_TITLE_CHARS)
+                                                )
+                                            ) 
         f = File.TempFile(content)
-        f.force_new_filename(note.get_title().replace(" ","_"))
-        f.force_new_file_extension(TomboyNoteConverter.NOTE_EXTENSION)
+        f.force_new_filename(filename)
+        f.force_new_file_extension(self.NOTE_EXTENSION)
         return f
         
     def file_to_tomboy_note(self, f, **kwargs):        
