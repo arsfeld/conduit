@@ -1,3 +1,8 @@
+2008-03-26  Claude Paroz <claude@2xlibre.net>
+
+	* data/conduit.glade: Limit capitalization to titles and menu items. Fixed
+	typo. Fixes #517928
+
 2008-03-22  Thomas Van Machelen <thomas.vanmachelen@gmail.com>:
 
 	* conduit/modules/FspotModule/config.glade:

@@ -35,7 +35,7 @@
                     <child>
                       <widget class="GtkImageMenuItem" id="synchronize">
                         <property name="visible">True</property>
-                        <property name="tooltip" translatable="yes">Synchronizes All Groups</property>
+                        <property name="tooltip" translatable="yes">Synchronizes all groups</property>
                         <property name="label" translatable="yes">Synchronize All</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_synchronize_activate"/>
@@ -53,7 +53,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="tooltip" translatable="yes">Cancel Currently Synchronizing Groups</property>
+                        <property name="tooltip" translatable="yes">Cancel currently synchronizing groups</property>
                         <property name="label" translatable="yes">Cancel Synchronization</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_cancel_activate"/>
@@ -439,7 +439,7 @@
     <child>
       <widget class="GtkImageMenuItem" id="synchronize_group">
         <property name="visible">True</property>
-        <property name="tooltip" translatable="yes">Synchronize Group</property>
+        <property name="tooltip" translatable="yes">Synchronize group</property>
         <property name="label" translatable="yes">Synchronize Group</property>
         <property name="use_underline">True</property>
         <signal name="activate" handler="on_synchronize_conduit_clicked"/>
@@ -515,7 +515,7 @@
     <child>
       <widget class="GtkMenuItem" id="conflict">
         <property name="visible">True</property>
-        <property name="tooltip" translatable="yes">When There is a Conflict...</property>
+        <property name="tooltip" translatable="yes">When there is a conflict...</property>
         <property name="label" translatable="yes">Conflict Options</property>
         <property name="use_underline">True</property>
         <child>
@@ -523,7 +523,7 @@
             <child>
               <widget class="GtkRadioMenuItem" id="conflict_ask">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Ask Me What to do</property>
+                <property name="label" translatable="yes">Ask Me What to Do</property>
                 <property name="use_underline">True</property>
                 <property name="draw_as_radio">True</property>
               </widget>
@@ -555,7 +555,7 @@
       <widget class="GtkMenuItem" id="deleted">
         <property name="visible">True</property>
         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-        <property name="tooltip" translatable="yes">When an Item is Deleted...</property>
+        <property name="tooltip" translatable="yes">When an item is deleted...</property>
         <property name="label" translatable="yes">Delete Options</property>
         <property name="use_underline">True</property>
         <child>
@@ -615,7 +615,7 @@
     <child>
       <widget class="GtkImageMenuItem" id="configure">
         <property name="visible">True</property>
-        <property name="tooltip" translatable="yes">Configure the Synchronization Settings for this Item</property>
+        <property name="tooltip" translatable="yes">Configure the synchronization settings for this item</property>
         <property name="label" translatable="yes">Configure Item</property>
         <property name="use_underline">True</property>
         <signal name="activate" handler="on_configure_dataprovider_clicked"/>
@@ -746,7 +746,7 @@
                               <widget class="GtkCheckButton" id="save_settings_check">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Save Settings on Exit.</property>
+                                <property name="label" translatable="yes">Save settings on exit</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -760,7 +760,7 @@
                               <widget class="GtkCheckButton" id="status_icon_check">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Show Status Icon</property>
+                                <property name="label" translatable="yes">Show status icon</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -775,7 +775,7 @@
                               <widget class="GtkCheckButton" id="minimize_to_tray_check">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Minimize to Notification Area</property>
+                                <property name="label" translatable="yes">Minimize to notification area</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -790,7 +790,7 @@
                               <widget class="GtkCheckButton" id="web_check">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Use Built in Web Browser</property>
+                                <property name="label" translatable="yes">Use built in Web browser</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -834,7 +834,7 @@
                               <widget class="GtkLabel" id="label78">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">When an Item Has Been Deleted</property>
+                                <property name="label" translatable="yes">When an item has been deleted:</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -846,7 +846,7 @@
                               <widget class="GtkRadioButton" id="deleted_ask">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Ask Me What to Do</property>
+                                <property name="label" translatable="yes">Ask me what to do</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -861,7 +861,7 @@
                               <widget class="GtkRadioButton" id="deleted_replace">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Delete from the Corresponding Sink</property>
+                                <property name="label" translatable="yes">Delete from the corresponding sink</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -893,7 +893,7 @@
                               <widget class="GtkLabel" id="label77">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">When There is a Two Way Conflict</property>
+                                <property name="label" translatable="yes">When there is a two way conflict:</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -905,7 +905,7 @@
                               <widget class="GtkRadioButton" id="conflict_ask">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Ask Me What to Do</property>
+                                <property name="label" translatable="yes">Ask me what to do</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -920,7 +920,7 @@
                               <widget class="GtkRadioButton" id="conflict_replace">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Replace the Older Item</property>
+                                <property name="label" translatable="yes">Replace the older item</property>
                                 <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
@@ -955,7 +955,7 @@
                     <child>
                       <widget class="GtkLabel" id="label76">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Default Synchronisation Options&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Default Synchronization Options&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </widget>
                       <packing>
