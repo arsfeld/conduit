@@ -50,7 +50,6 @@ class DataType(object):
          - C{conduit.datatypes.COMPARISON_NEWER} This means the I am newer than B
          - C{conduit.datatypes.COMPARISON_EQUAL} This means the we are equal
          - L{conduit.datatypes.COMPARISON_OLDER} This means the I am older than B
-         - L{conduit.datatypes.COMPARISON_UNEQUAL} This means that I know I am different, but I don't know wny
          - L{conduit.datatypes.COMPARISON_UNKNOWN} This means we were unable to determine
            which was newer than the other so its up to the user to decide        
         """
@@ -63,7 +62,7 @@ class DataType(object):
         mtime2 = B.get_mtime()
 
         if mtime1 == None or mtime2 == None:
-            return conduit.datatypes.COMPARISON_UNEQUAL
+            return conduit.datatypes.COMPARISON_UNKNOWN
 
         if mtime1 > mtime2:
             return conduit.datatypes.COMPARISON_NEWER

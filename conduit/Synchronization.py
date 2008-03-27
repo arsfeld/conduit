@@ -370,43 +370,38 @@ class SyncWorker(_ThreadedWorker):
         Applies user policy when a put() has failed. This may mean emitting
         the conflict up to the GUI or skipping altogether
         """
-        if comparison == COMPARISON_EQUAL or comparison == COMPARISON_UNKNOWN or comparison == COMPARISON_OLDER:
-            if self.cond.get_policy("conflict") == "skip":
-                log.debug("Conflict Policy: Skipping")
-            elif self.cond.get_policy("conflict") == "ask":
-                log.debug("Conflict Policy: Ask")
-                self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+        if self.cond.get_policy("conflict") == "skip":
+            log.debug("Conflict Policy: Skipping")
+        elif self.cond.get_policy("conflict") == "ask":
+            log.debug("Conflict Policy: Ask")
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
-                if sourceWrapper.module_type in ["twoway", "sink"]:
-                    #in twoway case the user can copy back
-                    avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_COPY_SINK_TO_SOURCE)
-                else:
-                    avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK)
+            if sourceWrapper.module_type in ["twoway", "sink"]:
+                #in twoway case the user can copy back
+                avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK,CONFLICT_COPY_SINK_TO_SOURCE)
+            else:
+                avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK)
 
-                c = Conflict(
-                        sourceWrapper, 
-                        fromData,
-                        fromDataRid, 
-                        sinkWrapper, 
-                        toData,
-                        toDataRid,
-                        avail,
-                        False
-                        )
-                self.cond.emit("sync-conflict", c)
+            c = Conflict(
+                    sourceWrapper, 
+                    fromData,
+                    fromDataRid, 
+                    sinkWrapper, 
+                    toData,
+                    toDataRid,
+                    avail,
+                    False
+                    )
+            self.cond.emit("sync-conflict", c)
 
-            elif self.cond.get_policy("conflict") == "replace":
-                log.debug("Conflict Policy: Replace")
-                self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
+        elif self.cond.get_policy("conflict") == "replace":
+            log.debug("Conflict Policy: Replace")
+            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_CONFLICT
 
-                try:
-                    put_data(sourceWrapper, sinkWrapper, fromData, fromDataRid, True)
-                except:
-                    log.warn("Forced Put Failed\n%s" % traceback.format_exc())        
-        #This should not happen...
-        else:
-            log.warn("UNKNOWN COMPARISON\n%s" % traceback.format_exc())
-            self.sinkErrors[sinkWrapper] = DataProvider.STATUS_DONE_SYNC_ERROR
+            try:
+                put_data(sourceWrapper, sinkWrapper, fromData, fromDataRid, True)
+            except:
+                log.warn("Forced Put Failed\n%s" % traceback.format_exc())        
 
     def check_thread_not_cancelled(self, dataprovidersToCancel):
         """

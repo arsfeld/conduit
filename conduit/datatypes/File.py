@@ -425,16 +425,13 @@ class File(DataType.DataType):
         """
         return self._get_text_uri().replace(self.basePath,"")
 
-    def compare(self, B, sizeOnly=False, existOnly=False):
+    def compare(self, B, sizeOnly=False):
         """
         Compare me with B based upon their modification times, or optionally
         based on size only
         """
-        if not gnomevfs.exists(B.URI):
+        if gnomevfs.exists(B.URI) == False:
             return conduit.datatypes.COMPARISON_NEWER
-        else:
-            if existOnly:
-                return conduit.datatypes.COMPARISON_OLDER
 
         #Compare based on size only?
         if sizeOnly:

@@ -230,6 +230,12 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.fstype = None
         self.files = []
         
+    def _transfer_file(self, vfsFile, newURI, overwrite):
+        try:
+            vfsFile.transfer(newURI, overwrite)
+        except File.FileTransferError:
+            raise Exceptions.SyncronizeFatalError("Transfer Cancelled")
+        
     def initialize(self):
         return True
 
@@ -287,17 +293,27 @@ class FolderTwoWay(DataProvider.TwoWay):
         #escape illegal filesystem characters
         if self.fstype:
             newURI = Vfs.uri_sanitize_for_filesystem(newURI, self.fstype)
-
-        destFile = File.File(URI=newURI)
-        comp = vfsFile.compare(
-                        destFile, 
-                        sizeOnly=self.compareIgnoreMtime
-                        )
-        if overwrite or comp == DataType.COMPARISON_NEWER:
-            try:
-                vfsFile.transfer(newURI, True)
-            except File.FileTransferError:
-                raise Exceptions.SyncronizeFatalError("Transfer Cancelled")
+            
+        #overwrite is the easy case, as for it to be true, requires specific user
+        #interaction
+        if overwrite == True:
+            self._transfer_file(vfsFile, newURI, overwrite)
+        else:
+            #check for conflicts
+            destFile = File.File(URI=newURI)
+            if destFile.exists():
+                comp = vfsFile.compare(
+                            destFile, 
+                            sizeOnly=self.compareIgnoreMtime
+                            )
+                if LUID != None and comp == DataType.COMPARISON_NEWER:
+                    self._transfer_file(vfsFile, newURI, overwrite)
+                elif comp == DataType.COMPARISON_EQUAL:
+                    pass
+                else:
+                    raise Exceptions.SynchronizeConflictError(comp, vfsFile, destFile)
+            else:
+                self._transfer_file(vfsFile, newURI, overwrite)                    
 
         return self.get(newURI).get_rid()
 

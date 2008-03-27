@@ -1,3 +1,19 @@
+2008-03-28  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/DeltaProvider.py: Only convert LUIDs to unicode if they
+	are not allready.
+	
+	* conduit/Synchronization.py:
+	* conduit/datatypes/DataType.py:
+	* conduit/datatypes/File.py:
+	* conduit/datatypes/__init__.py:
+	* test/python-tests/TestCoreSyncLogic.py: Remove COMPARISON_UNEQUAL, it was
+	not used. Use COMPARISON_UNKNOWN instead
+	
+	* conduit/dataproviders/File.py: Refactor put() to raise a conflict any time
+	we try to modify a file that not both known, and older than the file being
+	put. Fixes #520785
+
 2008-03-27  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Conduit.py:

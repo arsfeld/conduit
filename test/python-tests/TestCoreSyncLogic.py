@@ -2,7 +2,7 @@
 from common import *
 
 import conduit
-from conduit.datatypes import DataType,COMPARISON_OLDER,COMPARISON_NEWER,COMPARISON_EQUAL,COMPARISON_UNEQUAL
+from conduit.datatypes import DataType,COMPARISON_OLDER,COMPARISON_NEWER,COMPARISON_EQUAL, COMPARISON_UNKNOWN
 from conduit.dataproviders.DataProvider import TwoWay
 
 import datetime
@@ -147,7 +147,7 @@ ok("Prep: Test c equal to a", a.compare(c) == COMPARISON_EQUAL)
 
 d = TestDataType('99')
 d.set_mtime(None)
-ok("Prep: Test d unequal to a", a.compare(d) == COMPARISON_UNEQUAL)
+ok("Prep: Test d unknown comparison with a", a.compare(d) == COMPARISON_UNKNOWN)
 
 ################################################################################
 # TWO WAY SYNC WITH ONE SOURCE AND ONE SINK

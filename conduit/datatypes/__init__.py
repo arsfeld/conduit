@@ -10,8 +10,7 @@ mail datatype. For this reason DataTypes, not DataProviders are exported
 COMPARISON_EQUAL = 0
 COMPARISON_NEWER = 1
 COMPARISON_OLDER = 2
-COMPARISON_UNEQUAL = 3
-COMPARISON_UNKNOWN = 4
+COMPARISON_UNKNOWN = 3
 
 import datetime
 import logging
