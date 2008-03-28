@@ -1,3 +1,14 @@
+2008-03-29  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/PhoneModule/Data.py:
+	* conduit/modules/PhoneModule/Gammu.py:
+	* conduit/modules/PhoneModule/PhoneModule.py:
+	* conduit/modules/PhoneModule/ScanThreads.py:
+	* conduit/modules/PhoneModule/__init__.py: Add initial mobile phone support
+	based on python-bluetooth/bluez and gammu. 
+	
+	* scripts/ListPhones.py: Utility script to list connected phones
+
 2008-03-28  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/NetworkModule/XMLRPCUtils.py: Use cPickle instead
