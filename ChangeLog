@@ -1,3 +1,11 @@
+2008-03-28  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/picasa-config.glade: Make picasa
+	configuration dialog better by allowing the user to login and pick and
+	album from a list, instead of just filling out the credentials.  Fixes
+	#523915
+
 2008-03-28  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/DeltaProvider.py: Only convert LUIDs to unicode if they
