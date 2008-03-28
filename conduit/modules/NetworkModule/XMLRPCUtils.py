@@ -8,7 +8,7 @@ import socket
 import select
 import traceback
 import threading
-import pickle
+import cPickle
 import xmlrpclib
 import SimpleXMLRPCServer
 import logging
@@ -52,6 +52,14 @@ def marshal_exception_to_fault(exception):
         raise xmlrpclib.Fault("SynchronizeConflictError", exception.comparison)    
     else:
         raise xmlrpclib.Fault("Exception",traceback.format_exc())
+
+def pickle_obj_to_binary(obj):
+    bin = xmlrpclib.Binary(cPickle.dumps(obj))
+    return bin
+
+def unpickle_obj_from_binary(bin):
+    obj = cPickle.loads(bin.data)
+    return obj
 
 class StoppableXMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
     """
@@ -129,17 +137,17 @@ class DataProviderClient(DataProvider.TwoWay):
         DataProvider.TwoWay.get(self, LUID)
         try:
             binaryData = self.server.get(LUID)
-            return pickle.loads(binaryData.data)
+            return unpickle_obj_from_binary(binaryData)
         except xmlrpclib.Fault, f:
             marshal_fault_to_exception(f)
 
     @Utils.log_function_call(clog)
     def put(self, data, overwrite=False, LUID=None):
         DataProvider.TwoWay.put(self, data, overwrite, LUID)
-        binaryData = xmlrpclib.Binary(pickle.dumps(data))
+        binaryData = pickle_obj_to_binary(data)
         try:
             binaryRid = self.server.put(binaryData, overwrite, LUID)
-            return pickle.loads(binaryRid.data)
+            return unpickle_obj_from_binary(binaryRid)
         except xmlrpclib.Fault, f:
             #Supply additional info because the conflict exception
             #includes details of the conflict
@@ -249,16 +257,16 @@ class DataproviderServer(StoppableXMLRPCServer):
     @Utils.log_function_call(slog)
     def get(self, LUID):
         try:
-            return xmlrpclib.Binary(pickle.dumps(self.dpw.module.get(LUID)))
+            return pickle_obj_to_binary(self.dpw.module.get(LUID))
         except Exception, e:
             return marshal_exception_to_fault(e)
 
     @Utils.log_function_call(slog)
     def put(self, binaryData, overwrite, LUID):
-        data = pickle.loads(binaryData.data)
+        data = unpickle_obj_from_binary(binaryData)
         try:
             rid = self.dpw.module.put(data, overwrite, LUID)
-            return xmlrpclib.Binary(pickle.dumps(rid))
+            return pickle_obj_to_binary(rid)
         except Exception, e:
             return marshal_exception_to_fault(e)
 
