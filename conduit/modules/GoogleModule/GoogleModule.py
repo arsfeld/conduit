@@ -791,6 +791,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
 
         # cleanup
         del self.album_count
+        del self.album_store
         dlg.destroy()    
         
     def get_configuration(self):
