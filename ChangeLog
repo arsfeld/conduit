@@ -1,4 +1,12 @@
-2008-03-28  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+2008-03-29  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
+
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/BoxDotNetModule/config.glade: Give the user the
+	option to load the list of folders on request; we do this
+	automatically if we're already logged in.  The user can still fill in
+	a text freely, that way we don't force him to login at configure time.
+
+2008-03-29  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 
 	* conduit/modules/FlickrModule/FlickrModule.py:
 	* conduit/modules/FlickrModule/config.glade:  Give user the option to

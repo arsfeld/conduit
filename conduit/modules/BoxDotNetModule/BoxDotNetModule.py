@@ -276,24 +276,53 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         """
         Configures the BoxDotNet sink
         """
+        import gtk
+        import gobject
+        def load_button_clicked(button):
+            if not self.token:
+                self._login()
+
+            build_folder_store()
+
+        def build_folder_store():
+            self.folder_store.clear()
+            for folder_name in self._get_folders().keys():
+                self.folder_store.append((folder_name,))
+
         tree = Utils.dataprovider_glade_get_widget(
                         __file__,
                         "config.glade",
                         "BoxDotNetConfigDialog")
 
         #get a whole bunch of widgets
-        foldername = tree.get_widget("foldername")
+        foldername_entry = tree.get_widget("foldername_entry")
+        load_button = tree.get_widget("load_button")
+
+        # setup combobox
+        self.folder_store = gtk.ListStore(gobject.TYPE_STRING)
+        foldername_entry.set_model(self.folder_store)
+        cell = gtk.CellRendererText()
+        foldername_entry.pack_start(cell, True)
+        foldername_entry.set_text_column(0)
+
+        # already load the folders if we're logged in
+        if self.token:
+            build_folder_store()
+
+        # load button
+        load_button.connect('clicked', load_button_clicked)
 
         #preload the widgets
-        foldername.set_text(self.foldername)
+        foldername_entry.child.set_text(self.foldername)
 
+        # run the dialog
         dlg = tree.get_widget("BoxDotNetConfigDialog")
-
         response = Utils.run_dialog (dlg, window)
         if response == True:
             # get the values from the widgets
-            self.foldername = foldername.get_text()
+            self.foldername = foldername_entry.child.get_text()
 
+        del self.folder_store
         dlg.destroy()
 
     def is_configured (self, isSource, isTwoWay):
