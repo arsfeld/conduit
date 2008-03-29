@@ -2,7 +2,7 @@
 
 	* conduit/modules/FlickrModule/FlickrModule.py:
 	* conduit/modules/FlickrModule/config.glade:  Give user the option to
-	load existing datasets from flickr
+	load existing photosets from flickr
 
 2008-03-29  John Stowers  <john.stowers@gmail.com>
 
