@@ -1,3 +1,14 @@
+2008-04-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/FlickrModule/FlickrModule.py: Refactor the photoset
+	code to be more readable and consistent with GoogleModule.
+	
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/picasa-config.glade: User gtk.ComboBoxEntry
+	for the album entry and refactor the album code to close match
+	FlickrModule (i.e. no explicit album creation, it happens automatically
+	when you put a photo into a non existant album).
+
 2008-03-29  Thomas Van Machelen <thomas.vanmachelen@gmail.com>
 
 	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:

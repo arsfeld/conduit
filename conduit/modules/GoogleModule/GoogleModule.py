@@ -533,11 +533,11 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
     def __init__(self, *args):
         GoogleBase.__init__(self)
         Image.ImageTwoWay.__init__(self)
-        self.album = ""
+        self.albumName = ""
         self.imageSize = "None"
         self.pws = gdata.photos.service.PhotosService()
         self.galbum = None
-        self.gphoto_dict = None
+        self.gphoto_dict = {}
 
     def _get_raw_photo_url(self, photoInfo):
         return photoInfo.GetMediaURL()
@@ -553,11 +553,13 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         
     def _upload_photo (self, uploadInfo):
         try:
-            gphoto = self.pws.InsertPhotoSimple (self.galbum, uploadInfo.name, '', uploadInfo.url)
-
+            gphoto = self.pws.InsertPhotoSimple(
+                                self.galbum,
+                                uploadInfo.name,
+                                '',
+                                uploadInfo.url)
             for tag in uploadInfo.tags:
                 self.pws.InsertTag(gphoto, str(tag))
-
             return Rid(uid=gphoto.gphoto_id.text)
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")
@@ -566,22 +568,23 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         self.pws.ClientLogin(self.username, self.password)
 
     def _get_album(self):
-        configured_album = None
+        for name,album in self._get_albums():
+            if name == self.albumName:
+                log.debug("Found album %s" % self.albumName)
+                self.galbum = album
+                return
 
-        albums = self.pws.GetUserFeed().entry
-        for album in albums:
-            if album.title.text != self.album:
-                continue
-            log.debug("Found album %s" % self.album)
-            configured_album = album
-            break
+        log.debug("Creating new album %s." % self.albumName)
+        self.galbum = self._create_album(self.albumName)
 
-        if not configured_album:
-            log.debug("Creating new album %s." % self.album)
-            configured_album = self._create_album(self.album)
-
-        self.galbum = configured_album
-
+    def _get_albums(self):
+        albums = []
+        for album in self.pws.GetUserFeed().entry:
+            albums.append(
+                    (album.title.text,  #album name
+                    album))             #album
+        return albums
+        
     def _get_photos(self):
         self.gphoto_dict = {}
         for photo in self.pws.GetFeed(self.galbum.GetPhotosUri()).entry:
@@ -603,9 +606,9 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         Image.ImageTwoWay.refresh(self)
         self._login()
         self._get_album()
-        self._get_photos()
 
     def get_all (self):
+        self._get_photos()
         return self.gphoto_dict.keys()
         
     def get (self, LUID):
@@ -634,163 +637,89 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         """
         Configures the PicasaTwoWay
         """
+        import gobject
         import gtk
-        self.album_count = 0
-        def __login (button, widget):
-            """
-            Logs in and tries to populate other controls and set their
-            sensitivity correctly
-            """
-            username, password = __get_username_password_widgets(widget)
-
-            self._set_username(username.get_text())
-            self._set_password(password.get_text())
+        def login_click(button, window, usernameEntry, passwordEntry, album_combo):
+            #set Window cursor to loading
+            #FIXME: Doest do anything because this call blocks the mainloop
+            #anyway
+            window.window.set_cursor(
+                            gtk.gdk.Cursor(gtk.gdk.WATCH))
+            self._set_username(usernameEntry.get_text())
+            self._set_password(passwordEntry.get_text())
             self._login()
-
-            album_combo, ok_button = __get_album_combo_ok_widgets(widget)
-
             if self.loggedIn:
-                __build_album_combo(album_combo)
+                build_album_model(album_combo)
+                #album_combo.set_sensitive(True)
+            window.window.set_cursor(None)
 
-            enabled = self.loggedIn and self.album_count > 0
-            ok_button.set_sensitive(enabled)
-            album_combo.set_sensitive(enabled)
+        def username_password_changed(sender, username, password, login_button):
+            login_button.set_sensitive(
+                            len(username.get_text()) > 0 and len(password.get_text()) > 0)
 
-        def __new_album(button, config_widget):
-            """
-            Pops up a dialog to create a new album.  
-            config_widget is the parent window
-            """
-            # get new album dialog
-            widget = Utils.dataprovider_glade_get_widget(
-                            __file__, 
-                            "picasa-config.glade", 
-                            "AlbumDialog")
-
-            dlg = widget.get_widget("AlbumDialog")
-            name_entry = widget.get_widget("name_entry")
-
-            # run the dialog
-            config_dialog = config_widget.get_widget("PicasaTwoWayConfigDialog")
-            response = Utils.run_dialog (dlg, config_dialog)
-            # get new name
-            new_album_name = name_entry.get_text().strip()
-
-            # create new one, if it doesn't exist yet
-            if response and new_album_name:
-                if not new_album_name in (album.title.text for album in self.pws.GetUserFeed().entry):
-                    # create the album
-                    self._create_album (new_album_name) 
-                    # set album to newly created one
-                    self.album = new_album_name
-                    # get some widgets
-                    album_combo, ok_button = __get_album_combo_ok_widgets(config_widget)
-                    # refresh the combo
-                    __build_album_combo(album_combo)
-                    # refresh buttons
-                    enabled = self.loggedIn and self.album_count > 0
-                    album_combo.set_sensitive(enabled)
-                    ok_button.set_sensitive(enabled)
-
-            dlg.destroy()
-
-        def __build_album_combo(album_combo):
-            """
-            Populates the given album combo with the list of albums
-            """
-            # clear the store
-            self.album_store.clear ()
-            self.album_count = 0
-            # keep configured one
+        def build_album_model(album_combo):
+            self.album_store.clear()
+            album_count = 0
             album_iter = None
-            # loop through user feed
-            for album in self.pws.GetUserFeed().entry:
-                title = album.title.text
-                # append to store
-                iter = self.album_store.append ((title,))
-                if title == self.album:
+            for name, album in self._get_albums():       
+                iter = self.album_store.append((name,))
+                if name == self.albumName:
                     album_iter = iter
-                self.album_count = self.album_count + 1
+                album_count += 1
 
-            # did we find an iter?
             if album_iter:
                 album_combo.set_active_iter(album_iter)
-            # activate first one
-            elif self.album_count > 0:
+            elif self.albumName:
+                album_combo.child.set_text(self.albumName)
+            elif album_count:
                 album_combo.set_active(0)
-
-        def __get_username_password_widgets(widget):
-            username = widget.get_widget('username')
-            password = widget.get_widget('password')
-            return username, password                
-
-        def __get_album_combo_ok_widgets(widget):
-            album_combo = widget.get_widget('album_combo')
-            ok_button = widget.get_widget('ok_button')
-            return album_combo, ok_button
-
-        # put cursor in waiting mode
-        watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
-        window.window.set_cursor(watch)
-
-        # try loggin in if not done yet
-        if not self.loggedIn:
-            self._login()
-           
-        # get widget and dialog 
-        widget = Utils.dataprovider_glade_get_widget(
+        
+        #get widget and dialog 
+        tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "picasa-config.glade", 
                         "PicasaTwoWayConfigDialog")
-        dlg = widget.get_widget("PicasaTwoWayConfigDialog")
 
         #get a whole bunch of widgets
-        username, password = __get_username_password_widgets(widget)
-        album_combo, ok_button = __get_album_combo_ok_widgets(widget)
-        login_button = widget.get_widget("login_button")
-        new_album_button = widget.get_widget("new_album")
-        resizecombobox = widget.get_widget("combobox1")
+        username = tree.get_widget('username')
+        password = tree.get_widget('password')
+        album_combo = tree.get_widget('album_combobox')
+        login_button = tree.get_widget("login_button")
 
-        # connect to signals
-        login_button.connect('clicked', __login, widget)
-        new_album_button.connect('clicked', __new_album, widget)
+        resizecombobox = tree.get_widget("resize_combobox")
+        self._resize_combobox_build(resizecombobox, self.imageSize)
 
-        # setup album combo
-        self.album_store = gtk.ListStore (gobject.TYPE_STRING)
-        album_combo.set_model (self.album_store)
-        cell = gtk.CellRendererText()
-        album_combo.pack_start(cell, True)
-        album_combo.add_attribute(cell, 'text', 0)
-
-        # disable if not logged in
-        enabled = self.loggedIn and self.album_count > 0
-        ok_button.set_sensitive(self.loggedIn)
-        album_combo.set_sensitive(self.loggedIn)
-        new_album_button.set_sensitive(self.loggedIn)
-
-        # build album list if we're logged in
-        if self.loggedIn:
-            __build_album_combo(album_combo)
-
-        # Stop watch cursor
-        window.window.set_cursor(None)            
+        #connect to signals
+        login_button.connect('clicked', login_click, window, username, password, album_combo)
+        username.connect('changed', username_password_changed, username, password, login_button)
+        password.connect('changed', username_password_changed, username, password, login_button)
         
         #preload the widgets        
         username.set_text(self.username)
         password.set_text(self.password)
 
-        self._resize_combobox_build(resizecombobox, self.imageSize)
-       
+        #setup album combo
+        self.album_store = gtk.ListStore(gobject.TYPE_STRING)
+        album_combo.set_model (self.album_store)
+        cell = gtk.CellRendererText()
+        album_combo.pack_start(cell, True)
+        album_combo.set_text_column(0)
+        
+        #disable album lookup if no username entered
+        enabled = len(self.username) > 0
+        login_button.set_sensitive(enabled)
+        #album_combo.set_sensitive(enabled)
+
         # Now run the dialog 
+        dlg = tree.get_widget("PicasaTwoWayConfigDialog")
         response = Utils.run_dialog (dlg, window)
         if response == True:
             self._set_username(username.get_text())
             self._set_password(password.get_text())
-            self.album = album_combo.get_active_text()
+            self.albumName = album_combo.get_active_text()
             self.imageSize = self._resize_combobox_get_active(resizecombobox)
 
         # cleanup
-        del self.album_count
         del self.album_store
         dlg.destroy()    
         
@@ -798,18 +727,18 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         conf = GoogleBase.get_configuration(self)
         conf.update({
             "imageSize" :   self.imageSize,
-            "album"     :   self.album})
+            "album"     :   self.albumName})
         return conf
         
     def set_configuration(self, config):
         GoogleBase.set_configuration(self, config)
         self.imageSize = config.get("imageSize","None")
-        self.album = config.get("album","")
+        self.albumName = config.get("album","")
 
     def is_configured (self, isSource, isTwoWay):
         if not GoogleBase.is_configured(self, isSource, isTwoWay):
             return False
-        if len(self.album) < 1:
+        if len(self.albumName) < 1:
             return False
         return True
 

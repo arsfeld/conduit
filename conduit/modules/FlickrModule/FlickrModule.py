@@ -125,30 +125,20 @@ class FlickrTwoWay(Image.ImageTwoWay):
         # get the id
         photoId = ret.photoid[0].elementText
 
-        # check if phtotoset exists, create it otherwise add photo to it
+        # check if phtotoset exists, if not create it
         if not self.photoSetId:
-            # create one with created photoID if not
-            ret = self.fapi.photosets_create(
-                                        title=self.photoSetName,
-                                        primary_photo_id=photoId)
-
-            if self.fapi.getRspErrorCode(ret) != 0:
-                raise Exceptions.SyncronizeError("Flickr failed to create photoset: %s" % self.fapi.getPrintableError(ret))
-
-            self.photoSetId = ret.photoset[0]['id']
-        else:
-            # add photo to photoset
+            self.photoSetId = self._create_photoset(photoId)
+        # add the photo to the photoset
+        if self.photoSetId:
             ret = self.fapi.photosets_addPhoto(
-                                            photoset_id = self.photoSetId,
-                                            photo_id = photoId)
-
+                                photoset_id = self.photoSetId,
+                                photo_id = photoId)
             if self.fapi.getRspErrorCode(ret) != 0:
-                raise Exceptions.SyncronizeError("Flickr failed to add photo to set: %s" % self.fapi.getPrintableError(ret))
+                log.warn("Flickr failed to add photo to set: %s" % self.fapi.getPrintableError(ret))
 
         #return the photoID
         return Rid(uid=photoId)
 
-    
     def _get_photo_size (self):
         return self.imageSize
 
@@ -163,53 +153,64 @@ class FlickrTwoWay(Image.ImageTwoWay):
             self.fapi = MyFlickrAPI(FlickrTwoWay.API_KEY, FlickrTwoWay.SHARED_SECRET, self.username)
             self.token = self.fapi.login()
             self.logged_in = True
+            
+    def _create_photoset(self, primaryPhotoId):
+        #create one with created photoID if not
+        ret = self.fapi.photosets_create(
+                                title=self.photoSetName,
+                                primary_photo_id=primaryPhotoId)
 
+        photoSetId = None
+        if self.fapi.getRspErrorCode(ret) != 0:
+            log.warn("Flickr failed to create photoset: %s" % self.fapi.getPrintableError(ret))
+        else:
+            photoSetId = ret.photoset[0]['id']
+        return photoSetId
+                
+    def _get_photoset(self):
+        for name, photoSetId in self._get_photosets():
+            if name == self.photoSetName:
+                log.debug("Found album %s" % self.photoSetName)
+                self.photoSetId = photoSetId
+                
     def _get_photosets(self):
         ret = self.fapi.photosets_getList()  
         if self.fapi.getRspErrorCode(ret) != 0:
-            raise Exceptions.RefreshError("Flickr Refresh Error: %s" % self.fapi.getPrintableError(ret))
+            log.warn("Flickr Refresh Error: %s" % self.fapi.getPrintableError(ret))
+            return []
 
-        if not hasattr(ret.photosets[0], 'photoset'):
-            return None
+        photosets = []
+        if hasattr(ret.photosets[0], 'photoset'):
+            for pset in ret.photosets[0].photoset:
+                photosets.append(
+                            (pset.title[0].elementText, #photoset name
+                            pset['id']))                #photoset id
 
-        return ret
+        return photosets
+        
+    def _get_photos(self):
+        if not self.photoSetId:
+            return []
+
+        photoList = []
+        ret = self.fapi.photosets_getPhotos(photoset_id=self.photoSetId)
+        if self.fapi.getRspErrorCode(ret) != 0:
+            log.warn("Flickr failed to get photos: %s" % self.fapi.getPrintableError(ret))
+        else:            
+            for photo in ret.photoset[0].photo:
+                photoList.append(photo['id'])
+        return photoList
         
     # DataProvider methods
     def refresh(self):
         Image.ImageTwoWay.refresh(self)
-        #login
         self._login()
-            
-        # try to get the photoSetId
-        ret = self._get_photosets()
-        if not ret:
-            return
-
-        # look up the photo set
-        for set in ret.photosets[0].photoset:
-            if set.title[0].elementText == self.photoSetName:
-                self.photoSetId = set['id']      
-
+        self._get_photoset()            
         used,tot,percent = self._get_user_quota()
         log.debug("Used %2.1f%% of monthly badwidth quota (%skb/%skb)" % (percent,used,tot))
 
     def get_all(self):
-        # return  photos list is filled, raise error if not
-        if not self.photoSetId:
-            return []
-
-        ret = self.fapi.photosets_getPhotos(photoset_id=self.photoSetId)
-
-        if self.fapi.getRspErrorCode (ret) != 0:
-            raise Exceptions.SyncronizeError("Flickr failed to get photos: %s" % self.fapi.getPrintableError(ret))
-
-        photoList = []
-
-        for photo in ret.photoset[0].photo:
-            photoList.append(photo['id'])
-
-        return photoList
-
+        return self._get_photos()
 
     def get (self, LUID):
         # get photo info
@@ -261,49 +262,44 @@ class FlickrTwoWay(Image.ImageTwoWay):
         """
         import gobject
         import gtk
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade", 
-                        "FlickrTwoWayConfigDialog")
-
-
-        def load_click(button, tree):
-            username_entry = tree.get_widget("username")
-
-            self._set_username(username_entry.get_text())
+        def load_click(button, window, usernameEntry, photosetCombo):
+            #set Window cursor to loading
+            #FIXME: Doest do anything because this call blocks the mainloop
+            #anyway
+            window.window.set_cursor(
+                            gtk.gdk.Cursor(gtk.gdk.WATCH))
+            self._set_username(usernameEntry.get_text())
             self._login()
-            build_photoset_model(photoset_combo)
+            if self.logged_in:
+                build_photoset_model(photosetCombo)
+            window.window.set_cursor(None)
 
         def username_changed(entry, load_button):
             load_button.set_sensitive (len(entry.get_text()) > 0)
 
-        def build_photoset_model(photoset_combo):
+        def build_photoset_model(photosetCombo):
             self.photoset_store.clear()
             photoset_count = 0
-
-            # get albums
-            ret = self._get_photosets()            
-            if not ret:
-                return
-
-            # populate combo
             photoset_iter = None
-            for set in ret.photosets[0].photoset:
-                title = set.title[0].elementText
-                iter = self.photoset_store.append((title,))
-                if title == self.photoSetName:
+            for name, photoSetId in self._get_photosets():       
+                iter = self.photoset_store.append((name,))
+                if name == self.photoSetName:
                     photoset_iter = iter
-                photoset_count = photoset_count + 1
+                photoset_count += 1
 
             if photoset_iter:
-                photoset_combo.set_active_iter(photoset_iter)
+                photosetCombo.set_active_iter(photoset_iter)
             elif self.photoSetName:
-                photoset_combo.child.set_text(self.photoSetName)
+                photosetCombo.child.set_text(self.photoSetName)
             elif photoset_count:
-                photoset_combo.set_active(0)
+                photosetCombo.set_active(0)
  
         #get a whole bunch of widgets
-        photoset_combo = tree.get_widget("photoset_combo")
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade", 
+                        "FlickrTwoWayConfigDialog")
+        photosetCombo = tree.get_widget("photoset_combo")
         publicCb = tree.get_widget("public_check")
         username = tree.get_widget("username")
         load_button = tree.get_widget('load_button')
@@ -312,44 +308,41 @@ class FlickrTwoWay(Image.ImageTwoWay):
         resizecombobox = tree.get_widget("resizecombobox")
         self._resize_combobox_build(resizecombobox, self.imageSize)
 
-        # signals
-        load_button.connect('clicked', load_click, tree)
+        #signals
+        load_button.connect('clicked', load_click, window, username, photosetCombo)
         username.connect('changed', username_changed, load_button)
         
         #preload the widgets
         publicCb.set_active(self.showPublic)
         username.set_text(self.username)
 
-        # setup photoset combo
+        #setup photoset combo
         self.photoset_store = gtk.ListStore (gobject.TYPE_STRING)
-        photoset_combo.set_model (self.photoset_store)
+        photosetCombo.set_model(self.photoset_store)
         cell = gtk.CellRendererText()
-        photoset_combo.pack_start(cell, True)
-        photoset_combo.set_text_column(0)
+        photosetCombo.pack_start(cell, True)
+        photosetCombo.set_text_column(0)
 
-        # if we're logged in, load the full list by default
-        if self.logged_in:
-            build_photoset_model(photoset_combo)
-        # simply set the text, user can load photosets on request            
-        else:
-            photoset_combo.child.set_text(self.photoSetName)            
-
+        #disable photoset lookup if no username entered
+        enabled = len(self.username) > 0
+        load_button.set_sensitive(enabled)
+        
         # run dialog 
         dlg = tree.get_widget("FlickrTwoWayConfigDialog")
         response = Utils.run_dialog(dlg, window)
 
         if response == True:
-            # get the values from the widgets
-            self.photoSetName = photoset_combo.child.get_text()
-            self.showPublic = publicCb.get_active()
+            #get the values from the widgets
             self._set_username(username.get_text())
+            self.photoSetName = photosetCombo.get_active_text()
+            self.showPublic = publicCb.get_active()
             self.imageSize = self._resize_combobox_get_active(resizecombobox)
         dlg.destroy()    
 
         del self.photoset_store
        
     def is_configured (self, isSource, isTwoWay):
-        return len (self.username) > 0
+        return len(self.username) > 0 and len(self.photoSetName) > 0
         
     def get_configuration(self):
         return {
