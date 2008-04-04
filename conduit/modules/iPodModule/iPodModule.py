@@ -66,9 +66,16 @@ class iPodFactory(VolumeFactory.VolumeFactory):
 
     def get_dataproviders(self, udi, **kwargs):
         if LIBGPOD_PHOTOS:
-            return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
-        else:
-            return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
+            #Read information about the ipod, like if it supports 
+            #photos or not
+            d = gpod.itdb_device_new()
+            gpod.itdb_device_set_mountpoint(d,kwargs['mount'])
+            supportsPhotos = gpod.itdb_device_supports_photo(d)
+            gpod.itdb_device_free(d)
+            if supportsPhotos:
+                return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
+
+        return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
 
 
 class IPodBase(DataProvider.TwoWay):
@@ -137,7 +144,7 @@ class IPodNoteTwoWay(IPodBase):
     LUID is the note title
     """
 
-    _name_ = "iPod Notes"
+    _name_ = "Notes"
     _description_ = "Sync your iPod notes"
     _module_type_ = "twoway"
     _in_type_ = "note"
@@ -243,7 +250,7 @@ class IPodNoteTwoWay(IPodBase):
 
 class IPodContactsTwoWay(IPodBase):
 
-    _name_ = "iPod Contacts"
+    _name_ = "Contacts"
     _description_ = "Sync your iPod contacts"
     _module_type_ = "twoway"
     _in_type_ = "contact"

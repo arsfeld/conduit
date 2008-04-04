@@ -1,5 +1,10 @@
 2008-04-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/iPodModule/iPodModule.py: Make iPod names consistant
+	and check that ipods support photos before adding the photo dataprovider
+
+2008-04-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/NetworkModule/NetworkModule.py: Dont enable network 
 	sync support on systems with < python2.5
 
