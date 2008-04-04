@@ -1,5 +1,13 @@
 NEW in 0.3.10:
 ==============
+* Improve error logging and debug messages at startup
+* Improve network sync performance
+* Improve dataprovider config dialogs
+  * You can now see the available photosets (Flickr)
+  * You can now see the available photo albums (Picasa)
+  * You can now see the available folders (Box.net)
+  * You can create f-spot tags from the fspot dialog
+  * You can see, and delete the available albums on your iPod
 
 NEW in 0.3.9:
 ==============

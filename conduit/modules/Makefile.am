@@ -8,6 +8,7 @@ SUBDIRS = \
 	FlickrModule \
 	FspotModule \
 	GmailModule \
+	iPodModule \
 	SmugMugModule \
 	EvolutionModule \
 	GoogleModule \
@@ -20,7 +21,6 @@ SUBDIRS = \
 conduit_handlersdir = $(libdir)/conduit/modules
 conduit_handlers_PYTHON = \
 	__init__.py \
-	iPodModule.py \
 	TomboyModule.py \
 	ConverterModule.py \
 	PhotoConverterModule.py \

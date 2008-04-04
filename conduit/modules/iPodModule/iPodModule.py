@@ -65,7 +65,10 @@ class iPodFactory(VolumeFactory.VolumeFactory):
                     kwargs['mount'])
 
     def get_dataproviders(self, udi, **kwargs):
-         return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
+        if LIBGPOD_PHOTOS:
+            return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
+        else:
+            return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
 
 
 class IPodBase(DataProvider.TwoWay):
@@ -319,6 +322,8 @@ class IPodPhotoSink(IPodBase):
     _out_type_ = "file/photo"
     _icon_ = "image-x-generic"
 
+    SAFE_PHOTO_ALBUM = "Photo Library"
+
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
         self.db = gpod.PhotoDatabase(self.mountPoint)
@@ -328,11 +333,22 @@ class IPodPhotoSink(IPodBase):
     def _set_sysinfo(self, modelnumstr, model):
         gpod.itdb_device_set_sysinfo(self.db._itdb.device, modelnumstr, model)
         
-    def _get_photo_album(self):
+    def _get_photo_album(self, albumName):
         for album in self.db.PhotoAlbums:
-            if album.name == self.albumName:
+            if album.name == albumName:
+                log.debug("Found album: %s" % albumName)
                 return album
-        return None
+
+        log.debug("Creating album: %s" % albumName)
+        return self._create_photo_album(albumName)
+
+    def _create_photo_album(self, albumName):
+        if albumName in [a.name for a in self.db.PhotoAlbums]:
+            log.warn("Album already exists: %s" % albumName)
+            album = self._get_photo_album(albumName)
+        else:
+            album = self.db.new_PhotoAlbum(title=albumName)
+        return album
         
     def _get_photo_by_id(self, id):
         for album in self.db.PhotoAlbums:
@@ -341,32 +357,38 @@ class IPodPhotoSink(IPodBase):
                     return photo
         return None
         
-    def _empty_album(self):
-        for photo in self.album[:]:
-            self.album.remove(photo)
+    def _delete_album(self, albumName):
+        if albumName == self.SAFE_PHOTO_ALBUM:
+            log.warn("Cannot delete album: %s" % self.SAFE_PHOTO_ALBUM)
+        else:
+            album = self._get_photo_album(albumName)
+            for photo in album[:]:
+                album.remove(photo)
+            self.db.remove(album)
             
     def _empty_all_photos(self):
         for photo in self.db.PhotoAlbums[0][:]:
             self.db.remove(photo)
 
+    def _get_photo_albums(self):
+        i = []
+        for album in self.db.PhotoAlbums:
+            i.append(album.name)
+        return i
+
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-        if self.albumName != "":
-            self.album = self._get_photo_album()
-            if self.album == None:
-                log.debug("Creating album %s" % self.albumName)
-                self.album = self.db.new_PhotoAlbum(title=self.albumName)
+        self.album = self._get_photo_album(self.albumName)
 
     def get_all(self):
         uids = []
-        for photo in self._get_photo_album():
+        for photo in self.album:
             uids.append(str(photo['id']))
         return uids
 
     def put(self, f, overwrite, LUID=None):
         photo = self.db.new_Photo(filename=f.get_local_uri())
-        if self.album != None:
-            self.album.add(photo)
+        self.album.add(photo)
         gpod.itdb_photodb_write(self.db._itdb, None)
         return conduit.datatypes.Rid(str(photo['id']), None, hash(None))
 
@@ -375,7 +397,66 @@ class IPodPhotoSink(IPodBase):
         if photo != None:
             self.db.remove(photo)
             gpod.itdb_photodb_write(self.db._itdb, None)
+
+    def configure(self, window):    
+        import gobject
+        import gtk
+        def build_album_model(albumCombo):
+            self.album_store.clear()
+            album_count = 0
+            album_iter = None
+            for name in self._get_photo_albums():
+                iter = self.album_store.append((name,))
+                if name == self.albumName:
+                    album_iter = iter
+                album_count += 1
+
+            if album_iter:
+                albumCombo.set_active_iter(album_iter)
+            elif self.albumName:
+                albumCombo.child.set_text(self.albumName)
+            elif album_count:
+                albumCombo.set_active(0)
+
+        def delete_click(sender, albumCombo):
+            albumName = albumCombo.get_active_text()
+            if albumName:
+                self._delete_album(albumName)
+                build_album_model(albumCombo)
+ 
+        #get a whole bunch of widgets
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "config.glade", 
+                        "PhotoConfigDialog")
+        albumCombo = tree.get_widget("album_combobox")
+        delete_button = tree.get_widget("delete_button")
+
+        #setup album store
+        self.album_store = gtk.ListStore(gobject.TYPE_STRING)
+        albumCombo.set_model(self.album_store)
+        cell = gtk.CellRendererText()
+        albumCombo.pack_start(cell, True)
+        albumCombo.set_text_column(0)
         
+        #setup widgets
+        build_album_model(albumCombo)
+        delete_button.connect('clicked', delete_click, albumCombo)
+
+        # run dialog 
+        dlg = tree.get_widget("PhotoConfigDialog")
+        response = Utils.run_dialog(dlg, window)
+
+        if response == True:
+            #get the values from the widgets
+            self.albumName = albumCombo.get_active_text()
+        dlg.destroy()    
+
+        del self.album_store
+
+    def is_configured (self, isSource, isTwoWay):
+        return len(self.albumName) > 0
+
     def uninitialize(self):
         self.db.close()
                 

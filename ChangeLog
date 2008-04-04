@@ -1,5 +1,14 @@
 2008-04-04  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/Makefile.am:
+	* conduit/modules/iPodModule.py:
+	* conduit/modules/iPodModule/config.glade:
+	* conduit/modules/iPodModule/iPodModule.py:
+	* configure.ac: Move iPodModule to its own folder, and add the ability to
+	list and delete photo albums from the device.
+
+2008-04-04  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FileModule/FileModule.py: Be more robust when reading
 	the group file.
 
