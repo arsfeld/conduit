@@ -1,5 +1,10 @@
 2008-04-04  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FileModule/FileModule.py: Be more robust when reading
+	the group file.
+
+2008-04-04  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FlickrModule/FlickrModule.py: Refactor the photoset
 	code to be more readable and consistent with GoogleModule.
 	

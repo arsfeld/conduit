@@ -177,7 +177,12 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
                 #which describe the folder sync groups, and their names,
                 mountUri = "file://%s" % mount
                 
-                groups = FileDataProvider.read_removable_volume_group_file(mountUri)
+                try:
+                    groups = FileDataProvider.read_removable_volume_group_file(mountUri)
+                except Exception, e:
+                    log.warn("Error reading volume group file: %s" % e)
+                    groups = ()
+                    
                 if len(groups) > 0:
                     self._volumes[udi] = []
                     for relativeUri,name in groups:
