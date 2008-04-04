@@ -1,5 +1,10 @@
 2008-04-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/iPodModule/iPodModule.py: Add an encoding
+	declaration to the note. Fixes #510101 (tumi.st@gmail.com)
+
+2008-04-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GmailModule/GmailModule.py:
 	* conduit/modules/GmailModule/Makefile.am:
 	* conduit/modules/GmailModule/config.glade:

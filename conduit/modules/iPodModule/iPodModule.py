@@ -150,6 +150,10 @@ class IPodNoteTwoWay(IPodBase):
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "tomboy"
+    
+    # datatypes.Note doesn't care about encoding,
+    # lets be naive and assume that all notes are utf-8
+    ENCODING_DECLARATION = '<?xml encoding="utf-8"?>'
 
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
@@ -184,7 +188,8 @@ class IPodNoteTwoWay(IPodBase):
         #the UID for notes from the ipod is the filename
         n = Note.Note(
                     title=uid,
-                    contents=noteFile.get_contents_as_text(),
+                    contents=noteFile.get_contents_as_text().replace(
+                        self.ENCODING_DECLARATION, '', 1),
                     )
         n.set_UID(uid)
         n.set_mtime(noteFile.get_mtime())
@@ -195,10 +200,15 @@ class IPodNoteTwoWay(IPodBase):
         """
         Save a simple iPod note in /Notes
         If the note has raw then also save that in shadowdir
-        uid is the note title
+        uid is the note title.
         """
-        #the normal note viewed by the ipod
-        ipodnote = Utils.new_tempfile(note.get_contents())
+        # the normal note viewed by the iPod
+        # inject an encoding declaration if it is missing.
+        contents = note.get_contents()
+        if not self.ENCODING_DECLARATION in contents:
+            contents = ''.join([self.ENCODING_DECLARATION, contents])
+        ipodnote = Utils.new_tempfile(contents)
+        
         ipodnote.transfer(os.path.join(self.dataDir,uid), overwrite=True)
         ipodnote.set_mtime(note.get_mtime())
         ipodnote.set_UID(uid)
