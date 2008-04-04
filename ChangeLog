@@ -1,3 +1,8 @@
+2008-04-05  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/NetworkModule/NetworkModule.py: Dont enable network 
+	sync support on systems with < python2.5
+
 2008-04-04  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/Makefile.am:
