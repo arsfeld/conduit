@@ -1,5 +1,23 @@
 2008-04-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GmailModule/GmailModule.py:
+	* conduit/modules/GmailModule/Makefile.am:
+	* conduit/modules/GmailModule/config.glade:
+	* conduit/modules/GmailModule/libgmail/CHANGELOG:
+	* conduit/modules/GmailModule/libgmail/COPYING:
+	* conduit/modules/GmailModule/libgmail/Makefile.am:
+	* conduit/modules/GmailModule/libgmail/README:
+	* conduit/modules/GmailModule/libgmail/gmail_transport.py:
+	* conduit/modules/GmailModule/libgmail/lgconstants.py:
+	* conduit/modules/GmailModule/libgmail/libgmail.py:
+	* conduit/modules/Makefile.am:
+	* configure.ac:
+	* test/python-tests/TestDataProviderGmail.py: Remove Gmail email support.
+	It no longer works, and will be obsoleted by an imap based email sync tool,
+	and the use of gdata for contacts.
+
+2008-04-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/iPodModule/iPodModule.py: Make iPod names consistant
 	and check that ipods support photos before adding the photo dataprovider
 

@@ -7,7 +7,6 @@ SUBDIRS = \
 	FeedModule \
 	FlickrModule \
 	FspotModule \
-	GmailModule \
 	iPodModule \
 	SmugMugModule \
 	EvolutionModule \

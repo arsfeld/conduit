@@ -29,8 +29,6 @@ conduit/modules/FlickrModule/config.glade
 conduit/modules/FspotModule/FspotModule.py
 conduit/modules/FspotModule/config.glade
 conduit/modules/GConfModule/GConfModule.py
-conduit/modules/GmailModule/GmailModule.py
-conduit/modules/GmailModule/config.glade
 conduit/modules/GoogleModule/GoogleModule.py
 conduit/modules/GoogleModule/calendar-config.glade
 conduit/modules/GoogleModule/picasa-config.glade

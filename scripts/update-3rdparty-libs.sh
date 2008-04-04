@@ -17,14 +17,4 @@ patch -p0 < conduit/modules/FacebookModule/pyfacebook/no-print-at-import.patch
 #update pybackpack
 wget -qO - http://hg.west.spy.net/hg/python/backpack/archive/tip.tar.gz | tar --wildcards -xzOf - */backpack.py > conduit/modules/BackpackModule/backpack/backpack.py
 
-#update gmail
-FILES="CHANGELOG \
-        COPYING \
-        README \
-        gmail_transport.py \
-        lgconstants.py \
-        libgmail.py"
-for f in $FILES; do
-        wget http://libgmail.cvs.sourceforge.net/*checkout*/libgmail/libgmail/$f -O \
-        conduit/modules/GmailModule/libgmail/$f
-done
+
