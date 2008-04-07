@@ -1,3 +1,11 @@
+2008-04-08  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Synchronization.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py: Remove get_status_text()
+	and just make the dataprovider status be a string.
+
 2008-04-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py: Less debug

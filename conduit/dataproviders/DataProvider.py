@@ -16,20 +16,18 @@ import conduit.ModuleWrapper as ModuleWrapper
 import conduit.utils as Utils
 import conduit.Settings as Settings
 
-#Constants used in the sync state machine
-STATUS_NONE = 0
-STATUS_CHANGE_DETECTED = 1
-STATUS_REFRESH = 2
-STATUS_DONE_REFRESH_OK = 3
-STATUS_DONE_REFRESH_ERROR = 4
-STATUS_SYNC = 5
-STATUS_DONE_SYNC_OK = 6
-STATUS_DONE_SYNC_ERROR = 7
-STATUS_DONE_SYNC_SKIPPED = 8
-STATUS_DONE_SYNC_CANCELLED = 9
-STATUS_DONE_SYNC_CONFLICT = 10
-STATUS_DONE_SYNC_NOT_CONFIGURED = 11
-
+STATUS_NONE = _("Ready")
+STATUS_CHANGE_DETECTED = _("New data to sync")
+STATUS_REFRESH = _("Refreshing...")
+STATUS_DONE_REFRESH_OK = _("Refreshed OK")
+STATUS_DONE_REFRESH_ERROR = _("Error Refreshing")
+STATUS_SYNC = _("Synchronizing...")
+STATUS_DONE_SYNC_OK = _("Synchronized OK")
+STATUS_DONE_SYNC_ERROR = _("Error Synchronizing")
+STATUS_DONE_SYNC_SKIPPED = _("Synchronization Skipped")
+STATUS_DONE_SYNC_CANCELLED = _("Synchronization Cancelled")
+STATUS_DONE_SYNC_CONFLICT = _("Synchronization Conflict")
+STATUS_DONE_SYNC_NOT_CONFIGURED = _("Not Configured Correctly")
 
 class DataProviderBase(gobject.GObject):
     """
@@ -142,9 +140,6 @@ class DataProviderBase(gobject.GObject):
         """
         Sets the dataprovider status. If the status has changed then emits
         a status-changed signal
-        
-        @param newStatus: The new status
-        @type newStatus: C{int}
         """
         if newStatus != self.get_status():
             self.status = newStatus
@@ -152,44 +147,10 @@ class DataProviderBase(gobject.GObject):
         
     def get_status(self):
         """
-        @returns: The current dataproviders status (code)
-        @rtype: C{int}
+        @returns: The current dataproviders status
         """
         return self.status
         
-    def get_status_text(self):
-        """
-        @returns: a textual representation of the current dataprover status
-        @rtype: C{str}
-        """
-        s = self.get_status()
-        if s == STATUS_NONE:
-            return _("Ready")
-        elif s == STATUS_CHANGE_DETECTED:
-            return _("New data to sync")
-        elif s == STATUS_REFRESH:
-            return _("Refreshing...")
-        elif s == STATUS_DONE_REFRESH_OK:
-            return _("Refreshed OK")
-        elif s == STATUS_DONE_REFRESH_ERROR:
-            return _("Error Refreshing")
-        elif s == STATUS_SYNC:
-            return _("Synchronizing...")
-        elif s == STATUS_DONE_SYNC_OK:
-            return _("Synchronized OK")
-        elif s == STATUS_DONE_SYNC_ERROR:
-            return _("Error Synchronizing")
-        elif s == STATUS_DONE_SYNC_SKIPPED:
-            return _("Synchronization Skipped")
-        elif s == STATUS_DONE_SYNC_CANCELLED:
-            return _("Synchronization Cancelled")
-        elif s == STATUS_DONE_SYNC_CONFLICT:
-            return _("Synchronization Conflict")
-        elif s == STATUS_DONE_SYNC_NOT_CONFIGURED:
-            return _("Not Configured Correctly")
-        else:
-            return "BAD PROGRAMMER"
-            
     def is_busy(self):
         """
         A DataProvider is busy if it is currently in the middle of the

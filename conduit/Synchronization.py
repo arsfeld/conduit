@@ -646,7 +646,7 @@ class SyncWorker(_ThreadedWorker):
 
                 #refresh state
                 elif self.state is self.REFRESH_STATE:
-                    log.debug("Source Status = %s" % self.source.module.get_status_text())
+                    log.debug("Source Status = %s" % self.source.module.get_status())
                     #Refresh the source
                     try:
                         self.source.module.refresh()

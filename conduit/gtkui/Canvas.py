@@ -662,7 +662,7 @@ class DataProviderCanvasItem(_CanvasItem):
         log.debug("CHANGE DETECTED")
 
     def _on_status_changed(self, dataprovider):
-        msg = dataprovider.get_status_text()
+        msg = dataprovider.get_status()
         self.statusText.set_property("text", msg)
         
     def update_appearance(self):
@@ -677,7 +677,7 @@ class DataProviderCanvasItem(_CanvasItem):
         if self.model.module == None:
             statusText = self.PENDING_MESSAGE
         else:
-            statusText = self.model.module.get_status_text()
+            statusText = self.model.module.get_status()
         self.statusText.set_property("text",statusText)
 
         self.box.set_property("fill_color_rgba",self._get_fill_color())
