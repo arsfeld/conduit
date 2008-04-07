@@ -100,7 +100,7 @@
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkComboBoxEntry" id="foldername_entry">
+	    <widget class="GtkComboBoxEntry" id="foldernamecombo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
 	      <property name="has_frame">True</property>

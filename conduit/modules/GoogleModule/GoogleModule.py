@@ -639,30 +639,35 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         """
         import gobject
         import gtk
-        def login_click(button, window, usernameEntry, passwordEntry, album_combo):
-            #set Window cursor to loading
-            #FIXME: Doest do anything because this call blocks the mainloop
-            #anyway
-            window.window.set_cursor(
-                            gtk.gdk.Cursor(gtk.gdk.WATCH))
+        def on_login_finish(*args):
+            if self.loggedIn:
+                build_album_model()
+                
+        def on_response(sender, responseID):
+            if responseID == gtk.RESPONSE_OK:
+                self._set_username(username.get_text())
+                self._set_password(password.get_text())
+                self.albumName = album_combo.get_active_text()
+                self.imageSize = self._resize_combobox_get_active(resizecombobox)
+
+        def login_click(button, window, usernameEntry, passwordEntry):
             self._set_username(usernameEntry.get_text())
             self._set_password(passwordEntry.get_text())
-            self._login()
-            if self.loggedIn:
-                build_album_model(album_combo)
-                #album_combo.set_sensitive(True)
-            window.window.set_cursor(None)
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            on_login_finish,
+                                            self._login)        
 
         def username_password_changed(sender, username, password, login_button):
             login_button.set_sensitive(
                             len(username.get_text()) > 0 and len(password.get_text()) > 0)
 
-        def build_album_model(album_combo):
-            self.album_store.clear()
+        def build_album_model():
+            album_store.clear()
             album_count = 0
             album_iter = None
             for name, album in self._get_albums():       
-                iter = self.album_store.append((name,))
+                iter = album_store.append((name,))
                 if name == self.albumName:
                     album_iter = iter
                 album_count += 1
@@ -685,12 +690,13 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         password = tree.get_widget('password')
         album_combo = tree.get_widget('album_combobox')
         login_button = tree.get_widget("login_button")
+        dlg = tree.get_widget("PicasaTwoWayConfigDialog")        
 
         resizecombobox = tree.get_widget("resize_combobox")
         self._resize_combobox_build(resizecombobox, self.imageSize)
 
         #connect to signals
-        login_button.connect('clicked', login_click, window, username, password, album_combo)
+        login_button.connect('clicked', login_click, window, username, password)
         username.connect('changed', username_password_changed, username, password, login_button)
         password.connect('changed', username_password_changed, username, password, login_button)
         
@@ -699,8 +705,8 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         password.set_text(self.password)
 
         #setup album combo
-        self.album_store = gtk.ListStore(gobject.TYPE_STRING)
-        album_combo.set_model (self.album_store)
+        album_store = gtk.ListStore(gobject.TYPE_STRING)
+        album_combo.set_model (album_store)
         cell = gtk.CellRendererText()
         album_combo.pack_start(cell, True)
         album_combo.set_text_column(0)
@@ -711,17 +717,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         #album_combo.set_sensitive(enabled)
 
         # Now run the dialog 
-        dlg = tree.get_widget("PicasaTwoWayConfigDialog")
-        response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self._set_username(username.get_text())
-            self._set_password(password.get_text())
-            self.albumName = album_combo.get_active_text()
-            self.imageSize = self._resize_combobox_get_active(resizecombobox)
-
-        # cleanup
-        del self.album_store
-        dlg.destroy()    
+        Utils.run_dialog_non_blocking(dlg, on_response, window)
         
     def get_configuration(self):
         conf = GoogleBase.get_configuration(self)

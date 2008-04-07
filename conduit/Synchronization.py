@@ -131,12 +131,32 @@ class SyncManager:
         for c in self.syncWorkers:
             self.syncWorkers[c].join(timeout)
 
-    def refresh_dataprovider(self, cond, dataprovider):
+    def run_blocking_dataprovider_function_calls(self, dataprovider, callback, *functions):
+        #need to get the conduit assocated with this dataprovider because the sync-completed
+        #signal is emmited from the conduit object
+        conds = []
+        conds.extend(conduit.GLOBALS.app.guiSyncSet.get_all_conduits())
+        conds.extend(conduit.GLOBALS.app.dbusSyncSet.get_all_conduits())
+        for c in conds:
+            for dpw in c.get_all_dataproviders():
+                if dataprovider == dpw.module:
+                    #found it!
+                    if c not in self.syncWorkers:
+                        #connect the supplied callback
+                        c.connect("sync-completed",callback)
+                        #start the thread
+                        bfcw = BlockingFunctionCallWorker(c, *functions)
+                        self._start_worker_thread(c, bfcw)
+                    return
+
+        log.info("Could not create BlockingFunctionCallWorker")            
+
+    def refresh_dataprovider(self, cond, dataproviderWrapper):
         if cond in self.syncWorkers:
-            log.info("Refresh dataprovider already in progress")
+            log.info("Refresh dataproviderWrapper already in progress")
             self.join_one(cond)            
 
-        threadedWorker = RefreshDataProviderWorker(cond, dataprovider)
+        threadedWorker = RefreshDataProviderWorker(cond, dataproviderWrapper)
         self._start_worker_thread(cond, threadedWorker)
 
     def refresh_conduit(self, cond):
@@ -796,7 +816,30 @@ class RefreshDataProviderWorker(_ThreadedWorker):
         conduit.GLOBALS.mappingDB.save()
         self.cond.emit("sync-completed", self.aborted, self.did_sync_error(), self.did_sync_conflict())
 
-                
+class BlockingFunctionCallWorker(_ThreadedWorker):
+    """
+    Calls the provided (blocking) function in a new thread. When
+    the function returns a sync-completed signal is sent
+    """
+    def __init__(self, cond, *functions):
+        _ThreadedWorker.__init__(self)
+        self.cond = cond
+        self.functions = functions
+        self.setName("%s functions" % len(self.functions))
+
+    def run(self):
+        try:
+            #FIXME: Set the status text on the dataprovider
+            for f in self.functions:
+                log.debug("FunctionCall %s beginning" % f.__name__)
+                f()
+            self.aborted = False
+        except Exception, e:
+            log.warn("FunctionCall error: %s" % e)
+            self.aborted = True
+
+        self.cond.emit("sync-completed", self.aborted, False, False)
+
 class DeletedData(DataType.DataType):
     """
     Simple wrapper around a deleted item. If an item has been deleted then

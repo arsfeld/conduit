@@ -1,3 +1,19 @@
+2008-04-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Synchronization.py: Add run_blocking_dataprovider_function_calls()
+	which allows an arbitary function to be executed by the sync manager, and
+	get a (callback via sync-completed) when the function returns
+
+	* conduit/utils/__init__.py: Add run_dialog_non_blocking() which does
+	as the name suggests.
+
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:	
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/BoxDotNetModule/config.glade: Use the above two functions
+	to prevent lockups when forced to login from the configure dialog.
+	Fixes #526292
+
 2008-04-05  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/iPodModule/iPodModule.py: Add an encoding

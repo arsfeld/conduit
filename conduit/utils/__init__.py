@@ -137,6 +137,34 @@ def run_dialog(dialog, window=None):
 
     return dialog.run() == gtk.RESPONSE_OK
 
+def run_dialog_non_blocking(dialog, resp_cb, window=None):
+    """
+    Runs a given dialog, and makes it transient for
+    the given window if any
+    @param dialog: dialog 
+    @param window: gtk window
+    @returns: True if the user clicked OK to exit the dialog
+    """
+    import gtk.gdk
+
+    dialog.connect("response", resp_cb)
+    dialog.connect("response", lambda dlg, resp: dlg.destroy())
+
+    if window:
+        dialog.set_transient_for(window)
+        #FIXME: Doesnt work
+        #fake modality by making window ignore key events
+        #events = window.window.get_events()
+        #window.window.set_events(
+        #        events & ~(gtk.gdk.KEY_PRESS_MASK | gtk.gdk.KEY_RELEASE_MASK))
+        #connect to response signal to restore original events
+        #dialog.connect(
+        #        "response",
+        #        lambda dlg, resp, win, originalEvents: window.window.set_events(originalEvents),
+        #        window,events)
+
+    dialog.show()
+
 def md5_string(string):
     """
     Returns the md5 of the supplied string in readable hexdigest string format

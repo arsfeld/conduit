@@ -262,27 +262,33 @@ class FlickrTwoWay(Image.ImageTwoWay):
         """
         import gobject
         import gtk
-        def load_click(button, window, usernameEntry, photosetCombo):
-            #set Window cursor to loading
-            #FIXME: Doest do anything because this call blocks the mainloop
-            #anyway
-            window.window.set_cursor(
-                            gtk.gdk.Cursor(gtk.gdk.WATCH))
-            self._set_username(usernameEntry.get_text())
-            self._login()
+        def on_login_finish(*args):
             if self.logged_in:
-                build_photoset_model(photosetCombo)
-            window.window.set_cursor(None)
+                build_photoset_model()
+                
+        def on_response(sender, responseID):
+            if responseID == gtk.RESPONSE_OK:
+                self._set_username(username.get_text())
+                self.photoSetName = photosetCombo.get_active_text()
+                self.showPublic = publicCb.get_active()
+                self.imageSize = self._resize_combobox_get_active(resizecombobox)
+        
+        def load_click(button, window, usernameEntry):
+            self._set_username(usernameEntry.get_text())
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            on_login_finish,
+                                            self._login)            
 
         def username_changed(entry, load_button):
             load_button.set_sensitive (len(entry.get_text()) > 0)
 
-        def build_photoset_model(photosetCombo):
-            self.photoset_store.clear()
+        def build_photoset_model():
+            photoset_store.clear()
             photoset_count = 0
             photoset_iter = None
             for name, photoSetId in self._get_photosets():       
-                iter = self.photoset_store.append((name,))
+                iter = photoset_store.append((name,))
                 if name == self.photoSetName:
                     photoset_iter = iter
                 photoset_count += 1
@@ -304,12 +310,13 @@ class FlickrTwoWay(Image.ImageTwoWay):
         username = tree.get_widget("username")
         load_button = tree.get_widget('load_button')
         ok_button = tree.get_widget('ok_button')
+        dlg = tree.get_widget("FlickrTwoWayConfigDialog")
 
         resizecombobox = tree.get_widget("resizecombobox")
         self._resize_combobox_build(resizecombobox, self.imageSize)
 
         #signals
-        load_button.connect('clicked', load_click, window, username, photosetCombo)
+        load_button.connect('clicked', load_click, window, username)
         username.connect('changed', username_changed, load_button)
         
         #preload the widgets
@@ -317,8 +324,8 @@ class FlickrTwoWay(Image.ImageTwoWay):
         username.set_text(self.username)
 
         #setup photoset combo
-        self.photoset_store = gtk.ListStore (gobject.TYPE_STRING)
-        photosetCombo.set_model(self.photoset_store)
+        photoset_store = gtk.ListStore (gobject.TYPE_STRING)
+        photosetCombo.set_model(photoset_store)
         cell = gtk.CellRendererText()
         photosetCombo.pack_start(cell, True)
         photosetCombo.set_text_column(0)
@@ -328,18 +335,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         load_button.set_sensitive(enabled)
         
         # run dialog 
-        dlg = tree.get_widget("FlickrTwoWayConfigDialog")
-        response = Utils.run_dialog(dlg, window)
-
-        if response == True:
-            #get the values from the widgets
-            self._set_username(username.get_text())
-            self.photoSetName = photosetCombo.get_active_text()
-            self.showPublic = publicCb.get_active()
-            self.imageSize = self._resize_combobox_get_active(resizecombobox)
-        dlg.destroy()    
-
-        del self.photoset_store
+        Utils.run_dialog_non_blocking(dlg, on_response, window)
        
     def is_configured (self, isSource, isTwoWay):
         return len(self.username) > 0 and len(self.photoSetName) > 0

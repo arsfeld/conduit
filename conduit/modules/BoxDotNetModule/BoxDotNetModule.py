@@ -278,16 +278,41 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         """
         import gtk
         import gobject
+        def on_login_finish(*args):
+            if self.token:
+                build_folder_store()
+                foldernamecombo.set_sensitive(True)
+            else:
+                foldernamecombo.set_sensitive(False)
+            #dlg.window.set_cursor(None)
+            
+        def on_response(sender, responseID):
+            if responseID == gtk.RESPONSE_OK:
+                self.foldername = foldernamecombo.child.get_text()
+                
         def load_button_clicked(button):
-            if not self.token:
-                self._login()
-
-            build_folder_store()
+            #dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            on_login_finish,
+                                            self._login)
 
         def build_folder_store():
-            self.folder_store.clear()
+            folder_store.clear()
+            folder_count = 0
+            folder_iter = None
             for folder_name in self._get_folders().keys():
-                self.folder_store.append((folder_name,))
+                iter = folder_store.append((folder_name,))
+                if folder_name != "" and folder_name == self.foldername:
+                    folder_iter = iter
+                folder_count += 1
+
+            if folder_iter:
+                foldernamecombo.set_active_iter(folder_iter)
+            elif self.foldername:
+                foldernamecombo.child.set_text(self.foldername)
+            elif folder_count:
+                foldernamecombo.set_active(0)
 
         tree = Utils.dataprovider_glade_get_widget(
                         __file__,
@@ -295,38 +320,33 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                         "BoxDotNetConfigDialog")
 
         #get a whole bunch of widgets
-        foldername_entry = tree.get_widget("foldername_entry")
+        foldernamecombo = tree.get_widget("foldernamecombo")
         load_button = tree.get_widget("load_button")
+        dlg = tree.get_widget("BoxDotNetConfigDialog")
 
         # setup combobox
-        self.folder_store = gtk.ListStore(gobject.TYPE_STRING)
-        foldername_entry.set_model(self.folder_store)
+        folder_store = gtk.ListStore(gobject.TYPE_STRING)
+        foldernamecombo.set_model(folder_store)
         cell = gtk.CellRendererText()
-        foldername_entry.pack_start(cell, True)
-        foldername_entry.set_text_column(0)
+        foldernamecombo.pack_start(cell, True)
+        foldernamecombo.set_text_column(0)
 
         # already load the folders if we're logged in
         if self.token:
             build_folder_store()
+            foldernamecombo.set_sensitive(True)
+        else:
+            foldernamecombo.child.set_text(self.foldername)
+            foldernamecombo.set_sensitive(False)
 
         # load button
         load_button.connect('clicked', load_button_clicked)
 
-        #preload the widgets
-        foldername_entry.child.set_text(self.foldername)
-
         # run the dialog
-        dlg = tree.get_widget("BoxDotNetConfigDialog")
-        response = Utils.run_dialog (dlg, window)
-        if response == True:
-            # get the values from the widgets
-            self.foldername = foldername_entry.child.get_text()
-
-        del self.folder_store
-        dlg.destroy()
+        Utils.run_dialog_non_blocking(dlg, on_response, window)
 
     def is_configured (self, isSource, isTwoWay):
-        return len (self.foldername) > 0
+        return len(self.foldername) > 0
 
     def get_configuration(self):
         return {
