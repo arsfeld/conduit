@@ -642,6 +642,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         def on_login_finish(*args):
             if self.loggedIn:
                 build_album_model()
+            Utils.dialog_reset_cursor(dlg)
                 
         def on_response(sender, responseID):
             if responseID == gtk.RESPONSE_OK:
@@ -653,6 +654,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         def login_click(button, window, usernameEntry, passwordEntry):
             self._set_username(usernameEntry.get_text())
             self._set_password(passwordEntry.get_text())
+            Utils.dialog_set_busy_cursor(dlg)
             conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
                                             self,
                                             on_login_finish,
@@ -714,7 +716,6 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         #disable album lookup if no username entered
         enabled = len(self.username) > 0
         login_button.set_sensitive(enabled)
-        #album_combo.set_sensitive(enabled)
 
         # Now run the dialog 
         Utils.run_dialog_non_blocking(dlg, on_response, window)

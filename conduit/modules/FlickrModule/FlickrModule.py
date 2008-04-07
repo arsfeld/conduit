@@ -265,6 +265,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         def on_login_finish(*args):
             if self.logged_in:
                 build_photoset_model()
+            Utils.dialog_reset_cursor(dlg)
                 
         def on_response(sender, responseID):
             if responseID == gtk.RESPONSE_OK:
@@ -275,6 +276,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         
         def load_click(button, window, usernameEntry):
             self._set_username(usernameEntry.get_text())
+            Utils.dialog_set_busy_cursor(dlg)
             conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
                                             self,
                                             on_login_finish,

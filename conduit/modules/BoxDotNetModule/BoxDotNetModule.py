@@ -281,17 +281,14 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         def on_login_finish(*args):
             if self.token:
                 build_folder_store()
-                foldernamecombo.set_sensitive(True)
-            else:
-                foldernamecombo.set_sensitive(False)
-            #dlg.window.set_cursor(None)
+            Utils.dialog_reset_cursor(dlg)
             
         def on_response(sender, responseID):
             if responseID == gtk.RESPONSE_OK:
                 self.foldername = foldernamecombo.child.get_text()
                 
         def load_button_clicked(button):
-            #dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+            Utils.dialog_set_busy_cursor(dlg)
             conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
                                             self,
                                             on_login_finish,
@@ -331,16 +328,9 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
         foldernamecombo.pack_start(cell, True)
         foldernamecombo.set_text_column(0)
 
-        # already load the folders if we're logged in
-        if self.token:
-            build_folder_store()
-            foldernamecombo.set_sensitive(True)
-        else:
-            foldernamecombo.child.set_text(self.foldername)
-            foldernamecombo.set_sensitive(False)
-
         # load button
         load_button.connect('clicked', load_button_clicked)
+        foldernamecombo.child.set_text(self.foldername)
 
         # run the dialog
         Utils.run_dialog_non_blocking(dlg, on_response, window)

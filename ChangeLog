@@ -1,5 +1,18 @@
 2008-04-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py: Less debug
+	spam at startup
+
+	* conduit/utils/__init__.py: Add utility functions for setting the dialog
+	cursor
+
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py: Set dialog cursor when 
+	doing background work.
+
+2008-04-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Synchronization.py: Add run_blocking_dataprovider_function_calls()
 	which allows an arbitary function to be executed by the sync manager, and
 	get a (callback via sync-completed) when the function returns

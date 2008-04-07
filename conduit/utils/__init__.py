@@ -164,6 +164,19 @@ def run_dialog_non_blocking(dialog, resp_cb, window=None):
         #        window,events)
 
     dialog.show()
+    
+def dialog_set_busy_cursor(dlg):
+    """
+    Sets the dialog to display the busy cursor
+    """
+    import gtk.gdk
+    dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+    
+def dialog_reset_cursor(dlg):
+    """
+    Resets the dialog to display the plain Gtk cursor
+    """
+    dlg.window.set_cursor(None)
 
 def md5_string(string):
     """

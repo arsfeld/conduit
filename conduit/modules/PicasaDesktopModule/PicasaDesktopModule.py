@@ -13,23 +13,24 @@ import conduit.datatypes.Photo as Photo
 
 from gettext import gettext as _
 
-MODULES = {
-	"PicasaDesktopSource" : { "type": "dataprovider" }
-}
-
 FILENAME_IDX = 0
 DISPLAYNAME_IDX = 1
 PHOTOS_IDX = 2
 PICASA_DIR = os.path.join(os.path.expanduser("~"),".picasa")
 
-# check if path exists
-if not os.path.exists(PICASA_DIR):
-    raise Exceptions.NotSupportedError("Picasa Not Installed")
+if os.path.exists(PICASA_DIR):
+    MODULES = {
+    	"PicasaDesktopSource" : { "type": "dataprovider" }
+    }
+    log.info("Picasa desktop directory detected")
+else:
+    MODULES = {}
+    log.info("Picasa desktop not installed")
 
 class PicasaDesktopSource(DataProvider.DataSource):
 
     _name_ = _("Picasa Desktop")
-    _description_ = _("Sync your Picasa photos")
+    _description_ = _("Sync Picasa from Picasa Desktop")
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _module_type_ = "source"
     _in_type_ = "file/photo"
