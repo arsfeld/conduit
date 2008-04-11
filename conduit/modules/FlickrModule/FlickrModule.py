@@ -221,7 +221,9 @@ class FlickrTwoWay(Image.ImageTwoWay):
         title = str(photoInfo.photo[0].title[0].elementText)
         # get tags
         tagsNode = photoInfo.photo[0].tags[0]
-
+        # get caption
+        caption = photoInfo.photo[0].description[0].elementText
+        
         if hasattr(tagsNode, 'tag'):
             tags = tuple(tag.elementText for tag in tagsNode.tag)
         else:
@@ -230,6 +232,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         # create the file
         f = Photo.Photo (URI=url)
         f.set_open_URI(url)
+        f.set_caption(caption)
 
         # try to rename if a title is available
         # FIXME: this is far from optimal, also there should be 

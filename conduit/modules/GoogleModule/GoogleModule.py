@@ -3,6 +3,8 @@ import gobject
 import datetime
 import dateutil.parser
 import vobject
+import operator
+import time
 from dateutil.tz import tzutc, tzlocal
 from gettext import gettext as _
 import logging
@@ -14,9 +16,11 @@ import conduit.dataproviders.Image as Image
 import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 from conduit.datatypes import Rid
+import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.Photo as Photo
 import conduit.datatypes.Video as Video
+import conduit.datatypes.File as File
 
 #Distributors, if you ship python gdata >= 1.0.10 then remove this line
 #and the appropriate directories
@@ -33,7 +37,8 @@ try:
     MODULES = {
         "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
-        "YouTubeSource" :        { "type": "dataprovider" },       
+        "YouTubeSource" :        { "type": "dataprovider" },    
+        "ContactsSource" :       { "type": "dataprovider" },    
     }
     log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
 except (ImportError, AttributeError):
@@ -117,6 +122,8 @@ class GoogleCalendar(object):
         return '/calendar/feeds/' + self.get_uri() + '/private/full'
 
 def convert_madness_to_datetime(inputDate):
+    log.debug('Attempting to parse the following: %s'%inputDate)
+    logging.debug('Attempting to parse the following: %s'%inputDate)
     dateStr = None
     dateDate = None
     dateDateTime = None
@@ -142,6 +149,9 @@ def convert_madness_to_datetime(inputDate):
         
     if dateDateTime is not None:
         if dateDateTime.tzinfo is not None:
+            logging.warn("returning: %s",dateDateTime)
+            ts = dateDateTime.timetuple()
+            dateDateTime = dateDateTime.fromtimestamp(time.mktime(ts))
             return dateDateTime
         elif dateTZInfo is not None:
             return dateDateTime.replace(tzinfo=dateTZInfo)
@@ -149,6 +159,7 @@ def convert_madness_to_datetime(inputDate):
             log.warn('Waring, assuming datetime ('+dateDateTime.isoformat()+') is UTC')
             return dateDateTime.replace(tzinfo=tzutc())
                 
+    
     raise TypeError('Unable to convert to datetime')
 
 def parse_google_recur(recurString, args):
@@ -256,7 +267,10 @@ class GoogleEvent(object):
     def get_mtime(self):
         #mtimes need to be naive and local
         #Shouldn't Conduit use non-naive mTimes?
-        mTimeLocal = self.mTime.astimezone(tzlocal())
+        try:
+            mTimeLocal = self.mTime.astimezone(tzlocal())
+        except ValueError:
+            mTimeLocal = self.mTime
         mTimeLocalWithoutTZ = mTimeLocal.replace(tzinfo=None)
         return mTimeLocalWithoutTZ
         
@@ -317,9 +331,13 @@ class GoogleEvent(object):
         if self.visibility is not None:
             iCalEvent.add('class').value = self.visibility
         if self.created is not None:
-            iCalEvent.add('created').value = self.created.astimezone(tzutc())    
+            try:
+                iCalEvent.add('created').value = self.created.astimezone(tzutc())
+            except ValueError: pass
         if self.mTime is not None:
-            iCalEvent.add('last-modified').value = self.mTime.astimezone(tzutc())
+            try:
+                iCalEvent.add('last-modified').value = self.mTime.astimezone(tzutc())
+            except ValueError: pass
         #iCalEvent.vevent.add('dtstamp').value = 
         if self.recurrence is not None:
             iCalEvent.add('rrule').value = self.recurrence
@@ -330,7 +348,6 @@ class GoogleEvent(object):
         returnStr = iCalEvent.serialize()
         log.debug("Created ICal Format :\n"+returnStr)
         return returnStr
-
     
 class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
 
@@ -340,7 +357,7 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"
-    _icon_ = "contact-new"
+    _icon_ = "appointment-new"
     
     def __init__(self):
         GoogleBase.__init__(self)
@@ -738,6 +755,119 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         if len(self.albumName) < 1:
             return False
         return True
+
+
+class ContactsSource(GoogleBase, DataProvider.DataSource):
+    """
+    Contacts GData provider
+    """
+    _name_ = _("Google Contacts")
+    _description_ = _("Sync contacts from Google")
+    _category_ = conduit.dataproviders.CATEGORY_OFFICE
+    _module_type_ = "source"
+    _out_type_ = "contact"
+    _icon_ = "contact-new"
+
+    FEED = "http://www.google.com/m8/feeds/contacts/%s/base?max-results=25000"
+
+    def __init__(self, *args):
+        GoogleBase.__init__(self)
+        DataProvider.DataSource.__init__(self)
+        self.entries = None
+        self.feed = ""
+
+    def _set_username(self, username):
+        GoogleBase._set_username(self, username)
+        self.feed = self.FEED % self.username
+
+    def _do_login(self):
+        self.service = gdata.service.GDataService(service="cp", server="www.google.com")
+        self.service.ClientLogin(self.username, self.password)
+        
+    def _get_contact(self, LUID):
+        #get the gdata contact from google
+        gdc = self.service.Get(LUID)
+        if gdc is None or len(gdc.ToString()) < 1:
+            log.warn("Error getting/parsing gdata contact")
+            return None
+            
+        #FIXME: We should not be accessing the contact vcard directly.
+        #once we know what we can get from the gdata information, we should
+        #add the appropriate methods to the contact class to allow us to
+        #set these things
+        c = Contact.Contact()
+
+        c.vcard = vobject.vCard()
+        c.vcard.add('n')
+        c.vcard.n.value = vobject.vcard.Name(given="%s"%gdc.title.text)
+        
+        c.vcard.add('fn')
+        c.vcard.fn.value = "%s"%gdc.title.text
+        #isinstance(gdc, atom.Entry)
+        ee_names = map(operator.attrgetter('tag'),gdc.extension_elements)
+        if len(gdc.extension_elements) >0:
+            for e in [e for e in ee_names if e == 'email']:
+                c.vcard.add('email')
+                c.vcard.email.value = gdc.extension_elements[ee_names.index('email')].attributes['address']
+                c.vcard.email.type_param = 'INTERNET'
+            for e in [e for e in ee_names if e == 'phoneNumber']:
+                c.vcard.add('tel')
+                c.vcard.tel.value = gdc.extension_elements[ee_names.index('phoneNumber')].text
+                c.vcard.tel.type_param = gdc.extension_elements[ee_names.index('phoneNumber')].attributes['rel'].split('#')[1]
+            for e in [e for e in ee_names if e == 'postalAddress']:
+                c.vcard.add('adr')
+                c.vcard.adr.value = vobject.vcard.Address(gdc.extension_elements[ee_names.index('postalAddress')].text)
+               # c.vcard.adr.value =
+                c.vcard.adr.type_param = gdc.extension_elements[ee_names.index('postalAddress')].attributes['rel'].split('#')[1]
+        
+        #c.vcard.add('uid').value = gdc.id.text
+        c.set_UID(LUID)
+        c.set_mtime(convert_madness_to_datetime(gdc.updated.text))
+        c.set_open_URI(gdc.link[1].href)
+        return c    
+
+    def get_all(self):
+        DataProvider.DataSource.get_all(self)
+        # we can ask the server for everything thats changed after a certain date, including deletions
+        self._login()
+        contacts = self.service.GetFeed(self.feed).entry
+        return [str(contact.id.text) for contact in contacts]
+
+    def get(self, LUID):
+        DataProvider.DataSource.get(self, LUID)
+        return self._get_contact(LUID)
+
+    def delete(self, LUID):
+        self._login()
+        self.service.Delete(LUID)
+
+    def finish(self, aborted, error, conflict):
+        DataProvider.DataSource.finish(self)
+
+    def configure(self, window):
+        """
+        Configures the PicasaTwoWay
+        """
+        widget = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "contacts-config.glade", 
+                        "GoogleContactsConfigDialog")
+                        
+        #get a whole bunch of widgets
+        username = widget.get_widget("username")
+        password = widget.get_widget("password")
+        
+        #preload the widgets        
+        username.set_text(self.username)
+        password.set_text(self.password)
+        
+        dlg = widget.get_widget("GoogleContactsConfigDialog")
+        response = Utils.run_dialog (dlg, window)
+        if response == True:
+            self._set_username(username.get_text())
+            self._set_password(password.get_text())
+        dlg.destroy()    
+
 
 class YouTubeSource(DataProvider.DataSource):
     """

@@ -7,7 +7,7 @@ import conduit.utils as Utils
 import random
 
 SAFE_CALENDAR_NAME="Conduit Project"
-SAFE_EVENT_UID="cee1p5i0ta73dfgjcn9l94allg@google.com"
+SAFE_EVENT_UID="2bh7mbagsc880g64qaps06tbp4@google.com"
 MAX_YOUTUBE_VIDEOS=5
 
 if not is_online():
@@ -34,7 +34,7 @@ for cal in google._get_all_calendars():
 ok("Found calendar: '%s'" % SAFE_CALENDAR_NAME, found)    
 
 #make a simple event
-hour=random.randint(12,24)
+hour=random.randint(12,23)
 ics="""BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//PYVOBJECT//NONSGML Version 1//EN
@@ -58,6 +58,23 @@ test.do_dataprovider_tests(
         name="event"
         )
         
+#setup the test
+test = SimpleTest(sourceName="ContactsSource")
+config = {
+    "username":     os.environ.get("TEST_USERNAME","conduitproject@gmail.com"),
+    "password":     os.environ["TEST_PASSWORD"],
+}
+test.configure(source=config)
+google = test.get_source().module
+
+#check we can get a contacts list
+contacts = google.get_all()
+num = len(contacts)
+ok("Got %s contacts" % num, num > 0)
+
+c = google.get(contacts[0])
+ok("Got contact", c != None)
+
 #Now a very simple youtube test...
 test = SimpleTest(sourceName="YouTubeSource")
 config = {

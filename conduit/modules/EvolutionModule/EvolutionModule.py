@@ -201,7 +201,7 @@ class EvoCalendarTwoWay(EvoBase):
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"
-    _icon_ = "contact-new"
+    _icon_ = "appointment-new"
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)

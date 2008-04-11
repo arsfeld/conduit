@@ -1,6 +1,5 @@
 import vobject 
 import conduit.datatypes.DataType as DataType
-
 def parse_vcf(string):
     """
     Parses a vcf string, potentially containing many vcards
@@ -21,6 +20,7 @@ class Contact(DataType.DataType):
     def __init__(self, **kwargs):
         DataType.DataType.__init__(self)
         self.vcard = kwargs.get('vcard',vobject.vCard())
+      #  self.g_data = ''
 
     def set_from_vcard_string(self, string):
         self.vcard = vobject.readOne(string)
@@ -43,6 +43,15 @@ class Contact(DataType.DataType):
             if len(name) > 0:
                 return name
         return None
+        
+    def set_name(self, **kwargs):
+        raise NotImplementedError
+        
+    def set_email(self, **kwargs):
+        raise NotImplementedError
+        
+    def set_address(self, **kwargs):
+        raise NotImplementedError
 
     def __getstate__(self):
         data = DataType.DataType.__getstate__(self)
@@ -58,4 +67,5 @@ class Contact(DataType.DataType):
         
     def get_hash(self):
         return hash(self.get_vcard_string())
+    
 

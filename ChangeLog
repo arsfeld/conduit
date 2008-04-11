@@ -1,3 +1,17 @@
+2008-04-11  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/FlickrModule/FlickrModule.py: Set the caption
+	of returned photos.
+
+	* conduit/datatypes/Contact.py: Add prototypes for setters for 
+	common contact data.
+	
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/Makefile.am:
+	* conduit/modules/GoogleModule/contacts-config.glade:
+	* test/python-tests/TestDataProviderGoogle.py: First try at a gdata based
+	google contacts dataprovider. Patch by Kevin Kubasik
+
 2008-04-11  Kevin Kubasik  <kevin@kubasik.net>
 
 	* conduit/modules/RTMModule/Makefile.am:
