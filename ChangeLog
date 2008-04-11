@@ -1,3 +1,11 @@
+2008-04-11  Kevin Kubasik  <kevin@kubasik.net>
+
+	* conduit/modules/RTMModule/Makefile.am:
+	* conduit/modules/RTMModule/RTMModule.py:
+	* conduit/modules/RTMModule/config.glade:
+	* conduit/modules/RTMModule/rtm.py: Add preliminary support for remember
+	the milk.
+
 2008-04-08  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Synchronization.py:
