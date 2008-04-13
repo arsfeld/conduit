@@ -423,7 +423,10 @@ class File(DataType.DataType):
         """
         @returns: The files URI relative to its basepath
         """
-        return self._get_text_uri().replace(self.basePath,"")
+        if self.basePath:
+            return Vfs.uri_get_relative(self.basePath,self._get_text_uri())
+        else:
+            return self._get_text_uri()
 
     def compare(self, B, sizeOnly=False):
         """

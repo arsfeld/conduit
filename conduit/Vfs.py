@@ -10,12 +10,36 @@ except ImportError:
 #
 # URI Functions
 #
-def uri_join(*args):
+def uri_is_valid(uri):
     """
-    Joins multiple uri components
+    (weakly) checks if a uri is valid by looking for a scheme seperator
     """
-    return os.path.join(*args)
-
+    return uri[0] != "/" and uri.find("://") != -1
+    
+def uri_join(first, *rest):
+    """
+    Joins multiple uri components. Performs safely if the first
+    argument contains a uri scheme
+    """
+    return os.path.join(first,*rest)
+    #idx = first.rfind("://")
+    #if idx == -1:
+    #    start = 0
+    #else:
+    #   start = idx + 3
+    #return first[0:start]+os.path.join(first[start:],*rest)
+    
+def uri_get_relative(fromURI, toURI):
+    """
+    Returns the relative path fromURI --> toURI
+    """
+    rel = toURI.replace(fromURI,"")
+    #strip leading /
+    if rel[0] == os.sep:
+        return rel[1:]
+    else:
+        return rel
+    
 def uri_open(uri):
     """
     Opens a gnomevfs or xdg compatible uri.
@@ -23,8 +47,7 @@ def uri_open(uri):
     if uri == None:
         log.warn("Cannot open non-existant URI")
 
-    #FIXME: Use xdg-open?
-    APP = "gnome-open"
+    APP = "xdg-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
     
 def uri_to_local_path(uri):
@@ -143,14 +166,14 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     illegal = ILLEGAL_CHARS.get(filesystem,None)
     if illegal:
         #dont escape the scheme part
-        scheme = uri_get_protocol(uri)
-        if scheme:
-            start = uri.index("://")+3
+        idx = uri.rfind("://")
+        if idx == -1:
+            start = 0
         else:
-            start = 0    
-        
-        #replace illegal chars with a space
-        return scheme+uri[start:].translate(string.maketrans(
+            start = idx + 3        
+
+        #replace illegal chars with a space, ignoring the scheme
+        return uri[0:start]+uri[start:].translate(string.maketrans(
                                                 illegal,
                                                 " "*len(illegal)
                                                 )

@@ -16,7 +16,7 @@ NUM_FILES = 10
 #Sleep time for file I/O
 SLEEP_TIME = 1
 #Print the mapping DB on the last sync?
-PRINT_MAPPING_DB = True
+PRINT_MAPPING_DB = False
 
 #setup test
 test = SimpleSyncTest()
@@ -78,7 +78,6 @@ for i in range(1,SYNC_N_TIMES+1):
 
     mapSource2Sink = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sourceW.get_UID(), sinkW.get_UID())
     mapSink2Source = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sinkW.get_UID(), sourceW.get_UID())
-    print mapSource2Sink, mapSink2Source
     ok("Oneway Sync: 5 Mappings source -> sink", len(mapSource2Sink) == 5 and len(mapSink2Source) == 0)
 
 #two way sync

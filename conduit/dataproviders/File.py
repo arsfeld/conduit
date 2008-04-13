@@ -255,18 +255,19 @@ class FolderTwoWay(DataProvider.TwoWay):
 
     def put(self, vfsFile, overwrite, LUID=None):
         """
-        Puts vfsFile at the correct location. There are two scenarios
+        Puts vfsFile at the correct location. There are three scenarios
         1) File came from a foreign DP like tomboy
         2) File came from another file dp
 
         Behaviour:
         1) The foreign DP should have encoded enough information (such as
         the filename) so that we can go ahead and put the file in the dir
-        2) First we see if the file has a group attribute. If so, and the
-        group matches the groupName here then we put the files into the 
-        directory. If not we put the file in the orphan dir. We try and 
-        retain the relative path for the files in the specifed group 
-        and recreate that in the group dir
+        2) First we see if the file has a group attribute.
+            a) If so, and the group matches the groupName here then we 
+            put the files into the directory.
+            b) If not we put the file in a subdir by the name of the group 
+            
+        We always retain the relative path for the files
         """
         DataProvider.TwoWay.put(self, vfsFile, overwrite, LUID)
         newURI = ""
@@ -276,19 +277,20 @@ class FolderTwoWay(DataProvider.TwoWay):
             #came from another type of dataprovider such as tomboy
             #where relative path makes no sense. Could also come from
             #the FileSource dp when the user has selected a single file
-            log.debug("FolderTwoWay: No basepath. Going to empty dir")
-            newURI = self.folder+os.sep+vfsFile.get_filename()
+            log.debug("No basepath. Going to empty dir")
+            newURI = Vfs.uri_join(self.folder,vfsFile.get_filename())
         else:
             #Look for corresponding groups
             relpath = vfsFile.get_relative_uri()
+            log.debug("Relative path: %s" % relpath)
             if self.folderGroupName == vfsFile.group:
-                log.debug("FolderTwoWay: Found corresponding group")
+                log.debug("Found corresponding group")
                 #put in the folder
-                newURI = self.folder+relpath
+                newURI = Vfs.uri_join(self.folder,relpath)
             else:
-                log.debug("FolderTwoWay: Recreating group %s --- %s --- %s" % (vfsFile._get_text_uri(),vfsFile.basePath,vfsFile.group))
+                log.debug("Recreating group: %s" % vfsFile.group)
                 #unknown. Store in the dir but recreate the group
-                newURI = self.folder+os.sep+os.path.join(vfsFile.group+relpath)
+                newURI = Vfs.uri_join(self.folder,vfsFile.group,relpath)
 
         #escape illegal filesystem characters
         if self.fstype:

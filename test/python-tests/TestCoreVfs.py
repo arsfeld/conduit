@@ -54,4 +54,38 @@ removableUri = get_external_resources('folder')['removable-volume']
 ok("Removable volume detected removable", Vfs.uri_is_on_removable_volume(removableUri))
 ok("Removable volume calculate root path", Vfs.uri_get_volume_root_uri(removableUri) == "file:///media/media")
 
+URIS_TO_JOIN = (
+    (   ("file:///foo/bar","gax","ssss"),   
+        "file:///foo/bar/gax/ssss"),
+    (   ("smb://192.168.1.1","Disk-2","Travel%20Videos/","Switzerland"),
+        "smb://192.168.1.1/Disk-2/Travel%20Videos/Switzerland"),
+    (   ("ssh://john@open.grcnz.com/home","john","phd"),
+        "ssh://john@open.grcnz.com/home/john/phd"),
+    (   ("foo","bar","baz"),
+        "foo/bar/baz")
+)
+
+for parts, result in URIS_TO_JOIN:
+    ok("Join uri: %s" % result, Vfs.uri_join(*parts) == result)
+    
+RELATIVE_URIS = (
+    #from                   #to                         #relativ    
+(   "file:///foo/bar",      "file:///baz/bob",          "file:///baz/bob"   ),
+(   "file:///foo/bar",      "file:///foo/bar/baz/bob",  "baz/bob"           ),
+(   "file:///foo/bar",      "file:///foo/bar/baz",      "baz"               ))
+for f,t,result in RELATIVE_URIS:
+    ok("Get relative uri: %s" % result, Vfs.uri_get_relative(f,t) == result)
+    
+VALID_URIS = (
+    #uri                                #valid
+(   "smb://192.168.1.1/foo/bar",        True                        ),
+(   "ftp://192.168.1.1/foo/bar",        True                        ),
+(   "file:///foo/bar",                  True                        ),
+(   "file:/foo/bar",                    False                       ),
+(   "ftp:192.168.1.1",                  False                       ),
+(   "/foo/bar",                         False                       ))
+for uri,result in VALID_URIS:
+    desc = ("Invalid","Valid")[int(result)]
+    ok("%s uri: %s" % (desc,uri),Vfs.uri_is_valid(uri) == result)
+
 finished()

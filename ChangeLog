@@ -1,3 +1,20 @@
+2008-04-13  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py: Remove workarounds for goocanvas versions
+	< 0.9.0.
+
+	* conduit/Vfs.py:
+	* conduit/datatypes/File.py: Move get_relative_uri into Vfs class.
+	
+	* conduit/dataproviders/File.py: Be more careful about joining uri components
+	when put()ing files that originated from another group. Fixes #527438
+	
+	* test/python-tests/TestCoreVfs.py: Test new Vfs functions
+	
+	* test/python-tests/TestDataProviderFolder.py:
+	* test/python-tests/TestSyncFolderFolder.py: Test all put() scenarios of the
+	folder data provider.
+
 2008-04-11  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/FlickrModule/FlickrModule.py: Set the caption

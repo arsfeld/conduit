@@ -54,9 +54,6 @@ SIDE_PADDING = 10.0
 LINE_WIDTH = 3.0
 RECTANGLE_RADIUS = 5.0
 
-#GRR support api break in pygoocanvas 0.6/8.0 -> 0.9.0
-NEW_GOOCANVAS_API = goocanvas.pygoocanvas_version >= (0,9,0)
-
 class Canvas(goocanvas.Canvas):
     """
     This class manages many objects
@@ -152,13 +149,9 @@ class Canvas(goocanvas.Canvas):
         return items
 
     def _canvas_resized(self, widget, allocation):
-        if NEW_GOOCANVAS_API:
-            self.set_bounds(0,0,allocation.width,allocation.height)
-            for i in self._get_child_conduit_canvas_items():
-                i.set_width(allocation.width)
-        else:
-            for i in self._get_child_conduit_canvas_items():
-                i.set_width(allocation.width)
+        self.set_bounds(0,0,allocation.width,allocation.height)
+        for i in self._get_child_conduit_canvas_items():
+            i.set_width(allocation.width)
 
 
     def _on_conduit_button_press(self, view, target, event):
@@ -508,51 +501,27 @@ class _CanvasItem(goocanvas.Group):
         self.model = model
 
     def get_height(self):
-        if NEW_GOOCANVAS_API:
-            b = self.get_bounds()
-        else:
-            b = goocanvas.Bounds()
-            self.get_bounds(b)
+        b = self.get_bounds()
         return b.y2-b.y1
 
     def get_width(self):
-        if NEW_GOOCANVAS_API:
-            b = self.get_bounds()
-        else:
-            b = goocanvas.Bounds()
-            self.get_bounds(b)
+        b = self.get_bounds()
         return b.x2-b.x1
 
     def get_top(self):
-        if NEW_GOOCANVAS_API:
-            b = self.get_bounds()
-        else:
-            b = goocanvas.Bounds()
-            self.get_bounds(b)
+        b = self.get_bounds()
         return b.y1
 
     def get_bottom(self):
-        if NEW_GOOCANVAS_API:
-            b = self.get_bounds()
-        else:
-            b = goocanvas.Bounds()
-            self.get_bounds(b)
+        b = self.get_bounds()
         return b.y2
 
     def get_left(self):
-        if NEW_GOOCANVAS_API:
-            b = self.get_bounds()
-        else:
-            b = goocanvas.Bounds()
-            self.get_bounds(b)
+        b = self.get_bounds()
         return b.x1
 
     def get_right(self):
-        if NEW_GOOCANVAS_API:
-            b = self.get_bounds()
-        else:
-            b = goocanvas.Bounds()
-            self.get_bounds(b)
+        b = self.get_bounds()
         return b.x2
 
 class DataProviderCanvasItem(_CanvasItem):
