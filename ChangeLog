@@ -1,3 +1,8 @@
+2008-04-17  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/iPodModule/Makefile.am: Add missing
+	autotools foo, so the new jhbuild thingy works for our GNOME friends
+
 2008-04-13  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Canvas.py: Remove workarounds for goocanvas versions
