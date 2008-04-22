@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-22 07:13+0100\n"
+"POT-Creation-Date: 2008-04-22 22:38+0100\n"
 "PO-Revision-Date: 2008-03-08 10:45+0000\n"
 "Last-Translator: Philip Withnall <pwithnall@svn.gnome.org>\n"
 "Language-Team: \n"
@@ -170,7 +170,7 @@ msgstr "Slow Sync"
 
 #: ../data/conduit.glade.h:35
 msgid "Sync Options"
-msgstr "Syncronisation Options"
+msgstr "Synchronisation Options"
 
 #: ../data/conduit.glade.h:36
 msgid "Synchronize All"
@@ -423,7 +423,7 @@ msgstr "Banshee Playlists"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:31
 msgid "Sync your Banshee playlists"
-msgstr "Syncronise your Banshee playlists"
+msgstr "Synchronise your Banshee playlists"
 
 #. column 1 is the tag name
 #: ../conduit/modules/BansheeModule/BansheeModule.py:137
@@ -455,7 +455,7 @@ msgstr "Box.net"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
 msgid "Sync your Box.net files"
-msgstr "Syncronise your Box.net files"
+msgstr "Synchronise your Box.net files"
 
 #: ../conduit/modules/BoxDotNetModule/config.glade.h:2
 msgid "Folder:"
@@ -477,7 +477,7 @@ msgstr "Evolution Contacts"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
 msgid "Sync your contacts"
-msgstr "Syncronise your contacts"
+msgstr "Synchronise your contacts"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
 msgid "Evolution Calendar"
@@ -485,7 +485,7 @@ msgstr "Evolution Calendar"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
 msgid "Sync your calendar"
-msgstr "Syncronise your calendar"
+msgstr "Synchronise your calendar"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
 msgid "Evolution Tasks"
@@ -493,7 +493,7 @@ msgstr "Evolution Tasks"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
 msgid "Sync your tasks"
-msgstr "Syncronise your tasks"
+msgstr "Synchronise your tasks"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
 msgid "Evolution Memos"
@@ -501,7 +501,7 @@ msgstr "Evolution Memos"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
 msgid "Sync your memos"
-msgstr "Syncronise your memos"
+msgstr "Synchronise your memos"
 
 #: ../conduit/modules/EvolutionModule/config.glade.h:1
 msgid "Addressbook:"
@@ -517,7 +517,7 @@ msgstr "Facebook"
 
 #: ../conduit/modules/FacebookModule/FacebookModule.py:38
 msgid "Sync your Facebook photos"
-msgstr "Syncronise your Facebook photos"
+msgstr "Synchronise your Facebook photos"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:30
 #: ../conduit/modules/FeedModule/config.glade.h:9
@@ -526,7 +526,7 @@ msgstr "RSS Feed"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:31
 msgid "Sync data from RSS enclosures"
-msgstr "Syncronise data from RSS enclosures"
+msgstr "Synchronise data from RSS enclosures"
 
 #: ../conduit/modules/FeedModule/config.glade.h:1
 msgid "<b>Enclosure Settings</b>"
@@ -670,7 +670,7 @@ msgstr "Flickr"
 
 #: ../conduit/modules/FlickrModule/FlickrModule.py:66
 msgid "Sync your Flickr.com photos"
-msgstr "Syncronise your Flickr.com photos"
+msgstr "Synchronise your Flickr.com photos"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:2
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
@@ -701,7 +701,7 @@ msgstr "F-Spot Photos"
 #: ../conduit/modules/FspotModule/FspotModule.py:33
 #: ../conduit/modules/FspotModule/FspotModule.py:301
 msgid "Sync your F-Spot photos"
-msgstr "Syncronise your F-Spot photos"
+msgstr "Synchronise your F-Spot photos"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:133
 msgid "F-Spot DBus interface is operating in read only mode"
@@ -725,7 +725,7 @@ msgstr "GConf Settings"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
 msgid "Sync your desktop preferences"
-msgstr "Syncronise your desktop preferences"
+msgstr "Synchronise your desktop preferences"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:354
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
@@ -734,7 +734,7 @@ msgstr "Google Calendar"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:355
 msgid "Sync your Google Calendar"
-msgstr "Syncronise your Google Calendar"
+msgstr "Synchronise your Google Calendar"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:546
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
@@ -743,7 +743,7 @@ msgstr "Picasa"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:547
 msgid "Sync your Google Picasa photos"
-msgstr "Syncronise your Google Picasa photos"
+msgstr "Synchronise your Google Picasa photos"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:764
 msgid "Google Contacts"
@@ -751,7 +751,7 @@ msgstr "Google Contacts"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:765
 msgid "Sync contacts from Google"
-msgstr "Syncronise contacts from Google"
+msgstr "Synchronise contacts from Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:878
 msgid "YouTube"
@@ -759,7 +759,7 @@ msgstr "YouTube"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:879
 msgid "Sync data from YouTube"
-msgstr "Syncronise data from YouTube"
+msgstr "Synchronise data from YouTube"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
 msgid "Calendar:"
@@ -902,7 +902,7 @@ msgstr "Rhythmbox Music"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
 msgid "Sync songs from your Rhythmbox playlists"
-msgstr "Syncronise songs from your Rhythmbox playlists"
+msgstr "Synchronise songs from your Rhythmbox playlists"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
 msgid "Unknown"
@@ -923,7 +923,7 @@ msgstr "Shutterfly"
 
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
 msgid "Sync your Shutterfly photos"
-msgstr "Syncronise your Shutterfly photos"
+msgstr "Synchronise your Shutterfly photos"
 
 #: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
 msgid "%Y-%m-%d %H:%M:%S"
@@ -936,7 +936,7 @@ msgstr "SmugMug"
 
 #: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
 msgid "Sync your SmugMug.com photos"
-msgstr "Syncronise your SmugMug.com photos"
+msgstr "Synchronise your SmugMug.com photos"
 
 #~ msgid "Gmail Emails"
 #~ msgstr "Gmail E-mails"
