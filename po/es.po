@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-11 12:52+0100\n"
-"PO-Revision-Date: 2008-04-20 13:45+0200\n"
+"POT-Creation-Date: 2008-04-20 11:47+0000\n"
+"PO-Revision-Date: 2008-04-23 18:50-0400\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -120,7 +120,7 @@ msgstr "Opciones de borrado"
 
 #: ../data/conduit.glade.h:22
 msgid "Delete from the corresponding sink"
-msgstr "Borrar la sincronización correspondiente"
+msgstr "Borrar el destino correspondiente"
 
 #: ../data/conduit.glade.h:23
 msgid "Delete the Corresponding Item"
@@ -230,7 +230,7 @@ msgstr "_Archivo"
 msgid "_Help"
 msgstr "Ay_uda"
 
-#: ../conduit/gtkui/Canvas.py:64 ../conduit/hildonui/Canvas.py:35
+#: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:35
 msgid "Drag a Data Provider here to continue"
 msgstr "Suelte aquí el proveedor de datos para continuar"
 
@@ -248,7 +248,7 @@ msgstr "Resolución"
 #. Visible column2 is the display name of source and source data
 #: ../conduit/gtkui/ConflictResolver.py:101
 msgid "Sink"
-msgstr ""
+msgstr "Destino"
 
 #: ../conduit/gtkui/ConflictResolver.py:165
 #: ../conduit/gtkui/ConflictResolver.py:166
@@ -380,11 +380,11 @@ msgstr "No está configurado correctamente"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:55
 msgid "Backpack Notes"
-msgstr ""
+msgstr "Notas Backpack"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:56
 msgid "Store things in Backpack Notes"
-msgstr ""
+msgstr "Almacene cosas en las notas Backpack"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:1
 #: ../conduit/modules/FlickrModule/config.glade.h:1
@@ -405,7 +405,7 @@ msgstr "Clave de la API:"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:4
 msgid "Backpack"
-msgstr ""
+msgstr "Backpack"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:5
 msgid "Save notes in page:"
@@ -592,7 +592,8 @@ msgid "Please Name All Folders"
 msgstr "De nombre a todas las carpetas"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:297
-msgid "All folders require a descriptive name. To name a folder simply click on it"
+msgid ""
+"All folders require a descriptive name. To name a folder simply click on it"
 msgstr ""
 "Todas las carpetas requieren un nombre descriptivo. Para dar nombre a una "
 "carpeta, simplemente pulse sobre ella."
@@ -687,7 +688,7 @@ msgstr "Las fotos son públicas"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:6
 msgid "Photoset Name:"
-msgstr ""
+msgstr "Nombre del álbum:"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:7
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
@@ -939,4 +940,3 @@ msgstr "SmugMug"
 #: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
 msgid "Sync your SmugMug.com photos"
 msgstr "Sincronice sus fotos en SmugMug"
-
