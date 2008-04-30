@@ -9,6 +9,31 @@ NEW in 0.3.10:
   * You can create f-spot tags from the fspot dialog
   * You can see, and delete the available albums on your iPod
 
+* Fixed #510101, tomboy notes are unicode, but ipod notes are not (tumi.st@gmail.com)
+* Fixed #510127, Support Rhythmbox Playlists (Alexandre Rosenfeld)
+* Fixed #517928, GUI Corrections Needed (Claude Paroz)
+* Fixed #520748, Move Utils.py to its own module (Claude Paroz)
+* Fixed #520785, Syncing two folders can lead to data loss (John Stowers)
+* Fixed #523551, .conduit on removeable devices just contain the last finished sync (John Stowers)
+* Fixed #523575, conduit display wrong arrow (John Stowers)
+* Fixed #523579, too long names in folder-provider causes some strange ui behavior (John Stowers)
+* Fixed #523692, Tomboy dataprovider doesn't work with tomboy 0.10.0 (Thomas Van Machelen)
+* Fixed #523915, Make picasa config dialog better (Thomas Van Machelen)
+* Fixed #524451, Illegal Char in filename  / (John Stowers)
+* Fixed #526292, DPs which call web login() from configure freeze the GUI (John Stowers)
+* Fixed #527438, Missing file separator in synchronisation with smb-shares (John Stowers)
+* Fixed #517536, Create Tag on F-Spot (Thomas Van Machelen)
+
+Translations:
+* Updated fi: Ilkka Tuohela
+* Updated sl: Matej Urbančič
+* Updated en_GB: Philip Withnall
+* Updated es: Jorge Gonzalez
+* Updated hu: Gabor Kelemen
+
+Help Manual Translations:
+* Updated es: Jorge Gonzalez
+
 NEW in 0.3.9:
 ==============
 * Add Conduit documentation (Brent Gueth)
@@ -96,5 +121,7 @@ Translations:
 
 Help Manual Translations:
 * Updated es: Jorge Gonzalez
+
+None
 
 None
