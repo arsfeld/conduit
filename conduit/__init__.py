@@ -47,7 +47,7 @@ if IS_INSTALLED:
     if not PYTHONDIR in sys.path:
         sys.path.insert(0, PYTHONDIR)
 else:
-    VERSION =                   "0.3.10"
+    VERSION =                   "0.3.11"
     LOCALE_DIR =                os.path.join(DIRECTORY, "po")
     SHARED_DATA_DIR =           os.path.join(DIRECTORY, "data")
     GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
