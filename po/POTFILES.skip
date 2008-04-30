@@ -7,5 +7,12 @@ tools/test-db-wrapper/main.glade
 conduit/modules/SettingsModule/GConfUtils.py
 conduit/modules/SettingsModule/layout_loader.py
 conduit/modules/SettingsModule/layout_save.py
-conduit/modules/YouTubeModule/config.glade
+conduit/modules/GoogleModule/contacts-config.glade
+conduit/modules/OSyncEvoModule.py
+conduit/modules/RTMModule/RTMModule.py
+conduit/modules/RTMModule/config.glade
+conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py
+conduit/modules/RhythmboxDBusModule/config.glade
+conduit/modules/SynceModule.py
+
 
