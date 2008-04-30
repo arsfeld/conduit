@@ -36,8 +36,6 @@ conduit/modules/GoogleModule/youtube-config.glade
 conduit/modules/iPodModule/config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py
-conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py
-conduit/modules/PicasaDesktopModule/config.glade
 conduit/modules/RhythmboxModule/RhythmboxModule.py
 conduit/modules/RhythmboxModule/config.glade
 conduit/modules/ShutterflyModule/ShutterflyModule.py

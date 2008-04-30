@@ -1,6 +1,7 @@
 2008-04-30  John Stowers  <john.stowers@gmail.com>
 
-	* NEWS: Update NEWS for release.
+	* NEWS: Update NEWS for release
+	* po/*: Pass make distcheck
 
 2008-04-17  John Carr  <john.carr@unrouted.co.uk>
 

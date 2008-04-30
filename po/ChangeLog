@@ -1,3 +1,9 @@
+2008-04-30  John Stowers  <john.stowers@gmail.com>
+
+	* POTFILES.in:
+	* POTFILES.skip: To pass make distcheck, those modules that are not
+	distributed must be in POTFILES.skip
+
 2008-04-26  Gabor Kelemen  <kelemeng@gnome.org>
 
 	* hu.po: Translation added.

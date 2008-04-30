@@ -4,15 +4,17 @@ data/conduit.desktop.in
 tools/eog-plugin/config.glade
 tools/test-db-wrapper/main.glade
 tools/test-db-wrapper/main.glade
-conduit/modules/SettingsModule/GConfUtils.py
-conduit/modules/SettingsModule/layout_loader.py
-conduit/modules/SettingsModule/layout_save.py
 conduit/modules/GoogleModule/contacts-config.glade
 conduit/modules/OSyncEvoModule.py
+conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py
+conduit/modules/PicasaDesktopModule/config.glade
 conduit/modules/RTMModule/RTMModule.py
 conduit/modules/RTMModule/config.glade
 conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py
 conduit/modules/RhythmboxDBusModule/config.glade
 conduit/modules/SynceModule.py
+conduit/modules/SettingsModule/GConfUtils.py
+conduit/modules/SettingsModule/layout_loader.py
+conduit/modules/SettingsModule/layout_save.py
 
 
