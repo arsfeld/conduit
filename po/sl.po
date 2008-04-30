@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-04-12 03:20+0100\n"
-"PO-Revision-Date: 2008-04-12 17:18+0100\n"
+"PO-Revision-Date: 2008-04-30 21:12+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -65,7 +65,7 @@ msgstr "Počisti trenutno nastavljene skupine za usklajevanje"
 
 #: ../data/conduit.glade.h:8
 msgid "Clear Canvas"
-msgstr ""
+msgstr "Počisti platno"
 
 #: ../data/conduit.glade.h:9
 msgid "Compare"
@@ -73,7 +73,7 @@ msgstr "Primerjava"
 
 #: ../data/conduit.glade.h:10
 msgid "Conduit Properties"
-msgstr ""
+msgstr "Lastnosti Conduit"
 
 #: ../data/conduit.glade.h:11
 msgid "Configuration"
@@ -81,15 +81,15 @@ msgstr "Nastavitve"
 
 #: ../data/conduit.glade.h:12
 msgid "Configure Item"
-msgstr ""
+msgstr "Nastavi predmet"
 
 #: ../data/conduit.glade.h:13
 msgid "Configure the synchronization settings for this item"
-msgstr ""
+msgstr "Nastavi možnosti usklajevanja za ta predmet"
 
 #: ../data/conduit.glade.h:14
 msgid "Conflict Options"
-msgstr ""
+msgstr "Možnosti neskladij"
 
 #: ../data/conduit.glade.h:15
 msgid "Conflicts"
@@ -101,11 +101,11 @@ msgstr "Vsebina"
 
 #: ../data/conduit.glade.h:17
 msgid "Data Conversions"
-msgstr ""
+msgstr "Pretvorba podatkov"
 
 #: ../data/conduit.glade.h:18
 msgid "Data Providers"
-msgstr ""
+msgstr "Ponudniki podatkov"
 
 #: ../data/conduit.glade.h:19
 msgid "Delete Group"
@@ -117,15 +117,15 @@ msgstr "Zbriši predmet"
 
 #: ../data/conduit.glade.h:21
 msgid "Delete Options"
-msgstr ""
+msgstr "Možnosti brisanja"
 
 #: ../data/conduit.glade.h:22
 msgid "Delete from the corresponding sink"
-msgstr ""
+msgstr "Izbriši iz pripadajočega ponora podatkov"
 
 #: ../data/conduit.glade.h:23
 msgid "Delete the Corresponding Item"
-msgstr ""
+msgstr "Izbriši pripadajoči predmet"
 
 #: ../data/conduit.glade.h:24
 msgid "Editor"
@@ -133,27 +133,27 @@ msgstr "Urejevalnik"
 
 #: ../data/conduit.glade.h:25
 msgid "Minimize to notification area"
-msgstr ""
+msgstr "Pomanjšaj v obvestilno vrstico"
 
 #: ../data/conduit.glade.h:26
 msgid "Refresh Group"
-msgstr ""
+msgstr "Osveži skupino"
 
 #: ../data/conduit.glade.h:27
 msgid "Refresh Item"
-msgstr ""
+msgstr "Osveži predmet"
 
 #: ../data/conduit.glade.h:28
 msgid "Replace the Older Item"
-msgstr ""
+msgstr "Zamenjaj starejši predmet"
 
 #: ../data/conduit.glade.h:29
 msgid "Replace the older item"
-msgstr ""
+msgstr "Zamenjaj starejši predmet"
 
 #: ../data/conduit.glade.h:30
 msgid "Resolve Conflicts"
-msgstr ""
+msgstr "Razreši neskladja"
 
 #: ../data/conduit.glade.h:31
 msgid "Save settings on exit"
@@ -161,7 +161,7 @@ msgstr "Shrani nastavitve ob izhodu"
 
 #: ../data/conduit.glade.h:32
 msgid "Show status icon"
-msgstr ""
+msgstr "Prikaži ikono stanja"
 
 #: ../data/conduit.glade.h:33
 msgid "Skip"
@@ -169,27 +169,27 @@ msgstr "Preskoči"
 
 #: ../data/conduit.glade.h:34
 msgid "Slow Sync"
-msgstr ""
+msgstr "Počasno usklajevanje"
 
 #: ../data/conduit.glade.h:35
 msgid "Sync Options"
-msgstr ""
+msgstr "Možnosti usklajevanja"
 
 #: ../data/conduit.glade.h:36
 msgid "Synchronize All"
-msgstr ""
+msgstr "Uskladi vse"
 
 #: ../data/conduit.glade.h:37
 msgid "Synchronize Group"
-msgstr ""
+msgstr "Uskladi skupino"
 
 #: ../data/conduit.glade.h:38
 msgid "Synchronize group"
-msgstr ""
+msgstr "Uskladi skupino"
 
 #: ../data/conduit.glade.h:39
 msgid "Synchronizes all groups"
-msgstr ""
+msgstr "Uskladi vse skupine"
 
 #: ../data/conduit.glade.h:40
 msgid "Title"
@@ -197,27 +197,27 @@ msgstr "Naslov"
 
 #: ../data/conduit.glade.h:41
 msgid "Two Way Sync"
-msgstr ""
+msgstr "Dvosmerno usklajevanje"
 
 #: ../data/conduit.glade.h:42
 msgid "Use built in Web browser"
-msgstr ""
+msgstr "Uporabi vgrajen brskalnik"
 
 #: ../data/conduit.glade.h:43
 msgid "When an item has been deleted:"
-msgstr ""
+msgstr "Ko je bil predmet izbrisan:"
 
 #: ../data/conduit.glade.h:44
 msgid "When an item is deleted..."
-msgstr ""
+msgstr "Ko je predmet izbrisan:"
 
 #: ../data/conduit.glade.h:45
 msgid "When there is a conflict..."
-msgstr ""
+msgstr "Ob neskladji ..."
 
 #: ../data/conduit.glade.h:46
 msgid "When there is a two way conflict:"
-msgstr ""
+msgstr "Ob dvosmernem neskladju:"
 
 #: ../data/conduit.glade.h:47
 msgid "_Edit"
@@ -231,10 +231,10 @@ msgstr "_Datoteka"
 msgid "_Help"
 msgstr "_Pomoč"
 
-#: ../conduit/gtkui/Canvas.py:64
+#: ../conduit/gtkui/Canvas.py:61
 #: ../conduit/hildonui/Canvas.py:35
 msgid "Drag a Data Provider here to continue"
-msgstr ""
+msgstr "Povlecite ponudnika podatkov za nadaljevanje"
 
 #. Visible column0 is
 #. [pixbuf + source display name] or
@@ -250,7 +250,7 @@ msgstr "Ločljivost"
 #. Visible column2 is the display name of source and source data
 #: ../conduit/gtkui/ConflictResolver.py:101
 msgid "Sink"
-msgstr ""
+msgstr "Ponor"
 
 #: ../conduit/gtkui/ConflictResolver.py:165
 #: ../conduit/gtkui/ConflictResolver.py:166
@@ -261,15 +261,15 @@ msgstr "Neskladnosti (%s)"
 #. Build some liststores to display
 #: ../conduit/gtkui/UI.py:235
 msgid "Convert from"
-msgstr ""
+msgstr "Pretvori iz"
 
 #: ../conduit/gtkui/UI.py:236
 msgid "into"
-msgstr ""
+msgstr "v"
 
 #: ../conduit/gtkui/UI.py:291
 msgid "Conversions Available"
-msgstr ""
+msgstr "Mogoče pretvorbe"
 
 #: ../conduit/gtkui/UI.py:297
 #: ../conduit/gtkui/Tree.py:348
@@ -284,23 +284,23 @@ msgstr "Naloženo"
 #: ../conduit/gtkui/UI.py:399
 #: ../conduit/hildonui/UI.py:129
 msgid "Synchronization in progress. Do you want to cancel it?"
-msgstr ""
+msgstr "Usklajevanje je v teku. Ali ga želite preklicati?"
 
 #: ../conduit/gtkui/UI.py:556
 msgid "_Synchronize All"
-msgstr ""
+msgstr "_Uskladi vse"
 
 #: ../conduit/gtkui/UI.py:556
 msgid "Synchronizes All Groups"
-msgstr ""
+msgstr "Uskladi vse skupine"
 
 #: ../conduit/gtkui/UI.py:557
 msgid "_Cancel Synchronization"
-msgstr ""
+msgstr "_Prekliči usklajevanje"
 
 #: ../conduit/gtkui/UI.py:557
 msgid "Cancels Currently Synchronizing Groups"
-msgstr ""
+msgstr "Prekliče trenutno usklajevanje skupin"
 
 #: ../conduit/gtkui/UI.py:558
 msgid "_Quit"
@@ -308,7 +308,7 @@ msgstr "_Izhod"
 
 #: ../conduit/gtkui/UI.py:558
 msgid "Close Conduit"
-msgstr ""
+msgstr "Zapri program"
 
 #: ../conduit/gtkui/UI.py:559
 msgid "_About"
@@ -316,11 +316,11 @@ msgstr "_O programu"
 
 #: ../conduit/gtkui/UI.py:559
 msgid "About Conduit"
-msgstr ""
+msgstr "O programu"
 
 #: ../conduit/gtkui/UI.py:599
 msgid "Synchronization Error"
-msgstr ""
+msgstr "Napaka usklajevanja"
 
 #: ../conduit/gtkui/UI.py:602
 msgid "Synchronization Complete"
@@ -328,7 +328,7 @@ msgstr "Usklajevanje končano"
 
 #: ../conduit/gtkui/UI.py:618
 msgid "Synchronizing"
-msgstr ""
+msgstr "Usklajevanje ..."
 
 #: ../conduit/gtkui/Tree.py:357
 msgid "Description"
@@ -340,7 +340,7 @@ msgstr "Pripravljen"
 
 #: ../conduit/dataproviders/DataProvider.py:20
 msgid "New data to sync"
-msgstr ""
+msgstr "Novi podatki za uskladitev"
 
 #: ../conduit/dataproviders/DataProvider.py:21
 msgid "Refreshing..."
@@ -348,47 +348,47 @@ msgstr "Osveževanje ..."
 
 #: ../conduit/dataproviders/DataProvider.py:22
 msgid "Refreshed OK"
-msgstr ""
+msgstr "Uspešno osveženo"
 
 #: ../conduit/dataproviders/DataProvider.py:23
 msgid "Error Refreshing"
-msgstr ""
+msgstr "Napaka med osveževanjem"
 
 #: ../conduit/dataproviders/DataProvider.py:24
 msgid "Synchronizing..."
-msgstr ""
+msgstr "Usklajevanje ..."
 
 #: ../conduit/dataproviders/DataProvider.py:25
 msgid "Synchronized OK"
-msgstr ""
+msgstr "Uspešno usklajevanje"
 
 #: ../conduit/dataproviders/DataProvider.py:26
 msgid "Error Synchronizing"
-msgstr ""
+msgstr "Napaka usklajevanja"
 
 #: ../conduit/dataproviders/DataProvider.py:27
 msgid "Synchronization Skipped"
-msgstr ""
+msgstr "Usklajevanje preskočeno"
 
 #: ../conduit/dataproviders/DataProvider.py:28
 msgid "Synchronization Cancelled"
-msgstr ""
+msgstr "Usklajevanje preklicano"
 
 #: ../conduit/dataproviders/DataProvider.py:29
 msgid "Synchronization Conflict"
-msgstr ""
+msgstr "Neskladje usklajevanja"
 
 #: ../conduit/dataproviders/DataProvider.py:30
 msgid "Not Configured Correctly"
-msgstr ""
+msgstr "Nepravilne nastavitve"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:55
 msgid "Backpack Notes"
-msgstr ""
+msgstr "Backpack sporočilca"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:56
 msgid "Store things in Backpack Notes"
-msgstr ""
+msgstr "Shrani stvari v Backpack sporočilcih"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:1
 #: ../conduit/modules/FlickrModule/config.glade.h:1
@@ -397,23 +397,23 @@ msgstr ""
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
 #: ../conduit/modules/SmugMugModule/config.glade.h:1
 msgid "<b>Account Details</b>"
-msgstr ""
+msgstr "<b>Podrobnosti računa</b>"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:2
 msgid "<b>Saved Note Settings</b>"
-msgstr ""
+msgstr "<b>Shranjene nastavitve sporočilca</b>"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:3
 msgid "API key:"
-msgstr ""
+msgstr "API tipka:"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:4
 msgid "Backpack"
-msgstr ""
+msgstr "Backpack"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:5
 msgid "Save notes in page:"
-msgstr ""
+msgstr "Shrani opombe na strani:"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:6
 #: ../conduit/modules/FlickrModule/config.glade.h:8
@@ -425,11 +425,11 @@ msgstr "Uporabniško ime:"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:30
 msgid "Banshee Playlists"
-msgstr ""
+msgstr "Seznam predvajanja Banshee"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:31
 msgid "Sync your Banshee playlists"
-msgstr ""
+msgstr "Uskladi Banshee seznam predvajanja"
 
 #. column 1 is the tag name
 #: ../conduit/modules/BansheeModule/BansheeModule.py:137
@@ -448,20 +448,20 @@ msgstr "Omogočeno"
 
 #: ../conduit/modules/BansheeModule/config.glade.h:1
 msgid "<b>Return Playlists</b>"
-msgstr ""
+msgstr "<b>Izpisani seznami predvajanja</b>"
 
 #: ../conduit/modules/BansheeModule/config.glade.h:2
 msgid "Banshee"
-msgstr ""
+msgstr "Banshee"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
 #: ../conduit/modules/BoxDotNetModule/config.glade.h:1
 msgid "Box.net"
-msgstr ""
+msgstr "Box.net"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
 msgid "Sync your Box.net files"
-msgstr ""
+msgstr "Uskladi Box.net datoteke"
 
 #: ../conduit/modules/BoxDotNetModule/config.glade.h:2
 msgid "Folder:"
@@ -479,35 +479,35 @@ msgstr "Izberi %s:"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:146
 msgid "Evolution Contacts"
-msgstr ""
+msgstr "Evolution stiki"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
 msgid "Sync your contacts"
-msgstr ""
+msgstr "Uskladi stike"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
 msgid "Evolution Calendar"
-msgstr ""
+msgstr "Evolution koledar"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
 msgid "Sync your calendar"
-msgstr ""
+msgstr "Uskladi koledar"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
 msgid "Evolution Tasks"
-msgstr ""
+msgstr "Evolution naloge"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
 msgid "Sync your tasks"
-msgstr ""
+msgstr "Uskladi naloge"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
 msgid "Evolution Memos"
-msgstr ""
+msgstr "Evolution opomniki"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
 msgid "Sync your memos"
-msgstr ""
+msgstr "Uskladi opomnik"
 
 #: ../conduit/modules/EvolutionModule/config.glade.h:1
 msgid "Addressbook:"
@@ -523,46 +523,48 @@ msgstr "Facebook"
 
 #: ../conduit/modules/FacebookModule/FacebookModule.py:38
 msgid "Sync your Facebook photos"
-msgstr ""
+msgstr "Uskladi Facebook fotografije"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:30
 #: ../conduit/modules/FeedModule/config.glade.h:9
 msgid "RSS Feed"
-msgstr ""
+msgstr "Vir RSS"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:31
 msgid "Sync data from RSS enclosures"
-msgstr ""
+msgstr "Uskladi RSS priloge"
 
 #: ../conduit/modules/FeedModule/config.glade.h:1
 msgid "<b>Enclosure Settings</b>"
-msgstr ""
+msgstr "<b>Nastavitve prilog</b>"
 
 #: ../conduit/modules/FeedModule/config.glade.h:2
 msgid "<b>Feed Details</b>"
-msgstr ""
+msgstr "<b>Podrobnosti vira</b>"
 
 #: ../conduit/modules/FeedModule/config.glade.h:3
 msgid "Download Audio Files"
-msgstr ""
+msgstr "Prenesi zvočne datoteke"
 
 #: ../conduit/modules/FeedModule/config.glade.h:4
 msgid "Download Photos"
-msgstr ""
+msgstr "Prenesi fotografije"
 
 #: ../conduit/modules/FeedModule/config.glade.h:5
 msgid "Download Video Files"
-msgstr ""
+msgstr "Prenesi posnetke"
 
 #: ../conduit/modules/FeedModule/config.glade.h:6
 msgid "Feed Address:"
-msgstr ""
+msgstr "Naslov vira:"
 
 #: ../conduit/modules/FeedModule/config.glade.h:7
 msgid ""
 "Limit the Number of\n"
 "Enclosures Downloaded to:"
 msgstr ""
+"Omeji število prenesenih\n"
+"prilog virov na:"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:98
 msgid "Icon"
@@ -575,7 +577,7 @@ msgstr "Predmeti"
 #: ../conduit/modules/FileModule/FileConfiguration.py:136
 #, python-format
 msgid "<i>Contains %s files</i>"
-msgstr ""
+msgstr "<i>Število datotek je %s</i>"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:226
 msgid "Include file..."
@@ -587,23 +589,23 @@ msgstr "Vse datoteke"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:251
 msgid "Include folder..."
-msgstr ""
+msgstr "Vključi mape ..."
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:296
 msgid "Please Name All Folders"
-msgstr ""
+msgstr "Prosim, poimenujte vse mape"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:297
 msgid "All folders require a descriptive name. To name a folder simply click on it"
-msgstr ""
+msgstr "Vse mape morajo imeti opisno ime. Za poimenovanje mape enostavno kliknite nanjo."
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:338
 msgid "Please Enter a Folder Name"
-msgstr ""
+msgstr "Prosim, vnesite ime mape"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:339
 msgid "All folders require a descriptive name. To name a folder enter its name where indicated"
-msgstr ""
+msgstr "Vse mape morajo vsebovati opisno ime. Za poimenovanje mape vnesite njeno ime, kjer je določeno."
 
 #: ../conduit/modules/FileModule/FileModule.py:23
 msgid "Files"
@@ -611,7 +613,7 @@ msgstr "Datoteke"
 
 #: ../conduit/modules/FileModule/FileModule.py:24
 msgid "Source for synchronizing multiple files"
-msgstr ""
+msgstr "Vir za usklajevanje več datotek"
 
 #: ../conduit/modules/FileModule/FileModule.py:62
 msgid "Folder"
@@ -619,11 +621,11 @@ msgstr "Mapa"
 
 #: ../conduit/modules/FileModule/FileModule.py:63
 msgid "Synchronize folders"
-msgstr ""
+msgstr "Uskladi mape"
 
 #: ../conduit/modules/FileModule/config.glade.h:1
 msgid "<b>Items to Synchronize</b>"
-msgstr ""
+msgstr "<b>Predmeti za usklajevanje</b>"
 
 #: ../conduit/modules/FileModule/config.glade.h:2
 msgid "Add Directory"
@@ -631,15 +633,15 @@ msgstr "Dodaj mapo"
 
 #: ../conduit/modules/FileModule/config.glade.h:3
 msgid "Add File"
-msgstr ""
+msgstr "Dodaj datoteko"
 
 #: ../conduit/modules/FileModule/config.glade.h:4
 msgid "File Configuration"
-msgstr ""
+msgstr "Nastavitev datoteke"
 
 #: ../conduit/modules/FileModule/config.glade.h:5
 msgid "Folder Configuration"
-msgstr ""
+msgstr "Nastavitev map"
 
 #: ../conduit/modules/FileModule/config.glade.h:6
 msgid "Folder Location:"
@@ -651,11 +653,11 @@ msgstr "Ime mape:"
 
 #: ../conduit/modules/FileModule/config.glade.h:8
 msgid "Ignore File Modification Times"
-msgstr ""
+msgstr "Prezri čas spremembe"
 
 #: ../conduit/modules/FileModule/config.glade.h:9
 msgid "Include Hidden Files"
-msgstr ""
+msgstr "Vključi skrite datoteke"
 
 #: ../conduit/modules/FileModule/config.glade.h:10
 msgid "Select A Folder"
@@ -664,92 +666,92 @@ msgstr "Izbor mape"
 #: ../conduit/modules/FlickrModule/FlickrModule.py:65
 #: ../conduit/modules/FlickrModule/config.glade.h:3
 msgid "Flickr"
-msgstr ""
+msgstr "Flickr"
 
 #: ../conduit/modules/FlickrModule/FlickrModule.py:66
 msgid "Sync your Flickr.com photos"
-msgstr ""
+msgstr "Uskladi Flickr.com fotografije"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:2
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
 #: ../conduit/modules/SmugMugModule/config.glade.h:2
 msgid "<b>Saved Photo Settings</b>"
-msgstr ""
+msgstr "<b>Nastavitve shranjenih slik</b>"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:5
 msgid "Photos are public"
-msgstr ""
+msgstr "Fotografije so javne"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:6
 msgid "Photoset Name:"
-msgstr ""
+msgstr "Ime seta fotografij:"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:7
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
 #: ../conduit/modules/SmugMugModule/config.glade.h:5
 msgid "Resize Photos:"
-msgstr ""
+msgstr "Spremeni velikost fotografij:"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:32
 #: ../conduit/modules/FspotModule/FspotModule.py:300
 msgid "F-Spot Photos"
-msgstr ""
+msgstr "F-Spot fotografije"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:33
 #: ../conduit/modules/FspotModule/FspotModule.py:301
 msgid "Sync your F-Spot photos"
-msgstr ""
+msgstr "Uskladi F-Spot fotografije"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:133
 msgid "F-Spot DBus interface is operating in read only mode"
-msgstr ""
+msgstr "F-Spot DBus vmesnik deluje v načinu le za branje"
 
 #: ../conduit/modules/FspotModule/config.glade.h:1
 msgid "<b>Return Photos Tagged With</b>"
-msgstr ""
+msgstr "<b>Prikaži fotografije označene z</b>"
 
 #: ../conduit/modules/FspotModule/config.glade.h:2
 msgid "Create Tags: "
-msgstr ""
+msgstr "Ustvari oznake:"
 
 #: ../conduit/modules/FspotModule/config.glade.h:3
 msgid "F-Spot"
-msgstr ""
+msgstr "F-Spot"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:21
 msgid "GConf Settings"
-msgstr ""
+msgstr "GConf nastavitve"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
 msgid "Sync your desktop preferences"
-msgstr ""
+msgstr "Uskladi lastnosti namizja"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:354
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
 msgid "Google Calendar"
-msgstr ""
+msgstr "Google koledar"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:355
 msgid "Sync your Google Calendar"
-msgstr ""
+msgstr "Uskladi Google koledar"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:546
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
 msgid "Picasa"
-msgstr ""
+msgstr "Picasa"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:547
 msgid "Sync your Google Picasa photos"
-msgstr ""
+msgstr "Uskladi Google Picasa fotografije"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:764
 msgid "Google Contacts"
-msgstr ""
+msgstr "Google stiki"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:765
 msgid "Sync contacts from Google"
-msgstr ""
+msgstr "Uskladi stike z Googlom"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:878
 msgid "YouTube"
@@ -757,7 +759,7 @@ msgstr "YouTube"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:879
 msgid "Sync data from YouTube"
-msgstr ""
+msgstr "Uskladi podatke z YouTube"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
 msgid "Calendar:"
@@ -769,7 +771,7 @@ msgstr "E-pošta:"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
 msgid "Load Calendars"
-msgstr ""
+msgstr "Naloži koledarje"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
@@ -779,6 +781,7 @@ msgid "Password:"
 msgstr "Geslo:"
 
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/iPodModule/config.glade.h:1
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
 #: ../conduit/modules/SmugMugModule/config.glade.h:3
 msgid "Album:"
@@ -790,11 +793,11 @@ msgstr "Prijava"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
 msgid "<b>Donwload Videos</b>"
-msgstr ""
+msgstr "<b>Prenesi posnetke</b>"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
 msgid "By user"
-msgstr ""
+msgstr "Uporabnik"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
 msgid "Favorites of"
@@ -802,19 +805,19 @@ msgstr "Priljubljeno"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
 msgid "Max retrieved videos (0 is unlimited):"
-msgstr ""
+msgstr "Največkrat pridobljeni posnetki (0 ne neomejeno):"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
 msgid "Most viewed"
-msgstr ""
+msgstr "Največkrat gledano"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
 msgid "Top rated"
-msgstr ""
+msgstr "Visoko ocenjeno"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
 msgid "Uploaded by"
-msgstr ""
+msgstr "Objavil"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
 msgid "User: "
@@ -822,7 +825,15 @@ msgstr "Uporabnik:"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
 msgid "YouTube Source"
-msgstr ""
+msgstr "Vir YouTube"
+
+#: ../conduit/modules/iPodModule/config.glade.h:2
+msgid "gtk-delete"
+msgstr "gtk-delete"
+
+#: ../conduit/modules/iPodModule/config.glade.h:3
+msgid "iPod Photos"
+msgstr "iPod fotografije"
 
 #. Translators: Format string used to describe the acceptable formats the
 #. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
@@ -835,28 +846,28 @@ msgstr "%s zapis (%s)"
 #. Signifies that a conversion should not take place
 #: ../conduit/modules/N800Module/N800Module.py:60
 msgid "unchanged"
-msgstr ""
+msgstr "nespremenjeno"
 
 #: ../conduit/modules/N800Module/N800Module.py:118
 msgid "N800 Files"
-msgstr ""
+msgstr "N800 datoteke"
 
 #: ../conduit/modules/N800Module/N800Module.py:119
 msgid "Synchronizes files/folders to a N800 device"
-msgstr ""
+msgstr "Uskladi datoteke in mape z napravo N800"
 
 #. To translators: default backup folder of N800
 #: ../conduit/modules/N800Module/N800Module.py:124
 msgid "Backups"
-msgstr ""
+msgstr "Varnostne kopije"
 
 #: ../conduit/modules/N800Module/N800Module.py:139
 msgid "N800 Music"
-msgstr ""
+msgstr "N800 glasba"
 
 #: ../conduit/modules/N800Module/N800Module.py:140
 msgid "Synchronizes music to a N800 device"
-msgstr ""
+msgstr "Uskladi glasbo z napravo N800"
 
 #. To translators: defaul music folder of N800
 #: ../conduit/modules/N800Module/N800Module.py:146
@@ -865,12 +876,12 @@ msgstr "Glasba"
 
 #: ../conduit/modules/N800Module/N800Module.py:163
 msgid "N800 Videos"
-msgstr ""
+msgstr "N800 posnetki"
 
 #: ../conduit/modules/N800Module/N800Module.py:164
 #: ../conduit/modules/N800Module/N800Module.py:188
 msgid "Synchronizes video to a N800 device"
-msgstr ""
+msgstr "Uskladi posnetke z napravo N800"
 
 #. To translators: defaul video folder of N800
 #: ../conduit/modules/N800Module/N800Module.py:170
@@ -879,7 +890,7 @@ msgstr "Video"
 
 #: ../conduit/modules/N800Module/N800Module.py:187
 msgid "N800 Photos"
-msgstr ""
+msgstr "N800 fotografije"
 
 #. To translators: default photos folder of N800
 #: ../conduit/modules/N800Module/N800Module.py:194
@@ -892,15 +903,15 @@ msgstr "Omrežje"
 
 #: ../conduit/modules/NetworkModule/Server.py:148
 msgid "Enable synchronization via network"
-msgstr ""
+msgstr "Omogoči usklajevanje preko omrežja"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
 msgid "Rhythmbox Music"
-msgstr ""
+msgstr "Rhythmbox glasba"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
 msgid "Sync songs from your Rhythmbox playlists"
-msgstr ""
+msgstr "Uskladi skladbe iz seznama predvajanja Rhythmbox"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
 msgid "Unknown"
@@ -908,31 +919,31 @@ msgstr "Neznano"
 
 #: ../conduit/modules/RhythmboxModule/config.glade.h:1
 msgid "<b>Synchronize the Following Playlists</b>"
-msgstr ""
+msgstr "<b>Uskladi naslednje sezname predvajanja</b>"
 
 #: ../conduit/modules/RhythmboxModule/config.glade.h:2
 msgid "Rhythmbox Playlists"
-msgstr ""
+msgstr "Rhythmbox seznami predvajanja"
 
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
 msgid "Shutterfly"
-msgstr ""
+msgstr "Shutterfly"
 
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
 msgid "Sync your Shutterfly photos"
-msgstr ""
+msgstr "Uskladi Shutterfly fotografije"
 
 #: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
 msgid "%Y-%m-%d %H:%M:%S"
-msgstr ""
+msgstr "%Y-%m-%d %H:%M:%S"
 
 #: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
 #: ../conduit/modules/SmugMugModule/config.glade.h:6
 msgid "SmugMug"
-msgstr ""
+msgstr "SmugMug"
 
 #: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
 msgid "Sync your SmugMug.com photos"
-msgstr ""
+msgstr "Uskladi SmugMug.com fotografije"
 
