@@ -1,3 +1,9 @@
+2008-05-02  Manuel J. Garrido <manuel.garrido@gmail.com>
+
+	* data/zoto.png:
+	* conduit/modules/ZotoModule/*: Add two way Zoto 
+	module
+
 2008-04-30  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:
