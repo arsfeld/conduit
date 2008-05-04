@@ -1,5 +1,10 @@
 2008-05-04  John Carr <john.carr@unrouted.co.uk>
 
+	* conduit/__init__.py: Maemo fix. .config might not actually
+	exist, so if it doesn't.. then created it.
+
+2008-05-04  John Carr <john.carr@unrouted.co.uk>
+
 	* conduit/conduit: Cope with Firefox 3 on Hardy
 
 2008-05-02  Manuel J. Garrido <manuel.garrido@gmail.com>

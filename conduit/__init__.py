@@ -40,7 +40,7 @@ USER_DIR = os.path.join(
     			"conduit"
     			)
 if not os.path.exists(USER_DIR):
-    os.mkdir(USER_DIR)
+    os.makedirs(USER_DIR)
 
 if IS_INSTALLED:
     from defs import *
