@@ -1,0 +1,943 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Yair Hershkovitz, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-05-04 03:18+0000\n"
+"PO-Revision-Date: 2008-05-04 03:18+0000\n"
+"Last-Translator: Yair Hershkovitz\n"
+"Language-Team: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/conduit.desktop.in.in.h:1
+#: ../data/conduit-autostart.desktop.in.in.h:2
+msgid "Conduit Synchronizer"
+msgstr ""
+
+#: ../data/conduit.desktop.in.in.h:2
+#: ../data/conduit-autostart.desktop.in.in.h:3
+msgid "Synchronization for GNOME"
+msgstr "סנכרון עבור GNOME"
+
+#. Translators: Translate this in derived classes.
+#: ../data/conduit-autostart.desktop.in.in.h:1
+#: ../conduit/modules/N800Module/N800Module.py:54
+msgid "Conduit"
+msgstr "‏Conduit"
+
+#: ../data/conduit.glade.h:1
+msgid "<b>Default Synchronization Options</b>"
+msgstr ""
+
+#: ../data/conduit.glade.h:2
+msgid "<b>General</b>"
+msgstr "<b>כללי</b>"
+
+#: ../data/conduit.glade.h:3
+msgid "Always Up To Date"
+msgstr ""
+
+#: ../data/conduit.glade.h:4
+msgid "Ask Me What to Do"
+msgstr ""
+
+#: ../data/conduit.glade.h:5
+msgid "Ask me what to do"
+msgstr ""
+
+#: ../data/conduit.glade.h:6
+msgid "Cancel Synchronization"
+msgstr "בטל סנכרון"
+
+#: ../data/conduit.glade.h:7
+msgid "Cancel currently synchronizing groups"
+msgstr ""
+
+#: ../data/conduit.glade.h:8
+msgid "Clear Canvas"
+msgstr ""
+
+#: ../data/conduit.glade.h:9
+msgid "Compare"
+msgstr ""
+
+#: ../data/conduit.glade.h:10
+msgid "Conduit Properties"
+msgstr "מאפייני Conduit"
+
+#: ../data/conduit.glade.h:11
+msgid "Configuration"
+msgstr "הגדרות"
+
+#: ../data/conduit.glade.h:12
+msgid "Configure Item"
+msgstr ""
+
+#: ../data/conduit.glade.h:13
+msgid "Configure the synchronization settings for this item"
+msgstr ""
+
+#: ../data/conduit.glade.h:14
+msgid "Conflict Options"
+msgstr ""
+
+#: ../data/conduit.glade.h:15
+msgid "Conflicts"
+msgstr ""
+
+#: ../data/conduit.glade.h:16
+msgid "Contents"
+msgstr "תכנים"
+
+#: ../data/conduit.glade.h:17
+msgid "Data Conversions"
+msgstr ""
+
+#: ../data/conduit.glade.h:18
+msgid "Data Providers"
+msgstr ""
+
+#: ../data/conduit.glade.h:19
+msgid "Delete Group"
+msgstr "מחק קבוצה"
+
+#: ../data/conduit.glade.h:20
+msgid "Delete Item"
+msgstr "מחק פריט"
+
+#: ../data/conduit.glade.h:21
+msgid "Delete Options"
+msgstr "אפשרויות מחיקה"
+
+#: ../data/conduit.glade.h:22
+msgid "Delete from the corresponding sink"
+msgstr ""
+
+#: ../data/conduit.glade.h:23
+msgid "Delete the Corresponding Item"
+msgstr ""
+
+#: ../data/conduit.glade.h:24
+msgid "Editor"
+msgstr "עורך"
+
+#: ../data/conduit.glade.h:25
+msgid "Minimize to notification area"
+msgstr ""
+
+#: ../data/conduit.glade.h:26
+msgid "Refresh Group"
+msgstr "רענן קבוצה"
+
+#: ../data/conduit.glade.h:27
+msgid "Refresh Item"
+msgstr "רענן פריט"
+
+#: ../data/conduit.glade.h:28
+msgid "Replace the Older Item"
+msgstr ""
+
+#: ../data/conduit.glade.h:29
+msgid "Replace the older item"
+msgstr ""
+
+#: ../data/conduit.glade.h:30
+msgid "Resolve Conflicts"
+msgstr ""
+
+#: ../data/conduit.glade.h:31
+msgid "Save settings on exit"
+msgstr "שמור שינויים ביציאה"
+
+#: ../data/conduit.glade.h:32
+msgid "Show status icon"
+msgstr ""
+
+#: ../data/conduit.glade.h:33
+msgid "Skip"
+msgstr "דלג"
+
+#: ../data/conduit.glade.h:34
+msgid "Slow Sync"
+msgstr ""
+
+#: ../data/conduit.glade.h:35
+msgid "Sync Options"
+msgstr "אפשרויות סנכרון"
+
+#: ../data/conduit.glade.h:36
+msgid "Synchronize All"
+msgstr ""
+
+#: ../data/conduit.glade.h:37
+msgid "Synchronize Group"
+msgstr ""
+
+#: ../data/conduit.glade.h:38
+msgid "Synchronize group"
+msgstr ""
+
+#: ../data/conduit.glade.h:39
+msgid "Synchronizes all groups"
+msgstr ""
+
+#: ../data/conduit.glade.h:40
+msgid "Title"
+msgstr "כותרת"
+
+#: ../data/conduit.glade.h:41
+msgid "Two Way Sync"
+msgstr ""
+
+#: ../data/conduit.glade.h:42
+msgid "Use built in Web browser"
+msgstr ""
+
+#: ../data/conduit.glade.h:43
+msgid "When an item has been deleted:"
+msgstr "כאשר פריט נמחק:"
+
+#: ../data/conduit.glade.h:44
+msgid "When an item is deleted..."
+msgstr "כאשר פריט נמחק..."
+
+#: ../data/conduit.glade.h:45
+msgid "When there is a conflict..."
+msgstr ""
+
+#: ../data/conduit.glade.h:46
+msgid "When there is a two way conflict:"
+msgstr ""
+
+#: ../data/conduit.glade.h:47
+msgid "_Edit"
+msgstr "_עריכה"
+
+#: ../data/conduit.glade.h:48
+msgid "_File"
+msgstr "_קובץ"
+
+#: ../data/conduit.glade.h:49
+msgid "_Help"
+msgstr "_עזרה"
+
+#: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:35
+msgid "Drag a Data Provider here to continue"
+msgstr ""
+
+#. Visible column0 is
+#. [pixbuf + source display name] or
+#. [source_data.get_snippet()]
+#: ../conduit/gtkui/ConflictResolver.py:82
+msgid "Source"
+msgstr "מקור"
+
+#: ../conduit/gtkui/ConflictResolver.py:96
+msgid "Resolution"
+msgstr ""
+
+#. Visible column2 is the display name of source and source data
+#: ../conduit/gtkui/ConflictResolver.py:101
+msgid "Sink"
+msgstr ""
+
+#: ../conduit/gtkui/ConflictResolver.py:165
+#: ../conduit/gtkui/ConflictResolver.py:166
+#, python-format
+msgid "Conflicts (%s)"
+msgstr ""
+
+#. Build some liststores to display
+#: ../conduit/gtkui/UI.py:235
+msgid "Convert from"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:236
+msgid "into"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:291
+msgid "Conversions Available"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:297 ../conduit/gtkui/Tree.py:348
+#: ../conduit/modules/FileModule/FileConfiguration.py:104
+msgid "Name"
+msgstr "שם"
+
+#: ../conduit/gtkui/UI.py:301
+msgid "Loaded"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:129
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr "קיים סנכרון פעיל. לבטל אותו?"
+
+#: ../conduit/gtkui/UI.py:556
+msgid "_Synchronize All"
+msgstr "_סנכרן הכל"
+
+#: ../conduit/gtkui/UI.py:556
+msgid "Synchronizes All Groups"
+msgstr "מסנכרן את כל הקבוצות"
+
+#: ../conduit/gtkui/UI.py:557
+msgid "_Cancel Synchronization"
+msgstr "_בטל סנכרון"
+
+#: ../conduit/gtkui/UI.py:557
+msgid "Cancels Currently Synchronizing Groups"
+msgstr ""
+
+#: ../conduit/gtkui/UI.py:558
+msgid "_Quit"
+msgstr "_יציאה"
+
+#: ../conduit/gtkui/UI.py:558
+msgid "Close Conduit"
+msgstr "סגור את Conduit"
+
+#: ../conduit/gtkui/UI.py:559
+msgid "_About"
+msgstr "_אודות"
+
+#: ../conduit/gtkui/UI.py:559
+msgid "About Conduit"
+msgstr "אודות Conduit"
+
+#: ../conduit/gtkui/UI.py:599
+msgid "Synchronization Error"
+msgstr "שגיאת סכרון"
+
+#: ../conduit/gtkui/UI.py:602
+msgid "Synchronization Complete"
+msgstr "סנכרון הסתיים"
+
+#: ../conduit/gtkui/UI.py:618
+msgid "Synchronizing"
+msgstr "מסנכרן"
+
+#: ../conduit/gtkui/Tree.py:357
+msgid "Description"
+msgstr "תיאור"
+
+#: ../conduit/dataproviders/DataProvider.py:19
+msgid "Ready"
+msgstr "מוכן"
+
+#: ../conduit/dataproviders/DataProvider.py:20
+msgid "New data to sync"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:21
+msgid "Refreshing..."
+msgstr "מרענן..."
+
+#: ../conduit/dataproviders/DataProvider.py:22
+msgid "Refreshed OK"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:23
+msgid "Error Refreshing"
+msgstr "שגיאה ברענון"
+
+#: ../conduit/dataproviders/DataProvider.py:24
+msgid "Synchronizing..."
+msgstr "מסנכרן..."
+
+#: ../conduit/dataproviders/DataProvider.py:25
+msgid "Synchronized OK"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:26
+msgid "Error Synchronizing"
+msgstr "שגיאה בסנכרון"
+
+#: ../conduit/dataproviders/DataProvider.py:27
+msgid "Synchronization Skipped"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:28
+msgid "Synchronization Cancelled"
+msgstr "סנכרון בוטל"
+
+#: ../conduit/dataproviders/DataProvider.py:29
+msgid "Synchronization Conflict"
+msgstr ""
+
+#: ../conduit/dataproviders/DataProvider.py:30
+msgid "Not Configured Correctly"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:55
+msgid "Backpack Notes"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:56
+msgid "Store things in Backpack Notes"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:1
+#: ../conduit/modules/FlickrModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
+#: ../conduit/modules/SmugMugModule/config.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>פרטי חשבון</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:3
+msgid "API key:"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:4
+msgid "Backpack"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:5
+msgid "Save notes in page:"
+msgstr ""
+
+#: ../conduit/modules/BackpackModule/config.glade.h:6
+#: ../conduit/modules/FlickrModule/config.glade.h:8
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:7
+msgid "Username:"
+msgstr "שם משתמש"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:30
+msgid "Banshee Playlists"
+msgstr "רשימות השמעה של Banshee"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:31
+msgid "Sync your Banshee playlists"
+msgstr "סנכרן רשימות השמעה של Banshee"
+
+#. column 1 is the tag name
+#: ../conduit/modules/BansheeModule/BansheeModule.py:137
+#: ../conduit/modules/FspotModule/FspotModule.py:252
+#: ../conduit/modules/FspotModule/FspotModule.py:409
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:129
+msgid "Tag Name"
+msgstr ""
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:145
+#: ../conduit/modules/FspotModule/FspotModule.py:260
+#: ../conduit/modules/FspotModule/FspotModule.py:417
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:137
+msgid "Enabled"
+msgstr "מופעל"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:1
+msgid "<b>Return Playlists</b>"
+msgstr ""
+
+#: ../conduit/modules/BansheeModule/config.glade.h:2
+msgid "Banshee"
+msgstr "‏Banshee"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr "‏Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
+msgid "Sync your Box.net files"
+msgstr "סנכרן את קבצי ה-Box.net שלך"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
+msgid "Folder:"
+msgstr "תיקייה:"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr ""
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:107
+#, python-format
+msgid "Select %s:"
+msgstr "בחר %s:"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:146
+msgid "Evolution Contacts"
+msgstr "אנשי קשר של Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+msgid "Sync your contacts"
+msgstr "סנכרן את אנשי הקשר שלך"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+msgid "Evolution Calendar"
+msgstr "יומן Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+msgid "Sync your calendar"
+msgstr "סנכרן את היומן שלך"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+msgid "Evolution Tasks"
+msgstr "משימות Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+msgid "Sync your tasks"
+msgstr "סנכן את המשימות שלך"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+msgid "Evolution Memos"
+msgstr "תזכורות Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+msgid "Sync your memos"
+msgstr "סנכרן את התזכורות שלך"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:1
+msgid "Addressbook:"
+msgstr "ספר כתובות:"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr "‏Evolution"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+msgid "Facebook"
+msgstr "‏Facebook"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+msgid "Sync your Facebook photos"
+msgstr "סנכרן את תמונות ה-Facebook שלך"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:30
+#: ../conduit/modules/FeedModule/config.glade.h:9
+msgid "RSS Feed"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/FeedModule.py:31
+msgid "Sync data from RSS enclosures"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:2
+msgid "<b>Feed Details</b>"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:3
+msgid "Download Audio Files"
+msgstr "הורד קבצי אודיו"
+
+#: ../conduit/modules/FeedModule/config.glade.h:4
+msgid "Download Photos"
+msgstr "הורד תמונות"
+
+#: ../conduit/modules/FeedModule/config.glade.h:5
+msgid "Download Video Files"
+msgstr "הורד קבצי וידאו"
+
+#: ../conduit/modules/FeedModule/config.glade.h:6
+msgid "Feed Address:"
+msgstr ""
+
+#: ../conduit/modules/FeedModule/config.glade.h:7
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloaded to:"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:98
+msgid "Icon"
+msgstr "איקון"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:110
+msgid "Items"
+msgstr "פריטים"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:136
+#, python-format
+msgid "<i>Contains %s files</i>"
+msgstr "<i>מכיל %s קבצים</i>"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:226
+msgid "Include file..."
+msgstr "כלול קובץ..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:236
+msgid "All files"
+msgstr "כל הקבצים"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:251
+msgid "Include folder..."
+msgstr "כלול תיקייה..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:296
+msgid "Please Name All Folders"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:297
+msgid ""
+"All folders require a descriptive name. To name a folder simply click on it"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:338
+msgid "Please Enter a Folder Name"
+msgstr "נא להכניס שם תיקייה"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:339
+msgid ""
+"All folders require a descriptive name. To name a folder enter its name "
+"where indicated"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileModule.py:23
+msgid "Files"
+msgstr "קבצים"
+
+#: ../conduit/modules/FileModule/FileModule.py:24
+msgid "Source for synchronizing multiple files"
+msgstr ""
+
+#: ../conduit/modules/FileModule/FileModule.py:62
+msgid "Folder"
+msgstr "תיקייה"
+
+#: ../conduit/modules/FileModule/FileModule.py:63
+msgid "Synchronize folders"
+msgstr "סנכרן תיקיות"
+
+#: ../conduit/modules/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr "<b>פריטים לסנכרון</b>"
+
+#: ../conduit/modules/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr "הוסף ספרייה"
+
+#: ../conduit/modules/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr "הוסף קובץ"
+
+#: ../conduit/modules/FileModule/config.glade.h:4
+msgid "File Configuration"
+msgstr "הגדרות קובץ"
+
+#: ../conduit/modules/FileModule/config.glade.h:5
+msgid "Folder Configuration"
+msgstr "הגדרות תיקייה"
+
+#: ../conduit/modules/FileModule/config.glade.h:6
+msgid "Folder Location:"
+msgstr "מיקום תיקייה:"
+
+#: ../conduit/modules/FileModule/config.glade.h:7
+msgid "Folder Name:"
+msgstr "שם תיקייה:"
+
+#: ../conduit/modules/FileModule/config.glade.h:8
+msgid "Ignore File Modification Times"
+msgstr ""
+
+#: ../conduit/modules/FileModule/config.glade.h:9
+msgid "Include Hidden Files"
+msgstr "כלול קבצים חבויים"
+
+#: ../conduit/modules/FileModule/config.glade.h:10
+msgid "Select A Folder"
+msgstr "בחר תיקייה"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:65
+#: ../conduit/modules/FlickrModule/config.glade.h:3
+msgid "Flickr"
+msgstr "‏Flickr"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:66
+msgid "Sync your Flickr.com photos"
+msgstr "סנכרן את תמונות ה-Flickr שלך"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:2
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/config.glade.h:5
+msgid "Photos are public"
+msgstr "תמונות ציבוריות"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:6
+msgid "Photoset Name:"
+msgstr ""
+
+#: ../conduit/modules/FlickrModule/config.glade.h:7
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/FspotModule.py:32
+#: ../conduit/modules/FspotModule/FspotModule.py:300
+msgid "F-Spot Photos"
+msgstr "תמונות F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:33
+#: ../conduit/modules/FspotModule/FspotModule.py:301
+msgid "Sync your F-Spot photos"
+msgstr "סנכרן את תמונות ה-F-Spot שלך"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:133
+msgid "F-Spot DBus interface is operating in read only mode"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr ""
+
+#: ../conduit/modules/FspotModule/config.glade.h:2
+msgid "Create Tags: "
+msgstr ""
+
+#: ../conduit/modules/FspotModule/config.glade.h:3
+msgid "F-Spot"
+msgstr "‏F-Spot"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:21
+msgid "GConf Settings"
+msgstr "הגדרות GConf"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:22
+msgid "Sync your desktop preferences"
+msgstr "סנכרן את העדפות שולחן העבודה שלך"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:354
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
+msgid "Google Calendar"
+msgstr "יומן Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:355
+msgid "Sync your Google Calendar"
+msgstr "סנכרן את יומן Google שלך"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:546
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
+msgid "Picasa"
+msgstr "‏Picasa"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:547
+msgid "Sync your Google Picasa photos"
+msgstr ""
+"סנכרן את תמונות ה-Google Picasa שלך"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:764
+msgid "Google Contacts"
+msgstr "אנשי קשר של Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:765
+msgid "Sync contacts from Google"
+msgstr "סנכרן אנשי קשר מ-Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:878
+msgid "YouTube"
+msgstr "‏YouTube"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:879
+msgid "Sync data from YouTube"
+msgstr "סנכרן מידע מ-YouTube"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
+msgid "Calendar:"
+msgstr "יומן:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+msgid "Email:"
+msgstr "דוא\"ל:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
+msgid "Load Calendars"
+msgstr "טען יומנים"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+msgid "Password:"
+msgstr "סיסמה:"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/iPodModule/config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+msgid "Album:"
+msgstr "אלבום:"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
+msgid "Login"
+msgstr "כניסה"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
+msgid "<b>Donwload Videos</b>"
+msgstr "<b>הורד קבצי וידאו</b>"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "By user"
+msgstr "לפי משתמש"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
+msgid "Favorites of"
+msgstr "מועדפים של"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
+msgid "Most viewed"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+msgid "Top rated"
+msgstr ""
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
+msgid "Uploaded by"
+msgstr "הועלה על ידי"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
+msgid "User: "
+msgstr "משתמש:"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+msgid "YouTube Source"
+msgstr "מקור YouTube"
+
+#: ../conduit/modules/iPodModule/config.glade.h:2
+msgid "gtk-delete"
+msgstr "gtk-delete"
+
+#: ../conduit/modules/iPodModule/config.glade.h:3
+msgid "iPod Photos"
+msgstr "תמונות iPod"
+
+#. Translators: Format string used to describe the acceptable formats the
+#. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
+#. arg is a comma seperated list of encodings
+#: ../conduit/modules/N800Module/N800Module.py:58
+#, python-format
+msgid "%s Format (%s)"
+msgstr ""
+
+#. Signifies that a conversion should not take place
+#: ../conduit/modules/N800Module/N800Module.py:60
+msgid "unchanged"
+msgstr "ללא שינוי"
+
+#: ../conduit/modules/N800Module/N800Module.py:118
+msgid "N800 Files"
+msgstr "קבצי N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:119
+msgid "Synchronizes files/folders to a N800 device"
+msgstr "סנכרן קבצים/תיקיות להתקן N800"
+
+#. To translators: default backup folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:124
+msgid "Backups"
+msgstr "גיבויים"
+
+#: ../conduit/modules/N800Module/N800Module.py:139
+msgid "N800 Music"
+msgstr "מוזיקת N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:140
+msgid "Synchronizes music to a N800 device"
+msgstr "סנכרן מוזיקה להתקן N800"
+
+#. To translators: defaul music folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:146
+msgid "Music"
+msgstr "מוזיקה"
+
+#: ../conduit/modules/N800Module/N800Module.py:163
+msgid "N800 Videos"
+msgstr ""
+
+#: ../conduit/modules/N800Module/N800Module.py:164
+#: ../conduit/modules/N800Module/N800Module.py:188
+msgid "Synchronizes video to a N800 device"
+msgstr ""
+
+#. To translators: defaul video folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:170
+msgid "Video"
+msgstr "וידאו"
+
+#: ../conduit/modules/N800Module/N800Module.py:187
+msgid "N800 Photos"
+msgstr "תמונות N800"
+
+#. To translators: default photos folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:194
+msgid "Photo"
+msgstr "תמונה"
+
+#: ../conduit/modules/NetworkModule/Server.py:147
+msgid "Network"
+msgstr "רשת"
+
+#: ../conduit/modules/NetworkModule/Server.py:148
+msgid "Enable synchronization via network"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
+msgid "Rhythmbox Music"
+msgstr "מוזיקת Rhymbox"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
+msgid "Sync songs from your Rhythmbox playlists"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+msgid "Unknown"
+msgstr "לא ידוע"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:1
+msgid "<b>Synchronize the Following Playlists</b>"
+msgstr ""
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:2
+msgid "Rhythmbox Playlists"
+msgstr "רשימות השמעה של Rhythmbox"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr "‏Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
+msgid "Sync your Shutterfly photos"
+msgstr "סנכרן את תמונות ה-Shutterfly שלך"
+
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr "%Y-%m-%d %H:%M:%S"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr "‏SmugMug"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Sync your SmugMug.com photos"
+msgstr "סנכרן את תמונות ה-SmugMug.com שלך"
