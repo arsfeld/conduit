@@ -7,15 +7,18 @@
 
 # Run mozilla takes care of settin up the appropriate environment variables
 # to run a program using mozilla libs
-FF_PATH=`ls -d /usr/lib/firefox* | tail -n 1`
-RUN_MOZILLA=$FF_PATH/run-mozilla.sh
 
-if [ -x $RUN_MOZILLA ]; then
-    $RUN_MOZILLA $(dirname $0)/conduit.real $*
-else
-    echo "WARNING: COULD NOT FIND FIREFOX LIBRARIES"
-    echo "WARNING: CONDUIT MAY CRASH UNEXPECTEDLY"
-    echo "WARNING: PLEASE TALK TO THE PERSON WHO PACKAGED CONDUIT"
-    $(dirname $0)/conduit.real $*
-fi
+for d in `ls -d /usr/lib/firefox* | sort -r`
+do
+    if [ -x $d/run-mozilla.sh ]; then
+        echo INFO: FOUND FIREFOX LIBS AT $d
+        $d/run-mozilla.sh $(dirname $0)/conduit.real $*
+        exit
+    fi
+done
+
+echo "WARNING: COULD NOT FIND FIREFOX LIBRARIES"
+echo "WARNING: CONDUIT MAY CRASH UNEXPECTEDLY"
+echo "WARNING: PLEASE TALK TO THE PERSON WHO PACKAGED CONDUIT"
+$(dirname $0)/conduit.real $*
 
