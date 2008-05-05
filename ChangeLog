@@ -1,3 +1,7 @@
+2008-05-05  John Carr <john.carr@unrouted.co.uk>
+
+	* conduit/conduit: Use /bin/sh, as Maemo doesn't have bash
+
 2008-05-04  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/__init__.py: Maemo fix. .config might not actually

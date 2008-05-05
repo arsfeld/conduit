@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Start Conduit
 
 # Work around https://bugs.launchpad.net/ubuntu/+source/firefox/+bug/26436
