@@ -2,9 +2,30 @@
 #
 # pyfacebook - Python bindings for the Facebook API
 #
-# See AUTHORS for a list of authors, and COPYING for
-# copyright information.
-
+# Copyright (c) 2008, Samuel Cormier-Iijima
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the <organization> nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY <copyright holder> ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL <copyright holder> BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 Python bindings for the Facebook API (pyfacebook - http://code.google.com/p/pyfacebook)
@@ -21,8 +42,6 @@ PyFacebook can use simplejson if it is installed, which
 is much faster than XML and also uses less bandwith. Go to
 http://undefined.org/python/#simplejson to download it, or do
 apt-get install python-simplejson on a Debian-like system.
-
-Licensed under the LGPL.
 """
 
 import md5
@@ -45,6 +64,31 @@ except ImportError:
         from xml.dom import minidom
         RESPONSE_FORMAT = 'XML'
 
+# support Google App Engine.  GAE does not have a working urllib.urlopen.
+try:
+    from google.appengine.api import urlfetch
+
+    def urlread(url, data=None):
+        if data is not None:
+            headers = {"Content-type": "application/x-www-form-urlencoded"}
+            method = urlfetch.POST
+        else:
+            headers = {}
+            method = urlfetch.GET
+
+        result = urlfetch.fetch(url, method=method,
+                                payload=data, headers=headers)
+        
+        if result.status_code == 200:
+            return result.content
+        else:
+            raise urllib2.URLError("fetch error url=%s, code=%d" % (url, result.status_code))
+
+except ImportError:
+    def urlread(url, data=None):
+        res = urllib2.urlopen(url, data=data)
+        return res.read()
+    
 __all__ = ['Facebook']
 
 VERSION = '0.1'
@@ -53,6 +97,8 @@ VERSION = '0.1'
 # Change these to /bestserver.php to use the bestserver.
 FACEBOOK_URL = 'http://api.facebook.com/restserver.php'
 FACEBOOK_SECURE_URL = 'https://api.facebook.com/restserver.php'
+
+class json(object): pass
 
 # simple IDL for the Facebook API
 METHODS = {
@@ -89,7 +135,9 @@ METHODS = {
         'publishTemplatizedAction': [
             # facebook expects title_data and body_data to be JSON
             # simplejson.dumps({'place':'Florida'}) would do fine
+            # actor_id is now deprecated, use page_actor_id instead
             ('actor_id', int, []),
+            ('page_actor_id', int, []),
             ('title_template', str, []),
             ('title_data', str, ['optional']),
             ('body_template', str, ['optional']),
@@ -155,6 +203,7 @@ METHODS = {
     # profile methods
     'profile': {
         'setFBML': [
+            ('markup', str, ['optional']),
             ('uid', int, ['optional']),
             ('profile', str, ['optional']),
             ('profile_action', str, ['optional']),
@@ -319,6 +368,21 @@ METHODS = {
         'setRefHandle': [
             ('handle', str, []),
             ('fbml', str, []),
+        ],
+    },
+
+    'data': {
+        'getCookies': [
+            ('uid', int, []),
+            ('string', str, []),
+        ],
+
+        'setCookie': [
+            ('uid', int, []),
+            ('name', str, []),
+            ('value', str, []),
+            ('expires', int, ['optional']),
+            ('path', str, ['optional']),
         ],
     },
 }
@@ -728,16 +792,17 @@ class Facebook(object):
 
     def __call__(self, method, args=None, secure=False):
         """Make a call to Facebook's REST server."""
+
         post_data = urllib.urlencode(self._build_post_args(method, args))
 
         if secure:
-            response = urllib2.urlopen(FACEBOOK_SECURE_URL, post_data).read()
+            response = urlread(FACEBOOK_SECURE_URL, post_data)
         else:
-            response = urllib2.urlopen(FACEBOOK_URL, post_data).read()
+            response = urlread(FACEBOOK_URL, post_data)
 
         return self._parse_response(response, method)
 
-
+    
     # URL helpers
     def get_url(self, page, **args):
         """
@@ -771,7 +836,7 @@ class Facebook(object):
 
     def get_authorize_url(self, next=None, next_cancel=None):
         """
-        Returns the URL that the user should be redirected to in order to add the application.
+        Returns the URL that the user should be redirected to in order to authorize certain actions for application.
 
         """
         args = {'api_key': self.api_key, 'v': '1.0'}

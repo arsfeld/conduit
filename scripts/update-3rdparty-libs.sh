@@ -7,14 +7,13 @@ if [ ! -f $APP ] ; then
 fi
 
 #update flickrapi
-svn export --force https://flickrapi.svn.sourceforge.net/svnroot/flickrapi/trunk/flickrapi/ conduit/modules/FlickrModule/flickrapi/
-patch -p0 < conduit/modules/FlickrModule/flickrapi/multi-username.patch
+#svn export --force https://flickrapi.svn.sourceforge.net/svnroot/flickrapi/trunk/flickrapi/ conduit/modules/FlickrModule/flickrapi/
+#patch -p0 < conduit/modules/FlickrModule/flickrapi/multi-username.patch
 
 #update pyfacebook
 svn export --force http://pyfacebook.googlecode.com/svn/trunk/facebook/__init__.py conduit/modules/FacebookModule/pyfacebook/__init__.py
-patch -p0 < conduit/modules/FacebookModule/pyfacebook/no-print-at-import.patch
 
 #update pybackpack
-wget -qO - http://hg.west.spy.net/hg/python/backpack/archive/tip.tar.gz | tar --wildcards -xzOf - */backpack.py > conduit/modules/BackpackModule/backpack/backpack.py
+#wget -qO - http://hg.west.spy.net/hg/python/backpack/archive/tip.tar.gz | tar --wildcards -xzOf - */backpack.py > conduit/modules/BackpackModule/backpack/backpack.py
 
 

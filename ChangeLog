@@ -1,5 +1,14 @@
 2008-05-06  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS:
+	* conduit/modules/FacebookModule/pyfacebook/__init__.py:
+	* conduit/modules/FacebookModule/pyfacebook/no-print-at-import.patch:
+	* test/python-tests/TestDataProviderFacebook.py:
+	* test/python-tests/TestDataProviderFlickr.py: Update to latest version
+	of pyfacebook.
+
+2008-05-06  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FspotModule/FspotModule.py: Remove the depreciated
 	non-dbus FSpot dataprovider
 

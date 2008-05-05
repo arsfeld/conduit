@@ -17,8 +17,15 @@ try:
 except Exception, err:
     ok("Logged in (%s)" % err, False)  
 
+#Perform image tests
+#test.do_image_dataprovider_tests(
+#        supportsGet=False,
+#        supportsDelete=False,
+#        safePhotoLUID=None
+#        )
+
 #Send a remote file
-f = File.File("http://files.conduit-project.org/screenshot.png")
+f = Photo.Photo(URI="http://files.conduit-project.org/screenshot.png")
 try:
     rid = facebook.put(f, True)
     ok("Upload a photo (%s) " % rid, True)
