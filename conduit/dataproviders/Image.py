@@ -12,7 +12,7 @@ class UploadInfo:
     and keep the _upload_info method on the ImageSink retain
     its api
     """
-    def __init__ (self, url, mimeType, name=None, tags=None, caption=None):
+    def __init__ (self, url, mimeType, name="", tags=(), caption=""):
         self.url = url
         self.mimeType = mimeType
         self.name = name

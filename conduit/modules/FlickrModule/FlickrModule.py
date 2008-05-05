@@ -116,6 +116,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
         ret = self.fapi.upload( 
                             filename=uploadInfo.url,
                             title=uploadInfo.name,
+                            description=uploadInfo.caption,
                             is_public="%i" % self.showPublic,
                             tags=' '.join(tag.replace(' ', '_') for tag in uploadInfo.tags))
 

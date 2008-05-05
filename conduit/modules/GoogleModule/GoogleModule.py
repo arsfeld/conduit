@@ -573,7 +573,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
             gphoto = self.pws.InsertPhotoSimple(
                                 self.galbum,
                                 uploadInfo.name,
-                                '',
+                                uploadInfo.caption,
                                 uploadInfo.url)
             for tag in uploadInfo.tags:
                 self.pws.InsertTag(gphoto, str(tag))
@@ -640,6 +640,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         f.set_open_URI(url)
         f.set_UID(LUID)
         f.set_tags(tags)
+        f.set_caption(gphoto.summary.text)
         return f
 
     def delete(self, LUID):

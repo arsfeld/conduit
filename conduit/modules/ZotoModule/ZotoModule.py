@@ -80,17 +80,13 @@ class MyZotoAPI:
         """
         Adds a photo to the album. 
         """
-        caption = uploadInfo.caption
-        if not caption:
-            caption = ''
-
         f = open(uploadInfo.url,'r')
         buf=f.read()                
         f.close()
         fotoId= md5.md5(buf).hexdigest()
 
         self.server.images.add(self.zapiKey, self.zotoAuth, uploadInfo.name,
-                               uploadInfo.name, caption, xmlrpclib.Binary(buf))
+                               uploadInfo.name, uploadInfo.caption, xmlrpclib.Binary(buf))
         self.server.albums.multi_add_image(self.zapiKey, self.zotoAuth,
                                            albumId, [fotoId])
         tags = []

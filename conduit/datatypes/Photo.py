@@ -54,9 +54,6 @@ class Photo(File.File):
         return self._caption
 
     def set_caption(self, caption):
-        """
-        Sets the tags of the datatype
-        """
         self._caption = caption
         
     def __getstate__(self):

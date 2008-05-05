@@ -1,3 +1,13 @@
+2008-05-05  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS: Mention new zoto module
+	* conduit/dataproviders/Image.py:
+	* conduit/datatypes/Photo.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py: 
+	* conduit/modules/ZotoModule/ZotoModule.py: Add captions to photos
+	when uploading. Fixes #521810 and #530979.
+
 2008-05-05  John Carr <john.carr@unrouted.co.uk>
 
 	* conduit/conduit: Use /bin/sh, as Maemo doesn't have bash
