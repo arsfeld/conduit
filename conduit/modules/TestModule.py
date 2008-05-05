@@ -436,7 +436,8 @@ class TestFolderTwoWay(FileDataProvider.FolderTwoWay):
                             folder= "file://"+Utils.new_tempdir(),
                             folderGroupName="Test",
                             includeHidden=False,
-                            compareIgnoreMtime=False
+                            compareIgnoreMtime=False,
+                            followSymlinks=False
                             )
 
     def get_UID(self):

@@ -64,6 +64,7 @@ class N800Base(FileDataProvider.FolderTwoWay):
                             "file://"+folder,
                             "N800",
                             False,
+                            False,
                             False
                             )
         self.mount = mount

@@ -220,12 +220,13 @@ class FolderTwoWay(DataProvider.TwoWay):
     _out_type_ = "file"
     _icon_ = "folder"
 
-    def __init__(self, folder, folderGroupName, includeHidden, compareIgnoreMtime):
+    def __init__(self, folder, folderGroupName, includeHidden, compareIgnoreMtime, followSymlinks):
         DataProvider.TwoWay.__init__(self)
         self.folder = folder
         self.folderGroupName = folderGroupName
         self.includeHidden = includeHidden
         self.compareIgnoreMtime = compareIgnoreMtime
+        self.followSymlinks = followSymlinks
 
         self.fstype = None
         self.files = []
@@ -248,7 +249,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         self.fstype = Vfs.uri_get_filesystem_type(self.folder)
 
         #scan the folder
-        scanThread = Vfs.FolderScanner(self.folder, self.includeHidden)
+        scanThread = Vfs.FolderScanner(self.folder, self.includeHidden, self.followSymlinks)
         scanThread.start()
         scanThread.join()
         self.files = scanThread.get_uris()

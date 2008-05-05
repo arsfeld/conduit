@@ -300,12 +300,13 @@ class _FileSourceConfigurator(Vfs.FolderScannerThreadManager):
                 dialog.emit_stop_by_name("response")
 
 class _FolderTwoWayConfigurator:
-    def __init__(self, mainWindow, folder, folderGroupName, includeHidden, compareIgnoreMtime):
+    def __init__(self, mainWindow, folder, folderGroupName, includeHidden, compareIgnoreMtime, followSymlinks):
         log.debug("Starting new folder chooser at %s" % folder)
         self.folder = folder
         self.includeHidden = includeHidden
         self.folderGroupName = folderGroupName
         self.compareIgnoreMtime = compareIgnoreMtime
+        self.followSymlinks = followSymlinks
 
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -320,6 +321,8 @@ class _FolderTwoWayConfigurator:
         self.hiddenCb.set_active(includeHidden)
         self.mtimeCb = tree.get_widget("ignoreMtime")
         self.mtimeCb.set_active(self.compareIgnoreMtime)
+        self.followSymlinksCb = tree.get_widget("followSymlinks")
+        self.followSymlinksCb.set_active(self.followSymlinks)
 
         self.dlg = tree.get_widget("FolderTwoWayConfigDialog")
         self.dlg.connect("response",self.on_response)
@@ -354,9 +357,10 @@ class _FolderTwoWayConfigurator:
                 log.debug("Folderconfig returned %s (non-canonical: %s)" % (self.folder,selected))
                 self.includeHidden = self.hiddenCb.get_active()
                 self.compareIgnoreMtime = self.mtimeCb.get_active()
+                self.followSymlinks = self.followSymlinksCb.get_active() 
 
     def show_dialog(self):
         self.dlg.show_all()
         self.dlg.run()
         self.dlg.destroy()
-        return self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime
+        return self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime, self.followSymlinks

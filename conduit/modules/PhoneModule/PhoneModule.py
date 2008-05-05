@@ -109,7 +109,8 @@ class ObexFileDataProvider(FileDataProvider.FolderTwoWay):
                             folder= "obex://[%s]" % address,
                             folderGroupName="Test",
                             includeHidden=False,
-                            compareIgnoreMtime=False
+                            compareIgnoreMtime=False,
+                            followSymlinks=False
                             )
         self.address = address
         #FIXME: In the land of GIO, I think I need to gio-mount this

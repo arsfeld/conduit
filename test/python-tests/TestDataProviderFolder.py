@@ -41,7 +41,8 @@ dp = FileDataProvider.FolderTwoWay(
             folder=dpdir,
             folderGroupName=GROUP_NAME,
             includeHidden=False,
-            compareIgnoreMtime=False)
+            compareIgnoreMtime=False,
+            followSymlinks=False)
 
 # Scenario 1)
 #   File came from a foreign DP like tomboy. No concept of relative path

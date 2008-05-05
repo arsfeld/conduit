@@ -273,7 +273,7 @@ class FolderScannerThreadManager(object):
         self.scanThreads = {}
         self.pendingScanThreadsURIs = []
 
-    def make_thread(self, folderURI, includeHidden, progressCb, completedCb, *args):
+    def make_thread(self, folderURI, includeHidden, followSymlinks, progressCb, completedCb, *args):
         """
         Makes a thread for scanning folderURI. The thread callsback the model
         at regular intervals with the supplied args
@@ -281,7 +281,7 @@ class FolderScannerThreadManager(object):
         running = len(self.scanThreads) - len(self.pendingScanThreadsURIs)
 
         if folderURI not in self.scanThreads:
-            thread = FolderScanner(folderURI, includeHidden)
+            thread = FolderScanner(folderURI, includeHidden, followSymlinks)
             thread.connect("scan-progress",progressCb, *args)
             thread.connect("scan-completed",completedCb, *args)
             thread.connect("scan-completed", self._register_thread_completed, folderURI)
@@ -362,11 +362,12 @@ class FolderScanner(threading.Thread, gobject.GObject):
                     "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
 
-    def __init__(self, baseURI, includeHidden):
+    def __init__(self, baseURI, includeHidden, followSymlinks):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
         self.baseURI = str(baseURI)
         self.includeHidden = includeHidden
+        self.followSymlinks = followSymlinks
 
         self.dirs = [self.baseURI]
         self.cancelled = False
@@ -389,7 +390,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             if self.cancelled:
                 return
             dir = self.dirs.pop(0)
-            try:hdir = gnomevfs.DirectoryHandle(dir)
+            try: hdir = gnomevfs.DirectoryHandle(dir)
             except: 
                 log.warn("Folder %s Not found" % dir)
                 continue
@@ -405,7 +406,8 @@ class FolderScanner(threading.Thread, gobject.GObject):
                         if filename[0] != "." or self.includeHidden:
                             self.dirs.append(dir+"/"+filename)
                             t += 1
-                    elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR:
+                    elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR or \
+                        (fileinfo.type == gnomevfs.FILE_TYPE_SYMBOLIC_LINK and self.followSymlinks):
                         try:
                             uri = uri_make_canonical(dir+"/"+filename)
                             #Include hidden files

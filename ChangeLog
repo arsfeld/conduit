@@ -1,3 +1,19 @@
+2008-05-06  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* conduit/dataproviders/File.py:
+	* conduit/modules/FileModule/FileConfiguration.py:
+	* conduit/modules/FileModule/FileModule.py:
+	* conduit/modules/FileModule/config.glade:
+	* conduit/modules/N800Module/N800Module.py:
+	* conduit/modules/PhoneModule/PhoneModule.py:
+	* conduit/modules/TestModule.py:
+	* test/python-tests/TestCoreVfs.py:
+	* test/python-tests/TestDataProviderFolder.py:
+	* test/python-tests/TestSyncFolderFolder.py: Configuration option in all
+	file/folder dataproviders allowing them to follow symlinks.
+	Fixes #530929 (P. Henrique Silva)
+
 2008-05-05  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/FlickrModule/FlickrModule.py: Dont duplicate first

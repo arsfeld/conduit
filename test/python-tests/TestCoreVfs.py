@@ -30,8 +30,8 @@ stm = Vfs.FolderScannerThreadManager(maxConcurrentThreads=1)
 def prog(*args): pass
 def done(*args): pass
 
-t1 = stm.make_thread("file:///tmp", False, prog, done)
-t2 = stm.make_thread("file://"+tmpdiruri, False, prog, done)
+t1 = stm.make_thread("file:///tmp", False, False, prog, done)
+t2 = stm.make_thread("file://"+tmpdiruri, False, False, prog, done)
 stm.join_all_threads()
 
 ok("Scanned /tmp ok - found %s" % fileuri, "file://"+fileuri in t1.get_uris())

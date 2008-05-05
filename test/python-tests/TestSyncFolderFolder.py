@@ -53,6 +53,7 @@ config = {}
 config["folderGroupName"] = "TestGroup"
 config["folder"] = "file://"+sourceDir
 config["includeHidden"] = False
+config["followSymlinks"] = False
 test.configure(source=config)
 
 config["folder"] = "file://"+sinkDir
@@ -184,5 +185,6 @@ for i in range(1,SYNC_N_TIMES+1):
     mapSource2Sink = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sourceW.get_UID(), sinkW.get_UID())
     mapSink2Source = conduit.GLOBALS.mappingDB.get_mappings_for_dataproviders(sinkW.get_UID(), sourceW.get_UID())
     ok("Hidden: 15 Mappings in total", len(mapSource2Sink + mapSink2Source) == 15)
+
 
 finished()
