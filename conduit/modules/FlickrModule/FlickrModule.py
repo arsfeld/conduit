@@ -127,10 +127,14 @@ class FlickrTwoWay(Image.ImageTwoWay):
         photoId = ret.photoid[0].elementText
 
         # check if phtotoset exists, if not create it
+        firstPhoto = False
         if not self.photoSetId:
             self.photoSetId = self._create_photoset(photoId)
+            # first photo shouldn't be added to photoset as Flickrs does it for us
+            firstPhoto = True
+
         # add the photo to the photoset
-        if self.photoSetId:
+        if self.photoSetId and not firstPhoto:
             ret = self.fapi.photosets_addPhoto(
                                 photoset_id = self.photoSetId,
                                 photo_id = photoId)

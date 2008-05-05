@@ -1,5 +1,10 @@
 2008-05-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FlickrModule/FlickrModule.py: Dont duplicate first
+	photo when creating photosets. Fixes #530980 (P. Henrique Silva)
+
+2008-05-05  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS: Mention new zoto module
 	* conduit/dataproviders/Image.py:
 	* conduit/datatypes/Photo.py:
