@@ -886,6 +886,11 @@ class YouTubeSource(DataProvider.DataSource):
     USERS_FEED = "http://gdata.youtube.com/feeds/users"
     STD_FEEDS = "http://gdata.youtube.com/feeds/standardfeeds"
     VIDEO_NAME_RE = re.compile(r', "t": "([^"]+)"')
+    
+    #From: http://code.google.com/apis/youtube/dashboard/
+    UPLOAD_CLIENT_ID="ytapi-ConduitProject-Conduit-e14hdhdm-0"
+    UPLOAD_DEVELOPER_KEY="AI39si6wJ3VA_UWZCWeuA-wmJEpEhGbE3ZxCOZq89JJFy5CpSkFOq8gdZluNvBAM6DW8m7AhliSYPLyfEPJx6XphBq3vOBHuzQ"
+    UPLOAD_URL="http://uploads.gdata.youtube.com/feeds/api/users/%(username)s/uploads"
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)

@@ -1,5 +1,10 @@
 2008-05-06  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py: Add magic numbers in case
+	anyone wants to work on youtube video upload.
+
+2008-05-06  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py:
 	* conduit/dataproviders/File.py:
 	* conduit/modules/FileModule/FileConfiguration.py:
