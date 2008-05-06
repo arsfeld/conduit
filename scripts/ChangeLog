@@ -1,3 +1,9 @@
+2008-05-07  John Stowers  <john.stowers@gmail.com>
+
+	reviewed by: <delete if not using a buddy>
+
+	* update-3rdparty-libs.sh:
+
 2008-02-18  John Stowers  <john.stowers@gmail.com>
 
 	* maintainer.py: Many improvements to NEWS generation

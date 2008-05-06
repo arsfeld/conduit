@@ -9,9 +9,13 @@ class Part(object):
     '''A single part of the multipart data.
     
     >>> Part({'name': 'headline'}, 'Nice Photo')
-    
-    >>> image = 'photo.jpg'
+    ... # doctest: +ELLIPSIS
+    <flickrapi.multipart.Part object at 0x...>
+
+    >>> image = file('tests/photo.jpg')
     >>> Part({'name': 'photo', 'filename': image}, image.read(), 'image/jpeg')
+    ... # doctest: +ELLIPSIS
+    <flickrapi.multipart.Part object at 0x...>
     '''
     
     def __init__(self, parameters, payload, content_type=None):
@@ -22,7 +26,8 @@ class Part(object):
     def render(self):
         '''Renders this part -> List of Strings'''
         
-        parameters = ['%s="%s"' % (k, v) for k, v in self.parameters.iteritems()]
+        parameters = ['%s="%s"' % (k, v)
+                      for k, v in self.parameters.iteritems()]
         
         lines = ['Content-Disposition: form-data; %s' % '; '.join(parameters)]
         
@@ -42,13 +47,16 @@ class FilePart(Part):
     '''A single part with a file as the payload
     
     This example has the same semantics as the second Part example:
-    >>> FilePart({'name': 'photo'}, 'photo.jpg', 'image/jpeg')
+
+    >>> FilePart({'name': 'photo'}, 'tests/photo.jpg', 'image/jpeg')
+    ... #doctest: +ELLIPSIS
+    <flickrapi.multipart.FilePart object at 0x...>
     '''
     
     def __init__(self, parameters, filename, content_type):
         parameters['filename'] = filename
         
-        imagefile = open(filename)
+        imagefile = open(filename, 'rb')
         payload = imagefile.read()
         imagefile.close()
 
@@ -89,4 +97,5 @@ class Multipart(object):
     def header(self):
         '''Returns the top-level HTTP header of this multipart'''
         
-        return ("Content-Type", "multipart/form-data; boundary=%s" % self.boundary)
+        return ("Content-Type",
+                "multipart/form-data; boundary=%s" % self.boundary)

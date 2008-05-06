@@ -20,9 +20,7 @@ try:
 except ImportError:
     pass
 
-logging.basicConfig()
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
 
 SERVICE_URL = 'http://api.rememberthemilk.com/services/rest/'
 AUTH_SERVICE_URL = 'http://www.rememberthemilk.com/services/auth/'
@@ -418,9 +416,5 @@ class TestRTM(unittest.TestCase):
         import rtm
         rtm2 = rtm.createRTM(apiKey='fe049e2cec86568f3d79c964d4a45f5c',secret='b57757de51f7e919',token=None)
         get_all_tasks(rtm2)
-        
-    
-    
 
-    
-    
+

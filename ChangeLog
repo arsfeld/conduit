@@ -1,3 +1,20 @@
+2008-05-07  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FlickrModule/flickrapi/LICENSE:
+	* conduit/modules/FlickrModule/flickrapi/__init__.py:
+	* conduit/modules/FlickrModule/flickrapi/cache.py:
+	* conduit/modules/FlickrModule/flickrapi/exceptions.py:
+	* conduit/modules/FlickrModule/flickrapi/multi-username.patch:
+	* conduit/modules/FlickrModule/flickrapi/multipart.py:
+	* conduit/modules/FlickrModule/flickrapi/tokencache.py:
+	* conduit/modules/FlickrModule/flickrapi/xmlnode.py: Update to latest version
+	of flickrapi and adapt to API changes.
+	
+	* conduit/modules/RTMModule/rtm.py: Remove logging.basicConfig() call which
+	overrides conduits log settings and screws up everything.
+
 2008-05-06  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:

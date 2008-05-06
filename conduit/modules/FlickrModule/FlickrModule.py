@@ -1,9 +1,6 @@
 """
 Flickr Uploader.
 """
-import os, sys
-import traceback
-import md5
 import logging
 log = logging.getLogger("modules.Flickr")
 
@@ -22,43 +19,57 @@ from gettext import gettext as _
 Utils.dataprovider_add_dir_to_path(__file__)
 import flickrapi
 
-if flickrapi.__version__.endswith("CONDUIT"):
+if flickrapi.__version__ == "1.1":
     MODULES = {
     	"FlickrTwoWay" :          { "type": "dataprovider" }        
     }
     log.info("Module Information: %s" % Utils.get_module_information(flickrapi, "__version__"))
+    #turn of debugging in the library
+    flickrapi.set_log_level(logging.NOTSET)
 else:
     MODULES = {}
     log.info("Flickr support disabled")
     
 class MyFlickrAPI(flickrapi.FlickrAPI):
-    def __init__(self, apiKey, secret, username):
-            flickrapi.FlickrAPI.__init__(self, 
-                        apiKey, 
-                        secret, 
-                        fail_on_error=True, 
-                        username=username
-                        )
+    """
+    Wraps the FlickrAPI in order to override validate_frob to launch the conduit
+    web browser.
+    """
+    #Note that the order, and assignment of values to self.myFrob
+    #and self.myToken is important - if done incorrectly then FlickrAPI.__getattr__
+    #returns a handler function for them, and not the actual value requested
+    def __init__(self, api_key, secret, username):
+        flickrapi.FlickrAPI.__init__(self, 
+                    api_key=api_key, 
+                    secret=secret, 
+                    username=username,
+                    token=None,
+                    format='xmlnode',
+                    store_token=True,
+                    cache=False
+                    )
+        self.myFrob = None
+        self.myToken = None
                         
-    def validateFrob(self, frob, perms):
-        self.frob = frob
-        encoded = self.encode_and_sign({
-                    "api_key": self.api_key,
-                    "frob": frob,
-                    "perms": perms})
-        auth_url = "http://%s%s?%s" % (flickrapi.FlickrAPI.flickrHost, flickrapi.FlickrAPI.flickrAuthForm, encoded)        
-        Web.LoginMagic("Log into Flickr", auth_url, login_function=self.try_login)
-        
+    def validate_frob(self, frob, perms):
+        self.myFrob = frob
+        Web.LoginMagic("Log into Flickr", self.auth_url(perms, frob), login_function=self.try_login)    
+            
     def try_login(self):
         try:
-            self.getTokenPartTwo((self.token, self.frob))
+            self.myToken = self.get_token(self.myFrob)
             return True
         except flickrapi.FlickrError:
             return False
             
     def login(self):
-        token, frob = self.getTokenPartOne(perms='delete')
-        return token
+        token, frob = self.get_token_part_one(perms='delete')
+        if token:
+            log.debug("Got token from cache")
+            return token
+        else:
+            log.debug("Got token from web")
+            return self.myToken
 
 class FlickrTwoWay(Image.ImageTwoWay):
 
@@ -69,7 +80,6 @@ class FlickrTwoWay(Image.ImageTwoWay):
 
     API_KEY="65552e8722b21d299388120c9fa33580"
     SHARED_SECRET="03182987bf7fc4d1"
-    _perms_ = "delete"
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
@@ -87,24 +97,22 @@ class FlickrTwoWay(Image.ImageTwoWay):
         """
         Returs used,total or -1,-1 on error
         """
-        ret = self.fapi.people_getUploadStatus()
-        if self.fapi.getRspErrorCode(ret) != 0:
-            log.debug("Flickr people_getUploadStatus Error: %s" % self.fapi.getPrintableError(ret))
-            return -1,-1,100
-        else:
+        try:
+            ret = self.fapi.people_getUploadStatus()
             totalkb =   int(ret.user[0].bandwidth[0]["maxkb"])
             usedkb =    int(ret.user[0].bandwidth[0]["usedkb"])
             p = (float(usedkb)/totalkb)*100.0
             return usedkb,totalkb,p
+        except flickrapi.FlickrError, e:
+            log.debug("Error getting quota: %s" % e)
+            return -1,-1,100
 
     def _get_photo_info(self, photoID):
-        info = self.fapi.photos_getInfo(photo_id=photoID)
-
-        if self.fapi.getRspErrorCode(info) != 0:
-            log.debug("Flickr photos_getInfo Error: %s" % self.fapi.getPrintableError(info))
+        try:
+            return self.fapi.photos_getInfo(photo_id=photoID)
+        except flickrapi.FlickrError, e:
+            log.debug("Error getting photo info: %s" % e)
             return None
-        else:
-            return info
 
     def _get_raw_photo_url(self, photoInfo):
         photo = photoInfo.photo[0]
@@ -113,18 +121,18 @@ class FlickrTwoWay(Image.ImageTwoWay):
         return url
 
     def _upload_photo (self, uploadInfo):
-        ret = self.fapi.upload( 
-                            filename=uploadInfo.url,
-                            title=uploadInfo.name,
-                            description=uploadInfo.caption,
-                            is_public="%i" % self.showPublic,
-                            tags=' '.join(tag.replace(' ', '_') for tag in uploadInfo.tags))
-
-        if self.fapi.getRspErrorCode(ret) != 0:
-            raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % self.fapi.getPrintableError(ret))
+        try:
+            ret = self.fapi.upload( 
+                                filename=uploadInfo.url,
+                                title=uploadInfo.name,
+                                description=uploadInfo.caption,
+                                is_public="%i" % self.showPublic,
+                                tags=' '.join(tag.replace(' ', '_') for tag in uploadInfo.tags))
+        except flickrapi.FlickrError, e:
+            raise Exceptions.SyncronizeError("Flickr Upload Error: %s" % e)
 
         # get the id
-        photoId = ret.photoid[0].elementText
+        photoId = ret.photoid[0].text
 
         # check if phtotoset exists, if not create it
         firstPhoto = False
@@ -135,11 +143,12 @@ class FlickrTwoWay(Image.ImageTwoWay):
 
         # add the photo to the photoset
         if self.photoSetId and not firstPhoto:
-            ret = self.fapi.photosets_addPhoto(
-                                photoset_id = self.photoSetId,
-                                photo_id = photoId)
-            if self.fapi.getRspErrorCode(ret) != 0:
-                log.warn("Flickr failed to add photo to set: %s" % self.fapi.getPrintableError(ret))
+            try:
+                ret = self.fapi.photosets_addPhoto(
+                                    photoset_id = self.photoSetId,
+                                    photo_id = photoId)
+            except flickrapi.FlickrError, e:
+                log.warn("Flickr failed to add %s to set: %s" % (photoId,e))
 
         #return the photoID
         return Rid(uid=photoId)
@@ -161,16 +170,14 @@ class FlickrTwoWay(Image.ImageTwoWay):
             
     def _create_photoset(self, primaryPhotoId):
         #create one with created photoID if not
-        ret = self.fapi.photosets_create(
-                                title=self.photoSetName,
-                                primary_photo_id=primaryPhotoId)
-
-        photoSetId = None
-        if self.fapi.getRspErrorCode(ret) != 0:
-            log.warn("Flickr failed to create photoset: %s" % self.fapi.getPrintableError(ret))
-        else:
-            photoSetId = ret.photoset[0]['id']
-        return photoSetId
+        try:
+            ret = self.fapi.photosets_create(
+                                    title=self.photoSetName,
+                                    primary_photo_id=primaryPhotoId)
+            return ret.photoset[0]['id']
+        except flickrapi.FlickrError, e:
+            log.warn("Flickr failed to create photoset %s: %s" % (self.photoSetName,e))
+            return None
                 
     def _get_photoset(self):
         for name, photoSetId in self._get_photosets():
@@ -179,38 +186,38 @@ class FlickrTwoWay(Image.ImageTwoWay):
                 self.photoSetId = photoSetId
                 
     def _get_photosets(self):
-        ret = self.fapi.photosets_getList()  
-        if self.fapi.getRspErrorCode(ret) != 0:
-            log.warn("Flickr Refresh Error: %s" % self.fapi.getPrintableError(ret))
-            return []
-
         photosets = []
-        if hasattr(ret.photosets[0], 'photoset'):
-            for pset in ret.photosets[0].photoset:
-                photosets.append(
-                            (pset.title[0].elementText, #photoset name
-                            pset['id']))                #photoset id
+        try:
+            ret = self.fapi.photosets_getList()  
+            if hasattr(ret.photosets[0], 'photoset'):
+                for pset in ret.photosets[0].photoset:
+                    photosets.append(
+                                (pset.title[0].text,        #photoset name
+                                pset['id']))                #photoset id
+        except flickrapi.FlickrError, e:
+            log.debug("Failed to get photosets: %s" % e)
 
-        return photosets
+        return photosets        
         
     def _get_photos(self):
         if not self.photoSetId:
             return []
 
         photoList = []
-        ret = self.fapi.photosets_getPhotos(photoset_id=self.photoSetId)
-        if self.fapi.getRspErrorCode(ret) != 0:
-            log.warn("Flickr failed to get photos: %s" % self.fapi.getPrintableError(ret))
-        else:            
+        try:
+            ret = self.fapi.photosets_getPhotos(photoset_id=self.photoSetId)
             for photo in ret.photoset[0].photo:
                 photoList.append(photo['id'])
+        except flickrapi.FlickrError, e:
+            log.warn("Flickr failed to get photos: %s" % e)
+
         return photoList
         
     # DataProvider methods
     def refresh(self):
         Image.ImageTwoWay.refresh(self)
         self._login()
-        self._get_photoset()            
+        self._get_photoset()
         used,tot,percent = self._get_user_quota()
         log.debug("Used %2.1f%% of monthly badwidth quota (%skb/%skb)" % (percent,used,tot))
 
@@ -223,14 +230,14 @@ class FlickrTwoWay(Image.ImageTwoWay):
         # get url
         url = self._get_raw_photo_url (photoInfo)
         # get the title
-        title = str(photoInfo.photo[0].title[0].elementText)
+        title = str(photoInfo.photo[0].title[0].text)
         # get tags
         tagsNode = photoInfo.photo[0].tags[0]
         # get caption
-        caption = photoInfo.photo[0].description[0].elementText
+        caption = photoInfo.photo[0].description[0].text
         
         if hasattr(tagsNode, 'tag'):
-            tags = tuple(tag.elementText for tag in tagsNode.tag)
+            tags = tuple(tag.text for tag in tagsNode.tag)
         else:
             tags = ()
 
@@ -256,13 +263,13 @@ class FlickrTwoWay(Image.ImageTwoWay):
 
     def delete(self, LUID):
         if self._get_photo_info(LUID) != None:
-            ret = self.fapi.photos_delete(photo_id=LUID)
-            if self.fapi.getRspErrorCode(ret) != 0:
-                log.warn("Flickr Error Deleting: %s" % self.fapi.getPrintableError(ret))
-            else:
-                log.debug("Successfully deleted photo [%s]" % LUID)
+            try:
+                ret = self.fapi.photos_delete(photo_id=LUID)
+                log.debug("Successfully deleted photo: %s" % LUID)
+            except flickrapi.FlickrError, e:
+                log.warn("Error deleting %s: %s" % (LUID,e))
         else:
-            log.warn("Photo doesnt exist")
+            log.warn("Error deleting %s: doesnt exist" % LUID)
 
     def configure(self, window):
         """
