@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit 0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-06 18:15+0200\n"
-"PO-Revision-Date: 2008-05-06 18:21+0200\n"
+"POT-Creation-Date: 2008-05-06 19:03+0200\n"
+"PO-Revision-Date: 2008-05-06 19:03+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: LANGUAGE <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
@@ -823,10 +823,6 @@ msgid "YouTube Source"
 msgstr "YouTube-kilde"
 
 #: ../conduit/modules/iPodModule/config.glade.h:2
-msgid "gtk-delete"
-msgstr "gtk-delete"
-
-#: ../conduit/modules/iPodModule/config.glade.h:3
 msgid "iPod Photos"
 msgstr "iPod-bilder"
 
