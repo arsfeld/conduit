@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit 0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-06 19:03+0200\n"
-"PO-Revision-Date: 2008-05-06 19:03+0200\n"
+"POT-Creation-Date: 2008-05-06 19:53+0200\n"
+"PO-Revision-Date: 2008-05-06 19:57+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: LANGUAGE <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
@@ -57,11 +57,11 @@ msgstr "Avbryt synkronisering"
 
 #: ../data/conduit.glade.h:7
 msgid "Cancel currently synchronizing groups"
-msgstr ""
+msgstr "Avbryt grupper som blir synkronisert"
 
 #: ../data/conduit.glade.h:8
 msgid "Clear Canvas"
-msgstr ""
+msgstr "Tøm kanvas"
 
 #: ../data/conduit.glade.h:9
 msgid "Compare"
@@ -81,7 +81,7 @@ msgstr "Konfigurer oppføring"
 
 #: ../data/conduit.glade.h:13
 msgid "Configure the synchronization settings for this item"
-msgstr ""
+msgstr "Konfigurer innstillinger for synkronisering av denne oppføringen"
 
 #: ../data/conduit.glade.h:14
 msgid "Conflict Options"
@@ -117,7 +117,7 @@ msgstr "Slett alternativer"
 
 #: ../data/conduit.glade.h:22
 msgid "Delete from the corresponding sink"
-msgstr ""
+msgstr "Slett fra tilhørende vask"
 
 #: ../data/conduit.glade.h:23
 msgid "Delete the Corresponding Item"
@@ -129,7 +129,7 @@ msgstr "Redigering"
 
 #: ../data/conduit.glade.h:25
 msgid "Minimize to notification area"
-msgstr ""
+msgstr "Minimer til varslingsområdet"
 
 #: ../data/conduit.glade.h:26
 msgid "Refresh Group"
@@ -229,7 +229,7 @@ msgstr "_Hjelp"
 
 #: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:35
 msgid "Drag a Data Provider here to continue"
-msgstr ""
+msgstr "Dra en datatilbyder hit for å fortsette"
 
 #. Visible column0 is
 #. [pixbuf + source display name] or
@@ -240,12 +240,12 @@ msgstr "Kilde"
 
 #: ../conduit/gtkui/ConflictResolver.py:96
 msgid "Resolution"
-msgstr ""
+msgstr "Oppløsning"
 
 #. Visible column2 is the display name of source and source data
 #: ../conduit/gtkui/ConflictResolver.py:101
 msgid "Sink"
-msgstr ""
+msgstr "Vask"
 
 #: ../conduit/gtkui/ConflictResolver.py:165
 #: ../conduit/gtkui/ConflictResolver.py:166
@@ -264,7 +264,7 @@ msgstr "til"
 
 #: ../conduit/gtkui/UI.py:291
 msgid "Conversions Available"
-msgstr ""
+msgstr "Konvertering tilgjengelig"
 
 #: ../conduit/gtkui/UI.py:297 ../conduit/gtkui/Tree.py:348
 #: ../conduit/modules/FileModule/FileConfiguration.py:104
@@ -277,7 +277,7 @@ msgstr "Lastet"
 
 #: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:129
 msgid "Synchronization in progress. Do you want to cancel it?"
-msgstr ""
+msgstr "Synkronisering pågår. Vil du avbryte den?"
 
 #: ../conduit/gtkui/UI.py:556
 msgid "_Synchronize All"
@@ -293,7 +293,7 @@ msgstr "_Avbryt synkronisering"
 
 #: ../conduit/gtkui/UI.py:557
 msgid "Cancels Currently Synchronizing Groups"
-msgstr ""
+msgstr "Avbryter grupper som er under synkronisering"
 
 #: ../conduit/gtkui/UI.py:558
 msgid "_Quit"
@@ -357,7 +357,7 @@ msgstr "Synkronisering OK"
 
 #: ../conduit/dataproviders/DataProvider.py:26
 msgid "Error Synchronizing"
-msgstr ""
+msgstr "Feil med synkronisering"
 
 #: ../conduit/dataproviders/DataProvider.py:27
 msgid "Synchronization Skipped"
@@ -365,15 +365,15 @@ msgstr ""
 
 #: ../conduit/dataproviders/DataProvider.py:28
 msgid "Synchronization Cancelled"
-msgstr ""
+msgstr "Synkronisering avbrutt"
 
 #: ../conduit/dataproviders/DataProvider.py:29
 msgid "Synchronization Conflict"
-msgstr ""
+msgstr "Konflikt under synkronisering"
 
 #: ../conduit/dataproviders/DataProvider.py:30
 msgid "Not Configured Correctly"
-msgstr ""
+msgstr "Ikke konfigurert riktig"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:55
 msgid "Backpack Notes"
@@ -389,8 +389,9 @@ msgstr ""
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
 #: ../conduit/modules/SmugMugModule/config.glade.h:1
+#: ../conduit/modules/ZotoModule/zoto.glade.h:1
 msgid "<b>Account Details</b>"
-msgstr ""
+msgstr "<b>Detaljer om konto</b>"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:2
 msgid "<b>Saved Note Settings</b>"
@@ -398,7 +399,7 @@ msgstr ""
 
 #: ../conduit/modules/BackpackModule/config.glade.h:3
 msgid "API key:"
-msgstr ""
+msgstr "API-nøkkel:"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:4
 msgid "Backpack"
@@ -413,12 +414,13 @@ msgstr ""
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
 #: ../conduit/modules/SmugMugModule/config.glade.h:7
+#: ../conduit/modules/ZotoModule/zoto.glade.h:5
 msgid "Username:"
 msgstr "Brukernavn:"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:30
 msgid "Banshee Playlists"
-msgstr ""
+msgstr "Spillelister fra Banshee"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:31
 msgid "Sync your Banshee playlists"
@@ -519,7 +521,7 @@ msgstr ""
 #: ../conduit/modules/FeedModule/FeedModule.py:30
 #: ../conduit/modules/FeedModule/config.glade.h:9
 msgid "RSS Feed"
-msgstr ""
+msgstr "RSS-strøm"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:31
 msgid "Sync data from RSS enclosures"
@@ -582,12 +584,12 @@ msgstr "Ta med mappe..."
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:296
 msgid "Please Name All Folders"
-msgstr ""
+msgstr "Vennligst navngi alle mapper"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:297
 msgid ""
 "All folders require a descriptive name. To name a folder simply click on it"
-msgstr ""
+msgstr "Alle mapper må ha et beskrivende navn. Klikk på en mappe for å gi den et navn"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:341
 msgid "Please Enter a Folder Name"
@@ -597,7 +599,7 @@ msgstr "Vennligst oppgi et mappenavn"
 msgid ""
 "All folders require a descriptive name. To name a folder enter its name "
 "where indicated"
-msgstr ""
+msgstr "Alle mapper må ha et beskrivende navn. Skriv inn navnet der du får beskjed for å navngi dem."
 
 #: ../conduit/modules/FileModule/FileModule.py:23
 msgid "Files"
@@ -605,7 +607,7 @@ msgstr "Filer"
 
 #: ../conduit/modules/FileModule/FileModule.py:24
 msgid "Source for synchronizing multiple files"
-msgstr ""
+msgstr "Kilde for synkronisering av flere filer"
 
 #: ../conduit/modules/FileModule/FileModule.py:62
 msgid "Folder"
@@ -641,7 +643,7 @@ msgstr "Mappekonfigurasjon"
 
 #: ../conduit/modules/FileModule/config.glade.h:7
 msgid "Folder Location:"
-msgstr ""
+msgstr "Mappelokasjon:"
 
 #: ../conduit/modules/FileModule/config.glade.h:8
 msgid "Folder Name:"
@@ -649,7 +651,7 @@ msgstr "Mappenavn:"
 
 #: ../conduit/modules/FileModule/config.glade.h:9
 msgid "Follow Symbolic Links"
-msgstr ""
+msgstr "Følg symbolske lenker"
 
 #: ../conduit/modules/FileModule/config.glade.h:10
 msgid "Ignore File Modification Times"
@@ -676,6 +678,7 @@ msgstr ""
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
 #: ../conduit/modules/SmugMugModule/config.glade.h:2
+#: ../conduit/modules/ZotoModule/zoto.glade.h:2
 msgid "<b>Saved Photo Settings</b>"
 msgstr ""
 
@@ -772,6 +775,7 @@ msgstr "Last kalendere"
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
 #: ../conduit/modules/SmugMugModule/config.glade.h:4
+#: ../conduit/modules/ZotoModule/zoto.glade.h:4
 msgid "Password:"
 msgstr "Passord:"
 
@@ -779,6 +783,7 @@ msgstr "Passord:"
 #: ../conduit/modules/iPodModule/config.glade.h:1
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
 #: ../conduit/modules/SmugMugModule/config.glade.h:3
+#: ../conduit/modules/ZotoModule/zoto.glade.h:3
 msgid "Album:"
 msgstr "Album:"
 
@@ -937,3 +942,12 @@ msgstr ""
 #: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
 msgid "Sync your SmugMug.com photos"
 msgstr ""
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:118
+#: ../conduit/modules/ZotoModule/zoto.glade.h:6
+msgid "Zoto"
+msgstr "Zoto"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:119
+msgid "Sync your Zoto photos"
+msgstr "Synkroniser dine Zoto-bilder"

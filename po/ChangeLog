@@ -1,5 +1,10 @@
 2008-05-06  Kjartan Maraas  <kmaraas@gnome.org>
 
+	* POTFILES.in: Add Zoto stuff too.
+	* nb.po: Updated Norwegian bokmål translation.
+
+2008-05-06  Kjartan Maraas  <kmaraas@gnome.org>
+
 	* nb.po: Again.
 
 2008-05-06  Kjartan Maraas  <kmaraas@gnome.org>
