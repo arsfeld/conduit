@@ -1,5 +1,26 @@
 2008-05-07  John Stowers  <john.stowers@gmail.com>
 
+	reviewed by: <delete if not using a buddy>
+
+	* conduit/modules/BackpackModule/backpack/bptest.py:
+	* conduit/modules/BackpackModule/backpack/cgi/reminder.py:
+	* conduit/modules/BackpackModule/backpack/cgi/todo.py:
+	* conduit/modules/BackpackModule/backpack/data/email.xml:
+	* conduit/modules/BackpackModule/backpack/data/emaillist.xml:
+	* conduit/modules/BackpackModule/backpack/data/error404.xml:
+	* conduit/modules/BackpackModule/backpack/data/export.xml:
+	* conduit/modules/BackpackModule/backpack/data/list.xml:
+	* conduit/modules/BackpackModule/backpack/data/listitem.xml:
+	* conduit/modules/BackpackModule/backpack/data/notelist.xml:
+	* conduit/modules/BackpackModule/backpack/data/page.xml:
+	* conduit/modules/BackpackModule/backpack/data/pages.xml:
+	* conduit/modules/BackpackModule/backpack/data/pagesfortag.xml:
+	* conduit/modules/BackpackModule/backpack/data/reminders.xml:
+	* conduit/modules/BackpackModule/backpack/data/search.xml:
+	* conduit/modules/BackpackModule/backpack/wapsupport.py:
+
+2008-05-07  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS:
 	* conduit/modules/FlickrModule/FlickrModule.py:
 	* conduit/modules/FlickrModule/flickrapi/LICENSE:

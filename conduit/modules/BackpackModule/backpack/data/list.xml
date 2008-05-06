@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<response success='true'>
-  <lists>
-    <list id='1' name='greetings' />
-    <list id='2' name='goodbyes' />
-  </lists>
-</response>

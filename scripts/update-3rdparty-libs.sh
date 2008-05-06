@@ -7,15 +7,18 @@ if [ ! -f $APP ] ; then
 fi
 
 #update flickrapi
-echo "Please use stable flickr api releases"
+echo "Not updating flickrapi (use stable releases only)"
 
 #update pyfacebook
+echo "Updating pyfacebook"
 svn export --force http://pyfacebook.googlecode.com/svn/trunk/facebook/__init__.py conduit/modules/FacebookModule/pyfacebook/__init__.py
 
 #update pybackpack
-#for i in COPYING backpack.py; do
-#    wget -qO conduit/modules/BackpackModule/backpack/${i} http://github.com/dustin/py-backpack/tree/master%2F${i}?raw=true
-#done
+echo "Updating pybackpack"
+for i in COPYING backpack.py; do
+    echo "    ...downloading $i"
+    wget -qO conduit/modules/BackpackModule/backpack/${i} http://github.com/dustin/py-backpack/tree/master%2F${i}?raw=true
+done
 
 
 
