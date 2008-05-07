@@ -2,8 +2,9 @@
 
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py:
-	* conduit/hildonui/UI.py: Stop maemo version from crashing when closed,
-	small fixes to improve consistency between hildon and gtk UIs.
+	* conduit/hildonui/UI.py: Stop maemo version from crashing when closed.
+	small fixes to improve consistency between hildon and gtk UIs. Dont
+	set application name twice.
 
 2008-05-06  Kjartan Maraas  <kmaraas@gnome.org>
 

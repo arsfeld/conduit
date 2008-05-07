@@ -58,7 +58,6 @@ class MainWindow(hildon.Program):
         main_pane.add1(self.provider_box)
         main_pane.add2(self.canvas)
         self.mainWindow.add(main_pane)
-        gobject.set_application_name("Conduit")
 
     def set_model(self, syncSet):
         self.syncSet = syncSet

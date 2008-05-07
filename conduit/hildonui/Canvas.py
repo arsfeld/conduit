@@ -279,10 +279,11 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         get in the way.
         """
         if self.welcomeMessage == None:
+            c_x,c_y,c_w,c_h = self.get_bounds()
             self.welcomeMessage = goocanvas.Text(  
-                                    x=self.CANVAS_WIDTH/2, 
-                                    y=self.CANVAS_HEIGHT/3, 
-                                    width=2*self.CANVAS_WIDTH/5, 
+                                    x=c_w/2, 
+                                    y=c_w/3, 
+                                    width=3*c_w/5, 
                                     text=self.WELCOME_MESSAGE, 
                                     anchor=gtk.ANCHOR_CENTER,
                                     alignment=pango.ALIGN_CENTER,
