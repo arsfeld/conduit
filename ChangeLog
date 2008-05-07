@@ -1,8 +1,16 @@
+2008-05-08  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/TestDataProviderGoogleDocuments.py: Add in-process
+	support for google docs upload and download. Upload and download currently
+	working, now it needs to be wrapped in the conduit dataprovider interface
+
 2008-05-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/datatypes/Contact.py: Add methods for setting the vcard
 	email and name attributes.
 
+	* NEWS:
 	* conduit/modules/GoogleModule/atom/__init__.py:
 	* conduit/modules/GoogleModule/atom/service.py:
 	* conduit/modules/GoogleModule/contacts_example.py:

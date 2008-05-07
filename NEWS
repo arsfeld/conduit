@@ -2,6 +2,7 @@ NEW in 0.3.11:
 ==============
 * Support ZOTO Photos
 * Update to latest version of pyfacebook, flickrapi, pybackpack
+* Updated to latest version of gdata and improved support for google contacts
 
 NEW in 0.3.10:
 ==============

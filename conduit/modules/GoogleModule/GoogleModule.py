@@ -26,18 +26,19 @@ import conduit.datatypes.File as File
 #and the appropriate directories
 Utils.dataprovider_add_dir_to_path(__file__)
 try:
-    import atom
-    import gdata
+    import atom.service
     import gdata.service
     import gdata.photos.service    
     import gdata.calendar.service
     import gdata.contacts.service
+    import gdata.docs.service
 
     MODULES = {
         "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeSource" :        { "type": "dataprovider" },    
-        "ContactsTwoWay" :       { "type": "dataprovider" },    
+        "ContactsTwoWay" :       { "type": "dataprovider" },
+#        "DocumentsSink" :        { "type": "dataprovider" },
     }
     log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
 except (ImportError, AttributeError):
@@ -765,7 +766,7 @@ class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
     Contacts GData provider
     """
     _name_ = _("Google Contacts")
-    _description_ = _("Sync contacts from Google")
+    _description_ = _("Sync your Gmail contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _out_type_ = "contact"
@@ -988,6 +989,155 @@ class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
             self._set_password(password.get_text())
         dlg.destroy()    
 
+class DocumentsSink(GoogleBase,  DataProvider.DataSink):
+    """
+    Contacts GData provider
+    
+    See: http://code.google.com/p/gdatacopier/source/browse/trunk/python/gdatacopier.py
+    """
+    _name_ = _("Google Documents")
+    _description_ = _("Sync your Google Documents")
+    _category_ = conduit.dataproviders.CATEGORY_OFFICE
+    _module_type_ = "twoway"
+    _out_type_ = "contact"
+    _icon_ = "applications-office"
+    
+    SUPPORTED_DOCS = ('DOC','ODT','SWX','TXT','RTF','HTM','HTML')
+    SUPPORTED_SHEETS = ('ODS','XLS','CSV','TSV')
+    SUPPORTED_PRESENTATIONS = ('PPT','PPS')
+
+    def __init__(self, *args):
+        GoogleBase.__init__(self)
+        DataProvider.DataSink.__init__(self)
+        self.service = gdata.docs.service.DocsService()
+        
+    def _do_login(self):
+        self.service.ClientLogin(self.username, self.password)
+        
+    def _upload_document(self, f):
+        name,ext = f.get_filename_and_extension()
+        ext = ext[1:].upper()
+
+        ms = gdata.MediaSource(
+                    file_path=f.get_local_uri(),
+                    content_type=gdata.docs.service.SUPPORTED_FILETYPES[ext])
+
+        #upload using the appropriate service
+        if ext in self.SUPPORTED_DOCS:
+            entry = self.service.UploadDocument(ms,name)
+        elif ext in self.SUPPORTED_SHEETS:
+            entry = self.service.UploadSpreadsheet(ms,name)
+        elif ext in self.SUPPORTED_PRESENTATIONS:
+            entry = self.service.UploadPresentation(ms,name)
+        else:
+            log.info("Unknown document format")
+            return None
+
+        return Rid(uid=entry.id.text)
+        
+    def _get_all_documents(self):
+        feed = self.service.GetDocumentListFeed()
+        if not feed.entry:
+            return []
+        return [str(doc.id.text) for doc in feed.entry]
+        
+    def _get_document(self, LUID):
+        if not LUID:
+            return None
+
+        #get the gdata contact from google
+        try:
+            gd = self.service.GetDocumentListEntry(LUID)
+        except gdata.service.RequestError:
+            return None
+
+        return gd
+        
+    def _download_doc(self, docid):
+        print self.service.additional_headers
+        self.service.debug = True
+        #https://docs.google.com/MiscCommands?command=saveasdoc&exportformat=%s&docID=%s
+        resp = atom.service.HttpRequest(
+                                service=self.service,
+                                operation='GET',
+                                data=None,
+                                uri='/MiscCommands',
+                                extra_headers={'Authorization':self.service._GetAuthToken()},
+                                url_params={'command':'saveasdoc','exportformat':'doc','docID':docid},
+                                escape_params=True,
+                                content_type='application/atom+xml')
+
+        file_handle = open("/home/john/Desktop/%s.doc" % docid, 'wb')
+        file_handle.write(resp.read())
+        file_handle.close()
+        
+    def refresh(self):
+        DataProvider.DataSink.refresh(self)
+        self._login()
+        if not self.loggedIn:
+            raise Exceptions.RefreshError("Could not log in")
+
+#    def put(self, doc, overwrite, LUID=None):            
+#        #Check if we have already uploaded the document
+#        if LUID != None:
+#            info = self._get_photo_info(LUID)
+#            #check if a photo exists at that UID
+#            if info != None:
+#                if overwrite == True:
+#                    #replace the photo
+#                    return self._replace_photo(LUID, uploadInfo)
+#                else:
+#                    #Only upload the photo if it is newer than the Remote one
+#                    url = self._get_raw_photo_url(info)
+#                    remoteFile = File.File(url)
+#
+#                    #this is a limited test for equality type comparison
+#                    comp = photo.compare(remoteFile,True)
+#                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
+#                            (photo.get_filename(),remoteFile.get_filename(),comp))
+#                    if comp != conduit.datatypes.COMPARISON_EQUAL:
+#                        raise Exceptions.SynchronizeConflictError(comp, photo, remoteFile)
+#                    else:
+#                        return conduit.datatypes.Rid(uid=LUID)
+#
+#        log.debug("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
+#
+#        #upload the file
+#        return self._upload_photo (uploadInfo)
+
+    def delete(self, LUID):
+        DataProvider.DataSink.delete(self, LUID)
+        self._login()
+        #get the gdata contact from google
+        #try:
+        #    gc = self.service.Get(LUID, converter=gdata.contacts.ContactEntryFromString)
+        #    self.service.DeleteContact(gc.GetEditLink().href)
+        #except gdata.service.RequestError, e:
+        #    log.warn("Error deleting: %s" % e)        
+
+    def configure(self, window):
+        """
+        Configures the PicasaTwoWay
+        """
+        widget = Utils.dataprovider_glade_get_widget(
+                        __file__, 
+                        "contacts-config.glade", 
+                        "GoogleContactsConfigDialog")
+                        
+        #get a whole bunch of widgets
+        username = widget.get_widget("username")
+        password = widget.get_widget("password")
+        
+        #preload the widgets        
+        username.set_text(self.username)
+        password.set_text(self.password)
+        
+        dlg = widget.get_widget("GoogleContactsConfigDialog")
+        response = Utils.run_dialog (dlg, window)
+        if response == True:
+            self._set_username(username.get_text())
+            self._set_password(password.get_text())
+        dlg.destroy()   
 
 class YouTubeSource(DataProvider.DataSource):
     """
