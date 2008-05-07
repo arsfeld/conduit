@@ -38,7 +38,7 @@ try:
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeSource" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
-#        "DocumentsSink" :        { "type": "dataprovider" },
+        "DocumentsSink" :        { "type": "dataprovider" },
     }
     log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
 except (ImportError, AttributeError):
@@ -1002,9 +1002,13 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
     _out_type_ = "contact"
     _icon_ = "applications-office"
     
-    SUPPORTED_DOCS = ('DOC','ODT','SWX','TXT','RTF','HTM','HTML')
+    SUPPORTED_DOCUMENTS = ('DOC','ODT','SWX','TXT','RTF','HTM','HTML')
     SUPPORTED_SHEETS = ('ODS','XLS','CSV','TSV')
     SUPPORTED_PRESENTATIONS = ('PPT','PPS')
+    
+    TYPE_DOCUMENT = 'document'
+    TYPE_SPREADSHEET = 'spreadsheet'
+    TYPE_PRESENTATION = 'presentation'
 
     def __init__(self, *args):
         GoogleBase.__init__(self)
@@ -1023,7 +1027,7 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
                     content_type=gdata.docs.service.SUPPORTED_FILETYPES[ext])
 
         #upload using the appropriate service
-        if ext in self.SUPPORTED_DOCS:
+        if ext in self.SUPPORTED_DOCUMENTS:
             entry = self.service.UploadDocument(ms,name)
         elif ext in self.SUPPORTED_SHEETS:
             entry = self.service.UploadSpreadsheet(ms,name)
@@ -1033,7 +1037,7 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
             log.info("Unknown document format")
             return None
 
-        return Rid(uid=entry.id.text)
+        return entry.id.text
         
     def _get_all_documents(self):
         feed = self.service.GetDocumentListFeed()
@@ -1053,9 +1057,19 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
 
         return gd
         
-    def _download_doc(self, docid):
-        print self.service.additional_headers
-        self.service.debug = True
+    # Parses the document id out of the alternate link url, the atom feed
+    # doesn't actually provide the document id      
+    def _get_document_id(self, LUID):
+        from urlparse import *
+        parsed_url = urlparse(LUID)
+        url_params = parsed_url[4]
+        document_id = url_params.split('=')[1]
+        return document_id
+        
+    def _download_doc(self, LUID):
+        docid = self._get_document_id(LUID)
+    
+        #self.service.debug = True
         #https://docs.google.com/MiscCommands?command=saveasdoc&exportformat=%s&docID=%s
         resp = atom.service.HttpRequest(
                                 service=self.service,
@@ -1067,9 +1081,12 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
                                 escape_params=True,
                                 content_type='application/atom+xml')
 
-        file_handle = open("/home/john/Desktop/%s.doc" % docid, 'wb')
+        path = "/home/john/Desktop/%s.doc" % docid
+        file_handle = open(path, 'wb')
         file_handle.write(resp.read())
         file_handle.close()
+        
+        return path
         
     def refresh(self):
         DataProvider.DataSink.refresh(self)

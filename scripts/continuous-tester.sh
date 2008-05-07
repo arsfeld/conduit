@@ -32,9 +32,9 @@ do
         l )     LOOP=yes
                 CNT=1;;
         b )     DBUS_LAUNCH=dbus-launch;;
-        h )     echo $USAGE
+        h )     echo -e $USAGE
                 exit 0;;
-        * )     echo $USAGE
+        * )     echo -e $USAGE
                 exit 1;;
     esac
 done
