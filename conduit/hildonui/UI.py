@@ -144,6 +144,9 @@ class MainWindow(hildon.Program):
         if quit:
             log.debug("Quitting...")
             self.conduitApplication.Quit()
+            
+    def save_settings(self, widget):
+        pass
 
 class ConduitToolbar(gtk.Toolbar):
     def __init__(self, syncSet, canvas):

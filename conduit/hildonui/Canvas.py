@@ -23,9 +23,6 @@ import conduit.gtkui.Canvas
 
 LINE_WIDTH = 3.0
 
-#GRR support api break in pygoocanvas 0.6/8.0 -> 0.9.0
-NEW_GOOCANVAS_API = goocanvas.pygoocanvas_version >= (0,9,0)
-
 class Canvas(goocanvas.Canvas, gobject.GObject):
     """
     This class manages many objects
@@ -46,8 +43,8 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         """
         #setup the canvas
         goocanvas.Canvas.__init__(self)
-        self.set_bounds(0, 0, Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
-        self.set_size_request(Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
+        self.set_bounds(0, 0, self.CANVAS_WIDTH, self.CANVAS_HEIGHT)
+        self.set_size_request(self.CANVAS_WIDTH, self.CANVAS_HEIGHT)
         self.root = self.get_root_item()
 
         self.sync_manager = syncManager
@@ -283,10 +280,10 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         """
         if self.welcomeMessage == None:
             self.welcomeMessage = goocanvas.Text(  
-                                    x=Canvas.CANVAS_WIDTH/2, 
-                                    y=Canvas.CANVAS_HEIGHT/3, 
-                                    width=2*Canvas.CANVAS_WIDTH/5, 
-                                    text=Canvas.WELCOME_MESSAGE, 
+                                    x=self.CANVAS_WIDTH/2, 
+                                    y=self.CANVAS_HEIGHT/3, 
+                                    width=2*self.CANVAS_WIDTH/5, 
+                                    text=self.WELCOME_MESSAGE, 
                                     anchor=gtk.ANCHOR_CENTER,
                                     alignment=pango.ALIGN_CENTER,
                                     font="Sans 10",
@@ -300,6 +297,7 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         else:
             if idx != -1:
                 self.root.remove_child(idx)
+                self.welcomeMessage = None
 
     def _delete_welcome_message(self):
         """
@@ -397,8 +395,8 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         self.selectedConduitItem = conduitCanvasItem
 
         #FIXME Evilness to fix ConduitCanvasItems ending up too big (scrollbars suck!) 
-        #self.set_size_request(Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
-        #self.set_size_request(Canvas.CANVAS_WIDTH, Canvas.CANVAS_HEIGHT)
+        #self.set_size_request(self.CANVAS_WIDTH, self.CANVAS_HEIGHT)
+        #self.set_size_request(self.CANVAS_WIDTH, self.CANVAS_HEIGHT)
 
         conduitCanvasItem.connect('button-press-event', self._on_conduit_button_press)
 
@@ -438,7 +436,6 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
                     items.append(dpItem)
         return items
 
- 
     # def on_two_way_sync_toggle(self, widget):
     #     """
     #     Enables or disables two way sync on dataproviders.
@@ -463,9 +460,6 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
 
     NAME_FONT = "Sans 12"
     STATUS_FONT = "Sans 10"
-
-    # def _get_icon(self):
-    #     return self.model.get_icon(24)
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
     pass 

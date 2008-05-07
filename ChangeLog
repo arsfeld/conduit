@@ -1,11 +1,16 @@
+2008-05-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py:
+	* conduit/hildonui/Canvas.py:
+	* conduit/hildonui/UI.py: Stop maemo version from crashing when closed,
+	small fixes to improve consistency between hildon and gtk UIs.
+
 2008-05-06  Kjartan Maraas  <kmaraas@gnome.org>
 
 	* conduit/modules/iPodModule/config.glade:
 	Don't translate widget label.
 
 2008-05-07  John Stowers  <john.stowers@gmail.com>
-
-	reviewed by: <delete if not using a buddy>
 
 	* conduit/modules/BackpackModule/backpack/bptest.py:
 	* conduit/modules/BackpackModule/backpack/cgi/reminder.py:

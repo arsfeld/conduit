@@ -115,7 +115,7 @@ class Canvas(goocanvas.Canvas):
                                     x=c_w/2, 
                                     y=c_w/3, 
                                     width=3*c_w/5, 
-                                    text=Canvas.WELCOME_MESSAGE, 
+                                    text=self.WELCOME_MESSAGE, 
                                     anchor=gtk.ANCHOR_CENTER,
                                     alignment=pango.ALIGN_CENTER,
                                     font="Sans 10",
