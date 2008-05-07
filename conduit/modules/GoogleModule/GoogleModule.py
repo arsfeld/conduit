@@ -29,16 +29,15 @@ try:
     import atom
     import gdata
     import gdata.service
-    import gdata.photos
     import gdata.photos.service    
-    import gdata.calendar
     import gdata.calendar.service
+    import gdata.contacts.service
 
     MODULES = {
         "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeSource" :        { "type": "dataprovider" },    
-        "ContactsSource" :       { "type": "dataprovider" },    
+        "ContactsTwoWay" :       { "type": "dataprovider" },    
     }
     log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
 except (ImportError, AttributeError):
@@ -62,8 +61,10 @@ class GoogleBase(object):
             try:
                 self._do_login()
                 self.loggedIn = True
-            except:
-                self.loggedIn = False
+            except gdata.service.BadAuthentication:
+                log.info("Error logging in: Incorrect username or password")
+            except Exception, e:
+                log.info("Error logging in: %s" % e)
        
     def _set_username(self, username):
         if self.username != username:
@@ -367,9 +368,7 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
         self.events = {}
 
     def _do_login(self):
-        self.calService.email = self.username
-        self.calService.password = self.password
-        self.calService.ProgrammaticLogin()
+        self.calService.ClientLogin(self.username, self.password)
 
     def _get_all_events(self):
         self._login()
@@ -622,9 +621,12 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
     def refresh(self):
         Image.ImageTwoWay.refresh(self)
         self._login()
+        if not self.loggedIn:
+            raise Exceptions.RefreshError("Could not log in")
         self._get_album()
 
     def get_all (self):
+        Image.ImageTwoWay.get_all(self)
         self._get_photos()
         return self.gphoto_dict.keys()
         
@@ -758,92 +760,209 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         return True
 
 
-class ContactsSource(GoogleBase, DataProvider.DataSource):
+class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
     """
     Contacts GData provider
     """
     _name_ = _("Google Contacts")
     _description_ = _("Sync contacts from Google")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
-    _module_type_ = "source"
+    _module_type_ = "twoway"
     _out_type_ = "contact"
     _icon_ = "contact-new"
 
-    FEED = "http://www.google.com/m8/feeds/contacts/%s/base?max-results=25000"
-
     def __init__(self, *args):
         GoogleBase.__init__(self)
-        DataProvider.DataSource.__init__(self)
-        self.entries = None
-        self.feed = ""
+        DataProvider.TwoWay.__init__(self)
+        self.service = gdata.contacts.service.ContactsService()
+        
+    def _google_contact_from_conduit_contact(self, contact, gc=None):
+        """
+        Fills the apropriate fields in the google gdata contact type based on
+        those in the conduit contact type
+        """
+        name = contact.get_name()
+        emails = contact.get_emails()
+        #Google contacts must feature at least a name and an email address
+        if not (name and emails):
+            return None
 
-    def _set_username(self, username):
-        GoogleBase._set_username(self, username)
-        self.feed = self.FEED % self.username
+        #can also edit existing contacts
+        if not gc:
+            gc = gdata.contacts.ContactEntry()        
+        gc.title = atom.Title(text=name)
+
+        #Create all emails, make first one primary, if the contact doesnt
+        #already have a primary email address
+        primary = 'false'
+        existing = []
+        for ex in gc.email:
+            if ex.primary and ex.primary == 'true':
+                primary = 'true'
+                existing.append(ex)      
+        
+        for email in emails:
+            if email not in existing:
+                log.debug("Adding new email address %s %s" % (email, existing))
+                gc.email.append(gdata.contacts.Email(
+                                            address=email, 
+                                            primary=primary))#,rel=gdata.contacts.REL_WORK))
+                primary = 'false'
+        #notes = contact.get_notes()
+        #if notes: gc.content = atom.Content(text=notes)
+        
+        return gc
+
+        
+    def _conduit_contact_from_google_contact(self, gc):
+        """
+        Extracts available and interesting fields from the google contact
+        and stored them in the conduit contact type
+        """
+        c = Contact.Contact(formattedName=str(gc.title.text))
+        
+        emails = [str(e.address) for e in gc.email]
+        c.set_emails(*emails)
+        
+        #ee_names = map(operator.attrgetter('tag'),gc.extension_elements)
+        #if len(gc.extension_elements) >0:
+        #    for e in [e for e in ee_names if e == 'phoneNumber']:
+        #        c.vcard.add('tel')
+        #        c.vcard.tel.value = gc.extension_elements[ee_names.index('phoneNumber')].text
+        #        c.vcard.tel.type_param = gc.extension_elements[ee_names.index('phoneNumber')].attributes['rel'].split('#')[1]
+        #    for e in [e for e in ee_names if e == 'postalAddress']:
+        #        c.vcard.add('adr')
+        #        c.vcard.adr.value = vobject.vcard.Address(gc.extension_elements[ee_names.index('postalAddress')].text)
+        #        c.vcard.adr.type_param = gc.extension_elements[ee_names.index('postalAddress')].attributes['rel'].split('#')[1]
+        
+        return c
 
     def _do_login(self):
-        self.service = gdata.service.GDataService(service="cp", server="www.google.com")
         self.service.ClientLogin(self.username, self.password)
         
-    def _get_contact(self, LUID):
+    def _create_contact(self, contact):
+        gc = self._google_contact_from_conduit_contact(contact)
+        if not gc:
+            log.info("Could not create google contact from conduit contact")
+            return None
+
+        try:            
+            entry = self.service.CreateContact(gc)
+        except gdata.service.RequestError, e:
+            #If the response dict reson is 'Conflict' then we are trying to
+            #store a contact with the same email as one which already exists
+            if e.message.get("reason","") == "Conflict":
+                log.warn("FIXME: FIND THE OLD CONTACT BY EMAIL, GET IT, AND RAISE A CONFLICT EXCEPTION")
+                raise Exceptions.SynchronizeConflictError("FIXME", "FIXME", "FIXME")
+        except Exception, e:
+            log.warn("Error creating contact: %s" % e)
+            return None
+
+        if entry:
+            log.debug("Created contact: %s" % entry.id.text)
+            return entry.id.text
+        else:
+            log.debug("Create contact error")
+            return None
+
+    def _update_contact(self, LUID, contact):
         #get the gdata contact from google
-        gdc = self.service.Get(LUID)
-        if gdc is None or len(gdc.ToString()) < 1:
-            log.warn("Error getting/parsing gdata contact")
+        try:
+            oldgc = self.service.Get(LUID, converter=gdata.contacts.ContactEntryFromString)
+        except gdata.service.RequestError:
             return None
             
-        #FIXME: We should not be accessing the contact vcard directly.
-        #once we know what we can get from the gdata information, we should
-        #add the appropriate methods to the contact class to allow us to
-        #set these things
-        c = Contact.Contact()
+        #update the contact
+        gc = self._google_contact_from_conduit_contact(contact, oldgc)
+        self.service.UpdateContact(oldgc.GetEditLink().href, gc)
+        
+        #fixme, we should really just return the RID here, but its safer
+        #to use the same code path as get, because I am not sure if/how google
+        #changes the mtime
+        return LUID
+    
+    def _get_contact(self, LUID):
+        if not LUID:
+            return None
 
-        c.vcard = vobject.vCard()
-        c.vcard.add('n')
-        c.vcard.n.value = vobject.vcard.Name(given="%s"%gdc.title.text)
-        
-        c.vcard.add('fn')
-        c.vcard.fn.value = "%s"%gdc.title.text
-        #isinstance(gdc, atom.Entry)
-        ee_names = map(operator.attrgetter('tag'),gdc.extension_elements)
-        if len(gdc.extension_elements) >0:
-            for e in [e for e in ee_names if e == 'email']:
-                c.vcard.add('email')
-                c.vcard.email.value = gdc.extension_elements[ee_names.index('email')].attributes['address']
-                c.vcard.email.type_param = 'INTERNET'
-            for e in [e for e in ee_names if e == 'phoneNumber']:
-                c.vcard.add('tel')
-                c.vcard.tel.value = gdc.extension_elements[ee_names.index('phoneNumber')].text
-                c.vcard.tel.type_param = gdc.extension_elements[ee_names.index('phoneNumber')].attributes['rel'].split('#')[1]
-            for e in [e for e in ee_names if e == 'postalAddress']:
-                c.vcard.add('adr')
-                c.vcard.adr.value = vobject.vcard.Address(gdc.extension_elements[ee_names.index('postalAddress')].text)
-               # c.vcard.adr.value =
-                c.vcard.adr.type_param = gdc.extension_elements[ee_names.index('postalAddress')].attributes['rel'].split('#')[1]
-        
-        #c.vcard.add('uid').value = gdc.id.text
+        #get the gdata contact from google
+        try:
+            gc = self.service.Get(LUID, converter=gdata.contacts.ContactEntryFromString)
+        except gdata.service.RequestError:
+            return None
+            
+        c = self._conduit_contact_from_google_contact(gc)
         c.set_UID(LUID)
-        c.set_mtime(convert_madness_to_datetime(gdc.updated.text))
-        c.set_open_URI(gdc.link[1].href)
-        return c    
+        c.set_mtime(convert_madness_to_datetime(gc.updated.text))
+        return c
+
+    def _get_all_contacts(self):
+        feed = self.service.GetContactsFeed()
+        if not feed.entry:
+            return []
+        return [str(contact.id.text) for contact in feed.entry]
+        
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        self._login()
+        if not self.loggedIn:
+            raise Exceptions.RefreshError("Could not log in")
 
     def get_all(self):
-        DataProvider.DataSource.get_all(self)
-        # we can ask the server for everything thats changed after a certain date, including deletions
+        DataProvider.TwoWay.get_all(self)
         self._login()
-        contacts = self.service.GetFeed(self.feed).entry
-        return [str(contact.id.text) for contact in contacts]
+        return self._get_all_contacts()
 
     def get(self, LUID):
-        DataProvider.DataSource.get(self, LUID)
-        return self._get_contact(LUID)
+        DataProvider.TwoWay.get(self, LUID)
+        self._login()
+        c = self._get_contact(LUID)
+        if c == None:
+            log.warn("Error getting/parsing gdata contact")
+        return c
+        
+    def put(self, data, overwrite, LUID=None):
+        #http://www.conduit-project.org/wiki/WritingADataProvider/GeneralPutInstructions
+        DataProvider.TwoWay.put(self, data, overwrite, LUID)
+        if overwrite and LUID:
+            LUID = self._update_contact(LUID, data)
+        else:
+            oldData = self._get_contact(LUID)
+            if LUID and oldData:
+                comp = data.compare(oldData)
+                #Possibility 1: If LUID != None (i.e this is a modification/update of a 
+                #previous sync, and we are newer, the go ahead an put the data
+                if LUID != None and comp == conduit.datatypes.COMPARISON_NEWER:
+                    LUID = self._update_contact(LUID, data)
+                #Possibility 3: We are the same, so return either rid
+                elif comp == conduit.datatypes.COMPARISON_EQUAL:
+                    return oldData.get_rid()
+                #Possibility 2, 4: All that remains are conflicts
+                else:
+                    raise Exceptions.SynchronizeConflictError(comp, data, oldData)
+            else:
+                #Possibility 5:
+                LUID = self._create_contact(data)
+                
+        #now return the rid
+        if not LUID:
+            raise Exceptions.SyncronizeError("Google contacts upload error.")
+        else:
+            return self._get_contact(LUID).get_rid()
+
 
     def delete(self, LUID):
+        DataProvider.TwoWay.delete(self, LUID)
         self._login()
-        self.service.Delete(LUID)
+        #get the gdata contact from google
+        try:
+            gc = self.service.Get(LUID, converter=gdata.contacts.ContactEntryFromString)
+            self.service.DeleteContact(gc.GetEditLink().href)
+        except gdata.service.RequestError, e:
+            log.warn("Error deleting: %s" % e)        
 
     def finish(self, aborted, error, conflict):
-        DataProvider.DataSource.finish(self)
+        DataProvider.TwoWay.finish(self)
 
     def configure(self, window):
         """

@@ -387,13 +387,14 @@ class SimpleTest(object):
         the data to get
         """
         #Test put()
+        uid = None
         if data:
             try:
                 rid = self.sink.module.put(data, True)
                 uid = rid.get_UID()
                 ok("Put a %s (%s) " % (name,rid), True)
             except Exception, err:
-                traceback.print_exc()        
+                traceback.print_exc()
                 ok("Put a %s (%s)" % (name,err), False)
             
         #Test get()
@@ -423,8 +424,8 @@ class SimpleTest(object):
                 traceback.print_exc()
                 ok("Update %s (%s)" % (name,err), False)
 
-        #Test delete()
-        if supportsDelete:
+        #Test delete() (but only delete data we have put, not the safe data)
+        if supportsDelete and uid:
             try:
                 self.sink.module.refresh()
                 self.sink.module.delete(uid)

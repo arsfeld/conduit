@@ -13,6 +13,9 @@ MAX_YOUTUBE_VIDEOS=5
 if not is_online():
     skip()
 
+#-------------------------------------------------------------------------------
+# Calendar
+#-------------------------------------------------------------------------------
 #setup the test
 test = SimpleTest(sinkName="GoogleCalendarTwoWay")
 config = {
@@ -57,24 +60,10 @@ test.do_dataprovider_tests(
         data=event,
         name="event"
         )
-        
-#setup the test
-test = SimpleTest(sourceName="ContactsSource")
-config = {
-    "username":     os.environ.get("TEST_USERNAME","conduitproject@gmail.com"),
-    "password":     os.environ["TEST_PASSWORD"],
-}
-test.configure(source=config)
-google = test.get_source().module
 
-#check we can get a contacts list
-contacts = google.get_all()
-num = len(contacts)
-ok("Got %s contacts" % num, num > 0)
-
-c = google.get(contacts[0])
-ok("Got contact", c != None)
-
+#-------------------------------------------------------------------------------
+# Youtube
+#-------------------------------------------------------------------------------
 #Now a very simple youtube test...
 test = SimpleTest(sourceName="YouTubeSource")
 config = {

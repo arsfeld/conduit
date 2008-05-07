@@ -2,6 +2,7 @@ BEGIN:VCARD
 VERSION:3.0
 FN:Daffy Duck Knudson (with Bugs Bunny and Mr. Pluto)
 N:Knudson;Daffy Duck (with Bugs Bunny and Mr. Pluto)
+EMAIL;TYPE=INTERNET:daffy@gmail.com
 NICKNAME:gnat and gnu and pluto
 BDAY;value=date:02-10
 TEL;type=HOME:+01-(0)2-765.43.21

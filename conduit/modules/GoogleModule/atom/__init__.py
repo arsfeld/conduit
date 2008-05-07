@@ -44,14 +44,16 @@
 
 __author__ = 'api.jscudder (Jeffrey Scudder)'
 
-
 try:
   from xml.etree import cElementTree as ElementTree
 except ImportError:
   try:
     import cElementTree as ElementTree
   except ImportError:
-    from elementtree import ElementTree
+    try:
+      from xml.etree import ElementTree
+    except ImportError:
+      from elementtree import ElementTree
 
 
 # XML namespaces which are often used in Atom entities.
@@ -87,13 +89,10 @@ def CreateClassFromXMLString(target_class, xml_string, string_encoding=None):
     contents of the XML - or None if the root XML tag and namespace did not
     match those of the target class.
   """
-  if string_encoding:
-    tree = ElementTree.fromstring(xml_string.encode(string_encoding))
-  else:
-    if XML_STRING_ENCODING:
-      tree = ElementTree.fromstring(xml_string.encode(XML_STRING_ENCODING))
-    else:
-      tree = ElementTree.fromstring(xml_string)
+  encoding = string_encoding or XML_STRING_ENCODING
+  if encoding and isinstance(xml_string, unicode):
+    xml_string = xml_string.encode(encoding)
+  tree = ElementTree.fromstring(xml_string)
   return _CreateClassFromElementTree(target_class, tree)
 
 
@@ -168,7 +167,10 @@ class ExtensionContainer(object):
       if value:
         # Encode the value in the desired type (default UTF-8).
         tree.attrib[attribute] = value.encode(MEMBER_STRING_ENCODING)
-    tree.text = self.text
+    if self.text and not isinstance(self.text, unicode):
+      tree.text = self.text.decode(MEMBER_STRING_ENCODING)
+    else:
+      tree.text = self.text 
 
   def FindExtensions(self, tag=None, namespace=None):
     """Searches extension elements for child nodes with the desired name.
@@ -250,7 +252,8 @@ class AtomBase(ExtensionContainer):
         setattr(self, self.__class__._attributes[attribute], 
                 value.encode(MEMBER_STRING_ENCODING))
     else:
-      ExtensionContainer._ConvertElementAttributeToMember(self, attribute, value)
+      ExtensionContainer._ConvertElementAttributeToMember(self, attribute, 
+          value)
 
   # Three methods to create an ElementTree from an object
   def _AddMembersToElementTree(self, tree):
@@ -735,8 +738,8 @@ class Content(Text):
   _attributes = Text._attributes.copy()
   _attributes['src'] = 'src'
 
-  def __init__(self, content_type=None, src=None, text=None, extension_elements=None,
-      extension_attributes=None):
+  def __init__(self, content_type=None, src=None, text=None, 
+      extension_elements=None, extension_attributes=None):
     """Constructor for Content
     
     Args:
@@ -1061,8 +1064,8 @@ class FeedEntryParent(AtomBase, LinkFinder):
   _children['{%s}updated' % ATOM_NAMESPACE] = ('updated', Updated)
 
   def __init__(self, author=None, category=None, contributor=None, 
-      atom_id=None, link=None, rights=None, title=None, updated=None, text=None, 
-      extension_elements=None, extension_attributes=None):
+      atom_id=None, link=None, rights=None, title=None, updated=None, 
+      text=None, extension_elements=None, extension_attributes=None):
     self.author = author or []
     self.category = category or []
     self.contributor = contributor or []
@@ -1089,7 +1092,8 @@ class Source(FeedEntryParent):
   _children['{%s}subtitle' % ATOM_NAMESPACE] = ('subtitle', Subtitle)
 
   def __init__(self, author=None, category=None, contributor=None,
-      generator=None, icon=None, atom_id=None, link=None, logo=None, rights=None, subtitle=None, title=None, updated=None, text=None,
+      generator=None, icon=None, atom_id=None, link=None, logo=None, 
+      rights=None, subtitle=None, title=None, updated=None, text=None,
       extension_elements=None, extension_attributes=None):
     """Constructor for Source
 

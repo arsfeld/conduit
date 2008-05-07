@@ -51,6 +51,10 @@ if picasa.galbum.gphoto_id.text == SAFE_ALBUM_ID:
 else:
     ok("Album has an unexpected id: %s instead of %s" % (picasa.galbum.id, SAFE_ALBUM_ID), False)
 
+#Picasa dp gets all the images and stores them in an internal dict. Therefor before
+#the image dataprovider tests below, we must fill that dict
+picasa._get_photos()
+
 #Perform image tests
 test.do_image_dataprovider_tests(
         supportsGet=True,

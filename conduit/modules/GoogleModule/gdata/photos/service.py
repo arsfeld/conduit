@@ -82,14 +82,6 @@ __version__ = '$Revision: 176 $'[11:-2]
 
 import sys, os.path, StringIO
 import time
-try:
-  from xml.etree import cElementTree as ElementTree
-except ImportError:
-  try:
-    import cElementTree as ElementTree
-  except ImportError:
-    from elementtree import ElementTree
-
 import gdata.service
 import gdata
 import atom.service
@@ -128,13 +120,6 @@ class GooglePhotosException(Exception):
         self.error_code = code
         break
     self.args = [self.error_code, self.reason, self.body]
-    #try:
-      #self.element_tree = ElementTree.fromstring(response['body'])
-      #self.error_code = int(self.element_tree[0].attrib['errorCode'])
-      #self.reason = self.element_tree[0].attrib['reason']
-      #self.invalidInput = self.element_tree[0].attrib['invalidInput']
-    #except:
-      #self.error_code = UNKOWN_ERROR
 
 class PhotosService(gdata.service.GDataService):
   userUri = '/data/feed/api/user/%s'
@@ -484,7 +469,7 @@ class PhotosService(gdata.service.GDataService):
     if keywords is not None:
       if isinstance(keywords, list):
         keywords = ','.join(keywords)
-      metadata.media.keywords = gdata.photos.media.Keywords(text=keywords)
+      metadata.media.keywords = gdata.media.Keywords(text=keywords)
     return self.InsertPhoto(album_or_uri, metadata, filename_or_handle,
       content_type)
 
@@ -593,7 +578,7 @@ class PhotosService(gdata.service.GDataService):
       entry_uri = photo_or_uri.GetEditMediaLink().href
     try:
       return self.Put(photoblob, entry_uri,
-      converter=gdata.photos.PhotoEntryFromString)
+          converter=gdata.photos.PhotoEntryFromString)
     except gdata.service.RequestError, e:
       raise GooglePhotosException(e.args[0])
 
@@ -681,8 +666,8 @@ class PhotosService(gdata.service.GDataService):
 
 def GetSmallestThumbnail(media_thumbnail_list):
   """Helper function to get the smallest thumbnail of a list of
-    gdata.photos.media.Thumbnail.
-  Returns gdata.photos.media.Thumbnail """
+    gdata.media.Thumbnail.
+  Returns gdata.media.Thumbnail """
   r = {}
   for thumb in media_thumbnail_list:
       r[int(thumb.width)*int(thumb.height)] = thumb

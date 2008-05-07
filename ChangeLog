@@ -1,5 +1,58 @@
 2008-05-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/Contact.py: Add methods for setting the vcard
+	email and name attributes.
+
+	* conduit/modules/GoogleModule/atom/__init__.py:
+	* conduit/modules/GoogleModule/atom/service.py:
+	* conduit/modules/GoogleModule/contacts_example.py:
+	* conduit/modules/GoogleModule/gdata/__init__.py:
+	* conduit/modules/GoogleModule/gdata/apps/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/apps/__init__.py:
+	* conduit/modules/GoogleModule/gdata/apps/service.py:
+	* conduit/modules/GoogleModule/gdata/base/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/base/__init__.py:
+	* conduit/modules/GoogleModule/gdata/base/service.py:
+	* conduit/modules/GoogleModule/gdata/calendar/__init__.py:
+	* conduit/modules/GoogleModule/gdata/calendar/service.py:
+	* conduit/modules/GoogleModule/gdata/codesearch/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/codesearch/__init__.py:
+	* conduit/modules/GoogleModule/gdata/codesearch/service.py:
+	* conduit/modules/GoogleModule/gdata/contacts/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/contacts/__init__.py:
+	* conduit/modules/GoogleModule/gdata/contacts/service.py:
+	* conduit/modules/GoogleModule/gdata/docs/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/docs/__init__.py:
+	* conduit/modules/GoogleModule/gdata/docs/service.py:
+	* conduit/modules/GoogleModule/gdata/exif/__init__.py:
+	* conduit/modules/GoogleModule/gdata/geo/__init__.py:
+	* conduit/modules/GoogleModule/gdata/media/__init__.py:
+	* conduit/modules/GoogleModule/gdata/photos/__init__.py:
+	* conduit/modules/GoogleModule/gdata/photos/service.py:
+	* conduit/modules/GoogleModule/gdata/service.py:
+	* conduit/modules/GoogleModule/gdata/spreadsheet/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/spreadsheet/__init__.py:
+	* conduit/modules/GoogleModule/gdata/spreadsheet/service.py:
+	* conduit/modules/GoogleModule/gdata/spreadsheet/text_db.py:
+	* conduit/modules/GoogleModule/gdata/test_data.py:
+	* conduit/modules/GoogleModule/gdata/urlfetch.py: Update to version 
+	1.0.12.1 of python-gdata. This release adds native support for google 
+	contacts
+	
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/common.py:
+	* test/python-tests/data/1.vcard:	
+	* test/python-tests/TestCoreContact.py:
+	* test/python-tests/TestDataProviderGoogleContacts.py: Add two way sync
+	support for google contacts. This still needs work in converting all
+	the gdata attributes, detecting duplicate contacts with the same email
+	address, and general testing, but it is a start
+
+	* test/python-tests/TestDataProviderPicasa.py: Fix picasa get() tests
+
+
+2008-05-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py:
 	* conduit/hildonui/UI.py: Stop maemo version from crashing when closed.
