@@ -124,8 +124,7 @@ class GoogleCalendar(object):
         return '/calendar/feeds/' + self.get_uri() + '/private/full'
 
 def convert_madness_to_datetime(inputDate):
-    log.debug('Attempting to parse the following: %s'%inputDate)
-    logging.debug('Attempting to parse the following: %s'%inputDate)
+    log.debug('Attempting to parse: %s' % inputDate)
     dateStr = None
     dateDate = None
     dateDateTime = None
@@ -151,7 +150,7 @@ def convert_madness_to_datetime(inputDate):
         
     if dateDateTime is not None:
         if dateDateTime.tzinfo is not None:
-            logging.warn("returning: %s",dateDateTime)
+            log.warn("returning: %s",dateDateTime)
             ts = dateDateTime.timetuple()
             dateDateTime = dateDateTime.fromtimestamp(time.mktime(ts))
             return dateDateTime
@@ -988,6 +987,34 @@ class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
             self._set_username(username.get_text())
             self._set_password(password.get_text())
         dlg.destroy()    
+        
+class _GoogleDocument:
+    def __init__(self, doc):
+        self.id = doc.id.text
+        #raw text version link
+        self.raw = doc.content.src
+        #edit link
+        self.link = doc.GetAlternateLink().href
+        self.title = doc.title.text.encode('UTF-8')
+        self.authorName = doc.author[0].name.text
+        self.authorEmail = doc.author[0].email.text
+        self.type = doc.category[0].label
+        
+        self.updated = convert_madness_to_datetime(doc.updated.text)
+        self.docid = self.get_document_id(self.link)
+        
+    # Parses the document id out of the alternate link url, the atom feed
+    # doesn't actually provide the document id
+    @staticmethod
+    def get_document_id(LUID):
+        from urlparse import *
+        parsed_url = urlparse(LUID)
+        url_params = parsed_url[4]
+        document_id = url_params.split('=')[1]
+        return document_id
+        
+    def __str__(self):
+        return "%s:%s by %s (modified:%s) (id:%s)" % (self.type,self.title,self.authorName,self.updated,self.docid)
 
 class DocumentsSink(GoogleBase,  DataProvider.DataSink):
     """
@@ -1003,7 +1030,7 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
     _icon_ = "applications-office"
     
     SUPPORTED_DOCUMENTS = ('DOC','ODT','SWX','TXT','RTF','HTM','HTML')
-    SUPPORTED_SHEETS = ('ODS','XLS','CSV','TSV')
+    SUPPORTED_SPREADSHEETS = ('ODS','XLS','CSV','TSV')
     SUPPORTED_PRESENTATIONS = ('PPT','PPS')
     
     TYPE_DOCUMENT = 'document'
@@ -1014,6 +1041,12 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
         GoogleBase.__init__(self)
         DataProvider.DataSink.__init__(self)
         self.service = gdata.docs.service.DocsService()
+        
+        self.documentFormat = 'ODT'
+        self.spreadsheetFormat = 'ODS'
+        self.presentationFormat = 'PPT'
+        
+        self._docs = {}
         
     def _do_login(self):
         self.service.ClientLogin(self.username, self.password)
@@ -1029,7 +1062,7 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
         #upload using the appropriate service
         if ext in self.SUPPORTED_DOCUMENTS:
             entry = self.service.UploadDocument(ms,name)
-        elif ext in self.SUPPORTED_SHEETS:
+        elif ext in self.SUPPORTED_SPREADSHEETS:
             entry = self.service.UploadSpreadsheet(ms,name)
         elif ext in self.SUPPORTED_PRESENTATIONS:
             entry = self.service.UploadPresentation(ms,name)
@@ -1040,48 +1073,67 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
         return entry.id.text
         
     def _get_all_documents(self):
+        docs = {}
         feed = self.service.GetDocumentListFeed()
-        if not feed.entry:
-            return []
-        return [str(doc.id.text) for doc in feed.entry]
+        if feed.entry:
+            for xmldoc in feed.entry:
+                docs[xmldoc.id.text] = _GoogleDocument(xmldoc)
+        return docs
         
     def _get_document(self, LUID):
         if not LUID:
             return None
 
+        #try cached doc first
+        if LUID in self._docs:
+            return self._docs[LUID]
+
         #get the gdata contact from google
         try:
-            gd = self.service.GetDocumentListEntry(LUID)
+            xmldoc = self.service.GetDocumentListEntry(LUID)
         except gdata.service.RequestError:
             return None
 
-        return gd
+        return _GoogleDocument(xmldoc)
         
-    # Parses the document id out of the alternate link url, the atom feed
-    # doesn't actually provide the document id      
-    def _get_document_id(self, LUID):
-        from urlparse import *
-        parsed_url = urlparse(LUID)
-        url_params = parsed_url[4]
-        document_id = url_params.split('=')[1]
-        return document_id
-        
-    def _download_doc(self, LUID):
-        docid = self._get_document_id(LUID)
+    def _download_doc(self, googleDoc):
+        docid = googleDoc.docid
     
-        #self.service.debug = True
-        #https://docs.google.com/MiscCommands?command=saveasdoc&exportformat=%s&docID=%s
-        resp = atom.service.HttpRequest(
-                                service=self.service,
-                                operation='GET',
-                                data=None,
-                                uri='/MiscCommands',
-                                extra_headers={'Authorization':self.service._GetAuthToken()},
-                                url_params={'command':'saveasdoc','exportformat':'doc','docID':docid},
-                                escape_params=True,
-                                content_type='application/atom+xml')
+        #print self.service.server
+        #return 
+        self.service.debug = True
+        
+        if googleDoc.type in ("document","presentation"):
+            format = "pdf"
+            #https://docs.google.com/MiscCommands?command=saveasdoc&exportformat=%s&docID=%s
+            resp = atom.service.HttpRequest(
+                                    service=self.service,
+                                    operation='GET',
+                                    data=None,
+                                    uri='/MiscCommands',
+                                    extra_headers={'Authorization':self.service._GetAuthToken()},
+                                    url_params={'command':'saveasdoc','exportformat':format,'docID':docid},
+                                    escape_params=True,
+                                    content_type='application/atom+xml')
+        elif False:#NOT WORKING googleDoc.type == "spreadsheet":
+            format = "xls"
+            #https://spreadsheets.google.com/ccc?output=%s&key=%s
+            #http://spreadsheets.google.com/fm?key=%s&fmcmd=4&hl=en
+            #self.service.server = "spreadsheets.google.com"
+            resp = atom.service.HttpRequest(
+                                    service=self.service,
+                                    operation='GET',
+                                    data=None,
+                                    uri='/ccc',
+                                    extra_headers={'Authorization':self.service._GetAuthToken()},
+                                    url_params={'output':format,'key':docid},
+                                    escape_params=True,
+                                    content_type='application/atom+xml')
+        else:
+            log.warn("Unknown format")
+            return None
 
-        path = "/home/john/Desktop/%s.doc" % docid
+        path = "/home/john/Desktop/%s.%s" % (docid, format)
         file_handle = open(path, 'wb')
         file_handle.write(resp.read())
         file_handle.close()
@@ -1093,6 +1145,13 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
         self._login()
         if not self.loggedIn:
             raise Exceptions.RefreshError("Could not log in")
+            
+    def get_all(self):
+        self._docs = self._get_all_documents()
+        return self._docs.keys()
+        
+    def get(self, LUID):
+        pass
 
 #    def put(self, doc, overwrite, LUID=None):            
 #        #Check if we have already uploaded the document
@@ -1136,10 +1195,27 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
         """
         Configures the PicasaTwoWay
         """
+        import gtk
+
+        def make_combo(widget, docType, val, values):
+            cb = widget.get_widget("%sCombo" % docType)
+            store = gtk.ListStore(str)
+            cell = gtk.CellRendererText()
+            
+            cb.set_model(store)
+            cb.pack_start(cell, True)
+            cb.add_attribute(cell, 'text', 0)
+            
+            for name in values:
+                rowref = store.append( (name,) )
+                if name == val:
+                    cb.set_active_iter(rowref)
+            
+
         widget = Utils.dataprovider_glade_get_widget(
                         __file__, 
-                        "contacts-config.glade", 
-                        "GoogleContactsConfigDialog")
+                        "documents-config.glade", 
+                        "GoogleDocumentsConfigDialog")
                         
         #get a whole bunch of widgets
         username = widget.get_widget("username")
@@ -1148,8 +1224,12 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
         #preload the widgets        
         username.set_text(self.username)
         password.set_text(self.password)
+
+        #preload the combos
+        for i in (("document", self.documentFormat,self.SUPPORTED_DOCUMENTS),("spreadsheet", self.spreadsheetFormat,self.SUPPORTED_SPREADSHEETS),("presentation",self.presentationFormat,self.SUPPORTED_PRESENTATIONS)):
+            make_combo(widget, *i)
         
-        dlg = widget.get_widget("GoogleContactsConfigDialog")
+        dlg = widget.get_widget("GoogleDocumentsConfigDialog")
         response = Utils.run_dialog (dlg, window)
         if response == True:
             self._set_username(username.get_text())

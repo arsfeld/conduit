@@ -1,3 +1,10 @@
+2008-05-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/documents-config.glade:
+	* test/python-tests/TestDataProviderGoogleDocuments.py: Small fixes to
+	google docs.
+
 2008-05-08  John Stowers  <john.stowers@gmail.com>
 
 	* scripts/continuous-tester.sh: Fix USAGE
