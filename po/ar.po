@@ -190,7 +190,7 @@ msgstr "تزامن بطيء"
 #: ../data/conduit.glade.h:35
 #, fuzzy
 msgid "Sync Options"
-msgstr "زامن الإتصالات"
+msgstr "زامن الاتصالات"
 
 #: ../data/conduit.glade.h:36
 msgid "Synchronize All"
@@ -212,7 +212,7 @@ msgstr "زامن المجموعة"
 
 #: ../data/conduit.glade.h:40
 msgid "Title"
-msgstr "الإسم"
+msgstr "الاسم"
 
 #: ../data/conduit.glade.h:41
 #, fuzzy
@@ -654,7 +654,7 @@ msgstr ""
 #: ../conduit/modules/FileModule/FileConfiguration.py:341
 #, fuzzy
 msgid "Please Enter a Folder Name"
-msgstr "أدخل إسم المجلد الجديد:"
+msgstr "أدخل اسم المجلد الجديد:"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:342
 msgid ""
