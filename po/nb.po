@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit 0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-06 19:53+0200\n"
-"PO-Revision-Date: 2008-05-06 19:57+0200\n"
+"POT-Creation-Date: 2008-05-23 09:19+0200\n"
+"PO-Revision-Date: 2008-05-23 09:23+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: LANGUAGE <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: ../data/conduit.desktop.in.in.h:1
 #: ../data/conduit-autostart.desktop.in.in.h:2
 msgid "Conduit Synchronizer"
-msgstr ""
+msgstr "Conduit synkronisering"
 
 #: ../data/conduit.desktop.in.in.h:2
 #: ../data/conduit-autostart.desktop.in.in.h:3
@@ -29,7 +29,7 @@ msgstr "Synkronisering for GNOME"
 #: ../data/conduit-autostart.desktop.in.in.h:1
 #: ../conduit/modules/N800Module/N800Module.py:54
 msgid "Conduit"
-msgstr ""
+msgstr "Conduit"
 
 #: ../data/conduit.glade.h:1
 msgid "<b>Default Synchronization Options</b>"
@@ -227,7 +227,7 @@ msgstr "_Fil"
 msgid "_Help"
 msgstr "_Hjelp"
 
-#: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:35
+#: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:32
 msgid "Drag a Data Provider here to continue"
 msgstr "Dra en datatilbyder hit for å fortsette"
 
@@ -275,7 +275,7 @@ msgstr "Navn"
 msgid "Loaded"
 msgstr "Lastet"
 
-#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:129
+#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:128
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Synkronisering pågår. Vil du avbryte den?"
 
@@ -589,7 +589,8 @@ msgstr "Vennligst navngi alle mapper"
 #: ../conduit/modules/FileModule/FileConfiguration.py:297
 msgid ""
 "All folders require a descriptive name. To name a folder simply click on it"
-msgstr "Alle mapper må ha et beskrivende navn. Klikk på en mappe for å gi den et navn"
+msgstr ""
+"Alle mapper må ha et beskrivende navn. Klikk på en mappe for å gi den et navn"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:341
 msgid "Please Enter a Folder Name"
@@ -599,7 +600,9 @@ msgstr "Vennligst oppgi et mappenavn"
 msgid ""
 "All folders require a descriptive name. To name a folder enter its name "
 "where indicated"
-msgstr "Alle mapper må ha et beskrivende navn. Skriv inn navnet der du får beskjed for å navngi dem."
+msgstr ""
+"Alle mapper må ha et beskrivende navn. Skriv inn navnet der du får beskjed "
+"for å navngi dem."
 
 #: ../conduit/modules/FileModule/FileModule.py:23
 msgid "Files"
@@ -725,37 +728,45 @@ msgstr "GConf-innstillinger"
 msgid "Sync your desktop preferences"
 msgstr ""
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:354
+#: ../conduit/modules/GoogleModule/GoogleModule.py:355
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
 msgid "Google Calendar"
 msgstr "Google kalender"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:355
+#: ../conduit/modules/GoogleModule/GoogleModule.py:356
 msgid "Sync your Google Calendar"
 msgstr ""
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:546
+#: ../conduit/modules/GoogleModule/GoogleModule.py:545
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
 msgid "Picasa"
 msgstr "Picasa"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:547
+#: ../conduit/modules/GoogleModule/GoogleModule.py:546
 msgid "Sync your Google Picasa photos"
 msgstr ""
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:765
+#: ../conduit/modules/GoogleModule/GoogleModule.py:767
 msgid "Google Contacts"
 msgstr "Google kontakter"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:766
-msgid "Sync contacts from Google"
-msgstr "Synkroniser kontakter fra Google"
+#: ../conduit/modules/GoogleModule/GoogleModule.py:768
+msgid "Sync your Gmail contacts"
+msgstr "Synkroniser dine Gmail-kontakter"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:879
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1025
+msgid "Google Documents"
+msgstr "Google dokumenter"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1026
+msgid "Sync your Google Documents"
+msgstr "Synkroniser dine dokumenter Google-dokumenter"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1245
 msgid "YouTube"
 msgstr "YouTube"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:880
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1246
 msgid "Sync data from YouTube"
 msgstr "Synkroniser data fra YouTube"
 
@@ -789,11 +800,11 @@ msgstr "Album:"
 
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
 msgid "Login"
-msgstr ""
+msgstr "Logg inn"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
 msgid "<b>Donwload Videos</b>"
-msgstr ""
+msgstr "<b>Last ned videoer</b>"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
 msgid "By user"
@@ -899,7 +910,7 @@ msgstr "Nettverk"
 
 #: ../conduit/modules/NetworkModule/Server.py:148
 msgid "Enable synchronization via network"
-msgstr ""
+msgstr "Aktiver synkronisering over nettverk"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
 msgid "Rhythmbox Music"
@@ -919,7 +930,7 @@ msgstr ""
 
 #: ../conduit/modules/RhythmboxModule/config.glade.h:2
 msgid "Rhythmbox Playlists"
-msgstr ""
+msgstr "Rhythmbox-spillelister"
 
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
