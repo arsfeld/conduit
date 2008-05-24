@@ -109,7 +109,7 @@ class _GoogleBase:
     def get_UID(self):
         return self.username
 
-class GoogleCalendar:
+class _GoogleCalendar:
     def __init__(self, name, uri):
         self.uri = uri
         self.name = name
@@ -199,7 +199,7 @@ def parse_google_recur(recurString, args):
     if 'vtimezone' in vobjICal.contents:
         args['vtimezone'] = vobjICal.vtimezone
 
-class GoogleEvent:
+class _GoogleEvent:
     def __init__(self, **kwargs):
         self.uid = kwargs.get('uid', None)
         self.mTime = kwargs.get('mTime', None)
@@ -383,13 +383,13 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
         calQuery = gdata.calendar.service.CalendarEventQuery(user = self.selectedCalendar.get_uri())
         eventFeed = self.service.CalendarQuery(calQuery)
         for event in eventFeed.entry:   
-            yield GoogleEvent.from_google_format(event)
+            yield _GoogleEvent.from_google_format(event)
 
     def _get_all_calendars(self):
         self._login()
         allCalendarsFeed = self.service.GetCalendarListFeed().entry
         for calendarFeed in allCalendarsFeed:
-            yield GoogleCalendar.from_google_format(calendarFeed)
+            yield _GoogleCalendar.from_google_format(calendarFeed)
 
     def _load_calendars(self, widget, tree):
         import gtk, gtk.gdk
@@ -481,11 +481,11 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
         return conduitEvent          
                    
     def _create_event(self, conduitEvent):
-        googleEvent = GoogleEvent.from_ical_format( conduitEvent.get_ical_string() )
+        googleEvent = _GoogleEvent.from_ical_format( conduitEvent.get_ical_string() )
         newEvent = self.service.InsertEvent(
                                         googleEvent.get_google_format(),
                                         self.selectedCalendar.get_feed_link())
-        newEvent = GoogleEvent.from_google_format(newEvent)
+        newEvent = _GoogleEvent.from_google_format(newEvent)
         return Rid(uid=newEvent.get_uid(), mtime=None, hash=None)
         
     def _delete_event(self, LUID):
@@ -536,7 +536,7 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
         _GoogleBase.set_configuration(self, config)
         if "selectedCalendarName" in config:
             if "selectedCalendarURI" in config:
-                self.selectedCalendar = GoogleCalendar(
+                self.selectedCalendar = _GoogleCalendar(
                                             config['selectedCalendarName'],
                                             config['selectedCalendarURI']
                                             )

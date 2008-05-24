@@ -103,9 +103,12 @@ class Settings(gobject.GObject):
         """
         gobject.GObject.__init__(self)
         self.client = gconf.client_get_default()
-        # Preload gconf directories
+        #Preload gconf directories
         self.client.add_dir(self.CONDUIT_GCONF_DIR[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)  
         self.notifications = []
+        #also keep an internal dict of settings which have been overridden
+        #for this session
+        self.overrides = {}
 
     def _fix_key(self, key):
         """
@@ -128,12 +131,23 @@ class Settings(gobject.GObject):
         key = self._fix_key(entry.key)
         detailed_signal = 'changed::%s' % key
         self.emit(detailed_signal)
+        
+    def set_overrides(self, **overrides):
+        self.overrides = overrides
 
     def get(self, key, vtype=None, default=None):
         """
         Returns the value of the key or the default value if the key is 
         not yet in gconf
         """
+        #check if the setting has been overridden for this session
+        if key in self.overrides:
+            try:
+                #try and cast to correct type
+                return type(self.DEFAULTS[key])(self.overrides[key])
+            except:
+                return self.overrides[key]
+
         if key in self.DEFAULTS:
             #function arguments override defaults
             if default is None:
@@ -173,6 +187,11 @@ class Settings(gobject.GObject):
         Sets the key value in gconf and connects adds a signal 
         which is fired if the key changes
         """
+        #overidden settings only apply for this session, and are
+        #not set
+        if key in self.overrides:
+            return True
+
         log.debug("Settings %s -> %s" % (key, value))
         if key in self.DEFAULTS and not vtype:
             vtype = type(self.DEFAULTS[key])

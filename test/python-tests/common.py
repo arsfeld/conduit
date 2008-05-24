@@ -35,6 +35,10 @@ conduit.IS_DEVELOPMENT_VERSION =    True
 conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
 conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
 
+# override some conduit settings. 
+# without a gobject main loop the gtkmozembed browser hangs
+conduit.GLOBALS.settings.set_overrides(web_login_browser="system")
+
 def is_online():
     try:    
         return os.environ["CONDUIT_ONLINE"] == "TRUE"

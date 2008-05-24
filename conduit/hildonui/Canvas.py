@@ -43,8 +43,14 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         """
         #setup the canvas
         goocanvas.Canvas.__init__(self)
-        self.set_bounds(0, 0, self.CANVAS_WIDTH, self.CANVAS_HEIGHT)
-        self.set_size_request(self.CANVAS_WIDTH, self.CANVAS_HEIGHT)
+        self.set_bounds(0, 0, 
+                conduit.GLOBALS.settings.get("gui_initial_canvas_width"),
+                conduit.GLOBALS.settings.get("gui_initial_canvas_height")
+                )
+        self.set_size_request(
+                conduit.GLOBALS.settings.get("gui_initial_canvas_width"),
+                conduit.GLOBALS.settings.get("gui_initial_canvas_height")
+                )
         self.root = self.get_root_item()
 
         self.sync_manager = syncManager

@@ -1,3 +1,13 @@
+2008-05-25  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py:
+	* conduit/Settings.py:
+	* conduit/hildonui/Canvas.py:
+	* test/python-tests/common.py: Add the ability to override conduit
+	settings for the session. Use this where appropriate.
+	
+	* conduit/modules/GoogleModule/GoogleModule.py: Make some classes private
+
 2008-05-24  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py: Share some more code

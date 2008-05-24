@@ -82,11 +82,6 @@ touch -t 198308160001 $TEST_DATA_DIR/older
 touch -t 198308160002 $TEST_DATA_DIR/newer
 touch -t 198308160003 $TEST_DATA_DIR/newest
 
-#Disable save on exit (the test sets are read only)
-gconftool-2 --type bool --set /apps/conduit/save_on_exit false
-#Without a gobject main loop the gtkmozembed browser hangs
-gconftool-2 --type string --set /apps/conduit/web_login_browser system
-
 #Work out which tests to run
 if [ -n "$do_single_test" ] ; then
     tests="$PY_TEST_DIR/$do_single_test"

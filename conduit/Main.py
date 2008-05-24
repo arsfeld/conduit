@@ -49,8 +49,12 @@ class Application(dbus.service.Object):
         blacklist = None
         self.ui = "gtk"
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "hvs:ciu:w:x:", 
-                ["help", "version", "settings=", "console", "iconify", "ui=", "with-modules=", "without-modules="])
+            opts, args = getopt.getopt(
+                            sys.argv[1:],
+                            "hvf:ciu:w:x:s:",
+                                ("help", "version", "config-file=",
+                                 "console", "iconify", "ui=", "with-modules=",
+                                 "without-modules=", "settings="))
             #parse args
             for o, a in opts:
                 if o in ("-h", "--help"):
@@ -59,7 +63,7 @@ class Application(dbus.service.Object):
                 if o in ("-v", "--version"):
                     print "Conduit %s" % conduit.VERSION
                     sys.exit(0)
-                if o in ("-s", "--settings"):
+                if o in ("-f", "--config-file"):
                      self.settingsFile = os.path.join(os.getcwd(), a)
                 if o in ("-c", "--console"):
                    buildGUI = False
@@ -71,6 +75,14 @@ class Application(dbus.service.Object):
                     whitelist = a.split(",")
                 if o in ("-x", "--without-modules"):
                     blacklist = a.split(",")
+                if o in ("-s", "--settings"):
+                    settings = {}
+                    try:
+                        for i in a.split(','):
+                            k,v = i.split('=')
+                            settings[k] = v
+                    except: pass
+                    conduit.GLOBALS.settings.set_overrides(**settings)
 
         except getopt.GetoptError:
             log.warn("Unknown command line option")
@@ -168,20 +180,22 @@ class Application(dbus.service.Object):
     def _usage(self):
         print """Usage: conduit [OPTIONS] - Synchronize things
 OPTIONS:
-    -h, --help              Show this message.
-    -c, --console           Launch with no GUI.
-                            (default=no)
-    -s, --settings=FILE     Save settings to FILE.
-                            (default=$XDG_CONFIG_DIR/.conduit/settings.xml)
-    -i, --iconify           Iconify on startup.
-                            (default=no)
-    -u, --ui=NAME           Run with the specified UI
-                            (default=gtk)
-    -w, --with-modules      Only load modules in the named files
-                            (default=load all modules)
-    -x, --without-modules   Do not load modules in the named files
-                            (default=load all modules)
-    -v, --version           Show version information"""
+    -h, --help                  Show this message.
+    -c, --console               Launch with no GUI.
+                                (default=no)
+    -f, --config-file=FILE      Save dataprovider configuration to FILE.
+                                (default=$XDG_CONFIG_DIR/.conduit/settings.xml)
+    -i, --iconify               Iconify on startup.
+                                (default=no)
+    -u, --ui=NAME               Run with the specified UI.
+                                (default=gtk)
+    -w, --with-modules          Only load modules in the named files.
+                                (default=load all modules)
+    -x, --without-modules       Do not load modules in the named files.
+                                (default=load all modules)
+    -s, --settings=key=val,..   Explicitly set internal Conduit settings (keys)
+                                to the given values for this session.
+    -v, --version               Show version information."""
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='b')
     def HasGUI(self):
