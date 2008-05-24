@@ -1,3 +1,9 @@
+2008-05-24  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/Web.py: Add proxy support (both env var and gconf) to the built
+	in browser.
+
 2008-05-12  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py:

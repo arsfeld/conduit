@@ -18,16 +18,6 @@ def open_url(url):
     webbrowser.open(url,new=1,autoraise=True)
     log.debug("Opened %s" % url)
 
-def get_profile_subdir(subdir):
-    """
-    Some webbrowsers need a profile dir. Make it if
-    it doesnt exist
-    """
-    profdir = os.path.join(conduit.USER_DIR, subdir)
-    if not os.access(profdir, os.F_OK):
-        os.makedirs(profdir)
-    return profdir
-
 class _WebBrowser(gobject.GObject):
     """
     Basic webbrowser abstraction to provide an upgrade path
@@ -54,7 +44,7 @@ class _WebBrowser(gobject.GObject):
     def __init__(self, emitOnIdle=False):
         gobject.GObject.__init__(self)
         self.emitOnIdle = emitOnIdle
-
+        
     def emit(self, *args):
         """
         Override the gobject signal emission so that signals
@@ -75,16 +65,23 @@ class _MozEmbedWebBrowser(_WebBrowser):
     """
     Wraps the GTK embeddable Mozilla in the WebBrowser interface
     """
+    
+    PROFILE = 'default'
+    
     def __init__(self):
         _WebBrowser.__init__(self)
 
         #lazy import and other hoops necessary because
         #set_profile path must be the first call to gtkmozembed
-        #after it is imported
+        #after it is imported, otherwise it crashes..
         if 'gtkmozembed' not in sys.modules:
             import gtkmozembed
             global gtkmozembed
-            gtkmozembed.set_profile_path(get_profile_subdir('mozilla'), 'default')
+            
+            #setup the mozilla environment
+            profdir = self._get_profile_subdir()
+            self._create_prefs_js()
+            gtkmozembed.set_profile_path(profdir, self.PROFILE)
 
         self.url_load_request = False # flag to break load_url recursion
         self.location = ""
@@ -96,6 +93,58 @@ class _MozEmbedWebBrowser(_WebBrowser):
         self.moz.connect("progress", self._signal_progress)
         self.moz.connect("net-start", self._signal_net_start)
         self.moz.connect("net-stop", self._signal_net_stop)
+        
+    def _get_profile_subdir(self):
+        """
+        Some webbrowsers need a profile dir. Make it if
+        it doesnt exist
+        """
+        subdir = os.path.join(conduit.USER_DIR, 'mozilla')
+        profdir = os.path.join(subdir, self.PROFILE)
+        if not os.access(profdir, os.F_OK):
+            os.makedirs(profdir)
+        return subdir
+        
+    def _create_prefs_js(self):
+        """
+        Create the file prefs.js in the mozilla profile directory.  This
+        file does things like turn off the warning when navigating to https pages.
+        """
+        prefsContent = """\
+# Mozilla User Preferences
+user_pref("security.warn_entering_secure", false);
+user_pref("security.warn_entering_weak", false);
+user_pref("security.warn_viewing_mixed", false);
+user_pref("security.warn_leaving_secure", false);
+user_pref("security.warn_submit_insecure", false);
+user_pref("security.warn_entering_secure.show_once", false);
+user_pref("security.warn_entering_weak.show_once", false);
+user_pref("security.warn_viewing_mixed.show_once", false);
+user_pref("security.warn_leaving_secure.show_once", false);
+user_pref("security.warn_submit_insecure.show_once", false);
+user_pref("security.enable_java", false);
+user_pref("browser.xul.error_pages.enabled", false);
+user_pref("general.useragent.vendor", "%s");
+user_pref("general.useragent.vendorSub", "%s");
+user_pref("general.useragent.vendorComment", "%s");
+""" % ("Conduit",conduit.VERSION,"http://www.conduit-project.org")
+
+        if conduit.GLOBALS.settings.proxy_enabled():
+            log.info("Setting mozilla proxy details")
+            host,port,user,password = conduit.GLOBALS.settings.get_proxy()
+            prefsContent += """\
+user_pref("network.proxy.type", 1);
+user_pref("network.proxy.http", "%s");
+user_pref("network.proxy.http_port", %d);
+user_pref("network.proxy.ssl", "%s");
+user_pref("network.proxy.ssl_port", %s);
+user_pref("network.proxy.share_proxy_settings", true);
+""" % (host,port,host,port)
+
+        prefsPath = os.path.join(self._get_profile_subdir(),self.PROFILE,'prefs.js')
+        f = open(prefsPath, "wt")
+        f.write(prefsContent)
+        f.close()
 
     def widget(self):
         return self.moz

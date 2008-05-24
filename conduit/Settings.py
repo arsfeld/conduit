@@ -6,6 +6,8 @@ Part of this code copied from Gimmie (c) Alex Gravely
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import re
+import os
 import gobject
 
 try:
@@ -62,14 +64,10 @@ def string_to_list(string, listInternalVtype=str):
 
 class Settings(gobject.GObject):
     """
-    Class for storing conduit.GLOBALS.settings. 
+    Class for storing conduit.GLOBALS.settings. Keys of type str, bool, int, 
+    and list of strings supported at this stage.
     
-    Settings come in two categories.
-    1) Preferences which are application specific and get stored in gconf
-    2) Per conduit.GLOBALS.settings.which describe the way dataproviders are connected
-    and the specific per dataprovider sync settings.
-    
-    Keys of type str, bool, int, and list of strings supported at this stage
+    Also stores the special proxy settings.
     """
     __gsignals__ = {
         'changed' : (gobject.SIGNAL_RUN_LAST | gobject.SIGNAL_DETAILED, gobject.TYPE_NONE, ()),
@@ -196,6 +194,55 @@ class Settings(gobject.GObject):
             log.warn("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
             return False
 
-        return True            
+        return True
+        
+    def proxy_enabled(self):
+        """
+        @returns: True if the user has specified a http proxy via
+        the http_proxy environment variable, or in gconf
+        """
+        return os.environ.has_key("http_proxy") or \
+                self.client.get_bool("/system/http_proxy/use_http_proxy")
+        
+    def get_proxy(self):
+        """
+        Returns the details of the configured http proxy. 
+        The http_proxy environment variable overrides the GNOME setting
+        @returns: host,port,user,password
+        """
+        if self.proxy_enabled():
+            #env vars have preference
+            if os.environ.has_key("http_proxy"):
+                #re taken from python boto
+                pattern = re.compile(
+                    '(?:http://)?' \
+                    '(?:(?P<user>\w+):(?P<pass>.*)@)?' \
+                    '(?P<host>[\w\-\.]+)' \
+                    '(?::(?P<port>\d+))?'
+                )
+                match = pattern.match(os.environ['http_proxy'])
+                if match:
+                    return (match.group('host'),
+                            int(match.group('port')),
+                            match.group('user'),
+                            match.group('pass'))
+            #now try gconf
+            if self.client.get_bool("/system/http_proxy/use_authentication"):
+                return (self.client.get_string("/system/http_proxy/host"),
+                        self.client.get_int("/system/http_proxy/port"),
+                        self.client.get_string("/system/http_proxy/authentication_user"),
+                        self.client.get_string("/system/http_proxy/authentication_password"))
+            else:
+                return (self.client.get_string("/system/http_proxy/host"),
+                        self.client.get_int("/system/http_proxy/port"),
+                        "",
+                        "")
+
+        return ("",0,"","")
+                            
+                
+        
+
+        
         
 
