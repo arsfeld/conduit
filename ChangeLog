@@ -1,5 +1,12 @@
 2008-05-24  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py: Share some more code
+	between google dataproviders. Pass on proxy settings to	them.
+
+	* test/python-tests/TestCoreSettings.py: Add proxy env var parsing test.
+
+2008-05-24  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Settings.py:
 	* conduit/Web.py: Add proxy support (both env var and gconf) to the built
 	in browser.

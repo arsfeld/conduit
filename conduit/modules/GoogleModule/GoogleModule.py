@@ -1,9 +1,10 @@
+import os
 import re
+import urlparse
 import gobject
 import datetime
 import dateutil.parser
 import vobject
-import operator
 import time
 from dateutil.tz import tzutc, tzlocal
 from gettext import gettext as _
@@ -48,14 +49,25 @@ except (ImportError, AttributeError):
 # time format
 FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
 
-class GoogleBase(object):
-    def __init__(self):
+class _GoogleBase:
+    def __init__(self, service):
         self.username = ""
         self.password = ""
         self.loggedIn = False
+        self.service = service
         
+        if conduit.GLOBALS.settings.proxy_enabled():
+            log.info("Configuring proxy for %s" % self.service)
+            host,port,user,password = conduit.GLOBALS.settings.get_proxy()
+            #FIXME: Is this necessary, does GNOME propogate the gconf vars to 
+            #env vars? gdata automatically picks those up
+            os.environ['http_proxy'] = "%s:%s" % (host,port)
+            os.environ['https_proxy'] = "%s:%s" % (host,port)
+            os.environ['proxy_username'] = user
+            os.environ['proxy_password'] = password
+
     def _do_login(self):
-        raise NotImplementedError
+        self.service.ClientLogin(self.username, self.password)
 
     def _login(self):
         if not self.loggedIn:
@@ -97,7 +109,7 @@ class GoogleBase(object):
     def get_UID(self):
         return self.username
 
-class GoogleCalendar(object):
+class GoogleCalendar:
     def __init__(self, name, uri):
         self.uri = uri
         self.name = name
@@ -187,7 +199,7 @@ def parse_google_recur(recurString, args):
     if 'vtimezone' in vobjICal.contents:
         args['vtimezone'] = vobjICal.vtimezone
 
-class GoogleEvent(object):
+class GoogleEvent:
     def __init__(self, **kwargs):
         self.uid = kwargs.get('uid', None)
         self.mTime = kwargs.get('mTime', None)
@@ -350,7 +362,7 @@ class GoogleEvent(object):
         log.debug("Created ICal Format :\n"+returnStr)
         return returnStr
     
-class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
+class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
 
     _name_ = _("Google Calendar")
     _description_ = _("Sync your Google Calendar")
@@ -361,25 +373,21 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
     _icon_ = "appointment-new"
     
     def __init__(self):
-        GoogleBase.__init__(self)
+        _GoogleBase.__init__(self,gdata.calendar.service.CalendarService())
         DataProvider.TwoWay.__init__(self)
-        self.calService = gdata.calendar.service.CalendarService()
         self.selectedCalendar = None
         self.events = {}
-
-    def _do_login(self):
-        self.calService.ClientLogin(self.username, self.password)
 
     def _get_all_events(self):
         self._login()
         calQuery = gdata.calendar.service.CalendarEventQuery(user = self.selectedCalendar.get_uri())
-        eventFeed = self.calService.CalendarQuery(calQuery)
+        eventFeed = self.service.CalendarQuery(calQuery)
         for event in eventFeed.entry:   
             yield GoogleEvent.from_google_format(event)
 
     def _get_all_calendars(self):
         self._login()
-        allCalendarsFeed = self.calService.GetCalendarListFeed().entry
+        allCalendarsFeed = self.service.GetCalendarListFeed().entry
         for calendarFeed in allCalendarsFeed:
             yield GoogleCalendar.from_google_format(calendarFeed)
 
@@ -474,7 +482,7 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
                    
     def _create_event(self, conduitEvent):
         googleEvent = GoogleEvent.from_ical_format( conduitEvent.get_ical_string() )
-        newEvent = self.calService.InsertEvent(
+        newEvent = self.service.InsertEvent(
                                         googleEvent.get_google_format(),
                                         self.selectedCalendar.get_feed_link())
         newEvent = GoogleEvent.from_google_format(newEvent)
@@ -482,7 +490,7 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
         
     def _delete_event(self, LUID):
         googleEvent = self.events[LUID]
-        self.calService.DeleteEvent(googleEvent.get_edit_link())
+        self.service.DeleteEvent(googleEvent.get_edit_link())
         
     def _update_event(self, LUID, conduitEvent):
         self._delete_event(LUID)
@@ -517,7 +525,7 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
         return rid
         
     def get_configuration(self):
-        conf = GoogleBase.get_configuration(self)
+        conf = _GoogleBase.get_configuration(self)
         if self.selectedCalendar != None:
             conf.update({
                 "selectedCalendarName"  :   self.selectedCalendar.get_name(),
@@ -525,7 +533,7 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
         return conf
             
     def set_configuration(self, config):
-        GoogleBase.set_configuration(self, config)
+        _GoogleBase.set_configuration(self, config)
         if "selectedCalendarName" in config:
             if "selectedCalendarURI" in config:
                 self.selectedCalendar = GoogleCalendar(
@@ -534,24 +542,23 @@ class GoogleCalendarTwoWay(GoogleBase, DataProvider.TwoWay):
                                             )
 
     def is_configured (self, isSource, isTwoWay):
-        if not GoogleBase.is_configured(self, isSource, isTwoWay):
+        if not _GoogleBase.is_configured(self, isSource, isTwoWay):
             return False
         if self.selectedCalendar == None:
             return False
         return True
 
-class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
+class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
 
     _name_ = _("Picasa")
     _description_ = _("Sync your Google Picasa photos")
     _icon_ = "picasa"
 
     def __init__(self, *args):
-        GoogleBase.__init__(self)
+        _GoogleBase.__init__(self, gdata.photos.service.PhotosService())
         Image.ImageTwoWay.__init__(self)
         self.albumName = ""
         self.imageSize = "None"
-        self.pws = gdata.photos.service.PhotosService()
         self.galbum = None
         self.gphoto_dict = {}
 
@@ -569,19 +576,16 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         
     def _upload_photo (self, uploadInfo):
         try:
-            gphoto = self.pws.InsertPhotoSimple(
+            gphoto = self.service.InsertPhotoSimple(
                                 self.galbum,
                                 uploadInfo.name,
                                 uploadInfo.caption,
                                 uploadInfo.url)
             for tag in uploadInfo.tags:
-                self.pws.InsertTag(gphoto, str(tag))
+                self.service.InsertTag(gphoto, str(tag))
             return Rid(uid=gphoto.gphoto_id.text)
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")
-
-    def _do_login(self):
-        self.pws.ClientLogin(self.username, self.password)
 
     def _get_album(self):
         for name,album in self._get_albums():
@@ -595,7 +599,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
 
     def _get_albums(self):
         albums = []
-        for album in self.pws.GetUserFeed().entry:
+        for album in self.service.GetUserFeed().entry:
             albums.append(
                     (album.title.text,  #album name
                     album))             #album
@@ -603,7 +607,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         
     def _get_photos(self):
         self.gphoto_dict = {}
-        for photo in self.pws.GetFeed(self.galbum.GetPhotosUri()).entry:
+        for photo in self.service.GetFeed(self.galbum.GetPhotosUri()).entry:
             self.gphoto_dict[photo.gphoto_id.text] = photo
 
     def _get_photo_timestamp(self, gphoto):
@@ -616,7 +620,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
             return datetime(*(time.strptime(timestamp, FORMAT_STRING)[0:6]))
 
     def _create_album(self, album_name):            
-        self.pws.InsertAlbum(album_name, '', access='private')
+        self.service.InsertAlbum(album_name, '', access='private')
 
     def refresh(self):
         Image.ImageTwoWay.refresh(self)
@@ -635,7 +639,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
 
         gphoto = self.gphoto_dict[LUID]
         url = gphoto.GetMediaURL()
-        tags = (tag.title.text for tag in self.pws.GetFeed(gphoto.GetTagsUri()).entry)
+        tags = (tag.title.text for tag in self.service.GetFeed(gphoto.GetTagsUri()).entry)
 
         f = Photo.Photo (URI=url)
         f.force_new_mtime(self._get_photo_timestamp(gphoto))
@@ -650,7 +654,7 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
             log.warn("Photo does not exit")
             return
 
-        self.pws.Delete(self.gphoto_dict[LUID])
+        self.service.Delete(self.gphoto_dict[LUID])
         del self.gphoto_dict[LUID]
 
     def configure(self, window):
@@ -741,26 +745,26 @@ class PicasaTwoWay(GoogleBase, Image.ImageTwoWay):
         Utils.run_dialog_non_blocking(dlg, on_response, window)
         
     def get_configuration(self):
-        conf = GoogleBase.get_configuration(self)
+        conf = _GoogleBase.get_configuration(self)
         conf.update({
             "imageSize" :   self.imageSize,
             "album"     :   self.albumName})
         return conf
         
     def set_configuration(self, config):
-        GoogleBase.set_configuration(self, config)
+        _GoogleBase.set_configuration(self, config)
         self.imageSize = config.get("imageSize","None")
         self.albumName = config.get("album","")
 
     def is_configured (self, isSource, isTwoWay):
-        if not GoogleBase.is_configured(self, isSource, isTwoWay):
+        if not _GoogleBase.is_configured(self, isSource, isTwoWay):
             return False
         if len(self.albumName) < 1:
             return False
         return True
 
 
-class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
+class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
     """
     Contacts GData provider
     """
@@ -772,9 +776,8 @@ class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        GoogleBase.__init__(self)
+        _GoogleBase.__init__(self,gdata.contacts.service.ContactsService())
         DataProvider.TwoWay.__init__(self)
-        self.service = gdata.contacts.service.ContactsService()
         
     def _google_contact_from_conduit_contact(self, contact, gc=None):
         """
@@ -837,9 +840,6 @@ class ContactsTwoWay(GoogleBase,  DataProvider.TwoWay):
         
         return c
 
-    def _do_login(self):
-        self.service.ClientLogin(self.username, self.password)
-        
     def _create_contact(self, contact):
         gc = self._google_contact_from_conduit_contact(contact)
         if not gc:
@@ -1007,8 +1007,7 @@ class _GoogleDocument:
     # doesn't actually provide the document id
     @staticmethod
     def get_document_id(LUID):
-        from urlparse import *
-        parsed_url = urlparse(LUID)
+        parsed_url = urlparse.urlparse(LUID)
         url_params = parsed_url[4]
         document_id = url_params.split('=')[1]
         return document_id
@@ -1016,7 +1015,7 @@ class _GoogleDocument:
     def __str__(self):
         return "%s:%s by %s (modified:%s) (id:%s)" % (self.type,self.title,self.authorName,self.updated,self.docid)
 
-class DocumentsSink(GoogleBase,  DataProvider.DataSink):
+class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
     """
     Contacts GData provider
     
@@ -1038,18 +1037,14 @@ class DocumentsSink(GoogleBase,  DataProvider.DataSink):
     TYPE_PRESENTATION = 'presentation'
 
     def __init__(self, *args):
-        GoogleBase.__init__(self)
+        _GoogleBase.__init__(self,gdata.docs.service.DocsService())
         DataProvider.DataSink.__init__(self)
-        self.service = gdata.docs.service.DocsService()
-        
+
         self.documentFormat = 'ODT'
         self.spreadsheetFormat = 'ODS'
         self.presentationFormat = 'PPT'
         
         self._docs = {}
-        
-    def _do_login(self):
-        self.service.ClientLogin(self.username, self.password)
         
     def _upload_document(self, f):
         name,ext = f.get_filename_and_extension()

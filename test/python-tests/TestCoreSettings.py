@@ -1,3 +1,5 @@
+import os
+
 #common sets up the conduit environment
 from common import *
 
@@ -30,5 +32,10 @@ ok("Unknown types not saved", i == False)
 #test error paths
 i = s.get("foo")
 ok("Unknown keys not fetched", i == None)
+
+#Test proxy
+os.environ['http_proxy'] = "http://foo:bar@132.181.1.1:8080"
+ok("Detect proxy", s.proxy_enabled())
+ok("Parse environment variables proxy", s.get_proxy() == ('132.181.1.1', 8080, 'foo', 'bar'))
 
 finished()
