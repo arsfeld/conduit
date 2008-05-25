@@ -205,7 +205,7 @@ class ConduitToolbar(gtk.Toolbar):
         self.syncSet.save_to_xml()
 
     def on_sync_all (self, button):
-        self.canvas.sync_all()
+        self.conduitApplication.Synchronize()
 
     def on_previous (self, button):
         self.canvas.move_previous()

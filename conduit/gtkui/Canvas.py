@@ -58,6 +58,10 @@ class Canvas(goocanvas.Canvas):
     """
     This class manages many objects
     """
+    DND_TARGETS = [
+        ('conduit/element-name', 0, 0)
+    ]
+
     WELCOME_MESSAGE = _("Drag a Data Provider here to continue")
     def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu, conduitMenu):
         """
@@ -83,7 +87,7 @@ class Canvas(goocanvas.Canvas):
 
         #set up DND from the treeview
         self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                        conduit.gtkui.Tree.DND_TARGETS,
+                        self.DND_TARGETS,
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         self.connect('size-allocate', self._canvas_resized)

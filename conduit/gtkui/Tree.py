@@ -15,10 +15,6 @@ from conduit.ModuleWrapper import ModuleWrapper
 
 from gettext import gettext as _
 
-DND_TARGETS = [
-    ('conduit/element-name', 0, 0)
-    ]
-
 class CategoryWrapper(ModuleWrapper):
     """
     Represents a category stored in the treemodel. Not generally intended 
@@ -332,6 +328,11 @@ class DataProviderTreeView(gtk.TreeView):
     """
     Handles DND of DataProviders onto canvas
     """
+    
+    DND_TARGETS = [
+        ('conduit/element-name', 0, 0)
+    ]
+    
     def __init__(self, model):
         """
         Constructor
@@ -363,10 +364,10 @@ class DataProviderTreeView(gtk.TreeView):
         # DND info:
         # drag
         self.enable_model_drag_source(  gtk.gdk.BUTTON1_MASK,
-                                        DND_TARGETS,
+                                        self.DND_TARGETS,
                                         gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
         self.drag_source_set(           gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                                        DND_TARGETS,
+                                        self.DND_TARGETS,
                                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-data-get', self.on_drag_data_get)
         self.connect('drag-data-delete', self.on_drag_data_delete)

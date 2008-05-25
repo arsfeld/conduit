@@ -17,71 +17,41 @@ import logging
 log = logging.getLogger("hildonui.Canvas")
 
 import conduit
-from conduit.Conduit import Conduit
-from conduit.hildonui.List import DND_TARGETS
+import conduit.Conduit as Conduit
 import conduit.gtkui.Canvas 
 
 LINE_WIDTH = 3.0
 
-class Canvas(goocanvas.Canvas, gobject.GObject):
+class Canvas(conduit.gtkui.Canvas, gobject.GObject):
     """
     This class manages many objects
     """
-    CANVAS_WIDTH = 450
-    CANVAS_HEIGHT = 450
-    WELCOME_MESSAGE = _("Drag a Data Provider here to continue")
 
     __gsignals__ = {
         "position-changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])    # The canvas
     }
 
-    # Setup
-    #######
     def __init__(self, parentWindow, typeConverter, syncManager):
         """
         Draws an empty canvas of the appropriate size
         """
         #setup the canvas
-        goocanvas.Canvas.__init__(self)
-        self.set_bounds(0, 0, 
-                conduit.GLOBALS.settings.get("gui_initial_canvas_width"),
-                conduit.GLOBALS.settings.get("gui_initial_canvas_height")
-                )
-        self.set_size_request(
-                conduit.GLOBALS.settings.get("gui_initial_canvas_width"),
-                conduit.GLOBALS.settings.get("gui_initial_canvas_height")
-                )
-        self.root = self.get_root_item()
-
-        self.sync_manager = syncManager
-        self.typeConverter = typeConverter
-        self.parentWindow = parentWindow
-
+        conduit.gtkui.Canvas.Canvas.__init__(self,
+                                parentWindow,typeConverter,syncManager,
+                                #menus are set in _setup_popup_menus
+                                None,None)
+        self.position = -1
+        
+    def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
         # dp context menu
         self.dataproviderMenu = DataProviderMenu(self)
         # conduit context menu
         self.conduitMenu = ConduitMenu(self)
-        #set up DND from the treeview
-        self.drag_dest_set(  gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                        DND_TARGETS,
-                        gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
-        self.connect('drag-motion', self.on_drag_motion)
+        
+    def _canvas_resized(self, widget, allocation):
+        # windows are not resized in maemo
+        pass
 
-        #Show a friendly welcome message on the canvas the first time the
-        #application is launched
-        self.welcomeMessage = None
-
-        #keeps a reference to the currently selected (most recently clicked)
-        #canvas items
-        self.selectedConduitItem = None
-        self.selectedDataproviderItem = None
-
-        #model is a SyncSet, not set till later because it is loaded from xml
-        self.model = None
-        self.position = -1
-
-    # Button press events on canvas items
-    #####################################
     def _on_conduit_button_press(self, view, target, event):        
         log.debug("Clicked View: %s" % view.model)
 
@@ -113,108 +83,20 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         #dont propogate the event
         return True
        
-    # Syncset signal callbacks        
-    ##########################
     def on_conduit_added(self, sender, conduitAdded):
         """
         Creates a ConduitCanvasItem for the new conduit
         """
         log.debug("Conduit added %s" % conduitAdded)
-
         self.set_position(self.model.index(conduitAdded))
  
     def on_conduit_removed(self, sender, conduitRemoved):
         self.move_previous ()
 
-    def on_dataprovider_added(self, sender, dataproviderAdded, conduitCanvasItem):
-        """
-        Creates a DataProviderCanvasItem for the new dataprovider and adds it to
-        the canvas
-        """
-
-        #check for duplicates to eliminate race condition in set_sync_set
-        if dataproviderAdded in [i.model for i in self._get_child_dataprovider_canvas_items()]:
-            return
-
-        item = DataProviderCanvasItem(
-                            parent=conduitCanvasItem, 
-                            model=dataproviderAdded
-                            )
-        item.connect('button-press-event', self._on_dataprovider_button_press)
-        conduitCanvasItem.add_dataprovider_canvas_item(item)
-        self._remove_overlap()
-        self._show_welcome_message()
-
-    def on_dataprovider_removed(self, sender, dataproviderRemoved, conduitCanvasItem):
-        for item in self._get_child_dataprovider_canvas_items():
-            if item.model == dataproviderRemoved:
-                conduitCanvasItem.delete_dataprovider_canvas_item(item)
-        self._remove_overlap()
-        self._show_welcome_message()
-
-    # Drag & Drop
-    #############
-    def on_drag_motion(self, wid, context, x, y, time):
-        """
-        Sets the status on dragging
-        """
-        context.drag_status(gtk.gdk.ACTION_COPY, time)
-        return True
-
-    def add_dataprovider_to_canvas(self, key, dataproviderWrapper, x, y):
-        """
-        Adds a new dataprovider to the Canvas
-        
-        @param module: The dataprovider wrapper to add to the canvas
-        @type module: L{conduit.Module.ModuleWrapper}. 
-        @param x: The x location on the canvas to place the module widget
-        @type x: C{int}
-        @param y: The y location on the canvas to place the module widget
-        @type y: C{int}
-        @returns: The conduit that the dataprovider was added to
-        """
-        existing = self.get_item_at(x,y,False)
-        c_x,c_y,c_w,c_h = self.get_bounds()
-
-        #if the user dropped on the right half of the canvas try add into the sink position
-        if x < (c_w/2):
-            trySourceFirst = True
-        else:
-            trySourceFirst = False
-
-        if existing == None:
-            cond = Conduit(self.sync_manager)
-            cond.add_dataprovider(dataproviderWrapper, trySourceFirst)
-            self.model.add_conduit(cond)
-
-        else:
-            parent = existing.get_parent()
-            while parent != None and not isinstance(parent, ConduitCanvasItem):
-                parent = parent.get_parent()
-            
-            if parent != None:
-                parent.model.add_dataprovider(dataproviderWrapper, trySourceFirst)
-
-    # Canvas operations
-    ###################
-    def clear_canvas(self):
-        self.model.clear()
-
-    def get_sync_set(self):
-        return self.model
-
     def set_sync_set(self, syncSet):
-        self.model = syncSet
-
-        conduits = self.model.get_all_conduits()
-        
-        if len(conduits) > 0:
+        conduit.gtkui.Canvas.Canvas.set_sync_set(self, syncSet)
+        if len(self.model.get_all_conduits()) > 0:
             self.set_position(0)
-
-        self.model.connect("conduit-added", self.on_conduit_added)
-        self.model.connect("conduit-removed", self.on_conduit_removed)
-
-        self._show_welcome_message()
 
     def move_next(self):
         """
@@ -267,92 +149,6 @@ class Canvas(goocanvas.Canvas, gobject.GObject):
         Gets the position representation
         """
         return "%s/%s" % (self.position + 1, self.model.num_conduits())
-
-    def sync_all(self):
-        for conduit in self.model.get_all_conduits():
-            if conduit.datasource is not None and len(conduit.datasinks) > 0:
-                self.sync_manager.sync_conduit(conduit)
-            else:
-                log.info("Conduit must have a datasource and a datasink")        
-
-    # Item Creation and Drawing
-    ###########################
-    def _show_welcome_message(self):
-        """
-        Adds a friendly welcome message to the canvas.
-        
-        Does so only if there are no conduits, otherwise it would just
-        get in the way.
-        """
-        if self.welcomeMessage == None:
-            c_x,c_y,c_w,c_h = self.get_bounds()
-            self.welcomeMessage = goocanvas.Text(  
-                                    x=c_w/2, 
-                                    y=c_w/3, 
-                                    width=3*c_w/5, 
-                                    text=self.WELCOME_MESSAGE, 
-                                    anchor=gtk.ANCHOR_CENTER,
-                                    alignment=pango.ALIGN_CENTER,
-                                    font="Sans 10",
-                                    fill_color="black",
-                                    )
-
-        idx = self.root.find_child(self.welcomeMessage)
-        if self.model == None or (self.model != None and self.model.num_conduits() == 0):
-            if idx == -1:
-                self.root.add_child(self.welcomeMessage,-1)
-        else:
-            if idx != -1:
-                self.root.remove_child(idx)
-                self.welcomeMessage = None
-
-    def _delete_welcome_message(self):
-        """
-        Removes the welcome message from the canvas if it has previously
-        been added
-        """
-        if self.welcomeMessage != None:
-            
-            del(self.welcomeMessage)
-            self.welcomeMessage = None
-
-
-    def _remove_overlap(self):
-        """
-        Moves the ConduitCanvasItems to stop them overlapping visually
-        """
-        items = self._get_child_conduit_canvas_items()
-        if len(items) > 0:
-            #special case where the top one was deleted
-            top = items[0].get_top()-(LINE_WIDTH/2)
-            if top != 0.0:
-                for item in items:
-                    #translate all those below
-                    item.translate(0,-top)
-            else:
-                for i in xrange(0, len(items)):
-                    try:
-                        overlap = items[i].get_bottom() - items[i+1].get_top()
-                        log.debug("Overlap: %s %s ----> %s" % (overlap,i,i+1))
-                        if overlap != 0.0:
-                            #translate all those below
-                            for item in items[i+1:]:
-                                item.translate(0,overlap)
-                    except IndexError: 
-                        break
-                        
-    def _get_bottom_of_conduits_coord(self):
-        """
-        Gets the Y coordinate at the bottom of all visible conduits
-        
-        @returns: A coordinate (postivive down) from the canvas origin
-        @rtype: C{int}
-        """
-        y = 0.0
-        for i in self._get_child_conduit_canvas_items():
-            y = y + i.get_height()
-        return y
-
 
     def _refresh_current_item(self):
         """

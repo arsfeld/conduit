@@ -5,11 +5,10 @@ log = logging.getLogger("hildonui.List")
 
 import conduit
 
-DND_TARGETS = [
-    ('conduit/element-name', 0, 0)
-    ]
-
 class DataProviderBox(gtk.VBox):
+    DND_TARGETS = [
+        ('conduit/element-name', 0, 0)
+    ]
     def __init__(self):
         gtk.VBox.__init__(self)
 
@@ -42,10 +41,10 @@ class DataProviderBox(gtk.VBox):
 
         # Dnd
         self.tree.enable_model_drag_source( gtk.gdk.BUTTON1_MASK,
-                                            DND_TARGETS,
+                                            self.DND_TARGETS,
                                             gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
         self.tree.drag_source_set( gtk.gdk.BUTTON1_MASK | gtk.gdk.BUTTON3_MASK,
-                                   DND_TARGETS,
+                                   self.DND_TARGETS,
                                    gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         #self.connect('drag-begin', self.on_drag_begin)
         self.tree.connect('drag-data-get', self.on_drag_data_get)
