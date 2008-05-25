@@ -1,5 +1,10 @@
 2008-05-25  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Main.py:
+	* conduit/modules/TestModule.py: Print overridden settings.
+
+2008-05-25  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/hildonui/Canvas.py: Handle resize event.
 
 2008-05-25  John Stowers  <john.stowers@gmail.com>

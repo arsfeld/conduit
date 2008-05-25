@@ -48,6 +48,7 @@ class Application(dbus.service.Object):
         whitelist = None
         blacklist = None
         self.ui = "gtk"
+        settings = {}
         try:
             opts, args = getopt.getopt(
                             sys.argv[1:],
@@ -76,7 +77,6 @@ class Application(dbus.service.Object):
                 if o in ("-x", "--without-modules"):
                     blacklist = a.split(",")
                 if o in ("-s", "--settings"):
-                    settings = {}
                     try:
                         for i in a.split(','):
                             k,v = i.split('=')
@@ -91,6 +91,8 @@ class Application(dbus.service.Object):
 
         log.info("Conduit v%s Installed: %s" % (conduit.VERSION, conduit.IS_INSTALLED))
         log.info("Python: %s" % sys.version)
+        if settings:
+            log.info("Settings have been overridden: %s" % settings)
         
         #Make conduit single instance. If conduit is already running then
         #make the original process build or show the gui
