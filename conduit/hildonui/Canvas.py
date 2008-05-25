@@ -43,10 +43,6 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
         # conduit context menu
         self.conduitMenu = ConduitMenu(self)
         
-    def _canvas_resized(self, widget, allocation):
-        # windows are not resized in maemo
-        pass
-
     def _on_conduit_button_press(self, view, target, event):        
         log.debug("Clicked View: %s" % view.model)
 

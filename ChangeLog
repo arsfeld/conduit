@@ -1,5 +1,9 @@
 2008-05-25  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/hildonui/Canvas.py: Handle resize event.
+
+2008-05-25  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/hildonui/Canvas.py:
 	* conduit/hildonui/List.py:
 	* conduit/hildonui/UI.py: Pyflakes cleanups
