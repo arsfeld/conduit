@@ -8,21 +8,16 @@ Copyright: John Stowers, 2006
 Copyright: Thomas Van Machelen, 2007
 License: GPLv2
 """
-import goocanvas
 import gobject
 import gtk
-import pango
-from gettext import gettext as _
 import logging
 log = logging.getLogger("hildonui.Canvas")
 
-import conduit
-import conduit.Conduit as Conduit
 import conduit.gtkui.Canvas 
 
 LINE_WIDTH = 3.0
 
-class Canvas(conduit.gtkui.Canvas, gobject.GObject):
+class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
     """
     This class manages many objects
     """
@@ -275,7 +270,7 @@ class ContextMenu(gtk.Menu):
         gtk.Menu.__init__(self)    
 
     def _add_menu_item (self, text, activate_cb):
-        item = gtk.MenuItem(_(text))
+        item = gtk.MenuItem(text)
         item.connect("activate", activate_cb)
         self.append(item)
 

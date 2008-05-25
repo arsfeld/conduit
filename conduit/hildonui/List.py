@@ -1,4 +1,3 @@
-import gobject
 import gtk
 import logging
 log = logging.getLogger("hildonui.List")

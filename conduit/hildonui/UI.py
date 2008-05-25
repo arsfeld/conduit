@@ -1,5 +1,4 @@
 #!/usr/bin/env python2.5
-import gobject
 import gtk
 import hildon
 import os
