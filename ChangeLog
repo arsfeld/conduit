@@ -1,3 +1,9 @@
+2008-05-31  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/SynceModule.py:
+	Some shiny Windows Mobile 5/6 support. Depends on
+	SynCE 0.11.1 with synce-hal.
+
 2008-05-25  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Main.py:

@@ -1,62 +1,160 @@
 import conduit
+import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.HalFactory as HalFactory
-from conduit.dataproviders.Opensync import ContactDataprovider, EventDataprovider
+
+import logging
+log = logging.getLogger("modules.SynCE")
+
+import os
+import os.path
+import traceback
+import dbus
+import dbus.glib
+import threading
+import gobject
+
 from gettext import gettext as _
 
+SYNC_ITEM_CALENDAR  = 0
+SYNC_ITEM_CONTACTS  = 1
+SYNC_ITEM_EMAIL     = 2
+SYNC_ITEM_FAVORITES = 3
+SYNC_ITEM_FILES     = 4
+SYNC_ITEM_MEDIA     = 5
+SYNC_ITEM_NOTES     = 6
+SYNC_ITEM_TASKS     = 7
+
 MODULES = {
-    "OS_SynceFactory" :        { "type": "dataprovider-factory" },
+    "SynceFactory" :        { "type": "dataprovider-factory" },
 }
 
-class OS_SynceFactory(HalFactory.HalFactory):
+class SynceFactory(HalFactory.HalFactory):
 
     def is_interesting(self, device, props):
-        if props.has_key("info.parent") and props.has_key("info.parent")!="":
-            prop2 = self._get_properties(props["info.parent"])
-            if prop2.has_key("info.linux.driver") and prop2["info.linux.driver"]=="rndis_host":
-               #    if "usb.interface.class" in props and props["usb.interface.class"] == 239:
-               return True
+        if props.has_key("sync.plugin") and props["sync.plugin"]=="synce":
+            return True
         return False
 
     def get_category(self, udi, **kwargs):
         return DataProviderCategory.DataProviderCategory(
-                    "HTC Phone",
-                    "multimedia-player-ipod-video-white",
+                    "Windows Mobile",
+                    "media-memory",
                     udi)
+    def get_dataproviders(self, udi, **kwargs):
+        return [SynceContactTwoWay, SynceCalendarTwoWay]
 
-    def get_dataproviders(self, device, **kwargs):
-        return [OS_Synce_Contact, OS_Synce_Event, OS_Synce_Todo]
+class SyncEngineWrapper(object):
+    """
+    Wrap the SyncEngine dbus foo (thinly)
+      Make it synchronous and (eventually) borg it so multiple dp's share one connection
+    """
 
+    def __init__(self):
+        self.engine = None
+        self.SyncEvent = threading.Event()
+        self.PrefillEvent = threading.Event()
 
-class OS_Synce_Contact(ContactDataprovider):
+    def _OnSynchronized(self):
+        log.info("Synchronize: Got _OnSynchronized")
+        self.SyncEvent.set()
 
-    _name_ = _("Windows Mobile Contacts")
-    _description_ = _("Sync your devices contacts")
-    _os_name_ = "synce-plugin"
-    _os_sink_ = "contact"
+    def _OnPrefillComplete(self):
+        log.info("Synchronize: Got _OnPrefillComplete")
+        self.PrefillEvent.set()
 
-    def _get_config(self):
-        return ""
+    def Connect(self):
+        if not self.engine:
+            self.bus = dbus.SessionBus()
+            proxy = self.bus.get_object("org.synce.SyncEngine", "/org/synce/SyncEngine")
+            self.engine = dbus.Interface(proxy, "org.synce.SyncEngine")
+            self.engine.connect_to_signal("Synchronized", lambda: gobject.idle_add(self._OnSynchronized))
+            self.engine.connect_to_signal("PrefillComplete", lambda: gobject.idle_add(self._OnPrefillComplete))
 
+    def Prefill(self, items):
+        self.PrefillEvent.clear()
+        rc = self.engine.PrefillRemote(items)
+        if rc == 1:
+            self.PrefillEvent.wait(10)
+        log.info("Prefill: completed (rc=%d)" % rc)
+        return rc
 
-class OS_Synce_Event(EventDataprovider):
+    def Synchronize(self):
+        self.SyncEvent.clear()
+        self.engine.Synchronize()
+        self.SyncEvent.wait(10)
+        log.info("Synchronize: completed")
 
-    _name_ = _("Windows Mobile Events")
-    _description_ = _("Sync your devices events")
-    _os_name_ = "synce-plugin"
-    _os_sink_ = "event"
+    def GetRemoteChanges(self, type_ids):
+        return self.engine.GetRemoteChanges(type_ids)
 
-    def _get_config(self):
-        return ""
+    def AcknowledgeRemoteChanges(self, acks):
+        self.engine.AcknowledgeRemoteChanges(acks)
 
+    def AddLocalChanges(self, chgset):
+        self.engine.AddLocalChanges(chgset) 
 
-class OS_Synce_Todo(EventDataprovider):
+    def Disconnect(self):
+        self.engine = None
 
-    _name_ = _("Windows Mobile Todo")
-    _description_ = _("Sync your devices tasks")
-    _os_name_ = "synce-plugin"
-    _os_sink_ = "todo"
+class SynceTwoWay(DataProvider.TwoWay):
+    def __init__(self, *args):
+        DataProvider.TwoWay.__init__(self)
+        self.objects = {}
 
-    def _get_config(self):
-        return ""
+    def refresh(self):
+        DataProvider.TwoWay.refresh(self)
+        self.engine = SyncEngineWrapper()    
+        self.engine.Connect()    
+        self.engine.Synchronize()
+        
+        chgs = self.engine.GetRemoteChanges([self._type_id_])
+        for uid, chgtype, obj in chgs[self._type_id_]:
+            self.objects[str(uid)] = str(obj)
+
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        return [x for x in self.objects.iterkeys()]
+
+    def get(self, LUID):
+        DataProvider.TwoWay.get(self, LUID)
+        return self.objects[LUID]
+
+    def put(self, obj, overwrite, LUID=None):
+        DataProvider.TwoWay.put(self, obj, overwrite, LUID)
+
+        data = str(obj).decode("utf-8")
+        self.engine.AddLocalChanges(
+            {
+                self._type_id_ : ((str(obj.get_UID()).decode("utf-8"),
+                                     obj.change_type,
+                                     str(obj)),),
+            })
+
+    def finish(self, aborted, error, conflict):
+        DataProvider.TwoWay.finish(self)
+        #self.engine.AcknowledgeRemoteChanges
+        self.engine.Synchronize()
+        self.objects = {}
+
+    def get_UID(self):
+        return "synce-%d" % self._type_id_
+
+class SynceContactTwoWay(SynceTwoWay):
+    _name_ = "Contacts"
+    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _module_type_ = "twoway"
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "contact-new"
+    _type_id_ = SYNC_ITEM_CONTACTS
+
+class SynceCalendarTwoWay(SynceTwoWay):
+    _name_ = "Calendar"
+    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _module_type_ = "twoway"
+    _in_type_ = "text"
+    _out_type_ = "text"
+    _icon_ = "contact-new"
+    _type_id_ = SYNC_ITEM_CALENDAR
 
