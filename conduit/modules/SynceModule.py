@@ -2,6 +2,7 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.HalFactory as HalFactory
+import conduit.datatypes.Note as Note
 
 import logging
 log = logging.getLogger("modules.SynCE")
@@ -13,6 +14,7 @@ import dbus
 import dbus.glib
 import threading
 import gobject
+import array
 
 from gettext import gettext as _
 
@@ -24,6 +26,11 @@ SYNC_ITEM_FILES     = 4
 SYNC_ITEM_MEDIA     = 5
 SYNC_ITEM_NOTES     = 6
 SYNC_ITEM_TASKS     = 7
+
+TYPETONAMES = { SYNC_ITEM_CONTACTS : "Contacts",
+                SYNC_ITEM_CALENDAR   : "Calendar",
+		SYNC_ITEM_TASKS    : "Tasks"
+}
 
 MODULES = {
     "SynceFactory" :        { "type": "dataprovider-factory" },
@@ -105,13 +112,15 @@ class SynceTwoWay(DataProvider.TwoWay):
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.engine = SyncEngineWrapper()    
-        self.engine.Connect()    
+        self.engine.Connect()
         self.engine.Synchronize()
-        
+        self.engine.Prefill([TYPETONAMES[self._type_id_]])
         chgs = self.engine.GetRemoteChanges([self._type_id_])
-        for uid, chgtype, obj in chgs[self._type_id_]:
-            self.objects[str(uid)] = str(obj)
-
+        for guid, chgtype, data in chgs[self._type_id_]:
+            uid = array.array('B', guid).tostring()
+            blob = array.array('B', data).tostring()
+            self.objects[uid] = Note.Note(uid, blob)
+ 
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
         return [x for x in self.objects.iterkeys()]
@@ -144,8 +153,8 @@ class SynceContactTwoWay(SynceTwoWay):
     _name_ = "Contacts"
     _description_ = "Source for synchronizing Windows Mobile Phones"
     _module_type_ = "twoway"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "note"
+    _out_type_ = "note"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_CONTACTS
 
@@ -153,8 +162,8 @@ class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
     _description_ = "Source for synchronizing Windows Mobile Phones"
     _module_type_ = "twoway"
-    _in_type_ = "text"
-    _out_type_ = "text"
+    _in_type_ = "note"
+    _out_type_ = "note"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_CALENDAR
 

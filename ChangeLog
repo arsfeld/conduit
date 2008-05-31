@@ -1,6 +1,12 @@
 2008-05-31  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/SynceModule.py:
+	Use Prefill (means we get all data, not just changes)
+	For now, return "Notes". Easy testing & capturing of XML to disk..
+
+2008-05-31  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/SynceModule.py:
 	Some shiny Windows Mobile 5/6 support. Depends on
 	SynCE 0.11.1 with synce-hal.
 
