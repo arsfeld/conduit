@@ -1,5 +1,10 @@
 2008-06-01  John Stowers  <john.stowers@gmail.com>
 
+	* Makefile.am:
+	* doap.rdf.in: Remove obsolete DOAP foo.
+
+2008-06-01  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/Makefile.am:
 	* conduit/modules/ZotoModule/Makefile.am:
 	* configure.ac: Add zoto dataprovider to dist.
