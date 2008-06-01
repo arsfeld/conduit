@@ -1,8 +1,10 @@
 import conduit
+import conduit.utils as Utils
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.HalFactory as HalFactory
 import conduit.datatypes.Note as Note
+import conduit.Exceptions as Exceptions
 
 import logging
 log = logging.getLogger("modules.SynCE")
@@ -32,6 +34,10 @@ TYPETONAMES = { SYNC_ITEM_CONTACTS : "Contacts",
 		SYNC_ITEM_TASKS    : "Tasks"
 }
 
+CHANGE_ADDED        = 1
+CHANGE_MODIFIED     = 4
+CHANGE_DELETED      = 3
+
 MODULES = {
     "SynceFactory" :        { "type": "dataprovider-factory" },
 }
@@ -48,8 +54,9 @@ class SynceFactory(HalFactory.HalFactory):
                     "Windows Mobile",
                     "media-memory",
                     udi)
+
     def get_dataproviders(self, udi, **kwargs):
-        return [SynceContactTwoWay, SynceCalendarTwoWay]
+        return [SynceContactsTwoWay, SynceCalendarTwoWay, SynceTasksTwoWay]
 
 class SyncEngineWrapper(object):
     """
@@ -101,6 +108,9 @@ class SyncEngineWrapper(object):
     def AddLocalChanges(self, chgset):
         self.engine.AddLocalChanges(chgset) 
 
+    def FlushItemDB(self):
+        self.engine.FlushItemDB()
+
     def Disconnect(self):
         self.engine = None
 
@@ -119,7 +129,7 @@ class SynceTwoWay(DataProvider.TwoWay):
         for guid, chgtype, data in chgs[self._type_id_]:
             uid = array.array('B', guid).tostring()
             blob = array.array('B', data).tostring()
-            self.objects[uid] = Note.Note(uid, blob)
+            self.objects[uid] = self._blob_to_data(uid, blob)
  
     def get_all(self):
         DataProvider.TwoWay.get_all(self)
@@ -131,27 +141,72 @@ class SynceTwoWay(DataProvider.TwoWay):
 
     def put(self, obj, overwrite, LUID=None):
         DataProvider.TwoWay.put(self, obj, overwrite, LUID)
+        existing = None
+        if LUID != None:
+            existing = self.get(LUID)
+        if existing != None:
+            comp = obj.compare(existing)
+            if comp == conduit.datatypes.COMPARISON_EQUAL:
+                log.info("objects are equal")
+            elif overwrite == True or comp == conduit.datatypes.COMPARISON_NEWER:
+                self.update(LUID, obj)
+            else:
+                raise Exceptions.SynchronizeConflictError(comp, obj, existing)
+        else:
+            LUID = self.add(obj)
+        return self.get(LUID).get_rid()
 
-        data = str(obj).decode("utf-8")
-        self.engine.AddLocalChanges(
-            {
-                self._type_id_ : ((str(obj.get_UID()).decode("utf-8"),
-                                     obj.change_type,
-                                     str(obj)),),
-            })
+    def _commit(self, uid, chgtype, blob):
+        _uid = array.array('B')
+        _uid.fromstring(uid)
+        _blob = array.array('B')
+        _blob.fromstring(blob)
+        self.engine.AddLocalChanges({ 
+            self._type_id_: (
+                (_uid, chgtype, _blob),
+            )
+        })
+        # FIXME: This is a HACK to make it easy (ish) to return a RID in put()
+        if chgtype != CHANGE_DELETED:
+            self.objects[uid] = self._blob_to_data(uid,blob)
+        else:
+            del self.objects[uid]
+
+    def add(self, obj):
+        LUID = Utils.uuid_string()
+        self._commit(LUID, CHANGE_ADDED, self._data_to_blob(obj))
+        return LUID
+
+    def update(self, LUID, obj):
+        self._commit(LUID, CHANGE_MODIFIED, self._data_to_blob(obj))
+
+    def delete(self, LUID):
+        DataProvider.TwoWay.delete(self,LUID)
+        self._commit(LUID, CHANGE_DELETED, "")
 
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         #self.engine.AcknowledgeRemoteChanges
         self.engine.Synchronize()
+        self.engine.FlushItemDB()
         self.objects = {}
+
+    def _blob_to_data(self, uid, blob):
+        #raise NotImplementedError
+        d = Note.Note(uid, blob)
+        d.set_UID(uid)
+        return d
+
+    def _data_to_blob(self, data):
+        #raise NotImplementedError
+        return data.get_contents()
 
     def get_UID(self):
         return "synce-%d" % self._type_id_
 
-class SynceContactTwoWay(SynceTwoWay):
+class SynceContactsTwoWay(SynceTwoWay):
     _name_ = "Contacts"
-    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _description_ = "Windows Mobile Contacts"
     _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"
@@ -160,10 +215,18 @@ class SynceContactTwoWay(SynceTwoWay):
 
 class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
-    _description_ = "Source for synchronizing Windows Mobile Phones"
+    _description_ = "Windows Mobile Calendar"
     _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_CALENDAR
 
+class SynceTasksTwoWay(SynceTwoWay):
+    _name_ = "Tasks"
+    _description_ = "Windows Mobile Tasks"
+    _module_type_ = "twoway"
+    _in_type_ = "note"
+    _out_type_ = "note"
+    _icon_ = "contact-new"
+    _type_id_ = SYNC_ITEM_TASKS

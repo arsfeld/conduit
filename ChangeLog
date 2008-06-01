@@ -1,3 +1,13 @@
+2008-06-01  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/SynceModule.py:
+	Add Tasks endpoint which looks like it might have some infrastructure
+	in place.
+	Add hooks so SynceContacts & co can provide objects for the XML foo.
+	Use array.array to properly encode/decode data for SyncEngine
+	Getting, Adding and Deleting are now (seemingly) stable.
+	Modify needs more work... Damn conflcit code.
+
 2008-06-01  John Stowers  <john.stowers@gmail.com>
 
 	* Makefile.am:
