@@ -37,7 +37,7 @@ class Conduit(object):
         for dp in self.app.GetAllDataProviders():
             print " *\t%s" % dp
             
-    def on_sync_progress(self, progress):
+    def on_sync_progress(self, progress, uids):
         print "Synchronization %2.2f%% complete" % (progress*100.0)
         
     def on_sync_completed(self, abort, error, conflict):
@@ -72,7 +72,7 @@ class Conduit(object):
         #configure
         if config != None:
             self.sink.SetConfigurationXml(config)
-        if not self.sink.IsConfigured():
+        if not self.sink.IsConfigured(False, twoWay):
             self.sink.Configure()
 
         # now create conduit

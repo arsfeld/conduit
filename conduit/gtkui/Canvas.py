@@ -783,7 +783,7 @@ class ConduitCanvasItem(_CanvasItem):
             if item.model.get_key() == olddpw.get_key():
                 item.set_model(newdpw)
 
-    def _on_conduit_progress(self, cond, percent):
+    def _on_conduit_progress(self, cond, percent, UIDs):
         self.progressText.set_property("text","%2.1d%% complete" % int(percent*100.0))
 
     def _get_connector_coordinates(self, fromdp, todp):

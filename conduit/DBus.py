@@ -8,7 +8,6 @@ License: GPLv2
 import os.path
 import dbus
 import dbus.service
-import dbus.glib
 import logging
 log = logging.getLogger("DBus")
 
@@ -20,7 +19,7 @@ import conduit.SyncSet as SyncSet
 ERROR = -1
 SUCCESS = 0
 
-DEBUG_ALL_CALLS = False
+DEBUG_ALL_CALLS = True
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 SYNCSET_DBUS_IFACE="org.conduit.SyncSet"
@@ -82,7 +81,7 @@ DATAPROVIDER_DBUS_IFACE="org.conduit.DataProvider"
 # SyncStarted
 # SyncCompleted(aborted, error, conflict)
 # SyncConflict
-# SyncProgress(progress)
+# SyncProgress(progress, completedUIDs)
 # DataproviderAdded
 # DataproviderRemoved
 #
@@ -154,9 +153,9 @@ class ConduitDBusItem(DBusItem):
         if cond == self.conduit:
             self.SyncCompleted(bool(aborted), bool(error), bool(conflict))
 
-    def _on_sync_progress(self, cond, progress):
+    def _on_sync_progress(self, cond, progress, UIDs):
         if cond == self.conduit:
-            self.SyncProgress(float(progress))
+            self.SyncProgress(float(progress), UIDs)
 
     def _on_sync_conflict(self, cond, conflict):
         if cond == self.conduit:
@@ -229,9 +228,9 @@ class ConduitDBusItem(DBusItem):
     def SyncConflict(self):
         self._print("SyncConflict")
 
-    @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='d')
-    def SyncProgress(self, progress):
-        self._print("SyncProgress %s%%" % (progress*100.0))
+    @dbus.service.signal(CONDUIT_DBUS_IFACE, signature='das')
+    def SyncProgress(self, progress, UIDs):
+        self._print("SyncProgress %s%%\n\t%s" % ((progress*100.0), UIDs))
 
     #
     # org.conduit.Exporter

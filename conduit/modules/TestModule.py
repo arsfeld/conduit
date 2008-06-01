@@ -462,9 +462,12 @@ class TestImageSink(_TestBase, Image.ImageSink):
         self.format = "image/jpeg"
         self.defaultFormat = "image/jpeg"
         self.size = "640x480"
+        self.slow = False
 
     #ImageSink Methods
     def _upload_photo(self, uploadInfo):
+        if self.slow:
+            time.sleep(2)
         LUID = "%s%s%s" % (uploadInfo.name,uploadInfo.url,self._name_)
         return Rid(uid=LUID)
 
@@ -491,6 +494,8 @@ class TestImageSink(_TestBase, Image.ImageSink):
             self.defaultFormat = str(param)
         def setSize(param):
             self.size = str(param)
+        def setSlow(param):
+            self.slow = bool(param)
 
         items = [
                     {
@@ -510,14 +515,17 @@ class TestImageSink(_TestBase, Image.ImageSink):
                     "Widget" : gtk.Entry,
                     "Callback" : setSize,
                     "InitialValue" : self.size
+                    },
+                    {
+                    "Name" : "Take a Long Time?",
+                    "Widget" : gtk.CheckButton,
+                    "Callback" : setSlow,
+                    "InitialValue" : self.slow
                     }
                 ]
         dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
         dialog.run()
         
-    def is_configured (self):
-        return True
-
 class TestConversionArgs(_TestConversionBase):
 
     _name_ = "Test Conversion Args"

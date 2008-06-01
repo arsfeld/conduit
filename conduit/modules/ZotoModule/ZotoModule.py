@@ -85,6 +85,9 @@ class MyZotoAPI:
         f.close()
         fotoId= md5.md5(buf).hexdigest()
 
+        if not uploadInfo.caption:
+            uploadInfo.caption=''
+
         self.server.images.add(self.zapiKey, self.zotoAuth, uploadInfo.name,
                                uploadInfo.name, uploadInfo.caption, xmlrpclib.Binary(buf))
         self.server.albums.multi_add_image(self.zapiKey, self.zotoAuth,

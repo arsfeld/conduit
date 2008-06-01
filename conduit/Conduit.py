@@ -59,7 +59,8 @@ class Conduit(gobject.GObject):
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, []),
         "sync-progress": (
             gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_FLOAT])        #percent complete
+            gobject.TYPE_FLOAT,         #percent complete
+            gobject.TYPE_PYOBJECT])     #list of successfully completed UIDs
         }
 
     def __init__(self, syncManager, uid=""):

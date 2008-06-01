@@ -1,4 +1,3 @@
-
 import logging
 log = logging.getLogger("dataproviders.SimpleFactory")
 
@@ -8,7 +7,6 @@ import conduit.utils as Utils
 import conduit.Vfs as Vfs
 
 import dbus
-import dbus.glib
 
 class VolumeFactory(SimpleFactory.SimpleFactory):
     """ 

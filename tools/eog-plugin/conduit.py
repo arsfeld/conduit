@@ -41,7 +41,7 @@ class ConduitWrapper:
         self.rowref = None
         self.configured = False
         self.pendingSync = False
-        
+
         self.conduit.connect_to_signal(
                         "SyncProgress",
                         self._on_sync_progress,
@@ -50,6 +50,11 @@ class ConduitWrapper:
         self.conduit.connect_to_signal(
                         "SyncCompleted",
                         self._on_sync_completed,
+                        dbus_interface=CONDUIT_DBUS_IFACE
+                        )
+        self.conduit.connect_to_signal(
+                        "SyncStarted",
+                        self._on_sync_started,
                         dbus_interface=CONDUIT_DBUS_IFACE
                         )
 
@@ -109,10 +114,27 @@ class ConduitWrapper:
 
     def _configure_error_handler(self, error):
         pass
-        
-    def _on_sync_progress(self, progress):
-        rowref = self._get_rowref()
-        self.store.set_value(rowref, STATUS_IDX, "finished")
+
+    def _on_sync_started(self):
+        self.store.set_value(self._get_rowref(), STATUS_IDX, "uploading")
+
+    def _on_sync_progress(self, progress, uids):
+        uris = [str(i) for i in uids]
+        delete = []
+
+        treeiter = self.store.iter_children(self._get_rowref())
+        while treeiter:
+            if self.store.get_value(treeiter, URI_IDX) in uris:
+                delete.append(treeiter)
+            treeiter = self.store.iter_next(treeiter)
+
+        for d in delete:
+            self.store.remove(d)
+
+        #for uri in uids:
+        #    rowref = self._get_rowref_for_photo(str(uri))
+        #    print "\t%s - %s" % (uri, rowref)
+        #    print "\t",self.photoRefs
         
     def _on_sync_completed(self, abort, error, conflict):
         rowref = self._get_rowref()

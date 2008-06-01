@@ -33,7 +33,7 @@ if __name__ == "__main__":
     dps = app.GetAllDataProviders()
 
     if not FOLDER_TWOWAY in dps or not FLICKR_TWOWAY in dps:
-        print "Could not find folder/flickt"
+        print "Could not find folder/flickr"
         exit()
 
     bus = dbus.SessionBus()

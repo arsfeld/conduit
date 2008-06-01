@@ -1,8 +1,11 @@
 import os
 import getopt
 import sys
-import dbus, dbus.service, dbus.glib
+import dbus, dbus.service, dbus.mainloop.glib
 import gobject
+
+dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+dbus.mainloop.glib.threads_init()
 
 import logging
 log = logging.getLogger("Main")
@@ -269,12 +272,15 @@ OPTIONS:
         #unitialize all dataproviders
         log.info("Unitializing dataproviders")
         self.guiSyncSet.quit()
+        log.info("GUI Quit")
         self.dbusSyncSet.quit()
+        log.info("DBus Quit")
 
         #Save the mapping DB
         conduit.GLOBALS.mappingDB.save()
         conduit.GLOBALS.mappingDB.close()
         
+        log.info("Main Loop Quitting")
         conduit.GLOBALS.mainloop.quit()
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='')

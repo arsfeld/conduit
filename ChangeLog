@@ -1,3 +1,39 @@
+2008-06-01  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/DBus.py:
+	* conduit/Main.py:
+	* conduit/dataproviders/HalFactory.py:
+	* conduit/dataproviders/SimpleFactory.py:
+	* conduit/dataproviders/VolumeFactory.py:
+	* tools/conduit-client: Fix small bugs and tidy up 
+    the usage of DBus, no longer import the 
+    (depreciated dbus.glib).
+
+2008-06-01  John Stowers  <john.stowers@gmail.com>
+
+	* tools/conduit-client:
+	* tools/example-dbus-gui-remote.py: Update
+    to use the new progress signal.
+
+2008-06-01  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Conduit.py:
+	* conduit/DBus.py:
+	* conduit/Synchronization.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/modules/TestModule.py: When emitting progress
+    signals, also include in that signal the UIDs of data
+    successfully processed since the last update.
+
+	* tools/eog-plugin/conduit.py: Update to use the new 
+    functionality.
+
+2008-06-01  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Synchronization.py: Only emit progress when 
+    progress changes by > 5%. Decreases CPU usage and helps
+    responsiveness.
+
 2008-05-31  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/SynceModule.py:
@@ -9,6 +45,12 @@
 	* conduit/modules/SynceModule.py:
 	Some shiny Windows Mobile 5/6 support. Depends on
 	SynCE 0.11.1 with synce-hal.
+
+2008-05-25  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py:
+	* conduit/modules/TestModule.py: Add a ZotoModule
+	test.
 
 2008-05-25  John Stowers  <john.stowers@gmail.com>
 

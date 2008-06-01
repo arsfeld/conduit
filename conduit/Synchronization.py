@@ -272,6 +272,9 @@ class SyncWorker(_ThreadedWorker):
     Operates on a per Conduit basis, so a single SyncWorker may synchronize
     one source with many sinks within a single conduit
     """
+
+    PROGRESS_UPDATE_THRESHOLD = 5.0/100
+
     def __init__(self, typeConverter, cond, do_sync):
         _ThreadedWorker.__init__(self)
         self.typeConverter = typeConverter
@@ -280,10 +283,27 @@ class SyncWorker(_ThreadedWorker):
         self.sinks = cond.datasinks
         self.do_sync = do_sync
 
+        self._progress = 0
+        self._progressUIDs = []
+        
+
         if self.cond.is_two_way():
             self.setName("%s <--> %s" % (self.source, self.sinks[0]))
         else:
             self.setName("%s |--> %s" % (self.source, self.sinks))
+
+    def _emit_progress(self, progress, dataUID):
+        """
+        Emits progress signals, if the elapsed progress since the last 
+        call to this function is greater that 5%. This is necessary because
+        otherwise we starve the main loop with too frequent progress
+        events
+        """
+        self._progressUIDs.append(dataUID)
+        if (progress - self._progress) > self.PROGRESS_UPDATE_THRESHOLD or progress == 1.0:
+            self._progress = progress
+            self.cond.emit("sync-progress", self._progress, self._progressUIDs)
+            self._progressUIDs = []
 
     def _get_data(self, source, sink, uid):
         """
@@ -303,10 +323,13 @@ class SyncWorker(_ThreadedWorker):
         """
         Handles exceptions when putting data from source to sink. Default is
         not to overwrite
+
+        @returns: True if the data was successfully put
         """
         if sourceData != None:
             try:
                 put_data(source, sink, sourceData, sourceDataRid, False)
+                return True
             except Exceptions.SyncronizeError, err:
                 log.warn("%s\n%s" % (err, traceback.format_exc()))                     
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
@@ -321,6 +344,8 @@ class SyncWorker(_ThreadedWorker):
                     self._apply_conflict_policy(source, sink, err.comparison, sourceData, sourceDataRid, err.toData, err.toData.get_rid())
         else:
             log.info("Could not put data: Was None")
+        
+        return False
 
     def _convert_data(self, source, sink, data):
         """
@@ -457,11 +482,6 @@ class SyncWorker(_ThreadedWorker):
             idx += 1.0
             self.check_thread_not_cancelled([source, sink])
 
-            #work out the percent complete
-            done = idx/(numItems*len(self.sinks)) + \
-                    float(self.sinks.index(sink))/len(self.sinks)
-            self.cond.emit("sync-progress", done)
-
             #transfer the data
             data = self._get_data(source, sink, i)
             if data != None:
@@ -469,6 +489,11 @@ class SyncWorker(_ThreadedWorker):
                 dataRid = data.get_rid()
                 data = self._convert_data(source, sink, data)
                 self._put_data(source, sink, data, dataRid)
+
+            #work out the percent complete
+            done = idx/(numItems*len(self.sinks)) + \
+                    float(self.sinks.index(sink))/len(self.sinks)
+            self._emit_progress(done, i)
        
     def two_way_sync(self, source, sink):
         """
@@ -535,7 +560,7 @@ class SyncWorker(_ThreadedWorker):
 
             #progress
             cnt = cnt+1
-            self.cond.emit("sync-progress", float(cnt)/total)
+            self._emit_progress(float(cnt)/total, dataUID)
 
         for sourcedp, dataUID, sinkdp in toput:
             data = self._get_data(sourcedp, sinkdp, dataUID)
@@ -546,7 +571,7 @@ class SyncWorker(_ThreadedWorker):
                 self._put_data(sourcedp, sinkdp, data, dataRid)
 
             cnt = cnt+1
-            self.cond.emit("sync-progress", float(cnt)/total)
+            self._emit_progress(float(cnt)/total, dataUID)
 
         #FIXME: rename dp1 -> sourcedp1 and dp2 -> sinkdp2 because when both
         #data is modified we might as well choost source -> sink as the comparison direction
@@ -562,9 +587,6 @@ class SyncWorker(_ThreadedWorker):
             
             log.debug("2WAY CMP: %s v %s" % (data1, data2))
 
-            cnt = cnt+1
-            self.cond.emit("sync-progress", float(cnt)/total)
-
             #compare the data
             if data1 != None and data2 != None:
                 comparison = data1.compare(data2)
@@ -572,6 +594,10 @@ class SyncWorker(_ThreadedWorker):
                     self._apply_conflict_policy(dp2, dp1, COMPARISON_UNKNOWN, data2, data2Rid, data1, data1Rid)
                 else:
                     self._apply_conflict_policy(dp1, dp2, COMPARISON_UNKNOWN, data1, data1Rid, data2, data2Rid)
+
+            cnt = cnt+1
+            self._emit_progress(float(cnt)/total, data1UID)
+
 
     def run(self):
         """

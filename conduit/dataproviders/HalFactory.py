@@ -1,6 +1,5 @@
 import gobject
 import dbus
-import dbus.glib
 
 import conduit.utils as Utils
 import conduit.dataproviders.SimpleFactory as SimpleFactory
