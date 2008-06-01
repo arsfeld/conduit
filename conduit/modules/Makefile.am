@@ -15,7 +15,8 @@ SUBDIRS = \
 	RhythmboxModule \
 	N800Module \
 	NetworkModule \
-	GConfModule
+	GConfModule \
+	ZotoModule
 
 conduit_handlersdir = $(libdir)/conduit/modules
 conduit_handlers_PYTHON = \

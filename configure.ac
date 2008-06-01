@@ -144,6 +144,7 @@ conduit/modules/RhythmboxModule/Makefile
 conduit/modules/N800Module/Makefile
 conduit/modules/NetworkModule/Makefile
 conduit/modules/GConfModule/Makefile
+conduit/modules/ZotoModule/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit-autostart.desktop.in

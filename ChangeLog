@@ -1,5 +1,11 @@
 2008-06-01  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/Makefile.am:
+	* conduit/modules/ZotoModule/Makefile.am:
+	* configure.ac: Add zoto dataprovider to dist.
+
+2008-06-01  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/DBus.py:
 	* conduit/Main.py:
 	* conduit/dataproviders/HalFactory.py:
