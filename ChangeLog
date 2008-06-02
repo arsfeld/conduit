@@ -1,5 +1,9 @@
 2008-06-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/ZotoModule/Makefile.am: Fix build.
+
+2008-06-03  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS: Update NEWS for release.
 
 2008-06-03  John Stowers  <john.stowers@gmail.com>
