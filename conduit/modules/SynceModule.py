@@ -124,15 +124,16 @@ class SynceTwoWay(DataProvider.TwoWay):
         self.engine = SyncEngineWrapper()    
         self.engine.Connect()
         self.engine.Synchronize()
+
+    def get_all(self):
+        DataProvider.TwoWay.get_all(self)
+        self.objects = {}
         self.engine.Prefill([TYPETONAMES[self._type_id_]])
         chgs = self.engine.GetRemoteChanges([self._type_id_])
         for guid, chgtype, data in chgs[self._type_id_]:
             uid = array.array('B', guid).tostring()
             blob = array.array('B', data).tostring()
             self.objects[uid] = self._blob_to_data(uid, blob)
- 
-    def get_all(self):
-        DataProvider.TwoWay.get_all(self)
         return [x for x in self.objects.iterkeys()]
 
     def get(self, LUID):
@@ -189,7 +190,6 @@ class SynceTwoWay(DataProvider.TwoWay):
         #self.engine.AcknowledgeRemoteChanges
         self.engine.Synchronize()
         self.engine.FlushItemDB()
-        self.objects = {}
 
     def _blob_to_data(self, uid, blob):
         #raise NotImplementedError

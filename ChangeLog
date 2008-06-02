@@ -1,3 +1,9 @@
+2008-06-02  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/SynceModule.py:
+	Keep self.objects around longer, so that conflict handling copes
+	better.
+
 2008-06-03  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:
