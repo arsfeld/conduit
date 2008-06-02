@@ -1,3 +1,8 @@
+2008-06-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Disable Google docs
+	uploader from release.
+
 2008-06-01  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/SynceModule.py:

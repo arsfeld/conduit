@@ -39,7 +39,7 @@ try:
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeSource" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
-        "DocumentsSink" :        { "type": "dataprovider" },
+#        "DocumentsSink" :        { "type": "dataprovider" },
     }
     log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
 except (ImportError, AttributeError):
