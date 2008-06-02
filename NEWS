@@ -4,6 +4,21 @@ NEW in 0.3.11:
 * Update to latest version of pyfacebook, flickrapi, pybackpack
 * Updated to latest version of gdata and improved support for google contacts
 
+* Fixed #530929, Folder doesn't follow symlinks (P. Henrique Silva)
+* Fixed #530979, f-spot to flickr: no comments syncronised (John Stowers)
+* Fixed #530980, FlickrModule trying to add photo twice to a photoset (P. Henrique Silva)
+
+Translations:
+* Updated fr: Claude Paroz
+* Updated nb: Kjartan Maraas
+* Updated it: Luca Ferretti
+* Updated ar: Djihed Afifi <djihed@gmail.com>
+* Updated gl: Ignacio Casal Quinteiro
+* Updated es: Jorge Gonzalez
+
+Help Manual Translations:
+None
+
 NEW in 0.3.10:
 ==============
 * Improve error logging and debug messages at startup
