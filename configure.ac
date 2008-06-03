@@ -134,6 +134,7 @@ conduit/modules/GoogleModule/Makefile
 conduit/modules/GoogleModule/atom/Makefile
 conduit/modules/GoogleModule/gdata/Makefile
 conduit/modules/GoogleModule/gdata/calendar/Makefile
+conduit/modules/GoogleModule/gdata/contacts/Makefile
 conduit/modules/GoogleModule/gdata/exif/Makefile
 conduit/modules/GoogleModule/gdata/geo/Makefile
 conduit/modules/GoogleModule/gdata/media/Makefile
