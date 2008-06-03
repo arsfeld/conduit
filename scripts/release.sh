@@ -8,7 +8,7 @@ fi
 ./scripts/maintainer.py \
     --revision=0.3.11 \
     --package-name=Conduit \
-    --package-version=0.3.12 \
+    --package-version=0.3.11.1 \
     --package-module=conduit \
     --release-note-template=scripts/release-template.txt \
     $*

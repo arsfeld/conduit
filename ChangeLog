@@ -1,5 +1,12 @@
 2008-06-04  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS:
+	* conduit/__init__.py:
+	* configure.ac: Update version numbers to 0.3.11.1 in preparation for
+	brown paper bag release.
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/SyncSet.py: Dont store the application version in the
 	settings.xml file. Store a settings-version variable instead.
 	Fixes #536400.
