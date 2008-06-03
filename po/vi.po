@@ -1,0 +1,965 @@
+# Vietnamese translation for Conduit.
+# Copyright © 2008 GNOME i18n Project for Vietnamese.
+# Clytie Siddall <clytie@riverland.net.au>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: conduit GNOME TRUNK\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-06-02 13:34+0000\n"
+"PO-Revision-Date: 2008-06-02 23:55+0930\n"
+"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: LocFactoryEditor 1.7b3\n"
+
+#: ../data/conduit.desktop.in.in.h:1
+#: ../data/conduit-autostart.desktop.in.in.h:2
+msgid "Conduit Synchronizer"
+msgstr "Bộ đồng bộ hoá ống dẫn Conduit"
+
+#: ../data/conduit.desktop.in.in.h:2
+#: ../data/conduit-autostart.desktop.in.in.h:3
+msgid "Synchronization for GNOME"
+msgstr "Chức năng đồng bộ hoá cho GNOME"
+
+#: ../data/conduit-autostart.desktop.in.in.h:1
+#: ../conduit/modules/N800Module/N800Module.py:54
+#. Translators: Translate this in derived classes.
+msgid "Conduit"
+msgstr "Ống dẫn"
+
+#: ../data/conduit.glade.h:1
+msgid "<b>Default Synchronization Options</b>"
+msgstr "<b>Tùy chọn Đồng bộ hoá Mặc định</b>"
+
+#: ../data/conduit.glade.h:2
+msgid "<b>General</b>"
+msgstr "<b>Chung</b>"
+
+#: ../data/conduit.glade.h:3
+msgid "Always Up To Date"
+msgstr "Luôn luôn hiện thời"
+
+#: ../data/conduit.glade.h:4
+msgid "Ask Me What to Do"
+msgstr "Nhắc nhở"
+
+#: ../data/conduit.glade.h:5
+msgid "Ask me what to do"
+msgstr "Nhắc nhở"
+
+#: ../data/conduit.glade.h:6
+msgid "Cancel Synchronization"
+msgstr "Thôi đồng bộ hoá"
+
+#: ../data/conduit.glade.h:7
+msgid "Cancel currently synchronizing groups"
+msgstr "Thôi bất cứ nhóm nào đang đồng bộ hoá"
+
+#: ../data/conduit.glade.h:8
+msgid "Clear Canvas"
+msgstr "Xoá vùng vẽ"
+
+#: ../data/conduit.glade.h:9
+msgid "Compare"
+msgstr "So sánh"
+
+#: ../data/conduit.glade.h:10
+msgid "Conduit Properties"
+msgstr "Thuộc tính ống dẫn"
+
+#: ../data/conduit.glade.h:11
+msgid "Configuration"
+msgstr "Cấu hình"
+
+#: ../data/conduit.glade.h:12
+msgid "Configure Item"
+msgstr "Cấu hình mục"
+
+#: ../data/conduit.glade.h:13
+msgid "Configure the synchronization settings for this item"
+msgstr "Cấu hình thiết lập đồng bộ hoá cho mục này"
+
+#: ../data/conduit.glade.h:14
+msgid "Conflict Options"
+msgstr "Tùy chọn xung đột"
+
+#: ../data/conduit.glade.h:15
+msgid "Conflicts"
+msgstr "Xung đột"
+
+#: ../data/conduit.glade.h:16
+msgid "Contents"
+msgstr "Nội dung"
+
+#: ../data/conduit.glade.h:17
+msgid "Data Conversions"
+msgstr "Chuyển đổi dữ liệu"
+
+#: ../data/conduit.glade.h:18
+msgid "Data Providers"
+msgstr "Cung cấp dữ liệu"
+
+#: ../data/conduit.glade.h:19
+msgid "Delete Group"
+msgstr "Xoá nhóm"
+
+#: ../data/conduit.glade.h:20
+msgid "Delete Item"
+msgstr "Xoá mục"
+
+#: ../data/conduit.glade.h:21
+msgid "Delete Options"
+msgstr "Tùy chọn xoá"
+
+#: ../data/conduit.glade.h:22
+msgid "Delete from the corresponding sink"
+msgstr "Xoá khỏi ổ chìm tượng ứng"
+
+#: ../data/conduit.glade.h:23
+msgid "Delete the Corresponding Item"
+msgstr "Xoá mục tương ứng"
+
+#: ../data/conduit.glade.h:24
+msgid "Editor"
+msgstr "Bộ soạn thảo"
+
+#: ../data/conduit.glade.h:25
+msgid "Minimize to notification area"
+msgstr "Thu nhỏ vào vùng thông báo"
+
+#: ../data/conduit.glade.h:26
+msgid "Refresh Group"
+msgstr "Cập nhật nhóm"
+
+#: ../data/conduit.glade.h:27
+msgid "Refresh Item"
+msgstr "Cập nhật mục"
+
+#: ../data/conduit.glade.h:28
+msgid "Replace the Older Item"
+msgstr "Thay thế mục cũ"
+
+#: ../data/conduit.glade.h:29
+msgid "Replace the older item"
+msgstr "Thay thế mục cũ"
+
+#: ../data/conduit.glade.h:30
+msgid "Resolve Conflicts"
+msgstr "Giải quyết sự xung đột"
+
+#: ../data/conduit.glade.h:31
+msgid "Save settings on exit"
+msgstr "Lưu thiết lập khi thoát"
+
+#: ../data/conduit.glade.h:32
+msgid "Show status icon"
+msgstr "Hiện biểu tượng trạng thái"
+
+#: ../data/conduit.glade.h:33
+msgid "Skip"
+msgstr "Bỏ qua"
+
+#: ../data/conduit.glade.h:34
+msgid "Slow Sync"
+msgstr "Đồng bộ hoá chậm"
+
+#: ../data/conduit.glade.h:35
+msgid "Sync Options"
+msgstr "Tùy chọn đồng bộ hoá"
+
+#: ../data/conduit.glade.h:36
+msgid "Synchronize All"
+msgstr "Đồng bộ hoá tất cả"
+
+#: ../data/conduit.glade.h:37
+msgid "Synchronize Group"
+msgstr "Đồng bộ hoá nhóm"
+
+#: ../data/conduit.glade.h:38
+msgid "Synchronize group"
+msgstr "Đồng bộ hoá nhóm"
+
+#: ../data/conduit.glade.h:39
+msgid "Synchronizes all groups"
+msgstr "Đồng bộ hoá tất cả các nhóm"
+
+#: ../data/conduit.glade.h:40
+msgid "Title"
+msgstr "Tựa đề"
+
+#: ../data/conduit.glade.h:41
+msgid "Two Way Sync"
+msgstr "Đồng bộ hoá hai chiều"
+
+#: ../data/conduit.glade.h:42
+msgid "Use built in Web browser"
+msgstr "Dùng trình duyệt Web có sẵn"
+
+#: ../data/conduit.glade.h:43
+msgid "When an item has been deleted:"
+msgstr "Khi một mục đã bị xoá:"
+
+#: ../data/conduit.glade.h:44
+msgid "When an item is deleted..."
+msgstr "Khi một mục bị xoá..."
+
+#: ../data/conduit.glade.h:45
+msgid "When there is a conflict..."
+msgstr "Khi gặp sự xung đột..."
+
+#: ../data/conduit.glade.h:46
+msgid "When there is a two way conflict:"
+msgstr "Khi gặp sự xung đột hai chiều :"
+
+#: ../data/conduit.glade.h:47
+msgid "_Edit"
+msgstr "_Sửa"
+
+#: ../data/conduit.glade.h:48
+msgid "_File"
+msgstr "_Tập tin"
+
+#: ../data/conduit.glade.h:49
+msgid "_Help"
+msgstr "Trợ g_iúp"
+
+#: ../conduit/gtkui/Canvas.py:65
+msgid "Drag a Data Provider here to continue"
+msgstr "Kéo một bộ cung cấp dữ liệu vào đây để tiếp tục"
+
+#: ../conduit/gtkui/ConflictResolver.py:82
+#. Visible column0 is
+#. [pixbuf + source display name] or
+#. [source_data.get_snippet()]
+msgid "Source"
+msgstr "Nguồn"
+
+#: ../conduit/gtkui/ConflictResolver.py:96
+msgid "Resolution"
+msgstr "Độ phân giải"
+
+#: ../conduit/gtkui/ConflictResolver.py:101
+#. Visible column2 is the display name of source and source data
+msgid "Sink"
+msgstr "Ổ chìm"
+
+#: ../conduit/gtkui/ConflictResolver.py:165
+#: ../conduit/gtkui/ConflictResolver.py:166
+#, python-format
+msgid "Conflicts (%s)"
+msgstr "Xung đột (%s)"
+
+#: ../conduit/gtkui/UI.py:235
+#. Build some liststores to display
+msgid "Convert from"
+msgstr "Chuyển đổi từ"
+
+#: ../conduit/gtkui/UI.py:236
+msgid "into"
+msgstr "sang"
+
+#: ../conduit/gtkui/UI.py:291
+msgid "Conversions Available"
+msgstr "Chuyển đổi có thể"
+
+#: ../conduit/gtkui/UI.py:297
+#: ../conduit/gtkui/Tree.py:349
+#: ../conduit/modules/FileModule/FileConfiguration.py:104
+msgid "Name"
+msgstr "Tên"
+
+#: ../conduit/gtkui/UI.py:301
+msgid "Loaded"
+msgstr "Đã nạp"
+
+#: ../conduit/gtkui/UI.py:399
+#: ../conduit/hildonui/UI.py:127
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr "Đang đồng bố hoá. Bạn có muốn hủy bỏ không?"
+
+#: ../conduit/gtkui/UI.py:556
+msgid "_Synchronize All"
+msgstr "Đồng bộ hoá _tất cả"
+
+#: ../conduit/gtkui/UI.py:556
+msgid "Synchronizes All Groups"
+msgstr "Đồng bộ hoá mọi nhóm"
+
+#: ../conduit/gtkui/UI.py:557
+msgid "_Cancel Synchronization"
+msgstr "T_hôi đồng bộ hoá"
+
+#: ../conduit/gtkui/UI.py:557
+msgid "Cancels Currently Synchronizing Groups"
+msgstr "Thôi các tiến trình đồng bộ hoá nhóm đang chạy"
+
+#: ../conduit/gtkui/UI.py:558
+msgid "_Quit"
+msgstr "T_hoát"
+
+#: ../conduit/gtkui/UI.py:558
+msgid "Close Conduit"
+msgstr "Đóng ống dẫn"
+
+#: ../conduit/gtkui/UI.py:559
+msgid "_About"
+msgstr "_Giới thiệu"
+
+#: ../conduit/gtkui/UI.py:559
+msgid "About Conduit"
+msgstr "Giới thiệu ống dẫn"
+
+#: ../conduit/gtkui/UI.py:599
+msgid "Synchronization Error"
+msgstr "Lỗi đồng bộ hoá"
+
+#: ../conduit/gtkui/UI.py:602
+msgid "Synchronization Complete"
+msgstr "Đồng bộ hoá hoàn thành"
+
+#: ../conduit/gtkui/UI.py:618
+msgid "Synchronizing"
+msgstr "Đang đồng bộ hoá"
+
+#: ../conduit/gtkui/Tree.py:358
+msgid "Description"
+msgstr "Mô tả"
+
+#: ../conduit/dataproviders/DataProvider.py:19
+msgid "Ready"
+msgstr "Sẵn sàng"
+
+#: ../conduit/dataproviders/DataProvider.py:20
+msgid "New data to sync"
+msgstr "Dữ liệu mới cần đồng bộ hoá"
+
+#: ../conduit/dataproviders/DataProvider.py:21
+msgid "Refreshing..."
+msgstr "Đang cập nhật..."
+
+#: ../conduit/dataproviders/DataProvider.py:22
+msgid "Refreshed OK"
+msgstr "Cập nhật thành công"
+
+#: ../conduit/dataproviders/DataProvider.py:23
+msgid "Error Refreshing"
+msgstr "Lỗi cập nhật"
+
+#: ../conduit/dataproviders/DataProvider.py:24
+msgid "Synchronizing..."
+msgstr "Đang đồng bộ hoá..."
+
+#: ../conduit/dataproviders/DataProvider.py:25
+msgid "Synchronized OK"
+msgstr "Hai bên đồng bộ"
+
+#: ../conduit/dataproviders/DataProvider.py:26
+msgid "Error Synchronizing"
+msgstr "Lỗi đồng bộ hoá"
+
+#: ../conduit/dataproviders/DataProvider.py:27
+msgid "Synchronization Skipped"
+msgstr "Đồng bộ hoá bị bỏ qua"
+
+#: ../conduit/dataproviders/DataProvider.py:28
+msgid "Synchronization Cancelled"
+msgstr "Đồng bộ hoá bị bỏ thôi"
+
+#: ../conduit/dataproviders/DataProvider.py:29
+msgid "Synchronization Conflict"
+msgstr "Đồng bộ hoá bị xung đột"
+
+#: ../conduit/dataproviders/DataProvider.py:30
+msgid "Not Configured Correctly"
+msgstr "Sai cấu hình"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:55
+msgid "Backpack Notes"
+msgstr "Ghi chú Backpack"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:56
+msgid "Store things in Backpack Notes"
+msgstr "Lưu gì vào ghi chú Backpack"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:1
+#: ../conduit/modules/FlickrModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
+#: ../conduit/modules/SmugMugModule/config.glade.h:1
+#: ../conduit/modules/ZotoModule/zoto.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>Chi tiết tài khoản</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr "<b>Thiết lập ghi chú đã lưu</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:3
+msgid "API key:"
+msgstr "Khoá API:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:4
+msgid "Backpack"
+msgstr "Backpack"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:5
+msgid "Save notes in page:"
+msgstr "Lưu ghi chú trên trang:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:6
+#: ../conduit/modules/FlickrModule/config.glade.h:8
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:7
+#: ../conduit/modules/ZotoModule/zoto.glade.h:5
+msgid "Username:"
+msgstr "Tên người dùng:"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:30
+msgid "Banshee Playlists"
+msgstr "Danh mục nhạc Banshee"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:31
+msgid "Sync your Banshee playlists"
+msgstr "Đồng bố hoá danh mục nhạc Banshee"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:137
+#: ../conduit/modules/FspotModule/FspotModule.py:245
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:129
+#. column 1 is the tag name
+msgid "Tag Name"
+msgstr "Tên thẻ"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:145
+#: ../conduit/modules/FspotModule/FspotModule.py:253
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:137
+msgid "Enabled"
+msgstr "Đã bật"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:1
+msgid "<b>Return Playlists</b>"
+msgstr "<b>Trả về danh mục nhạc</b>"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:2
+msgid "Banshee"
+msgstr "Banshee"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr "Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
+msgid "Sync your Box.net files"
+msgstr "Đồng bố hoá tập tin Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
+msgid "Folder:"
+msgstr "Thư mục:"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr "Nạp"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:107
+#, python-format
+msgid "Select %s:"
+msgstr "Chọn %s:"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:146
+msgid "Evolution Contacts"
+msgstr "Liên lạc Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+msgid "Sync your contacts"
+msgstr "Đồng bố hoá liên lạc"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+msgid "Evolution Calendar"
+msgstr "Lịch Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+msgid "Sync your calendar"
+msgstr "Đồng bố hoá lịch"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+msgid "Evolution Tasks"
+msgstr "Tác vụ Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+msgid "Sync your tasks"
+msgstr "Đồng bố hoá tác vụ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+msgid "Evolution Memos"
+msgstr "Ghi nhớ Evolution"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+msgid "Sync your memos"
+msgstr "Đồng bộ hoá ghi nhớ"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:1
+msgid "Addressbook:"
+msgstr "Sổ địa chỉ:"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr "Evolution"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+msgid "Facebook"
+msgstr "Facebook"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+msgid "Sync your Facebook photos"
+msgstr "Đồng bố hoá ảnh chụp Facebook"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:30
+#: ../conduit/modules/FeedModule/config.glade.h:9
+msgid "RSS Feed"
+msgstr "Nguồn tin RSS"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:31
+msgid "Sync data from RSS enclosures"
+msgstr "Đồng bố hoá dữ liệu từ gói RSS"
+
+#: ../conduit/modules/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr "<b>Thiết lập gói</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:2
+msgid "<b>Feed Details</b>"
+msgstr "<b>Chi tiết nguồn tin</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:3
+msgid "Download Audio Files"
+msgstr "Tải về tập tin âm thanh"
+
+#: ../conduit/modules/FeedModule/config.glade.h:4
+msgid "Download Photos"
+msgstr "Tải về ảnh chụp"
+
+#: ../conduit/modules/FeedModule/config.glade.h:5
+msgid "Download Video Files"
+msgstr "Tải về tập tin phim"
+
+#: ../conduit/modules/FeedModule/config.glade.h:6
+msgid "Feed Address:"
+msgstr "Địa chỉ nguồn tin:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:7
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloaded to:"
+msgstr "Giới hạn số gói\n"
+"được tải về:"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:98
+msgid "Icon"
+msgstr "Biểu tượng"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:110
+msgid "Items"
+msgstr "Mục"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:136
+#, python-format
+msgid "<i>Contains %s files</i>"
+msgstr "<i>Chứa tập tin %s</i>"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:226
+msgid "Include file..."
+msgstr "Bao gồm tập tin..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:236
+msgid "All files"
+msgstr "Mọi tập tin"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:251
+msgid "Include folder..."
+msgstr "Bao gồm thư mục..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:296
+msgid "Please Name All Folders"
+msgstr "Đặt tên mọi thư mục"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:297
+msgid ""
+"All folders require a descriptive name. To name a folder simply click on it"
+msgstr "Mọi thư mục đều cần một tên diễn tả. Để đặt tên của một thư mục, đơn giản hãy nhấn vào nó."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:341
+msgid "Please Enter a Folder Name"
+msgstr "Hãy nhập một tên thư mục"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:342
+msgid ""
+"All folders require a descriptive name. To name a folder enter its name "
+"where indicated"
+msgstr "Mọi thư mục đều cần một tên diễn tả. Để đặt tên của một thư mục, đơn giản hãy nhập tên vào nơi được ngụ ý."
+
+#: ../conduit/modules/FileModule/FileModule.py:23
+msgid "Files"
+msgstr "Tập tin"
+
+#: ../conduit/modules/FileModule/FileModule.py:24
+msgid "Source for synchronizing multiple files"
+msgstr "Nguồn để đồng bộ hoá nhiều tập tin"
+
+#: ../conduit/modules/FileModule/FileModule.py:62
+msgid "Folder"
+msgstr "Thư mục"
+
+#: ../conduit/modules/FileModule/FileModule.py:63
+msgid "Synchronize folders"
+msgstr "Đồng bộ hoá thư mục"
+
+#: ../conduit/modules/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr "<b>Mục cần đồng bộ hoá</b>"
+
+#: ../conduit/modules/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr "Thêm thư mục"
+
+#: ../conduit/modules/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr "Thêm tập tin"
+
+#: ../conduit/modules/FileModule/config.glade.h:4
+msgid "Advanced"
+msgstr "Cấp cao"
+
+#: ../conduit/modules/FileModule/config.glade.h:5
+msgid "File Configuration"
+msgstr "Cấu hình tập tin"
+
+#: ../conduit/modules/FileModule/config.glade.h:6
+msgid "Folder Configuration"
+msgstr "Cấu hình thư mục"
+
+#: ../conduit/modules/FileModule/config.glade.h:7
+msgid "Folder Location:"
+msgstr "Vị trí thư mục:"
+
+#: ../conduit/modules/FileModule/config.glade.h:8
+msgid "Folder Name:"
+msgstr "Tên thư mục:"
+
+#: ../conduit/modules/FileModule/config.glade.h:9
+msgid "Follow Symbolic Links"
+msgstr "Theo liên kết mềm"
+
+#: ../conduit/modules/FileModule/config.glade.h:10
+msgid "Ignore File Modification Times"
+msgstr "Bỏ qua giờ sửa đổi tập tin"
+
+#: ../conduit/modules/FileModule/config.glade.h:11
+msgid "Include Hidden Files"
+msgstr "Bao gồm tập tin ẩn"
+
+#: ../conduit/modules/FileModule/config.glade.h:12
+msgid "Select A Folder"
+msgstr "Chọn thư mục"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:76
+#: ../conduit/modules/FlickrModule/config.glade.h:3
+msgid "Flickr"
+msgstr "Flickr"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:77
+msgid "Sync your Flickr.com photos"
+msgstr "Đồng bộ hoá ảnh chụp Flickr"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:2
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+#: ../conduit/modules/ZotoModule/zoto.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr "<b>Thiết lập ảnh chụp đã lưu</b>"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:5
+msgid "Photos are public"
+msgstr "Ảnh chụp công bố"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:6
+msgid "Photoset Name:"
+msgstr "Tên tập ảnh chụp:"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:7
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr "Đổi cỡ ảnh chụp:"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:25
+#: ../conduit/modules/FspotModule/config.glade.h:3
+msgid "F-Spot"
+msgstr "F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:26
+msgid "Sync your F-Spot photos"
+msgstr "Đồng bộ hoá ảnh chụp F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:126
+msgid "F-Spot DBus interface is operating in read only mode"
+msgstr "Giao diện DBus F-Spot đang chạy ở chế đô chỉ đọc"
+
+#: ../conduit/modules/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr "<b>Trả về ảnh chụp có thẻ</b>"
+
+#: ../conduit/modules/FspotModule/config.glade.h:2
+msgid "Create Tags: "
+msgstr "Tạo thẻ:"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:21
+msgid "GConf Settings"
+msgstr "Thiết lập GConf"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:22
+msgid "Sync your desktop preferences"
+msgstr "Đồng bộ hoá tùy thích môi trường"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:367
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
+msgid "Google Calendar"
+msgstr "Lịch Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:368
+msgid "Sync your Google Calendar"
+msgstr "Đồng bộ hoá Lịch Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:553
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
+msgid "Picasa"
+msgstr "Picasa"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:554
+msgid "Sync your Google Picasa photos"
+msgstr "Đồng bộ hoá ảnh chụp Picasa Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:771
+msgid "Google Contacts"
+msgstr "Liên lạc Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:772
+msgid "Sync your Gmail contacts"
+msgstr "Đồng bộ hoá liên lạc GMail"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1024
+msgid "Google Documents"
+msgstr "Tài liệu Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1025
+msgid "Sync your Google Documents"
+msgstr "Đồng bộ hoá Tài liệu Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1240
+msgid "YouTube"
+msgstr "YouTube"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1241
+msgid "Sync data from YouTube"
+msgstr "Đồng bộ hoá dữ liệu từ YouTube"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
+msgid "Calendar:"
+msgstr "Lịch:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+msgid "Email:"
+msgstr "Thư :"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
+msgid "Load Calendars"
+msgstr "Nạp lịch"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+#: ../conduit/modules/ZotoModule/zoto.glade.h:4
+msgid "Password:"
+msgstr "Mật khẩu :"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/iPodModule/config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+#: ../conduit/modules/ZotoModule/zoto.glade.h:3
+msgid "Album:"
+msgstr "Tập:"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
+msgid "Login"
+msgstr "Đăng nhập"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
+msgid "<b>Donwload Videos</b>"
+msgstr "<b>Tải về phim</b>"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "By user"
+msgstr "Bởi người dùng"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
+msgid "Favorites of"
+msgstr "Ưa thích của"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr "Số tối đa phim trả về (0 thì vô hạn):"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
+msgid "Most viewed"
+msgstr "Xem nhất"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+msgid "Top rated"
+msgstr "Đánh giá cao nhất"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
+msgid "Uploaded by"
+msgstr "Tải lên bởi"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
+msgid "User: "
+msgstr "Người dùng: "
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+msgid "YouTube Source"
+msgstr "Nguồn YouTube"
+
+#: ../conduit/modules/iPodModule/config.glade.h:2
+msgid "iPod Photos"
+msgstr "Ảnh chụp iPod"
+
+#: ../conduit/modules/N800Module/N800Module.py:58
+#, python-format
+#. Translators: Format string used to describe the acceptable formats the
+#. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
+#. arg is a comma seperated list of encodings
+msgid "%s Format (%s)"
+msgstr "Định dạng %s (%s)"
+
+#: ../conduit/modules/N800Module/N800Module.py:60
+#. Signifies that a conversion should not take place
+msgid "unchanged"
+msgstr "chưa đổi"
+
+#: ../conduit/modules/N800Module/N800Module.py:119
+msgid "N800 Files"
+msgstr "Tập tin N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:120
+msgid "Synchronizes files/folders to a N800 device"
+msgstr "Đồng bộ hoá các tập tin/thư mục vào một thiết bị N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:125
+#. To translators: default backup folder of N800
+msgid "Backups"
+msgstr "Sao lưu"
+
+#: ../conduit/modules/N800Module/N800Module.py:140
+msgid "N800 Music"
+msgstr "Nhạc N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:141
+msgid "Synchronizes music to a N800 device"
+msgstr "Đồng bộ hoá âm nhạc vào một thiết bị N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:147
+#. To translators: defaul music folder of N800
+msgid "Music"
+msgstr "Nhạc"
+
+#: ../conduit/modules/N800Module/N800Module.py:164
+msgid "N800 Videos"
+msgstr "Phim N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:165
+#: ../conduit/modules/N800Module/N800Module.py:189
+msgid "Synchronizes video to a N800 device"
+msgstr "Đồng bộ hoá phim vào một thiết bị N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:171
+#. To translators: defaul video folder of N800
+msgid "Video"
+msgstr "Phim"
+
+#: ../conduit/modules/N800Module/N800Module.py:188
+msgid "N800 Photos"
+msgstr "Ảnh chụp N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:195
+#. To translators: default photos folder of N800
+msgid "Photo"
+msgstr "Ảnh chụp"
+
+#: ../conduit/modules/NetworkModule/Server.py:147
+msgid "Network"
+msgstr "Mạng"
+
+#: ../conduit/modules/NetworkModule/Server.py:148
+msgid "Enable synchronization via network"
+msgstr "Bật đồng bộ hoá qua mạng"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
+msgid "Rhythmbox Music"
+msgstr "Nhạc Rhythmbox"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
+msgid "Sync songs from your Rhythmbox playlists"
+msgstr "Đồng bộ hoá bài hát từ các danh mục nhạc Rhythmbox"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+msgid "Unknown"
+msgstr "Không rõ"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:1
+msgid "<b>Synchronize the Following Playlists</b>"
+msgstr "<b>Đồng bộ hoá các danh mục nhạc theo đây</b>"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:2
+msgid "Rhythmbox Playlists"
+msgstr "Danh mục nhạc Rhythmbox"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr "Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
+msgid "Sync your Shutterfly photos"
+msgstr "Đồng bộ hoá ảnh chụp Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr "%Y-%m-%d %H:%M:%S"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr "SmugMug"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Sync your SmugMug.com photos"
+msgstr "Đồng bộ hoá ảnh chụp SmugMug.com"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:121
+#: ../conduit/modules/ZotoModule/zoto.glade.h:6
+msgid "Zoto"
+msgstr "Zoto"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:122
+msgid "Sync your Zoto photos"
+msgstr "Đồng bộ hoá ảnh chụp Zoto"
