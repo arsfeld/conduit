@@ -1,3 +1,9 @@
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/SyncSet.py: Dont store the application version in the
+	settings.xml file. Store a settings-version variable instead.
+	Fixes #536400.
+
 2008-06-03  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/FlickrModule/flickrapi/Makefile.am:

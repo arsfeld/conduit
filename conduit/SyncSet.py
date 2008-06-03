@@ -15,6 +15,10 @@ import conduit
 import conduit.Conduit as Conduit
 import conduit.Settings as Settings
 
+#Increment this number when the xml settings file
+#changes format
+SETTINGS_VERSION = "1"
+
 class SyncSet(gobject.GObject):
     """
     Represents a group of conduits
@@ -123,7 +127,8 @@ class SyncSet(gobject.GObject):
         #Build the application settings xml document
         doc = xml.dom.minidom.Document()
         rootxml = doc.createElement("conduit-application")
-        rootxml.setAttribute("version", conduit.VERSION)
+        rootxml.setAttribute("application-version", conduit.VERSION)
+        rootxml.setAttribute("settings-version", SETTINGS_VERSION)
         doc.appendChild(rootxml)
         
         #Store the conduits
@@ -187,12 +192,13 @@ class SyncSet(gobject.GObject):
         try:
             #Open                
             doc = xml.dom.minidom.parse(xmlSettingFilePath)
-            xmlVersion = doc.documentElement.getAttribute("version")
-            #And check it is the correct version        
-            if xmlVersion != conduit.VERSION:
-                log.info("%s xml file is incorrect version" % xmlSettingFilePath)
-                os.remove(xmlSettingFilePath)
-                return
+            
+            #check the xml file is in a version we can read.
+            if doc.documentElement.hasAttribute("settings-version"):
+                if SETTINGS_VERSION != doc.documentElement.getAttribute("settings-version"):
+                    log.info("%s xml file is incorrect version" % xmlSettingFilePath)
+                    os.remove(xmlSettingFilePath)
+                    return
             
             #Parse...    
             for conds in doc.getElementsByTagName("conduit"):
