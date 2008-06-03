@@ -1,5 +1,10 @@
 2008-06-03  John Carr  <john.carr@unrouted.co.uk>
 
+	* conduit/modules/FlickrModule/flickrapi/Makefile.am:
+	We had missing files. Include them.
+
+2008-06-03  John Carr  <john.carr@unrouted.co.uk>
+
 	* conduit/modules/gdata/Makefile.am:
 	* configure.ac:
 	Include contacts stuff in our shipped GData.
