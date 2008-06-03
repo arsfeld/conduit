@@ -1,4 +1,4 @@
-AC_INIT([conduit], [0.3.12],[john.stowers@gmail.com],[conduit])
+AC_INIT([conduit], [0.3.11.2],[john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
 AC_CONFIG_SRCDIR(conduit/__init__.py)
 AC_CONFIG_MACRO_DIR([m4])
@@ -133,12 +133,17 @@ conduit/modules/SmugMugModule/SmugMugAPI/Makefile
 conduit/modules/GoogleModule/Makefile
 conduit/modules/GoogleModule/atom/Makefile
 conduit/modules/GoogleModule/gdata/Makefile
+conduit/modules/GoogleModule/gdata/apps/Makefile
+conduit/modules/GoogleModule/gdata/base/Makefile
 conduit/modules/GoogleModule/gdata/calendar/Makefile
+conduit/modules/GoogleModule/gdata/codesearch/Makefile
 conduit/modules/GoogleModule/gdata/contacts/Makefile
+conduit/modules/GoogleModule/gdata/docs/Makefile
 conduit/modules/GoogleModule/gdata/exif/Makefile
 conduit/modules/GoogleModule/gdata/geo/Makefile
 conduit/modules/GoogleModule/gdata/media/Makefile
 conduit/modules/GoogleModule/gdata/photos/Makefile
+conduit/modules/GoogleModule/gdata/spreadsheet/Makefile
 conduit/modules/ShutterflyModule/Makefile
 conduit/modules/ShutterflyModule/shutterfly/Makefile
 conduit/modules/RhythmboxModule/Makefile

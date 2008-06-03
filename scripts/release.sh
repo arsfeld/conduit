@@ -6,7 +6,7 @@ if [ ! -f $APP ] ; then
 fi
 
 ./scripts/maintainer.py \
-    --revision=0.3.11.1 \
+    --revision=0.3.11.2 \
     --package-name=Conduit \
     --package-version=0.3.12 \
     --package-module=conduit \

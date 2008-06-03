@@ -1,6 +1,14 @@
-NEW in 0.3.12:
+NEW in 0.3.11.2:
 ==============
-* Magic
+* Brown paper bag release
+
+* Fixed #536485, Google Data Provider (Andreas Böttger)
+
+Translations:
+None
+
+Help Manual Translations:
+None
 
 NEW in 0.3.11.1:
 ==============
