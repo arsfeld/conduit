@@ -2,6 +2,15 @@ NEW in 0.3.11.1:
 ==============
 * Brown paper bag release
 
+* Fixed #536400, new version drops old configuration (John Stowers)
+* Fixed #536485, Google Data Provider (Andreas Böttger)
+
+Translations:
+* Updated vi: and to LINGUAS
+
+Help Manual Translations:
+None
+
 NEW in 0.3.11:
 ==============
 * Support ZOTO Photos
