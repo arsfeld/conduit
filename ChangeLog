@@ -1,5 +1,11 @@
 2008-06-04  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS:
+	* conduit/__init__.py:
+	* configure.ac: Version bump to 0.3.12. Cross fingers this time.
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
 	* Makefile.am:
 	* NEWS:
 	* conduit/__init__.py:
