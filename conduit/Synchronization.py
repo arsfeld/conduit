@@ -335,9 +335,7 @@ class SyncWorker(_ThreadedWorker):
                 self.sinkErrors[sink] = DataProvider.STATUS_DONE_SYNC_ERROR
             except Exceptions.SynchronizeConflictError, err:
                 comp = err.comparison
-                if comp == COMPARISON_OLDER:
-                    log.info("Skipping %s (Older)" % sourceData)
-                elif comp == COMPARISON_EQUAL:
+                if comp == COMPARISON_EQUAL:
                     log.info("Skipping %s (Equal)" % sourceData)
                 else:
                     assert(err.fromData == sourceData)

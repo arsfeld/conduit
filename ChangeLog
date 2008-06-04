@@ -1,3 +1,14 @@
+2008-06-05  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Synchronization.py: If we are older, then the dp should not
+	have raised the conflict, so this test can be removed.
+	
+	* conduit/dataproviders/File.py: If we are newer then we can
+	overwrite the file. Fixes #532545
+	
+	* test/python-tests/TestSyncFolderFolder2.py: More exhaustive tests for
+	folder sync.
+
 2008-06-04  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:

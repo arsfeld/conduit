@@ -309,9 +309,17 @@ class FolderTwoWay(DataProvider.TwoWay):
                             destFile, 
                             sizeOnly=self.compareIgnoreMtime
                             )
+
                 if LUID != None and comp == DataType.COMPARISON_NEWER:
-                    self._transfer_file(vfsFile, newURI, overwrite)
+                    #we were expecting an existing file, we found it, but
+                    #we are newer, so overwrite it
+                    self._transfer_file(vfsFile, newURI, True)
                 elif comp == DataType.COMPARISON_EQUAL:
+                    #in File.compare, the files are compared based on size, if
+                    #their mtimes are the same, so this case is true when
+                    # 1) The sizes are the same, and the user told us
+                    #    to ignore the mtimes
+                    # 2) The mtimes and size is the same, and we checked both
                     pass
                 else:
                     raise Exceptions.SynchronizeConflictError(comp, vfsFile, destFile)
