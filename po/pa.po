@@ -1,0 +1,966 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Conduit\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-06-05 12:16+0000\n"
+"PO-Revision-Date: 2008-06-06 06:47+0530\n"
+"Last-Translator: Amanpreet Singh Alam <aalam@users.sf.net>\n"
+"Language-Team: Punjabi Open Source Team <punjabi-users@lists.sf.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Panjabi\n"
+"X-Poedit-Country: INDIA\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: ../data/conduit.desktop.in.in.h:1
+#: ../data/conduit-autostart.desktop.in.in.h:2
+msgid "Conduit Synchronizer"
+msgstr "ਕੰਡੁਟ ਸੈਕਰੋਨਾਈਜ਼ਰ"
+
+#: ../data/conduit.desktop.in.in.h:2
+#: ../data/conduit-autostart.desktop.in.in.h:3
+msgid "Synchronization for GNOME"
+msgstr "ਗਨੋਮ ਲਈ ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ"
+
+#. Translators: Translate this in derived classes.
+#: ../data/conduit-autostart.desktop.in.in.h:1
+#: ../conduit/modules/N800Module/N800Module.py:54
+msgid "Conduit"
+msgstr "ਕੰਡੁਟ"
+
+#: ../data/conduit.glade.h:1
+msgid "<b>Default Synchronization Options</b>"
+msgstr "<b>ਡਿਫਾਲਟ ਸੈਕਰੋਨਾਈਜ਼ਰ ਚੋਣਾਂ</b>"
+
+#: ../data/conduit.glade.h:2
+msgid "<b>General</b>"
+msgstr "<b>ਆਮ</b>"
+
+#: ../data/conduit.glade.h:3
+msgid "Always Up To Date"
+msgstr "ਹਮੇਸ਼ਾ ਅੱਪ ਟੂ ਡੇਟ"
+
+#: ../data/conduit.glade.h:4
+msgid "Ask Me What to Do"
+msgstr "ਮੈਨੂੰ ਪੁੱਛੋ ਕਿ ਕੀ ਕਰਨ ਹੈ"
+
+#: ../data/conduit.glade.h:5
+msgid "Ask me what to do"
+msgstr "ਮੈਨੂੰ ਪੁੱਛੋ ਕਿ ਕੀ ਕਰਨਾ ਹੈ"
+
+#: ../data/conduit.glade.h:6
+msgid "Cancel Synchronization"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਰੱਦ ਕਰੋ"
+
+#: ../data/conduit.glade.h:7
+msgid "Cancel currently synchronizing groups"
+msgstr "ਮੌਜੂਦਾ ਸੈਕਰੋਨਾਈਜ਼ਿੰਗ ਗਰੁੱਪ ਰੱਦ ਕਰੋ"
+
+#: ../data/conduit.glade.h:8
+msgid "Clear Canvas"
+msgstr "ਕੈਨਵਸ ਸਾਫ਼ ਕਰੋ"
+
+#: ../data/conduit.glade.h:9
+msgid "Compare"
+msgstr "ਤੁਲਨਾ"
+
+#: ../data/conduit.glade.h:10
+msgid "Conduit Properties"
+msgstr "ਕੰਡੁਟ ਵਿਸ਼ੇਸ਼ਤਾ"
+
+#: ../data/conduit.glade.h:11
+msgid "Configuration"
+msgstr "ਸੰਰਚਨਾ"
+
+#: ../data/conduit.glade.h:12
+msgid "Configure Item"
+msgstr "ਆਈਟਮ ਸੰਰਚਨਾ"
+
+#: ../data/conduit.glade.h:13
+msgid "Configure the synchronization settings for this item"
+msgstr "ਇਸ ਆਈਟਮ ਲਈ ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਸੈਟਿੰਗ ਸੰਰਚਨਾ"
+
+#: ../data/conduit.glade.h:14
+msgid "Conflict Options"
+msgstr "ਅਪਵਾਦ ਚੋਣ"
+
+#: ../data/conduit.glade.h:15
+msgid "Conflicts"
+msgstr "ਅਪਵਾਦ"
+
+#: ../data/conduit.glade.h:16
+msgid "Contents"
+msgstr "ਸਮੱਗਰੀ"
+
+#: ../data/conduit.glade.h:17
+msgid "Data Conversions"
+msgstr "ਡਾਟਾ ਪਰਿਵਰਤਨ"
+
+#: ../data/conduit.glade.h:18
+msgid "Data Providers"
+msgstr "ਡਾਟਾ ਪਰੋਵਾਇਡਰ"
+
+#: ../data/conduit.glade.h:19
+msgid "Delete Group"
+msgstr "ਗਰੁੱਪ ਹਟਾਓ"
+
+#: ../data/conduit.glade.h:20
+msgid "Delete Item"
+msgstr "ਆਈਟਮ ਹਟਾਓ"
+
+#: ../data/conduit.glade.h:21
+msgid "Delete Options"
+msgstr "ਚੋਣਾਂ ਹਟਾਓ"
+
+#: ../data/conduit.glade.h:22
+msgid "Delete from the corresponding sink"
+msgstr "ਸਬੰਧਿਤ ਸਿੰਕ ਤੋਂ ਹਟਾਓ"
+
+#: ../data/conduit.glade.h:23
+msgid "Delete the Corresponding Item"
+msgstr "ਸਬੰਧਿਤ ਆਈਟਮ ਹਟਾਓ"
+
+#: ../data/conduit.glade.h:24
+msgid "Editor"
+msgstr "ਐਡੀਟਰ"
+
+#: ../data/conduit.glade.h:25
+msgid "Minimize to notification area"
+msgstr "ਨੋਟੀਫਿਕੇਸ਼ਨ ਏਰੀਏ ਵਿੱਚ ਭੇਜੋ"
+
+#: ../data/conduit.glade.h:26
+msgid "Refresh Group"
+msgstr "ਗਰੁੱਪ ਤਾਜ਼ਾ ਕਰੋ"
+
+#: ../data/conduit.glade.h:27
+msgid "Refresh Item"
+msgstr "ਆਈਟਮ ਤਾਜ਼ਾ ਕਰੋ"
+
+#: ../data/conduit.glade.h:28
+msgid "Replace the Older Item"
+msgstr "ਪੁਰਾਣੀ ਆਈਟਮ ਬਦਲੋ"
+
+#: ../data/conduit.glade.h:29
+msgid "Replace the older item"
+msgstr "ਪੁਰਾਣੀ ਆਈਟਮ ਬਦਲੋ"
+
+#: ../data/conduit.glade.h:30
+msgid "Resolve Conflicts"
+msgstr "ਅਪਵਾਦ ਹੱਲ਼ ਕਰੋ"
+
+#: ../data/conduit.glade.h:31
+msgid "Save settings on exit"
+msgstr "ਸੈਟਿੰਗ ਬੰਦ ਕਰਨ ਸਮੇਂ ਸੰਭਾਲੋ"
+
+#: ../data/conduit.glade.h:32
+msgid "Show status icon"
+msgstr "ਹਾਲਤ ਆਈਕਾਨ ਵੇਖੋ"
+
+#: ../data/conduit.glade.h:33
+msgid "Skip"
+msgstr "ਛੱਡੋ"
+
+#: ../data/conduit.glade.h:34
+msgid "Slow Sync"
+msgstr "ਹੌਲੀ ਸੈਕਰੋ"
+
+#: ../data/conduit.glade.h:35
+msgid "Sync Options"
+msgstr "ਸੈਕਰੋ ਚੋਣਾਂ"
+
+#: ../data/conduit.glade.h:36
+msgid "Synchronize All"
+msgstr "ਸਭ ਸੈਕਰੋਨਾਈਜ਼"
+
+#: ../data/conduit.glade.h:37
+msgid "Synchronize Group"
+msgstr "ਗਰੁੱਪ ਸੈਕਰੋਨਾਈਜ਼"
+
+#: ../data/conduit.glade.h:38
+msgid "Synchronize group"
+msgstr "ਗਰੁੱਪ ਸੈਕਰੋਨਾਈਜ਼"
+
+#: ../data/conduit.glade.h:39
+msgid "Synchronizes all groups"
+msgstr "ਸਭ ਗਰੁੱਪ ਸੈਕਰੋਨਾਈਜ਼"
+
+#: ../data/conduit.glade.h:40
+msgid "Title"
+msgstr "ਟਾਈਟਲ"
+
+#: ../data/conduit.glade.h:41
+msgid "Two Way Sync"
+msgstr "ਦੋ ਪਾਸੀ ਸੈਕਰੋ"
+
+#: ../data/conduit.glade.h:42
+msgid "Use built in Web browser"
+msgstr "ਵਿੱਚੇ ਉਪਲੱਬਧ ਵੈੱਬ ਬਰਾਊਜ਼ਰ ਵਰਤੋਂ"
+
+#: ../data/conduit.glade.h:43
+msgid "When an item has been deleted:"
+msgstr "ਜਦੋਂ ਇੱਕ ਆਈਟਮ ਹਟਾਈ ਜਾਵੇ:"
+
+#: ../data/conduit.glade.h:44
+msgid "When an item is deleted..."
+msgstr "ਜਦੋਂ ਇੱਕ ਆਈਟਮ ਹਟਾਈ ਜਾਵੇ..."
+
+#: ../data/conduit.glade.h:45
+msgid "When there is a conflict..."
+msgstr "ਜਦੋਂ ਇੱਕ ਅਪਵਾਦ ਹੋਵੇ ਤਾਂ..."
+
+#: ../data/conduit.glade.h:46
+msgid "When there is a two way conflict:"
+msgstr "ਜਦੋਂ ਦੋ ਪਾਸੀ ਅਪਵਾਦ ਹੋਵੇ:"
+
+#: ../data/conduit.glade.h:47
+msgid "_Edit"
+msgstr "ਸੋਧ(_E)"
+
+#: ../data/conduit.glade.h:48
+msgid "_File"
+msgstr "ਫਾਇਲ(_F)"
+
+#: ../data/conduit.glade.h:49
+msgid "_Help"
+msgstr "ਮੱਦਦ(_H)"
+
+#: ../conduit/gtkui/Canvas.py:65
+msgid "Drag a Data Provider here to continue"
+msgstr "ਜਾਰੀ ਰੱਖਣ ਵਾਸਤੇ ਇੱਕ ਡਾਟਾ ਪਰੋਵਾਇਡਰ ਇੱਥੇ ਦਿਓ"
+
+#. Visible column0 is
+#. [pixbuf + source display name] or
+#. [source_data.get_snippet()]
+#: ../conduit/gtkui/ConflictResolver.py:82
+msgid "Source"
+msgstr "ਸਰੋਤ"
+
+#: ../conduit/gtkui/ConflictResolver.py:96
+msgid "Resolution"
+msgstr "ਹੱਲ਼"
+
+#. Visible column2 is the display name of source and source data
+#: ../conduit/gtkui/ConflictResolver.py:101
+msgid "Sink"
+msgstr "ਸਿੰਕ"
+
+#: ../conduit/gtkui/ConflictResolver.py:165
+#: ../conduit/gtkui/ConflictResolver.py:166
+#, python-format
+msgid "Conflicts (%s)"
+msgstr "ਅਪਵਾਦ (%s)"
+
+#. Build some liststores to display
+#: ../conduit/gtkui/UI.py:235
+msgid "Convert from"
+msgstr "ਇਸ ਤੋਂ ਬਦਲੋ"
+
+#: ../conduit/gtkui/UI.py:236
+msgid "into"
+msgstr "ਇਸ ਵਿੱਚ"
+
+#: ../conduit/gtkui/UI.py:291
+msgid "Conversions Available"
+msgstr "ਪਰਿਵਰਤਨ ਉਪਲੱਬਧ"
+
+#: ../conduit/gtkui/UI.py:297
+#: ../conduit/gtkui/Tree.py:349
+#: ../conduit/modules/FileModule/FileConfiguration.py:104
+msgid "Name"
+msgstr "ਨਾਂ"
+
+#: ../conduit/gtkui/UI.py:301
+msgid "Loaded"
+msgstr "ਲੋਡ ਕੀਤਾ"
+
+#: ../conduit/gtkui/UI.py:399
+#: ../conduit/hildonui/UI.py:127
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਜਾਰੀ ਹੈ। ਕੀ ਤੁਸੀਂ ਰੱਦ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?"
+
+#: ../conduit/gtkui/UI.py:556
+msgid "_Synchronize All"
+msgstr "ਸਭ ਸੈਕਰੋਨਾਈਜ਼(_S)"
+
+#: ../conduit/gtkui/UI.py:556
+msgid "Synchronizes All Groups"
+msgstr "ਸਭ ਗਰੁੱਪ ਸੈਕਰੋਨਾਈਜ਼"
+
+#: ../conduit/gtkui/UI.py:557
+msgid "_Cancel Synchronization"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਰੱਦ ਕਰੋ(_C)"
+
+#: ../conduit/gtkui/UI.py:557
+msgid "Cancels Currently Synchronizing Groups"
+msgstr "ਮੌਜੂਦਾ ਸੈਕਰੋਨਾਈਜ਼ਿੰਗ ਗਰੁੱਪ ਰੱਦ ਕਰੋ"
+
+#: ../conduit/gtkui/UI.py:558
+msgid "_Quit"
+msgstr "ਬੰਦ ਕਰੋ(_Q)"
+
+#: ../conduit/gtkui/UI.py:558
+msgid "Close Conduit"
+msgstr "ਕੰਡੁਟ ਬੰਦ ਕਰੋ"
+
+#: ../conduit/gtkui/UI.py:559
+msgid "_About"
+msgstr "ਇਸ ਬਾਰੇ(_A)"
+
+#: ../conduit/gtkui/UI.py:559
+msgid "About Conduit"
+msgstr "ਕੰਡੁਟ ਬਾਰੇ"
+
+#: ../conduit/gtkui/UI.py:599
+msgid "Synchronization Error"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਗਲਤੀ"
+
+#: ../conduit/gtkui/UI.py:602
+msgid "Synchronization Complete"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਪੂਰੀ ਹੋਈ"
+
+#: ../conduit/gtkui/UI.py:618
+msgid "Synchronizing"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ਿੰਗ"
+
+#: ../conduit/gtkui/Tree.py:358
+msgid "Description"
+msgstr "ਵੇਰਵਾ"
+
+#: ../conduit/dataproviders/DataProvider.py:19
+msgid "Ready"
+msgstr "ਤਿਆਰ"
+
+#: ../conduit/dataproviders/DataProvider.py:20
+msgid "New data to sync"
+msgstr "ਸੈਕਰੋ ਲਈ ਨਵਾਂ ਡਾਟਾ"
+
+#: ../conduit/dataproviders/DataProvider.py:21
+msgid "Refreshing..."
+msgstr "ਤਾਜ਼ਾ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ..."
+
+#: ../conduit/dataproviders/DataProvider.py:22
+msgid "Refreshed OK"
+msgstr "ਤਾਜ਼ਾ ਕੀਤਾ ਠੀਕ ਹੈ"
+
+#: ../conduit/dataproviders/DataProvider.py:23
+msgid "Error Refreshing"
+msgstr "ਤਾਜ਼ਾ ਕਰਨ ਗਲਤੀ"
+
+#: ../conduit/dataproviders/DataProvider.py:24
+msgid "Synchronizing..."
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ..."
+
+#: ../conduit/dataproviders/DataProvider.py:25
+msgid "Synchronized OK"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ ਠੀਕ ਹੈ"
+
+#: ../conduit/dataproviders/DataProvider.py:26
+msgid "Error Synchronizing"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ ਗਲਤੀ ਹੈ"
+
+#: ../conduit/dataproviders/DataProvider.py:27
+msgid "Synchronization Skipped"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਛੱਡੀ ਗਈ"
+
+#: ../conduit/dataproviders/DataProvider.py:28
+msgid "Synchronization Cancelled"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਰੱਦ ਕੀਤੀ ਗਈ ਹੈ"
+
+#: ../conduit/dataproviders/DataProvider.py:29
+msgid "Synchronization Conflict"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਅਪਵਾਦ"
+
+#: ../conduit/dataproviders/DataProvider.py:30
+msgid "Not Configured Correctly"
+msgstr "ਠੀਕ ਤਰ੍ਹਾਂ ਸੰਰਚਿਤ ਨਹੀਂ"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:55
+msgid "Backpack Notes"
+msgstr "ਬੈਕਪੈਕ ਨੋਟਿਸ"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:56
+msgid "Store things in Backpack Notes"
+msgstr "ਬੈਕਪੈਕ ਨੋਟਿਸ ਵਿੱਚ ਸਟੋਰ ਚੀਜ਼ਾਂ"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:1
+#: ../conduit/modules/FlickrModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
+#: ../conduit/modules/SmugMugModule/config.glade.h:1
+#: ../conduit/modules/ZotoModule/zoto.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>ਅਕਾਊਂਟ ਵੇਰਵਾ</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr "<b>ਸੰਭਾਲੀਆਂ ਨੋਟ ਸੈਟਿੰਗਾਂ</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:3
+msgid "API key:"
+msgstr "API ਕੀ:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:4
+msgid "Backpack"
+msgstr "ਬੈਕਪੈਕ"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:5
+msgid "Save notes in page:"
+msgstr "ਨੋਟਿਸ ਪੇਜ਼ ਵਿੱਚ ਸੰਭਾਲੋ:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:6
+#: ../conduit/modules/FlickrModule/config.glade.h:8
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:7
+#: ../conduit/modules/ZotoModule/zoto.glade.h:5
+msgid "Username:"
+msgstr "ਯੂਜ਼ਰ-ਨਾਂ:"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:30
+msgid "Banshee Playlists"
+msgstr "ਬਾਂਸ਼ੀ ਪਲੇਅਲਿਸਟ"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:31
+msgid "Sync your Banshee playlists"
+msgstr "ਆਪਣੀ ਬਾਂਸ਼ੀ ਪਲੇਅ-ਲਿਸਟ ਸੈਕਰੋ"
+
+#. column 1 is the tag name
+#: ../conduit/modules/BansheeModule/BansheeModule.py:137
+#: ../conduit/modules/FspotModule/FspotModule.py:245
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:129
+msgid "Tag Name"
+msgstr "ਟੈਗ ਨਾਂ"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:145
+#: ../conduit/modules/FspotModule/FspotModule.py:253
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:137
+msgid "Enabled"
+msgstr "ਯੋਗ ਕੀਤਾ"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:1
+msgid "<b>Return Playlists</b>"
+msgstr "<b>ਪਲੇਅਲਿਸਟ ਦਿਓ</b>"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:2
+msgid "Banshee"
+msgstr "ਬਾਂਸ਼ੀ"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr "Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
+msgid "Sync your Box.net files"
+msgstr "ਆਪਣਾ Box.net ਫਾਇਲਾਂ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
+msgid "Folder:"
+msgstr "ਫੋਲਡਰ:"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr "ਲੋਡ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:107
+#, python-format
+msgid "Select %s:"
+msgstr "%s ਚੁਣੋ:"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:146
+msgid "Evolution Contacts"
+msgstr "ਈਵੇਲੂਸ਼ਨ ਸੰਪਰਕ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+msgid "Sync your contacts"
+msgstr "ਆਪਣੇ ਸੰਪਰਕ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+msgid "Evolution Calendar"
+msgstr "ਈਵੇਲੂਸ਼ਨ ਕੈਲੰਡਰ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+msgid "Sync your calendar"
+msgstr "ਆਪਣਾ ਕੈਲੰਡਰ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+msgid "Evolution Tasks"
+msgstr "ਈਵੇਲੂਸ਼ਨ ਟਾਸਕ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+msgid "Sync your tasks"
+msgstr "ਆਪਣੇ ਟਾਸਕ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+msgid "Evolution Memos"
+msgstr "ਈਵੈਲੂਸ਼ਨ ਮੀਮੋ"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+msgid "Sync your memos"
+msgstr "ਆਪਣੇ ਮੀਮੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:1
+msgid "Addressbook:"
+msgstr "ਐਡਰੈੱਸ-ਬੁੱਕ:"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr "ਈਵੈਲੂਸ਼ਨ"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+msgid "Facebook"
+msgstr "ਫੇਸਬੁੱਕ"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+msgid "Sync your Facebook photos"
+msgstr "ਆਪਣੀਆਂ ਫੇਸ-ਬੁੱਕ ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:30
+#: ../conduit/modules/FeedModule/config.glade.h:9
+msgid "RSS Feed"
+msgstr "RSS ਫੀਡ"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:31
+msgid "Sync data from RSS enclosures"
+msgstr "RSS ਸਰੋਤ ਤੋਂ ਡਾਟਾ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr "<b>ਇੰਕਲੋਜ਼ਰ ਸੈਟਿੰਗ</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:2
+msgid "<b>Feed Details</b>"
+msgstr "<b>ਫੀਡ ਵੇਰਵਾ</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:3
+msgid "Download Audio Files"
+msgstr "ਆਡੀਓ ਫਾਇਲਾਂ ਡਾਊਨਲੋਡ ਕਰੋ"
+
+#: ../conduit/modules/FeedModule/config.glade.h:4
+msgid "Download Photos"
+msgstr "ਫੋਟੋ ਡਾਊਨਲੋਡ ਕਰੋ"
+
+#: ../conduit/modules/FeedModule/config.glade.h:5
+msgid "Download Video Files"
+msgstr "ਵੀਡਿਓ ਫਾਇਲਾਂ ਡਾਊਨਲੋਡ ਕਰੋ"
+
+#: ../conduit/modules/FeedModule/config.glade.h:6
+msgid "Feed Address:"
+msgstr "ਫੀਡ ਐਡਰੈੱਸ:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:7
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloaded to:"
+msgstr ""
+"ਡਾਊਨਲੋਡ ਕਰਨ ਲਈ ਇੰਕਲੋਜਰ\n"
+"ਦੀ ਗਿਣਤੀ ਸੀਮਿਤ ਕਰੋ:"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:98
+msgid "Icon"
+msgstr "ਆਈਕਾਨ"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:110
+msgid "Items"
+msgstr "ਆਈਟਮਾਂ"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:136
+#, python-format
+msgid "<i>Contains %s files</i>"
+msgstr "<i>%s ਫਾਇਲਾਂ ਹਨ</i>"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:226
+msgid "Include file..."
+msgstr "ਫਾਇਲ ਸ਼ਾਮਲ ਹੈ..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:236
+msgid "All files"
+msgstr "ਸਭ ਫਾਇਲਾਂ"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:251
+msgid "Include folder..."
+msgstr "ਫੋਲਡਰ ਸ਼ਾਮਲ..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:296
+msgid "Please Name All Folders"
+msgstr "ਸਭ ਫੋਲਡਰਾਂ ਦਾ ਨਾਂ ਦਿਓ ਜੀ"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:297
+msgid "All folders require a descriptive name. To name a folder simply click on it"
+msgstr "ਸਭ ਫੋਲਡਰਂ ਲਈ ਸੰਖੇਪ ਵੇਰਵਾ ਚਾਹੀਦਾ ਹੈ। ਇੱਕ ਫੋਲਡਰ ਨੂੰ ਨਾਂ ਦੇਣ ਵਾਸਤੇ ਇਸ ਉੱਤੇ ਕੇਵਲ ਕਲਿੱਕ ਕਰੋ"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:341
+msgid "Please Enter a Folder Name"
+msgstr "ਫੋਲਡਰ ਨਾਂ ਦਿਓ ਜੀ"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:342
+msgid "All folders require a descriptive name. To name a folder enter its name where indicated"
+msgstr "ਸਭ ਫੋਲਡਰਾਂ ਲਈ ਇੱਕ ਸੰਖੇਪ ਨਾਂ ਚਾਹੀਦਾ ਹੈ। ਇੱਕ ਫੋਲਡਰ ਨੂੰ ਨਾਂ ਦੇਣ ਵਾਸਤੇ, ਜਿੱਥੇ ਵੇਖਾਇਆ ਗਿਆ ਹੈ, ਉੱਥੇ ਨਾਂ ਦਿਓ"
+
+#: ../conduit/modules/FileModule/FileModule.py:23
+msgid "Files"
+msgstr "ਫਾਇਲਾਂ"
+
+#: ../conduit/modules/FileModule/FileModule.py:24
+msgid "Source for synchronizing multiple files"
+msgstr "ਕਈ ਫਾਇਲਾਂ ਸੈਕਰੋਨਾਈਜ਼ ਕਰਨ ਲਈ ਸਰੋਤ"
+
+#: ../conduit/modules/FileModule/FileModule.py:62
+msgid "Folder"
+msgstr "ਫੋਲਡਰ"
+
+#: ../conduit/modules/FileModule/FileModule.py:63
+msgid "Synchronize folders"
+msgstr "ਸੈਕਰੋਨਾਈਜ਼ ਫੋਲਡਰ"
+
+#: ../conduit/modules/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr "<b>ਸੈਕਰੋਨਾਈਜ਼ ਕਰਨ ਲਈ ਆਈਟਮਾਂ</b>"
+
+#: ../conduit/modules/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr "ਡਾਇਰੈਕਟਰੀ ਸ਼ਾਮਲ"
+
+#: ../conduit/modules/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr "ਫਾਇਲ ਸ਼ਾਮਲ"
+
+#: ../conduit/modules/FileModule/config.glade.h:4
+msgid "Advanced"
+msgstr "ਤਕਨੀਕੀ"
+
+#: ../conduit/modules/FileModule/config.glade.h:5
+msgid "File Configuration"
+msgstr "ਫਾਇਲ ਸੰਰਚਨਾ"
+
+#: ../conduit/modules/FileModule/config.glade.h:6
+msgid "Folder Configuration"
+msgstr "ਫੋਲਡਰ ਸੰਰਚਨਾ"
+
+#: ../conduit/modules/FileModule/config.glade.h:7
+msgid "Folder Location:"
+msgstr "ਫੋਲਡਰ ਟਿਕਾਣਾ:"
+
+#: ../conduit/modules/FileModule/config.glade.h:8
+msgid "Folder Name:"
+msgstr "ਫੋਲਡਰ ਨਾਂ:"
+
+#: ../conduit/modules/FileModule/config.glade.h:9
+msgid "Follow Symbolic Links"
+msgstr "ਸਿਬੋਲਿਕ ਲਿੰਕ ਲਵੋ"
+
+#: ../conduit/modules/FileModule/config.glade.h:10
+msgid "Ignore File Modification Times"
+msgstr "ਫਾਇਲ ਸੋਧਣ ਟਾਈਮ ਅਣਡਿੱਠਾ"
+
+#: ../conduit/modules/FileModule/config.glade.h:11
+msgid "Include Hidden Files"
+msgstr "ਲੁਕਵੀਆਂ ਫਾਇਲਾਂ ਸਮੇਤ"
+
+#: ../conduit/modules/FileModule/config.glade.h:12
+msgid "Select A Folder"
+msgstr "ਇੱਕ ਫੋਲਡਰ ਚੁਣੋ"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:76
+#: ../conduit/modules/FlickrModule/config.glade.h:3
+msgid "Flickr"
+msgstr "ਫਲਿੱਕਰ"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:77
+msgid "Sync your Flickr.com photos"
+msgstr "ਆਪਣੀਆਂ flickr.com ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:2
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+#: ../conduit/modules/ZotoModule/zoto.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr "<b>ਫੋਟੋ ਸੈਟਿੰਗ ਸੰਭਾਲੋ</b>"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:5
+msgid "Photos are public"
+msgstr "ਫੋਟੋ ਪਬਲਿਕ ਹਨ"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:6
+msgid "Photoset Name:"
+msgstr "ਫੋਟੋ-ਸੈੱਟ ਨਾਂ:"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:7
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr "ਫੋਟੋ ਮੁੜ-ਸਾਈਜ਼:"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:25
+#: ../conduit/modules/FspotModule/config.glade.h:3
+msgid "F-Spot"
+msgstr "F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:26
+msgid "Sync your F-Spot photos"
+msgstr "ਆਪਣੀਆਂ F-Spot ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:126
+msgid "F-Spot DBus interface is operating in read only mode"
+msgstr "F-Spot ਡੀਬੱਸ ਇੰਟਰਫੇਸ ਕੇਵਲ ਪੜ੍ਹਨ ਮੋਡ 'ਚ ਹੀ ਚਲਾਇਆ ਜਾ ਰਿਹਾ ਹੈ"
+
+#: ../conduit/modules/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr "<b>ਫੋਟੋ ਟੈਗ ਦਿਓ</b>"
+
+#: ../conduit/modules/FspotModule/config.glade.h:2
+msgid "Create Tags: "
+msgstr "ਟੈਗ ਬਣਾਓ:"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:21
+msgid "GConf Settings"
+msgstr "GConf ਸੈਟਿੰਗ"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:22
+msgid "Sync your desktop preferences"
+msgstr "ਆਪਣੀ ਡੈਸਕਟਾਪ ਪਸੰਦ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:367
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
+msgid "Google Calendar"
+msgstr "ਗੂਗਲ ਕੈਲੰਡਰ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:368
+msgid "Sync your Google Calendar"
+msgstr "ਆਪਣਾ ਗੂਗਲ ਕੈਲੰਡਰ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:553
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
+msgid "Picasa"
+msgstr "ਪਿਕਾਸਾ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:554
+msgid "Sync your Google Picasa photos"
+msgstr "ਆਪਣੀਆਂ ਗੂਗਲ ਪਿਕਾਸਾ ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:771
+msgid "Google Contacts"
+msgstr "ਗੂਗਲ ਸੰਪਰਕ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:772
+msgid "Sync your Gmail contacts"
+msgstr "ਆਪਣੀ ਜੀਮੇਲ ਸੰਪਰਕ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1024
+msgid "Google Documents"
+msgstr "ਗੂਗਲ ਡੌਕੂਮੈਂਟ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1025
+msgid "Sync your Google Documents"
+msgstr "ਆਪਣੇ ਗੂਗਲ ਡੌਕੂਮੈਂਟ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1240
+msgid "YouTube"
+msgstr "ਯੂ-ਟਿਊਬ"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1241
+msgid "Sync data from YouTube"
+msgstr "ਯੂ-ਟਿਊਬ ਤੋਂ ਡਾਟਾ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
+msgid "Calendar:"
+msgstr "ਕੈਲੰਡਰ:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+msgid "Email:"
+msgstr "ਈਮੇਲ:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
+msgid "Load Calendars"
+msgstr "ਕੈਲੰਡਰ ਲੋਡ ਕਰੋ"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+#: ../conduit/modules/ZotoModule/zoto.glade.h:4
+msgid "Password:"
+msgstr "ਪਾਸਵਰਡਸ"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/iPodModule/config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+#: ../conduit/modules/ZotoModule/zoto.glade.h:3
+msgid "Album:"
+msgstr "ਐਲਬਮ:"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
+msgid "Login"
+msgstr "ਲਾਗਇਨ"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
+msgid "<b>Donwload Videos</b>"
+msgstr "<b>ਵੀਡਿਓ ਡਾਊਨਲੋਡ ਕਰੋ</b>"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "By user"
+msgstr "ਯੂਜ਼ਰ ਵਲੋਂ"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
+msgid "Favorites of"
+msgstr "ਪਸੰਦ"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr "ਵੱਧੋ-ਵੱਧ ਲਈ ਵੀਡਿਓ (ਬੇਅੰਤ ਲਈ 0):"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
+msgid "Most viewed"
+msgstr "ਅਕਸਰ ਖੋਲ੍ਹੀਆਂ"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+msgid "Top rated"
+msgstr "ਟੌਪ ਰੇਟ"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
+msgid "Uploaded by"
+msgstr "ਅੱਪਲੋਡ ਕੀਤੀਆਂ"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
+msgid "User: "
+msgstr "ਯੂਜ਼ਰ:"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+msgid "YouTube Source"
+msgstr "ਯੂ-ਟਿਊਬ ਸਰੋਤ"
+
+#: ../conduit/modules/iPodModule/config.glade.h:2
+msgid "iPod Photos"
+msgstr "iPod ਫੋਟੋ"
+
+#. Translators: Format string used to describe the acceptable formats the
+#. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
+#. arg is a comma seperated list of encodings
+#: ../conduit/modules/N800Module/N800Module.py:58
+#, python-format
+msgid "%s Format (%s)"
+msgstr "%s ਫਾਰਮੈਟ (%s)"
+
+#. Signifies that a conversion should not take place
+#: ../conduit/modules/N800Module/N800Module.py:60
+msgid "unchanged"
+msgstr "ਅਣ-ਬਦਲੀਆਂ"
+
+#: ../conduit/modules/N800Module/N800Module.py:119
+msgid "N800 Files"
+msgstr "N800 ਫਾਇਲਾਂ"
+
+#: ../conduit/modules/N800Module/N800Module.py:120
+msgid "Synchronizes files/folders to a N800 device"
+msgstr "N800 ਜੰਤਰ ਨਾਲ ਫਾਇਲਾਂ/ਫੋਲਡਰ ਸੈਕਰੋ ਕਰੋ"
+
+#. To translators: default backup folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:125
+msgid "Backups"
+msgstr "ਬੈਕਅੱਪ"
+
+#: ../conduit/modules/N800Module/N800Module.py:140
+msgid "N800 Music"
+msgstr "N800 ਸੰਗੀਤ"
+
+#: ../conduit/modules/N800Module/N800Module.py:141
+msgid "Synchronizes music to a N800 device"
+msgstr "ਇੱਕ N800 ਜੰਤਰ ਨਾਲ ਸੰਗੀਤ ਸੈਕਰੋਨਾਈਜ਼ ਕਰੋ"
+
+#. To translators: defaul music folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:147
+msgid "Music"
+msgstr "ਸੰਗੀਤ"
+
+#: ../conduit/modules/N800Module/N800Module.py:164
+msgid "N800 Videos"
+msgstr "N800 ਵੀਡਿਓ"
+
+#: ../conduit/modules/N800Module/N800Module.py:165
+#: ../conduit/modules/N800Module/N800Module.py:189
+msgid "Synchronizes video to a N800 device"
+msgstr "N800 ਜੰਤਰ ਨਾਲ ਵੀਡਿਓ ਸੈਕਰੋਨਾਈਜ਼ ਕਰੋ"
+
+#. To translators: defaul video folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:171
+msgid "Video"
+msgstr "ਵੀਡਿਓ"
+
+#: ../conduit/modules/N800Module/N800Module.py:188
+msgid "N800 Photos"
+msgstr "N800 ਫੋਟੋ"
+
+#. To translators: default photos folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:195
+msgid "Photo"
+msgstr "ਫੋਟੋ"
+
+#: ../conduit/modules/NetworkModule/Server.py:147
+msgid "Network"
+msgstr "ਨੈੱਟਵਰਕ"
+
+#: ../conduit/modules/NetworkModule/Server.py:148
+msgid "Enable synchronization via network"
+msgstr "ਨੈੱਟਵਰਕ ਰਾਹੀਂ ਸੈਕਰੋਨਾਈਜ਼ੇਸ਼ਨ ਯੋਗ"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
+msgid "Rhythmbox Music"
+msgstr "ਰੀਥਮਬਾਕਸ ਸੰਗੀਤ"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
+msgid "Sync songs from your Rhythmbox playlists"
+msgstr "ਆਪਣੀ ਰੀਥਮਬਾਕਸ ਪਲੇਅਲਿਸਟ ਤੋਂ ਗਾਣੇ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+msgid "Unknown"
+msgstr "ਅਣਜਾਣ"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:1
+msgid "<b>Synchronize the Following Playlists</b>"
+msgstr "<b>ਅੱਗੇ ਦਿੱਤੇ ਪਲੇਅਲਿਸਟ ਸੈਕਰੋਨਾਈਜ਼ ਕਰੋ</b>"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:2
+msgid "Rhythmbox Playlists"
+msgstr "ਰੀਥਮਬਾਕਸ ਪਲੇਅਲਿਸਟ"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr "ਸ਼ਟਰਫਲਾਈ"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
+msgid "Sync your Shutterfly photos"
+msgstr "ਆਪਣੀਆਂ ਸ਼ਟਰਫਲਾਈ ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr "%d-%m-%Y %H:%M:%S"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr "SmugMug"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Sync your SmugMug.com photos"
+msgstr "ਆਪਣੀ SmugMug.com ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:121
+#: ../conduit/modules/ZotoModule/zoto.glade.h:6
+msgid "Zoto"
+msgstr "ਜੂਟੂ"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:122
+msgid "Sync your Zoto photos"
+msgstr "ਆਪਣੀਆਂ ਜੂਟੂ ਫੋਟੋ ਸੈਕਰੋ ਕਰੋ"
+
