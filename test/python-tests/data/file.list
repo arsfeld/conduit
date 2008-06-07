@@ -8,10 +8,14 @@
 [DEFAULT]
 file1=http://tests.conduit-project.org/index.html
 file2=http://files.conduit-project.org/screenshot.jpg
+remote=http://www.google.com/intl/en_com/images/logo_plain.png
 
 [john@nzjrs-desktop]
 local=/home/john/eBooks/Wiley Global Positioning Systems Inertial Navigation and Integration (2nd Edition).pdf
 ssh=ssh://root@greenbirdsystems.com/var/www/conduit-project.org/files/screenshot.jpg
 ftp=ftp://anonymous@192.168.1.1/Status/index.htm
+doc=/home/john/testing/test-data/test.doc
+xls=/home/john/testing/test-data/test.xls
+ppt=/home/john/testing/test-data/test.ppt
 
 

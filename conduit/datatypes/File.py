@@ -45,6 +45,9 @@ class File(DataType.DataType):
         self.triedOpen = False
         self._newFilename = None
         self._newMtime = None
+
+        self._isProxyFile = False
+        self._proxyFileSize = None
         
     def _open_file(self):
         if self.triedOpen == False:
@@ -129,6 +132,9 @@ class File(DataType.DataType):
             return True
         else:
             return False
+            
+    def _is_proxyfile(self):
+        return self._isProxyFile
 
     def _set_file_mtime(self, mtime):
         timestamp = conduit.utils.datetime_get_timestamp(mtime)
@@ -172,6 +178,8 @@ class File(DataType.DataType):
         self.triedOpen = f.triedOpen
         self._newFilename = f._newFilename
         self._newMtime = f._newMtime
+        self._isProxyFile = f._isProxyFile
+        self._proxyFileSize = f._proxyFileSize
 
     def to_tempfile(self):
         """
@@ -215,7 +223,7 @@ class File(DataType.DataType):
         """
         Renames the file
         """
-        if self._is_tempfile():
+        if self._is_tempfile() or self._is_proxyfile():
             self._defer_rename(filename)
         else:
             try:
@@ -246,7 +254,7 @@ class File(DataType.DataType):
         """
         Changes the mtime of the file
         """
-        if self._is_tempfile():
+        if self._is_tempfile() or self._is_proxyfile():
             self._defer_new_mtime(mtime)
         else:
             try:
@@ -315,6 +323,10 @@ class File(DataType.DataType):
         #close the file and the handle so that the file info is refreshed
         self.URI = newURI
         self._close_file()
+        
+        #if we have been transferred anywhere (i.e. the destination, our
+        #location, is writable) then we are no longer a proxy file
+        self._isProxyFile = False
 
         #apply any pending renames
         if self._is_deferred_rename():
@@ -367,11 +379,14 @@ class File(DataType.DataType):
         """
         Gets the file size
         """
-        self._get_file_info()
-        try:
-            return self.fileInfo.size
-        except:
-            return None
+        if self._is_proxyfile():
+            return self._proxyFileSize
+        else:
+            self._get_file_info()
+            try:
+                return self.fileInfo.size
+            except:
+                return None
 
     def get_hash(self):
         #FIXME: self.get_size() does not seem reliable
@@ -516,9 +531,7 @@ class File(DataType.DataType):
 
 class TempFile(File):
     """
-    A Small extension to a File. This makes new filenames (force_new_filename)
-    to be processed in the transfer method, and not immediately, which may
-    cause name conflicts in the temp directory. 
+    Creates a file in the system temp directory with the given contents.
     """
     def __init__(self, contents=""):
         #create the file containing contents
@@ -527,4 +540,23 @@ class TempFile(File):
         os.close(fd)
         File.__init__(self, name)
         log.debug("New tempfile created at %s" % name)
+        
+class ProxyFile(File):
+    """
+    Pretends to be a file for the sake of comparison and transer. Typically
+    located on a remote, read only resource, such as http://. Once transferred
+    to the local filesystem, it behaves just like a file.
+    """
+    def __init__(self, URI, name, modified, size, **kwargs):
+        File.__init__(self, URI, **kwargs)
+
+        self._isProxyFile = True
+        self._proxyFileSize = size
+        
+        if modified:
+            self.force_new_mtime(modified)
+        if name:
+            self.force_new_filename(name)
+
+            
 

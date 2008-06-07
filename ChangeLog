@@ -1,5 +1,15 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/File.py:
+	* test/python-tests/TestCoreFile2.py:
+	* test/python-tests/data/file.list: Add a ProxyFile class. This takes
+	a remote uri, a mtime, and a size as its args. It can then be compared
+	against a local file, and will not becore a *true* local file, until
+	it is transferred to a writable filesystem.
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/iPodModule/__init__.py:
 	* test/python-tests/TestDataProvideriPod.py: Fix ipod test.
 
 2008-06-05  John Stowers  <john.stowers@gmail.com>

@@ -58,4 +58,43 @@ local.transfer(tmpdir)
 ok("Transferred R/O file correctly (%s)" % fNewName, f.get_filename() == fNewName)
 ok("Transferred correctly (%s)" % localNewName, local.get_filename() == localNewName)
 
+#play with proxy files, i.e. files that are like remote files, but stop being such
+#when transferred to the local system
+day0 = datetime.datetime(1983,8,16)
+day1 = datetime.datetime(1983,8,17)
+
+#compare two proxy files based on mtime only
+f = File.ProxyFile(
+            URI=get_external_resources("file")["remote"],
+            name=None,
+            modified=day0,
+            size=None)
+f2 = File.ProxyFile(
+            URI=get_external_resources("file")["remote"],
+            name=None,
+            modified=day1,
+            size=None)
+comp = f.compare(f2)
+ok("Proxy file comparison (mtime): %s" % comp,comp == conduit.datatypes.COMPARISON_OLDER)
+
+#compare two proxy files based on size only
+proxyFileName = Utils.random_string()
+f = File.ProxyFile(
+            URI=get_external_resources("file")["remote"],
+            name=None,
+            modified=day0,
+            size=10)
+f2 = File.ProxyFile(
+            URI=get_external_resources("file")["remote"],
+            name=proxyFileName,
+            modified=day0,
+            size=10)
+comp = f.compare(f2)
+ok("Proxy file comparison (size): %s" % comp,comp == conduit.datatypes.COMPARISON_EQUAL)
+
+f2.transfer(tmpdir)
+ok("Transferred ProxyFile correctly (%s)" % proxyFileName, f2.get_filename() == proxyFileName)
+
+ok("ProxyFile graduated to real file", f2._is_proxyfile() == False)
+            
 finished()
