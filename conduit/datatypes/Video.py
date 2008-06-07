@@ -29,6 +29,8 @@ class Video(File.File):
 
     def __init__(self, URI, **kwargs):
         File.File.__init__(self, URI, **kwargs)
+        self._title = None
+        self._description = None
 
     def get_video_duration(self):
         return None
@@ -36,4 +38,22 @@ class Video(File.File):
     def get_video_size(self):
         return None,None
 
+    def get_description(self):
+        """
+        @returns: the video's description
+        """
+        return self._description
+
+    def set_description(self, description):
+        self._description = description
+        
+    def __getstate__(self):
+        data = File.File.__getstate__(self)
+        data["description"] = self._description
+        return data
+
+    def __setstate__(self, data):
+        self.pb = None
+        self._description = data["description"]
+        File.File.__setstate__(self, data)
 

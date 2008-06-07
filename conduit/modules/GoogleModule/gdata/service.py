@@ -114,6 +114,8 @@ class RequestError(Error):
 class UnexpectedReturnType(Error):
   pass
 
+class BadAuthenticationServiceURL(Error):
+  pass
 
 class GDataService(atom.service.AtomService):
   """Contains elements needed for GData login and CRUD request headers.
@@ -123,7 +125,7 @@ class GDataService(atom.service.AtomService):
   """
 
   def __init__(self, email=None, password=None, account_type='HOSTED_OR_GOOGLE',
-               service=None, source=None, server=None, 
+               service=None, auth_service_url=None, source=None, server=None, 
                additional_headers=None, handler=None):
     """Creates an object of type GDataService.
 
@@ -138,6 +140,8 @@ class GDataService(atom.service.AtomService):
           GOOGLE account. Default value: 'HOSTED_OR_GOOGLE'.
       service: string (optional) The desired service for which credentials
           will be obtained.
+      auth_service_url: string (optional) User-defined auth token request URL
+          allows users to explicitly specify where to send auth token requests.
       source: string (optional) The name of the user's application.
       server: string (optional) The name of the server to which a connection
           will be opened. Default value: 'base.google.com'.
@@ -152,6 +156,7 @@ class GDataService(atom.service.AtomService):
     self.password = password
     self.account_type = account_type
     self.service = service
+    self.auth_service_url = auth_service_url
     self.server = server
     self.additional_headers = additional_headers or {}
     self.handler = handler or http_request_handler
@@ -233,6 +238,17 @@ class GDataService(atom.service.AtomService):
       doc="""Get the captcha URL for a login request.""")
 
   def GetAuthSubToken(self):
+    """Returns the AuthSub Token after removing the AuthSub Authorization
+    Label.
+     
+    The AuthSub Authorization Label reads: "AuthSub token"
+
+    Returns:
+      If the AuthSub Token is set AND it begins with the AuthSub 
+      Authorization Label, the AuthSub Token is returned minus the AuthSub
+      Label. If the AuthSub Token does not start with the AuthSub
+      Authorization Label or it is not set, None is returned.
+    """
     if self.__auth_token.startswith(AUTHSUB_AUTH_LABEL):
       # Strip off the leading 'AUTHSUB_AUTH_LABEL=' and just return the
       # token value.
@@ -261,7 +277,8 @@ class GDataService(atom.service.AtomService):
   def __SetSource(self, new_source):
     self.__source = new_source
     # Update the UserAgent header to include the new application name.
-    self.additional_headers['User-Agent'] = '%s GData-Python/1.0.12.1' % self.__source
+    self.additional_headers['User-Agent'] = '%s GData-Python/1.0.13' % (
+        self.__source)
 
   source = property(__GetSource, __SetSource, 
       doc="""The source is the name of the application making the request. 
@@ -295,8 +312,15 @@ class GDataService(atom.service.AtomService):
         self.password, self.service, self.source, self.account_type, 
         captcha_token, captcha_response)
 
+    # If the user has defined their own authentication service URL, 
+    # send the ClientLogin requests to this URL:
+    if not self.auth_service_url:
+        auth_request_url = AUTH_SERVER_HOST + '/accounts/ClientLogin' 
+    else:
+        auth_request_url = self.auth_service_url
+
     auth_response = self.handler.HttpRequest(self, 'POST', request_body, 
-        AUTH_SERVER_HOST + '/accounts/ClientLogin', 
+        auth_request_url,
         extra_headers={'Content-Length':str(len(request_body))},
         content_type='application/x-www-form-urlencoded')
     response_body = auth_response.read()
@@ -311,7 +335,7 @@ class GDataService(atom.service.AtomService):
       # Examine each line to find the error type and the captcha token and
       # captch URL if they are present.
       captcha_parameters = gdata.auth.GetCaptchChallenge(response_body, 
-          captcha_base_url='%saccounts/' % AUTH_SERVER_HOST)
+          captcha_base_url='%s/accounts/' % AUTH_SERVER_HOST)
       if captcha_parameters:
         self.__captcha_token = captcha_parameters['token']
         self.__captcha_url = captcha_parameters['url']
@@ -324,9 +348,16 @@ class GDataService(atom.service.AtomService):
         self.__captcha_token = None
         self.__captcha_url = None
         raise Error, 'Server responded with a 403 code'
+    elif auth_response.status == 302:
+      self.__captcha_token = None
+      self.__captcha_url = None
+      # Google tries to redirect all bad URLs back to 
+      # http://www.google.<locale>. If a redirect
+      # attempt is made, assume the user has supplied an incorrect authentication URL
+      raise BadAuthenticationServiceURL, 'Server responded with a 302 code.'
 
   def ClientLogin(self, username, password, account_type=None, service=None,
-      source=None, captcha_token=None, captcha_response=None):
+      auth_service_url=None, source=None, captcha_token=None, captcha_response=None):
     """Convenience method for authenticating using ProgrammaticLogin. 
     
     Sets values for email, password, and other optional members.
@@ -336,6 +367,7 @@ class GDataService(atom.service.AtomService):
       password:
       account_type: string (optional)
       service: string (optional)
+      auth_service_url: string (optional)
       captcha_token: string (optional)
       captcha_response: string (optional)
     """
@@ -348,6 +380,8 @@ class GDataService(atom.service.AtomService):
       self.service = service
     if source:
       self.source = source
+    if auth_service_url:
+      self.auth_service_url = auth_service_url
 
     self.ProgrammaticLogin(captcha_token, captcha_response)
 
@@ -522,7 +556,8 @@ class GDataService(atom.service.AtomService):
     """
     response_handle = self.handler.HttpRequest(self, 'GET', None, uri, 
         extra_headers=extra_headers)
-    return gdata.MediaSource(response_handle, response_handle.getheader('Content-Type'),
+    return gdata.MediaSource(response_handle, response_handle.getheader(
+            'Content-Type'),
         response_handle.getheader('Content-Length'))
 
   def GetEntry(self, uri, extra_headers=None):
@@ -908,7 +943,7 @@ class Query(dict):
     """
     
     self.feed = feed
-    self.categories = categories or []
+    self.categories = []
     if text_query:
       self.text_query = text_query
     if isinstance(params, dict):

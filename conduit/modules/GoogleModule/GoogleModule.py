@@ -33,11 +33,12 @@ try:
     import gdata.calendar.service
     import gdata.contacts.service
     import gdata.docs.service
+    import gdata.youtube.service
 
     MODULES = {
         "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
-        "YouTubeSource" :        { "type": "dataprovider" },    
+        "YouTubeTwoWay" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
         "DocumentsSink" :        { "type": "dataprovider" },
     }
@@ -1287,7 +1288,30 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
             self._set_password(password.get_text())
         dlg.destroy()   
 
-class YouTubeSource(DataProvider.DataSource):
+class VideoUploadInfo:
+    """
+    Upload information container, this way we can add info
+    and keep the _upload_info method on the VideoSink retain
+    its API
+    
+    Default category for videos is People/Blogs (for lack of a better
+    general category).
+    
+    Default name and description are placeholders, or the generated XML is invalid
+    as the corresponding elements automatically self-close.
+    
+    Default keyword is "miscellaneous" as the upload fails if no keywords
+    are specified.
+    """
+    def __init__ (self, url, mimeType, name=None, keywords=None, description=None, category=None):
+        self.url = url
+        self.mimeType = mimeType
+        self.name = name or _("Unknown")
+        self.keywords = keywords or (_("miscellaneous"),)
+        self.description = description or _("No description.")
+        self.category = category or "People" # Note: don't translate this; it's an identifier
+
+class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
     """
     Downloads YouTube videos using the gdata API.
     Based on youtube client from : Philippe Normand (phil at base-art dot net)
@@ -1296,7 +1320,8 @@ class YouTubeSource(DataProvider.DataSource):
     _name_ = _("YouTube")
     _description_ = _("Sync data from YouTube")
     _category_ = conduit.dataproviders.CATEGORY_MISC
-    _module_type_ = "source"
+    _module_type_ = "twoway"
+    _in_type_ = "file/video"
     _out_type_ = "file/video"
     _icon_ = "youtube"
 
@@ -1310,49 +1335,44 @@ class YouTubeSource(DataProvider.DataSource):
     UPLOAD_URL="http://uploads.gdata.youtube.com/feeds/api/users/%(username)s/uploads"
 
     def __init__(self, *args):
-        DataProvider.DataSource.__init__(self)
-        self.entries = None
-        self.username = ""
-        self.max_downloads = 0
-        #filter type {0 = mostviewed, 1 = toprated, 2 = user}
-        self.filter_type = 0
-        #filter user type {0 = upload, 1 = favorites}
-        self.user_filter_type = 0
+        youtube_service = gdata.youtube.service.YouTubeService()
+        youtube_service.client_id = self.UPLOAD_CLIENT_ID
+        youtube_service.developer_key = self.UPLOAD_DEVELOPER_KEY
 
-    def initialize(self):
-        return True
+        _GoogleBase.__init__(self,youtube_service)
+        DataProvider.TwoWay.__init__(self)
+
+        self.entries = None
+        self.max_downloads = 0
+        #filter type {0 = mostviewed, 1 = toprated, 2 = user upload, 3 = user favorites}
+        self.filter_type = 0
 
     def configure(self, window):
         tree = Utils.dataprovider_glade_get_widget (
                 __file__,
                 "youtube-config.glade",
-                "YouTubeSourceConfigDialog") 
+                "YouTubeTwoWayConfigDialog") 
 
-        dlg = tree.get_widget ("YouTubeSourceConfigDialog")
+        dlg = tree.get_widget ("YouTubeTwoWayConfigDialog")
         mostviewedRb = tree.get_widget("mostviewed")
         topratedRb = tree.get_widget("toprated")
-        byuserRb = tree.get_widget("byuser")
-        user_frame = tree.get_widget("frame")
         uploadedbyRb = tree.get_widget("uploadedby")
         favoritesofRb = tree.get_widget("favoritesof")
-        user = tree.get_widget("user")
-        maxdownloads = tree.get_widget("maxdownloads")
-
-        byuserRb.connect("toggled", self._filter_user_toggled_cb, user_frame)
+        max_downloads = tree.get_widget("maxdownloads")
+        username = tree.get_widget("username")
+        password = tree.get_widget("password")
 
         if self.filter_type == 0:
             mostviewedRb.set_active(True)
         elif self.filter_type == 1:
             topratedRb.set_active(True)
+        elif self.filter_type == 2:
+            uploadedbyRb.set_active(True)
         else:
-            byuserRb.set_active(True)
-            user_frame.set_sensitive(True)
-            if self.user_filter_type == 0:
-                uploadedbyRb.set_active(True)
-            else:
-                favoritesofRb.set_active(True)
-            user.set_text(self.username)
-        maxdownloads.set_value(self.max_downloads)
+            favoritesofRb.set_active(True)
+        max_downloads.set_value(self.max_downloads)
+        username.set_text(self.username)
+        password.set_text(self.password)
 
         response = Utils.run_dialog(dlg, window)
         if response == True:
@@ -1360,32 +1380,58 @@ class YouTubeSource(DataProvider.DataSource):
                 self.filter_type = 0
             elif topratedRb.get_active():
                 self.filter_type = 1
-            else:
+            elif uploadedbyRb.get_active():
                 self.filter_type = 2
-                if uploadedbyRb.get_active():
-                    self.user_filter_type = 0
-                else:
-                    self.user_filter_type = 1
-                self.username = user.get_text()
-            self.max_downloads = int(maxdownloads.get_value())
+            else:
+                self.filter_type = 3
+            self.max_downloads = int(max_downloads.get_value())
+            self.username = username.get_text()
+            self.password = password.get_text()
 
         dlg.destroy()
 
+    def _get_video_info (self, id):
+        if self.entries.has_key(id):
+            return self.entries[id]
+        else:
+            return None
+
+    def _do_login(self):
+        # The YouTube login URL is slightly different to the normal Google one
+        self.service.ClientLogin(self.username, self.password, auth_service_url="https://www.google.com/youtube/accounts/ClientLogin")
+
+    def _upload_video (self, uploadInfo):
+        try:
+            self.gvideo = gdata.youtube.YouTubeVideoEntry()
+            self.gvideo.media = gdata.media.Group(
+                                title = gdata.media.Title(text=uploadInfo.name),
+                                description = gdata.media.Description(text=uploadInfo.description),
+                                category = gdata.media.Category(text=uploadInfo.category),
+                                keywords = gdata.media.Keywords(text=','.join(uploadInfo.keywords)))
+
+            gvideo = self.service.InsertVideoEntry(
+                                self.gvideo,
+                                uploadInfo.url)
+            return Rid(uid=gvideo.id.text)
+        except Exception, e:
+            raise Exceptions.SyncronizeError("YouTube Upload Error.")
+
+    def _replace_video (self, uploadInfo):
+        raise Exceptions.NotSupportedError("FIXME: Not supported yet")
+
     def refresh(self):
-        DataProvider.DataSource.refresh(self)
+        DataProvider.TwoWay.refresh(self)
 
         self.entries = {}
         try:
-            feedUrl = ""
             if self.filter_type == 0:
                 videos = self._most_viewed ()
             elif self.filter_type == 1:
                 videos = self._top_rated ()
+            elif self.filter_type == 2:
+                videos = self._videos_upload_by (self.username)
             else:
-                if self.user_filter_type == 0:
-                    videos = self._videos_upload_by (self.username)
-                else:
-                    videos = self._favorite_videos (self.username)
+                videos = self._favorite_videos (self.username)
 
             for video in videos:
                 self.entries[video.title.text] = self._get_flv_video_url (video.link[0].href)
@@ -1397,7 +1443,7 @@ class YouTubeSource(DataProvider.DataSource):
         return self.entries.keys()
 
     def get(self, LUID):
-        DataProvider.DataSource.get(self, LUID)
+        DataProvider.TwoWay.get(self, LUID)
         url = self.entries[LUID]
         log.debug("Title: '%s', Url: '%s'"%(LUID, url))
 
@@ -1408,23 +1454,67 @@ class YouTubeSource(DataProvider.DataSource):
 
         return f
 
+    def put(self, video, overwrite, LUID=None):
+        """
+        Based off the ImageTwoWay put method.
+        Accepts a VFS file. Must be made local.
+        I also store a MD5 of the video's URI to check for duplicates
+        """
+        DataProvider.TwoWay.put(self, video, overwrite, LUID)
+
+        self._login()
+
+        originalName = video.get_filename()
+        #Gets the local URI (/foo/bar). If this is a remote file then
+        #it is first transferred to the local filesystem
+        videoURI = video.get_local_uri()
+        mimeType = video.get_mimetype()
+        keywords = video.get_tags ()
+        description = video.get_description()
+
+        uploadInfo = VideoUploadInfo(videoURI, mimeType, originalName, keywords, description)
+
+        #Check if we have already uploaded the video
+        if LUID != None:
+            url = self._get_video_info(LUID)
+            #Check if a video exists at that UID
+            if url != None:
+                if overwrite == True:
+                    #Replace the video
+                    return self._replace_video(LUID, uploadInfo)
+                else:
+                    #Only upload the video if it is newer than the remote one
+                    url = self._get_flv_video_url(url)
+                    remoteFile = File.File(url)
+
+                    #This is a limited test for equality type comparison
+                    comp = video.compare(remoteFile,True)
+                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
+                            (video.get_filename(),remoteFile.get_filename(),comp))
+                    if comp != conduit.datatypes.COMPARISON_EQUAL:
+                        raise Exceptions.SynchronizeConflictError(comp, video, remoteFile)
+                    else:
+                        return conduit.datatypes.Rid(uid=LUID)
+
+        log.debug("Uploading video URI = %s, Mimetype = %s, Original Name = %s" % (videoURI, mimeType, originalName))
+
+        #Upload the file
+        return self._upload_video (uploadInfo)
+
     def finish(self, aborted, error, conflict):
-        DataProvider.DataSource.finish(self)
+        DataProvider.TwoWay.finish(self)
         self.files = None
 
     def get_configuration(self):
         return {
             "filter_type"       :   self.filter_type,
-            "user_filter_type"  :   self.user_filter_type,
+            "max_downloads"     :   self.max_downloads,
             "username"          :   self.username,
-            "max_downloads"     :   self.max_downloads
+            "password"          :   self.password
         }
 
     def get_UID(self):
         return Utils.get_user_string()
-
-    def _filter_user_toggled_cb (self, toggle, frame):
-        frame.set_sensitive(toggle.get_active())
 
     def _format_url (self, url):
         if self.max_downloads > 0:
@@ -1436,19 +1526,19 @@ class YouTubeSource(DataProvider.DataSource):
         return service.Get(feed % params)
 
     def _top_rated(self):
-        url = self._format_url ("%s/top_rated" % YouTubeSource.STD_FEEDS)
+        url = self._format_url ("%s/top_rated" % YouTubeTwoWay.STD_FEEDS)
         return self._request(url).entry
 
     def _most_viewed(self):
-        url = self._format_url ("%s/most_viewed" % YouTubeSource.STD_FEEDS)
+        url = self._format_url ("%s/most_viewed" % YouTubeTwoWay.STD_FEEDS)
         return self._request(url).entry
 
     def _videos_upload_by(self, username):
-        url = self._format_url ("%s/%s/uploads" % (YouTubeSource.USERS_FEED, username))
+        url = self._format_url ("%s/%s/uploads" % (YouTubeTwoWay.USERS_FEED, username))
         return self._request(url).entry
 
     def _favorite_videos(self, username):
-        url = self._format_url ("%s/%s/favorites" % (YouTubeSource.USERS_FEED, username))
+        url = self._format_url ("%s/%s/favorites" % (YouTubeTwoWay.USERS_FEED, username))
         return self._request(url).entry
 
     # Generic extract step
@@ -1459,7 +1549,7 @@ class YouTubeSource(DataProvider.DataSource):
         data = doc.read()
 
         # extract video name
-        match = YouTubeSource.VIDEO_NAME_RE.search(data)
+        match = YouTubeTwoWay.VIDEO_NAME_RE.search(data)
         if match is not None:
             video_name = match.group(1)
 

@@ -135,6 +135,7 @@ conduit/modules/GoogleModule/atom/Makefile
 conduit/modules/GoogleModule/gdata/Makefile
 conduit/modules/GoogleModule/gdata/apps/Makefile
 conduit/modules/GoogleModule/gdata/base/Makefile
+conduit/modules/GoogleModule/gdata/blogger/Makefile
 conduit/modules/GoogleModule/gdata/calendar/Makefile
 conduit/modules/GoogleModule/gdata/codesearch/Makefile
 conduit/modules/GoogleModule/gdata/contacts/Makefile
@@ -144,6 +145,7 @@ conduit/modules/GoogleModule/gdata/geo/Makefile
 conduit/modules/GoogleModule/gdata/media/Makefile
 conduit/modules/GoogleModule/gdata/photos/Makefile
 conduit/modules/GoogleModule/gdata/spreadsheet/Makefile
+conduit/modules/GoogleModule/gdata/youtube/Makefile
 conduit/modules/ShutterflyModule/Makefile
 conduit/modules/ShutterflyModule/shutterfly/Makefile
 conduit/modules/RhythmboxModule/Makefile

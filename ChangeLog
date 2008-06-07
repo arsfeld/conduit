@@ -1,5 +1,35 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
+	* ChangeLog:
+	* NEWS:
+	* conduit/datatypes/Video.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/atom/Makefile.am:
+	* conduit/modules/GoogleModule/atom/__init__.py:
+	* conduit/modules/GoogleModule/atom/mock_service.py:
+	* conduit/modules/GoogleModule/atom/service.py:
+	* conduit/modules/GoogleModule/gdata/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/__init__.py:
+	* conduit/modules/GoogleModule/gdata/apps/service.py:
+	* conduit/modules/GoogleModule/gdata/auth.py:
+	* conduit/modules/GoogleModule/gdata/blogger/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/blogger/__init__.py:
+	* conduit/modules/GoogleModule/gdata/blogger/service.py:
+	* conduit/modules/GoogleModule/gdata/calendar/__init__.py:
+	* conduit/modules/GoogleModule/gdata/calendar/service.py:
+	* conduit/modules/GoogleModule/gdata/media/__init__.py:
+	* conduit/modules/GoogleModule/gdata/service.py:
+	* conduit/modules/GoogleModule/gdata/test_data.py:
+	* conduit/modules/GoogleModule/gdata/urlfetch.py:
+	* conduit/modules/GoogleModule/gdata/youtube/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/youtube/__init__.py:
+	* conduit/modules/GoogleModule/gdata/youtube/service.py:
+	* conduit/modules/GoogleModule/youtube-config.glade:
+	* configure.ac: Merge youtube upload support, including a svn copy
+	of python-gdata. Fixes #522120 (Philip Withnall)
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/conduit: Detect firefox when it is in lib64
 	Fixes #537068 (Michel Alexandre Salim)
 
@@ -56,6 +86,37 @@
 	
 	* test/python-tests/TestSyncFolderFolder2.py: More exhaustive tests for
 	folder sync.
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/atom/Makefile.am:
+	* conduit/modules/GoogleModule/atom/__init__.py:
+	* conduit/modules/GoogleModule/atom/mock_service.py:
+	* conduit/modules/GoogleModule/atom/service.py:
+	* conduit/modules/GoogleModule/gdata/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/__init__.py:
+	* conduit/modules/GoogleModule/gdata/apps/service.py:
+	* conduit/modules/GoogleModule/gdata/auth.py:
+	* conduit/modules/GoogleModule/gdata/blogger/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/blogger/__init__.py:
+	* conduit/modules/GoogleModule/gdata/blogger/service.py:
+	* conduit/modules/GoogleModule/gdata/calendar/__init__.py:
+	* conduit/modules/GoogleModule/gdata/calendar/service.py:
+	* conduit/modules/GoogleModule/gdata/media/__init__.py:
+	* conduit/modules/GoogleModule/gdata/service.py:
+	* conduit/modules/GoogleModule/gdata/test_data.py:
+	* conduit/modules/GoogleModule/gdata/urlfetch.py:
+	* conduit/modules/GoogleModule/gdata/youtube/Makefile.am:
+	* conduit/modules/GoogleModule/gdata/youtube/__init__.py:
+	* conduit/modules/GoogleModule/gdata/youtube/service.py:
+	* configure.ac: Import gdata with youtube support
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/datatypes/Video.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/youtube-config.glade: Merge initial
+	patch from Philip Withnall.
 
 2008-06-04  John Stowers  <john.stowers@gmail.com>
 
