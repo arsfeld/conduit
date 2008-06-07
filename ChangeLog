@@ -1,5 +1,14 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FacebookModule/FacebookModule.py: add _get_albums and
+	_get_photos. Now someone just needs to implement get() around these
+	
+	* test/python-tests/TestDataProviderFacebook.py: Test new functions, and
+	fix long standing bug where using image dataprovider tests would
+	not work with facebook.
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py:
 	* test/python-tests/TestDataProviderGoogleDocuments.py: Properly support
 	replace and delete(). Fixes #510120

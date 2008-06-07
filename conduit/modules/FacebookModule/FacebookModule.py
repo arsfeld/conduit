@@ -56,6 +56,26 @@ class FacebookSink(Image.ImageSink):
             return Rid(uid=rsp["pid"])
         except pyfacebook.FacebookError, f:
             raise Exceptions.SyncronizeError("Facebook Upload Error %s" % f)
+            
+    def _get_albums(self):
+        albums = []
+        try:
+            for a in self.fapi.photos.getAlbums(self.fapi.uid):
+                albums.append((a['name'], a['aid']))
+        except pyfacebook.FacebookError, f:
+            log.warn("Error getting album list: %s" % f)
+        return albums
+        
+    def _get_photos(self, albumID):
+        photos = {}
+        try:
+            for p in self.fapi.photos.get(aid=albumID):
+                #only return big photos
+                if p.get("src_big", ""):
+                    photos[p['pid']] = p
+        except pyfacebook.FacebookError, f:
+            log.warn("Error getting photos from album %s list: %s" % (albumID,f))
+        return photos
 
     def _login(self):
         """
@@ -78,13 +98,14 @@ class FacebookSink(Image.ImageSink):
         log.info("Trying Login")
         rsp = self.fapi.auth.getSession()
         return rsp.has_key("secret") and rsp.has_key("session_key")
-
+        
     def refresh(self):
         Image.ImageSink.refresh(self)
         if self.fapi.uid == None:
             self._login()
 
     def get_UID(self):
-        return ""
+        if self.fapi.uid == None:
+            return ""
         return self.fapi.uid
             
