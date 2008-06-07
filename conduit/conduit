@@ -8,7 +8,7 @@
 # Run mozilla takes care of settin up the appropriate environment variables
 # to run a program using mozilla libs
 
-for d in `ls -d /usr/lib/firefox* | sort -r`
+for d in `ls -d /usr/lib*/firefox* | sort -r`
 do
     if [ -x $d/run-mozilla.sh ]; then
         echo INFO: FOUND FIREFOX LIBS AT $d

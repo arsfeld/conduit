@@ -1,5 +1,10 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/conduit: Detect firefox when it is in lib64
+	Fixes #537068 (Michel Alexandre Salim)
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/SynceModule.py:
 	* data/Makefile.am: New features deserve new icons.
 
