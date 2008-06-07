@@ -39,7 +39,7 @@ try:
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeSource" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
-#        "DocumentsSink" :        { "type": "dataprovider" },
+        "DocumentsSink" :        { "type": "dataprovider" },
     }
     log.info("Module Information: %s" % Utils.get_module_information(gdata, None))
 except (ImportError, AttributeError):
@@ -1014,7 +1014,7 @@ class _GoogleDocument:
         
     def __str__(self):
         return "%s:%s by %s (modified:%s) (id:%s)" % (self.type,self.title,self.authorName,self.updated,self.docid)
-
+    
 class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
     """
     Contacts GData provider
@@ -1024,7 +1024,7 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
     _name_ = _("Google Documents")
     _description_ = _("Sync your Google Documents")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
-    _module_type_ = "twoway"
+    _module_type_ = "sink"
     _out_type_ = "contact"
     _icon_ = "applications-office"
     
@@ -1091,6 +1091,19 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
 
         return _GoogleDocument(xmldoc)
         
+    def _get_proxyfile(self, LUID):
+        if LUID:
+            gdoc = self._get_document(LUID)
+            if gdoc:
+                f = File.ProxyFile(
+                            URI=gdoc.raw,
+                            name=gdoc.title,
+                            modified=gdoc.updated,
+                            size=None)
+                f.set_UID(LUID)
+                return f
+        return None
+        
     def _download_doc(self, googleDoc):
         docid = googleDoc.docid
     
@@ -1148,33 +1161,38 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
     def get(self, LUID):
         pass
 
-#    def put(self, doc, overwrite, LUID=None):            
-#        #Check if we have already uploaded the document
-#        if LUID != None:
-#            info = self._get_photo_info(LUID)
-#            #check if a photo exists at that UID
-#            if info != None:
-#                if overwrite == True:
-#                    #replace the photo
-#                    return self._replace_photo(LUID, uploadInfo)
-#                else:
-#                    #Only upload the photo if it is newer than the Remote one
-#                    url = self._get_raw_photo_url(info)
-#                    remoteFile = File.File(url)
-#
-#                    #this is a limited test for equality type comparison
-#                    comp = photo.compare(remoteFile,True)
-#                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
-#                            (photo.get_filename(),remoteFile.get_filename(),comp))
-#                    if comp != conduit.datatypes.COMPARISON_EQUAL:
-#                        raise Exceptions.SynchronizeConflictError(comp, photo, remoteFile)
-#                    else:
-#                        return conduit.datatypes.Rid(uid=LUID)
-#
-#        log.debug("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" % (photoURI, mimeType, originalName))
-#
-#        #upload the file
-#        return self._upload_photo (uploadInfo)
+    def put(self, f, overwrite, LUID=None):
+        DataProvider.DataSink.put(self, f, overwrite, LUID)       
+        #Check if we have already uploaded the document
+        if LUID != None:
+            gdoc = self._get_document(LUID)
+            #check if a doc exists at that UID
+            if gdoc != None:
+                if overwrite == True:
+                    #replace the document
+                    return self._replace_document(LUID, f)
+                else:
+                    #Only upload the doc if it is newer than the Remote one
+                    remoteFile = self._get_proxyfile(LUID)
+
+                    #compare based on mtime
+                    comp = f.compare(remoteFile)
+                    log.debug("Compared %s with %s to check if they are the same (mtime). Result = %s" % 
+                            (f.get_filename(),remoteFile.get_filename(),comp))
+                    if comp != conduit.datatypes.COMPARISON_EQUAL:
+                        raise Exceptions.SynchronizeConflictError(comp, photo, remoteFile)
+                    else:
+                        return conduit.datatypes.Rid(uid=LUID)
+
+        log.debug("Uploading Document")
+
+        #upload the file
+        pf = self._get_proxyfile(
+                        self._upload_document(f))
+        if pf:
+            return pf.get_rid()
+            
+        raise Exceptions.SynchronizeError("Error Uploading")
 
     def delete(self, LUID):
         DataProvider.DataSink.delete(self, LUID)
@@ -1194,6 +1212,10 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
 
         def make_combo(widget, docType, val, values):
             cb = widget.get_widget("%sCombo" % docType)
+            
+            #FIXME: Make these unsensitive when download works better
+            cb.set_property("sensitive", False)
+            
             store = gtk.ListStore(str)
             cell = gtk.CellRendererText()
             

@@ -2,6 +2,11 @@
 from common import *
 import conduit.datatypes.File as File
 
+if not is_online():
+    skip()
+
+SAFE_DOCID = "http://docs.google.com/feeds/documents/private/full/document%3Adf32bhnd_2dv44zrfc"
+
 test = SimpleTest(sinkName="DocumentsSink")
 config = {
     "username":     os.environ.get("TEST_USERNAME","conduitproject@gmail.com"),
@@ -21,19 +26,31 @@ docs = google.get_all()
 num = len(docs)
 ok("Got %s documents" % num, num > 0)
 
-doc = google._get_document(docs[-1])
+doc = google._get_document(SAFE_DOCID)
 ok("Got safe document", doc != None)
 
+f = File.File(URI=get_external_resources("file")["doc"])
+test.do_dataprovider_tests(
+        supportsGet=False,
+        supportsDelete=False,
+        safeLUID=SAFE_DOCID,
+        data=f,
+        name="file"
+        )
 
 
-#finished()
+finished()
+
+print files
+
+finished()
 
 
 
 #path = google._download_doc(info['link'])
 #print "DL: %s" % path
 
-f = File.File(URI="/home/john/Desktop/test.ppt")
+
 LUID = google._upload_document(f)
 doc = google._get_document(LUID)
 

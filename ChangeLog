@@ -1,5 +1,14 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/GoogleModule/documents-config.glade: Make 
+	into a sink and implement put()
+
+	* test/python-tests/TestDataProviderGoogleDocuments.py: Add make test use
+	proper format (common.test_dataprovider)
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/File.py:
 	* test/python-tests/TestCoreFile2.py:
 	* test/python-tests/data/file.list: Add a ProxyFile class. This takes
