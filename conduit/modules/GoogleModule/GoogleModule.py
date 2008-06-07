@@ -990,7 +990,7 @@ class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
         
 class _GoogleDocument:
     def __init__(self, doc):
-        self.id = doc.id.text
+        self.id = doc.GetSelfLink().href
         #raw text version link
         self.raw = doc.content.src
         #edit link
@@ -1000,11 +1000,14 @@ class _GoogleDocument:
         self.authorEmail = doc.author[0].email.text
         self.type = doc.category[0].label
         
+        self.editLink = doc.GetEditLink().href
+        
         self.updated = convert_madness_to_datetime(doc.updated.text)
         self.docid = self.get_document_id(self.link)
         
     # Parses the document id out of the alternate link url, the atom feed
-    # doesn't actually provide the document id
+    # doesn't actually provide the document id. Need it for downloading in
+    # different formats
     @staticmethod
     def get_document_id(LUID):
         parsed_url = urlparse.urlparse(LUID)
@@ -1065,14 +1068,47 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
             log.info("Unknown document format")
             return None
 
-        return entry.id.text
+        return entry.GetSelfLink().href
+        
+    def _replace_document(self, LUID, f):
+        # Doesnt support updating easily, trash the old one, and make a new one
+        # http://code.google.com/p/gdata-issues/issues/detail?id=277
+        #self.delete(LUID)
+        #upload the file
+        #pf = self._get_proxyfile(
+        #                self._upload_document(f))
+        #if pf:
+        #    return pf.get_rid()
+        #raise Exceptions.SynchronizeError("Error Uploading")
+        
+        # The follwing says one can replace like this
+        # http://code.google.com/p/goofs/source/browse/trunk/goofs/src/goofs/backend.py#197
+        
+        name,ext = f.get_filename_and_extension()
+        ext = ext[1:].upper()
+
+        ms = gdata.MediaSource(
+                    file_path=f.get_local_uri(),
+                    content_type=gdata.docs.service.SUPPORTED_FILETYPES[ext])
+        
+        doc = self.service.Get(LUID)        
+        doc = self.service.Put(
+                doc,
+                doc.GetEditLink().href,
+                media_source=ms,
+                extra_headers = {'Slug':name})
+                
+        pf = self._get_proxyfile(doc.GetSelfLink().href)
+        if pf:
+            return pf.get_rid()
+        raise Exceptions.SynchronizeError("Error Replacing")
         
     def _get_all_documents(self):
         docs = {}
         feed = self.service.GetDocumentListFeed()
         if feed.entry:
             for xmldoc in feed.entry:
-                docs[xmldoc.id.text] = _GoogleDocument(xmldoc)
+                docs[xmldoc.GetSelfLink().href] = _GoogleDocument(xmldoc)
         return docs
         
     def _get_document(self, LUID):
@@ -1196,13 +1232,11 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
 
     def delete(self, LUID):
         DataProvider.DataSink.delete(self, LUID)
-        self._login()
-        #get the gdata contact from google
-        #try:
-        #    gc = self.service.Get(LUID, converter=gdata.contacts.ContactEntryFromString)
-        #    self.service.DeleteContact(gc.GetEditLink().href)
-        #except gdata.service.RequestError, e:
-        #    log.warn("Error deleting: %s" % e)        
+        gdoc = self._get_document(LUID)
+        if gdoc:
+            self.service.Delete(gdoc.editLink)
+            return True
+        return False
 
     def configure(self, window):
         """

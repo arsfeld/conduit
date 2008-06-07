@@ -1,6 +1,12 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/TestDataProviderGoogleDocuments.py: Properly support
+	replace and delete(). Fixes #510120
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
 	* conduit/modules/GoogleModule/documents-config.glade: Make 
 	into a sink and implement put()
 

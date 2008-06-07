@@ -32,7 +32,7 @@ ok("Got safe document", doc != None)
 f = File.File(URI=get_external_resources("file")["doc"])
 test.do_dataprovider_tests(
         supportsGet=False,
-        supportsDelete=False,
+        supportsDelete=True,
         safeLUID=SAFE_DOCID,
         data=f,
         name="file"
@@ -41,22 +41,3 @@ test.do_dataprovider_tests(
 
 finished()
 
-print files
-
-finished()
-
-
-
-#path = google._download_doc(info['link'])
-#print "DL: %s" % path
-
-
-LUID = google._upload_document(f)
-doc = google._get_document(LUID)
-
-ok("Upload document: %s" % doc, doc != None)
-
-path = google._download_doc(doc)
-print path
-
-finished()
