@@ -1,3 +1,7 @@
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/TestDataProvideriPod.py: Fix ipod test.
+
 2008-06-05  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Synchronization.py: If we are older, then the dp should not

@@ -5,7 +5,7 @@ import os.path
 import shutil
 import traceback
 
-import conduit.modules.iPodModule as iPodModule
+import conduit.modules.iPodModule.iPodModule as iPodModule
 import conduit.utils as Utils
 
 
