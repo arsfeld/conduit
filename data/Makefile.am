@@ -48,7 +48,8 @@ resources_DATA = \
 	flickr.png \
 	shutterfly.png \
 	youtube.png \
-	zoto.png
+	zoto.png \
+	windows.png
 
 conduitbindir = $(libdir)/conduit
 

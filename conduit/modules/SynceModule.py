@@ -29,9 +29,10 @@ SYNC_ITEM_MEDIA     = 5
 SYNC_ITEM_NOTES     = 6
 SYNC_ITEM_TASKS     = 7
 
-TYPETONAMES = { SYNC_ITEM_CONTACTS : "Contacts",
-                SYNC_ITEM_CALENDAR   : "Calendar",
-		SYNC_ITEM_TASKS    : "Tasks"
+TYPETONAMES = { 
+    SYNC_ITEM_CONTACTS  : "Contacts",
+    SYNC_ITEM_CALENDAR  : "Calendar",
+	SYNC_ITEM_TASKS     : "Tasks"
 }
 
 CHANGE_ADDED        = 1
@@ -52,7 +53,7 @@ class SynceFactory(HalFactory.HalFactory):
     def get_category(self, udi, **kwargs):
         return DataProviderCategory.DataProviderCategory(
                     "Windows Mobile",
-                    "media-memory",
+                    "windows",
                     udi)
 
     def get_dataproviders(self, udi, **kwargs):
@@ -134,7 +135,9 @@ class SynceTwoWay(DataProvider.TwoWay):
             uid = array.array('B', guid).tostring()
             blob = array.array('B', data).tostring()
             self.objects[uid] = self._blob_to_data(uid, blob)
-        return [x for x in self.objects.iterkeys()]
+            
+        log.info("Got %s objects" % len(self.objects))
+        return self.objects.keys()
 
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)

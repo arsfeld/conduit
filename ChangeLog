@@ -1,5 +1,10 @@
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/SynceModule.py:
+	* data/Makefile.am: New features deserve new icons.
+
+2008-06-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FacebookModule/FacebookModule.py: add _get_albums and
 	_get_photos. Now someone just needs to implement get() around these
 	
