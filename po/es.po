@@ -8,12 +8,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-05 13:38+0000\n"
-"PO-Revision-Date: 2008-05-05 14:15-0400\n"
+"POT-Creation-Date: 2008-06-07 07:56+0000\n"
+"PO-Revision-Date: 2008-06-07 15:23+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type:  text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
@@ -230,7 +230,7 @@ msgstr "_Archivo"
 msgid "_Help"
 msgstr "Ay_uda"
 
-#: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:32
+#: ../conduit/gtkui/Canvas.py:65
 msgid "Drag a Data Provider here to continue"
 msgstr "Suelte aquí el proveedor de datos para continuar"
 
@@ -269,7 +269,7 @@ msgstr "en"
 msgid "Conversions Available"
 msgstr "Conversiones disponibles"
 
-#: ../conduit/gtkui/UI.py:297 ../conduit/gtkui/Tree.py:348
+#: ../conduit/gtkui/UI.py:297 ../conduit/gtkui/Tree.py:349
 #: ../conduit/modules/FileModule/FileConfiguration.py:104
 msgid "Name"
 msgstr "Nombre"
@@ -278,7 +278,7 @@ msgstr "Nombre"
 msgid "Loaded"
 msgstr "Cargado"
 
-#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:128
+#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Sincronización en progreso. ¿Quiere cancelarla?"
 
@@ -326,7 +326,7 @@ msgstr "Sincronización completada"
 msgid "Synchronizing"
 msgstr "Sincronizando"
 
-#: ../conduit/gtkui/Tree.py:357
+#: ../conduit/gtkui/Tree.py:358
 msgid "Description"
 msgstr "Descripción"
 
@@ -390,6 +390,7 @@ msgstr "Almacene cosas en las notas Backpack"
 #: ../conduit/modules/FlickrModule/config.glade.h:1
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
 #: ../conduit/modules/SmugMugModule/config.glade.h:1
 #: ../conduit/modules/ZotoModule/zoto.glade.h:1
@@ -415,6 +416,7 @@ msgstr "Guardar las notas en la página:"
 #: ../conduit/modules/BackpackModule/config.glade.h:6
 #: ../conduit/modules/FlickrModule/config.glade.h:8
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
 #: ../conduit/modules/SmugMugModule/config.glade.h:7
 #: ../conduit/modules/ZotoModule/zoto.glade.h:5
@@ -734,45 +736,58 @@ msgstr "Ajustes de GConf"
 msgid "Sync your desktop preferences"
 msgstr "Sincronizar sus preferencias del escritorio"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:356
+#: ../conduit/modules/GoogleModule/GoogleModule.py:368
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
 msgid "Google Calendar"
 msgstr "Google Calendar"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:357
+#: ../conduit/modules/GoogleModule/GoogleModule.py:369
 msgid "Sync your Google Calendar"
 msgstr "Sincronizar su Calendario de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:546
+#: ../conduit/modules/GoogleModule/GoogleModule.py:554
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
 msgid "Picasa"
 msgstr "Picasa"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:547
+#: ../conduit/modules/GoogleModule/GoogleModule.py:555
 msgid "Sync your Google Picasa photos"
 msgstr "Sincronice sus fotos en Google Picasa"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:768
+#: ../conduit/modules/GoogleModule/GoogleModule.py:772
 msgid "Google Contacts"
 msgstr "Contactos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:769
+#: ../conduit/modules/GoogleModule/GoogleModule.py:773
 msgid "Sync your Gmail contacts"
 msgstr "Sincronizar sus contactos de Gmail"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:998
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1028
 msgid "Google Documents"
 msgstr "Documentos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:999
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1029
 msgid "Sync your Google Documents"
 msgstr "Sincronizar sus Documentos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1148
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1309
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1310
+msgid "miscellaneous"
+msgstr "miscelánea"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1311
+msgid "No description."
+msgstr "Sin descripción."
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1320
 msgid "YouTube"
 msgstr "YouTube"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1149
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1321
 msgid "Sync data from YouTube"
 msgstr "Sincronizar datos con YouTube"
 
@@ -790,6 +805,7 @@ msgstr "Cargar calendarios"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
 #: ../conduit/modules/SmugMugModule/config.glade.h:4
 #: ../conduit/modules/ZotoModule/zoto.glade.h:4
@@ -808,17 +824,13 @@ msgstr "Álbum:"
 msgid "Login"
 msgstr "Identificación"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
-msgid "<b>Donwload Videos</b>"
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "<b>Download Videos</b>"
 msgstr "<b>Descargar vídeos</b>"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
-msgid "By user"
-msgstr "Por el usuario"
-
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
-msgid "Favorites of"
-msgstr "Favoritos de"
+msgid "Favorites of above user"
+msgstr "Favoritos del usuario de encima"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
 msgid "Max retrieved videos (0 is unlimited):"
@@ -828,19 +840,15 @@ msgstr "Máximo número de videos recuperados (0 es ilimitado):"
 msgid "Most viewed"
 msgstr "Más visto"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
 msgid "Top rated"
 msgstr "Mejor puntuado"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
-msgid "Uploaded by"
-msgstr "Subido por"
-
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
-msgid "User: "
-msgstr "Usuario: "
+msgid "Uploaded by above user"
+msgstr "Subido por el usuario de encima"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:10
 msgid "YouTube Source"
 msgstr "Fuente YouTube"
 
@@ -926,10 +934,6 @@ msgstr "Música de Rhythmbox"
 msgid "Sync songs from your Rhythmbox playlists"
 msgstr "Sincronice las canciones de sus listas de reproducción de Rhythmbox"
 
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
-msgid "Unknown"
-msgstr "Desconocido"
-
 #: ../conduit/modules/RhythmboxModule/config.glade.h:1
 msgid "<b>Synchronize the Following Playlists</b>"
 msgstr "<b>Sincronizar las siguientes listas de reproducción</b>"
@@ -960,14 +964,20 @@ msgstr "SmugMug"
 msgid "Sync your SmugMug.com photos"
 msgstr "Sincronice sus fotos en SmugMug"
 
-#: ../conduit/modules/ZotoModule/ZotoModule.py:118
+#: ../conduit/modules/ZotoModule/ZotoModule.py:121
 #: ../conduit/modules/ZotoModule/zoto.glade.h:6
 msgid "Zoto"
 msgstr "Zoto"
 
-#: ../conduit/modules/ZotoModule/ZotoModule.py:119
+#: ../conduit/modules/ZotoModule/ZotoModule.py:122
 msgid "Sync your Zoto photos"
 msgstr "Sincronizar sus fotos de Zoto"
+
+#~ msgid "By user"
+#~ msgstr "Por el usuario"
+
+#~ msgid "User: "
+#~ msgstr "Usuario: "
 
 #~ msgid "F-Spot Photos"
 #~ msgstr "Gestor de fotos F-Spot"
