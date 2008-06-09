@@ -22,6 +22,7 @@ class FileSource(FileDataProvider.FileSource):
 
     _name_ = _("Files")
     _description_ = _("Source for synchronizing multiple files")
+    _configurable_ = True
 
     def __init__(self, *args):
         FileDataProvider.FileSource.__init__(self)
@@ -61,6 +62,7 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
 
     _name_ = _("Folder")
     _description_ = _("Synchronize folders")
+    _configurable_ = True
 
     DEFAULT_FOLDER = "file://"+os.path.expanduser("~")
     DEFAULT_GROUP = "Home"

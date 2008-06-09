@@ -32,6 +32,7 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
     _name_ = _("Remember The Milk Tasks")
     _description_ = _("Sync your tasks to Remember The Milk")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
+    _configurable_ = True
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"

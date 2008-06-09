@@ -29,6 +29,7 @@ class SmugMugTwoWay(Image.ImageTwoWay):
     _description_ = _("Sync your SmugMug.com photos")
     _module_type_ = "twoway"
     _icon_ = "smugmug"
+    _configurable_ = True
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)

@@ -77,6 +77,7 @@ class FlickrTwoWay(Image.ImageTwoWay):
     _description_ = _("Sync your Flickr.com photos")
     _module_type_ = "twoway"
     _icon_ = "flickr"
+    _configurable_ = True
 
     API_KEY="65552e8722b21d299388120c9fa33580"
     SHARED_SECRET="03182987bf7fc4d1"

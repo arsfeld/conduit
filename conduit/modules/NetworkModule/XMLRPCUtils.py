@@ -108,6 +108,7 @@ class DataProviderClient(DataProvider.TwoWay):
     """
     Provides the Client portion of dataprovider proxying.
     """
+    _configurable_ = False
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         clog.info("Connecting to remote DP on %s" % self.url)

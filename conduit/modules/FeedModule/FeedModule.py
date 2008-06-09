@@ -34,6 +34,7 @@ class RSSSource(DataProvider.DataSource):
     _in_type_ = ""
     _out_type_ = "file"
     _icon_ = "feed"
+    _configurable_ = True
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)

@@ -207,6 +207,7 @@ class Canvas(goocanvas.Canvas):
         if event.type == gtk.gdk.BUTTON_PRESS:
             if event.button == 3:
                 if view.model.enabled and not view.model.module.is_busy():
+                    self.configureMenuItem.set_property("sensitive", view.model.configurable)
                     #show the menu
                     self.dataproviderMenu.popup(
                                 None, None, 
@@ -217,8 +218,8 @@ class Canvas(goocanvas.Canvas):
         elif event.type == gtk.gdk._2BUTTON_PRESS:
             if event.button == 1:
                 if view.model.enabled and not view.model.module.is_busy():
-                    #configure the DP
-                    self.on_configure_dataprovider_clicked(None)
+                    if view.model.configurable:
+                        self.on_configure_dataprovider_clicked(None)
 
         #dont propogate the event
         return True
@@ -355,16 +356,17 @@ class Canvas(goocanvas.Canvas):
         clicks on a dataprovider
         @type dataproviderPopupXML: C{gtk.glade.XML}
         """
-        self.conduitMenu = conduitPopupXML.get_widget("ConduitMenu")
+
         self.dataproviderMenu = dataproviderPopupXML.get_widget("DataProviderMenu")
+        self.configureMenuItem = dataproviderPopupXML.get_widget("configure")
 
+        self.conduitMenu = conduitPopupXML.get_widget("ConduitMenu")
         self.twoWayMenuItem = conduitPopupXML.get_widget("two_way_sync")
-        self.twoWayMenuItem.connect("toggled", self.on_two_way_sync_toggle)
-
         self.slowSyncMenuItem = conduitPopupXML.get_widget("slow_sync")
-        self.slowSyncMenuItem.connect("toggled", self.on_slow_sync_toggle)
-
         self.autoSyncMenuItem = conduitPopupXML.get_widget("auto_sync")
+
+        self.twoWayMenuItem.connect("toggled", self.on_two_way_sync_toggle)
+        self.slowSyncMenuItem.connect("toggled", self.on_slow_sync_toggle)
         self.autoSyncMenuItem.connect("toggled", self.on_auto_sync_toggle)
 
         #connect the conflict popups

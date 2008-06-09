@@ -26,6 +26,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
     _description_ = _("Sync your F-Spot photos")
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _icon_ = "f-spot"
+    _configurable_ = True
 
     SERVICE_PATH = "org.gnome.FSpot"
     PHOTOREMOTE_IFACE = "org.gnome.FSpot.PhotoRemoteControl"

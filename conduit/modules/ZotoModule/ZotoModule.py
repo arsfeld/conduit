@@ -122,6 +122,7 @@ class ZotoSink(Image.ImageTwoWay):
     _description_ = _("Sync your Zoto photos")
     _module_type_ = "twoway"
     _icon_ = "zoto"
+    _configurable_ = True
     
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)

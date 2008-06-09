@@ -34,6 +34,7 @@ class BansheeSource(DataProvider.DataSource):
     _in_type_ = "file/audio"
     _out_type_ = "file/audio"
     _icon_ = "banshee"
+    _configurable_ = True
 
     MUSIC_DB = os.path.join(os.path.expanduser("~"),".config", "banshee", "banshee.db")
 

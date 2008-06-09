@@ -215,6 +215,7 @@ class SynceContactsTwoWay(SynceTwoWay):
     _out_type_ = "note"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_CONTACTS
+    _configurable_ = False
 
 class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
@@ -224,6 +225,7 @@ class SynceCalendarTwoWay(SynceTwoWay):
     _out_type_ = "note"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_CALENDAR
+    _configurable_ = False
 
 class SynceTasksTwoWay(SynceTwoWay):
     _name_ = "Tasks"
@@ -233,3 +235,5 @@ class SynceTasksTwoWay(SynceTwoWay):
     _out_type_ = "note"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_TASKS
+    _configurable_ = False
+

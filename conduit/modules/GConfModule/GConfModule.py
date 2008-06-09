@@ -25,6 +25,7 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _in_type_ = "setting"
     _out_type_ = "setting"
     _icon_ = "preferences-desktop"
+    _configurable_ = False
     
     DEFAULT_WHITELIST = [
                 '/apps/metacity/*',

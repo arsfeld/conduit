@@ -33,6 +33,7 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
     _in_type_ = "file"
     _out_type_ = "file"
     _icon_ = "boxdotnet"
+    _configurable_ = True
 
     API_KEY="nt0v6a232z6r47iftjx7g0azu6dg4p10"
 

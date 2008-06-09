@@ -96,6 +96,7 @@ class TestDataType(DataType.DataType):
             return conduit.datatypes.COMPARISON_UNKNOWN
 
 class _TestBase(DataProvider.DataProviderBase):
+    _configurable_ = True
     def __init__(self):
         DataProvider.DataProviderBase.__init__(self)
         #Through an error on the nth time through
@@ -208,6 +209,7 @@ class _TestBase(DataProvider.DataProviderBase):
             }
             
 class _TestConversionBase(DataProvider.DataSink):
+    _configurable_ = True
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
         self.encodings =  {}
@@ -581,6 +583,7 @@ class TestWebTwoWay(TestTwoWay):
     _in_type_ = "test_type"
     _out_type_ = "test_type"
     _icon_ = "applications-internet"
+    _configurable_ = True
 
     def __init__(self, *args):
         TestTwoWay.__init__(self)

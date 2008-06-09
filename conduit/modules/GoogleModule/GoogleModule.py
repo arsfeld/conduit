@@ -51,6 +51,7 @@ except (ImportError, AttributeError):
 FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
 
 class _GoogleBase:
+    _configurable_ = True
     def __init__(self, service):
         self.username = ""
         self.password = ""

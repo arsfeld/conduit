@@ -105,6 +105,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _in_type_ = "note/tomboy"
     _out_type_ = "note/tomboy"
     _icon_ = "tomboy"
+    _configurable_ = False
     
     TOMBOY_DBUS_PATH = "/org/gnome/Tomboy/RemoteControl"
     TOMBOY_DBUS_IFACE = "org.gnome.Tomboy"

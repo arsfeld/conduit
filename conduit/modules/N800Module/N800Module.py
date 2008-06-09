@@ -59,6 +59,8 @@ class N800Base(FileDataProvider.FolderTwoWay):
     #Signifies that a conversion should not take place
     NO_CONVERSION_STRING = _("unchanged")
 
+    _configurable_ = True
+
     def __init__(self, mount, udi, folder):
         FileDataProvider.FolderTwoWay.__init__(self,
                             "file://"+folder,

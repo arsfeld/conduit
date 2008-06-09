@@ -27,6 +27,7 @@ except ImportError:
     log.info("Evolution support disabled")
 
 class EvoBase(DataProvider.TwoWay):
+    _configurable_ = True
     def __init__(self, sourceURI, *args):
         DataProvider.TwoWay.__init__(self)
         self.defaultSourceURI = sourceURI

@@ -48,6 +48,7 @@ class ModuleWrapper:
             self.module_type =      getattr(klass, "_module_type_", "")
             self.in_type =          getattr(klass, "_in_type_", "")
             self.out_type =         getattr(klass, "_out_type_", "")
+            self.configurable =     getattr(klass, "_configurable_", False)
             self.classname =        klass.__name__
         else:
             self.name =             "Unknown"
@@ -57,6 +58,7 @@ class ModuleWrapper:
             self.in_type =          ""
             self.out_type =         ""
             self.classname =        ""
+            self.configurable =     False
 
         self.dndKey = None
         self.enabled = True

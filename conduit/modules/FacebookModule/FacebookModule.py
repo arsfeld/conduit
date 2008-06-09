@@ -38,6 +38,7 @@ class FacebookSink(Image.ImageSink):
     _description_ = _("Sync your Facebook photos")
     _module_type_ = "sink"
     _icon_ = "facebook"
+    _configurable_ = False
 
     API_KEY="6ce1868c3292471c022c771c0d4d51ed"
     SECRET="20e2c82829f1884e40efc616a44e5d1f"

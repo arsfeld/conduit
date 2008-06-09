@@ -44,6 +44,7 @@ class DataProviderBase(gobject.GObject):
     _icon_ = ""
     _module_type_ = "dataprovider"
     _category_ = conduit.dataproviders.CATEGORY_TEST
+    _configurable_ = False
     _out_type_ = ""
     _in_type_ = ""
     

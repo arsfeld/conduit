@@ -36,6 +36,7 @@ class PicasaDesktopSource(DataProvider.DataSource):
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"
     _icon_ = "picasa"
+    _configurable_ = True
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)

@@ -27,6 +27,7 @@ class ShutterflySink(Image.ImageSink):
 	_description_ = _("Sync your Shutterfly photos")
 	_module_type_ = "sink"
 	_icon_ = "shutterfly"
+    _configurable_ = True
 	
 	def __init__(self, *args):
 		Image.ImageSink.__init__(self)

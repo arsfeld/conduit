@@ -120,6 +120,47 @@
 
 2008-06-04  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/NetworkModule/Server.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py:
+	Add _configurable_ = True/False to dataproviders
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py: Double click on dp does
+	nothing if its not configurable.
+
+	* conduit/hildonui/Canvas.py: Set the configure menu
+	item to insensitive if the dp isnt configurable.
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BackpackModule/BackpackModule.py:
+	* conduit/modules/BansheeModule/BansheeModule.py:
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* conduit/modules/FacebookModule/FacebookModule.py:
+	* conduit/modules/FeedModule/FeedModule.py:
+	* conduit/modules/FileModule/FileModule.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FspotModule/FspotModule.py:
+	* conduit/modules/GConfModule/GConfModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/N800Module/N800Module.py:
+	* conduit/modules/PhoneModule/PhoneModule.py:
+	* conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py:
+	* conduit/modules/RTMModule/RTMModule.py:
+	* conduit/modules/ShutterflyModule/ShutterflyModule.py:
+	* conduit/modules/SmugMugModule/SmugMugModule.py:
+	* conduit/modules/SynceModule.py:
+	* conduit/modules/TomboyModule.py:
+	* conduit/modules/ZotoModule/ZotoModule.py:
+	* conduit/modules/iPodModule/iPodModule.py:
+	* conduit/modules/NetworkModule/Server.py:
+	* conduit/modules/NetworkModule/XMLRPCUtils.py:
+	Add _configurable_ = True/False to dataproviders
+
+2008-06-04  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS:
 	* conduit/__init__.py:
 	* configure.ac: Version bump to 0.3.12. Cross fingers this time.

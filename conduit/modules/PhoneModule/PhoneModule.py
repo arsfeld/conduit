@@ -97,6 +97,7 @@ class PhoneFactory(DataProvider.DataProviderFactory):
 class ObexFileDataProvider(FileDataProvider.FolderTwoWay):
 
     _name_ = "Pictures"
+    _configurable_ = False
 
     #FIXME: Does gnomevfs-obexftp support obexpush also?
     SUPPORTED_BLUETOOTH_CLASSES = (
@@ -123,6 +124,7 @@ class Test(DataProvider.DataSource):
     _name_ = "Test Phone"
     _description_ = "Test Phone"
     _module_type_ = "source"
+    _configurable_ = False
     def __init__(self, address, *args):
         DataProvider.DataSource.__init__(self)
 

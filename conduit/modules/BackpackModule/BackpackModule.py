@@ -22,6 +22,7 @@ MODULES = {
 log.info("Module Information: %s" % Utils.get_module_information(backpack, None))
 
 class BackpackBase(DataProvider.DataProviderBase):
+    _configurable_ = True
     def __init__(self, *args):
         DataProvider.DataProviderBase.__init__(self)
         self.username = ""

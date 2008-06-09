@@ -338,6 +338,7 @@ class IPodPhotoSink(IPodBase):
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"
     _icon_ = "image-x-generic"
+    _configurable_ = True
 
     SAFE_PHOTO_ALBUM = "Photo Library"
 

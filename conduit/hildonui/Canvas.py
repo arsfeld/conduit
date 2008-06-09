@@ -68,6 +68,7 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
         #single left click
         if event.type == gtk.gdk.BUTTON_PRESS and event.button == 1:
             if view.model.enabled and not view.model.module.is_busy():
+                self.dataproviderMenu.configureMenuItem.set_property("sensitive", view.model.configurable)
                 self.dataproviderMenu.popup(None, None, 
                                             None, event.button, event.time)
 
@@ -269,6 +270,7 @@ class ContextMenu(gtk.Menu):
         item = gtk.MenuItem(text)
         item.connect("activate", activate_cb)
         self.append(item)
+        return item
 
 class ConduitMenu(ContextMenu):
     def __init__(self, canvas):
@@ -293,7 +295,7 @@ class DataProviderMenu(ContextMenu):
         ContextMenu.__init__(self)
         self.canvas = canvas
 
-        self._add_menu_item("Configure", self._on_configure_activate)
+        self.configureMenuItem = self._add_menu_item("Configure", self._on_configure_activate)
         self._add_menu_item("Refresh", self._on_refresh_activate)
         self.append(gtk.SeparatorMenuItem())
         self._add_menu_item("Delete", self._on_delete_activate)

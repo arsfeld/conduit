@@ -149,6 +149,7 @@ class NetworkEndpoint(DataProvider.TwoWay):
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
     _icon_ = "network-idle"
+    _configurable_ = False
 
     def __init__(self):
         DataProvider.TwoWay.__init__(self)
