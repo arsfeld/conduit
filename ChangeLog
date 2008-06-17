@@ -1,3 +1,8 @@
+2008-06-17  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Support replacing youtube
+	videos. Fixes #538416 (Philip Withnall)
+
 2008-06-07  John Stowers  <john.stowers@gmail.com>
 
 	* ChangeLog:

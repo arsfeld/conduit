@@ -1397,6 +1397,9 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
         else:
             return None
 
+    def _extract_video_id (self, uri):
+        return uri.split ("/").pop ()
+
     def _do_login(self):
         # The YouTube login URL is slightly different to the normal Google one
         self.service.ClientLogin(self.username, self.password, auth_service_url="https://www.google.com/youtube/accounts/ClientLogin")
@@ -1413,12 +1416,23 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
             gvideo = self.service.InsertVideoEntry(
                                 self.gvideo,
                                 uploadInfo.url)
-            return Rid(uid=gvideo.id.text)
+            return Rid(uid=self._extract_video_id(gvideo.id.text))
         except Exception, e:
             raise Exceptions.SyncronizeError("YouTube Upload Error.")
 
-    def _replace_video (self, uploadInfo):
-        raise Exceptions.NotSupportedError("FIXME: Not supported yet")
+    def _replace_video (self, LUID, uploadInfo):
+        try:
+            self.gvideo = self.service.GetYouTubeVideoEntry(video_id=LUID)
+            self.gvideo.media = gdata.media.Group(
+                                title = gdata.media.Title(text=uploadInfo.name),
+                                description = gdata.media.Description(text=uploadInfo.description),
+                                category = gdata.media.Category(text=uploadInfo.category),
+                                keywords = gdata.media.Keywords(text=','.join(uploadInfo.keywords)))
+
+            gvideo = self.service.UpdateVideoEntry(self.gvideo)
+            return Rid(uid=self._extract_video_id(gvideo.id.text))
+        except Exception, e:
+            raise Exceptions.SyncronizeError("YouTube Update Error.")
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -1435,7 +1449,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
                 videos = self._favorite_videos (self.username)
 
             for video in videos:
-                self.entries[video.title.text] = self._get_flv_video_url (video.link[0].href)
+                self.entries[self._extract_video_id(video.id.text)] = video.link[0].href
         except Exception, err:
             log.debug("Error getting/parsing feed (%s)" % err)
             raise Exceptions.RefreshError
@@ -1445,7 +1459,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
 
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)
-        url = self.entries[LUID]
+        url = self._get_flv_video_url(self.entries[LUID])
         log.debug("Title: '%s', Url: '%s'"%(LUID, url))
 
         f = Video.Video(URI=url)
@@ -1484,18 +1498,9 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
                     #Replace the video
                     return self._replace_video(LUID, uploadInfo)
                 else:
-                    #Only upload the video if it is newer than the remote one
-                    url = self._get_flv_video_url(url)
-                    remoteFile = File.File(url)
-
-                    #This is a limited test for equality type comparison
-                    comp = video.compare(remoteFile,True)
-                    log.debug("Compared %s with %s to check if they are the same (size). Result = %s" % 
-                            (video.get_filename(),remoteFile.get_filename(),comp))
-                    if comp != conduit.datatypes.COMPARISON_EQUAL:
-                        raise Exceptions.SynchronizeConflictError(comp, video, remoteFile)
-                    else:
-                        return conduit.datatypes.Rid(uid=LUID)
+                    #We can't do an equality test by size, since YouTube reencodes videos
+                    #on upload, so we'll just do nothing.
+                    return conduit.datatypes.Rid(uid=LUID)
 
         log.debug("Uploading video URI = %s, Mimetype = %s, Original Name = %s" % (videoURI, mimeType, originalName))
 
@@ -1504,7 +1509,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
 
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
-        self.files = None
+        self.entries = None
 
     def get_configuration(self):
         return {
