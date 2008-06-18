@@ -774,6 +774,7 @@ class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
     _description_ = _("Sync your Gmail contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
+    _in_type_ = "contact"
     _out_type_ = "contact"
     _icon_ = "contact-new"
 

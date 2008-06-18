@@ -1,3 +1,9 @@
+2008-06-18  John Carrr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	Fix Contact two way sync (conversion code was trying to 
+	convert a contact to a '')
+
 2008-06-17  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/GoogleModule.py: Support replacing youtube
