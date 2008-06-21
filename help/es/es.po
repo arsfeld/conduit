@@ -1,10 +1,10 @@
-# translation of conduit.help.HEAD.po to Español
+# translation of help.HEAD.po to Español
 # Jorge González <jorgegonz@svn.gnome.org>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: conduit.help.HEAD\n"
-"POT-Creation-Date: 2008-04-19 11:20+0000\n"
-"PO-Revision-Date: 2008-06-07 16:58+0200\n"
+"Project-Id-Version: help.HEAD\n"
+"POT-Creation-Date: 2008-06-07 15:00+0000\n"
+"PO-Revision-Date: 2008-06-21 18:38+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -119,6 +119,12 @@ msgid ""
 "manages the synchronization and conversion of data into other formats. For "
 "example, Conduit allows you to;"
 msgstr ""
+"<ulink type=\"http\" url=\"http://www.conduit-project.org\">Conduit</ulink> "
+"es una aplicación de sincronización para GNOME. Le permite sincronizar "
+"sus archivos, fotos, correos-e, contactos, notas, los datos del calendario y otros "
+"tipos de información personal y sincronizar esos datos con otro equipo, un servicio "
+"en línea o incluso otro dispositivo electrónico. Conduit gestiona la sincronización "
+"y conversión de datos en otros formatos. Por ejemplo, Conduit le permite:"
 
 #: C/conduit.xml:53(para)
 msgid ""
@@ -144,6 +150,11 @@ msgid ""
 "<ulink type=\"http\" url=\"http://shutterfly.com\">Shutterfly</ulink> and "
 "your iPod,"
 msgstr ""
+"Subir fotos a <ulink type=\"http\" url=\"http://www.flickr.com\">Flickr</ulink>, "
+"<ulink type=\"http\" url=\"http://picasaweb.google.com\">Picasa</ulink>m "
+"<ulink type=\"http\" url=\"http://www.smugmug.com\">Smugmug</ulink>, "
+"<ulink type=\"http\" url=\"http://shutterfly.com\">Shutterfly</ulink> y "
+"su iPod."
 
 #: C/conduit.xml:61(para)
 msgid "... and many more"
@@ -154,34 +165,40 @@ msgid ""
 "Any combination you can imagine, Conduit will take care of the conversion "
 "and synchronization."
 msgstr ""
+"Cualquier combinación que pueda imaginar, Conduit se encargará de la conversión y "
+"sincronización."
 
 #: C/conduit.xml:65(title)
 msgid "Use Cases"
-msgstr ""
+msgstr "Casos de uso"
 
 #: C/conduit.xml:68(para)
 msgid ""
 "Fred wants to sync his tomboy notes with <ulink type=\"http\" url=\"http://"
 "www.google.com/notebook\">Google notebook</ulink>"
 msgstr ""
+"Antonio quiere sincronizar sus notas de Tomboy con <ulink type=\"http\" "
+"url=\"http://www.google.com/notebook\">Google notebook</ulink>"
 
 #: C/conduit.xml:71(para)
 msgid ""
 "Joey wants to sync whatever is on his desktop to his <ulink type=\"http\" "
 "url=\"http://www.backpackit.com\">backpack account</ulink>"
 msgstr ""
+"Iñaki quiere sincronizar todo lo que está en su escritorio con su <ulink type=\"http\" "
+"url=\"http://www.backpackit.com\">cuenta en Backpack</ulink>"
 
 #: C/conduit.xml:73(para)
 msgid "Nellie wants to keep a directory on his laptop and his desktop in sync"
-msgstr ""
+msgstr "Ana quiere mantener un directorio en su portátil y en su sobremesa sincronizados"
 
 #: C/conduit.xml:74(para)
 msgid "Paul wants to keep his evolution contacts in sync with his mobile phone"
-msgstr ""
+msgstr "Adolfo quiere mantener sus contactos de Evolution sincronizados con su teléfono móvil"
 
 #: C/conduit.xml:75(para)
 msgid "Steve wants to keep his gnome preferences in sync between his two computers"
-msgstr ""
+msgstr "Isaac quiere mantener sus preferencias de GNOME sincronizadas en sus dos equipos"
 
 #: C/conduit.xml:77(para)
 msgid ""
@@ -189,12 +206,16 @@ msgid ""
 "openoffice.org\">OpenOffice</ulink> documents in sync with copies held on "
 "<ulink type=\"http\" url=\"http://docs.google.com\">Google Docs</ulink>"
 msgstr ""
+"Tomás quiere mantener un directorio de documentos<ulink type=\"http\" url=\"http://openoffice.org\">OpenOffice</ulink> "
+"sincronizado con copias almacenadas en <ulink type=\"http\" url=\"http://docs.google.com\">Google Docs</ulink>"
 
 #: C/conduit.xml:79(para)
 msgid ""
 "Pete wants to have photos saved to his server to be pushed to an external "
 "back up (usb hard drive / off-site ftp)"
 msgstr ""
+"Álvaro quiere tener fotos guardadas en su servidor para que se exporten a un "
+"respaldo externo (disco duro USB, FTP en internet...)"
 
 #: C/conduit.xml:83(title) C/conduit.xml:114(title) C/conduit.xml:254(title)
 msgid "Introduction"
@@ -209,6 +230,12 @@ msgid ""
 "your mobile devices could be synchronized automatically by Conduit. Home "
 "file back-ups to a remote server? Synced automatically."
 msgstr ""
+"Los objetivos de Conduit son sincronizar sus datos de la forma más sencilla posible, ya sea "
+"de un dispositivo remoto o sitios web remotos. Se trata de extender su vida como "
+"ve que necesita ser, sin restricciones de datos, dispositivos o formatos. "
+"Conduit le permite llevarse sus datos donde quiera cuando quiera. Todos sus "
+"dispositivos móviles se pueden sincronizar automáticamente con Conduit. ¿Respaldos "
+"de casa contra un servidor remoto? Automáticamente sincronizado."
 
 #: C/conduit.xml:85(para)
 msgid ""
@@ -225,6 +252,8 @@ msgid ""
 "A <ulink type=\"http\" url=\"http://www.gnome.org\">GNOME</ulink> user might "
 "store information in a wide variety of places on the desktop including;"
 msgstr ""
+"Un usuario de <ulink type=\"http\" url=\"http://www.gnome.org\">GNOME</ulink> puede "
+"almacenar información en una gran variedad de lugares en el escritorio, incluyendo:"
 
 #: C/conduit.xml:91(para)
 msgid ""
@@ -281,8 +310,8 @@ msgid ""
 "The user might also use one of the many popular online services including "
 "<placeholder-1/>"
 msgstr ""
-"El usuario también puede usar uno de los muchos populares servicios en línea, incluyendo "
-"<placeholder-1/>"
+"El usuario también puede usar uno de los muchos populares servicios en "
+"línea, incluyendo <placeholder-1/>"
 
 #: C/conduit.xml:105(para)
 msgid "A second laptop, also running GNOME"
@@ -312,7 +341,9 @@ msgstr "Un iPod"
 
 #: C/conduit.xml:105(para)
 msgid "They probably also own another electronic device such as <placeholder-1/>"
-msgstr "Probablemente también posean un dispositivo electrónico tal como <placeholder-1/>"
+msgstr ""
+"Probablemente también posean un dispositivo electrónico tal como "
+"<placeholder-1/>"
 
 #: C/conduit.xml:107(para)
 msgid ""
@@ -320,6 +351,9 @@ msgid ""
 "desktop, let alone the added burden of keeping your information in sync with "
 "any of the other services or devices listed above."
 msgstr ""
+"Ya es bastante difícil mantener su información organizada cuando está limitada al "
+"escritorio, cuanto más mantener su información sincronizada con "
+"cualquiera de los otros servicios o dispositivos listados anteriormente."
 
 #: C/conduit.xml:108(para)
 msgid ""
@@ -327,6 +361,9 @@ msgid ""
 "sync. Irrespective of the type, irrespective of the way in which that "
 "information is stored. Conduit should just work."
 msgstr ""
+"El objetivo de Conduit es permitir que los usuarios de GNOME mantengan su información "
+"sincronizada. Independientemente del tipo y de la forma en la que se almacenó la "
+"información. Conduit debería, simplemente, funcionar."
 
 #: C/conduit.xml:112(title)
 msgid "Understanding the Conduit Interface"
@@ -339,6 +376,9 @@ msgid ""
 "could keep in sync, for example, uploading photos right from your mobile "
 "phone to Picasa!"
 msgstr ""
+"Existen unos conceptos básicos sobre Conduit que merece la pena entender antes de comenzar. "
+"Saber estos conceptos le ayudará a descubrir cosas que nunca sabría que podría sincronizar, "
+"por ejemplo, subir fotos directamente desde su móvil a Picasa."
 
 #: C/conduit.xml:118(title)
 msgid "Conduit GUI"
@@ -353,16 +393,17 @@ msgid ""
 "<xref linkend=\"conduit-FIG-gui-parts\"/> shows the Conduit interface's four "
 "main components;"
 msgstr ""
-"<xref linkend=\"conduit-FIG-gui-parts\"/> muestra los cuatro principales componentes de la "
-"interfaz de Conduit;"
+"<xref linkend=\"conduit-FIG-gui-parts\"/> muestra los cuatro principales "
+"componentes de la interfaz de Conduit;"
 
 #: C/conduit.xml:133(para)
 msgid ""
 "The file, edit and help menus store operations which apply to all groups. "
 "For more information on the contents of these menus, see below."
 msgstr ""
-"Los menús Archivo, Editar y Ayuda almacenan operaciones que se aplican a todos los grupos. "
-"Para obtener más información acerca del contenido de estos menús, consulte debajo."
+"Los menús Archivo, Editar y Ayuda almacenan operaciones que se aplican a "
+"todos los grupos. Para obtener más información acerca del contenido de estos "
+"menús, consulte debajo."
 
 #: C/conduit.xml:133(para)
 msgid "The Menu<placeholder-1/>"
@@ -373,8 +414,8 @@ msgid ""
 "Located on the left hand side of the window, lists all of the data providers "
 "that are detected and ready for use on your system."
 msgstr ""
-"Ubicado en la parte izquierda de la ventana, lista todos los proveedores de datos "
-"detectados y listos para usarse en su sistema."
+"Ubicado en la parte izquierda de la ventana, lista todos los proveedores de "
+"datos detectados y listos para usarse en su sistema."
 
 #: C/conduit.xml:134(para)
 msgid ""
@@ -382,10 +423,13 @@ msgid ""
 "Please refer to the <emphasis>Data Provider</emphasis> section of the "
 "documentation to receive instructions on how to configure each data provider."
 msgstr ""
+"Los proveedores de datos son la fuente o destino de los datos que quiera sincronizar. "
+"Consulte la sección <emphasis>Proveedores de datos</emphasis> de la documentación "
+"para obtener instrucciones acerca de cómo configurar cada proveedor de datos."
 
 #: C/conduit.xml:134(para)
 msgid "The Data Provider Pane <placeholder-1/>"
-msgstr ""
+msgstr "El panel de los proveedores de datos <placeholder-1/>"
 
 #: C/conduit.xml:135(para)
 msgid ""
@@ -394,10 +438,14 @@ msgid ""
 "the data pane to create a group. For more explanation on groups please check "
 "<xref linkend=\"conduit-providers-and-groups\"/>."
 msgstr ""
+"Usado para crear grupos de proveedores de datos que sincronizar. Arrastre una fuente "
+"de datos a la izquierda del panel del marco y uno o más fuentes a la derecha del "
+"panel de datos para crear un grupo. Para obtener una explicación más detallada acerca "
+"de los grupos consulte la <xref linkend=\"conduit-providers-and-groups\"/>."
 
 #: C/conduit.xml:135(para)
 msgid "The Canvas Pane <placeholder-1/>"
-msgstr ""
+msgstr "El panel del marco <placeholder-1/>"
 
 #: C/conduit.xml:136(para)
 msgid ""
@@ -406,6 +454,10 @@ msgid ""
 "conflicts please check the <emphasis>Conflicts and Resolutions</emphasis> "
 "section of the documentation."
 msgstr ""
+"Si recibe cualquier notificación de conflictos al intentar ejecutar una tarea de "
+"sincronización, se listarán aquí. Para obtener más información acerca de cómo "
+"resolver los conflictos, compruebe la sección <emphasis>Conflictos y resoluciones</emphasis> "
+"de la documentación."
 
 #: C/conduit.xml:136(para)
 msgid "The Conflicts Pane <placeholder-1/>"
@@ -426,6 +478,10 @@ msgid ""
 "application. If you have unchecked this option, then all data providers, "
 "groups, and the configruation of both, is saved when you select this item."
 msgstr ""
+"<menuchoice><guimenu>Archivo</guimenu><guimenuitem>Guardar</guimenuitem></"
+"menuchoice>. Conduit guarda todos los grupos configurados al salir de la aplicación. "
+"Si ha desmarcado esta opción, entonces todos los proveedores de datos, grupos "
+"y la configuración de ambos, se guarda al seleccionar este elemento."
 
 #: C/conduit.xml:145(para)
 msgid ""
@@ -435,6 +491,11 @@ msgid ""
 "section), but this saves you the time of having to select and manually going "
 "through each group to start the sync process."
 msgstr ""
+"<menuchoice><guimenu>Archivo</guimenu><guimenuitem>Sincronizar todo</"
+"guimenuitem></menuchoice>. Sincroniza todos los grupos al mismo tiempo. Aún "
+"puede sincronizar cada grupo de forma separada (consulte la sección <emphasis>"
+"Grupos</emphasis>), pero esto le ahorra el tiempo de seleccionar manualmente "
+"cada grupo e iniciar el proceso de sincronización."
 
 #: C/conduit.xml:146(para)
 msgid ""
@@ -501,7 +562,7 @@ msgstr ""
 
 #: C/conduit.xml:169(title)
 msgid "Configuration Tab"
-msgstr ""
+msgstr "La solapa de configuración"
 
 #: C/conduit.xml:170(para)
 msgid ""
@@ -521,7 +582,7 @@ msgstr ""
 
 #: C/conduit.xml:177(guilabel)
 msgid "Show Status Icon"
-msgstr ""
+msgstr "Mostrar el icono de estado"
 
 #: C/conduit.xml:178(para)
 msgid ""
@@ -826,7 +887,9 @@ msgstr ""
 
 #: C/conduit.xml:317(para)
 msgid "Add dataproviders to create a new group, or to an existing group."
-msgstr "Añada proveedores de datos para crear un grupo nuevo, o para añadirlos un grupo existente."
+msgstr ""
+"Añada proveedores de datos para crear un grupo nuevo, o para añadirlos un "
+"grupo existente."
 
 #: C/conduit.xml:318(para)
 msgid ""
@@ -834,13 +897,15 @@ msgid ""
 "configuration. For reference on these please the <emphasis>Data Providers</"
 "emphasis> section of the documentation."
 msgstr ""
-"Configure los proveedores de datos. Cada proveedor de datos requiere una configuración "
-"única. Para más referencias acerca de esto, consulte la sección <emphasis>Proveedores "
-"de datos</emphasis> de la documentación."
+"Configure los proveedores de datos. Cada proveedor de datos requiere una "
+"configuración única. Para más referencias acerca de esto, consulte la "
+"sección <emphasis>Proveedores de datos</emphasis> de la documentación."
 
 #: C/conduit.xml:319(para)
 msgid "Configure the group, selecting what should happen on conflict, etc."
-msgstr "Configure el grupo, seleccionando qué deberá pasar al haber un conflicto, etc."
+msgstr ""
+"Configure el grupo, seleccionando qué deberá pasar al haber un conflicto, "
+"etc."
 
 #: C/conduit.xml:320(para)
 msgid "Synchronize the dataproviders as you wish."
