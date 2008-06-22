@@ -30,8 +30,9 @@ class Contact(DataType.DataType):
         
     def get_emails(self):
         emails = []
-        for email in self.vcard.contents['email']:
-            emails.append(email.value)
+        if 'email' in self.vcard.contents:
+            for email in self.vcard.contents['email']:
+                emails.append(email.value)
         return emails
         
     def get_name(self):

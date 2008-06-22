@@ -1,4 +1,9 @@
-2008-06-18  John Carrr  <john.carr@unrouted.co.uk>
+2008-06-22  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/datatypes/Contact.py:
+	Check contact has email property before looping through it.
+
+2008-06-18  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/GoogleModule/GoogleModule.py:
 	Fix Contact two way sync (conversion code was trying to 
