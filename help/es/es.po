@@ -1,10 +1,10 @@
-# translation of help.HEAD.es(2).po to Español
+# translation of conduit.help.HEAD.po to Español
 # Jorge González <jorgegonz@svn.gnome.org>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: help.HEAD.es(2)\n"
-"POT-Creation-Date: 2008-06-21 20:19+0000\n"
-"PO-Revision-Date: 2008-06-22 11:59+0200\n"
+"Project-Id-Version: conduit.help.HEAD\n"
+"POT-Creation-Date: 2008-06-22 10:16+0000\n"
+"PO-Revision-Date: 2008-06-27 21:57+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -518,8 +518,9 @@ msgid ""
 "menuchoice> Closes conduit. You will be prompted to stop any synchronization "
 "currently in progress."
 msgstr ""
-"<menuchoice><guimenu>Archivo</guimenu><guimenuitem>Salir</guimenuitem></menuchoice>. "
-"Cierra Conduit. Se mostrará un mensaje emergente para parar cualquier sincronización en progreso."
+"<menuchoice><guimenu>Archivo</guimenu><guimenuitem>Salir</guimenuitem></"
+"menuchoice>. Cierra Conduit. Se mostrará un mensaje emergente para parar "
+"cualquier sincronización en progreso."
 
 #: C/conduit.xml:150(title)
 msgid "The Edit Menu"
@@ -534,6 +535,12 @@ msgid ""
 "your sync groups. There is no quick way to revert back after selecting this "
 "setting."
 msgstr ""
+"<menuchoice><guimenu>Editar</guimenu><guimenuitem>Limpiar el marco</guimenuitem></"
+"menuchoice>. Quita toda la configuración, proveedores de datos y grupos del panel del marco. "
+"Esto le permite comenzar a usar el marco desde un estado inicial. "
+"El mejor momento para usar esto es cuando está reconfigurando una gran parte "
+"de sus grupos de sincronización. No hay una forma rápida de revertir después de seleccionar "
+"este ajuste."
 
 #: C/conduit.xml:153(para)
 msgid ""
@@ -542,6 +549,10 @@ msgid ""
 "basic Conduit operations. For more information please see the "
 "<emphasis>Conduit Preferences</emphasis> section of the documentation."
 msgstr ""
+"<menuchoice><guimenu>Editar</guimenu><guimenuitem>Preferencias</guimenuitem></"
+"menuchoice>. Ajustes generales de Conduit que afectan a todos sus grupos de sincronización y "
+"operaciones básicas de Conduit. Para obtener más información, consulte la sección "
+"<menuchoice>Preferencias de Conduit<guimenu> de la documentación."
 
 #: C/conduit.xml:157(title)
 msgid "The Help Menu"
@@ -553,25 +564,27 @@ msgid ""
 "menuchoice> If you are developer, and interested in contributing to Conduit, "
 "then this option includes links to all the appropriate documentation."
 msgstr ""
-"<menuchoice><guimenu>Ayuda</guimenu><guimenuitem>Desarrolladores</guimenuitem></menuchoice>. "
-"Si es un desarrollador y está interesado en contribuir con Conduit, "
-"entonces esta opción incluye enlaces a toda la documentación apropiada."
+"<menuchoice><guimenu>Ayuda</guimenu><guimenuitem>Desarrolladores</"
+"guimenuitem></menuchoice>. Si es un desarrollador y está interesado en "
+"contribuir con Conduit, entonces esta opción incluye enlaces a toda la "
+"documentación apropiada."
 
 #: C/conduit.xml:160(para)
 msgid ""
 "<menuchoice><guimenu>Help</guimenu><guimenuitem>Contents</guimenuitem></"
 "menuchoice> Shows this help document."
 msgstr ""
-"<menuchoice><guimenu>Ayuda</guimenu><guimenuitem>Índice</guimenuitem></menuchoice>. "
-"Muestra este documento de ayuda."
+"<menuchoice><guimenu>Ayuda</guimenu><guimenuitem>Índice</guimenuitem></"
+"menuchoice>. Muestra este documento de ayuda."
 
 #: C/conduit.xml:161(para)
 msgid ""
 "<menuchoice><guimenu>Help</guimenu><guimenuitem>About</guimenuitem></"
 "menuchoice> Shows the version number and a list of Conduit developers."
 msgstr ""
-"<menuchoice><guimenu>Ayuda</guimenu><guimenuitem>Acerca de </guimenuitem></menuchoice>. "
-"Muestra el número de versión y la lista de desarrolladores de Conduit."
+"<menuchoice><guimenu>Ayuda</guimenu><guimenuitem>Acerca de </guimenuitem></"
+"menuchoice>. Muestra el número de versión y la lista de desarrolladores de "
+"Conduit."
 
 #: C/conduit.xml:166(title)
 msgid "The Preferences Window"
@@ -583,9 +596,9 @@ msgid ""
 "change that you make within the preferences menu affect all of your sync "
 "groups and basic Conduit operations."
 msgstr ""
-"A las preferencias de Conduit se accede desde el menú Editar. Cualquier ajuste "
-"o cambio que haga en el menú de preferencias afecta a todos sus grupos "
-"de sincronización y operaciones básicas de Conduit."
+"A las preferencias de Conduit se accede desde el menú Editar. Cualquier "
+"ajuste o cambio que haga en el menú de preferencias afecta a todos sus "
+"grupos de sincronización y operaciones básicas de Conduit."
 
 #: C/conduit.xml:169(title)
 msgid "Configuration Tab"
@@ -596,16 +609,20 @@ msgid ""
 "The configuration tab is where all of Conduit's global settings are "
 "configured. There are six global settings:"
 msgstr ""
+"La solapa de configuración es donde se configuran todos los ajustes globales "
+"de Conduit. Existen seis ajustes globales."
 
 #: C/conduit.xml:173(guilabel)
 msgid "Save Settings on Exit"
-msgstr ""
+msgstr "Guardar ajustes al salir"
 
 #: C/conduit.xml:174(para)
 msgid ""
 "Instructs Conduit that all configured dataproviders and groups should be "
 "saved when the application exits."
 msgstr ""
+"Le dice a Conduit que todos los proveedores de datos configurados se deben "
+"guardar al salir de la aplicación."
 
 #: C/conduit.xml:177(guilabel)
 msgid "Show Status Icon"
@@ -616,54 +633,58 @@ msgid ""
 "Shows a status icon in the notification area. This icon animates to indicate "
 "a sync is in progress."
 msgstr ""
+"Muestra un icono de estado en el área de notificación. Este icono se anima para indicar "
+"una sincronización en progreso."
 
 #: C/conduit.xml:181(guilabel)
 msgid "Minimize to Notification Area"
-msgstr ""
+msgstr "Minimizar al área de notificación"
 
 #: C/conduit.xml:182(para)
 msgid ""
 "Instructs Conduit to minimize to the notification area instead of to the "
 "panel."
-msgstr ""
+msgstr "Le dice a Conduit que se minimice al área de notificación en lugar de al panel."
 
 #: C/conduit.xml:185(guilabel)
 msgid "Use Built in Web Browser"
-msgstr ""
+msgstr "Usar el navegador web integrado"
 
 #: C/conduit.xml:186(para)
 msgid ""
 "When a data provider requires that you log onto a website, this option tells "
 "Conduit to use its own web browser to do so."
 msgstr ""
+"Cuando un proveedor de datos requiere que se registre en un sitio web, esta opción "
+"le dice a Conduit que use su propio navegador web para hacerlo."
 
 #: C/conduit.xml:188(guilabel)
 msgid "When an Item Has Been Deleted"
-msgstr ""
+msgstr "Cuando se ha borrado un elemento"
 
 #: C/conduit.xml:189(guilabel)
 msgid "Where There is a Two Way Conflict"
-msgstr ""
+msgstr "Cuando hay un conflicto de dos vías"
 
 #: C/conduit.xml:193(title)
 msgid "Data Providers Tab"
-msgstr ""
+msgstr "Solapa de proveedores de datos"
 
 #: C/conduit.xml:194(para)
 msgid "This tab shows a list of the data providers that are currently installed."
-msgstr ""
+msgstr "Esta solapa muestra una lista de los proveedores de datos actualmente instalados."
 
 #: C/conduit.xml:197(title)
 msgid "Data Conversions Tab"
-msgstr ""
+msgstr "Solapa de conversiones de datos "
 
 #: C/conduit.xml:198(para)
 msgid "This tab lists the data conversions that Conduit is capable of performing."
-msgstr ""
+msgstr "Esta solapa lista las conversiones de datos que Conduit es capaz de realizar."
 
 #: C/conduit.xml:201(title)
 msgid "Mapping DB"
-msgstr ""
+msgstr "Mapeado de la base de datos"
 
 #: C/conduit.xml:202(para)
 msgid ""
@@ -671,10 +692,13 @@ msgid ""
 "from different sources. Here you have the option to clear the mapping "
 "database."
 msgstr ""
+"Esta es una lista de los UID que Conduit usa para mantener los datos sincronizados "
+"con precisión desde diferentes fuentes. Aquí tiene la opción de limpiar el mapeo de la "
+"base de datos."
 
 #: C/conduit.xml:206(title)
 msgid "The Web Login Window"
-msgstr ""
+msgstr "La ventana de inicio de sesión"
 
 #: C/conduit.xml:207(para)
 msgid ""
@@ -1024,6 +1048,9 @@ msgid ""
 "network sync feature to synchronize large files between two computers. We "
 "hope to address this limitation in the future."
 msgstr ""
+"Debido a razones de rendimiento y seguridad, no se recomienda usar la característica "
+"de sincronización de red para sincronizar archivos grandes entre dos equipos. Se espera "
+"mejorar esta limitación en el futuro."
 
 #. Put one translator per line, in the form of NAME <EMAIL>, YEAR1, YEAR2.
 #: C/conduit.xml:0(None)
