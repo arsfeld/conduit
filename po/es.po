@@ -8,12 +8,12 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-07 07:56+0000\n"
-"PO-Revision-Date: 2008-06-07 15:23+0200\n"
+"POT-Creation-Date: 2008-06-07 13:27+0000\n"
+"PO-Revision-Date: 2008-06-27 19:34+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type:  text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
@@ -156,7 +156,7 @@ msgstr "Resolver conflictos"
 
 #: ../data/conduit.glade.h:31
 msgid "Save settings on exit"
-msgstr "Guardar los ajustes al salir."
+msgstr "Guardar los ajustes al salir"
 
 #: ../data/conduit.glade.h:32
 msgid "Show status icon"
@@ -216,7 +216,7 @@ msgstr "Cuando hay un conflicto..."
 
 #: ../data/conduit.glade.h:46
 msgid "When there is a two way conflict:"
-msgstr "Cuando hay un conflicto:"
+msgstr "Cuando hay un conflicto de dos vías:"
 
 #: ../data/conduit.glade.h:47
 msgid "_Edit"
@@ -594,8 +594,7 @@ msgid "Please Name All Folders"
 msgstr "De nombre a todas las carpetas"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:297
-msgid ""
-"All folders require a descriptive name. To name a folder simply click on it"
+msgid "All folders require a descriptive name. To name a folder simply click on it"
 msgstr ""
 "Todas las carpetas requieren un nombre descriptivo. Para dar nombre a una "
 "carpeta, simplemente pulse sobre ella."
@@ -973,14 +972,3 @@ msgstr "Zoto"
 msgid "Sync your Zoto photos"
 msgstr "Sincronizar sus fotos de Zoto"
 
-#~ msgid "By user"
-#~ msgstr "Por el usuario"
-
-#~ msgid "User: "
-#~ msgstr "Usuario: "
-
-#~ msgid "F-Spot Photos"
-#~ msgstr "Gestor de fotos F-Spot"
-
-#~ msgid "Sync contacts from Google"
-#~ msgstr "Sincronizar datos con Google"
