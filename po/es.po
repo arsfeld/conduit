@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-07 13:27+0000\n"
-"PO-Revision-Date: 2008-06-27 19:34+0200\n"
+"PO-Revision-Date: 2008-07-04 17:04+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -196,7 +196,7 @@ msgstr "Título"
 
 #: ../data/conduit.glade.h:41
 msgid "Two Way Sync"
-msgstr "Dos modo de sincronización"
+msgstr "Sincronización de dos vías"
 
 #: ../data/conduit.glade.h:42
 msgid "Use built in Web browser"
