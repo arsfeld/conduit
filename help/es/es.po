@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: conduit.help.HEAD\n"
-"POT-Creation-Date: 2008-06-22 10:16+0000\n"
-"PO-Revision-Date: 2008-06-27 21:57+0200\n"
+"POT-Creation-Date: 2008-06-27 19:58+0000\n"
+"PO-Revision-Date: 2008-07-04 17:06+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -256,6 +256,12 @@ msgid ""
 "for groups and data providers, while the following gives some examples of "
 "items you may wish to synchronize;"
 msgstr ""
+"A veces puede parecer que Conduit es demasiado complicado, uno de los objetivos del "
+"diseño siempre ha sido hacer la interfaz tan simple e intuitiva como sea posible. "
+"No obstante, Conduit es más potente que lo que su simple interfaz pueda "
+"aparentar. Esta documentación describirá todas las opciones de configuración "
+"para grupos y proveedores de datos, mientras que lo siguiente le proporciona algunos "
+"ejemplos de elementos que puede querer sincronizar;"
 
 #: C/conduit.xml:88(para)
 msgid ""
@@ -535,12 +541,12 @@ msgid ""
 "your sync groups. There is no quick way to revert back after selecting this "
 "setting."
 msgstr ""
-"<menuchoice><guimenu>Editar</guimenu><guimenuitem>Limpiar el marco</guimenuitem></"
-"menuchoice>. Quita toda la configuración, proveedores de datos y grupos del panel del marco. "
-"Esto le permite comenzar a usar el marco desde un estado inicial. "
-"El mejor momento para usar esto es cuando está reconfigurando una gran parte "
-"de sus grupos de sincronización. No hay una forma rápida de revertir después de seleccionar "
-"este ajuste."
+"<menuchoice><guimenu>Editar</guimenu><guimenuitem>Limpiar el marco</"
+"guimenuitem></menuchoice>. Quita toda la configuración, proveedores de datos "
+"y grupos del panel del marco. Esto le permite comenzar a usar el marco desde "
+"un estado inicial. El mejor momento para usar esto es cuando está "
+"reconfigurando una gran parte de sus grupos de sincronización. No hay una "
+"forma rápida de revertir después de seleccionar este ajuste."
 
 #: C/conduit.xml:153(para)
 msgid ""
@@ -549,10 +555,11 @@ msgid ""
 "basic Conduit operations. For more information please see the "
 "<emphasis>Conduit Preferences</emphasis> section of the documentation."
 msgstr ""
-"<menuchoice><guimenu>Editar</guimenu><guimenuitem>Preferencias</guimenuitem></"
-"menuchoice>. Ajustes generales de Conduit que afectan a todos sus grupos de sincronización y "
-"operaciones básicas de Conduit. Para obtener más información, consulte la sección "
-"<menuchoice>Preferencias de Conduit<guimenu> de la documentación."
+"<menuchoice><guimenu>Editar</guimenu><guimenuitem>Preferencias</"
+"guimenuitem></menuchoice>. Ajustes generales de Conduit que afectan a todos "
+"sus grupos de sincronización y operaciones básicas de Conduit. Para obtener "
+"más información, consulte la sección <menuchoice>Preferencias de "
+"Conduit<guimenu> de la documentación."
 
 #: C/conduit.xml:157(title)
 msgid "The Help Menu"
@@ -633,8 +640,8 @@ msgid ""
 "Shows a status icon in the notification area. This icon animates to indicate "
 "a sync is in progress."
 msgstr ""
-"Muestra un icono de estado en el área de notificación. Este icono se anima para indicar "
-"una sincronización en progreso."
+"Muestra un icono de estado en el área de notificación. Este icono se anima "
+"para indicar una sincronización en progreso."
 
 #: C/conduit.xml:181(guilabel)
 msgid "Minimize to Notification Area"
@@ -644,7 +651,9 @@ msgstr "Minimizar al área de notificación"
 msgid ""
 "Instructs Conduit to minimize to the notification area instead of to the "
 "panel."
-msgstr "Le dice a Conduit que se minimice al área de notificación en lugar de al panel."
+msgstr ""
+"Le dice a Conduit que se minimice al área de notificación en lugar de al "
+"panel."
 
 #: C/conduit.xml:185(guilabel)
 msgid "Use Built in Web Browser"
@@ -655,8 +664,8 @@ msgid ""
 "When a data provider requires that you log onto a website, this option tells "
 "Conduit to use its own web browser to do so."
 msgstr ""
-"Cuando un proveedor de datos requiere que se registre en un sitio web, esta opción "
-"le dice a Conduit que use su propio navegador web para hacerlo."
+"Cuando un proveedor de datos requiere que se registre en un sitio web, esta "
+"opción le dice a Conduit que use su propio navegador web para hacerlo."
 
 #: C/conduit.xml:188(guilabel)
 msgid "When an Item Has Been Deleted"
@@ -672,7 +681,9 @@ msgstr "Solapa de proveedores de datos"
 
 #: C/conduit.xml:194(para)
 msgid "This tab shows a list of the data providers that are currently installed."
-msgstr "Esta solapa muestra una lista de los proveedores de datos actualmente instalados."
+msgstr ""
+"Esta solapa muestra una lista de los proveedores de datos actualmente "
+"instalados."
 
 #: C/conduit.xml:197(title)
 msgid "Data Conversions Tab"
@@ -692,9 +703,9 @@ msgid ""
 "from different sources. Here you have the option to clear the mapping "
 "database."
 msgstr ""
-"Esta es una lista de los UID que Conduit usa para mantener los datos sincronizados "
-"con precisión desde diferentes fuentes. Aquí tiene la opción de limpiar el mapeo de la "
-"base de datos."
+"Esta es una lista de los UID que Conduit usa para mantener los datos "
+"sincronizados con precisión desde diferentes fuentes. Aquí tiene la opción "
+"de limpiar el mapeo de la base de datos."
 
 #: C/conduit.xml:206(title)
 msgid "The Web Login Window"
@@ -711,18 +722,26 @@ msgid ""
 "have selected the <guilabel>Use Built in Web Browser</guilabel> from the "
 "Conduit preferences, then a window will pop up like the one shown below."
 msgstr ""
+"Algunas veces se le requerirá que inicie sesión en una página web asociada con ciertos "
+"proveedores de datos. Conduit no determina la frecuencia con la que se le pedirá que "
+"inicie una sesión, pero sí la política de seguridad de los respectivos proveedores de "
+"datos. Por ejemplo, Box.net requiere que inicie sesión cada vez que se ejecuta Conduit , "
+"mientras que Flickr sólo requiere que inicie sesión una vez, para dar permiso a Conduit "
+"para subir fotos. Si se le requiere que inicie sesión en una página web y ha seleccionado "
+"<guilabel>Usar el navegador web integrado</guilabel> en las preferencias de Conduit, "
+"entonces se mostrará una ventana emergente como la siguiente:"
 
 #: C/conduit.xml:210(title)
 msgid "Conduit Login Window"
-msgstr ""
+msgstr "Ventana de inicio de sesión de Conduit"
 
 #: C/conduit.xml:217(para)
 msgid "The window shown when logging into data provider websites"
-msgstr ""
+msgstr "La ventana mostrada al iniciar sesión en páginas web de proveedores de datos"
 
 #: C/conduit.xml:225(title)
 msgid "Data Providers and Groups"
-msgstr ""
+msgstr "Proveedores de datos y grupos"
 
 #: C/conduit.xml:226(para)
 msgid ""
@@ -731,6 +750,10 @@ msgid ""
 "groups. A group is a collection of data providers that share data. In the "
 "figure below you will see the following parts"
 msgstr ""
+"Conduit representa gráficamente las cosas que quiere sincronizar. Cuando se "
+"añade un proveedor de datos al marco, se organizan en grupos. Un grupo es una "
+"colección de proveedores de datos que comparten datos. En la siguiente figura "
+"verá las siguientes partes:"
 
 #: C/conduit.xml:229(title)
 msgid "Conduit Depicts Synchronizations Graphically"
@@ -738,13 +761,15 @@ msgstr ""
 
 #: C/conduit.xml:236(para)
 msgid "Parts of a Synchronization Group"
-msgstr ""
+msgstr "Partes de un grupo de sincronización"
 
 #: C/conduit.xml:243(para)
 msgid ""
 "A data provider for synchronizing two way whose status indicates that it is "
 "ready to be synchronized."
 msgstr ""
+"Un proveedor de datos para sincronizar a dos vías cuyo estado indica que está preparado "
+"para sincronizar."
 
 #: C/conduit.xml:244(para)
 msgid ""
@@ -753,6 +778,10 @@ msgid ""
 "synchronization, that is data will flow in both directions, and both folders "
 "will contain the same information once the sync finishes."
 msgstr ""
+"Un grupo que contiene dos proveedores de datos. La flecha tiene dos finales, "
+"indicando que los dos proveedores de datos realizarán una sincronización "
+"de dos vías, es decir, que los datos fluirán en ambas direcciones y ambas carpetas "
+"contendrán la misma información una vez que finalice la sincronización."
 
 #: C/conduit.xml:245(para)
 msgid ""
@@ -760,6 +789,9 @@ msgid ""
 "right side of groups are called data sinks. This is because during a one way "
 "sync, data can only flow into them."
 msgstr ""
+"Un segundo proveedor de datos. Por convenio, los proveedores de datos que están en la "
+"parte derecha de los grupos se llaman destinos de datos. Esto es así porque durante la "
+"de un sentido, los datos sólo pueden fluir hacia ellos."
 
 #: C/conduit.xml:246(para)
 msgid ""
@@ -1048,9 +1080,9 @@ msgid ""
 "network sync feature to synchronize large files between two computers. We "
 "hope to address this limitation in the future."
 msgstr ""
-"Debido a razones de rendimiento y seguridad, no se recomienda usar la característica "
-"de sincronización de red para sincronizar archivos grandes entre dos equipos. Se espera "
-"mejorar esta limitación en el futuro."
+"Debido a razones de rendimiento y seguridad, no se recomienda usar la "
+"característica de sincronización de red para sincronizar archivos grandes "
+"entre dos equipos. Se espera mejorar esta limitación en el futuro."
 
 #. Put one translator per line, in the form of NAME <EMAIL>, YEAR1, YEAR2.
 #: C/conduit.xml:0(None)
