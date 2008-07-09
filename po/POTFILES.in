@@ -31,7 +31,6 @@ conduit/modules/FspotModule/config.glade
 conduit/modules/GConfModule/GConfModule.py
 conduit/modules/GoogleModule/GoogleModule.py
 conduit/modules/GoogleModule/calendar-config.glade
-conduit/modules/GoogleModule/documents-config.glade
 conduit/modules/GoogleModule/picasa-config.glade
 conduit/modules/GoogleModule/youtube-config.glade
 conduit/modules/iPodModule/config.glade

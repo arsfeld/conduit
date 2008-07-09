@@ -5,7 +5,6 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import traceback
-import threading
 import time
 import gobject
 import gtk, gtk.gdk
@@ -24,9 +23,22 @@ from gettext import gettext as _
 CONFLICT_IDX = 0            #The conflict object
 DIRECTION_IDX = 1           #The current user decision re: the conflict (-->, <-- or -x-)
 
-class ConflictHeader(Conflict.Conflict):
+class ConflictHeader:
     def __init__(self, sourceWrapper, sinkWrapper):
-        Conflict.Conflict.__init__(self, sourceWrapper, None, None, sinkWrapper, None, None, (), False)
+        self.sourceWrapper = sourceWrapper
+        self.sinkWrapper = sinkWrapper
+
+    def get_snippet(self, is_source):
+        if is_source:
+            return self.sourceWrapper.name
+        else:
+            return self.sinkWrapper.name
+
+    def get_icon(self, is_source):
+        if is_source:
+            return self.sourceWrapper.get_icon()
+        else:
+            return self.sinkWrapper.get_icon()
 
 class ConflictResolver:
     """
@@ -40,9 +52,6 @@ class ConflictResolver:
         #In the conflict treeview, group by sink <-> source partnership 
         self.partnerships = {}
         self.numConflicts = 0
-
-        #resolve conflicts in a background thread
-        self.resolveThreadManager = ConflictResolveThreadManager(3)
 
         self.view = gtk.TreeView( self.model )
         self._build_view()
@@ -118,37 +127,13 @@ class ConflictResolver:
         self.view.get_selection().connect("changed", self.on_selection_changed)
 
     def _name_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
-        """
-        The format for displaying the data is
-        uri (modified)
-        snippet
-        """
         conflict = tree_model.get_value(rowref, CONFLICT_IDX)
-        #render the headers different to the data
-        if tree_model.iter_depth(rowref) == 0:
-            if is_source:
-                text = conflict.sourceWrapper.name
-            else:
-                text = conflict.sinkWrapper.name
-        else:
-            if is_source:
-                text = conflict.sourceData.get_snippet()
-            else:
-                text = conflict.sinkData.get_snippet()
-
+        text = conflict.get_snippet(is_source)
         cell_renderer.set_property("text", text)
 
     def _icon_data_func(self, column, cell_renderer, tree_model, rowref, is_source):
         conflict = tree_model.get_value(rowref, CONFLICT_IDX)
-        #Only the headers have icons
-        if tree_model.iter_depth(rowref) == 0:
-            if is_source:
-                icon = conflict.sourceWrapper.get_icon()
-            else:
-                icon = conflict.sinkWrapper.get_icon()
-        else:
-            icon = None
-
+        icon = conflict.get_icon(is_source)
         cell_renderer.set_property("pixbuf", icon)
 
     def _direction_data_func(self, column, cell_renderer, tree_model, rowref, user_data):
@@ -164,54 +149,22 @@ class ConflictResolver:
     def _set_conflict_titles(self):
         self.expander.set_label(_("Conflicts (%s)") % self.numConflicts)
         self.standalone.set_title(_("Conflicts (%s)") % self.numConflicts)
-        
-    def _conflict_resolved(self, sender, rowref):
-        """
-        Callback when a ConflictResolveThread finishes. Deletes the 
-        appropriate conflict from the model. Also looks to see if there
-        are any other conflicts remainng so it can set the sink status and/or
-        delete the partnership
-        """
-        if not self.model.iter_is_valid(rowref):
-            #FIXME: Need to work a way around this before resolution can be threaded
-            log.warn("Iters do not persist throug signal emission!")
-            return
 
-        self.model.remove(rowref)
-        #now look for any sync partnerships with no children
-        empty = False
-        for source,sink in self.partnerships:
-            rowref = self.partnerships[(source,sink)]
-            numChildren = self.model.iter_n_children(rowref)
-            if numChildren == 0:
-                empty = True
-
-        #do in two loops so as to not change the dict while iterating
-        if empty:
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-            del(self.partnerships[(source,sink)])
-            self.model.remove(rowref)
-        else:
-            sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
-
-        #FIXME: Do this properly with model signals and a count function
-        self.numConflicts -= 1
-        self._set_conflict_titles()
-
-    def on_conflict(self, thread, conflict):
+    def on_conflict(self, cond, conflict):
         #We start with the expander disabled. Make sure we only enable it once
         if len(self.model) == 0:
             self.expander.set_sensitive(True)
 
         self.numConflicts += 1
-        source = conflict.sourceWrapper
-        sink = conflict.sinkWrapper
+        source,sink = conflict.get_partnership()
         if (source,sink) not in self.partnerships:
             #create a header row
             header = ConflictHeader(source, sink)
-            self.partnerships[(source,sink)] = self.model.append(None, (header, Conflict.CONFLICT_ASK) )
+            rowref = self.model.append(None, (header, Conflict.CONFLICT_ASK))
+            self.partnerships[(source,sink)] = (rowref,conflict)
 
-        self.model.append(self.partnerships[(source,sink)], (conflict, Conflict.CONFLICT_ASK) )  
+        rowref = self.partnerships[(source,sink)][0]
+        self.model.append(rowref, (conflict, Conflict.CONFLICT_ASK))
 
         #FIXME: Do this properly with model signals and a count function
         #update the expander label and the standalone window title
@@ -242,12 +195,6 @@ class ConflictResolver:
         return True
 
     def on_resolve_conflicts(self, sender):
-        """
-        According to the users selection, start backgroun threads to
-        resolve the conflicts
-        """
-        IHaveMadeItersPersist = False
-
         #save the resolved rowrefs and remove them at the end
         resolved = []
 
@@ -259,76 +206,30 @@ class ConflictResolver:
             direction = model[path][DIRECTION_IDX]
             conflict = model[path][CONFLICT_IDX]
 
-            #do as the user inducated with the arrow
-            if direction == Conflict.CONFLICT_ASK:
-                log.debug("Not resolving")
-                return
-            elif direction == Conflict.CONFLICT_SKIP:
-                log.debug("Skipping conflict")
+            if conflict.resolve(direction):
                 resolved.append(rowref)
-                return
-            elif direction == Conflict.CONFLICT_COPY_SOURCE_TO_SINK:
-                log.debug("Resolving source data --> sink")
-                data = conflict.sourceData
-                dataRid = conflict.sourceDataRid
-                source = conflict.sourceWrapper
-                sink = conflict.sinkWrapper
-            elif direction == Conflict.CONFLICT_COPY_SINK_TO_SOURCE:
-                log.debug("Resolving source <-- sink data")
-                data = conflict.sinkData
-                dataRid = conflict.sinkDataRid
-                source = conflict.sinkWrapper
-                sink = conflict.sourceWrapper
-            elif direction == Conflict.CONFLICT_DELETE:
-                log.debug("Resolving deletion  --->")
-                data = conflict.sinkData
-                dataRid = conflict.sinkDataRid
-                source = conflict.sourceWrapper
-                sink = conflict.sinkWrapper
-            else:
-                log.warn("Unknown resolution")
-
-            deleted = conflict.isDeletion
-
-            #add to resolve thread
-            #FIXME: Think of a way to make rowrefs persist through signals
-            if IHaveMadeItersPersist:
-                self.resolveThreadManager.make_thread(self._conflict_resolved,rowref,source,sink,data,dataRid,deleted)
-            else:
-                try:
-                    if deleted:
-                        log.debug("Resolving conflict. Deleting %s from %s" % (data, sink))
-                        conduit.Synchronization.delete_data(source, sink, data.get_UID())
-                    else:
-                        log.debug("Resolving conflict. Putting %s --> %s" % (data, sink))
-                        conduit.Synchronization.put_data(source, sink, data, dataRid, True)
-
-                    resolved.append(rowref)
-                except Exception:
-                    log.warn("Could not resolve conflict\n%s" % traceback.format_exc())
 
         self.model.foreach(_resolve_func)
         for r in resolved:
             self.model.remove(r)
 
-        if not IHaveMadeItersPersist:
-            #now look for any sync partnerships with no children
-            empty = []
-            for source,sink in self.partnerships:
-                rowref = self.partnerships[(source,sink)]
-                numChildren = self.model.iter_n_children(rowref)
-                if numChildren == 0:
-                    sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
-                    empty.append( (rowref, source, sink) )
-                else:
-                    sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
+        #now look for any sync partnerships with no children
+        empty = []
+        for source,sink in self.partnerships:
+            rowref = self.partnerships[(source,sink)][0]
+            numChildren = self.model.iter_n_children(rowref)
+            if numChildren == 0:
+                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_OK)
+                empty.append( (rowref, source, sink) )
+            else:
+                sink.module.set_status(DataProvider.STATUS_DONE_SYNC_CONFLICT)
 
-            #do in two loops so as to not change the model while iterating
-            for rowref, source, sink in empty:
-                self.model.remove(rowref)
-                try:
-                    del(self.partnerships[(source,sink)])
-                except KeyError: pass
+        #do in two loops so as to not change the model while iterating
+        for rowref, source, sink in empty:
+            self.model.remove(rowref)
+            try:
+                del(self.partnerships[(source,sink)])
+            except KeyError: pass
 
     def on_cancel_conflicts(self, sender):
         self.model.clear()
@@ -432,127 +333,3 @@ class ConflictCellRenderer(gtk.GenericCellRenderer):
             model[path][DIRECTION_IDX] = conflict.choices[curIdx+1]
 
         return True
-
-class _ConflictResolveThread(threading.Thread, gobject.GObject):
-    """
-    Resolves a conflict or deletion event. If a deleted event then
-    calls sink.delete, if a conflict then does put()
-    """
-    __gsignals__ =  { 
-                    "completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
-                    }
-
-    def __init__(self, *args):
-        """
-        Args
-         - arg[0]: source
-         - arg[1]: sink
-         - arg[2]: data
-         - arg[3]: dataRid
-         - arg[4]: isDeleted
-        """
-        threading.Thread.__init__(self)
-        gobject.GObject.__init__(self)
-        
-
-        self.source = args[0]
-        self.sink = args[1]
-        self.data = args[2]
-        self.dataRid = args[3]
-        self.isDeleted = args[4]
-
-        self.setName("ResolveThread for sink: %s. (Delete: %s)" % (self.sink, self.isDeleted))
-
-    def emit(self, *args):
-        """
-        Override the gobject signal emission so that all signals are emitted 
-        from the main loop on an idle handler
-        """
-        gobject.idle_add(gobject.GObject.emit,self,*args)
-
-    def run(self):
-        try:
-            if self.isDeleted:
-                log.debug("Resolving conflict. Deleting %s from %s" % (self.data, self.sink))
-                conduit.Synchronization.delete_data(self.source, self.sink, self.dataRid.get_UID())
-            else:
-                log.debug("Resolving conflict. Putting %s --> %s" % (self.data, self.sink))
-                conduit.Synchronization.put_data(self.source, self.sink, self.data, self.dataRid, True)
-        except Exception:                        
-            log.warn("Could not resolve conflict\n%s" % traceback.format_exc())
-            #sink.module.set_status(DataProvider.STATUS_DONE_SYNC_ERROR)
-
-        self.emit("completed")
-
-class ConflictResolveThreadManager:
-    """
-    Manages many resolve threads. This involves joining and cancelling
-    said threads, and respecting a maximum num of concurrent threads limit
-    """
-    def __init__(self, maxConcurrentThreads):
-        self.maxConcurrentThreads = maxConcurrentThreads
-        #stores all threads, running or stopped
-        self.fooThreads = {}
-        #the pending thread args are used as an index for the stopped threads
-        self.pendingFooThreadArgs = []
-
-    def _register_thread_completed(self, thread, *args):
-        """
-        Decrements the count of concurrent threads and starts any 
-        pending threads if there is space
-        """
-        del(self.fooThreads[args])
-        running = len(self.fooThreads) - len(self.pendingFooThreadArgs)
-
-        log.debug("Thread %s completed. %s running, %s pending" % (
-                            thread, running, len(self.pendingFooThreadArgs)))
-
-        if running < self.maxConcurrentThreads:
-            try:
-                args = self.pendingFooThreadArgs.pop()
-                log.debug("Starting pending %s" % self.fooThreads[args])
-                self.fooThreads[args].start()
-            except IndexError: pass
-
-    def make_thread(self, completedCb, completedCbUserData,  *args):
-        """
-        Makes a thread with args. The thread will be started when there is
-        a free slot
-        """
-        running = len(self.fooThreads) - len(self.pendingFooThreadArgs)
-
-        if args not in self.fooThreads:
-            thread = _ConflictResolveThread(*args)
-            #signals run in the order connected. Connect the user one first 
-            #incase they wish to do something before we delete the thread
-            thread.connect("completed", completedCb, completedCbUserData)
-            thread.connect("completed", self._register_thread_completed, *args)
-            #This is why we use args, not kwargs, because args are hashable
-            self.fooThreads[args] = thread
-
-            if running < self.maxConcurrentThreads:
-                log.debug("Starting %s" % thread)
-                self.fooThreads[args].start()
-            else:
-                log.debug("Queing %s" % thread)
-                self.pendingFooThreadArgs.append(args)
-        else:
-            log.debug("Already resolving conflict")
-
-    def join_all_threads(self):
-        """
-        Joins all threads (blocks)
-
-        Unfortunately we join all the threads do it in a loop to account
-        for join() a non started thread failing. To compensate I time.sleep()
-        to not smoke CPU
-        """
-        joinedThreads = 0
-        while(joinedThreads < len(self.fooThreads)):
-            for thread in self.fooThreads.values():
-                try:
-                    thread.join()
-                    joinedThreads += 1
-                except AssertionError: 
-                    #deal with not started threads
-                    time.sleep(1)

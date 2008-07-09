@@ -233,8 +233,8 @@ class MainWindow:
 
         #Build some liststores to display
         CONVERT_FROM_MESSAGE = _("Convert from")
-        CONVERT_INTO_MESSAGE = _("into") 
-        
+        CONVERT_INTO_MESSAGE = _("into")
+
         convertables = self.type_converter.get_convertables_list()
         converterListStore = gtk.ListStore( str )
         for froms,tos in convertables:
@@ -250,9 +250,10 @@ class MainWindow:
 
         #construct the dialog
         tree = gtk.glade.XML(self.gladeFile, "PreferencesDialog")
+        notebook = tree.get_widget("prop_notebook")
+
         #Show the DB contents to help debugging
         if conduit.IS_DEVELOPMENT_VERSION:
-            notebook = tree.get_widget("prop_notebook")
             vbox = gtk.VBox(False,5)
             
             #build the treeview to show all column fields. For performance
@@ -284,7 +285,6 @@ class MainWindow:
             vbox.pack_start(clear, False, False)
 
             notebook.append_page(vbox,gtk.Label('Mapping DB'))
-            notebook.show_all()
         
         converterTreeView = tree.get_widget("dataConversionsTreeView")
         converterTreeView.set_model(converterListStore)
@@ -326,6 +326,20 @@ class MainWindow:
                 if currentValue == policyValue:
                     widget.set_active(True)
                                         
+        #Add configuration widgets for all factories
+        #The dataprovider factories can provide a configuration widget which is
+        #packed into the notebook
+        factoryConfigurationWidgets = []
+        for i in conduit.GLOBALS.moduleManager.dataproviderFactories:#get_modules_by_type("dataprovider-factory"):
+            widget = i.setup_configuration_widget()
+            if widget:
+                factoryConfigurationWidgets.append(widget)
+                notebook.append_page(
+                            widget,
+                            gtk.Label(i.get_name()))
+
+        notebook.show_all()
+
         #Show the dialog
         dialog = tree.get_widget("PreferencesDialog")
         dialog.set_transient_for(self.mainWindow)
@@ -346,6 +360,11 @@ class MainWindow:
                         conduit.GLOBALS.settings.set(
                                 "default_policy_%s" % policyName,
                                 policyValue)
+
+        #give the dataprovider factories to ability to save themselves
+        for factory in factoryConfigurationWidgets:
+            factory.save_configuration(response == gtk.RESPONSE_OK)
+
         dialog.destroy()                
 
 
@@ -479,7 +498,9 @@ class SplashScreen:
         The splash can also be destroyed manually by the application
         """
         self.wSplash = gtk.Window(gtk.WINDOW_POPUP)
+        self.wSplash.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)
         self.wSplash.set_decorated(False)
+
         wSplashScreen = gtk.Image()
         wSplashScreen.set_from_file(os.path.join(conduit.SHARED_DATA_DIR,"conduit-splash.png"))
 

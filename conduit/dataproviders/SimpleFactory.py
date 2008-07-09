@@ -15,6 +15,7 @@ class SimpleFactory(DataProvider.DataProviderFactory):
         self.items = {}
 
     def item_added(self, key, **kwargs):
+        log.info("Item Added: %s" % key)
         cat = self.get_category(key, **kwargs)
         idxs = []
         for klass in self.get_dataproviders(key, **kwargs):
@@ -27,7 +28,7 @@ class SimpleFactory(DataProvider.DataProviderFactory):
         if key in self.items:
             for idx in self.items[key]:
                 self.emit_removed(idx)
-            del self.items[key]
+            del(self.items[key])
 
     def get_category(self, key, **kwargs):
         """ Return a category to contain these dataproviders """
@@ -38,5 +39,8 @@ class SimpleFactory(DataProvider.DataProviderFactory):
         raise NotImplementedError
 
     def get_args(self, key, **kwargs):
+        raise NotImplementedError
+
+    def is_interesting(self, udi, properties):
         raise NotImplementedError
 

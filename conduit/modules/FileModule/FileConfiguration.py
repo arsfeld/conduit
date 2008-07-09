@@ -300,11 +300,10 @@ class _FileSourceConfigurator(Vfs.FolderScannerThreadManager):
                 dialog.emit_stop_by_name("response")
 
 class _FolderTwoWayConfigurator:
-    def __init__(self, mainWindow, folder, folderGroupName, includeHidden, compareIgnoreMtime, followSymlinks):
+    def __init__(self, mainWindow, folder, includeHidden, compareIgnoreMtime, followSymlinks):
         log.debug("Starting new folder chooser at %s" % folder)
         self.folder = folder
         self.includeHidden = includeHidden
-        self.folderGroupName = folderGroupName
         self.compareIgnoreMtime = compareIgnoreMtime
         self.followSymlinks = followSymlinks
 
@@ -315,8 +314,6 @@ class _FolderTwoWayConfigurator:
 						)
         self.folderChooser = tree.get_widget("filechooserbutton1")
         self.folderChooser.set_current_folder_uri(self.folder)
-        self.folderEntry = tree.get_widget("entry1")
-        self.folderEntry.set_text(self.folderGroupName)
         self.hiddenCb = tree.get_widget("hidden")
         self.hiddenCb.set_active(includeHidden)
         self.mtimeCb = tree.get_widget("ignoreMtime")
@@ -330,37 +327,22 @@ class _FolderTwoWayConfigurator:
 
     def on_response(self, dialog, response_id):
         if response_id == gtk.RESPONSE_OK:
-            if self.folderEntry.get_text() == "":
-                #stop this dialog from closing, and show a warning to the
-                #user indicating that the folder must be named
-                warning = gtk.MessageDialog(
-                                parent=dialog,
-                                flags=gtk.DIALOG_MODAL, 
-                                type=gtk.MESSAGE_WARNING, 
-                                buttons=gtk.BUTTONS_OK, 
-                                message_format=_("Please Enter a Folder Name"))
-                warning.format_secondary_text(_("All folders require a descriptive name. To name a folder enter its name where indicated"))
-                warning.run()
-                warning.destroy()
-                dialog.emit_stop_by_name("response")
-            else:
-                self.folderGroupName = self.folderEntry.get_text()
-                #I think the logic here is ugly, and rather non-symmetric.
-                #Basically get_uri returns the selected folder uri, OR the current
-                #(read: same as get_folder_uri) uri if none is selected. 
-                #The non symmetric part is that when we pre-load the filechooser
-                #at time+1, we call set_current_folder_uri() #because the set_uri()
-                #call doesnt make sense in a folderchooser where you want 
-                #to be *inside* the selected folder and not one below it.
-                selected = self.folderChooser.get_uri()
-                self.folder = Vfs.uri_make_canonical(selected)
-                log.debug("Folderconfig returned %s (non-canonical: %s)" % (self.folder,selected))
-                self.includeHidden = self.hiddenCb.get_active()
-                self.compareIgnoreMtime = self.mtimeCb.get_active()
-                self.followSymlinks = self.followSymlinksCb.get_active() 
+            #I think the logic here is ugly, and rather non-symmetric.
+            #Basically get_uri returns the selected folder uri, OR the current
+            #(read: same as get_folder_uri) uri if none is selected. 
+            #The non symmetric part is that when we pre-load the filechooser
+            #at time+1, we call set_current_folder_uri() #because the set_uri()
+            #call doesnt make sense in a folderchooser where you want 
+            #to be *inside* the selected folder and not one below it.
+            selected = self.folderChooser.get_uri()
+            self.folder = Vfs.uri_make_canonical(selected)
+            log.debug("Folderconfig returned %s (non-canonical: %s)" % (self.folder,selected))
+            self.includeHidden = self.hiddenCb.get_active()
+            self.compareIgnoreMtime = self.mtimeCb.get_active()
+            self.followSymlinks = self.followSymlinksCb.get_active() 
 
     def show_dialog(self):
         self.dlg.show_all()
         self.dlg.run()
         self.dlg.destroy()
-        return self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime, self.followSymlinks
+        return self.folder, self.includeHidden, self.compareIgnoreMtime, self.followSymlinks

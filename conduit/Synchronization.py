@@ -391,6 +391,7 @@ class SyncWorker(_ThreadedWorker):
             sourceData = DeletedData(sourceDataLUID)
             sinkData = DeletedData(sinkDataLUID)
             c = Conflict(
+                    self.cond,                  #the conduit this conflict belongs to
                     sourceWrapper,              #datasource wrapper
                     sourceData,                 #from data
                     sourceData.get_rid(),       #from data rid
@@ -400,7 +401,7 @@ class SyncWorker(_ThreadedWorker):
                     validResolveChoices,        #valid resolve choices
                     True                        #This conflict is a deletion
                     )
-            self.cond.emit("sync-conflict", c)
+            self.cond.emit_conflict(c)
 
         elif self.cond.get_policy("deleted") == "replace":
             log.debug("Deleted Policy: Delete")
@@ -426,6 +427,7 @@ class SyncWorker(_ThreadedWorker):
                 avail = (CONFLICT_SKIP,CONFLICT_COPY_SOURCE_TO_SINK)
 
             c = Conflict(
+                    self.cond,
                     sourceWrapper, 
                     fromData,
                     fromDataRid, 
@@ -435,7 +437,7 @@ class SyncWorker(_ThreadedWorker):
                     avail,
                     False
                     )
-            self.cond.emit("sync-conflict", c)
+            self.cond.emit_conflict(c)
 
         elif self.cond.get_policy("conflict") == "replace":
             log.debug("Conflict Policy: Replace")

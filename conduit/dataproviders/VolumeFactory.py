@@ -38,10 +38,11 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         return True
 
     def _volume_unmounted_cb(self, monitor, volume):
-        log.info("Volume Umounted")
+        log.info("Volume Umounted: %s" % volume.get_hal_udi())
         device_udi = volume.get_hal_udi()
         if device_udi :
             if self.is_interesting(device_udi, self._get_properties(device_udi)):
+                log.info("Removing Volume")
                 self.item_removed(device_udi)
         return False
 
@@ -84,5 +85,4 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         """ VolumeFactory passes mount point and udi to dataproviders """
         return (kwargs['mount'], udi,)
 
-    def is_interesting(self, udi, properties):
-        raise NotImplementedError
+

@@ -687,9 +687,6 @@ class TestConflict(_TestBase, DataProvider.DataSink):
             raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, newData)
         return newData.get_rid()
 
-    def get_UID(self):
-        return Utils.random_string()
-
 class TestConverter(TypeConverter.Converter):
     def __init__(self):
         self.conversions =  {
@@ -714,6 +711,7 @@ class TestConverter(TypeConverter.Converter):
         return t
 
 class TestFactory(DataProvider.DataProviderFactory):
+    _configurable_ = True
     def __init__(self, **kwargs):
         DataProvider.DataProviderFactory.__init__(self, **kwargs)
         
@@ -753,6 +751,17 @@ class TestFactory(DataProvider.DataProviderFactory):
     def remove_one(self, *args):
         self.emit_removed(self.key1)
         return False
+
+    def setup_configuration_widget(self):
+        import gtk
+        vb = gtk.VBox(2)
+        vb.pack_start(gtk.Label("Hello World"))
+        self.entry = gtk.Entry()
+        vb.pack_start(self.entry)
+        return vb
+
+    def save_configuration(self, ok):
+        log.debug("OK: %s Message: %s" % (ok,self.entry.get_text()))
 
 class TestFactoryRemoval(DataProvider.DataProviderFactory):
     """

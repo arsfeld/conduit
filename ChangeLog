@@ -1,3 +1,34 @@
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+    * test/python-tests/TestCoreConflict.py: Add
+    test for conflict resolution and uniqueness.
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+    * conduit/gtkui/ConflictResolver.py: Remove threaded
+    conflict resolution.
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+    * conduit/Conduit.py:
+    * conduit/Conflict.py:
+    * conduit/MappingDB.py:
+    * conduit/Synchronization.py:
+    * conduit/gtkui/ConflictResolver.py:
+    * conduit/modules/TestModule.py: Move the conflict
+    resolution to the conflict class
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+    * conduit/Conduit.py:
+    * conduit/Conflict.py:
+    * conduit/MappingDB.py:
+    * conduit/Synchronization.py:
+    * conduit/gtkui/ConflictResolver.py:
+    * conduit/modules/TestModule.py: Prevent duplicate 
+    conflicts from showing in the UI by creating a hash
+    which is invariant depending on the order of sync and source.
+
 2008-06-22  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/datatypes/Contact.py:

@@ -13,8 +13,8 @@ import conduit.utils as Utils
 import conduit.Vfs as Vfs
 
 MODULES = {
-	"FileSource" :              { "type": "dataprovider" },
-	"FolderTwoWay" :            { "type": "dataprovider" },
+    "FileSource" :              { "type": "dataprovider" },
+    "FolderTwoWay" :            { "type": "dataprovider" },
     "RemovableDeviceFactory" :  { "type": "dataprovider-factory" }
 }
 
@@ -89,34 +89,35 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
     def configure(self, window):
         Utils.dataprovider_add_dir_to_path(__file__, "")
         import FileConfiguration
-        f = FileConfiguration._FolderTwoWayConfigurator(window, self.folder, self.folderGroupName,
-                                                        self.includeHidden, self.compareIgnoreMtime, self.followSymlinks)
-        self.folder, self.folderGroupName, self.includeHidden, self.compareIgnoreMtime, self.followSymlinks = f.show_dialog()
+        f = FileConfiguration._FolderTwoWayConfigurator(
+                                    window,
+                                    self.folder,
+                                    self.includeHidden,
+                                    self.compareIgnoreMtime,
+                                    self.followSymlinks)
+        self.folder, self.includeHidden, self.compareIgnoreMtime, self.followSymlinks = f.show_dialog()
         self._monitor_folder()
         
     def set_configuration(self, config):
         self.folder = config.get("folder", self.DEFAULT_FOLDER)
-        self.folderGroupName = config.get("folderGroupName", self.DEFAULT_GROUP)
         self.includeHidden = config.get("includeHidden", self.DEFAULT_HIDDEN)
         self.compareIgnoreMtime = config.get("compareIgnoreMtime", self.DEFAULT_COMPARE_IGNORE_MTIME)
         self.followSymlinks = config.get("followSymlinks", self.DEFAULT_FOLLOW_SYMLINKS)        
         self._monitor_folder()
 
     def get_configuration(self):
-        #_save_config_file_for_dir(self.folder, self.folderGroupName)
         return {
             "folder" : self.folder,
-            "folderGroupName" : self.folderGroupName,
             "includeHidden" : self.includeHidden,
             "compareIgnoreMtime" : self.compareIgnoreMtime,
             "followSymlinks" : self.followSymlinks
             }
 
     def get_UID(self):
-        return "%s:%s" % (self.folder, self.folderGroupName)
+        return self.folder
         
     def get_name(self):
-        return self.folderGroupName
+        return Vfs.uri_get_filename(self.folder)
 
     def _monitor_folder(self):
         if self._monitor_folder_id != None:
@@ -151,7 +152,6 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
             "_udi_"         :   udi
         }
         if name:
-            info["DEFAULT_GROUP"] = name
             info["_name_"] = name            
         
         klass = type(
@@ -167,7 +167,7 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
         the folder and the udi to allow multiple preconfigured groups per
         usb key
         """
-        VolumeFactory.VolumeFactory.emit_added(self, 
+        return VolumeFactory.VolumeFactory.emit_added(self, 
                         klass, 
                         initargs, 
                         category, 
@@ -180,10 +180,18 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
             if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
                 mount,label = self._get_device_info(props)
                 log.info("Detected removable volume %s@%s" % (label,mount))
+
+                #short circuit the logic here to test if this is a volume being
+                #unmounted. Its still interesting, we just dont make a 
+                #klass for it
+                if udi in self._volumes and not mount:
+                    log.debug("This is a FileModule being removed")
+                    del(self._volumes[udi])
+                    return True
+
                 #check for the presence of a mount/.conduit group file
                 #which describe the folder sync groups, and their names,
                 mountUri = "file://%s" % mount
-                
                 try:
                     groups = FileDataProvider.read_removable_volume_group_file(mountUri)
                 except Exception, e:

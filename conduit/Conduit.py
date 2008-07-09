@@ -85,11 +85,13 @@ class Conduit(gobject.GObject):
         self.autoSyncEnabled = False
         self.conflictPolicy = ""
         self.deletedPolicy = ""
-        
+
         #set conduits to have the default conflict/deleted policy
         for policyName in CONFLICT_POLICY_NAMES:
             policyValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
             self.set_policy(policyName,policyValue)
+
+        self._conflicts = {}
 
     def _parameters_changed(self):
         self.emit("parameters-changed")
@@ -297,7 +299,7 @@ class Conduit(gobject.GObject):
                     )
         if newDpw.module != None:
             newDpw.module.connect("change-detected", self._change_detected)
-        
+
         self.emit("dataprovider-changed", oldDpw, newDpw) 
 
     def refresh_dataprovider(self, dp, block=False):
@@ -324,4 +326,15 @@ class Conduit(gobject.GObject):
         else:
             log.info("Conduit must have a datasource and a datasink")
 
+    def emit_conflict(self, conflict):
+        hc = hash(conflict)
+        if hc not in self._conflicts:
+            self._conflicts[hc] = conflict
+            self.emit("sync-conflict", conflict)
 
+    def resolved_conflict(self, conflict):
+        try:
+            hc = hash(conflict)
+            del(self._conflicts[hc])
+        except KeyError:
+            log.warn("Unknown conflict")

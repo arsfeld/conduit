@@ -459,9 +459,10 @@ class DataProviderFactory(gobject.GObject):
                     category=category
                     )
         dpw.set_dnd_key(customKey)
-        log.debug("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, dpw.get_dnd_key()))
+        key = dpw.get_dnd_key()
+        log.debug("DataProviderFactory %s: Emitting dataprovider-added for %s" % (self, key))
         self.emit("dataprovider-added", dpw, klass)
-        return dpw.get_dnd_key()
+        return key
 
     def emit_removed(self, key):
         log.debug("DataProviderFactory %s: Emitting dataprovider-removed for %s" % (self, key))
@@ -476,18 +477,22 @@ class DataProviderFactory(gobject.GObject):
         """
         pass
 
-    def get_configuration_widget(self):
+    def setup_configuration_widget(self):
         """
         If the factory needs to offer configuration options then
-        it should return a gtk.widget here.
+        it should return a gtk.widget here. This widget is then packed
+        into the configuration notebook.
         """
         return None
 
-    def save_configuration(self):
+    def save_configuration(self, ok):
         """
-        If the user closes the configuration panel with RESPONSE_OK (e.g.
-        doesnt click cancel) then this will be called on all derived classes
+        @param ok: True if the user closed the prefs panel with OK, false if 
+        they cancelled it.
         """
         pass
+
+    def get_name(self):
+        return self.__class__.__name__
         
 
