@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit 0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-23 09:19+0200\n"
-"PO-Revision-Date: 2008-05-23 09:23+0200\n"
+"POT-Creation-Date: 2008-07-09 14:13+0200\n"
+"PO-Revision-Date: 2008-07-09 14:16+0200\n"
 "Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
 "Language-Team: LANGUAGE <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
@@ -227,7 +227,7 @@ msgstr "_Fil"
 msgid "_Help"
 msgstr "_Hjelp"
 
-#: ../conduit/gtkui/Canvas.py:61 ../conduit/hildonui/Canvas.py:32
+#: ../conduit/gtkui/Canvas.py:65
 msgid "Drag a Data Provider here to continue"
 msgstr "Dra en datatilbyder hit for å fortsette"
 
@@ -266,7 +266,7 @@ msgstr "til"
 msgid "Conversions Available"
 msgstr "Konvertering tilgjengelig"
 
-#: ../conduit/gtkui/UI.py:297 ../conduit/gtkui/Tree.py:348
+#: ../conduit/gtkui/UI.py:297 ../conduit/gtkui/Tree.py:349
 #: ../conduit/modules/FileModule/FileConfiguration.py:104
 msgid "Name"
 msgstr "Navn"
@@ -275,7 +275,7 @@ msgstr "Navn"
 msgid "Loaded"
 msgstr "Lastet"
 
-#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:128
+#: ../conduit/gtkui/UI.py:399 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Synkronisering pågår. Vil du avbryte den?"
 
@@ -323,7 +323,7 @@ msgstr "Synkronisering fullført"
 msgid "Synchronizing"
 msgstr "Synkroniserer"
 
-#: ../conduit/gtkui/Tree.py:357
+#: ../conduit/gtkui/Tree.py:358
 msgid "Description"
 msgstr "Beskrivelse"
 
@@ -361,7 +361,7 @@ msgstr "Feil med synkronisering"
 
 #: ../conduit/dataproviders/DataProvider.py:27
 msgid "Synchronization Skipped"
-msgstr ""
+msgstr "Hoppet over synkronisering"
 
 #: ../conduit/dataproviders/DataProvider.py:28
 msgid "Synchronization Cancelled"
@@ -375,18 +375,20 @@ msgstr "Konflikt under synkronisering"
 msgid "Not Configured Correctly"
 msgstr "Ikke konfigurert riktig"
 
-#: ../conduit/modules/BackpackModule/BackpackModule.py:55
+#: ../conduit/modules/BackpackModule/BackpackModule.py:56
 msgid "Backpack Notes"
 msgstr ""
 
-#: ../conduit/modules/BackpackModule/BackpackModule.py:56
+#: ../conduit/modules/BackpackModule/BackpackModule.py:57
 msgid "Store things in Backpack Notes"
 msgstr ""
 
 #: ../conduit/modules/BackpackModule/config.glade.h:1
 #: ../conduit/modules/FlickrModule/config.glade.h:1
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:1
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
 #: ../conduit/modules/SmugMugModule/config.glade.h:1
 #: ../conduit/modules/ZotoModule/zoto.glade.h:1
@@ -412,6 +414,7 @@ msgstr ""
 #: ../conduit/modules/BackpackModule/config.glade.h:6
 #: ../conduit/modules/FlickrModule/config.glade.h:8
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
 #: ../conduit/modules/SmugMugModule/config.glade.h:7
 #: ../conduit/modules/ZotoModule/zoto.glade.h:5
@@ -427,14 +430,14 @@ msgid "Sync your Banshee playlists"
 msgstr ""
 
 #. column 1 is the tag name
-#: ../conduit/modules/BansheeModule/BansheeModule.py:137
-#: ../conduit/modules/FspotModule/FspotModule.py:245
+#: ../conduit/modules/BansheeModule/BansheeModule.py:138
+#: ../conduit/modules/FspotModule/FspotModule.py:246
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:129
 msgid "Tag Name"
 msgstr ""
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:145
-#: ../conduit/modules/FspotModule/FspotModule.py:253
+#: ../conduit/modules/BansheeModule/BansheeModule.py:146
+#: ../conduit/modules/FspotModule/FspotModule.py:254
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:137
 msgid "Enabled"
 msgstr "Aktivert"
@@ -465,40 +468,40 @@ msgstr "Mappe:"
 msgid "Load"
 msgstr "Last"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:107
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
 #, python-format
 msgid "Select %s:"
 msgstr "Velg %s:"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:146
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
 msgid "Evolution Contacts"
 msgstr "Evolution kontakter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
 msgid "Sync your contacts"
 msgstr "Synkroniser dine kontakter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
 msgid "Evolution Calendar"
 msgstr "Evolution kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:200
 msgid "Sync your calendar"
 msgstr "Synkroniser din kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
 msgid "Evolution Tasks"
 msgstr "Evolution oppgaver"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:258
 msgid "Sync your tasks"
 msgstr "Synkroniser dine oppgaver"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
 msgid "Evolution Memos"
 msgstr "Evolution notater"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:315
 msgid "Sync your memos"
 msgstr "Synkroniser dine notater"
 
@@ -516,7 +519,7 @@ msgstr "Facebook"
 
 #: ../conduit/modules/FacebookModule/FacebookModule.py:38
 msgid "Sync your Facebook photos"
-msgstr ""
+msgstr "Synkroniser dine Facebook-bilder"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:30
 #: ../conduit/modules/FeedModule/config.glade.h:9
@@ -612,11 +615,11 @@ msgstr "Filer"
 msgid "Source for synchronizing multiple files"
 msgstr "Kilde for synkronisering av flere filer"
 
-#: ../conduit/modules/FileModule/FileModule.py:62
+#: ../conduit/modules/FileModule/FileModule.py:63
 msgid "Folder"
 msgstr "Mappe"
 
-#: ../conduit/modules/FileModule/FileModule.py:63
+#: ../conduit/modules/FileModule/FileModule.py:64
 msgid "Synchronize folders"
 msgstr "Synkroniser mapper"
 
@@ -662,7 +665,7 @@ msgstr ""
 
 #: ../conduit/modules/FileModule/config.glade.h:11
 msgid "Include Hidden Files"
-msgstr ""
+msgstr "Ta med skjulte filer"
 
 #: ../conduit/modules/FileModule/config.glade.h:12
 msgid "Select A Folder"
@@ -687,17 +690,17 @@ msgstr ""
 
 #: ../conduit/modules/FlickrModule/config.glade.h:5
 msgid "Photos are public"
-msgstr ""
+msgstr "Bildene er offentlige"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:6
 msgid "Photoset Name:"
-msgstr ""
+msgstr "Navn på bildesett:"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:7
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
 #: ../conduit/modules/SmugMugModule/config.glade.h:5
 msgid "Resize Photos:"
-msgstr ""
+msgstr "Endre størrelse på bilder:"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:25
 #: ../conduit/modules/FspotModule/config.glade.h:3
@@ -706,9 +709,9 @@ msgstr "F-Spot"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:26
 msgid "Sync your F-Spot photos"
-msgstr ""
+msgstr "Synkroniser dine bilder fra F-Spot"
 
-#: ../conduit/modules/FspotModule/FspotModule.py:126
+#: ../conduit/modules/FspotModule/FspotModule.py:127
 msgid "F-Spot DBus interface is operating in read only mode"
 msgstr ""
 
@@ -726,47 +729,61 @@ msgstr "GConf-innstillinger"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
 msgid "Sync your desktop preferences"
-msgstr ""
+msgstr "Synkroniser dine brukervalg for skrivebordet"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:355
+#: ../conduit/modules/GoogleModule/GoogleModule.py:369
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
 msgid "Google Calendar"
 msgstr "Google kalender"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:356
+#: ../conduit/modules/GoogleModule/GoogleModule.py:370
 msgid "Sync your Google Calendar"
-msgstr ""
+msgstr "Synkroniser din Google-kalender"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:545
+#: ../conduit/modules/GoogleModule/GoogleModule.py:555
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
 msgid "Picasa"
 msgstr "Picasa"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:546
+#: ../conduit/modules/GoogleModule/GoogleModule.py:556
 msgid "Sync your Google Picasa photos"
 msgstr ""
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:767
+#: ../conduit/modules/GoogleModule/GoogleModule.py:773
 msgid "Google Contacts"
 msgstr "Google kontakter"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:768
+#: ../conduit/modules/GoogleModule/GoogleModule.py:774
 msgid "Sync your Gmail contacts"
 msgstr "Synkroniser dine Gmail-kontakter"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1025
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1030
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:5
 msgid "Google Documents"
 msgstr "Google dokumenter"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1026
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1031
 msgid "Sync your Google Documents"
 msgstr "Synkroniser dine dokumenter Google-dokumenter"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1245
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1311
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+msgid "Unknown"
+msgstr "Ukjent"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1312
+msgid "miscellaneous"
+msgstr "forskjellig"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1313
+msgid "No description."
+msgstr "Ingen beskrivelse"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1322
 msgid "YouTube"
 msgstr "YouTube"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1246
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1323
 msgid "Sync data from YouTube"
 msgstr "Synkroniser data fra YouTube"
 
@@ -775,6 +792,7 @@ msgid "Calendar:"
 msgstr "Kalender:"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:4
 msgid "Email:"
 msgstr "E-post:"
 
@@ -783,12 +801,30 @@ msgid "Load Calendars"
 msgstr "Last kalendere"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:6
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
 #: ../conduit/modules/SmugMugModule/config.glade.h:4
 #: ../conduit/modules/ZotoModule/zoto.glade.h:4
 msgid "Password:"
 msgstr "Passord:"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:2
+msgid "<b>Downloaded Document Format</b>"
+msgstr "<b>Nedlastet dokumentformat</b>"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:3
+msgid "Documents"
+msgstr "Dokumenter"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:7
+msgid "Presentations"
+msgstr "Presentasjoner"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:8
+msgid "Spreadsheets"
+msgstr "Regneark"
 
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
 #: ../conduit/modules/iPodModule/config.glade.h:1
@@ -802,17 +838,13 @@ msgstr "Album:"
 msgid "Login"
 msgstr "Logg inn"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
-msgid "<b>Donwload Videos</b>"
-msgstr "<b>Last ned videoer</b>"
-
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
-msgid "By user"
-msgstr "Etter bruker"
+msgid "<b>Download Videos</b>"
+msgstr "<b>Nedlastede videoer</b>"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
-msgid "Favorites of"
-msgstr "Favoritter av"
+msgid "Favorites of above user"
+msgstr "Favoritter for bruker over"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
 msgid "Max retrieved videos (0 is unlimited):"
@@ -822,19 +854,15 @@ msgstr ""
 msgid "Most viewed"
 msgstr "Mest vist"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
 msgid "Top rated"
 msgstr ""
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
-msgid "Uploaded by"
-msgstr "Lastet opp av"
-
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
-msgid "User: "
-msgstr "Bruker: "
+msgid "Uploaded by above user"
+msgstr "Lastet opp av brukeren over"
 
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:10
 msgid "YouTube Source"
 msgstr "YouTube-kilde"
 
@@ -855,52 +883,52 @@ msgstr "%s Format (%s)"
 msgid "unchanged"
 msgstr "uendret"
 
-#: ../conduit/modules/N800Module/N800Module.py:119
+#: ../conduit/modules/N800Module/N800Module.py:121
 msgid "N800 Files"
 msgstr "N800-filer"
 
-#: ../conduit/modules/N800Module/N800Module.py:120
+#: ../conduit/modules/N800Module/N800Module.py:122
 msgid "Synchronizes files/folders to a N800 device"
 msgstr ""
 
 #. To translators: default backup folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:125
+#: ../conduit/modules/N800Module/N800Module.py:127
 msgid "Backups"
 msgstr "Sikkerhetskopier"
 
-#: ../conduit/modules/N800Module/N800Module.py:140
+#: ../conduit/modules/N800Module/N800Module.py:142
 msgid "N800 Music"
 msgstr "N800-musikk"
 
-#: ../conduit/modules/N800Module/N800Module.py:141
+#: ../conduit/modules/N800Module/N800Module.py:143
 msgid "Synchronizes music to a N800 device"
 msgstr ""
 
 #. To translators: defaul music folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:147
+#: ../conduit/modules/N800Module/N800Module.py:149
 msgid "Music"
 msgstr "Musikk"
 
-#: ../conduit/modules/N800Module/N800Module.py:164
+#: ../conduit/modules/N800Module/N800Module.py:166
 msgid "N800 Videos"
 msgstr "N800-videoer"
 
-#: ../conduit/modules/N800Module/N800Module.py:165
-#: ../conduit/modules/N800Module/N800Module.py:189
+#: ../conduit/modules/N800Module/N800Module.py:167
+#: ../conduit/modules/N800Module/N800Module.py:191
 msgid "Synchronizes video to a N800 device"
 msgstr ""
 
 #. To translators: defaul video folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:171
+#: ../conduit/modules/N800Module/N800Module.py:173
 msgid "Video"
 msgstr "Video"
 
-#: ../conduit/modules/N800Module/N800Module.py:188
+#: ../conduit/modules/N800Module/N800Module.py:190
 msgid "N800 Photos"
 msgstr "N800-bilder"
 
 #. To translators: default photos folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:195
+#: ../conduit/modules/N800Module/N800Module.py:197
 msgid "Photo"
 msgstr "Bilde"
 
@@ -918,15 +946,11 @@ msgstr "Rhythmbox-musikk"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
 msgid "Sync songs from your Rhythmbox playlists"
-msgstr ""
-
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
-msgid "Unknown"
-msgstr "Ukjent"
+msgstr "Synkroniser sanger fra dine spillelister i Rhythmbox"
 
 #: ../conduit/modules/RhythmboxModule/config.glade.h:1
 msgid "<b>Synchronize the Following Playlists</b>"
-msgstr ""
+msgstr "<b>Synkroniser følgende spillelister</b>"
 
 #: ../conduit/modules/RhythmboxModule/config.glade.h:2
 msgid "Rhythmbox Playlists"
@@ -954,11 +978,11 @@ msgstr ""
 msgid "Sync your SmugMug.com photos"
 msgstr ""
 
-#: ../conduit/modules/ZotoModule/ZotoModule.py:118
+#: ../conduit/modules/ZotoModule/ZotoModule.py:121
 #: ../conduit/modules/ZotoModule/zoto.glade.h:6
 msgid "Zoto"
 msgstr "Zoto"
 
-#: ../conduit/modules/ZotoModule/ZotoModule.py:119
+#: ../conduit/modules/ZotoModule/ZotoModule.py:122
 msgid "Sync your Zoto photos"
 msgstr "Synkroniser dine Zoto-bilder"
