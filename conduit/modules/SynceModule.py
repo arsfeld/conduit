@@ -282,11 +282,31 @@ class SynceContactsTwoWay(SynceTwoWay):
         return c
 
     def _data_to_blob(self, data):
+      v = data.vcard
       doc = xml.dom.minidom.Document()
       node = doc.createElement("contact")
 
-      for chunk in data.contents:
-          print chunk
+      for chunk in v.contents:
+          if chunk == "account":
+              pass
+          elif chunk == "tel":
+              pass
+          elif chunk == "bday":
+              pass
+          elif chunk == "n":
+              pass
+          elif chunk == "version":
+              pass
+          elif chunk == "org":
+              pass
+          elif chunk == "nickname":
+              pass
+          elif chunk == "email":
+              pass
+          elif chunk == "fn":
+              pass
+          else:
+              log.warning("Unhandled chunk (%s)" % chunk)
 
       doc.appendChild(node)
       return doc.toxml()
