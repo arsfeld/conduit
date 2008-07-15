@@ -1,3 +1,8 @@
+2008-07-15  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/modules/SynceModule.py:
+	Add really basic converters
+
 2008-07-03  John Stowers  <john.stowers@gmail.com>
 
     * test/python-tests/TestCoreConflict.py: Add

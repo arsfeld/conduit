@@ -295,7 +295,7 @@ class SynceContactsTwoWay(SynceTwoWay):
                   k.appendChild(doc.createTextNode(v.type_param))
                   t.appendChild(k)
                   c = doc.createElement("Content")
-                  c.appendChild(c.createTextNode(v.value))
+                  c.appendChild(doc.createTextNode(v.value))
                   t.appendChild(c)
                   node.appendChild(t)
           elif chunk == "bday":
