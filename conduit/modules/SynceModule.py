@@ -7,7 +7,6 @@ import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 import conduit.Exceptions as Exceptions
 
-import xml.dom.ext
 import xml.dom.minidom
 import vobject
 
@@ -290,10 +289,7 @@ class SynceContactsTwoWay(SynceTwoWay):
           print chunk
 
       doc.appendChild(node)
-
-      tmp=StringIO()
-      xml.dom.ext.PrettyPrint(node, stream=tmp, encoding='utf-8')
-      return tmp.getvalue()
+      return doc.toxml()
 
 class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
