@@ -32,7 +32,7 @@ SYNC_ITEM_TASKS     = 7
 TYPETONAMES = { 
     SYNC_ITEM_CONTACTS  : "Contacts",
     SYNC_ITEM_CALENDAR  : "Calendar",
-	SYNC_ITEM_TASKS     : "Tasks"
+    SYNC_ITEM_TASKS     : "Tasks"
 }
 
 CHANGE_ADDED        = 1
