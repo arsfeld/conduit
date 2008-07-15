@@ -237,7 +237,11 @@ class SynceContactsTwoWay(SynceTwoWay):
             if node.nodeName == "FileAs":
                 pass
             elif node.nodeName == "FormattedName":
-                pass
+                try:
+		    c.vcard.fn
+		except:
+		    c.vcard.add('fn')
+		c.vcard.fn.value = S(node.getElementsByTagName('Content'))
             elif node.nodeName == "Name":
                 family = S(node.getElementsByTagName('LastName'))
                 given = S(node.getElementsByTagName('FirstName'))
