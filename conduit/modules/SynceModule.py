@@ -248,6 +248,10 @@ class SynceContactsTwoWay(SynceTwoWay):
                 c.vcard.n.value = vobject.vcard.Name(family=family, given=given)
             elif node.nodeName == "Nickname":
                 pass
+            elif node.nodeName == "EMail":
+                email = c.vcard.add('email')
+                email.value = S(node.getElementsByTagName('Content'))
+                email.type_param = 'INTERNET'
             elif node.nodeName == "Photo":
                 pass
             elif node.nodeName == "Categories":
@@ -261,7 +265,9 @@ class SynceContactsTwoWay(SynceTwoWay):
             elif node.nodeName == "Spouse":
                 pass
             elif node.nodeName == "Telephone":
-                pass
+                tel = c.vcard.add('tel')
+                tel.value = S(node.getElementsByTagName('Content'))
+                tel.type_param = "HOME"
             elif node.nodeName == "Title":
                 pass
             elif node.nodeName == "Url":
