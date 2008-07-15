@@ -8,6 +8,7 @@ import conduit.datatypes.Contact as Contact
 import conduit.Exceptions as Exceptions
 
 import xml.dom.minidom
+import vobject
 
 import logging
 log = logging.getLogger("modules.SynCE")
@@ -227,13 +228,24 @@ class SynceContactsTwoWay(SynceTwoWay):
         c = Contact.Contact()
 	c.set_UID(uid)
 
+        def S(node):
+	    if node and node[0].childNodes:
+	        return node[0].firstChild.wholeText
+	    return ""
+
 	for node in root.childNodes:
 	    if node.nodeName == "FileAs":
 	        pass
 	    elif node.nodeName == "FormattedName":
 	        pass
 	    elif node.nodeName == "Name":
-	        pass
+	        family = S(node.getElementsByTagName('LastName'))
+		given = S(node.getElementsByTagName('FirstName'))
+		try:
+		    c.vcard.n
+		except:
+		    c.vcard.add('n')
+	        c.vcard.n.value = vobject.vcard.Name(family=family, given=given)
 	    elif node.nodeName == "Nickname":
 	        pass
 	    elif node.nodeName == "Photo":
