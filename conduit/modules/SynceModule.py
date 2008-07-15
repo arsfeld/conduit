@@ -285,8 +285,7 @@ class SynceContactsTwoWay(SynceTwoWay):
       v = data.vcard
       doc = xml.dom.minidom.Document()
       node = doc.createElement("contact")
-
-      for chunk in v.contents:
+      for chunk, value in v.contents.iteritems():
           if chunk == "account":
               pass
           elif chunk == "tel":
@@ -294,7 +293,21 @@ class SynceContactsTwoWay(SynceTwoWay):
           elif chunk == "bday":
               pass
           elif chunk == "n":
-              pass
+              v = value[0]
+              n = doc.createElement("Name")
+              f = doc.createElement("FirstName")
+              f.appendChild(doc.createTextNode(v.value.given))
+              n.appendChild(f)
+              l = doc.createElement("LastName")
+              l.appendChild(doc.createTextNode(v.value.family))
+              n.appendChild(l)
+              a = doc.createElement("Additional")
+              n.appendChild(a)
+              p = doc.createElement("Prefix")
+              n.appendChild(p)
+              s = doc.createElement("Suffix")
+              n.appendChild(s)
+              node.appendChild(n)
           elif chunk == "version":
               pass
           elif chunk == "org":
