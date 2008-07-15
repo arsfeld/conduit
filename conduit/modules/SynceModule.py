@@ -4,7 +4,10 @@ import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.HalFactory as HalFactory
 import conduit.datatypes.Note as Note
+import conduit.datatypes.Contact as Contact
 import conduit.Exceptions as Exceptions
+
+import xml.dom.minidom
 
 import logging
 log = logging.getLogger("modules.SynCE")
@@ -211,11 +214,57 @@ class SynceContactsTwoWay(SynceTwoWay):
     _name_ = "Contacts"
     _description_ = "Windows Mobile Contacts"
     _module_type_ = "twoway"
-    _in_type_ = "note"
-    _out_type_ = "note"
+    _in_type_ = "contact"
+    _out_type_ = "contact"
     _icon_ = "contact-new"
     _type_id_ = SYNC_ITEM_CONTACTS
     _configurable_ = False
+
+    def _blob_to_data(self, uid, blob):
+        parser = xml.dom.minidom.parseString(blob)
+	root = parser.getElementsByTagName("contact")[0]
+
+        c = Contact.Contact()
+	c.set_UID(uid)
+
+	for node in root.childNodes:
+	    if node.nodeName == "FileAs":
+	        pass
+	    elif node.nodeName == "FormattedName":
+	        pass
+	    elif node.nodeName == "Name":
+	        pass
+	    elif node.nodeName == "Nickname":
+	        pass
+	    elif node.nodeName == "Photo":
+	        pass
+	    elif node.nodeName == "Categories":
+	        pass
+	    elif node.nodeName == "Assistant":
+	        pass
+	    elif node.nodeName == "Manager":
+	        pass
+	    elif node.nodeName == "Organization":
+	        pass
+	    elif node.nodeName == "Spouse":
+	        pass
+	    elif node.nodeName == "Telephone":
+	        pass
+	    elif node.nodeName == "Title":
+	        pass
+	    elif node.nodeName == "Url":
+	        pass
+	    elif node.nodeName == "Uid":
+	        pass
+	    elif node.nodeName == "Revision":
+	        pass
+            else:
+	        log.warning("Unhandled node: %s" % node.nodeName)
+
+	return c
+
+    def _data_to_blob(self, data):
+        pass
 
 class SynceCalendarTwoWay(SynceTwoWay):
     _name_ = "Calendar"
