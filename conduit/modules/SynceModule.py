@@ -289,7 +289,15 @@ class SynceContactsTwoWay(SynceTwoWay):
           if chunk == "account":
               pass
           elif chunk == "tel":
-              pass
+              for v in value:
+                  t = doc.createElement("Telephone")
+                  k = doc.createElement("Type")
+                  k.appendChild(doc.createTextNode(v.type_param))
+                  t.appendChild(k)
+                  c = doc.createElement("Content")
+                  c.appendChild(c.createTextNode(v.value))
+                  t.appendChild(c)
+                  node.appendChild(t)
           elif chunk == "bday":
               pass
           elif chunk == "n":
@@ -315,7 +323,12 @@ class SynceContactsTwoWay(SynceTwoWay):
           elif chunk == "nickname":
               pass
           elif chunk == "email":
-              pass
+              for v in value:
+                  e = doc.createElement("EMail")
+                  c = doc.createElement("Content")
+                  c.appendChild(doc.createTextNode(v.value))
+                  e.appendChild(c)
+                  n.appendChild(e)
           elif chunk == "fn":
               v = value[0]
               fn = doc.createElement("FormattedName")
