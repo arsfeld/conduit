@@ -223,57 +223,57 @@ class SynceContactsTwoWay(SynceTwoWay):
 
     def _blob_to_data(self, uid, blob):
         parser = xml.dom.minidom.parseString(blob)
-	root = parser.getElementsByTagName("contact")[0]
+        root = parser.getElementsByTagName("contact")[0]
 
         c = Contact.Contact()
-	c.set_UID(uid)
+        c.set_UID(uid)
 
         def S(node):
-	    if node and node[0].childNodes:
-	        return node[0].firstChild.wholeText
-	    return ""
+            if node and node[0].childNodes:
+                return node[0].firstChild.wholeText
+            return ""
 
-	for node in root.childNodes:
-	    if node.nodeName == "FileAs":
-	        pass
-	    elif node.nodeName == "FormattedName":
-	        pass
-	    elif node.nodeName == "Name":
-	        family = S(node.getElementsByTagName('LastName'))
-		given = S(node.getElementsByTagName('FirstName'))
-		try:
-		    c.vcard.n
-		except:
-		    c.vcard.add('n')
-	        c.vcard.n.value = vobject.vcard.Name(family=family, given=given)
-	    elif node.nodeName == "Nickname":
-	        pass
-	    elif node.nodeName == "Photo":
-	        pass
-	    elif node.nodeName == "Categories":
-	        pass
-	    elif node.nodeName == "Assistant":
-	        pass
-	    elif node.nodeName == "Manager":
-	        pass
-	    elif node.nodeName == "Organization":
-	        pass
-	    elif node.nodeName == "Spouse":
-	        pass
-	    elif node.nodeName == "Telephone":
-	        pass
-	    elif node.nodeName == "Title":
-	        pass
-	    elif node.nodeName == "Url":
-	        pass
-	    elif node.nodeName == "Uid":
-	        pass
-	    elif node.nodeName == "Revision":
-	        pass
+        for node in root.childNodes:
+            if node.nodeName == "FileAs":
+                pass
+            elif node.nodeName == "FormattedName":
+                pass
+            elif node.nodeName == "Name":
+                family = S(node.getElementsByTagName('LastName'))
+                given = S(node.getElementsByTagName('FirstName'))
+                try:
+                    c.vcard.n
+                except:
+                    c.vcard.add('n')
+                c.vcard.n.value = vobject.vcard.Name(family=family, given=given)
+            elif node.nodeName == "Nickname":
+                pass
+            elif node.nodeName == "Photo":
+                pass
+            elif node.nodeName == "Categories":
+                pass
+            elif node.nodeName == "Assistant":
+                pass
+            elif node.nodeName == "Manager":
+                pass
+            elif node.nodeName == "Organization":
+                pass
+            elif node.nodeName == "Spouse":
+                pass
+            elif node.nodeName == "Telephone":
+                pass
+            elif node.nodeName == "Title":
+                pass
+            elif node.nodeName == "Url":
+                pass
+            elif node.nodeName == "Uid":
+                pass
+            elif node.nodeName == "Revision":
+                pass
             else:
-	        log.warning("Unhandled node: %s" % node.nodeName)
+                log.warning("Unhandled node: %s" % node.nodeName)
 
-	return c
+        return c
 
     def _data_to_blob(self, data):
         pass
