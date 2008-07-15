@@ -317,7 +317,12 @@ class SynceContactsTwoWay(SynceTwoWay):
           elif chunk == "email":
               pass
           elif chunk == "fn":
-              pass
+              v = value[0]
+              fn = doc.createElement("FormattedName")
+              c = doc.createElement("Content")
+              c.appendChild(doc.createTextNode(v.value))
+              fn.appendChild(c)
+              node.appendChild(fn)
           else:
               log.warning("Unhandled chunk (%s)" % chunk)
 
