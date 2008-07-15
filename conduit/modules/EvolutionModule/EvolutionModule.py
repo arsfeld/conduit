@@ -170,8 +170,7 @@ class EvoContactTwoWay(EvoBase):
     def _create_object(self, contact):
         obj = evolution.ebook.EContact(vcard=contact.get_vcard_string())
         if self.book.add_contact(obj):
-            mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return conduit.datatypes.Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
+            return self._get_object(obj.get_uid())
         else:
             raise Exceptions.SyncronizeError("Error creating contact")
 

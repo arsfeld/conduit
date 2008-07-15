@@ -1,5 +1,10 @@
 2008-07-15  John Carr  <john.carr@unrouted.co.uk>
 
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	Make sure that mtime is set correctly...
+
+2008-07-15  John Carr  <john.carr@unrouted.co.uk>
+
 	* conduit/modules/SynceModule.py:
 	Add really basic converters
 
