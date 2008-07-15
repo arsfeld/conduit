@@ -265,9 +265,10 @@ class SynceContactsTwoWay(SynceTwoWay):
             elif node.nodeName == "Spouse":
                 pass
             elif node.nodeName == "Telephone":
-                tel = c.vcard.add('tel')
-                tel.value = S(node.getElementsByTagName('Content'))
-                tel.type_param = "HOME"
+	        tel = c.vcard.add('tel')
+		tel.value = S(node.getElementsByTagName('Content'))
+	        for type_param in node.getElementsByTagName('Type'):
+		    tel.params.setdefault('TYPE',[]).append(S([type_param]))
             elif node.nodeName == "Title":
                 pass
             elif node.nodeName == "Url":
@@ -291,9 +292,11 @@ class SynceContactsTwoWay(SynceTwoWay):
           elif chunk == "tel":
               for v in value:
                   t = doc.createElement("Telephone")
-                  k = doc.createElement("Type")
-                  k.appendChild(doc.createTextNode(v.type_param))
-                  t.appendChild(k)
+		  if 'TYPE' in v.params:
+		      for type_param in v.params['TYPE']:
+		          k = doc.createElement("Type")
+                          k.appendChild(doc.createTextNode(type_param))
+                          t.appendChild(k)
                   c = doc.createElement("Content")
                   c.appendChild(doc.createTextNode(v.value))
                   t.appendChild(c)
