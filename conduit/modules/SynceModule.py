@@ -29,7 +29,7 @@ SYNC_ITEM_MEDIA     = 5
 SYNC_ITEM_NOTES     = 6
 SYNC_ITEM_TASKS     = 7
 
-TYPETONAMES = { 
+TYPETONAMES = {
     SYNC_ITEM_CONTACTS  : "Contacts",
     SYNC_ITEM_CALENDAR  : "Calendar",
     SYNC_ITEM_TASKS     : "Tasks"
@@ -107,7 +107,7 @@ class SyncEngineWrapper(object):
         self.engine.AcknowledgeRemoteChanges(acks)
 
     def AddLocalChanges(self, chgset):
-        self.engine.AddLocalChanges(chgset) 
+        self.engine.AddLocalChanges(chgset)
 
     def FlushItemDB(self):
         self.engine.FlushItemDB()
@@ -122,7 +122,7 @@ class SynceTwoWay(DataProvider.TwoWay):
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
-        self.engine = SyncEngineWrapper()    
+        self.engine = SyncEngineWrapper()
         self.engine.Connect()
         self.engine.Synchronize()
 
@@ -135,7 +135,7 @@ class SynceTwoWay(DataProvider.TwoWay):
             uid = array.array('B', guid).tostring()
             blob = array.array('B', data).tostring()
             self.objects[uid] = self._blob_to_data(uid, blob)
-            
+
         log.info("Got %s objects" % len(self.objects))
         return self.objects.keys()
 
@@ -165,7 +165,7 @@ class SynceTwoWay(DataProvider.TwoWay):
         _uid.fromstring(uid)
         _blob = array.array('B')
         _blob.fromstring(blob)
-        self.engine.AddLocalChanges({ 
+        self.engine.AddLocalChanges({
             self._type_id_: (
                 (_uid, chgtype, _blob),
             )
