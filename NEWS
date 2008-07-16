@@ -2,6 +2,7 @@ NEW in 0.3.12:
 ==============
 * Support google documents upload/sync
 * Support youtube video upload
+* Factories can now be configured
 
 NEW in 0.3.11.2:
 ==============

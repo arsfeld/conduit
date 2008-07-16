@@ -1,3 +1,9 @@
+2008-07-16  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/NetworkModule/*.py:
+	Send PROTOCOL_VERSION in the extra info string, and check against
+	this to confirm compatibility of remote Conduit instances.
+
 2008-07-15  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/EvolutionModule/EvolutionModule.py:
@@ -7,6 +13,12 @@
 
 	* conduit/modules/SynceModule.py:
 	Add really basic converters
+
+2008-07-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/gtkui/UI.py:
+	Give factories the ability to put pages in the configuration window
 
 2008-07-03  John Stowers  <john.stowers@gmail.com>
 
