@@ -21,7 +21,8 @@ SUPPORTED_SINKS = {
     "ShutterflySink"    :   "Upload to Shutterfly",
     "BoxDotNetTwoWay"   :   "Upload to Box.net",
     "FacebookSink"      :   "Upload to Facebook",
-    "TestImageSink"     :   "Test"
+    "IPodPhotoSink"     :   "Add to iPod",
+#    "TestImageSink"     :   "Test"
 }
 
 ICON_SIZE = 24
@@ -211,9 +212,15 @@ class ConduitApplicationWrapper:
                 raise Exception("Could not connect to conduit")
         
     def _build_conduit(self, sinkName):
-        if sinkName in self.dps:
-            print "Building exporter conduit %s" % sinkName
-            path = self.app.BuildExporter(sinkName)
+        #Split of the key part of the name
+        a = {}
+        for n in self.dps:
+            a[n.split(":")[0]] = str(n)
+
+        if sinkName in a:
+            realName = a[sinkName]
+            print "Building exporter conduit %s (%s)" % (sinkName, realName)
+            path = self.app.BuildExporter(realName)
             exporter = dbus.SessionBus().get_object(CONDUIT_DBUS_IFACE,path)
             self.conduits[sinkName] = ConduitWrapper(conduit=exporter, name=sinkName, store=self.store)
 
@@ -239,7 +246,7 @@ class ConduitApplicationWrapper:
             try:
                 remote_object = dbus.SessionBus().get_object(APPLICATION_DBUS_IFACE,"/")
                 self.app = dbus.Interface(remote_object, APPLICATION_DBUS_IFACE)
-                self.dps = self.app.GetAllDataProviders() 
+                self.dps = self.app.GetAllDataProviders()
             except dbus.exceptions.DBusException:
                 self.app = None
                 print "Conduit unavailable"
