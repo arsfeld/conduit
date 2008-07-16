@@ -19,6 +19,7 @@ import conduit
 
 AVAHI_SERVICE_NAME = "_conduit._tcp"
 AVAHI_SERVICE_DOMAIN = ""
+PROTOCOL_VERSION = "1"
 
 PORT_IDX = 0
 VERSION_IDX = 1
@@ -165,7 +166,9 @@ class AvahiAdvertiser:
                 AVAHI_SERVICE_DOMAIN,   #domain
                 '',                     #host
                 dbus.UInt16(self.port), #port
-                string_array_to_txt_array(["version=%s" % conduit.VERSION])
+                string_array_to_txt_array([
+                                "version=%s" % conduit.VERSION,
+                                "protocol-version=%s" % PROTOCOL_VERSION])
                 )
         self.group.Commit()
             
@@ -243,10 +246,13 @@ class AvahiMonitor:
 
         # Check if the service is local and then check the 
         # conduit versions are identical
-        if extra.has_key("version") and extra["version"] == conduit.VERSION:
+        if extra.get("protocol-version", None) == PROTOCOL_VERSION:
             self.detected_cb(str(name), str(host), str(address), str(port), extra_info)
         else:
-            log.debug("Ignoring %s because remote conduit is different version" % name)
+            log.debug("Ignoring %s (version: %s, protocol version: %s)" % (
+                            name,
+                            extra.get("version", "unknown"),
+                            extra.get("protocol-version", "unknown")))
 
     def _remove_service(self, interface, protocol, name, type, domain, flags):
         """
