@@ -326,14 +326,11 @@ class MainWindow:
                 if currentValue == policyValue:
                     widget.set_active(True)
                                         
-        #Add configuration widgets for all factories
         #The dataprovider factories can provide a configuration widget which is
         #packed into the notebook
-        factoryConfigurationWidgets = []
         for i in conduit.GLOBALS.moduleManager.dataproviderFactories:#get_modules_by_type("dataprovider-factory"):
             widget = i.setup_configuration_widget()
             if widget:
-                factoryConfigurationWidgets.append(widget)
                 notebook.append_page(
                             widget,
                             gtk.Label(i.get_name()))
@@ -362,7 +359,7 @@ class MainWindow:
                                 policyValue)
 
         #give the dataprovider factories to ability to save themselves
-        for factory in factoryConfigurationWidgets:
+        for factory in conduit.GLOBALS.moduleManager.dataproviderFactories:
             factory.save_configuration(response == gtk.RESPONSE_OK)
 
         dialog.destroy()                
