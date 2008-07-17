@@ -1,3 +1,8 @@
+2008-07-17  John Stowers  <john.stowers@gmail.com>
+
+	* POTFILES.in:
+	* POTFILES.skip: Fix build.
+
 2008-07-12  Ignacio Casal Quinteiro  <nacho.resa@gmail.com>
 
 	* gl.po: Updated Galician Translation.

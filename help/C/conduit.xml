@@ -150,7 +150,7 @@
           <title>The Edit Menu</title>
           <itemizedlist>
             <listitem><para><menuchoice> <guimenu>Edit</guimenu> <guimenuitem>Clear Canvas</guimenuitem> </menuchoice> Removes all configurations, data providers, and groups from the canvas pane. This allows you start using the canvas as it was a clean slate. The best time to use this is when you are re-configuring a large portion of your sync groups. There is no quick way to revert back after selecting this setting.</para></listitem>
-            <listitem><para><menuchoice> <guimenu>Edit</guimenu> <guimenuitem>Preferences</guimenuitem> </menuchoice> Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see the <emphasis>Conduit Preferences</emphasis> section of the documentation.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>Edit</guimenu> <guimenuitem>Preferences</guimenuitem> </menuchoice> Global Conduit settings that effect all of your sync groups and basic Conduit operations. For more information please see <xref linkend="conduit-preferences-window" /></para></listitem>
           </itemizedlist>
         </section>
         <section>

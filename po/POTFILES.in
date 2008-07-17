@@ -19,6 +19,7 @@ conduit/modules/BoxDotNetModule/config.glade
 conduit/modules/EvolutionModule/EvolutionModule.py
 conduit/modules/EvolutionModule/config.glade
 conduit/modules/FacebookModule/FacebookModule.py
+conduit/modules/FacebookModule/config.glade
 conduit/modules/FeedModule/FeedModule.py
 conduit/modules/FeedModule/config.glade
 conduit/modules/FileModule/FileConfiguration.py

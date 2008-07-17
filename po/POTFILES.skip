@@ -2,6 +2,7 @@ conduit/Main.py
 data/conduit-autostart.desktop.in
 data/conduit.desktop.in
 tools/eog-plugin/config.glade
+tools/totem-plugin/conduit.py
 tools/test-db-wrapper/main.glade
 tools/test-db-wrapper/main.glade
 conduit/modules/GoogleModule/contacts-config.glade
