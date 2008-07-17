@@ -26,6 +26,9 @@ class Contact(DataType.DataType):
         self.vcard = vobject.readOne(string)
 
     def get_vcard_string(self, version=2.1):
+        for prop in ('fn', 'n'):
+	    if prop not in self.vcard.contents:
+	        self.vcard.add(prop)
         return self.vcard.serialize()
         
     def get_emails(self):

@@ -1,3 +1,8 @@
+2008-07-17  John Carr  <john.carr@unrouted.co.uk>
+
+	* conduit/datatypes/Contact.py:
+	Make sure that vcard always has a FN and a N (Fixes #528221)
+
 2008-07-17  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/GoogleModule/Makefile.am: Fix build.
