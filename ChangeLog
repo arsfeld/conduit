@@ -1,3 +1,8 @@
+2008-07-17  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/SmugMugModule/config.glade: Dont show cleartext 
+	password. Fixes #524758
+
 2008-07-16  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/FacebookModule/config.glade:
