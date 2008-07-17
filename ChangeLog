@@ -1,5 +1,16 @@
 2008-07-17  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/File.py: Include tags in the hash of the object.
+
+	* conduit/datatypes/Photo.py: Include underlying file hash plus photo
+	metadata (size, caption) in the hash of the object.
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/ZotoModule/ZotoModule.py: Implement more efficient
+	_replace_photo(). Fixes #521196 (Matt Brown, Manuel J. Garrido)
+
+2008-07-17  John Stowers  <john.stowers@gmail.com>
+
 	* configure.ac:
 	* tools/Makefile.am:
 	* tools/totem-plugin/Makefile.am:

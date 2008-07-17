@@ -589,6 +589,26 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Upload Error.")
 
+    def _replace_photo(self, id, uploadInfo):
+        try:
+            gphoto = self.gphoto_dict[id]
+
+            gphoto.title = atom.Title(text=uploadInfo.name)
+            gphoto.summary = atom.Summary(text=uploadInfo.caption)
+            gphoto.media = gdata.media.Group()
+            gphoto.media.keywords = gdata.media.Keywords()
+            if uploadInfo.tags:
+                gphoto.media.keywords.text = ",".join("%s" % (str(t)) for t in uploadInfo.tags)
+        
+            gphoto = self.service.UpdatePhotoMetadata(gphoto)
+        
+            # This should be done just only the photo itself has changed
+            gphoto = self.service.UpdatePhotoBlob(gphoto, uploadInfo.url)
+
+            return Rid(uid=gphoto.gphoto_id.text)
+        except Exception, e:
+            raise Exceptions.SyncronizeError("Picasa Update Error.")
+
     def _get_album(self):
         for name,album in self._get_albums():
             if name == self.albumName:

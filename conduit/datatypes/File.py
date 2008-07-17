@@ -389,8 +389,11 @@ class File(DataType.DataType):
                 return None
 
     def get_hash(self):
+        # Join the tags into a string to be hashed so the object is updated if
+        # they change.
+        tagstr = "".join(self.get_tags())
         #FIXME: self.get_size() does not seem reliable
-        return hash(None)
+        return hash(tagstr)
                        
     def get_filename(self):
         """

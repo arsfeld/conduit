@@ -55,6 +55,13 @@ class Photo(File.File):
 
     def set_caption(self, caption):
         self._caption = caption
+
+    def get_hash(self):
+        # Combine the file hash with other photo metadata.
+        file_hash = File.File.get_hash(self)       
+        hash_data = "%s%s%s" % (file_hash, self.get_photo_size(),
+                self.get_caption())
+        return hash(hash_data)
         
     def __getstate__(self):
         data = File.File.__getstate__(self)

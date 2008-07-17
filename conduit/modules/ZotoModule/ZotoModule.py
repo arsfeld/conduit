@@ -102,6 +102,39 @@ class MyZotoAPI:
 
         return fotoId
 
+    def removeAllTags(self, photoId):
+        tags= self.server.tags.get_image_tags(self.zapiKey, self.zotoAuth,
+                                             self.username, photoId, 'owner')
+        if tags:
+            tag_list = []
+            for tag in tags:
+                tag_list.append(tag['tag_name'])
+
+            self.server.tags.multi_untag_image(self.zapiKey, self.zotoAuth,
+                                               self.username, [photoId], tag_list)
+
+    def update_photo(self, photoId, uploadInfo):
+        if not uploadInfo.caption:
+            uploadInfo.caption=''
+        
+        self.server.images.multi_set_attr(self.zapiKey, self.zotoAuth, [photoId],
+                                          {'title' : uploadInfo.name,
+                                           'description' : uploadInfo.caption})
+        tags = []
+        for tag in uploadInfo.tags:
+            tags.append(tag)
+
+        self.removeAllTags(photoId);
+        if len(tags) > 0:
+            self.server.tags.multi_tag_image(self.zapiKey, self.zotoAuth,
+                                             self.username, [photoId], tags)
+
+        f = open(uploadInfo.url,'r')
+        buf=f.read()                
+        f.close()
+        return self.server.images.store_modified(self.zapiKey, self.zotoAuth,
+                                                 xmlrpclib.Binary(buf), photoId)
+
     def delete_from_album(self, photoId, albumId):
         self.server.albums.multi_del_image(self.zapiKey, self.zotoAuth,
                                            albumId, [photoId])
@@ -190,6 +223,17 @@ class ZotoSink(Image.ImageTwoWay):
             fotoId = self.zapi.add_to_album(uploadInfo, self.albumId)
         except Exception, e:
             raise Exceptions.SyncronizeError("Zoto Upload Error.")
+        
+        return Rid(uid=fotoId)
+
+    def _replace_photo(self, id, uploadInfo):
+        """
+        Updates a photo (binary and metadata)
+        """
+        try:
+            fotoId = self.zapi.update_photo(id, uploadInfo)
+        except Exception, e:
+            raise Exceptions.SyncronizeError("Zoto Update Error.")
         
         return Rid(uid=fotoId)
 
