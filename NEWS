@@ -6,6 +6,29 @@ NEW in 0.3.12:
 * Facebook photos can now be added to albums
 
 * Fixed #532142, Remove folder name option in folder dataprovider (John Stowers)
+* Fixed #510120, Support Google Docs (John Stowers)
+* Fixed #521196, Conduit does not sync F-Spot photos with changed tags/captions (Matt Brown, Manuel J. Garrido)
+* Fixed #522120, Support Youtube video upload (Philip Withnall)
+* Fixed #524758, the password of some data providers is clear text (John Stowers)
+* Fixed #532545, conduit not syncing modified files between local disk and gnome ssh mount (John Stowers)
+* Fixed #537068, Conduit launcher does not detect Firefox on 64-bit systems (Michel Alexandre Salim)
+* Fixed #538416, Support YouTube video replacement (Philip Withnall)
+* Fixed #542239, Totem plugin (Philip Withnall)
+* Fixed #542429, Help not clear (John Stowers)
+* Fixed #542551, Tab title not marked for translation (Claude Paroz)
+
+Translations:
+* Updated pt_BR: Jonh Wendell
+* Updated vi: Clytie Siddall
+* Updated nb: Kjartan Maraas
+* Updated pa: Amanpreet Singh
+* Updated oc: Yannig Marchegay
+* Updated ar: Djihed Afifi <djihed@gmail.com>
+* Updated gl: Ignacio Casal Quinteiro
+* Updated es: Jorge Gonzalez
+
+Help Manual Translations:
+* Updated es: Jorge Gonzalez, Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
 NEW in 0.3.11.2:
 ==============
