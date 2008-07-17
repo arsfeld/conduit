@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: conduit.help.HEAD\n"
-"POT-Creation-Date: 2008-07-13 19:01+0000\n"
-"PO-Revision-Date: 2008-07-16 22:27+0200\n"
+"POT-Creation-Date: 2008-07-05 11:29+0000\n"
+"PO-Revision-Date: 2008-07-13 20:13+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -804,10 +804,10 @@ msgid ""
 "changed to indicate that data will flow in only one direction, that is "
 "images will be uploaded from F-Spot to Facebook and Picasa."
 msgstr ""
-"Un proveedor para subir fotos a Facebook y Picasa. Note que el grupo tiene "
-"tres proveedores de datos y la flecha ha cambiado para indicar que los datos "
-"fluirán sólo en una dirección, esto es, las imágenes se cargarán desde F-"
-"Spot a Facebook y Picasa."
+"Un proveedor para subir fotos a Facebook y Picasa. Note que el "
+"grupo tiene tres proveedores de datos y la flecha ha cambiado para "
+"indicar que los datos fluirán sólo en una dirección, esto es, "
+"las imágenes se cargarán desde F-Spot a Facebook y Picasa."
 
 #: C/conduit.xml:251(title)
 msgid "Synchronizing Something"
@@ -821,19 +821,19 @@ msgid ""
 "more information on specific settings please refer to the corresponding "
 "section of the documentation."
 msgstr ""
-"Esta sección describe los pasos necesarios para sincronizar dos proveedores "
-"de datos. El ejemplo proporcionado ilustra cómo sincronizar dos carpetas "
-"pero los conceptos son aplicables a cualquier cosa que desee sincronizar. Si "
-"necesita más información acerca de ajustes específicos, consulte la sección "
-"correspondiente de la documentación."
+"Esta sección describe los pasos necesarios para sincronizar dos proveedores de datos. "
+"El ejemplo proporcionado ilustra cómo sincronizar dos carpetas pero "
+"los conceptos son aplicables a cualquier cosa que desee sincronizar. Si necesita "
+"más información acerca de ajustes específicos, consulte la sección correspondiente "
+"de la documentación."
 
 #: C/conduit.xml:255(para)
 msgid ""
 "<xref linkend=\"conduit-FIG-dp-parts\"/> contains two groups. This section "
 "will describe the steps to recreate those groups."
 msgstr ""
-"La <xref linkend=\"conduit-FIG-dp-parts\"/> contiene dos grupos. Esta "
-"sección describirá los pasos para volver a crear esos grupos."
+"La <xref linkend=\"conduit-FIG-dp-parts\"/> contiene dos grupos. Esta sección "
+"describirá los pasos para volver a crear esos grupos."
 
 #: C/conduit.xml:257(para)
 msgid "The top group depicts a two way synchronization of two folders"
@@ -844,8 +844,8 @@ msgid ""
 "The bottom group depicts a one way sync of images, from F-Spot to Facebook, "
 "and to the Picasa web albums."
 msgstr ""
-"El grupo inferior describe una sincronización de imágenes de una sola vía, "
-"desde F-Spot a Facebook y a los álbumes web en Picasa."
+"El grupo inferior describe una sincronización de imágenes de una sola vía, desde F-Spot a Facebook y "
+"a los álbumes web en Picasa."
 
 #: C/conduit.xml:262(title)
 msgid "Example 1: Synchronizing Two Folders"
@@ -856,8 +856,8 @@ msgid ""
 "The following steps will recreate the two way synchronization group shown as "
 "<emphasis>#1</emphasis> in the figure above."
 msgstr ""
-"Los siguientes pasos recrearán el grupo de sincronización de dos vías "
-"mostrado como <emphasis>#1</emphasis> en la figura superior."
+"Los siguientes pasos recrearán el grupo de sincronización de dos vías mostrado "
+"como <emphasis>#1</emphasis> en la figura superior."
 
 #: C/conduit.xml:265(para)
 msgid ""
@@ -873,7 +873,7 @@ msgstr "Iniciar Conduit"
 
 #: C/conduit.xml:268(para)
 msgid "Add a data provider for <emphasis>folder1</emphasis>"
-msgstr "Añada un proveedor de datos para <emphasis>carpeta1</emphasis>"
+msgstr ""
 
 #: C/conduit.xml:269(para)
 msgid ""
@@ -881,17 +881,14 @@ msgid ""
 "the left hand side of the canvas pane. This will be the data source that we "
 "are going to sync from."
 msgstr ""
-"Del panel de proveedores de datos, arrastre el proveedor de datos de carpeta y suéltelo a "
-"la izquierda en el panel del marco. Esto será la fuente de datos desde la que "
-"se va a sincronizar."
 
 #: C/conduit.xml:272(para)
 msgid "Configure <emphasis>folder1</emphasis>"
-msgstr "Configure <emphasis>carpeta1</emphasis>"
+msgstr ""
 
 #: C/conduit.xml:275(title)
 msgid "Configuring Folder 1"
-msgstr "Configurar carpeta1"
+msgstr ""
 
 #: C/conduit.xml:273(para)
 msgid ""
@@ -900,14 +897,10 @@ msgid ""
 "something memorable in the name field and change the <emphasis>Folder "
 "Location</emphasis> to the folder you created in step 1. <placeholder-1/>"
 msgstr ""
-"Pulse dos veces sobre el proveedor de datos que recientemente ha soltado en el marco. Esto "
-"mostrará la ventana de configuración de la carpeta como se muestra debajo. Introduzca algo "
-"que pueda recordar en el campo del nombre y cambie la <emphasis>Ubicación de la carpeta</emphasis> "
-"a la carpeta que creó en el paso 1. <placeholder-1/>"
 
 #: C/conduit.xml:287(para)
 msgid "Add a data provider for <emphasis>folder2</emphasis>"
-msgstr "Añada un proveedor de datos para <emphasis>carpeta2</emphasis>"
+msgstr ""
 
 #: C/conduit.xml:288(para)
 msgid ""
@@ -915,13 +908,10 @@ msgid ""
 "it adjacent to the folder1 dataprovider. This should result in an arrow "
 "connecting it to folder1 being created."
 msgstr ""
-"Arrastre otro proveedor de datos de carpeta del panel de la izquierda. Esta vez suéltelo "
-"junto al proveedor de datos carpeta1. Esto debería hacer que una flecha se conectase "
-"con carpeta1."
 
 #: C/conduit.xml:291(para)
 msgid "Configure <emphasis>folder2</emphasis>"
-msgstr "Configure <emphasis>carpeta2</emphasis>"
+msgstr ""
 
 #: C/conduit.xml:292(para)
 msgid ""
@@ -930,14 +920,10 @@ msgid ""
 "<emphasis>Folder Name</emphasis> is the same as that entered in step "
 "<emphasis>#4</emphasis>."
 msgstr ""
-"Configure el proveedor de datos para que su <emphasis>Ubicación de la carpeta</emphasis> "
-"apunte a <emphasis>carpeta2</emphasis> en el escritorio, e importante es "
-"el <emphasis>Nombre de la carpeta</emphasis> que debe ser el mismo que el introducido en el "
-"paso <emphasis>4</emphasis>."
 
 #: C/conduit.xml:295(para)
 msgid "Configure the synchronization parameters"
-msgstr "Configure los parámetros de sincronización"
+msgstr ""
 
 #: C/conduit.xml:296(para)
 msgid ""

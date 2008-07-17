@@ -21,9 +21,9 @@ def get_proportional_resize(desiredW, desiredH, currentW, currentH):
     Returns proportionally resized co-ordinates for an image
     """
     #Account for 'dont care about this axis sizing'
-    if desiredH == None: desiredH = currentH
-    if desiredW == None: desiredW = currentW
-
+    if desiredH == -1: desiredH = currentH
+    if desiredW == -1: desiredW = currentW
+    
     #Calculate the axis of most change
     dw = abs(currentW - desiredW)
     dh = abs(currentH - desiredH)

@@ -8,10 +8,17 @@ import datetime
 import os.path
 import sys
 
-#Test resizing an image 200wx100h
-w,h = Utils.get_proportional_resize(100,None,200,100)
+#Test facebook dimensions
+# 1024x768 -> 604x453
+w,h = Utils.get_proportional_resize(604,604,1024,768)
+ok("Resized Image into facebook dimensions (%sx%s)" % (w,h), w==604 and h==453)
+# 480x640 -> 453x604
+# w,h = Utils.get_proportional_resize(604,604,480,640)
+# ok("Resized Image into facebook dimensions (%sx%s)" % (w,h), w==453 and h==604)
+
+w,h = Utils.get_proportional_resize(100,-1,200,100)
 ok("Resized Image in one dimension OK", w==100 and h==50)
-w,h = Utils.get_proportional_resize(None,1000,200,100)
+w,h = Utils.get_proportional_resize(-1,1000,200,100)
 ok("Resized Image in one dimension OK", w==2000 and h==1000)
 w,h = Utils.get_proportional_resize(200,1000,200,100)
 ok("Resized Image in both dimension OK", w==2000 and h==1000)

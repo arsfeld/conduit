@@ -77,6 +77,13 @@ class FacebookSink(Image.ImageSink):
         except pyfacebook.FacebookError, f:
             log.warn("Error getting photos from album %s list: %s" % (albumID,f))
         return photos
+        
+    def _get_photo_size (self):
+        """
+        Respect Facebooks largest image dimension of 604px
+        http://wiki.developers.facebook.com/index.php/Photos.upload
+        """
+        return "604x604"        
 
     def _login(self):
         """
