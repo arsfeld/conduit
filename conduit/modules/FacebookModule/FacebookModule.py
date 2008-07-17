@@ -38,7 +38,7 @@ class FacebookSink(Image.ImageSink):
     _description_ = _("Sync your Facebook photos")
     _module_type_ = "sink"
     _icon_ = "facebook"
-    _configurable_ = False
+    _configurable_ = True
 
     API_KEY="6ce1868c3292471c022c771c0d4d51ed"
     SECRET="20e2c82829f1884e40efc616a44e5d1f"
@@ -47,22 +47,26 @@ class FacebookSink(Image.ImageSink):
         Image.ImageSink.__init__(self)
         self.fapi = pyfacebook.Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
         self.browser = "gtkmozembed"
+        self.albumname = ""
+        self.albums = {}
 
     def _upload_photo (self, uploadInfo):
         """
         Upload to album; and return image id here
         """
         try:
-            rsp = self.fapi.photos.upload(uploadInfo.url)
+            rsp = self.fapi.photos.upload(
+                                        uploadInfo.url,
+                                        aid=self.albums.get(self.albumname, None))
             return Rid(uid=rsp["pid"])
         except pyfacebook.FacebookError, f:
             raise Exceptions.SyncronizeError("Facebook Upload Error %s" % f)
             
     def _get_albums(self):
-        albums = []
+        albums = {}
         try:
             for a in self.fapi.photos.getAlbums(self.fapi.uid):
-                albums.append((a['name'], a['aid']))
+                albums[a['name']] = a['aid']
         except pyfacebook.FacebookError, f:
             log.warn("Error getting album list: %s" % f)
         return albums
@@ -107,13 +111,96 @@ class FacebookSink(Image.ImageSink):
         rsp = self.fapi.auth.getSession()
         return rsp.has_key("secret") and rsp.has_key("session_key")
         
+    def configure(self, window):
+        import gtk
+        import gobject
+        def on_login_finish(*args):
+            if self.fapi.uid:
+                build_album_store()
+            Utils.dialog_reset_cursor(dlg)
+            
+        def on_response(sender, responseID):
+            if responseID == gtk.RESPONSE_OK:
+                self.albumname = albumnamecombo.child.get_text()
+                
+        def load_button_clicked(button):
+            Utils.dialog_set_busy_cursor(dlg)
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            on_login_finish,
+                                            self._login)
+
+        def build_album_store():
+            album_store.clear()
+            album_count = 0
+            album_iter = None
+            for album_name in self._get_albums().keys():
+                iter = album_store.append((album_name,))
+                if album_name != "" and album_name == self.albumname:
+                    album_iter = iter
+                album_count += 1
+
+            if album_iter:
+                albumnamecombo.set_active_iter(album_iter)
+            elif self.albumname:
+                albumnamecombo.child.set_text(self.albumname)
+            elif album_count:
+                albumnamecombo.set_active(0)
+
+        tree = Utils.dataprovider_glade_get_widget(
+                        __file__,
+                        "config.glade",
+                        "FacebookConfigDialog")
+
+        #get a whole bunch of widgets
+        albumnamecombo = tree.get_widget("albumnamecombo")
+        load_button = tree.get_widget("load_button")
+        dlg = tree.get_widget("FacebookConfigDialog")
+
+        # setup combobox
+        album_store = gtk.ListStore(gobject.TYPE_STRING)
+        albumnamecombo.set_model(album_store)
+        cell = gtk.CellRendererText()
+        albumnamecombo.pack_start(cell, True)
+        albumnamecombo.set_text_column(0)
+
+        # load button
+        load_button.connect('clicked', load_button_clicked)
+        albumnamecombo.child.set_text(self.albumname)
+
+        # run the dialog
+        Utils.run_dialog_non_blocking(dlg, on_response, window)
+        
     def refresh(self):
         Image.ImageSink.refresh(self)
         if self.fapi.uid == None:
             self._login()
 
+        #get the list of albums
+        if self.fapi.uid:
+            self.albums = self._get_albums()
+            if self.albumname and self.albumname not in self.albums:
+                log.info("Creating album: %s" % self.albumname)
+                try:
+                    rsp = self.fapi.photos.createAlbum(
+                                              #session_key=self.fapi.session_key,
+                                              name=self.albumname)
+                    self.albums[self.albumname] = rsp["aid"]
+                except pyfacebook.FacebookError, f:
+                    self.albumname = ""
+                    log.warn("Error creating album: %s" % self.albumname)
+
     def get_UID(self):
         if self.fapi.uid == None:
             return ""
         return self.fapi.uid
+        
+    def is_configured (self, isSource, isTwoWay):
+        #Specifing an album is optional
+        return True
+
+    def get_configuration(self):
+        return {
+            "albumname" : self.albumname
+        }
             
