@@ -1,5 +1,12 @@
 2008-07-17  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS: Updates
+
+	* help/C/conduit.xml: Clarification of the File->Save menu.
+	Fixes #542429
+
+2008-07-17  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py: Mark for translation. 
 	Fixes #542551 (Claude Paroz)
 

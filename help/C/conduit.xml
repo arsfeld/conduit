@@ -141,7 +141,7 @@
         <section>
           <title>The File Menu</title>
           <itemizedlist>
-            <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Save</guimenuitem> </menuchoice> Conduit saves all configured groups when you exit the application. If you have unchecked this option, then all data providers, groups, and the configruation of both, is saved when you select this item.</para></listitem>
+            <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Save</guimenuitem> </menuchoice> Saves all configured synchronization groups. Groups are saved automatically when you exit Conduit if you have selected <guilabel>Save Settings on Exit</guilabel> in <xref linkend="conduit-preferences-window" /></para></listitem>
             <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Synchronize All</guimenuitem> </menuchoice> Synchronizes all groups at the same time. You can still run each sync group separately (see the <emphasis>Groups</emphasis> section), but this saves you the time of having to select and manually going through each group to start the sync process.</para></listitem>
             <listitem><para><menuchoice> <guimenu>File</guimenu> <guimenuitem>Quit</guimenuitem> </menuchoice> Closes conduit. You will be prompted to stop any synchronization currently in progress.</para></listitem>
           </itemizedlist>
@@ -162,7 +162,7 @@
           </itemizedlist>
         </section>
       </section>
-      <section>
+      <section id="conduit-preferences-window">
         <title>The Preferences Window</title>
         <para>The Conduit preferences is accessed from the Edit menu. Any setting or change that you make within the preferences menu affect all of your sync groups and basic Conduit operations.</para>
         <section>

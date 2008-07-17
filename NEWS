@@ -5,6 +5,8 @@ NEW in 0.3.12:
 * Factories can now be configured
 * Facebook photos can now be added to albums
 
+* Fixed #532142, Remove folder name option in folder dataprovider (John Stowers)
+
 NEW in 0.3.11.2:
 ==============
 * Brown paper bag release
