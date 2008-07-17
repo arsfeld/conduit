@@ -1,5 +1,10 @@
 2008-07-17  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/UI.py: Mark for translation. 
+	Fixes #542551 (Claude Paroz)
+
+2008-07-17  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/File.py: Include tags in the hash of the object.
 
 	* conduit/datatypes/Photo.py: Include underlying file hash plus photo

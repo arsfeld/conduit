@@ -284,7 +284,7 @@ class MainWindow:
             clear.connect("clicked", on_clear_button_clicked, treeview, store)
             vbox.pack_start(clear, False, False)
 
-            notebook.append_page(vbox,gtk.Label('Mapping DB'))
+            notebook.append_page(vbox,gtk.Label(_('Relationship Database')))
         
         converterTreeView = tree.get_widget("dataConversionsTreeView")
         converterTreeView.set_model(converterListStore)
