@@ -61,6 +61,28 @@ class _WebBrowser(gobject.GObject):
     def stop_load(self):
         raise NotImplementedError
 
+class _WebKitBrowser(_WebBrowser):
+    """
+    Sucks less than the shitty gtkMozEmbeded interface
+    """
+
+    def __init__(self):
+        _WebBrowser.__init__(self)
+        if 'webkit' not in sys.modules:
+            import webkit
+            global webkit
+
+        self.webView = webkit.WebView()
+
+    def widget(self):
+        return self.webView
+ 
+    def load_url(self,url):
+        self.webView.open(url)
+
+    def stop_load(self):
+        self.webView.stop_loading()
+
 class _MozEmbedWebBrowser(_WebBrowser):
     """
     Wraps the GTK embeddable Mozilla in the WebBrowser interface
@@ -186,7 +208,7 @@ user_pref("network.proxy.share_proxy_settings", true);
         self.emit("loading_finished")
 
     def __del__(self):
-        log.warn("IF WEIRD THINGS HAPPEN ITS BECAUSE I WAS GC'd TO EARLY")
+        log.warn("IF WEIRD THINGS HAPPEN ITS BECAUSE I WAS GC'd TOO EARLY")
 
 class _SystemLogin(object):
     def __init__ (self):
@@ -232,11 +254,8 @@ class _ConduitLoginSingleton(object):
     def _build_browser(self, browserName):
         if browserName == "gtkmozembed":
             browser = _MozEmbedWebBrowser()
-        #
-        #IMPLEMENT OTHER WEB BROWSERS HERE
-        #
-        #elif browserName == "webkit":
-        #    browser = _GtkHtmlWebBrowser(get_profile_subdir('webkit'))
+        elif browserName == "webkit":
+            browser = _WebKitBrowser()
         else:
             raise Exception("Unknown browser: %s" % browserName)
 

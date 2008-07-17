@@ -1,3 +1,7 @@
+2008-07-17  Andrew Stormont <andyjstormont@googlemail.com>
+
+	* conduit/Web.py: Add support for webkit web browser.
+
 2008-07-17  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS: Updates
