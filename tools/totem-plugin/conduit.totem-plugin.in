@@ -1,0 +1,9 @@
+[Totem Plugin]
+Loader=python
+Module=conduit
+IAge=1
+_Name=Conduit Uploader
+_Description=Upload your videos to a number of video sites.
+Authors=Philip Withnall <philip@tecnocode.co.uk>
+Copyright=Copyright © 2008 Philip Withnall
+Website=http://www.gnome.org/projects/totem/

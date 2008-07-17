@@ -87,6 +87,26 @@ fi
 EOG_PLUGIN_DIR="$plug_dir"
 AC_SUBST(EOG_PLUGIN_DIR)
 
+####################################################################
+# Totem Plugin
+####################################################################
+
+AC_ARG_ENABLE([totem_plugin],
+              AC_HELP_STRING([--enable-totem-plugin], [Enable support for Totem plugin]),,
+              [enable_totem_plugin=no])
+AC_ARG_WITH([totem_plugin_dir],
+            AC_HELP_STRING([--with-totem-plugin-dir], [Path to Totem plugin dir]))
+
+
+AM_CONDITIONAL(ENABLE_TOTEM_PLUGIN, test "$enable_totem_plugin" != "no")
+if test "x$with_totem_plugin_dir" = "x" ; then
+	plug_dir="~/.config/totem/plugins/"
+else
+	plug_dir="$with_totem_plugin_dir"
+fi
+
+TOTEM_PLUGIN_DIR="$plug_dir"
+AC_SUBST(TOTEM_PLUGIN_DIR)
 
 ################################################################################
 # Write the values of various paths for defs.py
@@ -181,6 +201,7 @@ help/Makefile
 tools/Makefile
 tools/nautilus-extension/Makefile
 tools/eog-plugin/Makefile
+tools/totem-plugin/Makefile
 )
 
 echo
@@ -190,5 +211,6 @@ echo Prefix............... : $prefix
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo Nautilus Extension... : $enable_nautilus_extension
 echo EOG Plugin........... : $enable_eog_plugin
+echo Totem Plugin......... : $enable_totem_plugin
 echo
 

@@ -1,5 +1,14 @@
 2008-07-17  John Stowers  <john.stowers@gmail.com>
 
+	* configure.ac:
+	* tools/Makefile.am:
+	* tools/totem-plugin/Makefile.am:
+	* tools/totem-plugin/conduit.py:
+	* tools/totem-plugin/conduit.totem-plugin.in: Add totem plugin.
+	Fixes #542239 (Philip Withnall)
+
+2008-07-17  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/SmugMugModule/config.glade: Dont show cleartext 
 	password. Fixes #524758
 

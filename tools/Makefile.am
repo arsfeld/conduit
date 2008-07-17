@@ -1,4 +1,4 @@
-SUBDIRS = nautilus-extension eog-plugin
+SUBDIRS = nautilus-extension eog-plugin totem-plugin
 
 clientbindir = $(bindir)
 clientbin_SCRIPTS = conduit-client
