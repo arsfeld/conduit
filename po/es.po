@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-07-09 16:07+0000\n"
-"PO-Revision-Date: 2008-07-09 23:23+0200\n"
+"POT-Creation-Date: 2008-07-17 03:49+0000\n"
+"PO-Revision-Date: 2008-07-20 14:06+0200\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -265,6 +265,10 @@ msgstr "Convertir de"
 msgid "into"
 msgstr "en"
 
+#: ../conduit/gtkui/UI.py:287
+msgid "Relationship Database"
+msgstr "Base de datos relacional"
+
 #: ../conduit/gtkui/UI.py:291
 msgid "Conversions Available"
 msgstr "Conversiones disponibles"
@@ -278,51 +282,51 @@ msgstr "Nombre"
 msgid "Loaded"
 msgstr "Cargado"
 
-#: ../conduit/gtkui/UI.py:418 ../conduit/hildonui/UI.py:127
+#: ../conduit/gtkui/UI.py:415 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Sincronización en progreso. ¿Quiere cancelarla?"
 
-#: ../conduit/gtkui/UI.py:577
+#: ../conduit/gtkui/UI.py:574
 msgid "_Synchronize All"
 msgstr "_Sincronizar todo"
 
-#: ../conduit/gtkui/UI.py:577
+#: ../conduit/gtkui/UI.py:574
 msgid "Synchronizes All Groups"
 msgstr "Sincronizar todo los grupos"
 
-#: ../conduit/gtkui/UI.py:578
+#: ../conduit/gtkui/UI.py:575
 msgid "_Cancel Synchronization"
 msgstr "_Cancelar la sincronización"
 
-#: ../conduit/gtkui/UI.py:578
+#: ../conduit/gtkui/UI.py:575
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "Cancela la sincronización actual de grupos"
 
-#: ../conduit/gtkui/UI.py:579
+#: ../conduit/gtkui/UI.py:576
 msgid "_Quit"
 msgstr "_Salir"
 
-#: ../conduit/gtkui/UI.py:579
+#: ../conduit/gtkui/UI.py:576
 msgid "Close Conduit"
 msgstr "Cerrar Conduit"
 
-#: ../conduit/gtkui/UI.py:580
+#: ../conduit/gtkui/UI.py:577
 msgid "_About"
 msgstr "_Acerca de"
 
-#: ../conduit/gtkui/UI.py:580
+#: ../conduit/gtkui/UI.py:577
 msgid "About Conduit"
 msgstr "Acerca de Conduit"
 
-#: ../conduit/gtkui/UI.py:620
+#: ../conduit/gtkui/UI.py:617
 msgid "Synchronization Error"
 msgstr "Error de sincronización"
 
-#: ../conduit/gtkui/UI.py:623
+#: ../conduit/gtkui/UI.py:620
 msgid "Synchronization Complete"
 msgstr "Sincronización completada"
 
-#: ../conduit/gtkui/UI.py:639
+#: ../conduit/gtkui/UI.py:636
 msgid "Synchronizing"
 msgstr "Sincronizando"
 
@@ -484,27 +488,27 @@ msgstr "Contactos de Evolution"
 msgid "Sync your contacts"
 msgstr "Sincronice sus contactos"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
 msgid "Evolution Calendar"
 msgstr "Calendario de Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:200
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
 msgid "Sync your calendar"
 msgstr "Sincronice su calendario"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
 msgid "Evolution Tasks"
 msgstr "Tareas de Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:258
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
 msgid "Sync your tasks"
 msgstr "Sincronice sus tareas"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
 msgid "Evolution Memos"
 msgstr "Notas de Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:315
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
 msgid "Sync your memos"
 msgstr "Sincronice sus notas"
 
@@ -738,41 +742,41 @@ msgstr "Picasa"
 msgid "Sync your Google Picasa photos"
 msgstr "Sincronice sus fotos en Google Picasa"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:773
+#: ../conduit/modules/GoogleModule/GoogleModule.py:793
 msgid "Google Contacts"
 msgstr "Contactos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:774
+#: ../conduit/modules/GoogleModule/GoogleModule.py:794
 msgid "Sync your Gmail contacts"
 msgstr "Sincronizar sus contactos de Gmail"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1030
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1050
 #: ../conduit/modules/GoogleModule/documents-config.glade.h:5
 msgid "Google Documents"
 msgstr "Documentos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1031
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1051
 msgid "Sync your Google Documents"
 msgstr "Sincronizar sus Documentos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1311
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1331
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
 msgid "Unknown"
 msgstr "Desconocido"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1312
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1332
 msgid "miscellaneous"
 msgstr "miscelánea"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1313
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1333
 msgid "No description."
 msgstr "Sin descripción."
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1322
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1342
 msgid "YouTube"
 msgstr "YouTube"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1323
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1343
 msgid "Sync data from YouTube"
 msgstr "Sincronizar datos con YouTube"
 
@@ -967,12 +971,12 @@ msgstr "SmugMug"
 msgid "Sync your SmugMug.com photos"
 msgstr "Sincronice sus fotos en SmugMug"
 
-#: ../conduit/modules/ZotoModule/ZotoModule.py:121
+#: ../conduit/modules/ZotoModule/ZotoModule.py:154
 #: ../conduit/modules/ZotoModule/zoto.glade.h:6
 msgid "Zoto"
 msgstr "Zoto"
 
-#: ../conduit/modules/ZotoModule/ZotoModule.py:122
+#: ../conduit/modules/ZotoModule/ZotoModule.py:155
 msgid "Sync your Zoto photos"
 msgstr "Sincronizar sus fotos de Zoto"
 
