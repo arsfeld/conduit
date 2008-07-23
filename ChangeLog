@@ -1,3 +1,9 @@
+2008-07-23  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS:
+	* conduit/modules/FeedModule/FeedModule.py: Use feedparser to 
+	parse RSS/Atom feed enclosures and media content. Fixes #543685
+
 2008-07-17  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/datatypes/Contact.py:

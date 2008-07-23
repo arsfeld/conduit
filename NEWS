@@ -1,6 +1,7 @@
 NEW in 0.3.13:
 ==============
-* 
+* Much inproved RSS feed enclosure support, thanks to the use of
+  the python-feedparser module.
 
 NEW in 0.3.12:
 ==============

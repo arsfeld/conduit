@@ -1,14 +1,3 @@
-try:
-    from elementtree import ElementTree
-except:
-    from xml.etree import ElementTree
-
-import traceback
-import urllib2
-import os
-from os.path import abspath, expanduser
-import sys
-from gettext import gettext as _
 import logging
 log = logging.getLogger("modules.Feed")
 
@@ -21,9 +10,47 @@ import conduit.datatypes.Audio as Audio
 import conduit.datatypes.Video as Video
 import conduit.datatypes.Photo as Photo
 
-MODULES = {
-    "RSSSource" : { "type": "dataprovider" }    
-}
+from gettext import gettext as _
+
+try:
+    import feedparser
+    MODULES = {
+        "RSSSource" : { "type": "dataprovider" }    
+    }
+    log.info("Module Information: %s" % Utils.get_module_information(feedparser, "__version__"))
+
+    #work around a bug in feedparser where it incorrectly detects
+    #media enclosures
+    #http://code.google.com/p/feedparser/issues/detail?id=100
+    if feedparser.__version__ <= '4.1':
+        log.info("Patching feedparser issue #100")
+        def _start_media_content(self, attrsD):
+            context = self._getContext()
+            context.setdefault('media_content', [])
+            context['media_content'].append(attrsD)
+
+
+        def _start_media_thumbnail(self, attrsD):
+            context = self._getContext()
+            context.setdefault('media_thumbnail', [])
+            self.push('url', 1) # new
+            context['media_thumbnail'].append(attrsD)
+
+
+        def _end_media_thumbnail(self):
+            url = self.pop('url')
+            context = self._getContext()
+            if url != None and len(url.strip()) != 0:
+                if not context['media_thumbnail'][-1].has_key('url'):
+                    context['media_thumbnail'][-1]['url'] = url
+
+        feedparser._FeedParserMixin._start_media_content = _start_media_content
+        feedparser._FeedParserMixin._start_media_thumbnail = _start_media_thumbnail
+        feedparser._FeedParserMixin._end_media_thumbnail = _end_media_thumbnail
+
+except ImportError:
+    MODULES = {}
+    log.info("RSS Feed support disabled")
 
 class RSSSource(DataProvider.DataSource):
 
@@ -54,6 +81,14 @@ class RSSSource(DataProvider.DataSource):
         if not ok and self.downloadVideo:
             ok = Video.mimetype_is_video(mimetype)
         return ok
+
+    def _add_file(self, url, title, t):
+        log.debug("Got enclosure %s %s (%s)" % (title,url,t))
+        if self._is_allowed_type(t):
+            if len(self.files) < self.limit or self.limit == 0:
+                self.files[url] = (title,t)
+        else:
+            log.debug("Enclosure %s is an illegal type (%s)" % (title,t))
 
     def initialize(self):
         return True
@@ -100,38 +135,16 @@ class RSSSource(DataProvider.DataSource):
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
+        #url : (title, mimetype)
         self.files = {}
-        try:
-            url_info = urllib2.urlopen(self.feedUrl)
-            if (url_info):
-                doc = ElementTree.parse(url_info).getroot()
-                #FIXME: My XML element tree foo is not that good. It seems to reprocess
-                #each item tag for each namespace???. This means i get n+1 copies
-                #of each enclosure. 1 from the bland doc, and one from each other namespace.
-                allreadyInserted = []
-                for item in doc.getiterator("item"):
-                    url = None
-                    t = None
-                    title = None
-                    for c in item.getchildren():
-                        if c.tag == "enclosure":
-                            url = c.get("url")
-                            t = c.get("type")
-                        if c.tag == "title":
-                            title = c.text
-                            
-                        #Check if we have all the info
-                        if url and t and title:
-                            log.debug("Got enclosure %s %s (%s)" % (title,url,t))
-                            if self._is_allowed_type(t):
-                                if ((url not in allreadyInserted) and ((len(allreadyInserted) < self.limit) or (self.limit == 0))):
-                                    allreadyInserted.append(url)
-                                    self.files[url] = (title,t)
-                            else:
-                                log.debug("Enclosure %s is an illegal type (%s)" % (title,t))
-        except:
-            log.info("Error getting/parsing feed \n%s" % traceback.format_exc())
-            raise Exceptions.RefreshError
+        d = feedparser.parse(self.feedUrl)
+        for entry in d.entries:
+            #check for enclosures first (i.e. podcasts)
+            for enclosure in entry.get('enclosures', ()):
+                self._add_file(enclosure['href'], entry.title, enclosure['type'])
+            #also check for media_content (like flickr)
+            for media in entry.get('media_content', ()):
+                self._add_file(media['url'], entry.title, media['type'])
 
     def get_all(self):
         DataProvider.DataSource.get_all(self)                            
