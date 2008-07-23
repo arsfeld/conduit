@@ -46,6 +46,7 @@ type_converter = SimpleTest().type_converter
 TYPES = {
     "file"          :   (new_file,      {   "event":"1.ical",
                                             "setting":"setting.txt", 
+                                            "bookmark":"bookmark.txt", 
                                             "contact":"1.vcard",
                                             "file/photo":"1.png"                                }),
 #    "file/audio"    :   (new_audio,     {                                                       }),
@@ -59,8 +60,10 @@ TYPES = {
                                             "contact":read_data_file_from_data_dir("1.ical"),
                                             "email":read_data_file_from_data_dir("1.email"),
                                             "setting":"key:/foo/bar\nvalue:baz",
+                                            "bookmark":"title:/foo/bar\nuri:baz",
                                             "*":Utils.random_string()                           }),
-    "setting"       :   (new_setting,   {                                                       })
+    "setting"       :   (new_setting,   {                                                       }),
+    "bookmark"      :   (new_bookmark,  {                                                       }),    
     }
 
 #Draw a table of the available conversions.

@@ -1,5 +1,14 @@
 2008-07-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/ConverterModule.py:
+	* test/python-tests/TestCoreConvert.py:
+	* test/python-tests/TestCoreDatatypes.py:
+	* test/python-tests/common.py:
+	* test/python-tests/data/bookmark.txt: Add converter and tests
+	for bookmark datatype.
+
+2008-07-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/Bookmark.py:
 	* conduit/datatypes/Makefile.am: Add bookmark datatype.
 	Fixes #543738 (Andrew Stormont)

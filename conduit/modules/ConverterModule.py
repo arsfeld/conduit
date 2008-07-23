@@ -11,6 +11,7 @@ import conduit.datatypes.Email as Email
 import conduit.datatypes.File as File
 import conduit.datatypes.Note as Note
 import conduit.datatypes.Setting as Setting
+import conduit.datatypes.Bookmark as Bookmark
 
 MODULES = {
         "EmailConverter" :      { "type": "converter" },
@@ -18,7 +19,8 @@ MODULES = {
         "ContactConverter" :    { "type": "converter" },
         "EventConverter" :      { "type": "converter" },
         "FileConverter" :       { "type": "converter" },
-        "SettingConverter" :    { "type": "converter" }
+        "SettingConverter" :    { "type": "converter" },
+        "BookmarkConverter" :   { "type": "converter" },
 }
 
 class EmailConverter(TypeConverter.Converter):
@@ -241,7 +243,62 @@ class SettingConverter(TypeConverter.Converter):
                                     )
         return setting
 
+class BookmarkConverter(TypeConverter.Converter):
+    def __init__(self):
+        self.conversions =  {    
+                            "bookmark,text"    : self.bookmark_to_text,
+                            "bookmark,file"    : self.bookmark_to_file,
+                            "text,bookmark"    : self.text_to_bookmark,
+                            "file,bookmark"    : self.file_to_bookmark
+                            }
+        #recognizes key value in text strings
+        self.regex = re.compile(r"^title:(.+)\nuri:(.*)$")
+                            
+    def _to_text(self, bookmark):
+        return "title:%s\nuri:%s" % (bookmark.title, bookmark.uri)
+        
+    def _to_key_value(self, txt):
+        m = self.regex.match(txt)
+        if m != None and len(m.groups()) == 2:
+            return m.group(1),m.group(2)
+        else:
+            return None,None
             
+    def bookmark_to_text(self, bookmark):
+        t = Text.Text(
+                    text=self._to_text(bookmark)
+                    )
+        return t
+        
+    def text_to_bookmark(self, text):
+        bookmark = None
+        k,v = self._to_key_value(text.get_string())
+        if k != None and v != None:
+            bookmark = Bookmark.Bookmark(
+                                title=k,
+                                uri=v
+                                )
+        return bookmark
+        
+    def bookmark_to_file(self, bookmark):
+        f = File.TempFile(
+                        self._to_text(bookmark)
+                        )
+        f.force_new_filename(bookmark.title.replace("/","_"))
+        f.force_new_file_extension(".txt")
+        return f
+        
+    def file_to_bookmark(self, f):
+        bookmark = None
+        if f.get_mimetype().startswith("text"):
+            txt = f.get_contents_as_text()
+            k,v = self._to_key_value(txt)
+            if k != None and v != None:
+                bookmark = Bookmark.Bookmark(
+                                    title=k,
+                                    uri=v
+                                    )
+        return bookmark            
             
         
         
