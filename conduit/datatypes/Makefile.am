@@ -11,7 +11,8 @@ conduit_PYTHON = \
 	Photo.py \
 	Setting.py \
 	Text.py \
-	Video.py
+	Video.py \
+	Bookmark.py
 
 clean-local:
 	rm -rf *.pyc *.pyo
