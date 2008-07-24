@@ -157,7 +157,7 @@ msgid ""
 msgstr ""
 "Subir fotos a <ulink type=\"http\" url=\"http://www.flickr.com\">Flickr</"
 "ulink>, <ulink type=\"http\" url=\"http://picasaweb.google.com\">Picasa</"
-"ulink> <ulink type=\"http\" url=\"http://www.smugmug.com\">Smugmug</ulink>, "
+"ulink>, <ulink type=\"http\" url=\"http://www.smugmug.com\">Smugmug</ulink>, "
 "<ulink type=\"http\" url=\"http://shutterfly.com\">Shutterfly</ulink> y su "
 "iPod."
 
@@ -283,7 +283,7 @@ msgid ""
 "\">Evolution</ulink> (email, calendar, address book)"
 msgstr ""
 "<ulink type=\"http\" url=\"http://www.gnome.org/projects/evolution/"
-"\">Evolution</ulink> (correoe-e, calendario, libreta de direcciones)"
+"\">Evolution</ulink> (correo-e, calendario, libreta de direcciones)"
 
 #: C/conduit.xml:95(para)
 msgid ""
@@ -506,8 +506,7 @@ msgstr ""
 "<menuchoice><guimenu>Archivo</guimenu><guimenuitem>Guardar</guimenuitem></"
 "menuchoice>. Guarda todos los grupos configurados. Los grupos se guardan "
 "automáticamente cuando sale de Conduit si ha seleccionado <guilabel>Guardar "
-"los ajustes al salir<guilabel> en la <guimenuitem></guimenuitem></"
-"menuchoice><guilabel></guilabel><xref linkend=\"conduit-preferences-window\"/"
+"los ajustes al salir<guilabel> en la <xref linkend=\"conduit-preferences-window\"/"
 ">."
 
 #: C/conduit.xml:145(para)
@@ -626,7 +625,7 @@ msgstr ""
 
 #: C/conduit.xml:173(guilabel)
 msgid "Save Settings on Exit"
-msgstr "Guardar ajustes al salir"
+msgstr "Guardar los ajustes al salir"
 
 #: C/conduit.xml:174(para)
 msgid ""
