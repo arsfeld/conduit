@@ -1,3 +1,8 @@
+2008-07-24  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/SynceModule.py: You can now view, and create
+	sync partnerships from the preferences window.
+
 2008-07-23  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/ConverterModule.py:
