@@ -2,6 +2,8 @@ NEW in 0.3.13:
 ==============
 * Much inproved RSS feed enclosure support, thanks to the use of
   the python-feedparser module.
+* Merge platform abstraction branch for improved startup time and a great many
+  architectural improvements.
 
 NEW in 0.3.12:
 ==============
