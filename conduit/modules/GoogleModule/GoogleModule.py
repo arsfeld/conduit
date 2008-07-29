@@ -810,7 +810,7 @@ class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
         name = contact.get_name()
         emails = contact.get_emails()
         #Google contacts must feature at least a name and an email address
-        if not (name and emails):
+        if not (name or emails):
             return None
 
         #can also edit existing contacts
