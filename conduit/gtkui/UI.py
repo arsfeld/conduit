@@ -446,9 +446,17 @@ class MainWindow:
         #FIXME: DnD should be cancelled in the Treeview on the drag-begin 
         #signal and NOT here
         if dataproviderKey != "":
+            #adjust for scrolled window offset
+            scroll = self.canvasSW.get_vadjustment().get_value()
+
             #Add a new instance if the dataprovider to the canvas.
             new = conduit.GLOBALS.moduleManager.get_module_wrapper_with_instance(dataproviderKey)
-            self.canvas.add_dataprovider_to_canvas(dataproviderKey, new, x, y)
+            self.canvas.add_dataprovider_to_canvas(
+                                dataproviderKey,
+                                new,
+                                x,
+                                int(scroll) + y
+                                )
         
         context.finish(True, True, etime)
         return

@@ -105,6 +105,44 @@ class Canvas(goocanvas.Canvas):
         self.model = None
         
         log.info("Goocanvas version: %s" % str(goocanvas.pygoocanvas_version))
+        
+    def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
+        """
+        Sets up the popup menus and their callbacks
+
+        @param conduitPopupXML: The menu which is popped up when the user right
+        clicks on a conduit
+        @type conduitPopupXML: C{gtk.glade.XML}
+        @param dataproviderPopupXML: The menu which is popped up when the user right
+        clicks on a dataprovider
+        @type dataproviderPopupXML: C{gtk.glade.XML}
+        """
+
+        self.dataproviderMenu = dataproviderPopupXML.get_widget("DataProviderMenu")
+        self.configureMenuItem = dataproviderPopupXML.get_widget("configure")
+
+        self.conduitMenu = conduitPopupXML.get_widget("ConduitMenu")
+        self.twoWayMenuItem = conduitPopupXML.get_widget("two_way_sync")
+        self.slowSyncMenuItem = conduitPopupXML.get_widget("slow_sync")
+        self.autoSyncMenuItem = conduitPopupXML.get_widget("auto_sync")
+
+        self.twoWayMenuItem.connect("toggled", self.on_two_way_sync_toggle)
+        self.slowSyncMenuItem.connect("toggled", self.on_slow_sync_toggle)
+        self.autoSyncMenuItem.connect("toggled", self.on_auto_sync_toggle)
+
+        #connect the conflict popups
+        self.policyWidgets = {}
+        for policyName in Conduit.CONFLICT_POLICY_NAMES:
+            for policyValue in Conduit.CONFLICT_POLICY_VALUES:
+                widgetName = "%s_%s" % (policyName,policyValue)
+                #store the widget and connect to toggled signal
+                widget = conduitPopupXML.get_widget(widgetName)
+                widget.connect("toggled", self.on_policy_toggle, policyName, policyValue)
+                self.policyWidgets[widgetName] = widget
+                
+        #connect the menu callbacks
+        conduitPopupXML.signal_autoconnect(self)
+        dataproviderPopupXML.signal_autoconnect(self)
 
     def _show_welcome_message(self):
         """
@@ -153,10 +191,13 @@ class Canvas(goocanvas.Canvas):
         return items
 
     def _canvas_resized(self, widget, allocation):
-        self.set_bounds(0,0,allocation.width,allocation.height)
+        self.set_bounds(
+                    0,0,
+                    allocation.width,
+                    self._get_minimum_canvas_size(allocation.height)
+                    )
         for i in self._get_child_conduit_canvas_items():
             i.set_width(allocation.width)
-
 
     def _on_conduit_button_press(self, view, target, event):
         """
@@ -235,6 +276,36 @@ class Canvas(goocanvas.Canvas):
         for i in self._get_child_conduit_canvas_items():
             y = y + i.get_height()
         return y
+        
+    def _get_minimum_canvas_size(self, allocH=None):
+        if not allocH:
+            allocH = self.get_allocation().height
+    
+        bottom = self._get_bottom_of_conduits_coord()
+        return max(bottom + ConduitCanvasItem.WIDGET_HEIGHT + 20, allocH)
+        
+    def _remove_overlap(self):
+        """
+        Moves the ConduitCanvasItems to stop them overlapping visually
+        """
+        items = self._get_child_conduit_canvas_items()
+        if len(items) > 0:
+            #special case where the top one was deleted
+            top = items[0].get_top()-(LINE_WIDTH/2)
+            if top != 0.0:
+                for item in items:
+                    #translate all those below
+                    item.translate(0,-top)
+            else:
+                for i in xrange(0, len(items)):
+                    try:
+                        overlap = items[i].get_bottom() - items[i+1].get_top()
+                        if overlap != 0.0:
+                            #translate all those below
+                            for item in items[i+1:]:
+                                item.translate(0,overlap)
+                    except IndexError: 
+                        break
 
     def on_conduit_removed(self, sender, conduitRemoved):
         for item in self._get_child_conduit_canvas_items():
@@ -247,6 +318,14 @@ class Canvas(goocanvas.Canvas):
                     log.warn("Error finding item")
         self._remove_overlap()
         self._show_welcome_message()
+
+        c_x,c_y,c_w,c_h = self.get_bounds()
+        self.set_bounds(
+                    0,
+                    0,
+                    c_w,
+                    self._get_minimum_canvas_size()
+                    )
 
     def on_conduit_added(self, sender, conduitAdded):
         """
@@ -277,6 +356,12 @@ class Canvas(goocanvas.Canvas):
         conduitAdded.connect("dataprovider-removed", self.on_dataprovider_removed, conduitCanvasItem)
 
         self._show_welcome_message()
+        self.set_bounds(
+                    0,
+                    0,
+                    c_w,
+                    self._get_minimum_canvas_size()
+                    )
 
     def on_dataprovider_removed(self, sender, dataproviderRemoved, conduitCanvasItem):
         for item in self._get_child_dataprovider_canvas_items():
@@ -304,30 +389,6 @@ class Canvas(goocanvas.Canvas):
         self._remove_overlap()
         self._show_welcome_message()
 
-    def _remove_overlap(self):
-        """
-        Moves the ConduitCanvasItems to stop them overlapping visually
-        """
-        items = self._get_child_conduit_canvas_items()
-        if len(items) > 0:
-            #special case where the top one was deleted
-            top = items[0].get_top()-(LINE_WIDTH/2)
-            if top != 0.0:
-                for item in items:
-                    #translate all those below
-                    item.translate(0,-top)
-            else:
-                for i in xrange(0, len(items)):
-                    try:
-                        overlap = items[i].get_bottom() - items[i+1].get_top()
-                        if overlap != 0.0:
-                            #translate all those below
-                            for item in items[i+1:]:
-                                item.translate(0,overlap)
-                    except IndexError: 
-                        break
-
-
     def get_sync_set(self):
         return self.model
 
@@ -344,44 +405,6 @@ class Canvas(goocanvas.Canvas):
     def on_drag_motion(self, wid, context, x, y, time):
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
-
-    def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
-        """
-        Sets up the popup menus and their callbacks
-
-        @param conduitPopupXML: The menu which is popped up when the user right
-        clicks on a conduit
-        @type conduitPopupXML: C{gtk.glade.XML}
-        @param dataproviderPopupXML: The menu which is popped up when the user right
-        clicks on a dataprovider
-        @type dataproviderPopupXML: C{gtk.glade.XML}
-        """
-
-        self.dataproviderMenu = dataproviderPopupXML.get_widget("DataProviderMenu")
-        self.configureMenuItem = dataproviderPopupXML.get_widget("configure")
-
-        self.conduitMenu = conduitPopupXML.get_widget("ConduitMenu")
-        self.twoWayMenuItem = conduitPopupXML.get_widget("two_way_sync")
-        self.slowSyncMenuItem = conduitPopupXML.get_widget("slow_sync")
-        self.autoSyncMenuItem = conduitPopupXML.get_widget("auto_sync")
-
-        self.twoWayMenuItem.connect("toggled", self.on_two_way_sync_toggle)
-        self.slowSyncMenuItem.connect("toggled", self.on_slow_sync_toggle)
-        self.autoSyncMenuItem.connect("toggled", self.on_auto_sync_toggle)
-
-        #connect the conflict popups
-        self.policyWidgets = {}
-        for policyName in Conduit.CONFLICT_POLICY_NAMES:
-            for policyValue in Conduit.CONFLICT_POLICY_VALUES:
-                widgetName = "%s_%s" % (policyName,policyValue)
-                #store the widget and connect to toggled signal
-                widget = conduitPopupXML.get_widget(widgetName)
-                widget.connect("toggled", self.on_policy_toggle, policyName, policyValue)
-                self.policyWidgets[widgetName] = widget
-                
-        #connect the menu callbacks
-        conduitPopupXML.signal_autoconnect(self)
-        dataproviderPopupXML.signal_autoconnect(self)        
 
     def on_delete_conduit_clicked(self, widget):
         """

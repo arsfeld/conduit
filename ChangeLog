@@ -1,5 +1,12 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py: Expand the canvas when more conduits
+	get added. Fixes #516646, #517877
+
+	* conduit/gtkui/UI.py: Account for Canvas scrolled window on DND.
+
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
 	* help/Makefile.am: Include other figures. Fixes #543534
 
 2008-07-30  John Stowers  <john.stowers@gmail.com>
