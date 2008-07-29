@@ -1,3 +1,9 @@
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/*:
+	* test/*: Merge conduit-platform branch with many architectural 
+	improvements. Fixes #509702, #525259
+
 2008-07-24  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/SynceModule.py: You can now view, and create
@@ -153,7 +159,7 @@
 2008-07-03  John Stowers  <john.stowers@gmail.com>
 
     * test/python-tests/TestCoreConflict.py: Add
-    test for conflict resolution and uniqueness.
+    test for conflict resolution and uniqueness. Fixes #530768
 
 2008-07-03  John Stowers  <john.stowers@gmail.com>
 
