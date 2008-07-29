@@ -1,7 +1,7 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Canvas.py: Expand the canvas when more conduits
-	get added. Fixes #516646, #517877
+	get added. Fixes #516646 and #517877
 
 	* conduit/gtkui/UI.py: Account for Canvas scrolled window on DND.
 
@@ -24,7 +24,7 @@
 
 	* conduit/*:
 	* test/*: Merge conduit-platform branch with many architectural 
-	improvements. Fixes #509702, #525259
+	improvements. Fixes #509702 and #525259
 
 2008-07-24  John Stowers  <john.stowers@gmail.com>
 
