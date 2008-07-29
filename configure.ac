@@ -133,6 +133,7 @@ conduit/datatypes/Makefile
 conduit/dataproviders/Makefile
 conduit/gtkui/Makefile
 conduit/hildonui/Makefile
+conduit/platform/Makefile
 conduit/modules/Makefile
 conduit/modules/BackpackModule/Makefile
 conduit/modules/BackpackModule/backpack/Makefile

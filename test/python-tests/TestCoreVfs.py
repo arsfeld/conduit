@@ -16,7 +16,9 @@ name, ext = Vfs.uri_get_filename_and_extension("file:///foo/bar.ext")
 ok("Get filename (%s,%s)" % (name,ext), name == "bar" and ext == ".ext")
 ok("file:///home exists", Vfs.uri_exists("file:///home") == True)
 ok("/home exists", Vfs.uri_exists("/home") == True)
+ok("/home is folder", Vfs.uri_is_folder("/home") == True)
 ok("/foo/bar does not exist", Vfs.uri_exists("/foo/bar") == False)
+ok("format uri", Vfs.uri_format_for_display("file:///foo") == "/foo")
 
 tmpdiruri = Utils.new_tempdir()
 newtmpdiruri = Vfs.uri_join(tmpdiruri, "foo", "bar", "baz")
@@ -52,7 +54,7 @@ ok("Local uri not removable", Vfs.uri_is_on_removable_volume(localUri) == False)
 
 removableUri = get_external_resources('folder')['removable-volume']
 ok("Removable volume detected removable", Vfs.uri_is_on_removable_volume(removableUri))
-ok("Removable volume calculate root path", Vfs.uri_get_volume_root_uri(removableUri) == "file:///media/media")
+ok("Removable volume calculate root path", Vfs.uri_get_volume_root_uri(removableUri).startswith("file:///media/"))
 
 URIS_TO_JOIN = (
     (   ("file:///foo/bar","gax","ssss"),   

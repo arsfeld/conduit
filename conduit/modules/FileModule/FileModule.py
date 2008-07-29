@@ -79,12 +79,11 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
                 self.DEFAULT_FOLLOW_SYMLINKS
                 )
         AutoSync.AutoSync.__init__(self)
-        self._monitor_folder_id = None
+        self._monitor = Vfs.FileMonitor()
+        self._monitor.connect("changed", self._monitor_folder_cb)
 
     def __del__(self):
-        if self._monitor_folder_id != None:
-            Vfs.monitor_cancel(self._monitor_folder_id)
-            self._monitor_folder_id = None
+        self._monitor.cancel()
             
     def configure(self, window):
         Utils.dataprovider_add_dir_to_path(__file__, "")
@@ -120,22 +119,18 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         return Vfs.uri_get_filename(self.folder)
 
     def _monitor_folder(self):
-        if self._monitor_folder_id != None:
-            Vfs.monitor_cancel(self._monitor_folder_id)
-            self._monitor_folder_id = None
+        self._monitor.add(self.folder, self._monitor.MONITOR_DIRECTORY)
 
-        self._monitor_folder_id = Vfs.monitor_add(self.folder, Vfs.MONITOR_DIRECTORY, self._monitor_folder_cb)            
-
-    def _monitor_folder_cb(self, monitor_uri, event_uri, event, data=None):
+    def _monitor_folder_cb(self, sender, monitor_uri, event_uri, event):
         """
         Called when a file in the current folder is changed, added or deleted
         """
         # supported events = CHANGED, DELETED, CREATED
-        if event == Vfs.MONITOR_EVENT_CREATED:
+        if event == self._monitor.MONITOR_EVENT_CREATED:
             self.handle_added(event_uri)
-        elif event == Vfs.MONITOR_EVENT_CHANGED:
+        elif event == self._monitor.MONITOR_EVENT_CHANGED:
             self.handle_modified(event_uri)
-        elif event == Vfs.MONITOR_EVENT_DELETED:
+        elif event == self._monitor.MONITOR_EVENT_DELETED:
             self.handle_deleted(event_uri)
 
 class RemovableDeviceFactory(VolumeFactory.VolumeFactory):

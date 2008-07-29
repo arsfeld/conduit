@@ -1,11 +1,14 @@
 import os.path
 import logging
+import gobject
 log = logging.getLogger("Vfs")
 
 try:
     import gnomevfs
 except ImportError:
     from gnome import gnomevfs
+
+import conduit.utils.Singleton as Singleton
     
 #
 # URI Functions
@@ -14,6 +17,7 @@ def uri_is_valid(uri):
     """
     (weakly) checks if a uri is valid by looking for a scheme seperator
     """
+    assert type(uri) == str
     return uri[0] != "/" and uri.find("://") != -1
     
 def uri_join(first, *rest):
@@ -21,6 +25,7 @@ def uri_join(first, *rest):
     Joins multiple uri components. Performs safely if the first
     argument contains a uri scheme
     """
+    assert type(first) == str
     return os.path.join(first,*rest)
     #idx = first.rfind("://")
     #if idx == -1:
@@ -33,6 +38,8 @@ def uri_get_relative(fromURI, toURI):
     """
     Returns the relative path fromURI --> toURI
     """
+    assert type(fromURI) == str
+    assert type(toURI) == str
     rel = toURI.replace(fromURI,"")
     #strip leading /
     if rel[0] == os.sep:
@@ -44,9 +51,7 @@ def uri_open(uri):
     """
     Opens a gnomevfs or xdg compatible uri.
     """
-    if uri == None:
-        log.warn("Cannot open non-existant URI")
-
+    assert type(uri) == str
     APP = "xdg-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
     
@@ -55,15 +60,17 @@ def uri_to_local_path(uri):
     @returns: The local path (/foo/bar) for the given URI. Throws a 
     RuntimeError (wtf??) if the uri is not a local one    
     """
+    assert type(uri) == str
     return gnomevfs.get_local_path_from_uri(uri)
     
 def uri_get_volume_root_uri(uri):
     """
     @returns: The root path of the volume at the given uri, or None
     """
+    assert type(uri) == str
     try:
         path = uri_to_local_path(uri)
-        return VolumeMonitor().get_volume_for_path(path).get_activation_uri()
+        return VolumeMonitor().volume_get_root_uri(path)
     except:
         return None
     
@@ -72,15 +79,16 @@ def uri_is_on_removable_volume(uri):
     @returns: True if the specified uri is on a removable volume, like a USB key
     or removable/mountable disk.
     """
+    assert type(uri) == str
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         #FIXME: Unfortunately this approach actually works better than gnomevfs
         #return uri.startswith("file:///media/")
         try:
             path = uri_to_local_path(uri)
-            return VolumeMonitor().get_volume_for_path(path).is_user_visible()
+            return VolumeMonitor().volume_is_removable(path)
         except Exception, e:
-            log.warn("Could not determine if uri on removable volume: %s" % uri)
+            log.warn("Could not determine if uri on removable volume: %s (%s)" % (uri, e))
             return False
     return False
     
@@ -90,12 +98,12 @@ def uri_get_filesystem_type(uri):
     @returns: The filesystem that uri is stored on or None if it cannot
     be determined
     """
+    assert type(uri) == str
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         try:
             path = uri_to_local_path(uri)
-            volume = VolumeMonitor().get_volume_for_path(path)
-            return  volume.get_filesystem_type()
+            return VolumeMonitor().volume_get_fstype(path)
         except RuntimeError:
             log.warn("Could not get local path from URI")
             return None
@@ -109,6 +117,7 @@ def uri_make_canonical(uri):
     Standardizes the format of the uri
     @param uri:an absolute or relative stringified uri. It might have scheme.
     """
+    assert type(uri) == str
     return gnomevfs.make_uri_canonical(uri)
     
 def uri_escape(uri):
@@ -117,6 +126,7 @@ def uri_escape(uri):
     paths or host names.
     (so '/', '&', '=', ':' and '@' will not be escaped by this function)
     """
+    assert type(uri) == str
     #FIXME: This function lies, it escapes @
     #return gnomevfs.escape_host_and_path_string(uri)
     import urllib
@@ -126,6 +136,7 @@ def uri_unescape(uri):
     """
     Replace "%xx" escapes by their single-character equivalent.
     """
+    assert type(uri) == str
     import urllib
     return urllib.unquote(uri)
     
@@ -133,6 +144,7 @@ def uri_get_protocol(uri):
     """
     Returns the protocol (file, smb, etc) for a URI
     """
+    assert type(uri) == str
     if uri.rfind("://")==-1:
         return ""
     protocol = uri[:uri.index("://")+3]
@@ -143,12 +155,14 @@ def uri_get_filename(uri):
     Method to return the filename of a file. Could use GnomeVFS for this
     is it wasnt so slow
     """
+    assert type(uri) == str
     return uri.split(os.sep)[-1]
 
 def uri_get_filename_and_extension(uri):
     """
     Returns filename,file_extension
     """
+    assert type(uri) == str
     return os.path.splitext(uri_get_filename(uri))
     
 def uri_sanitize_for_filesystem(uri, filesystem=None):
@@ -156,8 +170,9 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     Removes illegal characters in uri that cannot be stored on the 
     given filesystem - particuarly fat and ntfs types
     """
+    assert type(uri) == str
     import string
-
+    
     ILLEGAL_CHARS = {
         "vfat"  :   "\\:*?\"<>|",
         "ntfs"  :   "\\:*?\"<>|"
@@ -184,6 +199,7 @@ def uri_is_folder(uri):
     """
     @returns: True if the uri is a folder and not a file
     """
+    assert type(uri) == str
     info = gnomevfs.get_file_info(uri)
     return info.type == gnomevfs.FILE_TYPE_DIRECTORY
     
@@ -191,12 +207,14 @@ def uri_format_for_display(uri):
     """
     Formats the uri so it can be displayed to the user (strips passwords, etc)
     """
+    assert type(uri) == str
     return gnomevfs.format_uri_for_display(uri)
     
 def uri_exists(uri):
     """
     @returns: True if the uri exists
     """
+    assert type(uri) == str
     try:
         return gnomevfs.exists(gnomevfs.URI(uri)) == 1
     except Exception, err:
@@ -208,6 +226,7 @@ def uri_make_directory(uri):
     Makes a directory with the default permissions. Does not catch any
     error
     """
+    assert type(uri) == str
     gnomevfs.make_directory(
             uri,
             gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
@@ -221,6 +240,7 @@ def uri_make_directory_and_parents(uri):
     @param uri: A directory that does not exist
     @type uri: str
     """
+    assert type(uri) == str
     exists = False
     dirs = []
 
@@ -233,32 +253,79 @@ def uri_make_directory_and_parents(uri):
     dirs.reverse()
     for d in dirs:
         log.debug("Making directory %s" % d)
-        uri_make_directory(d)
+        uri_make_directory(str(d))
 
-#
-# For monitoring locations
-#
-MONITOR_EVENT_CREATED =             gnomevfs.MONITOR_EVENT_CREATED
-MONITOR_EVENT_CHANGED =             gnomevfs.MONITOR_EVENT_CHANGED
-MONITOR_EVENT_DELETED =             gnomevfs.MONITOR_EVENT_DELETED
-MONITOR_EVENT_METADATA_CHANGED =    gnomevfs.MONITOR_EVENT_METADATA_CHANGED
-MONITOR_EVENT_STARTEXECUTING =      gnomevfs.MONITOR_EVENT_STARTEXECUTING
-MONITOR_EVENT_STOPEXECUTING =       gnomevfs.MONITOR_EVENT_STOPEXECUTING
-MONITOR_FILE =                      gnomevfs.MONITOR_FILE
-MONITOR_DIRECTORY =                 gnomevfs.MONITOR_DIRECTORY
+class FileMonitor(gobject.GObject):
 
-def monitor_add(folder, type, monitor_cb):
-    try:
-        return gnomevfs.monitor_add (folder, type, monitor_cb)
-    except gnomevfs.NotSupportedError:
-        # silently fail if we are looking at a folder that doesn't support directory monitoring
-        return None
+    __gsignals__ = {
+        "changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,
+            gobject.TYPE_PYOBJECT,
+            gobject.TYPE_PYOBJECT])
+        }
 
-def monitor_cancel(monitor_id):
-    gnomevfs.monitor_cancel(monitor_id)
+    MONITOR_EVENT_CREATED =             gnomevfs.MONITOR_EVENT_CREATED
+    MONITOR_EVENT_CHANGED =             gnomevfs.MONITOR_EVENT_CHANGED
+    MONITOR_EVENT_DELETED =             gnomevfs.MONITOR_EVENT_DELETED
+    MONITOR_EVENT_METADATA_CHANGED =    gnomevfs.MONITOR_EVENT_METADATA_CHANGED
+    MONITOR_EVENT_STARTEXECUTING =      gnomevfs.MONITOR_EVENT_STARTEXECUTING
+    MONITOR_EVENT_STOPEXECUTING =       gnomevfs.MONITOR_EVENT_STOPEXECUTING
+    MONITOR_FILE =                      gnomevfs.MONITOR_FILE
+    MONITOR_DIRECTORY =                 gnomevfs.MONITOR_DIRECTORY
 
-class VolumeMonitor(gnomevfs.VolumeMonitor):
-    pass
+    def __init__(self):
+        gobject.GObject.__init__(self)
+        self._monitor_folder_id = None
+
+    def _monitor_cb(self, monitor_uri, event_uri, event):
+        self.emit("changed", monitor_uri, event_uri, event)
+
+    def add(self, folder, monitorType):
+        if self._monitor_folder_id != None:
+            gnomevfs.monitor_cancel(self._monitor_folder_id)
+            self._monitor_folder_id = None
+
+        try:
+            self._monitor_folder_id = gnomevfs.monitor_add(folder, monitorType, self._monitor_cb)   
+        except gnomevfs.NotSupportedError:
+            # silently fail if we are looking at a folder that doesn't support directory monitoring
+            self._monitor_folder_id = None
+        
+    def cancel(self):
+        if self._monitor_folder_id != None:
+            gnomevfs.monitor_cancel(self._monitor_folder_id)
+            self._monitor_folder_id = None
+
+class VolumeMonitor(Singleton.Singleton, gobject.GObject):
+
+    __gsignals__ = {
+        "volume-mounted" :      (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_STRING]),      #udi
+        "volume-unmounted" :    (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_STRING])       #udi
+
+    }
+
+    def __init__(self):
+        gobject.GObject.__init__(self)
+        self._impl = gnomevfs.VolumeMonitor()
+        self._impl.connect("volume-mounted", self._mounted_unmounted_cb, "volume-mounted")
+        self._impl.connect("volume-unmounted", self._mounted_unmounted_cb, "volume-unmounted")
+
+    def _mounted_unmounted_cb(self, sender, volume, signalname):
+        self.emit(signalname, volume.get_hal_udi())
+
+    def get_mounted_volumes(self):
+        return [volume.get_hal_udi() for volume in self._impl.get_mounted_volumes()]
+
+    def volume_is_removable(self, path):
+        return self._impl.get_volume_for_path(path).is_user_visible()
+
+    def volume_get_fstype(self, path):
+        return self._impl.get_volume_for_path(path).get_filesystem_type()
+
+    def volume_get_root_uri(self, path):
+        return self._impl.get_volume_for_path(path).get_activation_uri()
 
 #
 # Scanner ThreadManager

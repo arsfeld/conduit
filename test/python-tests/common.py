@@ -14,7 +14,7 @@ my_path = os.path.dirname(__file__)
 base_path = os.path.abspath(os.path.join(my_path, '..', '..'))
 sys.path.insert(0, base_path)
 
-# import main conduit module and datatypes
+# import main conduit modules
 import conduit
 import conduit.Logging as Logging
 import conduit.utils as Utils
@@ -26,6 +26,9 @@ import conduit.ModuleWrapper as ModuleWrapper
 import conduit.Conduit as Conduit
 import conduit.SyncSet as SyncSet
 import conduit.MappingDB as MappingDB
+import conduit.Settings as Settings
+
+#import conduit datatypes
 from conduit.datatypes import File, Note, Setting, Contact, Email, Text, Video, Photo, Audio, Event, Bookmark
 from conduit.modules import TestModule
 
@@ -34,9 +37,11 @@ conduit.IS_INSTALLED =              False
 conduit.IS_DEVELOPMENT_VERSION =    True
 conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
 conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
+conduit.SETTINGS_IMPL =             "GConf"
 
 # override some conduit settings. 
 # without a gobject main loop the gtkmozembed browser hangs
+conduit.GLOBALS.settings = Settings.Settings(conduit.SETTINGS_IMPL)
 conduit.GLOBALS.settings.set_overrides(web_login_browser="system")
 
 def is_online():

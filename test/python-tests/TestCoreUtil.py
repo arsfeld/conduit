@@ -3,7 +3,9 @@ from common import *
 import conduit.utils as Utils
 import conduit.utils.Memstats as Memstats
 import conduit.utils.CommandLineConverter as CommandLineConverter
+import conduit.utils.Singleton as Singleton
 
+import random
 import datetime
 import os.path
 import sys
@@ -73,5 +75,17 @@ ok("Library Information: %s" % info, len(info) > 0)
 
 info = Utils.get_module_information(sys, 'version_info')
 ok("System Information: %s" % info, len(info) > 0)
+
+class A(Singleton.Singleton):
+    def __init__(self):
+        Singleton.Singleton.__init__(self)
+        self.i = random.random()
+    def num(self):
+        return self.i
+
+a1 = A()
+a2 = A()
+
+ok("Singleton OK", a1 == a2 and a1.num() == a2.num())
 
 finished()

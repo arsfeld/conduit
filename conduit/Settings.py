@@ -6,20 +6,7 @@ Part of this code copied from Gimmie (c) Alex Gravely
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-import re
-import os
 import gobject
-
-try:
-    import gconf
-except ImportError:
-    from gnome import gconf
-
-import logging
-log = logging.getLogger("Settings")
-
-#import gnomekeyring
-#import conduit
 
 #these dicts are used for mapping config setting types to type names
 #and back again (isnt python cool...)
@@ -93,135 +80,48 @@ class Settings(gobject.GObject):
         'gui_use_rgba_colormap'     :   False,          #Seems to corrupt gtkmozembed on some systems
         'web_login_browser'         :   "gtkmozembed"   #When loggin into websites use: "system","gtkmozembed","webkit","gtkhtml"
     }
-    CONDUIT_GCONF_DIR = "/apps/conduit/"
         
-    def __init__(self):
-        """
-        @param xmlSettingFilePath: The path to the xml file in which to store
-        the per-conduit settings
-        @type xmlSettingFilePath: C{string}
-        """
+    def __init__(self, implName):
         gobject.GObject.__init__(self)
-        self.client = gconf.client_get_default()
-        #Preload gconf directories
-        self.client.add_dir(self.CONDUIT_GCONF_DIR[:-1], gconf.CLIENT_PRELOAD_RECURSIVE)  
-        self.notifications = []
-        #also keep an internal dict of settings which have been overridden
-        #for this session
-        self.overrides = {}
-
-    def _fix_key(self, key):
-        """
-        Appends the CONDUIT_GCONF_PREFIX to the key if needed
-        
-        @param key: The key to check
-        @type key: C{string}
-        @returns: The fixed key
-        @rtype: C{string}
-        """
-        if not key.startswith(self.CONDUIT_GCONF_DIR):
-            return self.CONDUIT_GCONF_DIR + key
+        if implName == "GConf":
+            from conduit.platform.SettingsGConf import SettingsImpl            
         else:
-            return key
-            
-    def _key_changed(self, client, cnxn_id, entry, data=None):
-        """
-        Callback when a gconf key changes
-        """
-        key = self._fix_key(entry.key)
-        detailed_signal = 'changed::%s' % key
-        self.emit(detailed_signal)
+            from conduit.platform.SettingsPython import SettingsImpl
+
+        self._impl = SettingsImpl(
+                        defaults=self.DEFAULTS,
+                        changedCb=self._key_changed)
+        
+    def _key_changed(self, key):
+        self.emit('changed::%s' % key)
         
     def set_overrides(self, **overrides):
-        self.overrides = overrides
+        """
+        Sets values of settings that only exist for this setting, and are
+        never saved, nor updated.
+        """
+        self._impl.set_overrides(**overrides)
 
-    def get(self, key, vtype=None, default=None):
+    def get(self, key, **kwargs):
         """
         Returns the value of the key or the default value if the key is 
-        not yet in gconf
+        not yet stored
         """
-        #check if the setting has been overridden for this session
-        if key in self.overrides:
-            try:
-                #try and cast to correct type
-                return type(self.DEFAULTS[key])(self.overrides[key])
-            except:
-                return self.overrides[key]
+        return self._impl.get(key, **kwargs)
 
-        if key in self.DEFAULTS:
-            #function arguments override defaults
-            if default is None:
-                default = self.DEFAULTS[key]
-            if vtype is None:
-                vtype = type(default)
-
-        #for gconf refer to the full key path
-        key = self._fix_key(key)
-
-        if key not in self.notifications:
-            self.client.notify_add(key, self._key_changed)
-            self.notifications.append(key)
-        
-        value = self.client.get(key)
-        if not value:
-            self.set(key, default, vtype)
-            return default
-
-        if vtype is bool:
-            return value.get_bool()
-        elif vtype is str:
-            return value.get_string()
-        elif vtype is int:
-            return value.get_int()
-        elif vtype in [list, tuple]:
-            l = []
-            for i in value.get_list():
-                l.append(i.get_string())
-            return l
-            
-        log.warn("Unknown gconf key: %s" % key)
-        return None
-
-    def set(self, key, value, vtype=None):
+    def set(self, key, value, **kwargs):
         """
-        Sets the key value in gconf and connects adds a signal 
-        which is fired if the key changes
+        Sets the key to value.
         """
-        #overidden settings only apply for this session, and are
-        #not set
-        if key in self.overrides:
-            return True
-
-        log.debug("Settings %s -> %s" % (key, value))
-        if key in self.DEFAULTS and not vtype:
-            vtype = type(self.DEFAULTS[key])
-
-        #for gconf refer to the full key path
-        key = self._fix_key(key)
-
-        if vtype is bool:
-            self.client.set_bool(key, value)
-        elif vtype is str:
-            self.client.set_string(key, value)
-        elif vtype is int:
-            self.client.set_int(key, value)
-        elif vtype in [list, tuple]:
-            #Save every value as a string
-            strvalues = [str(i) for i in value]
-            self.client.set_list(key, gconf.VALUE_STRING, strvalues)
-        else:
-            log.warn("Unknown gconf type (k:%s v:%s t:%s)" % (key,value,vtype))
-            return False
-
-        return True
+        return self._impl.set(key, value, **kwargs)
         
     def proxy_enabled(self):
         """
         @returns: True if the user has specified a http proxy via
-        the http_proxy environment variable, or in gconf
+        the http_proxy environment variable, or in the appropriate settings
+        backend, such as gconf
         """
-        return os.environ.has_key("http_proxy") or \
-                self.client.get_bool("/system/http_proxy/use_http_proxy")
+        return self._impl.proxy_enabled()
         
     def get_proxy(self):
         """
@@ -229,39 +129,12 @@ class Settings(gobject.GObject):
         The http_proxy environment variable overrides the GNOME setting
         @returns: host,port,user,password
         """
-        if self.proxy_enabled():
-            #env vars have preference
-            if os.environ.has_key("http_proxy"):
-                #re taken from python boto
-                pattern = re.compile(
-                    '(?:http://)?' \
-                    '(?:(?P<user>\w+):(?P<pass>.*)@)?' \
-                    '(?P<host>[\w\-\.]+)' \
-                    '(?::(?P<port>\d+))?'
-                )
-                match = pattern.match(os.environ['http_proxy'])
-                if match:
-                    return (match.group('host'),
-                            int(match.group('port')),
-                            match.group('user'),
-                            match.group('pass'))
-            #now try gconf
-            if self.client.get_bool("/system/http_proxy/use_authentication"):
-                return (self.client.get_string("/system/http_proxy/host"),
-                        self.client.get_int("/system/http_proxy/port"),
-                        self.client.get_string("/system/http_proxy/authentication_user"),
-                        self.client.get_string("/system/http_proxy/authentication_password"))
-            else:
-                return (self.client.get_string("/system/http_proxy/host"),
-                        self.client.get_int("/system/http_proxy/port"),
-                        "",
-                        "")
+        return self._impl.get_proxy()
 
-        return ("",0,"","")
-                            
-                
-        
+    def save(self):
+        """
+        Performs any necessary tasks to ensure settings are saved between sessions
+        """
+        self._impl.save()
 
-        
-        
 

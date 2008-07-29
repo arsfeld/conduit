@@ -1,12 +1,10 @@
 """
 Excapsulates those items global to the Conduit process
 """
-import conduit.Settings as Settings
-
-class Globals(object):
+class Globals:
     def __init__(self):
         #settings is global and initialized early
-        self.settings = Settings.Settings()
+        self.settings = None
 
         #to save resources DB, moduleManager and typeConverter are global
         self.moduleManager = None

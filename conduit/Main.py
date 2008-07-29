@@ -18,6 +18,7 @@ from conduit.TypeConverter import TypeConverter
 from conduit.SyncSet import SyncSet
 from conduit.Synchronization import SyncManager
 from conduit.DBus import DBusInterface
+from conduit.Settings import Settings
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 
@@ -45,6 +46,9 @@ class Application(dbus.service.Object):
         gobject.set_application_name("Conduit")
         self.settingsFile = os.path.join(conduit.USER_DIR, "settings.xml")
         self.dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
+
+        #initialize application settings
+        conduit.GLOBALS.settings = Settings(conduit.SETTINGS_IMPL)
 
         buildGUI = True
         iconify = False
@@ -279,6 +283,9 @@ OPTIONS:
         #Save the mapping DB
         conduit.GLOBALS.mappingDB.save()
         conduit.GLOBALS.mappingDB.close()
+
+        #Save the application settings
+        conduit.GLOBALS.settings.save()
         
         log.info("Main Loop Quitting")
         conduit.GLOBALS.mainloop.quit()

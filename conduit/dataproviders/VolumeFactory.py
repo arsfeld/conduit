@@ -26,9 +26,8 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         else:
             log.warn("HAL Could not be Initialized")
 
-    def _volume_mounted_cb(self, monitor, volume):
-        log.info("Volume mounted")
-        device_udi = volume.get_hal_udi()
+    def _volume_mounted_cb(self, monitor, device_udi):
+        log.info("Volume mounted, udi: %s" % device_udi)
         if device_udi :
             props = self._get_properties(device_udi)
             if self.is_interesting(device_udi, props):
@@ -37,12 +36,10 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
                 self.item_added(device_udi, **kwargs)
         return True
 
-    def _volume_unmounted_cb(self, monitor, volume):
-        log.info("Volume Umounted: %s" % volume.get_hal_udi())
-        device_udi = volume.get_hal_udi()
+    def _volume_unmounted_cb(self, monitor, device_udi):
+        log.info("Volume mounted, udi: %s" % device_udi)
         if device_udi :
             if self.is_interesting(device_udi, self._get_properties(device_udi)):
-                log.info("Removing Volume")
                 self.item_removed(device_udi)
         return False
 
@@ -72,8 +69,7 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         """
         Called after VolumeFactory is initialised to detect already connected volumes
         """
-        for volume in self.vol_monitor.get_mounted_volumes():
-            device_udi = volume.get_hal_udi()
+        for device_udi in self.vol_monitor.get_mounted_volumes():
             if device_udi != None:
                 props = self._get_properties(device_udi)
                 if self.is_interesting(device_udi, props):

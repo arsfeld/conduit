@@ -12,4 +12,7 @@ folder=file:///tmp
 removable-volume=file:///media/media/MusicToSort/Kora
 ntfs-volume=file:///media/windows
 
+[john@nzjrs-uni]
+removable-volume=file:///media/sda2/dell
+ntfs-volume=file:///media/sda2
 

@@ -109,6 +109,46 @@
 	* conduit/dataproviders/DataProvider.py:
 	* conduit/gtkui/UI.py:
 	Give factories the ability to put pages in the configuration window
+	
+2008-07-04 John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/WebBrowserMozilla.py:
+	* conduit/platform/WebBrowserSystem.py:
+	* conduit/Web.py:
+	* conduit/platform/__init__.py: Move webbrowser implementations to
+	the platform dir, and use the new Singleton to tidy things up
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* conduit/dataproviders/VolumeFactory.py: Make VolumeMonitor
+    a gobject derived singleon.
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* conduit/modules/FileModule/FileModule.py: Make the file object
+    a gobject derived class that emits a changed signal. Much more like
+    GIO.
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/utils/Singleton.py:
+	* test/python-tests/TestCoreUtil.py: Add a singleton class, necessary
+    for the GnomeVfs volume monitor.
+
+2008-07-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Globals.py:
+	* conduit/Main.py:
+	* conduit/Settings.py:
+	* conduit/__init__.py:
+	* conduit/defs.py.in:
+	* conduit/platform/SettingsPython.py:
+	* test/python-tests/TestCoreSettings.py:
+	* test/python-tests/common.py: Change initialization order
+    so the desired impl is passed to Settings. Test both 
+    implementations.
 
 2008-07-03  John Stowers  <john.stowers@gmail.com>
 
@@ -146,11 +186,39 @@
 	* conduit/datatypes/Contact.py:
 	Check contact has email property before looping through it.
 
+2008-06-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/platform/__init__.py:
+	* conduit/platform/SettingsGConf.py:
+	* conduit/platform/SettingsPython.py: Add a native python
+    ConfigParser settings implementation
+
+	* test/python-tests/TestCoreSettings.py: Add a few more
+    tests
+
+2008-06-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/platform/__init__.py:
+	* conduit/platform/SettingsGConf.py: Split backed out into platform specific
+	implementation.
+	
+	* scripts/run-tests.sh: Code coverage the new platform dir.
+	
+	* test/python-tests/TestCoreSettings.py: Test set_overrides.
+
 2008-06-18  John Carr  <john.carr@unrouted.co.uk>
 
 	* conduit/modules/GoogleModule/GoogleModule.py:
 	Fix Contact two way sync (conversion code was trying to 
 	convert a contact to a '')
+
+2008-06-17  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* test/python-tests/TestCoreVfs.py: Check all uir_xxx functions operate
+	on a string uri
 
 2008-06-17  John Stowers  <john.stowers@gmail.com>
 
