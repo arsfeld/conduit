@@ -1,5 +1,9 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
+	* help/Makefile.am: Include other figures. Fixes #543534
+
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: Check gmail contact
 	has email before adding. Fixes #545129 (Roumano)
 
