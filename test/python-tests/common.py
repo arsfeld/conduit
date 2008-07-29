@@ -89,6 +89,8 @@ def finished():
     print "[FINISHED]"
     sys.exit()
 
+def wait_seconds(s):
+    time.sleep(s)
 
 def my_except_hook(etype, evalue, etraceback):
     """
