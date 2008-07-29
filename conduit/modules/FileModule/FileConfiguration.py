@@ -68,12 +68,13 @@ class _FileSourceConfigurator(Vfs.FolderScannerThreadManager):
         for oid,uri in self.db.select("SELECT oid,URI FROM config WHERE TYPE=? and SCAN_COMPLETE=?",(FileDataProvider.TYPE_FOLDER,False,)):
             self.make_thread(
                     uri, 
-                    False,
+                    False,  #include hidden
+                    False,  #follow symlinks
                     self._on_scan_folder_progress, 
                     self._on_scan_folder_completed, 
                     oid
                     )
-
+                    
     def _dnd_data_get(self, wid, context, x, y, selection, targetType, time):
         for uri in selection.get_uris():
             try:
@@ -201,7 +202,8 @@ class _FileSourceConfigurator(Vfs.FolderScannerThreadManager):
                         )
             self.make_thread(
                     folderURI, 
-                    False,
+                    False,  #include hidden
+                    False,  #follow symlinks
                     self._on_scan_folder_progress, 
                     self._on_scan_folder_completed, 
                     oid

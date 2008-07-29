@@ -349,8 +349,8 @@ class FolderScannerThreadManager(object):
 
         if folderURI not in self.scanThreads:
             thread = FolderScanner(folderURI, includeHidden, followSymlinks)
-            thread.connect("scan-progress",progressCb, *args)
-            thread.connect("scan-completed",completedCb, *args)
+            thread.connect("scan-progress", progressCb, *args)
+            thread.connect("scan-completed", completedCb, *args)
             thread.connect("scan-completed", self._register_thread_completed, folderURI)
             self.scanThreads[folderURI] = thread
             if running < self.maxConcurrentThreads:

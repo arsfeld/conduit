@@ -1,5 +1,11 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py:
+	* conduit/modules/FileModule/FileConfiguration.py: Dont forget the 
+	symlink parameter when creating folder scan threads. Fixes #544712
+
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/*:
 	* test/*: Merge conduit-platform branch with many architectural 
 	improvements. Fixes #509702, #525259
