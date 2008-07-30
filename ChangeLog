@@ -1,5 +1,10 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/run-tests.sh: Code coverage should include platform
+	dir.
+
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Database.py: Fix an off by one error in the database
 	gtk.Liststore wrapper. This was exposed by a recent upgrade that changed
 	how the gtk.Treeview iterated over its model.
