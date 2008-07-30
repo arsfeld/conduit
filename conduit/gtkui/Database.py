@@ -130,22 +130,27 @@ class GenericDBListStore(gtk.GenericTreeModel):
         Parameters:
             oid -- the current oid.
         """
+        #first call is when oid=None
+        if not oid:
+            oid = -1
+            
         if GenericDBListStore.OID_CACHE:
             try:
                 index = self.oidcache.index(oid)
                 return self.oidcache[index+1]
             except (ValueError, IndexError):
-                sql = "SELECT oid FROM %s WHERE oid > %d LIMIT 1024" % (self.table, oid or -1)
+                sql = "SELECT oid FROM %s WHERE oid >= %d LIMIT 1024" % (self.table, oid)
                 oids = [oid for (oid,) in self.db.select(sql)]
                 self.oidcache.extend(oids)
                 self.oidcache = Utils.unique_list(self.oidcache)
-            if len(oids) > 0:
-                oid = oids[0] 
+            #if we can only get one result, we must be the last oid
+            if len(oids) > 1:
+                oid = oids[1] 
             else:
                 oid = None        
         else:
             try:
-                (oid,) = self.db.select_one("SELECT oid FROM %s WHERE oid > %d LIMIT 1" % (self.table, oid or -1))
+                (oid,) = self.db.select_one("SELECT oid FROM %s WHERE oid > %d LIMIT 1" % (self.table, oid))
             except TypeError:
                 oid = None
 

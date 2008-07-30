@@ -1,5 +1,11 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Database.py: Fix an off by one error in the database
+	gtk.Liststore wrapper. This was exposed by a recent upgrade that changed
+	how the gtk.Treeview iterated over its model.
+
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py: Expand the canvas when more conduits
 	get added. Fixes #516646.
 
