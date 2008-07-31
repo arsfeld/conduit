@@ -1,3 +1,10 @@
+2008-07-31  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Makefile.am:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/Util.py: Add some machinery to make it easier to use
+	gtk themed colors in the canvas.
+
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
 	* scripts/run-tests.sh: Code coverage should include platform

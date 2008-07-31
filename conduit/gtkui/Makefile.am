@@ -6,6 +6,7 @@ conduit_PYTHON = \
 	__init__.py \
 	SimpleConfigurator.py \
 	Tree.py \
+	Util.py \
 	UI.py
 
 clean-local:

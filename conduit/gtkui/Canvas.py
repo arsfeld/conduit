@@ -7,54 +7,118 @@ dragged onto.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import cairo
 import goocanvas
 import gtk
 import pango
 from gettext import gettext as _
+
 import logging
 log = logging.getLogger("gtkui.Canvas")
 
-import conduit
+import conduit.utils as Utils
 import conduit.Conduit as Conduit
 import conduit.gtkui.Tree
+import conduit.gtkui.Util as GtkUtil
 
-#Tango colors taken from 
-#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-TANGO_COLOR_BUTTER_LIGHT = int("fce94fff",16)
-TANGO_COLOR_BUTTER_MID = int("edd400ff",16)
-TANGO_COLOR_BUTTER_DARK = int("c4a000ff",16)
-TANGO_COLOR_ORANGE_LIGHT = int("fcaf3eff",16)
-TANGO_COLOR_ORANGE_MID = int("f57900",16)
-TANGO_COLOR_ORANGE_DARK = int("ce5c00ff",16)
-TANGO_COLOR_CHOCOLATE_LIGHT = int("e9b96eff",16)
-TANGO_COLOR_CHOCOLATE_MID = int("c17d11ff",16)
-TANGO_COLOR_CHOCOLATE_DARK = int("8f5902ff",16)
-TANGO_COLOR_CHAMELEON_LIGHT = int("8ae234ff",16)
-TANGO_COLOR_CHAMELEON_MID = int("73d216ff",16)
-TANGO_COLOR_CHAMELEON_DARK = int("4e9a06ff",16)
-TANGO_COLOR_SKYBLUE_LIGHT = int("729fcfff",16)
-TANGO_COLOR_SKYBLUE_MID = int("3465a4ff",16)
-TANGO_COLOR_SKYBLUE_DARK = int("204a87ff",16)
-TANGO_COLOR_PLUM_LIGHT = int("ad7fa8ff",16)
-TANGO_COLOR_PLUM_MID = int("75507bff",16)
-TANGO_COLOR_PLUM_DARK = int("5c3566ff",16)
-TANGO_COLOR_SCARLETRED_LIGHT = int("ef2929ff",16)
-TANGO_COLOR_SCARLETRED_MID = int("cc0000ff",16)
-TANGO_COLOR_SCARLETRED_DARK = int("a40000ff",16)
-TANGO_COLOR_ALUMINIUM1_LIGHT = int("eeeeecff",16)
-TANGO_COLOR_ALUMINIUM1_MID = int("d3d7cfff",16)
-TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
-TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
-TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
-TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
-TRANSPARENT_COLOR = int("00000000",16)
+log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
 #Style elements common to ConduitCanvasItem and DPCanvasItem
 SIDE_PADDING = 10.0
 LINE_WIDTH = 3.0
 RECTANGLE_RADIUS = 5.0
 
-class Canvas(goocanvas.Canvas):
+class _StyleMixin:
+
+    STYLES = (
+        "fg",
+        "bg",
+        "light",
+        "dark",
+        "mid",
+        "text",
+        "base",
+        "text_aa"
+        )
+    STYLE_STATES = (
+        "normal",
+        "active",
+        "prelight",
+        "selected",
+        "insensitive"
+        )
+        
+    def _get_colors_and_state(self, styleName, stateName):
+        style = self.get_gtk_style()
+        colors = getattr(style, styleName.lower(), None)
+        state = getattr(gtk, "STATE_%s" % stateName.upper(), None)
+        return colors,state
+
+    def get_gtk_style(self):
+        """
+        @returns: The gtk.Style for the widget
+        """
+        #not that clean, we can be mixed into the
+        #canvas, or a canvas item
+        try:
+            return self.get_canvas().style
+        except AttributeError:
+            return self.style
+        
+    def get_style_color_rgba(self, styleName, stateName, a=1):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2rgba(colors[state], a)
+        else:
+            return GtkUtil.gdk2rgba(GtkUtil.str2gdk("red"), a)
+            
+    def get_style_color_int_rgb(self, styleName, stateName):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2intrgb(colors[state])
+        else:
+            return GtkUtil.gdk2intrgb(GtkUtil.str2gdk("red"))
+            
+    def get_style_color_int_rgba(self, styleName, stateName, a=1):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2intrgba(colors[state], int(a*255))
+        else:
+            return GtkUtil.gdk2intrgba(GtkUtil.str2gdk("red"), int(a*255))
+
+
+class _CanvasItem(goocanvas.Group, _StyleMixin):
+    def __init__(self, parent, model):
+        #FIXME: If parent is None in base constructor then goocanvas segfaults
+        #this means a ref to items may be kept so this may leak...
+        goocanvas.Group.__init__(self, parent=parent)
+        self.model = model
+
+    def get_height(self):
+        b = self.get_bounds()
+        return b.y2-b.y1
+
+    def get_width(self):
+        b = self.get_bounds()
+        return b.x2-b.x1
+
+    def get_top(self):
+        b = self.get_bounds()
+        return b.y1
+
+    def get_bottom(self):
+        b = self.get_bounds()
+        return b.y2
+
+    def get_left(self):
+        b = self.get_bounds()
+        return b.x1
+
+    def get_right(self):
+        b = self.get_bounds()
+        return b.x2
+
+class Canvas(goocanvas.Canvas, _StyleMixin):
     """
     This class manages many objects
     """
@@ -91,10 +155,8 @@ class Canvas(goocanvas.Canvas):
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         self.connect('size-allocate', self._canvas_resized)
-
-        #Show a friendly welcome message on the canvas the first time the
-        #application is launched
-        self.welcomeMessage = None
+        #set the canvas backgroun when we are first realized
+        self.connect('realize', self._on_realized)
 
         #keeps a reference to the currently selected (most recently clicked)
         #canvas items
@@ -104,7 +166,21 @@ class Canvas(goocanvas.Canvas):
         #model is a SyncSet, not set till later because it is loaded from xml
         self.model = None
         
-        log.info("Goocanvas version: %s" % str(goocanvas.pygoocanvas_version))
+        #Show a friendly welcome message on the canvas the first time the
+        #application is launched
+        self.welcomeMessage = None
+        self._show_welcome_message()
+
+    def _on_realized(self, *args):
+        self.set_property(
+                "background_color_rgb",
+                self.get_style_color_int_rgb("bg","normal")
+                )
+        if self.welcomeMessage:
+            self.welcomeMessage.set_property(
+                "fill_color_rgba",
+                self.get_style_color_int_rgba("text","normal")
+                )
         
     def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
         """
@@ -161,7 +237,7 @@ class Canvas(goocanvas.Canvas):
                                     anchor=gtk.ANCHOR_CENTER,
                                     alignment=pango.ALIGN_CENTER,
                                     font="Sans 10",
-                                    fill_color="black",
+                                    fill_color_rgba=self.get_style_color_int_rgba("text","normal"),
                                     )
 
         idx = self.root.find_child(self.welcomeMessage)
@@ -317,8 +393,8 @@ class Canvas(goocanvas.Canvas):
                 else:
                     log.warn("Error finding item")
         self._remove_overlap()
-        self._show_welcome_message()
 
+        self._show_welcome_message()
         c_x,c_y,c_w,c_h = self.get_bounds()
         self.set_bounds(
                     0,
@@ -331,7 +407,6 @@ class Canvas(goocanvas.Canvas):
         """
         Creates a ConduitCanvasItem for the new conduit
         """
-
         #check for duplicates to eliminate race condition in set_sync_set
         if conduitAdded in [i.model for i in self._get_child_conduit_canvas_items()]:
             return
@@ -368,7 +443,6 @@ class Canvas(goocanvas.Canvas):
             if item.model == dataproviderRemoved:
                 conduitCanvasItem.delete_dataprovider_canvas_item(item)
         self._remove_overlap()
-        self._show_welcome_message()
 
     def on_dataprovider_added(self, sender, dataproviderAdded, conduitCanvasItem):
         """
@@ -387,7 +461,6 @@ class Canvas(goocanvas.Canvas):
         item.connect('button-press-event', self._on_dataprovider_button_press)
         conduitCanvasItem.add_dataprovider_canvas_item(item)
         self._remove_overlap()
-        self._show_welcome_message()
 
     def get_sync_set(self):
         return self.model
@@ -400,8 +473,6 @@ class Canvas(goocanvas.Canvas):
         self.model.connect("conduit-added", self.on_conduit_added)
         self.model.connect("conduit-removed", self.on_conduit_removed)
 
-        self._show_welcome_message()
-        
     def on_drag_motion(self, wid, context, x, y, time):
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
@@ -522,47 +593,16 @@ class Canvas(goocanvas.Canvas):
     def clear_canvas(self):
         self.model.clear()
 
-class _CanvasItem(goocanvas.Group):
-    def __init__(self, parent, model):
-        #FIXME: If parent is None in base constructor then goocanvas segfaults
-        #this means a ref to items may be kept so this may leak...
-        goocanvas.Group.__init__(self, parent=parent)
-        self.model = model
-
-    def get_height(self):
-        b = self.get_bounds()
-        return b.y2-b.y1
-
-    def get_width(self):
-        b = self.get_bounds()
-        return b.x2-b.x1
-
-    def get_top(self):
-        b = self.get_bounds()
-        return b.y1
-
-    def get_bottom(self):
-        b = self.get_bounds()
-        return b.y2
-
-    def get_left(self):
-        b = self.get_bounds()
-        return b.x1
-
-    def get_right(self):
-        b = self.get_bounds()
-        return b.x2
-
 class DataProviderCanvasItem(_CanvasItem):
 
     WIDGET_WIDTH = 130
     WIDGET_HEIGHT = 60
     IMAGE_TO_TEXT_PADDING = 5
     PENDING_MESSAGE = "Pending"
-    PENDING_FILL_COLOR = TANGO_COLOR_BUTTER_LIGHT
-    SOURCE_FILL_COLOR = TANGO_COLOR_ALUMINIUM1_MID
-    SINK_FILL_COLOR = TANGO_COLOR_SKYBLUE_LIGHT
-    TWOWAY_FILL_COLOR = TANGO_COLOR_BUTTER_MID
+    PENDING_FILL_COLOR =    GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+    SOURCE_FILL_COLOR =     GtkUtil.TANGO_COLOR_ALUMINIUM1_MID
+    SINK_FILL_COLOR =       GtkUtil.TANGO_COLOR_SKYBLUE_LIGHT
+    TWOWAY_FILL_COLOR =     GtkUtil.TANGO_COLOR_BUTTER_MID
 
     NAME_FONT = "Sans 8"
     STATUS_FONT = "Sans 7"
@@ -646,7 +686,7 @@ class DataProviderCanvasItem(_CanvasItem):
                                 text="", 
                                 anchor=gtk.ANCHOR_WEST, 
                                 font=self.STATUS_FONT,
-                                fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
+                                fill_color_rgba=GtkUtil.TANGO_COLOR_ALUMINIUM2_MID,
                                 )                                    
         
            
@@ -709,6 +749,24 @@ class ConduitCanvasItem(_CanvasItem):
         #Build the widget
         self._build_widget(width)
 
+    def _get_paint_style(self):
+
+        pattern = cairo.LinearGradient(10, 0, 260, 0)
+
+        pattern.add_color_stop_rgb(0, 0, 0.5, 1);
+        pattern.add_color_stop_rgb(0.1, 0, 0.5, 1);
+        pattern.add_color_stop_rgb(0.3, 1, 0, 0);
+        pattern.add_color_stop_rgb(0.5, 1, 1, 0);
+        pattern.add_color_stop_rgb(0.7, 0, 1, 1);
+
+        kwargs = {
+            #"fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM1_LIGHT, 
+            "fill_pattern":pattern,
+            #"stroke_pattern":pattern,
+            "stroke_color":"black",
+        }
+        return kwargs
+
     def _add_progress_text(self):
         if self.sourceItem != None and len(self.sinkDpItems) > 0:
             if self.progressText == None:
@@ -750,7 +808,11 @@ class ConduitCanvasItem(_CanvasItem):
 
         #draw a spacer to give some space between conduits
         points = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
-        self.l = goocanvas.Polyline(points=points, line_width=LINE_WIDTH, stroke_color_rgba=TRANSPARENT_COLOR)
+        self.l = goocanvas.Polyline(
+                                points=points,
+                                line_width=LINE_WIDTH,
+                                stroke_color_rgba=GtkUtil.TRANSPARENT_COLOR
+                                )
         self.add_child(self.l)
 
         #draw a box which will contain the dataproviders
@@ -760,10 +822,9 @@ class ConduitCanvasItem(_CanvasItem):
                                 width=true_width,     
                                 height=ConduitCanvasItem.WIDGET_HEIGHT,
                                 line_width=LINE_WIDTH, 
-                                stroke_color="black",
-                                fill_color_rgba=TANGO_COLOR_ALUMINIUM1_LIGHT, 
                                 radius_y=RECTANGLE_RADIUS, 
-                                radius_x=RECTANGLE_RADIUS
+                                radius_x=RECTANGLE_RADIUS,
+                                **self._get_paint_style()
                                 )
         self.add_child(self.bounding_box)
 
