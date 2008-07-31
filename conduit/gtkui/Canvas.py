@@ -693,7 +693,8 @@ class DataProviderCanvasItem(_CanvasItem):
                                 x=pbx,
                                 y=pby
                                 )
-        self.name = goocanvas.Text(  x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
+        self.name = goocanvas.Text(
+                                x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
                                 y=int(1*self.WIDGET_HEIGHT/3), 
                                 width=3*self.WIDGET_WIDTH/5, 
                                 text=self._get_model_name(), 
@@ -753,12 +754,13 @@ class DataProviderCanvasItem(_CanvasItem):
                 }
         elif specifier == "name":
             kwargs = {
-                "font":"Sans 8"
+                "font":"Sans 8",
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
             }
         elif specifier == "statusText":
             kwargs = {
                 "font":"Sans 7",
-                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM2_MID
+                "fill_color_rgba":self.get_style_color_int_rgba("text_aa","normal")
             }
         
         return kwargs
