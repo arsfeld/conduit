@@ -254,6 +254,9 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
     WIDGET_WIDTH = 160
     WIDGET_HEIGHT = 85
 
+    def get_styled_item_names(self):
+        return ()
+
     def get_style_properties(self, specifier):
         if specifier == "box":
             #color the box differently if it is pending
@@ -287,6 +290,9 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
 
+    def get_styled_item_names(self):
+        return ()
+
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
             kwargs = {
@@ -302,6 +308,9 @@ class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
             kwargs = {}
 
 class ConnectorCanvasItem(conduit.gtkui.Canvas.ConnectorCanvasItem):
+
+    def get_styled_item_names(self):
+        return ()
 
     def get_style_properties(self, specifier):
         if specifier == "left_end_round":

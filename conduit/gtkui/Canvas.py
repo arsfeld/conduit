@@ -50,8 +50,13 @@ class _StyleMixin:
         
     def _get_colors_and_state(self, styleName, stateName):
         style = self.get_gtk_style()
-        colors = getattr(style, styleName.lower(), None)
-        state = getattr(gtk, "STATE_%s" % stateName.upper(), None)
+        if style:
+            colors = getattr(style, styleName.lower(), None)
+            state = getattr(gtk, "STATE_%s" % stateName.upper(), None)
+        else:
+            colors = None
+            state = None
+
         return colors,state
 
     def get_gtk_style(self):
@@ -63,7 +68,10 @@ class _StyleMixin:
         try:
             return self.get_canvas().style
         except AttributeError:
-            return self.style
+            try:
+                return self.style
+            except AttributeError:
+                return None
 
     def get_style_color_rgb(self, styleName, stateName):
         colors,state = self._get_colors_and_state(styleName, stateName)
@@ -99,6 +107,22 @@ class _CanvasItem(goocanvas.Group, _StyleMixin):
         #this means a ref to items may be kept so this may leak...
         goocanvas.Group.__init__(self, parent=parent)
         self.model = model
+        
+        #this little piece of magic re-applies style properties to the
+        #widgets, when the users theme changes
+        self.get_canvas().connect("style-set", self._automatic_style_updater)
+
+    def _automatic_style_updater(self, *args):
+        if not self.get_gtk_style():
+            #while in the midst of changing theme, the style is sometimes
+            #None, but dont worry, we will get called again
+            return
+        for attr in self.get_styled_item_names():
+            item = getattr(self, attr, None)
+            if item:
+                item.set_properties(
+                        **self.get_style_properties(attr)
+                        )
 
     def get_height(self):
         b = self.get_bounds()
@@ -123,6 +147,9 @@ class _CanvasItem(goocanvas.Group, _StyleMixin):
     def get_right(self):
         b = self.get_bounds()
         return b.x2
+        
+    def get_styled_item_names(self):
+        raise NotImplementedError        
         
     def get_style_properties(self, specifier):
         raise NotImplementedError
@@ -164,8 +191,12 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         self.connect('size-allocate', self._canvas_resized)
-        #set the canvas backgroun when we are first realized
-        self.connect('realize', self._on_realized)
+        #track theme chages for canvas background
+        self.connect('realize', self._update_for_theme)
+        #FIXME: Causes pygtk to recurse for ever. It appears that setting
+        #backgroun_color_rgb in the sync-set handler causes sync-set to be 
+        #emitted again
+        #self.connect("style-set", self._update_for_theme)
 
         #keeps a reference to the currently selected (most recently clicked)
         #canvas items
@@ -179,8 +210,10 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         #application is launched
         self.welcomeMessage = None
         self._show_welcome_message()
-
-    def _on_realized(self, *args):
+        
+    def _update_for_theme(self, *args):
+        if not self.get_gtk_style():
+            return
         self.set_property(
                 "background_color_rgb",
                 self.get_style_color_int_rgb("bg","normal")
@@ -190,7 +223,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
                 "fill_color_rgba",
                 self.get_style_color_int_rgba("text","normal")
                 )
-        
+
     def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
         """
         Sets up the popup menus and their callbacks
@@ -688,16 +721,19 @@ class DataProviderCanvasItem(_CanvasItem):
     def _on_status_changed(self, dataprovider):
         msg = dataprovider.get_status()
         self.statusText.set_property("text", msg)
+    
+    def get_styled_item_names(self):
+        return "box","name","statusText"
         
     def get_style_properties(self, specifier):
         if specifier == "box":
             #color the box differently if it is pending, i.e. unavailable,
-            #disconnected, etc. It shoud probbably be using some clearly
-            #insensitive colors.
+            #disconnected, etc.
             if self.model.module == None:
+                insensitive = self.get_style_color_int_rgba("mid","insensitive")
                 kwargs = {
-                    "stroke_color":"black",
-                    "fill_color_rgba":GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+                    "stroke_color_rgba":insensitive,
+                    "fill_color_rgba":insensitive
                 }
                 
             else:
@@ -918,6 +954,9 @@ class ConduitCanvasItem(_CanvasItem):
                                     self.connectorItems[item].reconnect(fromx,fromy,tox,toy)
                     except IndexError:
                         break
+
+    def get_styled_item_names(self):
+        return "boundingBox","progressText"
 
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
@@ -1167,6 +1206,9 @@ class ConnectorCanvasItem(_CanvasItem):
                             **self.get_style_properties("path")
                             )
         self.add_child(self.path,-1)
+    
+    def get_styled_item_names(self):
+        return "left_end_round", "left_end_arrow", "right_end", "path"
         
     def get_style_properties(self, specifier):
         if specifier == "left_end_round":
