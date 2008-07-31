@@ -302,7 +302,20 @@ class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
             kwargs = {}
 
 class ConnectorCanvasItem(conduit.gtkui.Canvas.ConnectorCanvasItem):
-    pass
+
+    def get_style_properties(self, specifier):
+        if specifier == "left_end_round":
+            kwargs = {
+                "fill_color":"black"
+            }
+        elif specifier in ("left_end_arrow", "right_end", "path"):
+            kwargs = {
+                "stroke_color":"black"
+            }
+        else:
+            kwargs = {}
+        
+        return kwargs
 
 class ContextMenu(gtk.Menu):
     def __init__(self):

@@ -64,6 +64,13 @@ class _StyleMixin:
             return self.get_canvas().style
         except AttributeError:
             return self.style
+
+    def get_style_color_rgb(self, styleName, stateName):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2rgb(colors[state])
+        else:
+            return GtkUtil.gdk2rgb(GtkUtil.str2gdk("red"))
         
     def get_style_color_rgba(self, styleName, stateName, a=1):
         colors,state = self._get_colors_and_state(styleName, stateName)
@@ -684,23 +691,30 @@ class DataProviderCanvasItem(_CanvasItem):
         
     def get_style_properties(self, specifier):
         if specifier == "box":
-            #color the box differently if it is pending
+            #color the box differently if it is pending, i.e. unavailable,
+            #disconnected, etc. It shoud probbably be using some clearly
+            #insensitive colors.
             if self.model.module == None:
-                color = GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+                kwargs = {
+                    "stroke_color":"black",
+                    "fill_color_rgba":GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+                }
+                
             else:
-                if self.model.module_type == "source":
-                    color = GtkUtil.TANGO_COLOR_ALUMINIUM1_MID
-                elif self.model.module_type == "sink":
-                    color = GtkUtil.TANGO_COLOR_SKYBLUE_LIGHT
-                elif self.model.module_type == "twoway":
-                    color = GtkUtil.TANGO_COLOR_BUTTER_MID
-                else:
-                    color = None
-        
-            kwargs = {
-                "stroke_color":"black",
-                "fill_color_rgba":color
-            }
+                pattern = cairo.LinearGradient(0, 0, 0, 100)
+                pattern.add_color_stop_rgb(
+                                        0,
+                                        *self.get_style_color_rgb("dark","active")
+                                        );
+                pattern.add_color_stop_rgb(
+                                        0.7,
+                                        *self.get_style_color_rgb("dark","prelight")
+                                        );
+            
+                kwargs = {
+                    "stroke_color":"black",
+                    "fill_pattern":pattern
+                }
         elif specifier == "name":
             kwargs = {
                 "font":"Sans 8"
@@ -907,18 +921,24 @@ class ConduitCanvasItem(_CanvasItem):
 
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
-            pattern = cairo.LinearGradient(10, 0, 260, 0)
-            pattern.add_color_stop_rgb(0, 0, 0.5, 1);
-            pattern.add_color_stop_rgb(0.7, 0, 1, 1);
+            pattern = cairo.LinearGradient(-30, -30, 0, 100)
+            pattern.add_color_stop_rgb(
+                                    0,
+                                    *self.get_style_color_rgb("dark","selected")
+                                    );
+            pattern.add_color_stop_rgb(
+                                    0.7,
+                                    *self.get_style_color_rgb("mid","selected")
+                                    );
 
             kwargs = {
                 "fill_pattern":pattern,
-                "stroke_color":"black"
+                "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
             }
         elif specifier == "progressText":
             kwargs = {
                 "font":"Sans 7",
-                "fill_color":"black"
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
             }
         else:
             kwargs = {}
@@ -1039,13 +1059,7 @@ class ConnectorCanvasItem(_CanvasItem):
         self.fromY = fromY
         self.toX = toX
         self.toY = toY
-
         self.twoway = twoway
-
-        if conversionExists == True:
-            self.color = "black"
-        else:
-            self.color = "red"
 
         self._build_widget()
         
@@ -1055,18 +1069,18 @@ class ConnectorCanvasItem(_CanvasItem):
                                     center_y=self.fromY, 
                                     radius_x=6, 
                                     radius_y=6, 
-                                    fill_color=self.color, 
-                                    line_width=0.0
+                                    line_width=0.0,
+                                    **self.get_style_properties("left_end_round")
                                     )
         points = goocanvas.Points([(self.fromX-6, self.fromY), (self.fromX-7, self.fromY)])
         self.left_end_arrow = goocanvas.Polyline(
                             points=points,
-                            stroke_color=self.color,
                             line_width=5,
                             end_arrow=True,
                             arrow_tip_length=3,
                             arrow_length=3,
-                            arrow_width=3
+                            arrow_width=3,
+                            **self.get_style_properties("left_end_arrow")
                             )
 
         
@@ -1074,18 +1088,22 @@ class ConnectorCanvasItem(_CanvasItem):
         points = goocanvas.Points([(self.toX-1, self.toY), (self.toX, self.toY)])
         self.right_end = goocanvas.Polyline(
                             points=points,
-                            stroke_color=self.color,
                             line_width=5,
                             end_arrow=True,
                             arrow_tip_length=3,
                             arrow_length=3,
-                            arrow_width=3
+                            arrow_width=3,
+                            **self.get_style_properties("right_end")
                             )
 
         self._draw_arrow_ends()
         self.add_child(self.right_end,-1)
 
-        self.path = goocanvas.Path(data="",stroke_color=self.color,line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
+        self.path = goocanvas.Path(
+                            data="",
+                            line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH,
+                            **self.get_style_properties("path")
+                            )
         self._draw_path()
 
     def _draw_arrow_ends(self):
@@ -1143,8 +1161,26 @@ class ConnectorCanvasItem(_CanvasItem):
             self.remove_child(pidx)
 
         #Reecreate the path to work round goocanvas bug
-        self.path = goocanvas.Path(data=p,stroke_color=self.color,line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
+        self.path = goocanvas.Path(
+                            data=p,
+                            line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH,
+                            **self.get_style_properties("path")
+                            )
         self.add_child(self.path,-1)
+        
+    def get_style_properties(self, specifier):
+        if specifier == "left_end_round":
+            kwargs = {
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        elif specifier in ("left_end_arrow", "right_end", "path"):
+            kwargs = {
+                "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        else:
+            kwargs = {}
+        
+        return kwargs
             
     def resize_connector_width(self, dw):
         """
