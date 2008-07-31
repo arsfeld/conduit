@@ -1,5 +1,10 @@
 2008-07-31  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py: Dont recurse forever when updating the
+	background to match the theme on the main canvas.
+
+2008-07-31  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py: Implement some pretty impressive
 	(if I do say so myself) auto-theme change update foo.
