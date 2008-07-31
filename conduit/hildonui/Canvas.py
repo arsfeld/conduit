@@ -13,7 +13,8 @@ import gtk
 import logging
 log = logging.getLogger("hildonui.Canvas")
 
-import conduit.gtkui.Canvas 
+import conduit.gtkui.Canvas
+import conduit.gtkui.Util as GtkUtil 
 
 LINE_WIDTH = 3.0
 
@@ -253,11 +254,52 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
     WIDGET_WIDTH = 160
     WIDGET_HEIGHT = 85
 
-    NAME_FONT = "Sans 12"
-    STATUS_FONT = "Sans 10"
+    def get_style_properties(self, specifier):
+        if specifier == "box":
+            #color the box differently if it is pending
+            if self.model.module == None:
+                color = GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+            else:
+                if self.model.module_type == "source":
+                    color = GtkUtil.TANGO_COLOR_ALUMINIUM1_MID
+                elif self.model.module_type == "sink":
+                    color = GtkUtil.TANGO_COLOR_SKYBLUE_LIGHT
+                elif self.model.module_type == "twoway":
+                    color = GtkUtil.TANGO_COLOR_BUTTER_MID
+                else:
+                    color = None
+        
+            kwargs = {
+                "stroke_color":"black",
+                "fill_color_rgba":color
+            }
+        elif specifier == "name":
+            kwargs = {
+                "font":"Sans 8"
+            }
+        elif specifier == "statusText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM2_MID
+            }
+        
+        return kwargs
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
-    pass 
+
+    def get_style_properties(self, specifier):
+        if specifier == "boundingBox":
+            kwargs = {
+                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM1_LIGHT, 
+                "stroke_color":"black"
+            }
+        elif specifier == "progressText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color":"black"
+            }
+        else:
+            kwargs = {}
 
 class ConnectorCanvasItem(conduit.gtkui.Canvas.ConnectorCanvasItem):
     pass

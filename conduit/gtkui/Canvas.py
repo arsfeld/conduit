@@ -86,7 +86,6 @@ class _StyleMixin:
         else:
             return GtkUtil.gdk2intrgba(GtkUtil.str2gdk("red"), int(a*255))
 
-
 class _CanvasItem(goocanvas.Group, _StyleMixin):
     def __init__(self, parent, model):
         #FIXME: If parent is None in base constructor then goocanvas segfaults
@@ -117,6 +116,9 @@ class _CanvasItem(goocanvas.Group, _StyleMixin):
     def get_right(self):
         b = self.get_bounds()
         return b.x2
+        
+    def get_style_properties(self, specifier):
+        raise NotImplementedError
 
 class Canvas(goocanvas.Canvas, _StyleMixin):
     """
@@ -599,13 +601,6 @@ class DataProviderCanvasItem(_CanvasItem):
     WIDGET_HEIGHT = 60
     IMAGE_TO_TEXT_PADDING = 5
     PENDING_MESSAGE = "Pending"
-    PENDING_FILL_COLOR =    GtkUtil.TANGO_COLOR_BUTTER_LIGHT
-    SOURCE_FILL_COLOR =     GtkUtil.TANGO_COLOR_ALUMINIUM1_MID
-    SINK_FILL_COLOR =       GtkUtil.TANGO_COLOR_SKYBLUE_LIGHT
-    TWOWAY_FILL_COLOR =     GtkUtil.TANGO_COLOR_BUTTER_MID
-
-    NAME_FONT = "Sans 8"
-    STATUS_FONT = "Sans 7"
     MAX_TEXT_LENGTH = 10
     MAX_TEXT_LINES = 2
 
@@ -637,19 +632,6 @@ class DataProviderCanvasItem(_CanvasItem):
             
         return text
 
-    def _get_fill_color(self):
-        if self.model.module == None:
-            return self.PENDING_FILL_COLOR
-        else:
-            if self.model.module_type == "source":
-                return self.SOURCE_FILL_COLOR
-            elif self.model.module_type == "sink":
-                return self.SINK_FILL_COLOR
-            elif self.model.module_type == "twoway":
-                return self.TWOWAY_FILL_COLOR
-            else:
-                log.warn("Unknown module type: Cannot get fill color")
-
     def _get_icon(self):
         return self.model.get_icon()        
 
@@ -660,10 +642,9 @@ class DataProviderCanvasItem(_CanvasItem):
                                 width=self.WIDGET_WIDTH-(2*LINE_WIDTH), 
                                 height=self.WIDGET_HEIGHT-(2*LINE_WIDTH),
                                 line_width=LINE_WIDTH, 
-                                stroke_color="black",
-                                fill_color_rgba=self._get_fill_color(), 
                                 radius_y=RECTANGLE_RADIUS, 
-                                radius_x=RECTANGLE_RADIUS
+                                radius_x=RECTANGLE_RADIUS,
+                                **self.get_style_properties("box")
                                 )
         pb = self.model.get_icon()
         pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
@@ -676,8 +657,8 @@ class DataProviderCanvasItem(_CanvasItem):
                                 y=int(1*self.WIDGET_HEIGHT/3), 
                                 width=3*self.WIDGET_WIDTH/5, 
                                 text=self._get_model_name(), 
-                                anchor=gtk.ANCHOR_WEST, 
-                                font=self.NAME_FONT
+                                anchor=gtk.ANCHOR_WEST,
+                                **self.get_style_properties("name")
                                 )
         self.statusText = goocanvas.Text(  
                                 x=int(1*self.WIDGET_WIDTH/10), 
@@ -685,11 +666,9 @@ class DataProviderCanvasItem(_CanvasItem):
                                 width=4*self.WIDGET_WIDTH/5, 
                                 text="", 
                                 anchor=gtk.ANCHOR_WEST, 
-                                font=self.STATUS_FONT,
-                                fill_color_rgba=GtkUtil.TANGO_COLOR_ALUMINIUM2_MID,
+                                **self.get_style_properties("statusText")
                                 )                                    
         
-           
         #Add all the visual elements which represent a dataprovider    
         self.add_child(self.box)
         self.add_child(self.name)
@@ -702,6 +681,37 @@ class DataProviderCanvasItem(_CanvasItem):
     def _on_status_changed(self, dataprovider):
         msg = dataprovider.get_status()
         self.statusText.set_property("text", msg)
+        
+    def get_style_properties(self, specifier):
+        if specifier == "box":
+            #color the box differently if it is pending
+            if self.model.module == None:
+                color = GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+            else:
+                if self.model.module_type == "source":
+                    color = GtkUtil.TANGO_COLOR_ALUMINIUM1_MID
+                elif self.model.module_type == "sink":
+                    color = GtkUtil.TANGO_COLOR_SKYBLUE_LIGHT
+                elif self.model.module_type == "twoway":
+                    color = GtkUtil.TANGO_COLOR_BUTTER_MID
+                else:
+                    color = None
+        
+            kwargs = {
+                "stroke_color":"black",
+                "fill_color_rgba":color
+            }
+        elif specifier == "name":
+            kwargs = {
+                "font":"Sans 8"
+            }
+        elif specifier == "statusText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM2_MID
+            }
+        
+        return kwargs
         
     def update_appearance(self):
         #the image
@@ -718,7 +728,9 @@ class DataProviderCanvasItem(_CanvasItem):
             statusText = self.model.module.get_status()
         self.statusText.set_property("text",statusText)
 
-        self.box.set_property("fill_color_rgba",self._get_fill_color())
+        self.box.set_properties(
+                    **self.get_style_properties("box")
+                    )
 
     def set_model(self, model):
         self.model = model
@@ -742,30 +754,12 @@ class ConduitCanvasItem(_CanvasItem):
         self.sinkDpItems = []
         self.connectorItems = {}
 
-        self.bounding_box = None
+        self.boundingBox = None
         self.l = None
         self.progressText = None
 
         #Build the widget
         self._build_widget(width)
-
-    def _get_paint_style(self):
-
-        pattern = cairo.LinearGradient(10, 0, 260, 0)
-
-        pattern.add_color_stop_rgb(0, 0, 0.5, 1);
-        pattern.add_color_stop_rgb(0.1, 0, 0.5, 1);
-        pattern.add_color_stop_rgb(0.3, 1, 0, 0);
-        pattern.add_color_stop_rgb(0.5, 1, 1, 0);
-        pattern.add_color_stop_rgb(0.7, 0, 1, 1);
-
-        kwargs = {
-            #"fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM1_LIGHT, 
-            "fill_pattern":pattern,
-            #"stroke_pattern":pattern,
-            "stroke_color":"black",
-        }
-        return kwargs
 
     def _add_progress_text(self):
         if self.sourceItem != None and len(self.sinkDpItems) > 0:
@@ -778,8 +772,7 @@ class ConduitCanvasItem(_CanvasItem):
                                     text="", 
                                     anchor=gtk.ANCHOR_WEST,
                                     alignment=pango.ALIGN_LEFT,
-                                    font="Sans 7",
-                                    fill_color="black",
+                                    **self.get_style_properties("progressText")
                                     )
                 self.add_child(self.progressText) 
 
@@ -816,7 +809,7 @@ class ConduitCanvasItem(_CanvasItem):
         self.add_child(self.l)
 
         #draw a box which will contain the dataproviders
-        self.bounding_box = goocanvas.Rect(
+        self.boundingBox = goocanvas.Rect(
                                 x=0, 
                                 y=5, 
                                 width=true_width,     
@@ -824,9 +817,9 @@ class ConduitCanvasItem(_CanvasItem):
                                 line_width=LINE_WIDTH, 
                                 radius_y=RECTANGLE_RADIUS, 
                                 radius_x=RECTANGLE_RADIUS,
-                                **self._get_paint_style()
+                                **self.get_style_properties("boundingBox")
                                 )
-        self.add_child(self.bounding_box)
+        self.add_child(self.boundingBox)
 
     def _resize_height(self):
         sourceh =   0.0
@@ -912,6 +905,25 @@ class ConduitCanvasItem(_CanvasItem):
                     except IndexError:
                         break
 
+    def get_style_properties(self, specifier):
+        if specifier == "boundingBox":
+            pattern = cairo.LinearGradient(10, 0, 260, 0)
+            pattern.add_color_stop_rgb(0, 0, 0.5, 1);
+            pattern.add_color_stop_rgb(0.7, 0, 1, 1);
+
+            kwargs = {
+                "fill_pattern":pattern,
+                "stroke_color":"black"
+            }
+        elif specifier == "progressText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color":"black"
+            }
+        else:
+            kwargs = {}
+
+        return kwargs
 
     def update_appearance(self):
         self._resize_height()
@@ -991,13 +1003,13 @@ class ConduitCanvasItem(_CanvasItem):
         self.update_appearance()
 
     def set_height(self, h):
-        self.bounding_box.set_property("height",h)
+        self.boundingBox.set_property("height",h)
 
     def set_width(self, w):
         true_width = w-LINE_WIDTH
 
         #resize the box
-        self.bounding_box.set_property("width",true_width)
+        self.boundingBox.set_property("width",true_width)
         #resize the spacer
         p = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
         self.l.set_property("points",p)

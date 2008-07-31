@@ -1,5 +1,12 @@
 2008-07-31  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py:
+	* conduit/hildonui/Canvas.py: Refactor all the drawing properties
+	into the get_style_properties function. Override this function to
+	provide implementations for a themed and unthemed canvas.
+
+2008-07-31  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Makefile.am:
 	* conduit/gtkui/Canvas.py:
 	* conduit/gtkui/Util.py: Add some machinery to make it easier to use
