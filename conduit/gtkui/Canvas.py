@@ -24,9 +24,9 @@ import conduit.gtkui.Util as GtkUtil
 log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
 #Style elements common to ConduitCanvasItem and DPCanvasItem
-SIDE_PADDING = 10.0
-LINE_WIDTH = 3.0
-RECTANGLE_RADIUS = 5.0
+SIDE_PADDING =      10.0
+LINE_WIDTH =        2.0
+RECTANGLE_RADIUS =  4.0
 
 class _StyleMixin:
 
@@ -967,7 +967,7 @@ class ConduitCanvasItem(_CanvasItem):
 
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
-            pattern = cairo.LinearGradient(-30, -30, 0, 100)
+            pattern = cairo.LinearGradient(0, -30, 0, 100)
             pattern.add_color_stop_rgb(
                                     0,
                                     *self.get_style_color_rgb("dark","selected")

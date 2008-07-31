@@ -1,3 +1,8 @@
+2008-08-01  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS:
+	* conduit/gtkui/Canvas.py: Tweak the line widths and color.
+
 2008-07-31  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Canvas.py: Dont recurse forever when updating the
