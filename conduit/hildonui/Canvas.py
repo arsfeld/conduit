@@ -273,8 +273,10 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
     #         self.selectedConduitItem.model.disable_slow_sync()
 
 class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
+
     WIDGET_WIDTH = 160
     WIDGET_HEIGHT = 85
+    LINE_WIDTH = 3.0
 
     def get_styled_item_names(self):
         return ()
@@ -313,7 +315,9 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
 
+    FLAT_BOX = False
     DIVIDER = False
+    LINE_WIDTH = 3.0
 
     def get_styled_item_names(self):
         return ()
