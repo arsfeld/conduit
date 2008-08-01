@@ -109,7 +109,9 @@ class _CanvasItem(goocanvas.Group, _StyleMixin):
         
         #this little piece of magic re-applies style properties to the
         #widgets, when the users theme changes
-        self.get_canvas().connect("style-set", self._automatic_style_updater)
+        canv = self.get_canvas()
+        if canv:
+            canv.connect("style-set", self._automatic_style_updater)
 
     def _automatic_style_updater(self, *args):
         if not self.get_gtk_style():
