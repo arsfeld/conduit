@@ -295,6 +295,7 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
                     color = None
         
             kwargs = {
+                "line_width":LINE_WIDTH,
                 "stroke_color":"black",
                 "fill_color_rgba":color
             }
@@ -312,12 +313,15 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
 
+    DIVIDER = False
+
     def get_styled_item_names(self):
         return ()
 
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
             kwargs = {
+                "line_width":LINE_WIDTH, 
                 "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM1_LIGHT, 
                 "stroke_color":"black"
             }

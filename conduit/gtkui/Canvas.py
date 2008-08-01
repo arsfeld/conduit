@@ -686,7 +686,6 @@ class DataProviderCanvasItem(_CanvasItem):
                                 y=0, 
                                 width=self.WIDGET_WIDTH-(2*LINE_WIDTH), 
                                 height=self.WIDGET_HEIGHT-(2*LINE_WIDTH),
-                                line_width=LINE_WIDTH, 
                                 radius_y=RECTANGLE_RADIUS, 
                                 radius_x=RECTANGLE_RADIUS,
                                 **self.get_style_properties("box")
@@ -738,6 +737,7 @@ class DataProviderCanvasItem(_CanvasItem):
             if self.model.module == None:
                 insensitive = self.get_style_color_int_rgba("mid","insensitive")
                 kwargs = {
+                    "line_width":1.5,
                     "stroke_color_rgba":insensitive,
                     "fill_color_rgba":insensitive
                 }
@@ -749,11 +749,12 @@ class DataProviderCanvasItem(_CanvasItem):
                                         *self.get_style_color_rgb("dark","active")
                                         );
                 pattern.add_color_stop_rgb(
-                                        0.7,
+                                        0.5,
                                         *self.get_style_color_rgb("dark","prelight")
                                         );
             
                 kwargs = {
+                    "line_width":2.0,
                     "stroke_color":"black",
                     "fill_pattern":pattern
                 }
@@ -798,6 +799,8 @@ class DataProviderCanvasItem(_CanvasItem):
     
 class ConduitCanvasItem(_CanvasItem):
 
+    DIVIDER = False
+    FLAT_BOX = False
     WIDGET_HEIGHT = 100
 
     def __init__(self, parent, model, width):
@@ -811,9 +814,15 @@ class ConduitCanvasItem(_CanvasItem):
         self.sinkDpItems = []
         self.connectorItems = {}
 
-        self.boundingBox = None
         self.l = None
         self.progressText = None
+        self.boundingBox = None        
+
+        #if self.DIVIDER, show an transparent bouding box, and a
+        #simple dividing line
+        self.divider = None
+        #goocanvas.Points need a list of tuples, not a list of lists. Yuck
+        self.dividerPoints = [(),()]
 
         #Build the widget
         self._build_widget(width)
@@ -871,12 +880,22 @@ class ConduitCanvasItem(_CanvasItem):
                                 y=5, 
                                 width=true_width,     
                                 height=ConduitCanvasItem.WIDGET_HEIGHT,
-                                line_width=LINE_WIDTH, 
                                 radius_y=RECTANGLE_RADIUS, 
                                 radius_x=RECTANGLE_RADIUS,
                                 **self.get_style_properties("boundingBox")
                                 )
         self.add_child(self.boundingBox)
+        if self.DIVIDER:
+            #draw an underline
+            #from point
+            self.dividerPoints[0] = (true_width*0.33,5+ConduitCanvasItem.WIDGET_HEIGHT)
+            self.dividerPoints[1] = (2*(true_width*0.33),5+ConduitCanvasItem.WIDGET_HEIGHT)
+            
+            self.divider = goocanvas.Polyline(
+                                    points=goocanvas.Points(self.dividerPoints),
+                                    **self.get_style_properties("divider")
+                                    )
+            self.add_child(self.divider)
 
     def _resize_height(self):
         sourceh =   0.0
@@ -892,7 +911,7 @@ class ConduitCanvasItem(_CanvasItem):
             sourceh += self.sourceItem.get_height()
 
         self.set_height(
-                    max(sourceh, sinkh)+    #expand to the largest
+                    max(sourceh, sinkh)+        #expand to the largest
                     (1.5*SIDE_PADDING)        #padding at the top and bottom
                     )
 
@@ -963,28 +982,47 @@ class ConduitCanvasItem(_CanvasItem):
                         break
 
     def get_styled_item_names(self):
-        return "boundingBox","progressText"
+        return "boundingBox","progressText","divider"
 
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
-            pattern = cairo.LinearGradient(0, -30, 0, 100)
-            pattern.add_color_stop_rgb(
-                                    0,
-                                    *self.get_style_color_rgb("dark","selected")
-                                    );
-            pattern.add_color_stop_rgb(
-                                    0.7,
-                                    *self.get_style_color_rgb("mid","selected")
-                                    );
+            if self.DIVIDER:
+                kwargs = {
+                    "line_width":0
+                }
+            else: 
+                if self.FLAT_BOX:
+                    kwargs = {
+                        "line_width":0,
+                        "fill_color_rgba":self.get_style_color_int_rgba("base","prelight")
+                    }
+                else:
+                    pattern = cairo.LinearGradient(0, -30, 0, 100)
+                    pattern.add_color_stop_rgb(
+                                            0,
+                                            *self.get_style_color_rgb("dark","selected")
+                                            );
+                    pattern.add_color_stop_rgb(
+                                            0.7,
+                                            *self.get_style_color_rgb("mid","selected")
+                                            );
+                    
+                    kwargs = {
+                        "line_width":2.0, 
+                        "fill_pattern":pattern,
+                        "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
+                    }
 
-            kwargs = {
-                "fill_pattern":pattern,
-                "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
-            }
         elif specifier == "progressText":
             kwargs = {
                 "font":"Sans 7",
                 "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        elif specifier == "divider":
+            kwargs = {
+                "line_width":3.0,
+                "line_cap":cairo.LINE_CAP_ROUND,
+                "stroke_color_rgba":self.get_style_color_int_rgba("text_aa","normal")
             }
         else:
             kwargs = {}
@@ -1071,11 +1109,24 @@ class ConduitCanvasItem(_CanvasItem):
     def set_height(self, h):
         self.boundingBox.set_property("height",h)
 
+        if self.DIVIDER:
+            #update height points for the divider line
+            self.dividerPoints[0] = (self.dividerPoints[0][0],h+10)
+            self.dividerPoints[1] = (self.dividerPoints[0][0],h+10)
+            self.divider.set_property("points", 
+                                goocanvas.Points(self.dividerPoints))        
+
     def set_width(self, w):
         true_width = w-LINE_WIDTH
-
-        #resize the box
         self.boundingBox.set_property("width",true_width)
+
+        if self.DIVIDER:
+            #update width points for the divider line
+            self.dividerPoints[0] = (true_width*0.33,self.dividerPoints[0][1])
+            self.dividerPoints[1] = (2*(true_width*0.33),self.dividerPoints[1][1])
+            self.divider.set_property("points", 
+                                goocanvas.Points(self.dividerPoints))
+
         #resize the spacer
         p = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
         self.l.set_property("points",p)
@@ -1089,7 +1140,7 @@ class ConduitCanvasItem(_CanvasItem):
             #resize arrow (if exists)
             if self.sourceItem != None:
                 self.connectorItems[d].resize_connector_width(change)
-
+                
 class ConnectorCanvasItem(_CanvasItem):
 
     CONNECTOR_RADIUS = 30

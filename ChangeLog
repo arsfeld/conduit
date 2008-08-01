@@ -1,5 +1,11 @@
 2008-08-01  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py:
+	* conduit/hildonui/Canvas.py: Implement a divider, and a flat box 
+	paint style. See ConduitCanvasItem.DIVIDER and ConduitCanvasItem.FLAT_BOX.
+
+2008-08-01  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/hildonui/Canvas.py: Fix hildon build. The hildon UI does
 	not used gradients or anything slow like that.
 
