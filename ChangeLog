@@ -1,5 +1,13 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Settings.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/UI.py:
+	* data/conduit.glade: Hints can be enabled/disabled from the 
+	preferences menu.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py:
 	* conduit/gtkui/Hints.py:
 	* conduit/gtkui/Makefile.am: Move hints to their own file.

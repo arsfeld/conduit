@@ -225,6 +225,9 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         if not self.msg:
             return
             
+        if not conduit.GLOBALS.settings.get("gui_show_hints"):
+            return
+            
         if newItem == conduitCanvasItem:
             self._make_hint(Hints.ADD_DATAPROVIDER)
         elif newItem == dataproviderCanvasItem:
@@ -308,7 +311,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         if self.model == None or (self.model != None and self.model.num_conduits() == 0):
             if self.welcome == None:
                 self._create_welcome()
-            if self.msg:
+            if self.msg and conduit.GLOBALS.settings.get("gui_show_hints"):
                 self._make_hint(Hints.BLANK_CANVAS, timeout=0)
 
         elif self.welcome:
