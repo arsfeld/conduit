@@ -1131,7 +1131,7 @@ class ConnectorCanvasItem(_CanvasItem):
 
         
 
-        points = goocanvas.Points([(self.toX-1, self.toY), (self.toX, self.toY)])
+        points = goocanvas.Points([(self.toX+1, self.toY), (self.toX+2, self.toY)])
         self.right_end = goocanvas.Polyline(
                             points=points,
                             line_width=5,
@@ -1154,7 +1154,7 @@ class ConnectorCanvasItem(_CanvasItem):
 
     def _draw_arrow_ends(self):
         #Always draw the right arrow end for the correct width
-        points = goocanvas.Points([(self.toX-1, self.toY), (self.toX, self.toY)])
+        points = goocanvas.Points([(self.toX+1, self.toY), (self.toX+2, self.toY)])
         self.right_end.set_property("points",points)
         #selectively add or remove a rounded left or right arrow
         #remove both
