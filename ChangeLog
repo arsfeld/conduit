@@ -1,5 +1,10 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/MsgArea.py: Dont expand the button action area. Timeouts
+	can only clear the msg they were connected to.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Conduit.py:
 	* conduit/ModuleWrapper.py: Utility functions to test if a conduit can
 	be synchronized (it has a source and a sink for example).

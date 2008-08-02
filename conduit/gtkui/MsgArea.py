@@ -44,7 +44,13 @@ class MsgArea(gtk.HBox):
 
         self.__action_area = gtk.HBox(True, 4); # FIXME: use style properties
         self.__action_area.show()
-        self.__main_hbox.pack_end (self.__action_area, False, True, 0)
+        
+        #Pack the buttons into a VBox so they remain the same height and do 
+        #not expand to be the same size as the Primary + Secondary text
+        vb = gtk.VBox()
+        vb.pack_end(self.__action_area, False, False)
+        
+        self.__main_hbox.pack_end (vb, False, False, 0)
 
         self.pack_start(self.__main_hbox, True, True, 0)
 
@@ -221,8 +227,9 @@ class MsgAreaController(gtk.HBox):
         
         self.__msgarea = None
         
-    def _timeout(self):
-        self.clear()
+    def _timeout(self, msgarea):
+        if msgarea == self.__msgarea:
+            self.clear()
         
     def clear(self):
         if self.__msgarea is not None:
@@ -237,6 +244,6 @@ class MsgAreaController(gtk.HBox):
         self.pack_start(msgarea, expand=True)
         
         if timeout:
-            gobject.timeout_add(timeout*1000, self._timeout)
+            gobject.timeout_add(timeout*1000, self._timeout, msgarea)
             
         return msgarea
