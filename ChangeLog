@@ -1,5 +1,17 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS: Update to include recent UI work.
+	
+	* conduit/Module.py:
+	* conduit/SyncSet.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/UI.py:
+	* data/conduit.glade: Add preconfigured example conduits to Knowledge.
+	Enable the ability to add these example Conduits to the Canvas from
+	a menu item.	
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Knowledge.py:
 	* conduit/Makefile.am:
 	* conduit/gtkui/Makefile.am:

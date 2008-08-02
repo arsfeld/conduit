@@ -39,7 +39,35 @@ DEVELOPER_WEB_LINKS = (
 for module in gtk.glade, gettext:
     module.bindtextdomain('conduit', conduit.LOCALE_DIR)
     module.textdomain('conduit')
-    
+
+class _PreconfiguredConduitMenu(gtk.Menu):
+    def __init__(self):
+        gtk.Menu.__init__(self)
+#        self._items = {}
+#        conduit.GLOBALS.moduleManager.connect("dataprovider-available", self._dp_added)
+#        conduit.GLOBALS.moduleManager.connect("dataprovider-unavailable", self._dp_removed)
+
+        for sok,sik,desc,w in conduit.GLOBALS.moduleManager.list_preconfigured_conduits():
+            item = gtk.MenuItem(desc)
+            item.connect("activate", self._create, sok, sik, w)
+            item.show()
+            self.append(item)
+
+    def set_sync_set(self, syncSet):    
+        self.syncSet = syncSet  
+        
+    def _create(self, menu, sok, sik, w):
+        self.syncSet.create_preconfigured_conduit(sok,sik,w)
+        
+    def _dp_added(self, manager, dpw):
+        item = gtk.MenuItem(dpw.get_key())
+        self._items[dpw] = item
+        self.append(item)
+        item.show()
+        
+    def _dp_removed(self, manager, dpw):
+        self.remove(self._items[dpw])
+
 class MainWindow:
     """
     The main conduit window.
@@ -129,6 +157,17 @@ class MainWindow:
 
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver.ConflictResolver(self.widgets)
+        
+        #add the preconfigured Conduit menu
+        if conduit.GLOBALS.settings.get("gui_show_hints"):
+            self.preconfiguredConduitsMenu = _PreconfiguredConduitMenu()
+            item = gtk.ImageMenuItem("Examples")
+            item.set_image(
+                    gtk.image_new_from_stock(gtk.STOCK_OPEN,gtk.ICON_SIZE_MENU))
+            item.set_submenu(self.preconfiguredConduitsMenu)
+            self.widgets.get_widget("file_menu").insert(item, 3)
+        else:
+            self.preconfiguredConduitsMenu = None
 
         #final GUI setup
         self.cancelSyncButton = self.widgets.get_widget('cancel')
@@ -157,7 +196,6 @@ class MainWindow:
                 item.connect("activate",self.on_developer_menu_item_clicked,name,url)
                 developersMenu.append(item)
                 
-                
     def on_developer_menu_item_clicked(self, menuitem, name, url):
         threading.Thread(
                     target=Web.LoginMagic,
@@ -174,6 +212,8 @@ class MainWindow:
         self.syncSet = syncSet
         self.syncSet.connect("conduit-added", self.on_conduit_added)
         self.canvas.set_sync_set(syncSet)
+        if self.preconfiguredConduitsMenu:
+            self.preconfiguredConduitsMenu.set_sync_set(syncSet)
 
     def present(self):
         """
@@ -381,7 +421,7 @@ class MainWindow:
         dialog.set_transient_for(self.mainWindow)
         dialog.run()
         dialog.destroy()
-
+        
     def on_help(self, widget):
         """
         Display help
@@ -486,7 +526,7 @@ class MainWindow:
                             self.mainWindow.get_size())
         conduit.GLOBALS.settings.set(
                             "gui_expanded_rows",
-                            self.dataproviderTreeView.get_expanded_rows())        
+                            self.dataproviderTreeView.get_expanded_rows())
 
 class SplashScreen:
     """

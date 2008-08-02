@@ -7,6 +7,10 @@ NEW in 0.3.13:
 * Conflict inprovements. Duplicate conflicts should no longer be shown
   in the UI.
 * The UI should will now reuse your theme colors
+* Finer borders and smaller rectangles to match closer with GNOME style
+* Usage hints are now displayed at the bottom of the window, indicating steps
+  that should be taken after one adds items to the Canvas
+* A number of example Conduits can be created from the File->Examples menu
 
 NEW in 0.3.12:
 ==============
