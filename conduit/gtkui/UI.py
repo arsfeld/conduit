@@ -20,6 +20,7 @@ import conduit
 import conduit.Web as Web
 import conduit.Conduit as Conduit
 import conduit.gtkui.Canvas as Canvas
+import conduit.gtkui.MsgArea as MsgArea
 import conduit.gtkui.Tree as Tree
 import conduit.gtkui.ConflictResolver as ConflictResolver
 import conduit.gtkui.Database as Database
@@ -104,14 +105,17 @@ class MainWindow:
         #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
-
+        
         #start up the canvas
+        msg = MsgArea.MsgAreaController()
+        self.widgets.get_widget("mainVbox").pack_start(msg, False, False)
         self.canvas = Canvas.Canvas(
                         parentWindow=self.mainWindow,
                         typeConverter=self.type_converter,
                         syncManager=self.sync_manager,
                         dataproviderMenu=gtk.glade.XML(self.gladeFile, "DataProviderMenu"),
-                        conduitMenu=gtk.glade.XML(self.gladeFile, "ConduitMenu")
+                        conduitMenu=gtk.glade.XML(self.gladeFile, "ConduitMenu"),
+                        msg=msg
                         )
         self.canvasSW.add(self.canvas)
         self.canvas.connect('drag-drop', self.drop_cb)
@@ -317,11 +321,11 @@ class MainWindow:
         for policyName in Conduit.CONFLICT_POLICY_NAMES:
             currentValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
             for policyValue in Conduit.CONFLICT_POLICY_VALUES:
-                widgetName = "%s_%s" % (policyName,policyValue)
-                widget = tree.get_widget(widgetName)
+                name = "%s_%s" % (policyName,policyValue)
+                widget = tree.get_widget(name+"_radio")
                 widget.set_image(
                         gtk.image_new_from_icon_name(
-                                Conduit.CONFLICT_POLICY_VALUE_ICONS[widgetName],
+                                Conduit.CONFLICT_POLICY_VALUE_ICONS[name],
                                 gtk.ICON_SIZE_MENU))
                 if currentValue == policyValue:
                     widget.set_active(True)
@@ -352,8 +356,8 @@ class MainWindow:
             #save the current policy
             for policyName in Conduit.CONFLICT_POLICY_NAMES:
                 for policyValue in Conduit.CONFLICT_POLICY_VALUES:
-                    widgetName = "%s_%s" % (policyName,policyValue)
-                    if tree.get_widget(widgetName).get_active() == True:
+                    name = "%s_%s" % (policyName,policyValue)
+                    if tree.get_widget(name+"_radio").get_active() == True:
                         conduit.GLOBALS.settings.set(
                                 "default_policy_%s" % policyName,
                                 policyValue)
