@@ -280,13 +280,10 @@ class ModuleManager(gobject.GObject):
         for key in self.moduleWrappers:
             names[key.split(":")[0]] = key
             
-        print names.keys()
-        
         #for a preconfigured conduit to be available, both the 
         #source and sink must be loaded
         found = []
         for (source,sink),(comment,twoway) in Knowledge.PRECONFIGIRED_CONDUITS.items():
-            print source,sink
             if source in names and sink in names:
                 #return key,key,desc,two-way
                 found.append( (names[source],names[sink],comment,twoway) )

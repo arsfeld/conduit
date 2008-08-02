@@ -1,3 +1,12 @@
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Module.py: Remove print spew.
+	
+	* conduit/Synchronization.py:
+	* conduit/gtkui/UI.py:
+	* conduit/Web.py: Fix a nasty gtkmozembed threading crash bug caused by
+	importing gtkmozembed from a thread that is not the gtk thread.
+
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS: Update to include recent UI work.

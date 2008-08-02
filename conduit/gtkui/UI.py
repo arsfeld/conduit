@@ -6,6 +6,7 @@ Also manages the callbacks from menu and GUI items
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import thread
 import gobject
 import gtk, gtk.glade
 import gnome.ui
@@ -169,12 +170,6 @@ class MainWindow:
         else:
             self.preconfiguredConduitsMenu = None
 
-        #final GUI setup
-        self.cancelSyncButton = self.widgets.get_widget('cancel')
-        self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
-        self.dataproviderTreeView.set_expand_rows()
-        self.window_state = 0
-        
         #if running a development version, add some developer specific links
         #to the help menu
         if conduit.IS_DEVELOPMENT_VERSION:
@@ -195,6 +190,13 @@ class MainWindow:
                                 gtk.ICON_SIZE_MENU))
                 item.connect("activate",self.on_developer_menu_item_clicked,name,url)
                 developersMenu.append(item)
+
+        #final GUI setup
+        self.cancelSyncButton = self.widgets.get_widget('cancel')
+        self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
+        self.dataproviderTreeView.set_expand_rows()
+        self.window_state = 0                
+        log.info("Main window constructed  (thread: %s)" % thread.get_ident())
                 
     def on_developer_menu_item_clicked(self, menuitem, name, url):
         threading.Thread(

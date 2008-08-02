@@ -27,7 +27,7 @@ class LoginWindow(Singleton.Singleton):
         self.pages = {}
         self.finished = {}
 
-        log.debug("Created Conduit login window")
+        log.debug("Created login window (thread: %s)" % thread.get_ident())
 
     def _on_window_closed(self, *args):
         for url in self.pages.keys():
@@ -38,10 +38,10 @@ class LoginWindow(Singleton.Singleton):
         self._delete_page(url)
             
     def _on_open_uri(self, *args):
-        log.debug("LINK CLICKED (thread: %s)" % thread.get_ident())
+        log.debug("Link clicked (thread: %s)" % thread.get_ident())
 
     def _delete_page(self, url):
-        log.debug("DELETE PAGE (thread: %s)" % thread.get_ident())
+        log.debug("Delete page (thread: %s)" % thread.get_ident())
         #get the original objects
         browser = self.pages[url]
         browserWidget = browser.widget()
@@ -50,20 +50,26 @@ class LoginWindow(Singleton.Singleton):
         #remove the page and any refs
         idx = self.notebook.page_num(browserWidget)
         self.notebook.remove_page(idx)
+        browserWidget.destroy()
         del(self.pages[url])
 
         if self.notebook.get_n_pages() == 0:
-            self.window.hide_all()
+            self.window.hide()
 
         #notify 
         self.finished[url] = True
 
-    def _create_page(self, name, url, browserImplKlass):
-        log.debug("CREATE PAGE: %s (thread: %s)" % (url,thread.get_ident()))
+    def _create_page(self, name, url, browserName):
+        log.debug("Create page: %s (thread: %s)" % (url,thread.get_ident()))
         if url in self.pages:
             return False
 
         import gtk
+        if browserName == "gtkmozembed":
+            import conduit.platform.WebBrowserMozilla as WebBrowserImpl
+        elif browserName == "webkit":
+            import conduit.platform.WebBrowserWebkit as WebBrowserImpl
+
         #lazy init to save a bit of time
         if self.window == None:
             self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -78,9 +84,9 @@ class LoginWindow(Singleton.Singleton):
         self.window.show_all()
 
         #create object and connect signals
-        browser = browserImplKlass()
+        browser = WebBrowserImpl.WebBrowserImpl()
         browser.connect("open_uri",self._on_open_uri)
-        
+
         #create the tab label
         tab_button = gtk.Button()
         tab_button.connect('clicked', self._on_tab_close_clicked, url)
@@ -99,15 +105,16 @@ class LoginWindow(Singleton.Singleton):
 
         #add to notebook
         browserWidget = browser.widget()
+        browserWidget.show_now()
         self.notebook.append_page(child=browserWidget, tab_label=tab_box)
+        self.notebook.show_all()
         self.pages[url] = browser
 
-        browserWidget.show_now()
         browser.load_url(url)
         return False
 
     def _raise_page(self, url):
-        log.debug("RAISE PAGE (thread: %s)" % thread.get_ident())
+        log.debug("Raise page (thread: %s)" % thread.get_ident())
         self.window.show_all()
 
         #get the original objects
@@ -123,12 +130,12 @@ class LoginWindow(Singleton.Singleton):
         return False
 
     def wait_for_login(self, name, url, **kwargs):
-        log.debug("LOGIN (thread: %s)" % thread.get_ident())
+        log.debug("Wait for login (thread: %s)" % thread.get_ident())
     
         if url in self.pages:
             gobject.idle_add(self._raise_page, url)
         else:
-            gobject.idle_add(self._create_page, name, url, kwargs["browserImplKlass"])
+            gobject.idle_add(self._create_page, name, url, kwargs["browserName"])
             self.finished[url] = False
 
         while not self.finished[url] and not conduit.GLOBALS.cancelled:
@@ -136,7 +143,7 @@ class LoginWindow(Singleton.Singleton):
             #and gtk.main needs to iterate
             time.sleep(0.1)
 
-        log.debug("FINISHED LOGIN (thread: %s)" % thread.get_ident())
+        log.debug("Finished login (thread: %s)" % thread.get_ident())
 
         #call the test function
         testFunc = kwargs.get("login_function",None)
@@ -152,22 +159,18 @@ class LoginMagic(object):
     """
     def __init__(self, name, url, **kwargs):
         browser = kwargs.get("browser",conduit.GLOBALS.settings.get("web_login_browser"))
-        log.info("Logging in using browser: %s" % browser)
+        log.info("Logging in using browser: %s (thread: %s)" % (browser,thread.get_ident()))
 
         #instantiate the browser
         if browser == "system":
             login = WebBrowserSystem.WebBrowserImpl()
         else:
             try:
-                if browser == "gtkmozembed":
-                    from conduit.platform.WebBrowserMozilla import WebBrowserImpl
-                elif browser == "webkit":
-                    from conduit.platform.WebBrowserWebkit import WebBrowserImpl
-                else:
+                if browser not in ("gtkmozembed","webkit"):
                     log.warn("Unknown browser type")
                     return
 
-                kwargs["browserImplKlass"] = WebBrowserImpl
+                kwargs["browserName"] = browser
                 login = LoginWindow()
 
             except ImportError:

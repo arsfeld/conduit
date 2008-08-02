@@ -4,7 +4,7 @@ Holds class used for the actual synchronisation phase
 Copyright: John Stowers, 2006
 License: GPLv2
 """
-
+import thread
 import traceback
 import threading
 import logging
@@ -208,7 +208,8 @@ class _ThreadedWorker(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
-
+        log.debug("Created thread %s (thread: %s)" % (self,thread.get_ident()))
+        
         #Python threads are not cancellable. Hopefully this will be fixed
         #in Python 3000
         self.cancelled = False
@@ -620,6 +621,7 @@ class SyncWorker(_ThreadedWorker):
         exception if the synchronisation state machine does not complete, in
         some way, without success.
         """
+        log.debug("Started thread %s (thread: %s)" % (self,thread.get_ident()))
         try:
             log.debug("Sync %s beginning. Slow: %s, Twoway: %s" % (
                                     self,
@@ -809,6 +811,7 @@ class RefreshDataProviderWorker(_ThreadedWorker):
         steps, setting its status at the appropriate time and performing
         nicely in the case of errors. 
         """
+        log.debug("Started thread %s (thread: %s)" % (self,thread.get_ident()))
         try:
             log.debug("Refresh %s beginning" % self)
             self.cond.emit("sync-started")
@@ -854,6 +857,7 @@ class BlockingFunctionCallWorker(_ThreadedWorker):
         self.setName("%s functions" % len(self.functions))
 
     def run(self):
+        log.debug("Started thread %s (thread: %s)" % (self,thread.get_ident()))
         try:
             #FIXME: Set the status text on the dataprovider
             for f in self.functions:
