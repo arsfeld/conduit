@@ -1,5 +1,11 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/Hints.py:
+	* conduit/gtkui/Makefile.am: Move hints to their own file.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/MsgArea.py: Dont expand the button action area. Timeouts
 	can only clear the msg they were connected to.
 

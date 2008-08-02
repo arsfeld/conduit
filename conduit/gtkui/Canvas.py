@@ -20,18 +20,9 @@ import conduit.utils as Utils
 import conduit.Conduit as Conduit
 import conduit.gtkui.Tree
 import conduit.gtkui.Util as GtkUtil
+import conduit.gtkui.Hints as Hints
 
 log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
-
-HINT_BLANK_CANVAS       = -100
-HINT_ADD_DATAPROVIDER   = -101
-HINT_ADD_CONDUIT        = -102
-
-HINT_TEXT = {
-    HINT_BLANK_CANVAS:      ("Drag a dataprovder to continue", None),
-    HINT_ADD_DATAPROVIDER:  ("Conduit Created", "Add additional dataprovider"),
-    HINT_ADD_CONDUIT:       ("Welcome","Create a conduit")
-}
 
 class _StyleMixin:
 
@@ -208,15 +199,24 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         self._maybe_show_welcome()
         
     def _do_hint(self, msgarea, respid):
-        if respid == HINT_ADD_DATAPROVIDER:
-            print "ADD DATAPROVIDER"
-            
+        if respid == Hints.BLANK_CANVAS:
+            new = conduit.GLOBALS.moduleManager.get_module_wrapper_with_instance("FolderTwoWay")
+            self.add_dataprovider_to_canvas(
+                                "FolderTwoWay",
+                                new,
+                                1,1
+                                )
+
     def _make_hint(self, hint, timeout=4):
+        if Hints.HINT_TEXT[hint][2]:
+            buttons = [("Show me",hint)]
+        else:
+            buttons = []
         h = self.msg.new_from_text_and_icon(
                             gtk.STOCK_INFO,
-                            HINT_TEXT[hint][0],
-                            HINT_TEXT[hint][1],
-                            buttons=[("Show me",hint)],
+                            Hints.HINT_TEXT[hint][0],
+                            Hints.HINT_TEXT[hint][1],
+                            buttons=buttons,
                             timeout=timeout)
         h.connect("response", self._do_hint)
         h.show_all()    
@@ -226,9 +226,11 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             return
             
         if newItem == conduitCanvasItem:
-            self._make_hint(HINT_ADD_DATAPROVIDER)
+            self._make_hint(Hints.ADD_DATAPROVIDER)
         elif newItem == dataproviderCanvasItem:
-            pass
+            #check if we have a source and a sink
+            if conduitCanvasItem.model.can_sync():
+                self._make_hint(Hints.RIGHT_CLICK_CONFIGURE)
             
     def _update_for_theme(self, *args):
         if not self.get_gtk_style() or self._changing_style:
@@ -307,7 +309,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             if self.welcome == None:
                 self._create_welcome()
             if self.msg:
-                self._make_hint(HINT_BLANK_CANVAS, timeout=0)
+                self._make_hint(Hints.BLANK_CANVAS, timeout=0)
 
         elif self.welcome:
             self._delete_welcome()

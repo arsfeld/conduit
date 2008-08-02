@@ -3,7 +3,9 @@ conduit_PYTHON = \
 	Canvas.py \
 	ConflictResolver.py \
 	Database.py \
+	Hints.py \
 	__init__.py \
+	MsgArea.py \
 	SimpleConfigurator.py \
 	Tree.py \
 	Util.py \
