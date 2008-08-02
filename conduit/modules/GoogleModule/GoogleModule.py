@@ -650,6 +650,8 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
         if not self.loggedIn:
             raise Exceptions.RefreshError("Could not log in")
         self._get_album()
+        if self.galbum:
+            self._get_photos()
 
     def get_all (self):
         Image.ImageTwoWay.get_all(self)

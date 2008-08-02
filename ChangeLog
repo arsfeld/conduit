@@ -1,5 +1,11 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py: Load the
+	photo dictionary in refresh so that delete works.
+	Fixes #545728 (Manuel J. Garrido)
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Module.py: Remove print spew.
 	
 	* conduit/Synchronization.py:
