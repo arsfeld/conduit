@@ -1188,7 +1188,7 @@ class ConnectorCanvasItem(_CanvasItem):
     CONNECTOR_YOFFSET = 20
     CONNECTOR_TEXT_XPADDING = 5
     CONNECTOR_TEXT_YPADDING = 10
-    LINE_WIDTH = 5.0
+    LINE_WIDTH = 4.0
 
     def __init__(self, parent, fromX, fromY, toX, toY, twoway, conversionExists):
         _CanvasItem.__init__(self, parent, None)
@@ -1210,7 +1210,7 @@ class ConnectorCanvasItem(_CanvasItem):
                                     line_width=0.0,
                                     **self.get_style_properties("left_end_round")
                                     )
-        points = goocanvas.Points([(self.fromX-6, self.fromY), (self.fromX-7, self.fromY)])
+        points = goocanvas.Points([(self.fromX+3, self.fromY), (self.fromX-5, self.fromY)])
         self.left_end_arrow = goocanvas.Polyline(
                             points=points,
                             line_width=5,
@@ -1223,7 +1223,7 @@ class ConnectorCanvasItem(_CanvasItem):
 
         
 
-        points = goocanvas.Points([(self.toX+1, self.toY), (self.toX+2, self.toY)])
+        points = goocanvas.Points([(self.toX-3, self.toY), (self.toX+3, self.toY)])
         self.right_end = goocanvas.Polyline(
                             points=points,
                             line_width=5,
@@ -1246,7 +1246,7 @@ class ConnectorCanvasItem(_CanvasItem):
 
     def _draw_arrow_ends(self):
         #Always draw the right arrow end for the correct width
-        points = goocanvas.Points([(self.toX+1, self.toY), (self.toX+2, self.toY)])
+        points = goocanvas.Points([(self.toX-3, self.toY), (self.toX+3, self.toY)])
         self.right_end.set_property("points",points)
         #selectively add or remove a rounded left or right arrow
         #remove both
