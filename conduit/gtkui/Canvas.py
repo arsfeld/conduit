@@ -192,12 +192,14 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
                         gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_LINK)
         self.connect('drag-motion', self.on_drag_motion)
         self.connect('size-allocate', self._canvas_resized)
+
         #track theme chages for canvas background
         self.connect('realize', self._update_for_theme)
-        #FIXME: Causes pygtk to recurse for ever. It appears that setting
-        #backgroun_color_rgb in the sync-set handler causes sync-set to be 
-        #emitted again
-        #self.connect("style-set", self._update_for_theme)
+        #We need a flag becuase otherwise we recurse forever.
+        #It appears that setting background_color_rgb in the 
+        #sync-set handler causes sync-set to be emitted again, and again...
+        self._changing_style = False
+        self.connect("style-set", self._update_for_theme)
 
         #keeps a reference to the currently selected (most recently clicked)
         #canvas items
@@ -213,8 +215,10 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         self._show_welcome_message()
         
     def _update_for_theme(self, *args):
-        if not self.get_gtk_style():
+        if not self.get_gtk_style() or self._changing_style:
             return
+
+        self._changing_style = True    
         self.set_property(
                 "background_color_rgb",
                 self.get_style_color_int_rgb("bg","normal")
@@ -224,6 +228,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
                 "fill_color_rgba",
                 self.get_style_color_int_rgba("text","normal")
                 )
+        self._changing_style = False
 
     def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
         """
@@ -700,7 +705,8 @@ class DataProviderCanvasItem(_CanvasItem):
                                 x=pbx,
                                 y=pby
                                 )
-        self.name = goocanvas.Text(  x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
+        self.name = goocanvas.Text(
+                                x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
                                 y=int(1*self.WIDGET_HEIGHT/3), 
                                 width=3*self.WIDGET_WIDTH/5, 
                                 text=self._get_model_name(), 
@@ -760,12 +766,13 @@ class DataProviderCanvasItem(_CanvasItem):
                 }
         elif specifier == "name":
             kwargs = {
-                "font":"Sans 8"
+                "font":"Sans 8",
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
             }
         elif specifier == "statusText":
             kwargs = {
                 "font":"Sans 7",
-                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM2_MID
+                "fill_color_rgba":self.get_style_color_int_rgba("text_aa","normal")
             }
         
         return kwargs
