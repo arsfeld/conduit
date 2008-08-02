@@ -1,5 +1,12 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Knowledge.py:
+	* conduit/Makefile.am:
+	* conduit/gtkui/Makefile.am:
+	* conduit/gtkui/Hints.py: Move hints --> Knowledge.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Hints.py:
 	* conduit/modules/GoogleModule/GoogleModule.py: Spelling
 
