@@ -23,6 +23,16 @@ import conduit.gtkui.Util as GtkUtil
 
 log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
+HINT_BLANK_CANVAS       = -100
+HINT_ADD_DATAPROVIDER   = -101
+HINT_ADD_CONDUIT        = -102
+
+HINT_TEXT = {
+    HINT_BLANK_CANVAS:      ("Drag a dataprovder to continue", None),
+    HINT_ADD_DATAPROVIDER:  ("Conduit Created", "Add additional dataprovider"),
+    HINT_ADD_CONDUIT:       ("Welcome","Create a conduit")
+}
+
 class _StyleMixin:
 
     def _get_colors_and_state(self, styleName, stateName):
@@ -197,21 +207,29 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         self.welcome = None
         self._maybe_show_welcome()
         
+    def _do_hint(self, msgarea, respid):
+        if respid == HINT_ADD_DATAPROVIDER:
+            print "ADD DATAPROVIDER"
+            
+    def _make_hint(self, hint, timeout=4):
+        h = self.msg.new_from_text_and_icon(
+                            gtk.STOCK_INFO,
+                            HINT_TEXT[hint][0],
+                            HINT_TEXT[hint][1],
+                            buttons=[("Show me",hint)],
+                            timeout=timeout)
+        h.connect("response", self._do_hint)
+        h.show_all()    
+        
     def _show_hint(self, conduitCanvasItem, dataproviderCanvasItem, newItem):
         if not self.msg:
             return
             
         if newItem == conduitCanvasItem:
-            self.msg.new_from_text_and_icon(
-                            gtk.STOCK_INFO,
-                            "Conduit Created",
-                            timeout=4).show_all()
+            self._make_hint(HINT_ADD_DATAPROVIDER)
         elif newItem == dataproviderCanvasItem:
-            self.msg.new_from_text_and_icon(
-                            gtk.STOCK_INFO,
-                            "Dataprovider Created",
-                            timeout=4).show_all()
-        
+            pass
+            
     def _update_for_theme(self, *args):
         if not self.get_gtk_style() or self._changing_style:
             return
@@ -289,10 +307,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             if self.welcome == None:
                 self._create_welcome()
             if self.msg:
-                self.msg.new_from_text_and_icon(
-                                gtk.STOCK_INFO,
-                                self.WELCOME_MESSAGE,
-                                timeout=0).show_all()
+                self._make_hint(HINT_BLANK_CANVAS, timeout=0)
 
         elif self.welcome:
             self._delete_welcome()

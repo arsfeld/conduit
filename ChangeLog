@@ -1,5 +1,10 @@
 2008-08-01  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Canvas.py: Refactor out the hint handling code to be
+	more generic and extensible.
+
+2008-08-01  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py: Refactor the welcome message handling to
 	allow the welcome message to look like an empty conduit.
