@@ -680,7 +680,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
 class DataProviderCanvasItem(_CanvasItem):
 
     WIDGET_WIDTH = 130
-    WIDGET_HEIGHT = 60
+    WIDGET_HEIGHT = 50
     IMAGE_TO_TEXT_PADDING = 5
     PENDING_MESSAGE = "Pending"
     MAX_TEXT_LENGTH = 10
@@ -839,7 +839,7 @@ class ConduitCanvasItem(_CanvasItem):
 
     DIVIDER = False
     FLAT_BOX = True
-    WIDGET_HEIGHT = 73.0
+    WIDGET_HEIGHT = 63.0
     SIDE_PADDING = 10.0
     LINE_WIDTH = 2.0
 

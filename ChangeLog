@@ -1,7 +1,7 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Canvas.py: Tweak the connecting arrow line widths
-	and end positions.
+	and end positions. Tweak the conduit and dataprovider size.
 
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
