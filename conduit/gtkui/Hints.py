@@ -7,7 +7,7 @@ HINT_TEXT = {
                                 "Drag and Drop a Data Provider on the Canvas",
                                 True),
     ADD_DATAPROVIDER:(          "Synchronization Group Created",
-                                "Add Another Data Provider to Synchronize it.",
+                                "Add Another Data Provider to the Group to Synchronize it",
                                 False),
     RIGHT_CLICK_CONFIGURE:(     "You Are Now Ready to Synchronize",
                                 "Right Click on Group for Options",

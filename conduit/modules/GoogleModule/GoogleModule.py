@@ -1341,7 +1341,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
     """
     _name_ = _("YouTube")
     _description_ = _("Sync data from YouTube")
-    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "twoway"
     _in_type_ = "file/video"
     _out_type_ = "file/video"

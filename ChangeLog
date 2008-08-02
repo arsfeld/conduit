@@ -1,5 +1,10 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Hints.py:
+	* conduit/modules/GoogleModule/GoogleModule.py: Spelling
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py: Tweak the connecting arrow line widths
 	and end positions. Tweak the conduit and dataprovider size.
 
