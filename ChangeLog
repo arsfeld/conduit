@@ -1,5 +1,13 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/TestDataProviderGoogleCalendar.py:
+	* test/python-tests/TestDataProviderYoutube.py: Move
+	GoogleCalendar tests to their own file. Disable google
+	calendar because its broken.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Settings.py:
 	* conduit/Web.py:
 	* conduit/__init__.py:

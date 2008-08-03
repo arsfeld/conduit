@@ -36,7 +36,7 @@ try:
     import gdata.youtube.service
 
     MODULES = {
-        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
+#        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeTwoWay" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
