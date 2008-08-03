@@ -468,7 +468,7 @@ class SimpleTest(object):
                 info = self.sink.module._get_photo_info(safePhotoLUID)
                 ok("Got photo info", info != None)
                 url = self.sink.module._get_raw_photo_url(info)
-                ok("Got photo url (%s)" % url, url != None and Vfs.uri_exists(url))
+                ok("Got photo url (%s)" % url, url != None and Vfs.uri_exists(str(url)))
             except Exception, err:
                 traceback.print_exc()
                 ok("Got photo info/url (%s)" % err, False)

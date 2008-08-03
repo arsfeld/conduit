@@ -1,5 +1,12 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/utils/__init__.py: Fix crasher when hiding dialogs.
+
+	* test/python-tests/common.py: Fix Flickr test (was returning unicode
+	urls)
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: Load the
 	photo dictionary in refresh so that delete works.
 	Fixes #545728 (Manuel J. Garrido)
