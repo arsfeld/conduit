@@ -1,5 +1,12 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* help/C/figures/conduit-dp.png:
+	* help/C/figures/conduit-login.png:
+	* help/es/es.po:
+	* help/Makefile.am: Fix make distcheck.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py:
 	* test/python-tests/TestDataProviderGoogleCalendar.py:
 	* test/python-tests/TestDataProviderYoutube.py: Move
