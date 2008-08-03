@@ -356,8 +356,6 @@ class MainWindow:
         status_icon_check.set_active(conduit.GLOBALS.settings.get("show_status_icon")) 
         minimize_to_tray_check = tree.get_widget("minimize_to_tray_check")
         minimize_to_tray_check.set_active(conduit.GLOBALS.settings.get("gui_minimize_to_tray")) 
-        web_browser_check = tree.get_widget("web_check")
-        web_browser_check.set_active(conduit.GLOBALS.settings.get("web_login_browser") != "system")
         show_hints_check = tree.get_widget("show_hints_check")
         show_hints_check.set_active(conduit.GLOBALS.settings.get("gui_show_hints"))
 
@@ -394,10 +392,6 @@ class MainWindow:
             conduit.GLOBALS.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.GLOBALS.settings.set("show_status_icon", status_icon_check.get_active())
             conduit.GLOBALS.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
-            if web_browser_check.get_active():
-                conduit.GLOBALS.settings.set("web_login_browser", DEFAULT_CONDUIT_BROWSER)
-            else:
-                conduit.GLOBALS.settings.set("web_login_browser", "system")
             conduit.GLOBALS.settings.set("gui_show_hints", show_hints_check.get_active())
             #save the current policy
             for policyName in Conduit.CONFLICT_POLICY_NAMES:

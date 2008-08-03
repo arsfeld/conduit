@@ -52,7 +52,8 @@ else:
     SHARED_DATA_DIR =           os.path.join(DIRECTORY, "data")
     GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
     SHARED_MODULE_DIR =         os.path.join(DIRECTORY, "conduit", "modules")
-    SETTINGS_IMPL =             "GConf"
+    BROWSER_IMPL =              "gtkmozembed"   #{gtkmozembed, webkit, system}
+    SETTINGS_IMPL =             "GConf"         #{GConf,Python}
 
 import Globals
 GLOBALS = Globals.Globals()

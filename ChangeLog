@@ -1,5 +1,18 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Settings.py:
+	* conduit/Web.py:
+	* conduit/__init__.py:
+	* conduit/gtkui/UI.py:
+	* conduit/modules/TestModule.py:
+	* data/conduit.glade:
+	* test/python-tests/TestCoreSettings.py:
+	* test/python-tests/common.py: Using the built in web browser
+    is now the default behaviour. Selected browser is defined in 
+    conduit.BROWSER_IMPL.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/WebBrowserWebkit.py: Put the browser in a scrolled
 	window.
 

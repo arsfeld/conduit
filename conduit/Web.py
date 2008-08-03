@@ -158,7 +158,7 @@ class LoginMagic(object):
     either the system browser, or conduits own one.
     """
     def __init__(self, name, url, **kwargs):
-        browser = kwargs.get("browser",conduit.GLOBALS.settings.get("web_login_browser"))
+        browser = kwargs.get("browser",conduit.BROWSER_IMPL)
         log.info("Logging in using browser: %s (thread: %s)" % (browser,thread.get_ident()))
 
         #instantiate the browser
