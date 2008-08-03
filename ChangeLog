@@ -1,5 +1,9 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS: Update for 0.3.13 release.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* help/C/figures/conduit-dp.png:
 	* help/C/figures/conduit-login.png:
 	* help/es/es.po:
