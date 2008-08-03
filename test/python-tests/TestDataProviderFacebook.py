@@ -20,7 +20,7 @@ except Exception, err:
 albums = facebook._get_albums()
 ok("Got %d albums" % len(albums), len(albums) > 0)
 
-name, aid = albums[0]
+aid = albums['Conduit Photos']
 photos = facebook._get_photos(int(aid))
 ok("Got %d photos" % len(photos), len(photos) > 0)
 

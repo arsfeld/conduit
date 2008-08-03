@@ -13,11 +13,25 @@ import conduit.utils.Singleton as Singleton
 #
 # URI Functions
 #
+def _ensure_type(arg):
+    """
+    Ensures that arg is str or unicode, returns it as str.
+    
+    Gnomevfs does not seem to play well with unicode, kill it, and this
+    could probbably be done better with a decorator
+    """
+    if type(arg) == str:
+        return arg
+    elif type(arg) == unicode:
+        return str(arg)
+    else:
+        raise Exception("URIs must be str or unicode (was %s)" % type(arg))
+
 def uri_is_valid(uri):
     """
     (weakly) checks if a uri is valid by looking for a scheme seperator
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     return uri[0] != "/" and uri.find("://") != -1
     
 def uri_join(first, *rest):
@@ -51,7 +65,7 @@ def uri_open(uri):
     """
     Opens a gnomevfs or xdg compatible uri.
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     APP = "xdg-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
     
@@ -60,14 +74,14 @@ def uri_to_local_path(uri):
     @returns: The local path (/foo/bar) for the given URI. Throws a 
     RuntimeError (wtf??) if the uri is not a local one    
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     return gnomevfs.get_local_path_from_uri(uri)
     
 def uri_get_volume_root_uri(uri):
     """
     @returns: The root path of the volume at the given uri, or None
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     try:
         path = uri_to_local_path(uri)
         return VolumeMonitor().volume_get_root_uri(path)
@@ -79,7 +93,7 @@ def uri_is_on_removable_volume(uri):
     @returns: True if the specified uri is on a removable volume, like a USB key
     or removable/mountable disk.
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         #FIXME: Unfortunately this approach actually works better than gnomevfs
@@ -98,7 +112,7 @@ def uri_get_filesystem_type(uri):
     @returns: The filesystem that uri is stored on or None if it cannot
     be determined
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         try:
@@ -117,7 +131,7 @@ def uri_make_canonical(uri):
     Standardizes the format of the uri
     @param uri:an absolute or relative stringified uri. It might have scheme.
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     return gnomevfs.make_uri_canonical(uri)
     
 def uri_escape(uri):
@@ -126,7 +140,7 @@ def uri_escape(uri):
     paths or host names.
     (so '/', '&', '=', ':' and '@' will not be escaped by this function)
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     #FIXME: This function lies, it escapes @
     #return gnomevfs.escape_host_and_path_string(uri)
     import urllib
@@ -136,7 +150,7 @@ def uri_unescape(uri):
     """
     Replace "%xx" escapes by their single-character equivalent.
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     import urllib
     return urllib.unquote(uri)
     
@@ -144,7 +158,7 @@ def uri_get_protocol(uri):
     """
     Returns the protocol (file, smb, etc) for a URI
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     if uri.rfind("://")==-1:
         return ""
     protocol = uri[:uri.index("://")+3]
@@ -155,14 +169,14 @@ def uri_get_filename(uri):
     Method to return the filename of a file. Could use GnomeVFS for this
     is it wasnt so slow
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     return uri.split(os.sep)[-1]
 
 def uri_get_filename_and_extension(uri):
     """
     Returns filename,file_extension
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     return os.path.splitext(uri_get_filename(uri))
     
 def uri_sanitize_for_filesystem(uri, filesystem=None):
@@ -170,7 +184,7 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     Removes illegal characters in uri that cannot be stored on the 
     given filesystem - particuarly fat and ntfs types
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     import string
     
     ILLEGAL_CHARS = {
@@ -199,7 +213,7 @@ def uri_is_folder(uri):
     """
     @returns: True if the uri is a folder and not a file
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     info = gnomevfs.get_file_info(uri)
     return info.type == gnomevfs.FILE_TYPE_DIRECTORY
     
@@ -207,14 +221,14 @@ def uri_format_for_display(uri):
     """
     Formats the uri so it can be displayed to the user (strips passwords, etc)
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     return gnomevfs.format_uri_for_display(uri)
     
 def uri_exists(uri):
     """
     @returns: True if the uri exists
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     try:
         return gnomevfs.exists(gnomevfs.URI(uri)) == 1
     except Exception, err:
@@ -226,7 +240,7 @@ def uri_make_directory(uri):
     Makes a directory with the default permissions. Does not catch any
     error
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     gnomevfs.make_directory(
             uri,
             gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
@@ -240,7 +254,7 @@ def uri_make_directory_and_parents(uri):
     @param uri: A directory that does not exist
     @type uri: str
     """
-    assert type(uri) == str
+    uri = _ensure_type(uri)
     exists = False
     dirs = []
 

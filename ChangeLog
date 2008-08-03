@@ -1,5 +1,13 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py: Ensure that args passed to gnomevfs functions are
+	strings and not unicode. Argh
+	
+	* test/python-tests/TestDataProviderFacebook.py:
+	* test/python-tests/TestSyncTomboyiPod.py: Fix tests.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/dataproviders/Image.py:
 	* conduit/datatypes/Photo.py: Implementation for Phoro.compare() 
 	and ImageTwoWay.put. Fixes #543366 (Manuel J. Garrido)
