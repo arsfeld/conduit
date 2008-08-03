@@ -5,6 +5,7 @@ import conduit
 import conduit.Exceptions as Exceptions
 import conduit.datatypes.File as File
 import conduit.dataproviders.DataProvider as DataProvider
+from conduit.datatypes import Rid
 
 class UploadInfo:
     """
@@ -86,7 +87,7 @@ class ImageSink(DataProvider.DataSink):
         """
         Replace a photo with a new version
         """
-        return id
+        return Rid(uid=id)
         
     def _get_photo_formats (self):
         """
@@ -172,4 +173,45 @@ class ImageTwoWay(DataProvider.DataSource, ImageSink):
         DataProvider.DataSource.__init__(self)
         ImageSink.__init__(self)
 
+    def put(self, photo, overwrite, LUID=None):
+        """
+        Accepts a vfs file. Must be made local.
+        I also store a md5 of the photos uri to check for duplicates
+        """
+        DataProvider.DataSink.put(self, photo, overwrite, LUID)
+
+        originalName = photo.get_filename()
+        #Gets the local URI (/foo/bar). If this is a remote file then
+        #it is first transferred to the local filesystem
+        photoURI = photo.get_local_uri()
+        mimeType = photo.get_mimetype()
+        tags = photo.get_tags ()
+        caption = photo.get_caption()
+
+        uploadInfo = UploadInfo(photoURI, mimeType, originalName, tags, caption)
+
+        if overwrite and LUID:
+            rid = self._replace_photo(LUID, uploadInfo)
+        else:
+            if LUID and self._get_photo_info(LUID):
+                remotePhoto = self.get(LUID)
+                comp = photo.compare(remotePhoto, False)
+                log.debug("Compared %s with %s. Result = %s" % 
+                          (photo.get_filename(),remotePhoto.get_filename(),comp))
+
+                if LUID != None and comp == conduit.datatypes.COMPARISON_NEWER:
+                    rid = self._replace_photo(LUID, uploadInfo)
+                elif comp == conduit.datatypes.COMPARISON_EQUAL:                    
+                    rid = remotePhoto.get_rid()
+                else:
+                    raise Exceptions.SynchronizeConflictError(comp, photo, remotePhoto)
+            else:
+                log.debug("Uploading Photo URI = %s, Mimetype = %s, Original Name = %s" %
+                          (photoURI, mimeType, originalName))
+                rid = self._upload_photo (uploadInfo)
+
+        if not rid:
+            raise Exceptions.SyncronizeError("Error putting/updating photo")
+        else:
+            return rid
 
