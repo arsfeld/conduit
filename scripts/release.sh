@@ -6,9 +6,9 @@ if [ ! -f $APP ] ; then
 fi
 
 ./scripts/maintainer.py \
-    --revision=0.3.12 \
+    --revision=0.3.13 \
     --package-name=Conduit \
-    --package-version=0.3.13 \
+    --package-version=0.3.14 \
     --package-module=conduit \
     --release-note-template=scripts/release-template.txt \
     $*
