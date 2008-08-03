@@ -1,5 +1,10 @@
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/platform/WebBrowserWebkit.py: Put the browser in a scrolled
+	window.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py: Ensure that args passed to gnomevfs functions are
 	strings and not unicode. Argh
 	
