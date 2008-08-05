@@ -1,5 +1,18 @@
 2008-08-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py: Be stricter with argument types, converting
+	str to unicode.
+
+	* conduit/gtkui/Database.py: Dont emit signals for rows with
+	invalid rowrefs.
+    
+	* conduit/dataproviders/File.py:
+	* test/python-tests/TestSyncFileFolder.py: Supply the correct
+	number of args to make_thread. Add test for this.
+	Fixes #546273
+
+2008-08-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/defs.py.in: Specify a default browser when installed.
 	Fixes #546343.
 
