@@ -3,6 +3,13 @@
 	* scripts/release.sh:
 	* NEWS:
 	* conduit/__init__.py:
+	* configure.ac: Post release version bump to 0.3.14
+
+2008-08-06  John Stowers  <john.stowers@gmail.com>
+
+	* scripts/release.sh:
+	* NEWS:
+	* conduit/__init__.py:
 	* configure.ac: Brown paper bag release.
 
 2008-08-05  John Stowers  <john.stowers@gmail.com>
