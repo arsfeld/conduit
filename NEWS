@@ -1,5 +1,14 @@
-NEW in 0.3.14:
+NEW in 0.3.13.1:
 ==============
+* Brown paper bag release
+
+* Fixed #546161, Remove unecessary scrollbar on Canvas (John Stowers)
+* Fixed #546273, Error syncing files with Flickr (John Stowers)
+* Fixed #546343, Web browser fails when installed (John Stowers)
+
+Translations:
+* Updated gl: Jorge Gonzalez
+* Updated es: Jorge Gonzalez
 
 NEW in 0.3.13:
 ==============
