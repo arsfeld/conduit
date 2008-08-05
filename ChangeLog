@@ -1,5 +1,10 @@
 2008-08-05  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/defs.py.in: Specify a default browser when installed.
+	Fixes #546343.
+
+2008-08-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py:
 	* conduit/hildonui/Canvas.py: Dont put a scrollbar on the
 	canvas if its not needed. Fixes #546161
