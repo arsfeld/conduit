@@ -1,5 +1,13 @@
 2008-08-10  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/AmazonS3Module/:
+	* conduit/modules/AmazonS3Module/AmazonS3Module.py:
+	* conduit/modules/AmazonS3Module/config.glade:
+	* data/amazon.png: Preliminary amazon S3 support contributed by
+	Christian Schlotter.
+
+2008-08-10  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: Create the album if 
 	it does not exist. Fixes #545824 (Manuel J. Garrido)    
 
