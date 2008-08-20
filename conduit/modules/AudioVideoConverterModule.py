@@ -269,11 +269,11 @@ class GStreamerConverter():
     def convert(self, **kwargs):
         if kwargs.get('twopass', False):
             kwargs['pass'] = 1
-            self._run_pipeline(self, **kwargs)
+            self._run_pipeline(**kwargs)
             kwargs['pass'] = 2
-            return self._run_pipeline(self, **kwargs)
+            return self._run_pipeline(**kwargs)
         else:
-            return self._run_pipeline(self, **kwargs)
+            return self._run_pipeline(**kwargs)
 
 
 class AudioVideoConverter(TypeConverter.Converter):
