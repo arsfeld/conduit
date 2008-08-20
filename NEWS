@@ -1,5 +1,8 @@
 NEW in 0.3.14:
 ==============
+* Merge improved iPod support by Alexandre Rosenfeld. This was implemented as
+  part of GSOC08 and features
+  * Improved audio/video transcoding using GStreamer
 
 NEW in 0.3.13.1:
 ==============

@@ -17,9 +17,20 @@ class SimpleConfigurator:
                     "Name" : "Setting Name",
                     "Widget" : gtk.TextView,
                     "Callback" : function,
-                    "InitialValue" : value
+                    "InitialValue" : value or function
                     }
                 ]
+    Or, alternatively:
+        
+
+        maps = [
+                    {
+                    "Name" : "Setting Name",
+                    "Kind" : "text", "check" or "list",
+                    "Callback" : function,
+                    "InitialValue" : value or function
+                    }
+                ]        
     """
     
     CONFIG_WINDOW_TITLE_TEXT = "Configure "
@@ -38,7 +49,8 @@ class SimpleConfigurator:
         self.widgetInstances = []
         self.dialogParent = window
         #the child widget to contain the custom settings
-        self.customSettings = gtk.VBox(False, 5)
+        self.customSettings = gtk.Table(rows=0, columns=2)
+        self.customSettings.set_row_spacings(8)
         
         #The dialog is loaded from a glade file
         gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
@@ -71,8 +83,11 @@ class SimpleConfigurator:
                 w["Callback"](w["Widget"].get_text())
             elif isinstance(w["Widget"], gtk.CheckButton):
                 w["Callback"](w["Widget"].get_active())
+            elif w["Kind"] == "list":
+                w["Callback"](w["Widget"].get_active(), w["Widget"].get_active_text())
             else:
-                log.warn("Dont know how to retrieve value from a %s" % w["Widget"])
+                # Just return the widget, so the caller should know what to do with this
+                w["Callback"](w["Widget"])
 
         self.dialog.destroy()
         
@@ -108,27 +123,56 @@ class SimpleConfigurator:
         """
         #For each item in the mappings list create the appropriate widget
         for l in self.mappings:
-            #New instance of the widget
-            widget = l["Widget"]()
-            #all get packed into an HBox
-            hbox = gtk.HBox(False, 5)
+            if 'Kind' in l:
+                kind = l['Kind']
+                widget = {'text': gtk.Entry,
+                          'list': gtk.combo_box_new_text,
+                          'check': gtk.CheckButton}[kind]()
+            elif 'Widget' in l:
+                kind = None
+                #New instance of the widget
+                widget = l["Widget"]()
+            else:
+                raise Exception("Configuration Kind or Widget not specified")
+                
+            label_text = l["Name"]
+            if label_text[len(label_text) - 1] != ':':
+                label_text += ':'
+            #gtkEntry has its label beside it
+            label = gtk.Label(label_text)
+            label.set_alignment(0.0, 0.5)
 
+            if callable(l["InitialValue"]):
+                l["InitialValue"](widget)            
+            elif kind == 'list':
+                index = 0
+                for name in l["Values"]:
+                    widget.append_text(name)
+                    if name == l["InitialValue"]:
+                        widget.set_active(index)
+                    index += 1                
             #FIXME: I am ashamed about this ugly hackery and dupe code....
-            if isinstance(widget, gtk.Entry):
-                #gtkEntry has its label beside it
-                label = gtk.Label(l["Name"])
-                hbox.pack_start(label)
+            elif isinstance(widget, gtk.Entry):
                 widget.set_text(str(l["InitialValue"]))
             elif isinstance(widget, gtk.CheckButton):
                 #gtk.CheckButton has its label built in
-                widget = l["Widget"](l["Name"])
-                widget.set_active(bool(l["InitialValue"]))                        
-                #FIXME: There must be a better way to do this but we need some way 
-                #to identify the widget *instance* when we save the values from it
+                label = None
+                widget.set_label(l["Name"])
+                widget.set_active(bool(l["InitialValue"])) 
+                                       
+            #FIXME: There must be a better way to do this but we need some way 
+            #to identify the widget *instance* when we save the values from it            
             self.widgetInstances.append({
                                         "Widget" : widget,
+                                        "Kind" : kind,
                                         "Callback" : l["Callback"]
                                         })
-            #pack them all together
-            hbox.pack_start(widget)
-            self.customSettings.pack_start(hbox)
+                                        
+            table = self.customSettings
+            row = table.get_property('n-rows') + 1
+            table.resize(row, 2)
+            if label:
+                table.attach(label, 0, 1, row - 1, row)
+                table.attach(widget, 1, 2, row - 1, row)
+            else:
+                table.attach(widget, 0, 2, row - 1, row)

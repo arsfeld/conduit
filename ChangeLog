@@ -1,3 +1,16 @@
+2008-08-21  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* NEWS:
+	* ChangeLog:
+	* conduit/*/*.py:
+	* data/conduit.glade:
+	* test/python-tests/TestCoreConvertAudioVideo.py:
+	* test/python-tests/data/audio.list:
+	* test/python-tests/data/video.list:
+	Merge GSOC08 improved iPod support branch. This adds support for
+	writing iPod music,video, and transcoding using GStreamer.
+	Fixes #526423 and Fixes #510279.
+
 2008-08-10  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/AmazonS3Module/:
