@@ -1,5 +1,10 @@
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/iPodModule/iPodModule.py: Fix iPod icon, and make
+	sure that the photo dp is configurable.
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/AudioVideoConverterModule.py: Fix typo in conversion
 	arguments. Really Fixes #526423 (Alexandre Rosenfeld)
 
