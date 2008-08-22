@@ -1,3 +1,8 @@
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BansheeModule/BansheeModule.py: Banshee icon is 
+	media-player-banshee. Fixes #547600
+
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/iPodModule/config.glade:
