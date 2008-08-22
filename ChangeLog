@@ -1,5 +1,10 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleModule/GoogleModule.py: More debugging for
+	#548659
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* data/conduit.glade: Tidy prefs window as per #547609
 
 2008-08-22  John Stowers  <john.stowers@gmail.com>
