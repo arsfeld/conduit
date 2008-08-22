@@ -1,3 +1,8 @@
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Scale photos in 
+	picasa two way. Fixes #548989 (Antonio G)
+
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/dataproviders/DataProvider.py:

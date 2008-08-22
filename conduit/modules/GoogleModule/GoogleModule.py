@@ -575,6 +575,9 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
             
     def _get_photo_formats (self):
         return ("image/jpeg",)
+
+    def _get_photo_size(self):
+        return self.imageSize
         
     def _upload_photo (self, uploadInfo):
         try:
@@ -1269,9 +1272,6 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
         return False
 
     def configure(self, window):
-        """
-        Configures the PicasaTwoWay
-        """
         import gtk
 
         def make_combo(widget, docType, val, values):
