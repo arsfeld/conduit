@@ -1,5 +1,11 @@
 2008-08-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/AudioVideoConverterModule.py:
+	* conduit/utils/MediaFile.py: Handle missing gstreamer nicer.
+	Fixes #548960
+
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py: Set a default window icon.
 	Fixes #548974
 
