@@ -1,5 +1,12 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* data/evolution-memos.png:
+	* data/evolution-tasks.png:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* data/Makefile.am: Use evolution icons. Fixes #547617
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Settings.py: No splash by default. Fixes #547615
 
 2008-08-22  John Stowers  <john.stowers@gmail.com>
