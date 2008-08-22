@@ -80,8 +80,6 @@ class MainWindow:
         """
         gnome.ui.authentication_manager_init()        
 
-        self.conduitApplication = conduitApplication
-
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
         icon_dirs = [
@@ -92,7 +90,9 @@ class MainWindow:
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
+        gtk.window_set_default_icon_name("conduit")
 
+        self.conduitApplication = conduitApplication
         self.gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
         self.widgets = gtk.glade.XML(self.gladeFile, "MainWindow")
         
@@ -123,7 +123,6 @@ class MainWindow:
             if colormap:
                 gtk.widget_set_default_colormap(colormap)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
-        self.mainWindow.set_icon_name("conduit")
         title = "Conduit"
         if conduit.IS_DEVELOPMENT_VERSION:
             title = title + " - %s (Development Version)" % conduit.VERSION
