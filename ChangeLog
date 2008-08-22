@@ -1,5 +1,12 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/datatypes/File.py:
+	* conduit/modules/N800Module/N800Module.py: Fix doc typos.
+	Fixes #548404 (Christian Schlotter)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/conduit: Remove bashisms. Fixes #545464 (Christian Schlotter)
 
 2008-08-22  John Stowers  <john.stowers@gmail.com>
