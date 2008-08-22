@@ -1,5 +1,9 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Settings.py: No splash by default. Fixes #547615
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py: Remove About entry in tray icon menu.
 	Fixes #547618
 
