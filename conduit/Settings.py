@@ -79,6 +79,7 @@ class Settings(gobject.GObject):
         'gui_initial_canvas_width'  :   450,            #Reduce for eepc, etc
         'gui_use_rgba_colormap'     :   False,          #Seems to corrupt gtkmozembed on some systems
         'gui_show_hints'            :   True,           #Show message area hints in the Conduit GUI
+        'gui_show_treeview_lines'   :   False,          #Show treeview lines
     }
         
     def __init__(self, implName):

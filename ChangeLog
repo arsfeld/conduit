@@ -1,5 +1,10 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Settings.py:
+	* conduit/gtkui/Tree.py: Hide treeview lines. Fixes #547604
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/BansheeModule/BansheeModule.py: Banshee icon is 
 	media-player-banshee. Fixes #547600
 
