@@ -1,5 +1,9 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* data/conduit.glade: Tidy prefs window as per #547609
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* data/evolution-memos.png:
 	* data/evolution-tasks.png:
 	* conduit/modules/EvolutionModule/EvolutionModule.py:
