@@ -1,5 +1,14 @@
 2008-08-22  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/conduit: Remove bashisms. Fixes #545464 (Christian Schlotter)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/conduit: also look in lib/mozilla-firefox for
+	run-mozilla.sh. Fixes #546478 (Christian Schlotter)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: More debugging for
 	#548659
 
