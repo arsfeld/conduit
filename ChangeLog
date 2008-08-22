@@ -1,5 +1,10 @@
 2008-08-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/utils/Makefile.am: Ship MediaFile and GstMetadata.
+	Fixes #548959 (Michael Monreal)
+
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GoogleModule/GoogleModule.py: Scale photos in 
 	picasa two way. Fixes #548989 (Antonio G)
 
