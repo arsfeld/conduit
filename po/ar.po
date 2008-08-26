@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Conduit HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-06 09:15+0100\n"
+"POT-Creation-Date: 2008-08-26 14:42+0100\n"
 "PO-Revision-Date: 2008-08-04 13:28-0000\n"
 "Last-Translator: Youssef Chahibi <chahibi@gmail.com>\n"
 "Language-Team: Arabic <doc@arabeyes.org>\n"
@@ -71,7 +71,8 @@ msgid "Compare"
 msgstr "قارن"
 
 #: ../data/conduit.glade.h:10
-msgid "Conduit Properties"
+#, fuzzy
+msgid "Conduit Preferences"
 msgstr "خصائص Conduit"
 
 #: ../data/conduit.glade.h:11
@@ -258,80 +259,72 @@ msgid "Conflicts (%s)"
 msgstr "التعارضات (%s)"
 
 #. Build some liststores to display
-#: ../conduit/gtkui/UI.py:281
+#: ../conduit/gtkui/UI.py:280
 msgid "Convert from"
 msgstr "حوّل من"
 
-#: ../conduit/gtkui/UI.py:282
+#: ../conduit/gtkui/UI.py:281
 msgid "into"
 msgstr "إلى"
 
-#: ../conduit/gtkui/UI.py:333
+#: ../conduit/gtkui/UI.py:332
 msgid "Relationship Database"
 msgstr "قاعدة بيانات العلاقات"
 
-#: ../conduit/gtkui/UI.py:337
+#: ../conduit/gtkui/UI.py:336
 msgid "Conversions Available"
 msgstr "التحويلات المتوفرة:"
 
-#: ../conduit/gtkui/UI.py:343 ../conduit/gtkui/Tree.py:349
+#: ../conduit/gtkui/UI.py:342 ../conduit/gtkui/Tree.py:348
 #: ../conduit/modules/FileModule/FileConfiguration.py:105
 msgid "Name"
 msgstr "اسم"
 
-#: ../conduit/gtkui/UI.py:347
+#: ../conduit/gtkui/UI.py:346
 msgid "Loaded"
 msgstr "محمّل"
 
-#: ../conduit/gtkui/UI.py:459 ../conduit/hildonui/UI.py:127
+#: ../conduit/gtkui/UI.py:458 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "المزامنة جارية. هل تريد إلغائها؟"
 
-#: ../conduit/gtkui/UI.py:626
+#: ../conduit/gtkui/UI.py:624
 msgid "_Synchronize All"
 msgstr "_زامن الكل"
 
-#: ../conduit/gtkui/UI.py:626
+#: ../conduit/gtkui/UI.py:624
 msgid "Synchronizes All Groups"
 msgstr "زامن كل المجموعات"
 
-#: ../conduit/gtkui/UI.py:627
+#: ../conduit/gtkui/UI.py:625
 msgid "_Cancel Synchronization"
 msgstr "_ألغي المزامنة"
 
-#: ../conduit/gtkui/UI.py:627
+#: ../conduit/gtkui/UI.py:625
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "يلغي المجموعات المزامنة حالياً"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:626
 msgid "_Quit"
 msgstr "أ_نه"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:626
 msgid "Close Conduit"
 msgstr "اغلق Conduit"
 
-#: ../conduit/gtkui/UI.py:629
-msgid "_About"
-msgstr "_حول"
-
-#: ../conduit/gtkui/UI.py:629
-msgid "About Conduit"
-msgstr "حول كوندويت"
-
-#: ../conduit/gtkui/UI.py:669
+#: ../conduit/gtkui/UI.py:666
 msgid "Synchronization Error"
 msgstr "خطأ التزامن"
 
-#: ../conduit/gtkui/UI.py:672
+#: ../conduit/gtkui/UI.py:669
 msgid "Synchronization Complete"
 msgstr "تم التزامن"
 
-#: ../conduit/gtkui/UI.py:688
+#: ../conduit/gtkui/UI.py:685
 msgid "Synchronizing"
 msgstr "مزامنة"
 
-#: ../conduit/gtkui/Tree.py:358
+#: ../conduit/gtkui/Tree.py:357
 msgid "Description"
 msgstr "الوصف"
 
@@ -533,7 +526,7 @@ msgstr "مزامنة صور Facebook"
 
 #: ../conduit/modules/FacebookModule/config.glade.h:1
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
-#: ../conduit/modules/iPodModule/config.glade.h:1
+#: ../conduit/modules/iPodModule/config.glade.h:2
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
 #: ../conduit/modules/SmugMugModule/config.glade.h:3
 #: ../conduit/modules/ZotoModule/zoto.glade.h:3
@@ -753,41 +746,41 @@ msgstr "بيكاسا"
 msgid "Sync your Google Picasa photos"
 msgstr "مزامنة صور Google Picasa "
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:795
+#: ../conduit/modules/GoogleModule/GoogleModule.py:803
 msgid "Google Contacts"
 msgstr "مراسلي Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:796
+#: ../conduit/modules/GoogleModule/GoogleModule.py:804
 msgid "Sync your Gmail contacts"
 msgstr "مزامنة مراسلي Gmail"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1052
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1060
 #: ../conduit/modules/GoogleModule/documents-config.glade.h:5
 msgid "Google Documents"
 msgstr "مستندات Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1053
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1061
 msgid "Sync your Google Documents"
 msgstr "مزامنة مستندات Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1333
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1338
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
 msgid "Unknown"
 msgstr "مجهول"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1334
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1339
 msgid "miscellaneous"
 msgstr "متنوعات"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1335
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1340
 msgid "No description."
 msgstr "لا وصف."
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1344
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1349
 msgid "YouTube"
 msgstr "يوتوب"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1345
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1350
 msgid "Sync data from YouTube"
 msgstr "زامن البيانات من يوتوب"
 
@@ -862,7 +855,12 @@ msgstr "رفعها المستخدم المذكور "
 msgid "YouTube Source"
 msgstr "مصدر يوتوب"
 
-#: ../conduit/modules/iPodModule/config.glade.h:2
+#: ../conduit/modules/iPodModule/config.glade.h:1
+#, fuzzy
+msgid "<b>Encoding</b>"
+msgstr "<b>إعدادات المرفقات</b>"
+
+#: ../conduit/modules/iPodModule/config.glade.h:3
 msgid "iPod Photos"
 msgstr "صور iPod"
 
@@ -910,7 +908,6 @@ msgid "N800 Videos"
 msgstr "مرئيات N800"
 
 #: ../conduit/modules/N800Module/N800Module.py:167
-#: ../conduit/modules/N800Module/N800Module.py:191
 msgid "Synchronizes video to a N800 device"
 msgstr "مزامنة "
 
@@ -922,6 +919,11 @@ msgstr "Video"
 #: ../conduit/modules/N800Module/N800Module.py:190
 msgid "N800 Photos"
 msgstr "صور N800"
+
+#: ../conduit/modules/N800Module/N800Module.py:191
+#, fuzzy
+msgid "Synchronizes photo to a N800 device"
+msgstr "مزامنة "
 
 #. To translators: default photos folder of N800
 #: ../conduit/modules/N800Module/N800Module.py:197
@@ -982,6 +984,12 @@ msgstr "Zoto"
 #: ../conduit/modules/ZotoModule/ZotoModule.py:155
 msgid "Sync your Zoto photos"
 msgstr "مزامنة صور Zoto"
+
+#~ msgid "_About"
+#~ msgstr "_حول"
+
+#~ msgid "About Conduit"
+#~ msgstr "حول كوندويت"
 
 #~ msgid "Use built in Web browser"
 #~ msgstr "إستخدام المتصفح المدمج"
