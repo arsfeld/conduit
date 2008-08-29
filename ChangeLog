@@ -1,3 +1,14 @@
+2008-08-27  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/datatypes/File.py:
+	* conduit/modules/ConverterModule.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/utils/__init__.py:
+	* test/python-tests/TestCoreFile.py: Implement make_directory_and_parents
+	in python because it is not wrapped yet. Add tests for this, make_directory
+	and delete.
+
 2008-08-23  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Vfs.py: fat32 filesystems are reported as msdos by gio

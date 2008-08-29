@@ -11,6 +11,7 @@ import time
 import datetime
 import tempfile
 
+#for impl in ("GIO",):
 for impl in ("GIO","GnomeVfs"):
     ok("--- TESTING FILE IMPL: %s" % impl, True)
 
@@ -23,15 +24,22 @@ for impl in ("GIO","GnomeVfs"):
     ok("Base: non-existant file", null.exists() == False)
 
     #test tempfile handling
-    temp = Utils.new_tempfile(Utils.random_string())
-    ok("Detected tempfile", temp.is_local() and temp._is_tempfile())
+    temp = Utils.new_tempfile(Utils.random_string(), implName=impl)
+    ok("Base: Detected tempfile", temp.is_local() and temp._is_tempfile())
 
     uri = temp.get_local_uri()
-    ok("Tempfile in temp dir", uri and uri.startswith(tempfile.gettempdir()))
+    ok("Base: Tempfile in temp dir", uri and uri.startswith(tempfile.gettempdir()))
 
     temp.delete()
     gone = File.File(uri,implName=impl)
-    ok("Delete tempfile", not gone.exists())
+    ok("Base: Delete tempfile", not gone.exists())
+
+    #test making directories
+    tmpdir = Utils.new_tempdir()
+    tmpdir2 = os.path.join(tmpdir, "subdir")
+    f = File.File(tmpdir2,implName=impl)
+    ok("Base: make directory", f.make_directory() == True)
+
 
     folder = File.File(os.environ["HOME"],implName=impl)
     ok("Base: check if HOME exists", folder.exists() == True)
@@ -76,10 +84,10 @@ for impl in ("GIO","GnomeVfs"):
 
     #test the handling of weird characters and transferring files to unusual paths
     tmpdir = Utils.new_tempdir()
-    f1 = Utils.new_tempfile(Utils.random_string())
+    f1 = Utils.new_tempfile(Utils.random_string(), implName=impl)
     f2 = os.path.join(tmpdir,"I am", "a", "path with spaces", "foo.txt")
 
-    f3 = Utils.new_tempfile(Utils.random_string())
+    f3 = Utils.new_tempfile(Utils.random_string(), implName=impl)
     f4 = os.path.join(tmpdir,"I also am", "a", "wierd path", "foo.txt")
 
     f1.transfer(f2)
@@ -161,7 +169,7 @@ for impl in ("GIO","GnomeVfs"):
         ok("Remote file exists", f.exists() == True)
 
         #make another local file
-        local = Utils.new_tempfile(Utils.random_string())
+        local = Utils.new_tempfile(Utils.random_string(), implName=impl)
 
         #save the old information
         fOldName = f.get_filename()
@@ -239,6 +247,27 @@ for impl in ("GIO","GnomeVfs"):
         ok("Transferred ProxyFile correctly (%s)" % proxyFileName, f2.get_filename() == proxyFileName)
 
         ok("ProxyFile graduated to real file", f2._is_proxyfile() == False)    
+
+    #Now go back and test successful, i.e. non temp file, mtime and setting
+    nn = "new name"
+    nmt = datetime.datetime(2007,10,29)
+
+    #remember old data
+    f = File.File(localURIs[0],implName=impl)
+    on = f.get_filename()
+    omt = f.get_mtime()
+
+    f.force_new_filename(nn)
+    ok("Local: set new name", f.get_filename() == nn)
+
+    f.force_new_mtime(nmt)
+    ok("Local: set new mtime", f.get_mtime() == nmt)
+
+    #restore old values
+    f.force_new_filename(on)
+    f.force_new_mtime(omt)
+
+
 
 finished()
 

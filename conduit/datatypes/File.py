@@ -187,14 +187,14 @@ class File(DataType.DataType):
         """
         Makes a directory with the default permissions.
         """
-        self._file.make_directory()
+        return self._file.make_directory()
 
     def make_directory_and_parents(self):
         """
         Makes a directory and all parents up till the root. Equivilent
         to mkdir -p
         """
-        self._file.make_directory_and_parents()
+        return self._file.make_directory_and_parents()
 
     def force_new_filename(self, filename):
         """
@@ -444,12 +444,12 @@ class TempFile(File):
     """
     Creates a file in the system temp directory with the given contents.
     """
-    def __init__(self, contents=""):
+    def __init__(self, contents, **kwargs):
         #create the file containing contents
         fd, name = tempfile.mkstemp(prefix="conduit")
         os.write(fd, contents)
         os.close(fd)
-        File.__init__(self, name)
+        File.__init__(self, name, **kwargs)
         log.debug("New tempfile created at %s" % name)
         
 class ProxyFile(File):

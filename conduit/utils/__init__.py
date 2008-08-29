@@ -108,7 +108,7 @@ def ensure_string(arg):
 #
 # Temporary file functions
 #
-def new_tempfile(contents, contentsAreText=True):
+def new_tempfile(contents, **kwargs):
     """
     Returns a new File onject, which has been created in the 
     system temporary directory, and that has been filled with
@@ -117,13 +117,10 @@ def new_tempfile(contents, contentsAreText=True):
     The file is closed when it is returned
     
     @param contents: The data to write into the file
-    @param contentsAreText: Indicates to the OS if the file is text (as opposed
-    to a binary type file
-    @param contentsAreText: C{bool}
     @returns: a L{conduit.datatypes.File}
     """
     import conduit.datatypes.File as File
-    return File.TempFile(contents)
+    return File.TempFile(contents, **kwargs)
 
 def new_tempdir():
     """

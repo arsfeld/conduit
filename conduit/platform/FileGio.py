@@ -58,18 +58,20 @@ class FileImpl(conduit.platform.File):
     def set_mtime(self, timestamp=None, datetime=None):
         try:
             self._file.set_attribute_uint64(
-                        "time::changed",
+                        "time::modified",
                         long(timestamp)
                         )
+            self.close()
             return timestamp
-        except gio.Error:
+        except gio.Error, e:
             return None
         
     def set_filename(self, filename):
         try:
             self._file = self._file.set_display_name(filename)
+            self.close()
             return filename
-        except gio.Error:
+        except gio.Error, e:
             return None
         
     def get_mtime(self):
@@ -109,6 +111,64 @@ class FileImpl(conduit.platform.File):
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False
+
+    def make_directory(self):
+        try:
+            result = self._file.make_directory()
+            self.close()
+            return result
+        except gio.Error, e:
+            return False
+
+    def make_directory_and_parents(self):
+        #recursively create all parent dirs if needed
+        #port the code from gio into python until the following is fixed
+        #http://bugzilla.gnome.org/show_bug.cgi?id=546575
+        dirs = []
+
+        try:
+            result = self._file.make_directory()
+            code = 0;
+        except gio.Error, e:
+            result = False
+            code = e.code
+
+        work_file = self._file
+        while code == gio.ERROR_NOT_FOUND and not result:
+            parent_file = work_file.get_parent()
+            if not parent_file:
+                break
+
+            try:
+                result = parent_file.make_directory()
+                code = 0;
+            except gio.Error, e:
+                result = False
+                code = e.code
+
+            if code == gio.ERROR_NOT_FOUND and not result:
+                dirs.append(parent_file)
+
+            work_file = parent_file;
+
+        #make all dirs in reverse order
+        dirs.reverse()
+        for d in dirs:
+            try:
+                result = d.make_directory()
+            except gio.Error:
+                result = False
+                break
+
+        #make the final dir
+        if result:
+            try:
+                result = self._file.make_directory()
+            except gio.Error:
+                result = False
+
+        self.close()
+        return result
 
     def is_on_removale_volume(self):
         try:
@@ -168,13 +228,13 @@ class FileTransferImpl(conduit.platform.FileTransfer):
         log.debug("Transfering File %s -> %s (overwrite: %s)" % (self._source.get_uri(), self._dest.get_uri(), overwrite))
 
         #recursively create all parent dirs if needed
-        #http://bugzilla.gnome.org/show_bug.cgi?id=546575
-        #
-        #recursively create all parent dirs if needed
-        #parent = str(self._dest.parent)
-        #if not gnomevfs.exists(parent):
-        #    d = FileImpl(None, impl=self._dest.parent)
-        #    d.make_directory_and_parents()
+        parent = self._dest.get_parent()
+        try:
+            parent.query_info("standard::name")
+        except gio.Error, e:
+            #does not exists
+            d = FileImpl(None, impl=parent)
+            d.make_directory_and_parents()
 
         #Copy the file
         #http://bugzilla.gnome.org/show_bug.cgi?id=546601

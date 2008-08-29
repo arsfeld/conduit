@@ -143,11 +143,12 @@ class FileImpl(conduit.platform.File):
         self.triedOpen = False
 
     def make_directory(self):
-        uri = _ensure_type(uri)
         gnomevfs.make_directory(
                 self.get_text_uri(),
                 gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
                 )
+        self.close()
+        return True
         
     def make_directory_and_parents(self):
         exists = False
