@@ -7,6 +7,7 @@ import conduit.utils as Utils
 import conduit.Vfs as Vfs
 
 import os
+import tempfile
 
 try:
     f = File.File()
@@ -21,6 +22,17 @@ try:
     ok("Base: Cannot get info on non-existant file", False)
 except:
     ok("Base: Cannot get info on non-existant file", True)
+    
+#test tempfile handling
+temp = Utils.new_tempfile(Utils.random_string())
+ok("Detected tempfile", temp.is_local() and temp._is_tempfile())
+
+uri = temp.get_local_uri()
+ok("Tempfile in temp dir", uri and uri.startswith(tempfile.gettempdir()))
+
+temp.delete()
+gone = File.File(uri)
+ok("Delete tempfile", not gone.exists())
 
 folder = File.File(os.environ["HOME"])
 ok("Base: check if HOME exists", folder.exists() == True)

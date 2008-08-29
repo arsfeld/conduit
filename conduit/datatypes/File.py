@@ -320,6 +320,8 @@ class File(DataType.DataType):
         path = self._file.get_local_path()
         if not path:
             return self.to_tempfile()
+        else:
+            return path
             
     def get_relative_uri(self):
         """

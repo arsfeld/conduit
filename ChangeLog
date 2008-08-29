@@ -1,9 +1,14 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreFile.py: Test the tempfile handling
+	directly.
+
 	* conduit/datatypes/File.py:
 	* conduit/platform/FileGnomeVfs.py:
 	* conduit/platform/__init__.py: Refactor the returning of local
 	paths to make it easier for gio.
+
+	* conduit/platform/FileGio.py: Add basic gio FileImpl implementation
 
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
