@@ -74,13 +74,19 @@ class FileImpl(conduit.platform.File):
             return None
         
     def get_mtime(self):
-        self._get_file_info()
-        mtime = self.fileInfo.get_attribute_uint64('time::modified')
-        if mtime:
-            return mtime
+        #FIXME: Workaround for 
+        #http://bugzilla.gnome.org/show_bug.cgi?id=547133
+        if self._file.get_uri_scheme() in ("http", "ftp"):
+            from conduit.utils import get_http_resource_last_modified
+            return get_http_resource_last_modified(self._file.get_uri())
         else:
-            #convert 0L -> None
-            return None
+            self._get_file_info()
+            mtime = self.fileInfo.get_attribute_uint64('time::modified')
+            if mtime:
+                return mtime
+            else:
+                #convert 0L -> None
+                return None
 
     def get_filename(self):
         self._get_file_info()

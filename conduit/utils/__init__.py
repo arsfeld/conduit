@@ -11,10 +11,31 @@ import sys
 import os.path
 import socket
 import datetime
+import urllib2
 import time
 import re
 import logging
 log = logging.getLogger("Utils")
+
+def get_http_resource_last_modified(url):
+    """
+    Returns the last modified date of the http resource at the given URL.
+    @returns: A Float timestamp or None
+    """
+    try:
+        request = urllib2.Request(url)
+        a = urllib2.build_opener().open(request)
+    except urllib2.HTTPError:
+        log.info("URL does not exist: %s" % url)
+        return None
+    except Exception, e:
+        log.warn("Error getting url last modified: %s" % e)
+        return None
+
+    date = a.headers.getdate('Last-Modified')
+    if date:
+        date = time.mktime(date)
+    return date
 
 def get_proportional_resize(desiredW, desiredH, currentW, currentH):
     """

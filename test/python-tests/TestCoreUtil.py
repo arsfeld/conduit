@@ -10,6 +10,13 @@ import datetime
 import os.path
 import sys
 
+if is_online():
+    date = Utils.get_http_resource_last_modified("http://files.conduit-project.org/Conduit-0.3.0-screencast-small.mpeg")
+    ok("Got mtime of http resource", date == datetime.datetime(2007,5,6,14,47,36))
+
+date1 = Utils.get_http_resource_last_modified("http://foo.com/1/2/3")
+ok("Got no mtime from missing http resource", date1 == None)
+
 #Test facebook dimensions
 # 1024x768 -> 604x453
 w,h = Utils.get_proportional_resize(604,604,1024,768)

@@ -1,5 +1,12 @@
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/platform/FileGio.py:
+	* conduit/utils/__init__.py:
+	* test/python-tests/TestCoreUtil.py: Work around stupid gvfs bug 547133
+	by adding an urllib2 based implementation of get_mtime
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py:
 	* conduit/__init__.py:
 	* conduit/datatypes/File.py:
