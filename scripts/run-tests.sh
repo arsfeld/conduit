@@ -184,6 +184,7 @@ if [ $do_coverage -ne 0 ] ; then
     CORE_COVERAGE_FILES=`ls \
         conduit/*.py \
         conduit/utils/*.py \
+        conduit/platform/*.py \
         conduit/datatypes/*.py \
         conduit/dataproviders/DataProvider.py \
         conduit/modules/TestModule.py \
@@ -192,6 +193,7 @@ if [ $do_coverage -ne 0 ] ; then
     ALL_COVERAGE_FILES=`ls \
         conduit/*.py \
         conduit/utils/*.py \
+        conduit/platform/*.py \
         conduit/datatypes/*.py \
         conduit/dataproviders/*.py \
         conduit/modules/*.py \
