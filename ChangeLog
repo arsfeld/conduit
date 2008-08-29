@@ -1,5 +1,9 @@
 2008-08-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/platform/Makefile.am: Add file implementations to dist
+
+2008-08-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/datatypes/File.py:
 	* conduit/modules/ConverterModule.py:
 	* conduit/platform/FileGio.py:
