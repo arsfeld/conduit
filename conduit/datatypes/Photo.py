@@ -2,8 +2,6 @@ import conduit
 
 import conduit.datatypes.File as File
 import conduit.utils as Utils
-import logging
-log = logging.getLogger("datatypes.Photo")
 
 PRESET_ENCODINGS = {
     "jpeg":{'formats':'image/jpeg','default-format':'image/jpeg'},
@@ -30,27 +28,6 @@ class Photo(File.File):
         File.File.__init__(self, URI, **kwargs)
         self.pb = None
         self._caption = None
-
-    def compare(self, B, sizeOnly=False):
-        if sizeOnly:
-            return File.File.compare(self, B, True)
-
-        meTime = self.get_mtime()
-        bTime = B.get_mtime()
-        log.debug("Comparing %s (MTIME: %s) with %s (MTIME: %s)" % (self.URI, meTime, B.URI, bTime))
-        if meTime and bTime and (meTime != bTime):
-            if meTime > bTime:    #Am I newer than B
-                return conduit.datatypes.COMPARISON_NEWER        
-            else:
-                return conduit.datatypes.COMPARISON_OLDER
-
-        meHash = self.get_hash()
-        bHash = B.get_hash()
-        log.debug("Comparing %s (HASH: %s) with %s (HASH: %s)" % (self.URI, meHash, B.URI, bHash))
-        if (meHash == bHash):
-            return conduit.datatypes.COMPARISON_EQUAL
-        else:
-            return conduit.datatypes.COMPARISON_UNKNOWN
 
     def get_photo_pixbuf(self):
         """

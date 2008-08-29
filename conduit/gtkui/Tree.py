@@ -339,7 +339,8 @@ class DataProviderTreeView(gtk.TreeView):
         """
         gtk.TreeView.__init__(self, model)
         self.set_property("enable-search", False)
-        if gtk.pygtk_version >= (2,10,0) and conduit.GLOBALS.settings.get("gui_show_treeview_lines"):
+        #FIXME: Work around a (py)gtk 2.8 bug
+        if gtk.pygtk_version >= (2,10,0):
             self.set_property("enable-tree-lines", True)
         
         #First column is an image and name
@@ -353,7 +354,7 @@ class DataProviderTreeView(gtk.TreeView):
         self.append_column(tvcolumn0)
 
         # Second column is a description
-        if conduit.GLOBALS.settings.get("show_dp_description"):
+        if conduit.GLOBALS.settings.get("show_dp_description") == True:
             tvcolumn1 = gtk.TreeViewColumn(_("Description"), gtk.CellRendererText(), text=IDX_DESCRIPTION)
             self.append_column(tvcolumn1)
             self.set_headers_visible(True)

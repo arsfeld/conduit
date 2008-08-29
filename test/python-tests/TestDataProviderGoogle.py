@@ -40,6 +40,7 @@ ok("Found calendar: '%s'" % SAFE_CALENDAR_NAME, found)
 hour=random.randint(12,23)
 ics="""BEGIN:VCALENDAR
 VERSION:2.0
+PRODID:-//PYVOBJECT//NONSGML Version 1//EN
 BEGIN:VEVENT
 DTSTART:2008%(month)02d%(day)02dT%(hour)02d0000Z
 DTEND:2008%(month)02d%(day)02dT%(end)02d0000Z
@@ -55,9 +56,30 @@ event.set_from_ical_string(ics)
 test.do_dataprovider_tests(
         supportsGet=True,
         supportsDelete=False,
-        safeLUID=None,
+        safeLUID=SAFE_EVENT_UID,
         data=event,
         name="event"
         )
-finished()
 
+#-------------------------------------------------------------------------------
+# Youtube
+#-------------------------------------------------------------------------------
+#Now a very simple youtube test...
+test = SimpleTest(sourceName="YouTubeSource")
+config = {
+    "max_downloads" :   MAX_YOUTUBE_VIDEOS
+}
+test.configure(source=config)
+youtube = test.get_source().module
+
+try:
+    youtube.refresh()
+    ok("Refresh youtube", True)
+except Exception, err:
+    ok("Refresh youtube (%s)" % err, False) 
+
+videos = youtube.get_all()
+num = len(videos)
+ok("Got %s videos" % num, num == MAX_YOUTUBE_VIDEOS)
+
+finished()

@@ -9,6 +9,9 @@ TEST_DATA_DIR="$BASEDIR/test-data"
 COVERAGE_APP="scripts/coverage.py"
 COVERAGE_RESULTS="$BASEDIR/results/coverage"
 
+export LD_LIBRARY_PATH=/opt/gio/lib/
+export PYTHONPATH=/opt/gio/lib/python2.5/site-packages/gtk-2.0/
+
 USAGE="\
 Usage:\n\
 ./scripts/run-tests.sh [OPTIONS]\n\n\
@@ -181,7 +184,6 @@ if [ $do_coverage -ne 0 ] ; then
     CORE_COVERAGE_FILES=`ls \
         conduit/*.py \
         conduit/utils/*.py \
-        conduit/platform/*.py \
         conduit/datatypes/*.py \
         conduit/dataproviders/DataProvider.py \
         conduit/modules/TestModule.py \
@@ -190,7 +192,6 @@ if [ $do_coverage -ne 0 ] ; then
     ALL_COVERAGE_FILES=`ls \
         conduit/*.py \
         conduit/utils/*.py \
-        conduit/platform/*.py \
         conduit/datatypes/*.py \
         conduit/dataproviders/*.py \
         conduit/modules/*.py \

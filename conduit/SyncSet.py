@@ -52,20 +52,18 @@ class SyncSet(gobject.GObject):
             if dp.module:
                 dp.module.uninitialize()
                 
-    def _restore_dataprovider(self, cond, wrapperKey, dpName="", dpxml="", trySourceFirst=True):
+    def _restore_dataprovider(self, cond, wrapperKey, dpName, dpxml, trySourceFirst):
         """
         Adds the dataprovider back onto the canvas at the specifed
         location and configures it with the given settings
         """
         log.debug("Restoring %s to (source=%s)" % (wrapperKey,trySourceFirst))
         wrapper = self.moduleManager.get_module_wrapper_with_instance(wrapperKey)
-        if dpName:
-            wrapper.set_name(dpName)
+        wrapper.set_name(dpName)
         if wrapper is not None:
-            if dpxml:
-                for i in dpxml.childNodes:
-                    if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
-                        wrapper.set_configuration_xml(xmltext=i.toxml())
+            for i in dpxml.childNodes:
+                if i.nodeType == i.ELEMENT_NODE and i.localName == "configuration":
+                    wrapper.set_configuration_xml(xmltext=i.toxml())
         cond.add_dataprovider(wrapper, trySourceFirst)
 
     def on_dataprovider_available_unavailable(self, loader, dpw):
@@ -90,14 +88,6 @@ class SyncSet(gobject.GObject):
         from the main loop on an idle handler
         """
         gobject.idle_add(gobject.GObject.emit,self,*args)
-        
-    def create_preconfigured_conduit(self, sourceKey, sinkKey, twoway):
-        cond = Conduit.Conduit(self.syncManager)
-        self.add_conduit(cond)
-        if twoway == True:
-            cond.enable_two_way_sync()
-        self._restore_dataprovider(cond, sourceKey, trySourceFirst=True)
-        self._restore_dataprovider(cond, sinkKey, trySourceFirst=False)
 
     def add_conduit(self, cond):
         self.conduits.append(cond)

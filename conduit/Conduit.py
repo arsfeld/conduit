@@ -176,16 +176,6 @@ class Conduit(gobject.GObject):
         """
         return self.syncManager.sync_in_progress(self)
         
-    def can_sync(self):
-        """
-        Returns True if this conduit can be synchronized. It must have a
-        source and a sync, that are not pending
-        """
-        return  self.datasource != None \
-                and len(self.datasinks) > 0 \
-                and not self.datasource.is_pending() \
-                and not self.datasinks[0].is_pending()
-        
     def get_dataproviders_by_key(self, key):
         """
         Use list comprehension to return all dp's with a given key

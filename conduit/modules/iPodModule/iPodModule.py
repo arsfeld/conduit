@@ -2,7 +2,7 @@
 Provides a number of dataproviders which are associated with
 removable devices such as USB keys.
 
-It also includes classes specific to the ipod.
+It also includes classes specific to the ipod. 
 This file is not dynamically loaded at runtime in the same
 way as the other dataproviders as it needs to be loaded all the time in
 order to listen to HAL events
@@ -13,12 +13,6 @@ License: GPLv2
 import os
 import pickle
 import logging
-import time
-import socket
-import locale
-import weakref
-import threading
-DEFAULT_ENCODING = locale.getpreferredencoding()
 log = logging.getLogger("modules.iPod")
 
 import conduit
@@ -30,13 +24,9 @@ import conduit.datatypes.Note as Note
 import conduit.datatypes.Contact as Contact
 import conduit.datatypes.Event as Event
 import conduit.datatypes.File as File
-import conduit.datatypes.Audio as Audio
-import conduit.datatypes.Video as Video
-
-from gettext import gettext as _
 
 MODULES = {
-    "iPodFactory" :         { "type":   "dataprovider-factory"  },
+        "iPodFactory" :         { "type":   "dataprovider-factory"  }
 }
 
 try:
@@ -54,7 +44,7 @@ def _string_to_unqiue_file(txt, base_uri, prefix, postfix=''):
         f = File.File(uri)
         if not f.exists():
             break
-
+    
     temp = Utils.new_tempfile(txt)
     temp.transfer(uri, True)
     temp.set_UID(filename)
@@ -65,27 +55,27 @@ class iPodFactory(VolumeFactory.VolumeFactory):
         if props.has_key("info.parent") and props.has_key("info.parent")!="":
             prop2 = self._get_properties(props["info.parent"])
             if prop2.has_key("storage.model") and prop2["storage.model"]=="iPod":
-                return True
+               return True
         return False
 
     def get_category(self, udi, **kwargs):
         return DataProviderCategory.DataProviderCategory(
                     kwargs['label'],
-                    "multimedia-player-ipod-standard-color",
+                    "multimedia-player-ipod-video-white",
                     kwargs['mount'])
 
     def get_dataproviders(self, udi, **kwargs):
         if LIBGPOD_PHOTOS:
-            #Read information about the ipod, like if it supports
+            #Read information about the ipod, like if it supports 
             #photos or not
             d = gpod.itdb_device_new()
             gpod.itdb_device_set_mountpoint(d,kwargs['mount'])
             supportsPhotos = gpod.itdb_device_supports_photo(d)
             gpod.itdb_device_free(d)
             if supportsPhotos:
-                return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
+                return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
 
-        return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
+        return [IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
 
 
 class IPodBase(DataProvider.TwoWay):
@@ -102,7 +92,7 @@ class IPodBase(DataProvider.TwoWay):
         #Also checks directory exists
         if not os.path.exists(self.dataDir):
             os.mkdir(self.dataDir)
-
+        
         #When acting as a source, only notes in the Notes dir are
         #considered
         for f in os.listdir(self.dataDir):
@@ -128,10 +118,10 @@ class IPodBase(DataProvider.TwoWay):
 
     def _get_unique_filename(self, directory):
         """
-        Returns the name of a non-existant file on the
+        Returns the name of a non-existant file on the 
         ipod within directory
-
-        @param directory: Name of the directory within the device root to make
+        
+        @param directory: Name of the directory within the device root to make 
         the random file in
         """
         done = False
@@ -140,15 +130,15 @@ class IPodBase(DataProvider.TwoWay):
             if not os.path.exists(f):
                 done = True
         return f
-
+        
 class IPodNoteTwoWay(IPodBase):
     """
-    Stores Notes on the iPod.
+    Stores Notes on the iPod. 
     Rather than requiring a perfect transform to and from notes to the
-    ipod note format I also store the original note data in a
+    ipod note format I also store the original note data in a 
     .conduit directory in the root of the iPod.
 
-    Notes are saved as title.txt and a copy of the raw note is saved as
+    Notes are saved as title.txt and a copy of the raw note is saved as 
     title.note
 
     LUID is the note title
@@ -160,7 +150,7 @@ class IPodNoteTwoWay(IPodBase):
     _in_type_ = "note"
     _out_type_ = "note"
     _icon_ = "tomboy"
-
+    
     # datatypes.Note doesn't care about encoding,
     # lets be naive and assume that all notes are utf-8
     ENCODING_DECLARATION = '<?xml encoding="utf-8"?>'
@@ -168,7 +158,7 @@ class IPodNoteTwoWay(IPodBase):
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
 
-        self.dataDir = os.path.join(self.mountPoint, 'Notes')
+        self.dataDir = os.path.join(self.mountPoint, 'Notes')        
         self.objects = []
 
     def _get_shadow_dir(self):
@@ -189,7 +179,7 @@ class IPodNoteTwoWay(IPodBase):
                 n = pickle.load(raw)
                 raw.close()
                 return n
-            except:
+            except: 
                 raw.close()
 
         noteURI = os.path.join(self.dataDir, uid)
@@ -205,7 +195,7 @@ class IPodNoteTwoWay(IPodBase):
         n.set_mtime(noteFile.get_mtime())
         n.set_open_URI(noteURI)
         return n
-
+    
     def _save_note_to_ipod(self, uid, note):
         """
         Save a simple iPod note in /Notes
@@ -218,11 +208,11 @@ class IPodNoteTwoWay(IPodBase):
         if not self.ENCODING_DECLARATION in contents:
             contents = ''.join([self.ENCODING_DECLARATION, contents])
         ipodnote = Utils.new_tempfile(contents)
-
+        
         ipodnote.transfer(os.path.join(self.dataDir,uid), overwrite=True)
         ipodnote.set_mtime(note.get_mtime())
         ipodnote.set_UID(uid)
-
+        
         #the raw pickled note for sync
         raw = open(os.path.join(self._get_shadow_dir(),uid),'wb')
         pickle.dump(note, raw, -1)
@@ -234,7 +224,7 @@ class IPodNoteTwoWay(IPodBase):
         #Check if both the shadow copy and the ipodified version exists
         shadowDir = self._get_shadow_dir()
         return os.path.exists(os.path.join(shadowDir,uid)) and os.path.exists(os.path.join(self.dataDir,uid))
-
+                
     def get(self, LUID):
         DataProvider.TwoWay.get(self, LUID)
         return self._get_note_from_ipod(LUID)
@@ -256,11 +246,11 @@ class IPodNoteTwoWay(IPodBase):
                     #only overwrite if newer
                     log.warn("OVERWRITE IF NEWER NOT IMPLEMENTED")
                     return self._save_note_to_ipod(LUID, note)
-
+    
         #make a new note
         log.warn("CHECK IF EXISTS, COMPARE, SAVE")
         return self._save_note_to_ipod(note.title, note)
-
+    
     def delete(self, LUID):
         IPodBase.delete(self, LUID)
 
@@ -278,7 +268,7 @@ class IPodContactsTwoWay(IPodBase):
     _icon_ = "contact-new"
 
     def __init__(self, *args):
-        IPodBase.__init__(self, *args)
+        IPodBase.__init__(self, *args)        
         self.dataDir = os.path.join(self.mountPoint, 'Contacts')
 
     def get(self, LUID):
@@ -301,7 +291,7 @@ class IPodContactsTwoWay(IPodBase):
             f.transfer(os.path.join(self.dataDir, LUID), overwrite=True)
             f.set_UID(LUID)
             return f.get_rid()
-
+        
         return _string_to_unqiue_file(contact.get_vcard_string(), self.dataDir, 'contact')
 
 class IPodCalendarTwoWay(IPodBase):
@@ -357,10 +347,10 @@ class IPodPhotoSink(IPodBase):
         self.db = gpod.PhotoDatabase(self.mountPoint)
         self.albumName = "Conduit"
         self.album = None
-
+        
     def _set_sysinfo(self, modelnumstr, model):
         gpod.itdb_device_set_sysinfo(self.db._itdb.device, modelnumstr, model)
-
+        
     def _get_photo_album(self, albumName):
         for album in self.db.PhotoAlbums:
             if album.name == albumName:
@@ -377,14 +367,14 @@ class IPodPhotoSink(IPodBase):
         else:
             album = self.db.new_PhotoAlbum(title=albumName)
         return album
-
+        
     def _get_photo_by_id(self, id):
         for album in self.db.PhotoAlbums:
             for photo in album:
                 if str(photo['id']) == str(id):
                     return photo
         return None
-
+        
     def _delete_album(self, albumName):
         if albumName == self.SAFE_PHOTO_ALBUM:
             log.warn("Cannot delete album: %s" % self.SAFE_PHOTO_ALBUM)
@@ -393,7 +383,7 @@ class IPodPhotoSink(IPodBase):
             for photo in album[:]:
                 album.remove(photo)
             self.db.remove(album)
-
+            
     def _empty_all_photos(self):
         for photo in self.db.PhotoAlbums[0][:]:
             self.db.remove(photo)
@@ -426,7 +416,7 @@ class IPodPhotoSink(IPodBase):
             self.db.remove(photo)
             gpod.itdb_photodb_write(self.db._itdb, None)
 
-    def configure(self, window):
+    def configure(self, window):    
         import gobject
         import gtk
         def build_album_model(albumCombo):
@@ -451,11 +441,11 @@ class IPodPhotoSink(IPodBase):
             if albumName:
                 self._delete_album(albumName)
                 build_album_model(albumCombo)
-
+ 
         #get a whole bunch of widgets
         tree = Utils.dataprovider_glade_get_widget(
-                        __file__,
-                        "config.glade",
+                        __file__, 
+                        "config.glade", 
                         "PhotoConfigDialog")
         albumCombo = tree.get_widget("album_combobox")
         delete_button = tree.get_widget("delete_button")
@@ -466,19 +456,19 @@ class IPodPhotoSink(IPodBase):
         cell = gtk.CellRendererText()
         albumCombo.pack_start(cell, True)
         albumCombo.set_text_column(0)
-
+        
         #setup widgets
         build_album_model(albumCombo)
         delete_button.connect('clicked', delete_click, albumCombo)
 
-        # run dialog
+        # run dialog 
         dlg = tree.get_widget("PhotoConfigDialog")
         response = Utils.run_dialog(dlg, window)
 
         if response == True:
             #get the values from the widgets
             self.albumName = albumCombo.get_active_text()
-        dlg.destroy()
+        dlg.destroy()    
 
         del self.album_store
 
@@ -487,373 +477,5 @@ class IPodPhotoSink(IPodBase):
 
     def uninitialize(self):
         self.db.close()
+                
 
-STR_CONV = lambda v: unicode(v).encode('UTF-8','replace')
-INT_CONV = lambda v: int(v)
-
-class IPodFileBase:
-    # Supported tags from the Audio class supported in the iPod database
-    SUPPORTED_TAGS = ['title', 'artist', 'album', 'composer', 'rating',
-        'genre', 'track-number', 'track-count', 'bitrate', 'duration',
-        'samplerate']
-    # Conversion between Audio names and iPod names in tags
-    KEYS_CONV = {'duration': 'tracklen',
-                 'track-number': 'track_nr',
-                 'track-count': 'tracks'}
-    # Convert values into their native types
-    VALUES_CONV = {
-        'rating': lambda v: float(v) / 0.05,
-        'samplerate': INT_CONV,
-        'bitrate': INT_CONV,
-        'track-number': INT_CONV,
-        'track-count': INT_CONV,
-        'duration': INT_CONV,
-        'width': INT_CONV,
-        'height': INT_CONV
-    }
-
-    def __init__(self, db):
-        self.db = db
-        self.track = self.db.new_Track()
-
-    def set_info_from_file(self, f):
-        # Missing: samplerate (int), samplerate2 (float), bitrate (int),
-        # composer (str), filetype (str, "MPEG audio file"), mediatype (int, 1)
-        # tracks (int)
-        # unk126 (int, "65535"), unk144 (int, "12"),
-        tags = f.get_media_tags()
-        for key, value in tags.iteritems():
-            if key not in self.SUPPORTED_TAGS:
-                continue
-            if key in self.VALUES_CONV:
-                # Convert values into nativa types
-                tag_value = self.VALUES_CONV[key](value)
-            else:
-                # Encode into UTF-8
-                tag_value = STR_CONV(value)
-            if key in self.KEYS_CONV:
-                tag_name = self.KEYS_CONV[key]
-            else:
-                tag_name = key
-            self.track[tag_name] = tag_value
-        print self.track['title']
-        if self.track['title'] is None:
-            self.track['title'] = os.path.basename(f.get_local_uri())
-            print self.track['title']
-        self.track['time_modified'] = os.stat(f.get_local_uri()).st_mtime
-        self.track['time_added'] = int(time.time())
-        self.track['userdata'] = {'transferred': 0,
-                                  'hostname': socket.gethostname(),
-                                  'charset': DEFAULT_ENCODING}
-        self.track._set_userdata_utf8('filename', f.get_local_uri())
-
-    #FIXME: Remove this. Use native operations from Conduit instead.
-    def copy_ipod(self):
-        self.track.copy_to_ipod()
-
-class IPodAudio(Audio.Audio, IPodFileBase):
-    def __init__(self, f, db, **kwargs):
-        Audio.Audio.__init__(self, f.get_local_uri())
-        IPodFileBase.__init__(self, db)
-        self.set_info_from_audio(f)
-
-    def set_info_from_audio(self, audio):
-        self.set_info_from_file(audio)
-        self.track['mediatype'] = gpod.ITDB_MEDIATYPE_AUDIO
-        cover_location = audio.get_audio_cover_location()
-        if cover_location:
-            self.track.set_coverart_from_file(str(cover_location))
-
-class IPodVideo(Video.Video, IPodFileBase):
-    def __init__(self, f, db, **kwargs):
-        Video.Video.__init__(self, f.get_local_uri())
-        IPodFileBase.__init__(self, db)
-        log.debug('Video kind selected: %s' % (kwargs['video_kind']))
-        self.video_kind = kwargs['video_kind']
-        self.set_info_from_video(f)
-
-    def set_info_from_video(self, video):
-        self.set_info_from_file(video)
-        #FIXME: Movie should be a choice between Movie, MusicVideo, TvShow and Podcast
-        self.track['mediatype'] = {'movie': gpod.ITDB_MEDIATYPE_MOVIE,
-                                   'musicvideo': gpod.ITDB_MEDIATYPE_MUSICVIDEO,
-                                   'tvshow': gpod.ITDB_MEDIATYPE_TVSHOW,
-                                   'podcast': gpod.ITDB_MEDIATYPE_PODCAST
-                                   } [self.video_kind]
-
-class DBCache:
-    '''
-    Keeps a list of open GPod databases.
-
-    Keeps one database open for each mount-point.
-    Automatically disposes unused databases.
-    '''
-    __db_list = weakref.WeakValueDictionary()
-    __db_locks = weakref.WeakKeyDictionary()
-    __lock = threading.Lock()
-
-    @classmethod
-    def get_db(self, mount_point):
-        self.__lock.acquire()
-        try:
-            if mount_point in self.__db_list:
-                log.debug('Getting DB in cache for %s' % (mount_point))
-                db = self.__db_list[mount_point]
-                #self.__db_locks[db][1] += 1
-            else:
-                if mount_point:
-                    log.debug('Creating DB for %s' % mount_point)
-                    db = gpod.Database(mount_point)
-                else:
-                    log.debug('Creating local DB')
-                    db = gpod.Database(local=True)
-                self.__db_list[mount_point] = db
-                self.__db_locks[db] = threading.Lock()
-            return db
-        finally:
-            self.__lock.release()
-
-    @classmethod
-    def release_db(self, db):
-        assert db in self.__db_locks
-        log.debug('Releasing DB for %s' % db)
-        #self.__db_locks[db][1] -= 1
-
-    @classmethod
-    def lock_db(self, db):
-        assert db in self.__db_locks
-        #if self.__db_locks[db][1] == 1:
-        #    log.debug('Not locking DB for %s' % db)
-        #    return
-        log.debug('Locking DB %s' % db)
-        self.__db_locks[db].acquire()
-
-    @classmethod
-    def unlock_db(self, db):
-        assert db in self.__db_locks
-        log.debug('Unlocking DB %s' % db)
-        #lock = self.__db_locks[db][0]
-        #if lock.locked():
-        self.__db_locks[db].release()
-
-class IPodMediaTwoWay(IPodBase):
-    FORMAT_CONVERSION_STRING = _("Encoding")
-
-    def __init__(self, *args):
-        if len(args) != 0:
-            IPodBase.__init__(self, *args)
-            self.db = DBCache.get_db(self.mountPoint)
-        else:
-            # Use local database for testing
-            DataProvider.TwoWay.__init__(self)
-            self.db = DBCache.get_db(None)
-            self.uid = "Local"
-        #self.tracks = {}
-        self.tracks_id = {}
-        self.track_args = {}
-
-    def refresh(self):
-        DataProvider.TwoWay.refresh(self)
-        self.tracks = {}
-        self.tracks_id = {}
-        DBCache.lock_db(self.db)
-        try:
-            def add_track(track):
-                self.tracks_id[track['dbid']] = track
-                #FIXME: We dont need this do we?
-                #self.tracks[(track['artist'], track['title'])] = track
-            [add_track(track) for track in self.db \
-                if track['mediatype'] in self._mediatype_]
-        finally:
-            DBCache.unlock_db(self.db)
-
-    def get_all(self):
-        return self.tracks_id.keys()
-
-    def get(self, LUID = None):
-        DBCache.lock_db(self.db)
-        try:
-            track = self.tracks_id[LUID]
-            if track and track.ipod_filename() and os.path.exists(track.ipod_filename()):
-                f = self._mediafile_(URI=track.ipod_filename())
-                f.set_UID(LUID)
-                f.set_open_URI(track.ipod_filename())
-                if track['artist'] and track['title']:
-                    f.force_new_filename("%(artist)s - %(title)s" % track + \
-                        os.path.splitext(track.ipod_filename())[1])
-                return f
-        finally:
-            DBCache.unlock_db(self.db)
-        return None
-
-    def put(self, f, overwrite, LUID=None):
-        DBCache.lock_db(self.db)
-        try:
-            media_file = self._ipodmedia_(f, self.db, **self.track_args)
-            #FIXME: We keep the db locked while we copy the file. Not good
-            media_file.copy_ipod()
-            #FIXME: Writing the db here is for debug only. Closing does not actually
-            # close the db, it only writes it's contents to disk.
-            
-            # Sometimes, if we only close the db when the sync is over, it might
-            # take a long time to close the db, because many files are being 
-            # copied to the iPod. Closing the DB every time not only keeps
-            # this time small, but also keeps the db more consistent in case of 
-            # a crash. But it also incurs a big overhead. 
-            # Maybe a batch update could be a better solution (close after 5 tracks?)
-            self.db.close()
-            return media_file
-        finally:
-            DBCache.unlock_db(self.db)
-
-    def delete(self, LUID):
-        track = self.tracks_id[LUID]
-        if track:
-            DBCache.lock_db(db)
-            try:
-                self.db.remove(track)
-                self.db.close()
-            finally:
-                DBCache.unlock_db(db)
-
-    def get_config_items(self):
-        import gtk
-        def dict_update(a, b):
-            a.update(b)
-            return a
-        #Get an array of encodings, so it can be indexed inside a combobox
-        self.config_encodings = [dict_update({'name': name}, value) for name, value in self.encodings.iteritems()]
-        initial = None
-        for encoding in self.config_encodings:
-            if encoding['name'] == self.encoding:
-                initial = encoding.get('description', None) or encoding['name']
-
-        def selectEnc(index, text):
-            self.encoding = self.config_encodings[index]['name']
-            log.debug('Encoding %s selected' % self.encoding)
-            
-        return [
-                    {
-                    "Name" : self.FORMAT_CONVERSION_STRING,
-                    "Kind" : "list",
-                    "Callback" : selectEnc,
-                    "Values" : [encoding.get('description', None) or encoding['name'] for encoding in self.config_encodings],
-                    "InitialValue" : initial
-                    }
-                ]        
-
-    def configure(self, window):
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, self.get_config_items())
-        dialog.run()
-
-    def set_configuration(self, config):
-        if 'encoding' in config:
-            self.encoding = config['encoding']
-
-    def get_configuration(self):
-        return {'encoding':self.encoding}
-
-    def get_input_conversion_args(self):
-        try:
-            return self.encodings[self.encoding]
-        except KeyError:
-            return {}
-
-    def uninitialize(self):
-        self.db.close()
-        DBCache.release_db(self.db)
-        self.db = None
-
-IPOD_AUDIO_ENCODINGS = {
-    "mp3": {"description": "Mp3", "acodec": "lame", "file_extension": "mp3"},
-    #FIXME: Does AAC needs a MP4 mux?
-    "aac": {"description": "AAC", "acodec": "faac", "file_extension": "m4a"},
-    }
-
-class IPodMusicTwoWay(IPodMediaTwoWay):
-
-    _name_ = "Music"
-    _description_ = "Sync your iPod music"
-    _module_type_ = "twoway"
-    _in_type_ = "file/audio"
-    _out_type_ = "file/audio"
-    _icon_ = "audio-x-generic"
-    _configurable_ = True
-
-    _mediatype_ = (gpod.ITDB_MEDIATYPE_AUDIO,)
-    _mediafile_ = Audio.Audio
-    _ipodmedia_ = IPodAudio
-
-    def __init__(self, *args):
-        IPodMediaTwoWay.__init__(self, *args)
-        self.encodings = IPOD_AUDIO_ENCODINGS
-        self.encoding = 'aac'
-
-IPOD_VIDEO_ENCODINGS = {
-    "mp4_x264":{"description": "MP4 (H.264)","vcodec":"x264enc", "acodec":"faac", "format":"ffmux_mp4", "file_extension":"m4v", "width": 320, "height": 240},
-    "mp4_xvid":{"description": "MP4 (XVid)","vcodec":"xvidenc", "acodec":"faac", "format":"ffmux_mp4", "file_extension":"m4v", "width": 320, "height": 240},
-    }
-
-class IPodVideoTwoWay(IPodMediaTwoWay):
-
-    _name_ = "Video"
-    _description_ = "Sync your iPod videos"
-    _module_type_ = "twoway"
-    _in_type_ = "file/video"
-    _out_type_ = "file/video"
-    _icon_ = "video-x-generic"
-    _configurable_ = True
-
-    _mediatype_ = (gpod.ITDB_MEDIATYPE_MUSICVIDEO,
-                   gpod.ITDB_MEDIATYPE_MOVIE,
-                   gpod.ITDB_MEDIATYPE_TVSHOW)
-    _mediafile_ = Video.Video
-    _ipodmedia_ = IPodVideo
-
-    def __init__(self, *args):
-        IPodMediaTwoWay.__init__(self, *args)
-        self.encodings = IPOD_VIDEO_ENCODINGS
-        self.encoding = 'mp4_x264'
-        self.video_kind = 'movie'
-        self._update_track_args()
-        
-    def _update_track_args(self):
-        self.track_args['video_kind'] = self.video_kind
-
-    def get_config_items(self):
-        video_kinds = [('Movie', 'movie'), 
-                       ('Music Video', 'musicvideo'),
-                       ('TV Show', 'tvshow')]
-        initial = None
-        for description, name in video_kinds:
-            if name == self.video_kind:
-                initial = description
-
-        def selectKind(index, text):
-            self.video_kind = video_kinds[index][1]
-            self._update_track_args()
-
-        items = IPodMediaTwoWay.get_config_items(self)
-        items.append( 
-                        {
-                            "Name" : "Video Kind",
-                            "Kind" : "list",
-                            "Callback" : selectKind,
-                            "Values" : [description for description, name in video_kinds],
-                            "InitialValue" : initial
-                        } 
-                    )             
-                    
-        return items
-    
-    def set_configuration(self, config):
-        IPodMediaTwoWay.set_configuration(self, config)
-        if 'video_kind' in config:
-            self.encoding = config['video_kind']
-
-    def get_configuration(self):
-        config = IPodMediaTwoWay.get_configuration(self)
-        config.update({'encoding':self.encoding})
-        return config

@@ -60,35 +60,23 @@ class GenericDBListStore(gtk.GenericTreeModel):
     def _on_inserted(self, db, oid):
         self.oidcache = []
         offset = self._get_offset(oid)
-        try:
-            rowref = self.get_iter(offset)
-            path = self.get_path(rowref)
-            self.row_inserted(path, rowref)
-        except ValueError:
-            #not a valid rowref
-            pass
+        rowref = self.get_iter(offset)
+        path = self.get_path(rowref)
+        self.row_inserted(path, rowref)
                 
     def _on_modified(self, db, oid):
         self.oidcache = []
         offset = self._get_offset(oid)
-        try:
-            rowref = self.get_iter(offset)
-            path = self.get_path(rowref)
-            self.row_changed(path, rowref)
-        except ValueError:
-            #not a valid rowref
-            pass
+        rowref = self.get_iter(offset)
+        path = self.get_path(rowref)
+        self.row_changed(path, rowref)
         
     def _on_deleted(self, db, oid):
         self.oidcache = []
         offset = self._get_offset(oid)
-        try:
-            rowref = self.get_iter(offset)
-            path = self.get_path(rowref)
-            self.row_deleted(path)
-        except ValueError:
-            #not a valid rowref
-            pass
+        rowref = self.get_iter(offset)
+        path = self.get_path(rowref)
+        self.row_deleted(path)
 
     def _get_n_rows(self):
         """

@@ -406,8 +406,8 @@ class DataSink(DataProviderBase):
         @type putData: A L{conduit.DataType.DataType} derived type that this 
         dataprovider is capable of handling
         @param overwrite: If this argument is True, the DP should overwrite
-        an existing datatype instance (if one exists). Generally used in
-        conflict resolution. 
+        an existing datatype instace (if one exists). Generally used in conflict
+        resolution. 
         @type overwrite: C{bool}
         @param LUID: A locally unique identifier representing the location
         where the data was previously put.

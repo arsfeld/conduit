@@ -256,9 +256,6 @@ class ModuleWrapper:
         
     def instantiate_module(self):
         self.module = self.klass(*self.initargs)
-        
-    def is_pending(self):
-        return self.module == None
 
 class PendingDataproviderWrapper(ModuleWrapper):
     def __init__(self, key):

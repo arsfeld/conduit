@@ -5,14 +5,5 @@ LIB_DIR = "@LIBDIR@"
 LOCALE_DIR = "@LOCALEDIR@"
 SHARED_DATA_DIR = "@PKGDATADIR@"
 SHARED_MODULE_DIR = "@MODULEDIR@"
-
-#
-# Platform specific implementations
-#
-
-#{gtkmozembed, webkit, system}
-BROWSER_IMPL = "gtkmozembed"
-
-#{GConf,Python}
 SETTINGS_IMPL = "GConf"
 

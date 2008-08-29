@@ -1,5 +1,65 @@
 import gobject
 
+class File:
+
+    def __init__(self, URI):
+        pass
+        
+    def get_text_uri(self):
+        raise NotImplementedError
+        
+    def get_path(self):
+        raise NotImplementedError
+        
+    def is_local(self):
+        raise NotImplementedError
+        
+    def is_directory(self):
+        raise NotImplementedError
+        
+    def delete(self):
+        raise NotImplementedError
+        
+    def exists(self):
+        raise NotImplementedError
+        
+    def set_mtime(self, timestamp=None, datetime=None):
+        raise NotImplementedError        
+        
+    def set_filename(self, filename):
+        raise NotImplementedError
+        
+    def get_mtime(self):
+        raise NotImplementedError
+
+    def get_filename(self):
+        raise NotImplementedError
+        
+    def get_contents(self):
+        raise NotImplementedError
+
+    def get_mimetype(self):
+        raise NotImplementedError
+        
+    def get_size(self):
+        raise NotImplementedError
+
+    def set_props(self, **props):
+        raise NotImplementedError
+        
+    def close(self):
+        raise NotImplementedError
+        
+class FileTransfer:
+    def __init__(self, source, dest):
+        pass
+        
+    def set_destination_filename(self, name):
+        raise NotImplementedError
+        
+    def transfer(self, cancel_func):
+        raise NotImplementedError
+
 class Settings:
 
     def __init__(self, defaults, changedCb):

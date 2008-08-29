@@ -16,7 +16,6 @@ conduit_PYTHON = \
 	Exceptions.py \
 	Globals.py \
 	__init__.py \
-	Knowledge.py \
 	Logging.py \
 	Main.py \
 	MappingDB.py \

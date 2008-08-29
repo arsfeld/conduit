@@ -170,15 +170,13 @@ def dialog_set_busy_cursor(dlg):
     Sets the dialog to display the busy cursor
     """
     import gtk.gdk
-    if dlg and dlg.window:
-        dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+    dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
     
 def dialog_reset_cursor(dlg):
     """
     Resets the dialog to display the plain Gtk cursor
     """
-    if dlg and dlg.window:
-        dlg.window.set_cursor(None)
+    dlg.window.set_cursor(None)
 
 def md5_string(string):
     """

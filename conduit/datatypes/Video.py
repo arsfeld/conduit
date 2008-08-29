@@ -1,20 +1,15 @@
 import conduit
 import conduit.datatypes.File as File
-import conduit.utils.MediaFile as MediaFile
 
 #The preset encodings must be robust. That means, in the case of ffmpeg,
 #you must be explicit with the options, otherwise it tries to retain sample
 #rates between the input and output files, leading to invalid rates in the output
-# "arate":44100, "abitrate":"64k"
-# "fps":15
 PRESET_ENCODINGS = {
-    "divx":{"vcodec":"xvidenc", "acodec":"lame", "format":"avimux", "vtag":"DIVX", "file_extension":"avi", },
+    "divx":{"vcodec":"mpeg4","acodec":"ac3","arate":44100,"abitrate":"64k","format":"avi","vtag":"DIVX","file_extension":"avi", "fps":15},
     #breaks on single channel audio files because ffmpeg vorbis encoder only suuport stereo
-    "ogg":{"vcodec":"theoraenc", "acodec":"vorbisenc", "format":"oggmux", "file_extension":"ogg"},
+    "ogg":{"vcodec":"theora","acodec":"vorbis","format":"ogg","file_extension":"ogg"},
     #needs mencoder or ffmpeg compiled with mp3 support
-    #requires gst-ffmpeg and gst-plugins-ugly
-    "flv":{"vcodec":"ffenc_flv", "acodec":"lame", "format":"ffmux_flv", "file_extension":"flv"}
-    #"arate":22050,"abitrate":32,
+    "flv":{"arate":22050,"abitrate":32,"format":"flv","acodec":"mp3","mencoder":True,"file_extension":"flv"}   
     }
 
 def mimetype_is_video(mimetype):
@@ -28,15 +23,37 @@ def mimetype_is_video(mimetype):
     else:
         return False
 
-class Video(MediaFile.MediaFile):
+class Video(File.File):
 
     _name_ = "file/video"
 
     def __init__(self, URI, **kwargs):
-        MediaFile.MediaFile.__init__(self, URI, **kwargs)
+        File.File.__init__(self, URI, **kwargs)
+        self._title = None
+        self._description = None
 
     def get_video_duration(self):
-        return _get_metadata('duration')
+        return None
 
     def get_video_size(self):
-        return _get_metadata('width'),_get_metadata('height')
+        return None,None
+
+    def get_description(self):
+        """
+        @returns: the video's description
+        """
+        return self._description
+
+    def set_description(self, description):
+        self._description = description
+        
+    def __getstate__(self):
+        data = File.File.__getstate__(self)
+        data["description"] = self._description
+        return data
+
+    def __setstate__(self, data):
+        self.pb = None
+        self._description = data["description"]
+        File.File.__setstate__(self, data)
+

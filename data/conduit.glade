@@ -17,12 +17,12 @@
           <widget class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkMenuItem" id="file_menu_item">
+              <widget class="GtkMenuItem" id="file_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child>
-                  <widget class="GtkMenu" id="file_menu">
+                  <widget class="GtkMenu" id="file1_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="save1">
                         <property name="visible">True</property>
@@ -85,7 +85,7 @@
               </widget>
             </child>
             <child>
-              <widget class="GtkMenuItem" id="edit_menu_item">
+              <widget class="GtkMenuItem" id="edit_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Edit</property>
                 <property name="use_underline">True</property>
@@ -125,7 +125,7 @@
               </widget>
             </child>
             <child>
-              <widget class="GtkMenuItem" id="help_menu_item">
+              <widget class="GtkMenuItem" id="help_menu">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
@@ -209,18 +209,13 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <widget class="GtkVBox" id="mainVbox">
+                  <widget class="GtkScrolledWindow" id="canvasScrolledWindow">
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
+                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                     <child>
-                      <widget class="GtkScrolledWindow" id="canvasScrolledWindow">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
-                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </widget>
+                      <placeholder/>
                     </child>
                   </widget>
                   <packing>
@@ -664,7 +659,6 @@
     <child internal-child="vbox">
       <widget class="GtkVBox" id="configVBox">
         <property name="visible">True</property>
-        <property name="spacing">8</property>
         <child>
           <placeholder/>
         </child>
@@ -722,7 +716,7 @@
   </widget>
   <widget class="GtkDialog" id="PreferencesDialog">
     <property name="visible">True</property>
-    <property name="title" translatable="yes">Conduit Preferences</property>
+    <property name="title" translatable="yes">Conduit Properties</property>
     <property name="default_width">350</property>
     <property name="default_height">450</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
@@ -748,7 +742,6 @@
                         <child>
                           <widget class="GtkVBox" id="vbox29">
                             <property name="visible">True</property>
-                            <property name="spacing">5</property>
                             <child>
                               <widget class="GtkCheckButton" id="save_settings_check">
                                 <property name="visible">True</property>
@@ -794,10 +787,11 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkCheckButton" id="show_hints_check">
+                              <widget class="GtkCheckButton" id="web_check">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Show Hints</property>
+                                <property name="label" translatable="yes">Use built in Web browser</property>
+                                <property name="use_underline">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
                               </widget>
@@ -836,7 +830,6 @@
                         <child>
                           <widget class="GtkVBox" id="vbox34">
                             <property name="visible">True</property>
-                            <property name="spacing">5</property>
                             <child>
                               <widget class="GtkLabel" id="label78">
                                 <property name="visible">True</property>
@@ -846,71 +839,54 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkHBox" id="hbox1">
+                              <widget class="GtkRadioButton" id="deleted_ask">
                                 <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkVBox" id="vbox2">
-                                    <property name="visible">True</property>
-                                    <property name="spacing">5</property>
-                                    <child>
-                                      <widget class="GtkRadioButton" id="deleted_ask_radio">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Ask me what to do</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
-                                        <property name="draw_indicator">True</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkRadioButton" id="deleted_replace_radio">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Delete from the corresponding sink</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">deleted_ask_radio</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkRadioButton" id="deleted_skip_radio">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Skip</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">deleted_ask_radio</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">2</property>
-                                      </packing>
-                                    </child>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="padding">12</property>
-                                  </packing>
-                                </child>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Ask me what to do</property>
+                                <property name="use_underline">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkRadioButton" id="deleted_replace">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Delete from the corresponding sink</property>
+                                <property name="use_underline">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">deleted_ask</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkRadioButton" id="deleted_skip">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Skip</property>
+                                <property name="use_underline">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">deleted_ask</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                             <child>
@@ -922,72 +898,54 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="position">2</property>
+                                <property name="position">4</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkHBox" id="hbox2">
+                              <widget class="GtkRadioButton" id="conflict_ask">
                                 <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkVBox" id="vbox4">
-                                    <property name="visible">True</property>
-                                    <property name="spacing">5</property>
-                                    <child>
-                                      <widget class="GtkRadioButton" id="conflict_ask_radio">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Ask me what to do</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
-                                        <property name="draw_indicator">True</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkRadioButton" id="conflict_replace_radio">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Replace the older item</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">conflict_ask_radio</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkRadioButton" id="conflict_skip_radio">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="label" translatable="yes">Skip</property>
-                                        <property name="use_underline">True</property>
-                                        <property name="response_id">0</property>
-                                        <property name="draw_indicator">True</property>
-                                        <property name="group">conflict_ask_radio</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">2</property>
-                                      </packing>
-                                    </child>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="padding">12</property>
-                                  </packing>
-                                </child>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Ask me what to do</property>
+                                <property name="use_underline">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="position">3</property>
+                                <property name="fill">False</property>
+                                <property name="position">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkRadioButton" id="conflict_replace">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Replace the older item</property>
+                                <property name="use_underline">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">conflict_ask</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">6</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkRadioButton" id="conflict_skip">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Skip</property>
+                                <property name="use_underline">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">conflict_ask</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">7</property>
                               </packing>
                             </child>
                           </widget>

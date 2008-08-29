@@ -14,7 +14,6 @@ log = logging.getLogger("Module")
 
 import conduit.dataproviders
 import conduit.ModuleWrapper as ModuleWrapper
-import conduit.Knowledge as Knowledge
 import conduit.Vfs as Vfs
 
 class ModuleManager(gobject.GObject):
@@ -272,23 +271,6 @@ class ModuleManager(gobject.GObject):
         for i in self.moduleWrappers.values():
             if i.module_type == type_filter:
                 i.instantiate_module()
-                
-    def list_preconfigured_conduits(self):
-        #strip the keys back to the classnames, because the preconfigured dps
-        #are described in terms of classes, not instances (keys)
-        names = {}
-        for key in self.moduleWrappers:
-            names[key.split(":")[0]] = key
-            
-        #for a preconfigured conduit to be available, both the 
-        #source and sink must be loaded
-        found = []
-        for (source,sink),(comment,twoway) in Knowledge.PRECONFIGIRED_CONDUITS.items():
-            if source in names and sink in names:
-                #return key,key,desc,two-way
-                found.append( (names[source],names[sink],comment,twoway) )
-
-        return found
 
     def quit(self):
         for dpf in self.dataproviderFactories:

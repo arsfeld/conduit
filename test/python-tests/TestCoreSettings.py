@@ -10,7 +10,7 @@ SETTINGS = {
         'gui_expanded_rows'         :   [],
         'gui_hpane_postion'         :   250,
         'gui_minimize_to_tray'      :   False,
-        'default_policy_conflict'   :   "ask"
+        'web_login_browser'         :   "system"
 }
 
 for impl in ("GConf", "Python"):

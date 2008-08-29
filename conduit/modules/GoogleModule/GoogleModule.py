@@ -36,7 +36,7 @@ try:
     import gdata.youtube.service
 
     MODULES = {
-#        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
+        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeTwoWay" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
@@ -575,9 +575,6 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
             
     def _get_photo_formats (self):
         return ("image/jpeg",)
-
-    def _get_photo_size(self):
-        return self.imageSize
         
     def _upload_photo (self, uploadInfo):
         try:
@@ -590,7 +587,7 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
                 self.service.InsertTag(gphoto, str(tag))
             return Rid(uid=gphoto.gphoto_id.text)
         except Exception, e:
-            raise Exceptions.SyncronizeError("Picasa Upload Error:\n%s" % e)
+            raise Exceptions.SyncronizeError("Picasa Upload Error.")
 
     def _replace_photo(self, id, uploadInfo):
         try:
@@ -610,22 +607,17 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
 
             return Rid(uid=gphoto.gphoto_id.text)
         except Exception, e:
-            raise Exceptions.SyncronizeError("Picasa Update Error:\n%s" % e)
+            raise Exceptions.SyncronizeError("Picasa Update Error.")
 
-    def _find_album(self):
+    def _get_album(self):
         for name,album in self._get_albums():
             if name == self.albumName:
                 log.debug("Found album %s" % self.albumName)
-                return album
+                self.galbum = album
+                return
 
-        return None
-
-    def _get_album(self):
-        self.galbum = self._find_album()
-        if not self.galbum:
-            log.debug("Creating new album %s." % self.albumName)
-            self._create_album(self.albumName)
-            self.galbum = self._find_album()
+        log.debug("Creating new album %s." % self.albumName)
+        self.galbum = self._create_album(self.albumName)
 
     def _get_albums(self):
         albums = []
@@ -658,8 +650,6 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
         if not self.loggedIn:
             raise Exceptions.RefreshError("Could not log in")
         self._get_album()
-        if self.galbum:
-            self._get_photos()
 
     def get_all (self):
         Image.ImageTwoWay.get_all(self)
@@ -1272,6 +1262,9 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
         return False
 
     def configure(self, window):
+        """
+        Configures the PicasaTwoWay
+        """
         import gtk
 
         def make_combo(widget, docType, val, values):
@@ -1348,7 +1341,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
     """
     _name_ = _("YouTube")
     _description_ = _("Sync data from YouTube")
-    _category_ = conduit.dataproviders.CATEGORY_MEDIA
+    _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
     _in_type_ = "file/video"
     _out_type_ = "file/video"
