@@ -83,7 +83,8 @@ class File(DataType.DataType):
         
     def _is_tempfile(self):
         tmpdir = tempfile.gettempdir()
-        if self._file.is_local() and self._file.get_path().startswith(tmpdir):
+        path = self._file.get_local_path()
+        if self._file.is_local() and path and path.startswith(tmpdir):
             return True
         else:
             return False
@@ -316,9 +317,8 @@ class File(DataType.DataType):
         @returns: local absolute path the the file or None on error
         @rtype: C{string}
         """
-        if self.is_local():
-            return self._file.get_path()
-        else:
+        path = self._file.get_local_path()
+        if not path:
             return self.to_tempfile()
             
     def get_relative_uri(self):

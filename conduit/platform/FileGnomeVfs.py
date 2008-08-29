@@ -31,8 +31,11 @@ class FileImpl(conduit.platform.File):
     def get_text_uri(self):
         return str(self._URI)
         
-    def get_path(self):
-        return self._URI.path
+    def get_local_path(self):
+        if self.is_local():
+            return self._URI.path
+        else:
+            return None
         
     def is_local(self):
         return self._URI.is_local

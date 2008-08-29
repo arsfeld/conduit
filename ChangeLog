@@ -1,3 +1,10 @@
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/datatypes/File.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py: Refactor the returning of local
+	paths to make it easier for gio.
+
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/datatypes/File.py:

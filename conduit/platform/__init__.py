@@ -8,7 +8,7 @@ class File:
     def get_text_uri(self):
         raise NotImplementedError
         
-    def get_path(self):
+    def get_local_path(self):
         raise NotImplementedError
         
     def is_local(self):
