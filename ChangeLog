@@ -1,5 +1,8 @@
 2008-08-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/UI.py: I think I only need to call the gnome.ui auth
+	manager stuff for gnomevfs.
+
 	* conduit/platform/Makefile.am: Add file implementations to dist
 
 2008-08-27  John Stowers  <john.stowers@gmail.com>

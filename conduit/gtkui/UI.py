@@ -9,7 +9,6 @@ License: GPLv2
 import thread
 import gobject
 import gtk, gtk.glade
-import gnome.ui
 import os.path
 import gettext
 import threading
@@ -78,7 +77,9 @@ class MainWindow:
         Constructs the mainwindow. Throws up a splash screen to cover 
         the most time consuming pieces
         """
-        gnome.ui.authentication_manager_init()        
+        if conduit.FILE_IMPL == "GnomeVfs":
+            import gnome.ui
+            gnome.ui.authentication_manager_init()        
 
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
