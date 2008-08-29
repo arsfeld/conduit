@@ -609,15 +609,20 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
         except Exception, e:
             raise Exceptions.SyncronizeError("Picasa Update Error.")
 
-    def _get_album(self):
+    def _find_album(self):
         for name,album in self._get_albums():
             if name == self.albumName:
                 log.debug("Found album %s" % self.albumName)
-                self.galbum = album
-                return
+                return album
 
-        log.debug("Creating new album %s." % self.albumName)
-        self.galbum = self._create_album(self.albumName)
+        return None
+
+    def _get_album(self):
+        self.galbum = self._find_album()
+        if not self.galbum:
+            log.debug("Creating new album %s." % self.albumName)
+            self._create_album(self.albumName)
+            self.galbum = self._find_album()
 
     def _get_albums(self):
         albums = []

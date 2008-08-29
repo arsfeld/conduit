@@ -48,7 +48,7 @@ def uri_join(first, *rest):
     Joins multiple uri components. Performs safely if the first
     argument contains a uri scheme
     """
-    assert type(first) == str
+    first = _ensure_type(first)
     return os.path.join(first,*rest)
     #idx = first.rfind("://")
     #if idx == -1:
@@ -61,8 +61,8 @@ def uri_get_relative(fromURI, toURI):
     """
     Returns the relative path fromURI --> toURI
     """
-    assert type(fromURI) == str
-    assert type(toURI) == str
+    fromURI = _ensure_type(fromURI)
+    toURI = _ensure_type(toURI)
     rel = toURI.replace(fromURI,"")
     #strip leading /
     if rel[0] == os.sep:

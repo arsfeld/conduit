@@ -1,3 +1,13 @@
+2008-08-16  Christian Kirbach  <Christian.Kirbach@googlemail.com>
+
+	* Makefile.am: Added de to DOC_LINGUAS.
+	* de/de.po: Added German translations by Mario Blättermann.
+
+2008-08-06  Claude Paroz  <claude@2xlibre.net>
+
+	* Makefile.am: Added fr to DOC_LINGUAS.
+	* fr/fr.po: Added French translation, by Bruno Brouard and Claude Paroz.
+
 2008-07-05  Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
 	* es/es.po: Updated Spanish translation

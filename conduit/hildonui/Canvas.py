@@ -47,6 +47,13 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
         self.dataproviderMenu = DataProviderMenu(self)
         # conduit context menu
         self.conduitMenu = ConduitMenu(self)
+
+    def _resize_welcome(self, width):
+        self.welcome.set_properties(
+                            x=width/2, 
+                            y=width/3, 
+                            width=3*width/5
+                            )
         
     def _create_welcome(self):
         c_x,c_y,c_w,c_h = self.get_bounds()
@@ -330,6 +337,7 @@ class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
 
+    BUTTONS = False
     FLAT_BOX = False
     DIVIDER = False
     LINE_WIDTH = 3.0

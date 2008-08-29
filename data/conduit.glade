@@ -664,6 +664,7 @@
     <child internal-child="vbox">
       <widget class="GtkVBox" id="configVBox">
         <property name="visible">True</property>
+        <property name="spacing">8</property>
         <child>
           <placeholder/>
         </child>

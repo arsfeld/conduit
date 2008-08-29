@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!--*- mode: xml -*-->
 <glade-interface>
-  <widget class="GtkDialog" id="PhotoConfigDialog">
+  <widget class="GtkDialog" id="iPodConfigDialog">
     <property name="visible">True</property>
     <property name="title" translatable="yes">iPod Photos</property>
     <property name="resizable">False</property>
@@ -13,12 +13,11 @@
       <widget class="GtkVBox" id="vbox30">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkLabel" id="albumlabel">
+          <widget class="GtkLabel" id="label1">
             <property name="visible">True</property>
             <property name="xalign">0</property>
-            <property name="xpad">2</property>
-            <property name="ypad">2</property>
-            <property name="label" translatable="yes">Album:</property>
+            <property name="label" translatable="yes">&lt;b&gt;Encoding&lt;/b&gt;</property>
+            <property name="use_markup">True</property>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -27,30 +26,14 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkHBox" id="hbox1">
+          <widget class="GtkAlignment" id="alignment1">
             <property name="visible">True</property>
+            <property name="xalign">0</property>
+            <property name="left_padding">16</property>
             <child>
-              <widget class="GtkComboBoxEntry" id="album_combobox">
+              <widget class="GtkComboBox" id="tagcombobox">
                 <property name="visible">True</property>
-                <child internal-child="entry">
-                  <widget class="GtkEntry" id="comboboxentry-entry1">
-                  </widget>
-                </child>
               </widget>
-            </child>
-            <child>
-              <widget class="GtkButton" id="delete_button">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="label">gtk-delete</property>
-                <property name="use_stock">True</property>
-                <property name="response_id">0</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </widget>
           <packing>

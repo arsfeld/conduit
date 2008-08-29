@@ -118,7 +118,8 @@ class FileSource(DataProvider.DataSource, Vfs.FolderScannerThreadManager):
         for oid,uri,groupname in self.db.select("SELECT oid,URI,GROUP_NAME FROM config WHERE TYPE = ?",(TYPE_FOLDER,)):
             self.make_thread(
                     uri, 
-                    False,  #FIXME: Dont include hidden?
+                    False,  #include hidden
+                    False,  #follow symlinks
                     self._on_scan_folder_progress, 
                     self._on_scan_folder_completed, 
                     oid,

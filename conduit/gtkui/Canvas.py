@@ -294,6 +294,9 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         if idx != -1:
             self.root.remove_child(idx)
         self.welcome = None
+
+    def _resize_welcome(self, width):
+        self.welcome.set_width(width)
         
     def _create_welcome(self):
         c_x,c_y,c_w,c_h = self.get_bounds()
@@ -341,6 +344,10 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
                     allocation.width,
                     self._get_minimum_canvas_size(allocation.height)
                     )
+
+        if self.welcome:
+            self._resize_welcome(allocation.width)
+
         for i in self._get_child_conduit_canvas_items():
             i.set_width(allocation.width)
 
@@ -427,7 +434,8 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             allocH = self.get_allocation().height
     
         bottom = self._get_bottom_of_conduits_coord()
-        return max(bottom + ConduitCanvasItem.WIDGET_HEIGHT + 20, allocH)
+        #return allocH-1 to stop vertical scroll bar
+        return max(bottom + ConduitCanvasItem.WIDGET_HEIGHT + 20, allocH-1)
         
     def _remove_overlap(self):
         """
@@ -837,6 +845,7 @@ class DataProviderCanvasItem(_CanvasItem):
     
 class ConduitCanvasItem(_CanvasItem):
 
+    BUTTONS = False
     DIVIDER = False
     FLAT_BOX = True
     WIDGET_HEIGHT = 63.0
@@ -864,6 +873,10 @@ class ConduitCanvasItem(_CanvasItem):
         self.divider = None
         #goocanvas.Points need a list of tuples, not a list of lists. Yuck
         self.dividerPoints = [(),()]
+
+        #if self.BUTTONS, show sync and stop buttons
+        self.syncButton = None
+        self.stopButton = None
 
         #Build the widget
         self._build_widget(width)
@@ -937,6 +950,38 @@ class ConduitCanvasItem(_CanvasItem):
                                     **self.get_style_properties("divider")
                                     )
             self.add_child(self.divider)
+
+        if self.BUTTONS and self.model:
+            w = gtk.Button(label="")
+            w.set_image(
+                gtk.image_new_from_stock(gtk.STOCK_REFRESH, gtk.ICON_SIZE_MENU)
+                )
+            w.set_relief(gtk.RELIEF_HALF)
+            self.syncButton = goocanvas.Widget(
+                                widget=w,
+                                x=true_width-19,
+                                y=22,
+                                width=28,
+                                height=28,
+                                anchor=gtk.ANCHOR_CENTER
+                                )
+            self.add_child(self.syncButton)
+
+            w = gtk.Button(label="")
+            w.set_image(
+                gtk.image_new_from_stock(gtk.STOCK_MEDIA_STOP, gtk.ICON_SIZE_MENU)
+                )
+            w.set_relief(gtk.RELIEF_HALF)
+            self.stopButton = goocanvas.Widget(
+                                widget=w,
+                                x=true_width-19,
+                                y=22+2+28,
+                                width=28,
+                                height=28,
+                                anchor=gtk.ANCHOR_CENTER
+                                )
+            self.add_child(self.stopButton)
+
 
     def _resize_height(self):
         sourceh =   0.0
@@ -1155,7 +1200,7 @@ class ConduitCanvasItem(_CanvasItem):
             self.dividerPoints[0] = (self.dividerPoints[0][0],h+10)
             self.dividerPoints[1] = (self.dividerPoints[0][0],h+10)
             self.divider.set_property("points", 
-                                goocanvas.Points(self.dividerPoints))        
+                                goocanvas.Points(self.dividerPoints))
 
     def set_width(self, w):
         true_width = w-self.LINE_WIDTH
@@ -1167,6 +1212,10 @@ class ConduitCanvasItem(_CanvasItem):
             self.dividerPoints[1] = (2*(true_width*0.33),self.dividerPoints[1][1])
             self.divider.set_property("points", 
                                 goocanvas.Points(self.dividerPoints))
+
+        #if self.BUTTONS:
+        #    self.syncButton.set_property("x", true_width-19)
+        #    self.stopButton.set_property("x", true_width-19)
 
         #resize the spacer
         p = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])

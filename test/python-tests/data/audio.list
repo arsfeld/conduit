@@ -13,3 +13,6 @@ ogg=http://www.recreantview.org/songs/jonobacon-freesoftwaresong.ogg
 mp3=/home/john/testing/test-data/jonobacon-freesoftwaresong.mp3
 ogg=/home/john/testing/test-data/jonobacon-freesoftwaresong.ogg
 
+[airmind@gemini]
+mp3=/home/airmind/Projects/gsoc08/jonobacon-freesoftwaresong.mp3
+ogg=/home/airmind/Projects/gsoc08/jonobacon-freesoftwaresong.ogg

@@ -16,6 +16,7 @@ import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.SimpleFactory as SimpleFactory
 import conduit.dataproviders.Image as Image
 import conduit.dataproviders.File as FileDataProvider
+import conduit.modules.iPodModule.iPodModule as iPodModule
 import conduit.Exceptions as Exceptions
 import conduit.Web as Web
 from conduit.datatypes import Rid, DataType, Text, Video, Audio, File
@@ -36,6 +37,8 @@ MODULES = {
     "TestTwoWay" :              { "type": "dataprovider" },
     "TestFailRefresh" :         { "type": "dataprovider" },
     "TestSinkNeedConfigure" :   { "type": "dataprovider" },
+    "TestiPodMusic" :           { "type": "dataprovider" },
+    "TestiPodVideo" :           { "type": "dataprovider" },
     "TestFactory" :             { "type": "dataprovider-factory" },
 #    "TestFactoryRemoval" :      { "type": "dataprovider-factory" },
 #    "TestSimpleFactory" :       { "type": "dataprovider-factory" },
@@ -686,6 +689,12 @@ class TestConflict(_TestBase, DataProvider.DataSink):
         if not overwrite:
             raise Exceptions.SynchronizeConflictError(conduit.datatypes.COMPARISON_UNKNOWN, data, newData)
         return newData.get_rid()
+
+class TestiPodMusic(iPodModule.IPodMusicTwoWay):
+    pass
+
+class TestiPodVideo(iPodModule.IPodVideoTwoWay):
+    pass
 
 class TestConverter(TypeConverter.Converter):
     def __init__(self):
