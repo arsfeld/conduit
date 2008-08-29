@@ -431,6 +431,16 @@ class File(DataType.DataType):
         fd, name = tempfile.mkstemp(prefix="netsync")
         os.write(fd, data['data'])
         os.close(fd)
+
+        implName = conduit.FILE_IMPL
+        if implName == "GnomeVfs":
+            import conduit.platform.FileGnomeVfs as FileImpl
+        elif implName == "GIO":
+            import conduit.platform.FileGio as FileImpl
+        elif implName == "Python":
+            import conduit.platform.FilePython as FileImpl
+        else:
+            raise Exception("File Implementation %s Not Supported" % implName)
         
         self._file = FileImpl.FileImpl(name)
         self.basePath = data['basePath']

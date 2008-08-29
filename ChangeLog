@@ -1,5 +1,12 @@
 2008-08-30  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS: Updates
+
+	* conduit/Vfs.py:
+	* conduit/datatypes/File.py: Fix file pickle/unpickle.
+
+2008-08-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/__init__.py:
 	* conduit/defs.py.in: When not installed one can override the the
 	FILE/BROWSER/SETTING implementation by using CONDUIT_XX_IMPL env variable.
