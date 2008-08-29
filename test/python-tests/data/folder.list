@@ -9,8 +9,8 @@
 folder=file:///tmp
 
 [john@nzjrs-desktop]
-removable-volume=file:///media/media/MusicToSort/Kora
-ntfs-volume=file:///media/windows
+removable-volume=file:///media/JRS89
+ntfs-volume=file:///media/disk
 
 [john@nzjrs-uni]
 removable-volume=file:///media/sda2/dell

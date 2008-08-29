@@ -1,14 +1,15 @@
+import threading
 import conduit
 import conduit.datatypes.File as File
 import logging
 log = logging.getLogger("datatypes.Audio")
 
-import pygst
-pygst.require('0.10')
-import gst
-from gst.extend import discoverer
-import threading
-from threading import Lock
+try:
+    import gst
+    from gst.extend import discoverer
+    GST_AVAILABLE = False
+except ImportError:
+    GST_AVAILABLE = False
 
 class MediaFile(File.File):
 
@@ -46,11 +47,11 @@ class MediaFile(File.File):
         return tags
 
     def _get_metadata(self, name):
-        tags = self.get_media_tags()
-        if name in tags:
-            return tags[name]
-        else:
-            return None
+        if GST_AVAILABLE:
+            tags = self.get_media_tags()
+            if name in tags:
+                return tags[name]
+        return None
 
     def __getattr__(self, name):
         # Get metadata only when needed

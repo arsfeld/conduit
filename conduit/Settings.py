@@ -63,7 +63,7 @@ class Settings(gobject.GObject):
 
     #Default values for conduit settings
     DEFAULTS = {
-        'show_splashscreen'         :   True,           #The splashscreen can be quite useful on slow computers
+        'show_splashscreen'         :   False,          #The splashscreen can be quite useful on slow computers
         'show_dp_description'       :   False,          #Should the treeview show the dataprovider description
         'show_status_icon'          :   True,           #Show an icon in the notification area indicating if a sync is running
         'save_on_exit'              :   True,           #Is the sync set saved on exit automatically?
@@ -80,6 +80,7 @@ class Settings(gobject.GObject):
         'gui_initial_canvas_width'  :   450,            #Reduce for eepc, etc
         'gui_use_rgba_colormap'     :   False,          #Seems to corrupt gtkmozembed on some systems
         'gui_show_hints'            :   True,           #Show message area hints in the Conduit GUI
+        'gui_show_treeview_lines'   :   False,          #Show treeview lines
     }
         
     def __init__(self, **kwargs):

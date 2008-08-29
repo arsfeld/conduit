@@ -575,6 +575,9 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
             
     def _get_photo_formats (self):
         return ("image/jpeg",)
+
+    def _get_photo_size(self):
+        return self.imageSize
         
     def _upload_photo (self, uploadInfo):
         try:
@@ -587,7 +590,7 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
                 self.service.InsertTag(gphoto, str(tag))
             return Rid(uid=gphoto.gphoto_id.text)
         except Exception, e:
-            raise Exceptions.SyncronizeError("Picasa Upload Error.")
+            raise Exceptions.SyncronizeError("Picasa Upload Error:\n%s" % e)
 
     def _replace_photo(self, id, uploadInfo):
         try:
@@ -607,7 +610,7 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
 
             return Rid(uid=gphoto.gphoto_id.text)
         except Exception, e:
-            raise Exceptions.SyncronizeError("Picasa Update Error.")
+            raise Exceptions.SyncronizeError("Picasa Update Error:\n%s" % e)
 
     def _find_album(self):
         for name,album in self._get_albums():
@@ -1269,9 +1272,6 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
         return False
 
     def configure(self, window):
-        """
-        Configures the PicasaTwoWay
-        """
         import gtk
 
         def make_combo(widget, docType, val, values):

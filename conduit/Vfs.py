@@ -25,7 +25,7 @@ def uri_is_valid(uri):
     Checks if the uri is valid (i.e. not a local path), and its type
     is supported by the underlying file implementation
     """
-    return uri[0] != "/" and uri.split("://")[0]+"://" in FileImpl.SCHEMES
+    return uri[0] != "/" and uri.split("://")[0]+"://" in FileImpl.FileImpl.SCHEMES
 
 def uri_join(first, *rest):
     """
@@ -74,7 +74,7 @@ def uri_to_local_path(uri):
     scheme = uri_get_scheme(uri)
     if scheme == "file":
         #len("file://") = 7
-        return a[7:]
+        return uri[7:]
     else:
         return None
     

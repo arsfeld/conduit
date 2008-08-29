@@ -80,8 +80,6 @@ class MainWindow:
         """
         gnome.ui.authentication_manager_init()        
 
-        self.conduitApplication = conduitApplication
-
         #add some additional dirs to the icon theme search path so that
         #modules can provider their own icons
         icon_dirs = [
@@ -92,7 +90,9 @@ class MainWindow:
                     ]
         for i in icon_dirs:                    
             gtk.icon_theme_get_default().prepend_search_path(i)
+        gtk.window_set_default_icon_name("conduit")
 
+        self.conduitApplication = conduitApplication
         self.gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
         self.widgets = gtk.glade.XML(self.gladeFile, "MainWindow")
         
@@ -123,7 +123,6 @@ class MainWindow:
             if colormap:
                 gtk.widget_set_default_colormap(colormap)
         self.mainWindow.set_position(gtk.WIN_POS_CENTER)
-        self.mainWindow.set_icon_name("conduit")
         title = "Conduit"
         if conduit.IS_DEVELOPMENT_VERSION:
             title = title + " - %s (Development Version)" % conduit.VERSION
@@ -616,8 +615,6 @@ class StatusIcon(gtk.StatusIcon):
                <menuitem action="Sync"/>
                <menuitem action="Cancel"/>
                <menuitem action="Quit"/>
-               <separator/>
-               <menuitem action="About"/>
               </menu>
              </menubar>
             </ui>
@@ -626,14 +623,13 @@ class StatusIcon(gtk.StatusIcon):
             ('Menu',  None, 'Menu'),
             ('Sync', gtk.STOCK_EXECUTE, _("_Synchronize All"), None, _("Synchronizes All Groups"), self.on_synchronize),
             ('Cancel', gtk.STOCK_CANCEL, _("_Cancel Synchronization"), None, _("Cancels Currently Synchronizing Groups"), self.on_cancel),
-            ('Quit', gtk.STOCK_QUIT, _("_Quit"), None, _("Close Conduit"), self.on_quit),
-            ('About', gtk.STOCK_ABOUT, _("_About"), None, _("About Conduit"), self.on_about)]
+            ('Quit', gtk.STOCK_QUIT, _("_Quit"), None, _("Close Conduit"), self.on_quit)]
         ag = gtk.ActionGroup('Actions')
         ag.add_actions(actions)
         self.manager = gtk.UIManager()
         self.manager.insert_action_group(ag, 0)
         self.manager.add_ui_from_string(menu)
-        self.menu = self.manager.get_widget('/Menubar/Menu/About').props.parent
+        self.menu = self.manager.get_widget('/Menubar/Menu/Quit').props.parent
         self.cancelButton = self.manager.get_widget('/Menubar/Menu/Cancel')   
         self.connect('popup-menu', self.on_popup_menu)
         self.connect('activate', self.on_click)
@@ -709,11 +705,6 @@ class StatusIcon(gtk.StatusIcon):
     def on_quit(self, data):
         self.conduitApplication.Quit()
 
-    def on_about(self, data):
-        dialog = AboutDialog()
-        dialog.run()
-        dialog.destroy()
-        
     def on_click(self, status):
         if self.conduitApplication.HasGUI():
             if self.conduitApplication.gui.is_visible():

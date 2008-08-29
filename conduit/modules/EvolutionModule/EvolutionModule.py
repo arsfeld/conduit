@@ -150,7 +150,7 @@ class EvoContactTwoWay(EvoBase):
     _module_type_ = "twoway"
     _in_type_ = "contact"
     _out_type_ = "contact"
-    _icon_ = "contact-new"
+    _icon_ = "x-office-address-book"
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoContactTwoWay.DEFAULT_ADDRESSBOOK_URI)
@@ -201,7 +201,7 @@ class EvoCalendarTwoWay(EvoBase):
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"
-    _icon_ = "appointment-new"
+    _icon_ = "x-office-calendar"
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoCalendarTwoWay.DEFAULT_CALENDAR_URI)
@@ -259,7 +259,7 @@ class EvoTasksTwoWay(EvoBase):
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"
-    _icon_ = "tomboy"
+    _icon_ = "evolution-tasks"
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoTasksTwoWay.DEFAULT_TASK_URI)
@@ -316,7 +316,7 @@ class EvoMemoTwoWay(EvoBase):
     _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"
-    _icon_ = "tomboy"
+    _icon_ = "evolution-memos"
 
     def __init__(self, *args):
         EvoBase.__init__(self, EvoMemoTwoWay.DEFAULT_MEMO_URI)

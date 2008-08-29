@@ -1,6 +1,5 @@
 import gio
 
-import conduit.Vfs as Vfs
 import conduit.platform
 
 import logging
@@ -127,7 +126,7 @@ class FileImpl(conduit.platform.File):
         try:
             info = self._file.query_filesystem_info("filesystem::type")
             return info.get_attribute_string("filesystem::type")
-        except gio.Error:
+        except gio.Error, e:
             return None
 
 class FileTransferImpl(conduit.platform.FileTransfer):
@@ -199,5 +198,55 @@ class FileMonitor(conduit.platform.FileMonitor):
 
 class FolderScanner(conduit.platform.FolderScanner):
     def run(self):
+        delta = 0
+        t = 1
+        last_estimated = estimated = 0 
+        while len(self.dirs)>0:
+            if self.cancelled:
+                return
+
+            dir = self.dirs.pop(0)
+            try: 
+                f = gio.File(dir)
+                enumerator = f.enumerate_children('standard::type,standard::name,standard::is-hidden,standard::is-symlink')
+            except gio.Error:
+                log.warn("Folder %s Not found" % dir)
+                continue
+
+            try: fileinfo = enumerator.next()
+            except StopIteration: continue;
+            while fileinfo:
+                filename = fileinfo.get_name()
+                filetype = fileinfo.get_file_type()
+                hidden = fileinfo.get_is_hidden()
+                if filename != self.CONFIG_FILE_NAME:
+                    if filetype == gio.FILE_TYPE_DIRECTORY:
+                        #Include hidden directories
+                        if not hidden or self.includeHidden:
+                            self.dirs.append(dir+"/"+filename)
+                            t += 1
+                    elif filetype == gio.FILE_TYPE_REGULAR or (filetype == gio.FILE_TYPE_SYMBOLIC_LINK and self.followSymlinks):
+                            uri = dir+"/"+filename
+                            #Include hidden files
+                            if not hidden or self.includeHidden:
+                                self.URIs.append(uri)
+                    else:
+                        log.debug("Unsupported file type: %s (%s)" % (filename, filetype))
+                try: fileinfo = enumerator.next()
+                except StopIteration: break;
+
+            #Calculate the estimated complete percentags
+            estimated = 1.0-float(len(self.dirs))/float(t)
+            estimated *= 100
+            #Enly emit progress signals every 10% (+/- 1%) change to save CPU
+            if delta+10 - estimated <= 1:
+                log.debug("Folder scan %s%% complete" % estimated)
+                self.emit("scan-progress", len(self.URIs))
+                delta += 10
+            last_estimated = estimated
+
+        i = 0
+        total = len(self.URIs)
+        log.debug("%s files loaded" % total)
         self.emit("scan-completed")
 

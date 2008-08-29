@@ -4,6 +4,84 @@
 	* test/python-tests/TestCoreUtil.py: More util functions using urllib to
 	work around gvfs bugs.
 
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/AudioVideoConverterModule.py:
+	* conduit/utils/MediaFile.py: Handle missing gstreamer nicer.
+	Fixes #548960
+
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/UI.py: Set a default window icon.
+	Fixes #548974
+
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/utils/Makefile.am: Ship MediaFile and GstMetadata.
+	Fixes #548959 (Michael Monreal)
+
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Scale photos in 
+	picasa two way. Fixes #548989 (Antonio G)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/datatypes/File.py:
+	* conduit/modules/N800Module/N800Module.py: Fix doc typos.
+	Fixes #548404 (Christian Schlotter)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/conduit: Remove bashisms. Fixes #545464 (Christian Schlotter)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/conduit: also look in lib/mozilla-firefox for
+	run-mozilla.sh. Fixes #546478 (Christian Schlotter)
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: More debugging for
+	#548659
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* data/conduit.glade: Tidy prefs window as per #547609
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* data/evolution-memos.png:
+	* data/evolution-tasks.png:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* data/Makefile.am: Use evolution icons. Fixes #547617
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py: No splash by default. Fixes #547615
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/UI.py: Remove About entry in tray icon menu.
+	Fixes #547618
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/gtkui/Tree.py: Hide treeview lines. Fixes #547604
+
+2008-08-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BansheeModule/BansheeModule.py: Banshee icon is 
+	media-player-banshee. Fixes #547600
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/iPodModule/config.glade:
+	* conduit/modules/iPodModule/iPodModule.py: Fix iPod icon, and make
+	sure that the photo dp is configurable.
+
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/platform/FileGio.py:

@@ -307,11 +307,13 @@ class FolderScanner(conduit.platform.FolderScanner):
         while len(self.dirs)>0:
             if self.cancelled:
                 return
+
             dir = self.dirs.pop(0)
             try: hdir = gnomevfs.DirectoryHandle(dir)
             except: 
                 log.warn("Folder %s Not found" % dir)
                 continue
+
             try: fileinfo = hdir.next()
             except StopIteration: continue;
             while fileinfo:
@@ -337,6 +339,7 @@ class FolderScanner(conduit.platform.FolderScanner):
                         log.debug("Unsupported file type: %s (%s)" % (filename, fileinfo.type))
                 try: fileinfo = hdir.next()
                 except StopIteration: break;
+
             #Calculate the estimated complete percentags
             estimated = 1.0-float(len(self.dirs))/float(t)
             estimated *= 100

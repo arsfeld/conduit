@@ -36,6 +36,8 @@ resourcesdir = $(pkgdatadir)
 resources_DATA = \
 	conduit.glade \
 	backpack.png \
+	evolution-tasks.png \
+	evolution-memos.png \
 	conduit-splash.png \
 	facebook.png \
 	feed.png \

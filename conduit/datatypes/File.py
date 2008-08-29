@@ -454,7 +454,7 @@ class TempFile(File):
         
 class ProxyFile(File):
     """
-    Pretends to be a file for the sake of comparison and transer. Typically
+    Pretends to be a file for the sake of comparison and transfer. Typically
     located on a remote, read only resource, such as http://. Once transferred
     to the local filesystem, it behaves just like a file.
     """
