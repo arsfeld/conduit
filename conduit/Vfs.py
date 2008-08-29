@@ -70,59 +70,38 @@ def uri_open(uri):
     
 def uri_to_local_path(uri):
     """
-    @returns: The local path (/foo/bar) for the given URI. Throws a 
-    RuntimeError (wtf??) if the uri is not a local one    
+    @returns: The local path (/foo/bar) for the given URI
     """
     uri = conduit.utils.ensure_string(uri)
-    return gnomevfs.get_local_path_from_uri(uri)
+    scheme = uri_get_scheme(uri)
+    if scheme == "file":
+        #len("file://") = 7
+        return a[7:]
+    else:
+        return None
     
 def uri_get_volume_root_uri(uri):
     """
     @returns: The root path of the volume at the given uri, or None
     """
-    uri = conduit.utils.ensure_string(uri)
-    try:
-        path = uri_to_local_path(uri)
-        return VolumeMonitor().volume_get_root_uri(path)
-    except:
-        return None
+    f = FileImpl.FileImpl(uri)
+    return f.get_removable_volume_root_uri()
     
 def uri_is_on_removable_volume(uri):
     """
     @returns: True if the specified uri is on a removable volume, like a USB key
     or removable/mountable disk.
     """
-    uri = conduit.utils.ensure_string(uri)
-    scheme = gnomevfs.get_uri_scheme(uri)
-    if scheme == "file":
-        #FIXME: Unfortunately this approach actually works better than gnomevfs
-        #return uri.startswith("file:///media/")
-        try:
-            path = uri_to_local_path(uri)
-            return VolumeMonitor().volume_is_removable(path)
-        except Exception, e:
-            log.warn("Could not determine if uri on removable volume: %s (%s)" % (uri, e))
-            return False
-    return False
-    
+    f = FileImpl.FileImpl(uri)
+    return f.is_on_removale_volume()
+
 def uri_get_filesystem_type(uri):
     """
     @returns: The filesystem that uri is stored on or None if it cannot
     be determined
     """
-    uri = conduit.utils.ensure_string(uri)
-    scheme = gnomevfs.get_uri_scheme(uri)
-    if scheme == "file":
-        try:
-            path = uri_to_local_path(uri)
-            return VolumeMonitor().volume_get_fstype(path)
-        except RuntimeError:
-            log.warn("Could not get local path from URI")
-            return None
-        except AttributeError:
-            log.warn("Could not determine volume for path")
-            return None
-    return None
+    f = FileImpl.FileImpl(uri)
+    return f.get_filesystem_type()
 
 def uri_escape(uri):
     """
@@ -200,27 +179,22 @@ def uri_is_folder(uri):
     """
     @returns: True if the uri is a folder and not a file
     """
-    uri = conduit.utils.ensure_string(uri)
-    info = gnomevfs.get_file_info(uri)
-    return info.type == gnomevfs.FILE_TYPE_DIRECTORY
+    f = FileImpl.FileImpl(uri)
+    return f.is_directory()
     
 def uri_format_for_display(uri):
     """
     Formats the uri so it can be displayed to the user (strips passwords, etc)
     """
-    uri = conduit.utils.ensure_string(uri)
-    return gnomevfs.format_uri_for_display(uri)
+    f = FileImpl.FileImpl(uri)
+    return f.get_uri_for_display()
     
 def uri_exists(uri):
     """
     @returns: True if the uri exists
     """
-    uri = conduit.utils.ensure_string(uri)
-    try:
-        return gnomevfs.exists(gnomevfs.URI(uri)) == 1
-    except Exception, err:
-        log.warn("Error checking if location exists")
-        return False
+    f = FileImpl.FileImpl(uri)
+    return f.exists()
         
 class FileMonitor(gobject.GObject):
 
@@ -352,8 +326,6 @@ import threading
 import gobject
 import time
 
-CONFIG_FILE_NAME = ".conduit.conf"
-
 class FolderScanner(threading.Thread, gobject.GObject):
     """
     Recursively scans a given folder URI, returning the number of
@@ -364,7 +336,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
                         gobject.TYPE_INT]),
                     "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
                     }
-
+    CONFIG_FILE_NAME = ".conduit.conf"
     def __init__(self, baseURI, includeHidden, followSymlinks):
         threading.Thread.__init__(self)
         gobject.GObject.__init__(self)
@@ -401,7 +373,7 @@ class FolderScanner(threading.Thread, gobject.GObject):
             except StopIteration: continue;
             while fileinfo:
                 filename = fileinfo.name
-                if filename in [".","..",CONFIG_FILE_NAME]: 
+                if filename in [".","..",self.CONFIG_FILE_NAME]: 
                         pass
                 else:
                     if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:

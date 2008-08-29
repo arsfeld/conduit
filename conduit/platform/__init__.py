@@ -34,6 +34,9 @@ class File:
 
     def get_filename(self):
         raise NotImplementedError
+
+    def get_uri_for_display(self):
+        raise NotImplementedError
         
     def get_contents(self):
         raise NotImplementedError
@@ -55,7 +58,16 @@ class File:
 
     def make_directory_and_parents(self):
         raise NotImplementedError
-        
+
+    def is_on_removale_volume(self):
+        return False
+
+    def get_removable_volume_root_uri(self):
+        return None
+
+    def get_filesystem_type(self):
+        return None
+
 class FileTransfer:
     def __init__(self, source, dest):
         pass

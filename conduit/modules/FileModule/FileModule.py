@@ -203,7 +203,7 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
                                             name=name)
                         self._volumes[udi].append(klass)
                 else:
-                    if FileDataProvider.is_on_removable_volume(mountUri):
+                    if Vfs.uri_is_on_removable_volume(mountUri):
                         klass = self._make_class(
                                             udi=udi,
                                             folder=mountUri,

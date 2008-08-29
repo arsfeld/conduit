@@ -14,19 +14,18 @@ import conduit.Exceptions as Exceptions
 TYPE_FILE = "0"
 TYPE_FOLDER = "1"
 
-def is_on_removable_volume(folderUri):
-    return Vfs.uri_is_on_removable_volume(folderUri)
-    
-def get_removable_volume_info(folderUri):
+def get_removable_volume_info(f):
     """
     Returns the root uri of the volume, and local path of the 
     group config file
     """
-    rooturi = Vfs.uri_get_volume_root_uri(folderUri)
-    path = Vfs.uri_join(
-                Vfs.uri_to_local_path(rooturi),
-                ".conduit")
-    return rooturi,path
+    rooturi = f.get_removable_volume_root_uri()
+    if rooturi:
+        path = Vfs.uri_to_local_path(rooturi)
+        if path:
+            path = Vfs.uri_join(path, ".conduit")
+            return rooturi,path
+    return None,None
     
 def save_removable_volume_group_file(folderUri, folderGroupName):
     """
@@ -37,36 +36,40 @@ def save_removable_volume_group_file(folderUri, folderGroupName):
     [DEFAULT]
     relative/uri/from/volume/root = group name
     """
-    if is_on_removable_volume(folderUri):
+    f = File.File(URI=folderUri)
+    if f.is_on_removale_volume():
         #write to the /volume/root/.conduit file
         rooturi,path = get_removable_volume_info(folderUri)
-        conf = ConfigParser.SafeConfigParser()
-        conf.read(path)
-        
-        log.debug("Saving group (%s = %s) to %s" % (folderUri,folderGroupName,path))
-        conf.set(
-            "DEFAULT",
-            folderUri.replace(rooturi,""),
-            folderGroupName
-            )
-        fp = open(path, 'w')
-        conf.write(fp)
-        fp.close()
-        return True
+        if rooturi and path:
+            conf = ConfigParser.SafeConfigParser()
+            conf.read(path)
+            
+            log.debug("Saving group (%s = %s) to %s" % (folderUri,folderGroupName,path))
+            conf.set(
+                "DEFAULT",
+                folderUri.replace(rooturi,""),
+                folderGroupName
+                )
+            fp = open(path, 'w')
+            conf.write(fp)
+            fp.close()
+            return True
     return False
 
 def read_removable_volume_group_file(folderUri):
     items = []
-    if is_on_removable_volume(folderUri):
+    f = File.File(URI=folderUri)
+    if f.is_on_removale_volume():
         #read from the /volume/root/.conduit file
         rooturi,path = get_removable_volume_info(folderUri)
-        conf = ConfigParser.SafeConfigParser()
-        conf.read(path)
-        for p,n in conf.items("DEFAULT"):
-            log.debug("Read group (%s = %s)" % (p,n))
-            #check the path still exists on the volume
-            if Vfs.uri_exists(rooturi+p):
-                items.append((p,n))
+        if rooturi and path:
+            conf = ConfigParser.SafeConfigParser()
+            conf.read(path)
+            for p,n in conf.items("DEFAULT"):
+                log.debug("Read group (%s = %s)" % (p,n))
+                #check the path still exists on the volume
+                if Vfs.uri_exists(rooturi+p):
+                    items.append((p,n))
     return items
 
 class FileSource(DataProvider.DataSource, Vfs.FolderScannerThreadManager):

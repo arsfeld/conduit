@@ -85,6 +85,9 @@ class FileImpl(conduit.platform.File):
     def get_filename(self):
         self._get_file_info()
         return self.fileInfo.get_display_name()
+
+    def get_uri_for_display(self):
+        return self._file.get_parse_name()
         
     def get_contents(self):
         return self._file.load_contents()
@@ -101,6 +104,25 @@ class FileImpl(conduit.platform.File):
         self.fileInfo = None
         self.fileExists = False
         self.triedOpen = False
+
+    def is_on_removale_volume(self):
+        try:
+            return self._file.find_enclosing_mount().can_unmount()
+        except gio.Error:
+            return False
+
+    def get_removable_volume_root_uri(self):
+        try:
+            return self._file.find_enclosing_mount().get_root().get_uri()
+        except gio.Error:
+            return None
+
+    def get_filesystem_type(self):
+        try:
+            info = self._file.query_filesystem_info("filesystem::type")
+            return info.get_attribute_string("filesystem::type")
+        except gio.Error:
+            return None
 
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):

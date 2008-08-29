@@ -2,6 +2,16 @@
 
 	* conduit/Vfs.py:
 	* conduit/dataproviders/File.py:
+	* conduit/modules/FileModule/FileModule.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py: Move all uri_volume functions into the
+	platform implementation dir.
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* conduit/dataproviders/File.py:
 	* conduit/modules/FileModule/FileConfiguration.py:
 	* conduit/platform/FileGnomeVfs.py:
 	* conduit/utils/__init__.py:

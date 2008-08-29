@@ -115,6 +115,9 @@ class FileImpl(conduit.platform.File):
     def get_filename(self):
         self._get_file_info()
         return self.fileInfo.name
+
+    def get_uri_for_display(self):
+        return gnomevfs.format_uri_for_display(self.get_text_uri())
         
     def get_contents(self):
         return gnomevfs.read_entire_file(self.get_text_uri())
@@ -163,6 +166,24 @@ class FileImpl(conduit.platform.File):
                     str(d),
                     gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
                     )
+
+    def is_on_removale_volume(self):
+        path = self.get_local_path()
+        if path:
+            return VolumeMonitor().volume_is_removable(path)
+        return False
+
+    def get_removable_volume_root_uri(self):
+        path = self.get_local_path()
+        if path:
+            return VolumeMonitor().volume_get_root_uri(path)
+        return False
+
+    def get_filesystem_type(self):
+        path = self.get_local_path()
+        if path:
+            return VolumeMonitor().volume_get_fstype(path)
+        return None
 
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):
