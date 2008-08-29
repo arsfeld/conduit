@@ -17,6 +17,18 @@ sys.path.insert(0, base_path)
 # import main conduit modules
 import conduit
 import conduit.Logging as Logging
+import conduit.Settings as Settings
+
+# set up expected paths & variables 
+conduit.IS_INSTALLED =              False
+conduit.IS_DEVELOPMENT_VERSION =    True
+conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
+conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
+conduit.FILE_IMPL =                 os.environ.get("CONDUIT_FILE_IMPL","GnomeVfs")
+conduit.BROWSER_IMPL =              os.environ.get("CONDUIT_BROWSER_IMPL","system")
+conduit.SETTINGS_IMPL =             os.environ.get("CONDUIT_SETTINGS_IMPL","GConf")
+conduit.GLOBALS.settings =          Settings.Settings()
+
 import conduit.utils as Utils
 import conduit.Vfs as Vfs
 import conduit.Module as Module
@@ -26,21 +38,12 @@ import conduit.ModuleWrapper as ModuleWrapper
 import conduit.Conduit as Conduit
 import conduit.SyncSet as SyncSet
 import conduit.MappingDB as MappingDB
-import conduit.Settings as Settings
 
 #import conduit datatypes
 from conduit.datatypes import File, Note, Setting, Contact, Email, Text, Video, Photo, Audio, Event, Bookmark
 from conduit.modules import TestModule
 
-# set up expected paths & variables 
-conduit.IS_INSTALLED =              False
-conduit.IS_DEVELOPMENT_VERSION =    True
-conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
-conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
-conduit.FILE_IMPL =                 "GnomeVfs"  
-conduit.BROWSER_IMPL =              "system"
-conduit.SETTINGS_IMPL =             "GConf"
-conduit.GLOBALS.settings =          Settings.Settings()
+
 
 def is_online():
     try:    

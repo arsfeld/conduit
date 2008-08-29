@@ -20,6 +20,8 @@ VolumeMonitor   = FileImpl.VolumeMonitor
 FileMonitor     = FileImpl.FileMonitor     
 FolderScanner   = FileImpl.FolderScanner
 
+print FileImpl.FolderScanner
+
 def uri_is_valid(uri):
     """
     Checks if the uri is valid (i.e. not a local path), and its type
