@@ -1,5 +1,12 @@
 2008-07-30  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/File.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py: Remove dead code,
+	pass all tests.
+
+2008-07-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py:
 	* conduit/datatypes/File.py:
 	* conduit/platform/FileGnomeVfs.py:

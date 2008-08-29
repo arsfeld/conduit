@@ -128,9 +128,6 @@ class FileImpl(conduit.platform.File):
         except:
             return None
 
-    def set_props(self, **props):
-        raise NotImplementedError
-        
     def close(self):
         self.fileInfo = None
         self.fileExists = False

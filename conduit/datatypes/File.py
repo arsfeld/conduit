@@ -42,17 +42,8 @@ class File(DataType.DataType):
         self._isProxyFile = False
         self._proxyFileSize = None
         
-#    def _open_file(self):
-#        if self.triedOpen == False:
-#            self.triedOpen = True
-#            self.fileExists = gnomevfs.exists(self.URI)
-
     def _close_file(self):
         self._file.close()
-#        log.debug("Closing file")
-#        self.fileInfo = None
-#        self.fileExists = False
-#        self.triedOpen = False
 
         #check to see if we have applied the rename/mtimes yet
         if self.get_filename() == self._newFilename:
@@ -65,35 +56,9 @@ class File(DataType.DataType):
     def _xfer_check_global_cancel_flag(self):
         return conduit.GLOBALS.cancelled
 
-#    def _xfer_progress_callback(self, info, cancel_func):
-#        #check if cancelled
-#        try:
-#            if cancel_func():
-#                log.info("Transfer of %s -> %s cancelled" % (info.source_name, info.target_name))
-#                return 0
-#        except Exception, ex:
-#            log.warn("Could not call gnomevfs cancel function")
-#            return 0
-#        return True
-
     def _get_text_uri(self):
         return self._file.get_text_uri()
             
-#    def _get_file_info(self):
-#        """
-#        Gets the file info. Because gnomevfs is dumb this method works a lot
-#        more reliably than self.vfsFileHandle.get_file_info().
-#        
-#        Only tries to get the info once for performance reasons
-#        """
-#        self._open_file()
-#        #The get_file_info works more reliably on remote vfs shares
-#        if self.fileInfo == None:
-#            if self.exists() == True:
-#                self.fileInfo = gnomevfs.get_file_info(self.URI, gnomevfs.FILE_INFO_DEFAULT)
-#            else:
-#                log.warn("Cannot get info on non-existant file %s" % self.URI)
-
     def _defer_rename(self, filename):
         """
         In the event that the file is on a read-only volume this call defers the 
@@ -252,9 +217,8 @@ class File(DataType.DataType):
 
         #transfer file
         ok,f = trans.transfer(overwrite, cancel_function)
-        
-        #if not ok:
-        #    raise FileTransferError
+        if not ok:
+            raise FileTransferError
 
         #close the file and the handle so that the file info is refreshed
         self._file = f
@@ -339,7 +303,7 @@ class File(DataType.DataType):
         return os.path.splitext(self.get_filename())
 
     def get_contents_as_text(self):
-        return self._file.contents()
+        return self._file.get_contents()
         
     def get_local_uri(self):
         """
@@ -353,11 +317,6 @@ class File(DataType.DataType):
         @rtype: C{string}
         """
         if self.is_local():
-            #FIXME: The following call produces a runtime error if the URI
-            #is malformed. Reason number 37 gnomevfs should die
-            #u = gnomevfs.get_local_path_from_uri(self._get_text_uri())
-            #Backup approach...
-            #u = self.URI[len("file://"):]
             return self._file.get_path()
         else:
             return self.to_tempfile()
@@ -410,7 +369,6 @@ class File(DataType.DataType):
         elif meTime == bTime:
             meSize = self.get_size()
             bSize = B.get_size()
-            #log.debug("Comparing %s (SIZE: %s) with %s (SIZE: %s)" % (A.URI, meSize, B.URI, bSize))
             #If the times are equal, and the sizes are equal then assume
             #that they are the same.
             if meSize == None or bSize == None:
@@ -450,11 +408,6 @@ class File(DataType.DataType):
         self._defer_rename(data['filename'])
         self._defer_new_mtime(data['filemtime'])
 
-        #Ensure we re-read the fileInfo
-        #self.fileInfo = None
-        #self.fileExists = False
-        #self.triedOpen = False
-        
         DataType.DataType.__setstate__(self, data)
 
 class TempFile(File):

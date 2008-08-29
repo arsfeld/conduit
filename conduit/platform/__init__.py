@@ -45,7 +45,7 @@ class File:
         raise NotImplementedError
 
     def set_props(self, **props):
-        raise NotImplementedError
+        pass
         
     def close(self):
         raise NotImplementedError
