@@ -52,9 +52,12 @@ else:
     SHARED_DATA_DIR =           os.path.join(DIRECTORY, "data")
     GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
     SHARED_MODULE_DIR =         os.path.join(DIRECTORY, "conduit", "modules")
-    FILE_IMPL =                 "GnomeVfs"      #{GnomeVfs, GIO, Python}
-    BROWSER_IMPL =              "gtkmozembed"   #{gtkmozembed, webkit, system}
-    SETTINGS_IMPL =             "GConf"         #{GConf,Python}
+                                #{GnomeVfs, GIO, Python}
+    FILE_IMPL =                 os.environ.get("CONDUIT_FILE_IMPL","GnomeVfs")
+                                #{gtkmozembed, webkit, system}
+    BROWSER_IMPL =              os.environ.get("CONDUIT_BROWSER_IMPL","gtkmozembed")
+                                #{GConf,Python}
+    SETTINGS_IMPL =             os.environ.get("CONDUIT_SETTINGS_IMPL","GConf")
 
 import Globals
 GLOBALS = Globals.Globals()
