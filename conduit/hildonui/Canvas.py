@@ -13,7 +13,8 @@ import gtk
 import logging
 log = logging.getLogger("hildonui.Canvas")
 
-import conduit.gtkui.Canvas 
+import conduit.gtkui.Canvas
+import conduit.gtkui.Util as GtkUtil 
 
 LINE_WIDTH = 3.0
 
@@ -37,6 +38,9 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
                                 None,None)
         self.position = -1
         
+    def _update_for_theme(self, *args):
+        pass
+
     def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
         # dp context menu
         self.dataproviderMenu = DataProviderMenu(self)
@@ -84,6 +88,25 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
  
     def on_conduit_removed(self, sender, conduitRemoved):
         self.move_previous ()
+
+    def on_dataprovider_removed(self, sender, dataproviderRemoved, conduitCanvasItem):
+        for item in self._get_child_dataprovider_canvas_items():
+            if item.model == dataproviderRemoved:
+                conduitCanvasItem.delete_dataprovider_canvas_item(item)
+        self._remove_overlap()
+
+    def on_dataprovider_added(self, sender, dataproviderAdded, conduitCanvasItem):
+        #check for duplicates to eliminate race condition in set_sync_set
+        if dataproviderAdded in [i.model for i in self._get_child_dataprovider_canvas_items()]:
+            return
+
+        item = DataProviderCanvasItem(
+                            parent=conduitCanvasItem, 
+                            model=dataproviderAdded
+                            )
+        item.connect('button-press-event', self._on_dataprovider_button_press)
+        conduitCanvasItem.add_dataprovider_canvas_item(item)
+        self._remove_overlap()
 
     def set_sync_set(self, syncSet):
         conduit.gtkui.Canvas.Canvas.set_sync_set(self, syncSet)
@@ -250,17 +273,90 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
     #         self.selectedConduitItem.model.disable_slow_sync()
 
 class DataProviderCanvasItem(conduit.gtkui.Canvas.DataProviderCanvasItem):
+
     WIDGET_WIDTH = 160
     WIDGET_HEIGHT = 85
+    LINE_WIDTH = 3.0
 
-    NAME_FONT = "Sans 12"
-    STATUS_FONT = "Sans 10"
+    def get_styled_item_names(self):
+        return ()
+
+    def get_style_properties(self, specifier):
+        if specifier == "box":
+            #color the box differently if it is pending
+            if self.model.module == None:
+                color = GtkUtil.TANGO_COLOR_BUTTER_LIGHT
+            else:
+                if self.model.module_type == "source":
+                    color = GtkUtil.TANGO_COLOR_ALUMINIUM1_MID
+                elif self.model.module_type == "sink":
+                    color = GtkUtil.TANGO_COLOR_SKYBLUE_LIGHT
+                elif self.model.module_type == "twoway":
+                    color = GtkUtil.TANGO_COLOR_BUTTER_MID
+                else:
+                    color = None
+        
+            kwargs = {
+                "line_width":LINE_WIDTH,
+                "stroke_color":"black",
+                "fill_color_rgba":color
+            }
+        elif specifier == "name":
+            kwargs = {
+                "font":"Sans 8"
+            }
+        elif specifier == "statusText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM2_MID
+            }
+       
+        return kwargs
 
 class ConduitCanvasItem(conduit.gtkui.Canvas.ConduitCanvasItem):
-    pass 
+
+    FLAT_BOX = False
+    DIVIDER = False
+    LINE_WIDTH = 3.0
+
+    def get_styled_item_names(self):
+        return ()
+
+    def get_style_properties(self, specifier):
+        if specifier == "boundingBox":
+            kwargs = {
+                "line_width":LINE_WIDTH, 
+                "fill_color_rgba":GtkUtil.TANGO_COLOR_ALUMINIUM1_LIGHT, 
+                "stroke_color":"black"
+            }
+        elif specifier == "progressText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color":"black"
+            }
+        else:
+            kwargs = {}
+
+        return kwargs
 
 class ConnectorCanvasItem(conduit.gtkui.Canvas.ConnectorCanvasItem):
-    pass
+
+    def get_styled_item_names(self):
+        return ()
+
+    def get_style_properties(self, specifier):
+        if specifier == "left_end_round":
+            kwargs = {
+                "fill_color":"black"
+            }
+        elif specifier in ("left_end_arrow", "right_end", "path"):
+            kwargs = {
+                "stroke_color":"black"
+            }
+        else:
+            kwargs = {}
+        
+        return kwargs
 
 class ContextMenu(gtk.Menu):
     def __init__(self):

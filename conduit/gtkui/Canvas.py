@@ -7,54 +7,155 @@ dragged onto.
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import cairo
 import goocanvas
 import gtk
 import pango
 from gettext import gettext as _
+
 import logging
 log = logging.getLogger("gtkui.Canvas")
 
-import conduit
+import conduit.utils as Utils
 import conduit.Conduit as Conduit
 import conduit.gtkui.Tree
+import conduit.gtkui.Util as GtkUtil
 
-#Tango colors taken from 
-#http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-TANGO_COLOR_BUTTER_LIGHT = int("fce94fff",16)
-TANGO_COLOR_BUTTER_MID = int("edd400ff",16)
-TANGO_COLOR_BUTTER_DARK = int("c4a000ff",16)
-TANGO_COLOR_ORANGE_LIGHT = int("fcaf3eff",16)
-TANGO_COLOR_ORANGE_MID = int("f57900",16)
-TANGO_COLOR_ORANGE_DARK = int("ce5c00ff",16)
-TANGO_COLOR_CHOCOLATE_LIGHT = int("e9b96eff",16)
-TANGO_COLOR_CHOCOLATE_MID = int("c17d11ff",16)
-TANGO_COLOR_CHOCOLATE_DARK = int("8f5902ff",16)
-TANGO_COLOR_CHAMELEON_LIGHT = int("8ae234ff",16)
-TANGO_COLOR_CHAMELEON_MID = int("73d216ff",16)
-TANGO_COLOR_CHAMELEON_DARK = int("4e9a06ff",16)
-TANGO_COLOR_SKYBLUE_LIGHT = int("729fcfff",16)
-TANGO_COLOR_SKYBLUE_MID = int("3465a4ff",16)
-TANGO_COLOR_SKYBLUE_DARK = int("204a87ff",16)
-TANGO_COLOR_PLUM_LIGHT = int("ad7fa8ff",16)
-TANGO_COLOR_PLUM_MID = int("75507bff",16)
-TANGO_COLOR_PLUM_DARK = int("5c3566ff",16)
-TANGO_COLOR_SCARLETRED_LIGHT = int("ef2929ff",16)
-TANGO_COLOR_SCARLETRED_MID = int("cc0000ff",16)
-TANGO_COLOR_SCARLETRED_DARK = int("a40000ff",16)
-TANGO_COLOR_ALUMINIUM1_LIGHT = int("eeeeecff",16)
-TANGO_COLOR_ALUMINIUM1_MID = int("d3d7cfff",16)
-TANGO_COLOR_ALUMINIUM1_DARK = int("babdb6ff",16)
-TANGO_COLOR_ALUMINIUM2_LIGHT = int("888a85ff",16)
-TANGO_COLOR_ALUMINIUM2_MID = int("555753ff",16)
-TANGO_COLOR_ALUMINIUM2_DARK = int("2e3436ff",16)
-TRANSPARENT_COLOR = int("00000000",16)
+log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
-#Style elements common to ConduitCanvasItem and DPCanvasItem
-SIDE_PADDING = 10.0
-LINE_WIDTH = 3.0
-RECTANGLE_RADIUS = 5.0
+class _StyleMixin:
 
-class Canvas(goocanvas.Canvas):
+    STYLES = (
+        "fg",
+        "bg",
+        "light",
+        "dark",
+        "mid",
+        "text",
+        "base",
+        "text_aa"
+        )
+    STYLE_STATES = (
+        "normal",
+        "active",
+        "prelight",
+        "selected",
+        "insensitive"
+        )
+        
+    def _get_colors_and_state(self, styleName, stateName):
+        style = self.get_gtk_style()
+        if style:
+            colors = getattr(style, styleName.lower(), None)
+            state = getattr(gtk, "STATE_%s" % stateName.upper(), None)
+        else:
+            colors = None
+            state = None
+
+        return colors,state
+
+    def get_gtk_style(self):
+        """
+        @returns: The gtk.Style for the widget
+        """
+        #not that clean, we can be mixed into the
+        #canvas, or a canvas item
+        try:
+            return self.get_canvas().style
+        except AttributeError:
+            try:
+                return self.style
+            except AttributeError:
+                return None
+
+    def get_style_color_rgb(self, styleName, stateName):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2rgb(colors[state])
+        else:
+            return GtkUtil.gdk2rgb(GtkUtil.str2gdk("red"))
+        
+    def get_style_color_rgba(self, styleName, stateName, a=1):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2rgba(colors[state], a)
+        else:
+            return GtkUtil.gdk2rgba(GtkUtil.str2gdk("red"), a)
+            
+    def get_style_color_int_rgb(self, styleName, stateName):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2intrgb(colors[state])
+        else:
+            return GtkUtil.gdk2intrgb(GtkUtil.str2gdk("red"))
+            
+    def get_style_color_int_rgba(self, styleName, stateName, a=1):
+        colors,state = self._get_colors_and_state(styleName, stateName)
+        if colors != None and state != None:
+            return GtkUtil.gdk2intrgba(colors[state], int(a*255))
+        else:
+            return GtkUtil.gdk2intrgba(GtkUtil.str2gdk("red"), int(a*255))
+
+class _CanvasItem(goocanvas.Group, _StyleMixin):
+
+    #attributes common to Conduit and Dataprovider items
+    RECTANGLE_RADIUS =  4.0
+
+    def __init__(self, parent, model):
+        #FIXME: If parent is None in base constructor then goocanvas segfaults
+        #this means a ref to items may be kept so this may leak...
+        goocanvas.Group.__init__(self, parent=parent)
+        self.model = model
+        
+        #this little piece of magic re-applies style properties to the
+        #widgets, when the users theme changes
+        canv = self.get_canvas()
+        if canv:
+            canv.connect("style-set", self._automatic_style_updater)
+
+    def _automatic_style_updater(self, *args):
+        if not self.get_gtk_style():
+            #while in the midst of changing theme, the style is sometimes
+            #None, but dont worry, we will get called again
+            return
+        for attr in self.get_styled_item_names():
+            item = getattr(self, attr, None)
+            if item:
+                item.set_properties(
+                        **self.get_style_properties(attr)
+                        )
+
+    def get_height(self):
+        b = self.get_bounds()
+        return b.y2-b.y1
+
+    def get_width(self):
+        b = self.get_bounds()
+        return b.x2-b.x1
+
+    def get_top(self):
+        b = self.get_bounds()
+        return b.y1
+
+    def get_bottom(self):
+        b = self.get_bounds()
+        return b.y2
+
+    def get_left(self):
+        b = self.get_bounds()
+        return b.x1
+
+    def get_right(self):
+        b = self.get_bounds()
+        return b.x2
+        
+    def get_styled_item_names(self):
+        raise NotImplementedError        
+        
+    def get_style_properties(self, specifier):
+        raise NotImplementedError
+
+class Canvas(goocanvas.Canvas, _StyleMixin):
     """
     This class manages many objects
     """
@@ -92,9 +193,13 @@ class Canvas(goocanvas.Canvas):
         self.connect('drag-motion', self.on_drag_motion)
         self.connect('size-allocate', self._canvas_resized)
 
-        #Show a friendly welcome message on the canvas the first time the
-        #application is launched
-        self.welcomeMessage = None
+        #track theme chages for canvas background
+        self.connect('realize', self._update_for_theme)
+        #We need a flag becuase otherwise we recurse forever.
+        #It appears that setting background_color_rgb in the 
+        #sync-set handler causes sync-set to be emitted again, and again...
+        self._changing_style = False
+        self.connect("style-set", self._update_for_theme)
 
         #keeps a reference to the currently selected (most recently clicked)
         #canvas items
@@ -104,8 +209,27 @@ class Canvas(goocanvas.Canvas):
         #model is a SyncSet, not set till later because it is loaded from xml
         self.model = None
         
-        log.info("Goocanvas version: %s" % str(goocanvas.pygoocanvas_version))
+        #Show a friendly welcome message on the canvas the first time the
+        #application is launched
+        self.welcomeMessage = None
+        self._show_welcome_message()
         
+    def _update_for_theme(self, *args):
+        if not self.get_gtk_style() or self._changing_style:
+            return
+
+        self._changing_style = True    
+        self.set_property(
+                "background_color_rgb",
+                self.get_style_color_int_rgb("bg","normal")
+                )
+        if self.welcomeMessage:
+            self.welcomeMessage.set_property(
+                "fill_color_rgba",
+                self.get_style_color_int_rgba("text","normal")
+                )
+        self._changing_style = False
+
     def _setup_popup_menus(self, dataproviderPopupXML, conduitPopupXML):
         """
         Sets up the popup menus and their callbacks
@@ -161,7 +285,7 @@ class Canvas(goocanvas.Canvas):
                                     anchor=gtk.ANCHOR_CENTER,
                                     alignment=pango.ALIGN_CENTER,
                                     font="Sans 10",
-                                    fill_color="black",
+                                    fill_color_rgba=self.get_style_color_int_rgba("text","normal"),
                                     )
 
         idx = self.root.find_child(self.welcomeMessage)
@@ -291,7 +415,7 @@ class Canvas(goocanvas.Canvas):
         items = self._get_child_conduit_canvas_items()
         if len(items) > 0:
             #special case where the top one was deleted
-            top = items[0].get_top()-(LINE_WIDTH/2)
+            top = items[0].get_top()-(items[0].LINE_WIDTH/2)
             if top != 0.0:
                 for item in items:
                     #translate all those below
@@ -317,8 +441,8 @@ class Canvas(goocanvas.Canvas):
                 else:
                     log.warn("Error finding item")
         self._remove_overlap()
-        self._show_welcome_message()
 
+        self._show_welcome_message()
         c_x,c_y,c_w,c_h = self.get_bounds()
         self.set_bounds(
                     0,
@@ -331,7 +455,6 @@ class Canvas(goocanvas.Canvas):
         """
         Creates a ConduitCanvasItem for the new conduit
         """
-
         #check for duplicates to eliminate race condition in set_sync_set
         if conduitAdded in [i.model for i in self._get_child_conduit_canvas_items()]:
             return
@@ -345,8 +468,8 @@ class Canvas(goocanvas.Canvas):
                                 width=c_w)
         conduitCanvasItem.connect('button-press-event', self._on_conduit_button_press)
         conduitCanvasItem.translate(
-                LINE_WIDTH/2.0,
-                bottom+(LINE_WIDTH/2.0)
+                conduitCanvasItem.LINE_WIDTH/2.0,
+                bottom+(conduitCanvasItem.LINE_WIDTH/2.0)
                 )
 
         for dp in conduitAdded.get_all_dataproviders():
@@ -368,7 +491,6 @@ class Canvas(goocanvas.Canvas):
             if item.model == dataproviderRemoved:
                 conduitCanvasItem.delete_dataprovider_canvas_item(item)
         self._remove_overlap()
-        self._show_welcome_message()
 
     def on_dataprovider_added(self, sender, dataproviderAdded, conduitCanvasItem):
         """
@@ -387,7 +509,6 @@ class Canvas(goocanvas.Canvas):
         item.connect('button-press-event', self._on_dataprovider_button_press)
         conduitCanvasItem.add_dataprovider_canvas_item(item)
         self._remove_overlap()
-        self._show_welcome_message()
 
     def get_sync_set(self):
         return self.model
@@ -400,8 +521,6 @@ class Canvas(goocanvas.Canvas):
         self.model.connect("conduit-added", self.on_conduit_added)
         self.model.connect("conduit-removed", self.on_conduit_removed)
 
-        self._show_welcome_message()
-        
     def on_drag_motion(self, wid, context, x, y, time):
         context.drag_status(gtk.gdk.ACTION_COPY, time)
         return True
@@ -522,52 +641,15 @@ class Canvas(goocanvas.Canvas):
     def clear_canvas(self):
         self.model.clear()
 
-class _CanvasItem(goocanvas.Group):
-    def __init__(self, parent, model):
-        #FIXME: If parent is None in base constructor then goocanvas segfaults
-        #this means a ref to items may be kept so this may leak...
-        goocanvas.Group.__init__(self, parent=parent)
-        self.model = model
-
-    def get_height(self):
-        b = self.get_bounds()
-        return b.y2-b.y1
-
-    def get_width(self):
-        b = self.get_bounds()
-        return b.x2-b.x1
-
-    def get_top(self):
-        b = self.get_bounds()
-        return b.y1
-
-    def get_bottom(self):
-        b = self.get_bounds()
-        return b.y2
-
-    def get_left(self):
-        b = self.get_bounds()
-        return b.x1
-
-    def get_right(self):
-        b = self.get_bounds()
-        return b.x2
-
 class DataProviderCanvasItem(_CanvasItem):
 
     WIDGET_WIDTH = 130
     WIDGET_HEIGHT = 60
     IMAGE_TO_TEXT_PADDING = 5
     PENDING_MESSAGE = "Pending"
-    PENDING_FILL_COLOR = TANGO_COLOR_BUTTER_LIGHT
-    SOURCE_FILL_COLOR = TANGO_COLOR_ALUMINIUM1_MID
-    SINK_FILL_COLOR = TANGO_COLOR_SKYBLUE_LIGHT
-    TWOWAY_FILL_COLOR = TANGO_COLOR_BUTTER_MID
-
-    NAME_FONT = "Sans 8"
-    STATUS_FONT = "Sans 7"
     MAX_TEXT_LENGTH = 10
     MAX_TEXT_LINES = 2
+    LINE_WIDTH = 2.0
 
     def __init__(self, parent, model):
         _CanvasItem.__init__(self, parent, model)
@@ -597,19 +679,6 @@ class DataProviderCanvasItem(_CanvasItem):
             
         return text
 
-    def _get_fill_color(self):
-        if self.model.module == None:
-            return self.PENDING_FILL_COLOR
-        else:
-            if self.model.module_type == "source":
-                return self.SOURCE_FILL_COLOR
-            elif self.model.module_type == "sink":
-                return self.SINK_FILL_COLOR
-            elif self.model.module_type == "twoway":
-                return self.TWOWAY_FILL_COLOR
-            else:
-                log.warn("Unknown module type: Cannot get fill color")
-
     def _get_icon(self):
         return self.model.get_icon()        
 
@@ -617,13 +686,11 @@ class DataProviderCanvasItem(_CanvasItem):
         self.box = goocanvas.Rect(   
                                 x=0, 
                                 y=0, 
-                                width=self.WIDGET_WIDTH-(2*LINE_WIDTH), 
-                                height=self.WIDGET_HEIGHT-(2*LINE_WIDTH),
-                                line_width=LINE_WIDTH, 
-                                stroke_color="black",
-                                fill_color_rgba=self._get_fill_color(), 
-                                radius_y=RECTANGLE_RADIUS, 
-                                radius_x=RECTANGLE_RADIUS
+                                width=self.WIDGET_WIDTH-(2*self.LINE_WIDTH), 
+                                height=self.WIDGET_HEIGHT-(2*self.LINE_WIDTH),
+                                radius_y=self.RECTANGLE_RADIUS, 
+                                radius_x=self.RECTANGLE_RADIUS,
+                                **self.get_style_properties("box")
                                 )
         pb = self.model.get_icon()
         pbx = int((1*self.WIDGET_WIDTH/5) - (pb.get_width()/2))
@@ -632,12 +699,13 @@ class DataProviderCanvasItem(_CanvasItem):
                                 x=pbx,
                                 y=pby
                                 )
-        self.name = goocanvas.Text(  x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
+        self.name = goocanvas.Text(
+                                x=pbx + pb.get_width() + self.IMAGE_TO_TEXT_PADDING, 
                                 y=int(1*self.WIDGET_HEIGHT/3), 
                                 width=3*self.WIDGET_WIDTH/5, 
                                 text=self._get_model_name(), 
-                                anchor=gtk.ANCHOR_WEST, 
-                                font=self.NAME_FONT
+                                anchor=gtk.ANCHOR_WEST,
+                                **self.get_style_properties("name")
                                 )
         self.statusText = goocanvas.Text(  
                                 x=int(1*self.WIDGET_WIDTH/10), 
@@ -645,11 +713,9 @@ class DataProviderCanvasItem(_CanvasItem):
                                 width=4*self.WIDGET_WIDTH/5, 
                                 text="", 
                                 anchor=gtk.ANCHOR_WEST, 
-                                font=self.STATUS_FONT,
-                                fill_color_rgba=TANGO_COLOR_ALUMINIUM2_MID,
+                                **self.get_style_properties("statusText")
                                 )                                    
         
-           
         #Add all the visual elements which represent a dataprovider    
         self.add_child(self.box)
         self.add_child(self.name)
@@ -662,6 +728,50 @@ class DataProviderCanvasItem(_CanvasItem):
     def _on_status_changed(self, dataprovider):
         msg = dataprovider.get_status()
         self.statusText.set_property("text", msg)
+    
+    def get_styled_item_names(self):
+        return "box","name","statusText"
+        
+    def get_style_properties(self, specifier):
+        if specifier == "box":
+            #color the box differently if it is pending, i.e. unavailable,
+            #disconnected, etc.
+            if self.model.module == None:
+                insensitive = self.get_style_color_int_rgba("mid","insensitive")
+                kwargs = {
+                    "line_width":1.5,
+                    "stroke_color_rgba":insensitive,
+                    "fill_color_rgba":insensitive
+                }
+                
+            else:
+                pattern = cairo.LinearGradient(0, 0, 0, 100)
+                pattern.add_color_stop_rgb(
+                                        0,
+                                        *self.get_style_color_rgb("dark","active")
+                                        );
+                pattern.add_color_stop_rgb(
+                                        0.5,
+                                        *self.get_style_color_rgb("dark","prelight")
+                                        );
+            
+                kwargs = {
+                    "line_width":2.0,
+                    "stroke_color":"black",
+                    "fill_pattern":pattern
+                }
+        elif specifier == "name":
+            kwargs = {
+                "font":"Sans 8",
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        elif specifier == "statusText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color_rgba":self.get_style_color_int_rgba("text_aa","normal")
+            }
+        
+        return kwargs
         
     def update_appearance(self):
         #the image
@@ -678,7 +788,9 @@ class DataProviderCanvasItem(_CanvasItem):
             statusText = self.model.module.get_status()
         self.statusText.set_property("text",statusText)
 
-        self.box.set_property("fill_color_rgba",self._get_fill_color())
+        self.box.set_properties(
+                    **self.get_style_properties("box")
+                    )
 
     def set_model(self, model):
         self.model = model
@@ -689,7 +801,11 @@ class DataProviderCanvasItem(_CanvasItem):
     
 class ConduitCanvasItem(_CanvasItem):
 
+    DIVIDER = False
+    FLAT_BOX = True
     WIDGET_HEIGHT = 100
+    SIDE_PADDING = 10.0
+    LINE_WIDTH = 2.0
 
     def __init__(self, parent, model, width):
         _CanvasItem.__init__(self, parent, model)
@@ -702,9 +818,15 @@ class ConduitCanvasItem(_CanvasItem):
         self.sinkDpItems = []
         self.connectorItems = {}
 
-        self.bounding_box = None
         self.l = None
         self.progressText = None
+        self.boundingBox = None        
+
+        #if self.DIVIDER, show an transparent bouding box, and a
+        #simple dividing line
+        self.divider = None
+        #goocanvas.Points need a list of tuples, not a list of lists. Yuck
+        self.dividerPoints = [(),()]
 
         #Build the widget
         self._build_widget(width)
@@ -720,8 +842,7 @@ class ConduitCanvasItem(_CanvasItem):
                                     text="", 
                                     anchor=gtk.ANCHOR_WEST,
                                     alignment=pango.ALIGN_LEFT,
-                                    font="Sans 7",
-                                    fill_color="black",
+                                    **self.get_style_properties("progressText")
                                     )
                 self.add_child(self.progressText) 
 
@@ -730,42 +851,55 @@ class ConduitCanvasItem(_CanvasItem):
         if dpx == 0:
             #Its a source
             dpCanvasItem.translate(
-                        SIDE_PADDING,
-                        SIDE_PADDING + self.l.get_property("line_width")
+                        self.SIDE_PADDING,
+                        self.SIDE_PADDING + self.l.get_property("line_width")
                         )
         else:
             #Its a sink
             if dpy == 0:
-                i = SIDE_PADDING
+                i = self.SIDE_PADDING
             else:
-                i = (dpy * SIDE_PADDING) + SIDE_PADDING
+                i = (dpy * self.SIDE_PADDING) + self.SIDE_PADDING
 
             dpCanvasItem.translate(
-                            self.get_width() - dpCanvasItem.get_width() - SIDE_PADDING,
+                            self.get_width() - dpCanvasItem.get_width() - self.SIDE_PADDING,
                             (dpy * dpCanvasItem.get_height()) + i + self.l.get_property("line_width")
                             )
 
     def _build_widget(self, width):
-        true_width = width-LINE_WIDTH
+        true_width = width-self.LINE_WIDTH
 
         #draw a spacer to give some space between conduits
         points = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
-        self.l = goocanvas.Polyline(points=points, line_width=LINE_WIDTH, stroke_color_rgba=TRANSPARENT_COLOR)
+        self.l = goocanvas.Polyline(
+                                points=points,
+                                line_width=self.LINE_WIDTH,
+                                stroke_color_rgba=GtkUtil.TRANSPARENT_COLOR
+                                )
         self.add_child(self.l)
 
         #draw a box which will contain the dataproviders
-        self.bounding_box = goocanvas.Rect(
+        self.boundingBox = goocanvas.Rect(
                                 x=0, 
                                 y=5, 
                                 width=true_width,     
-                                height=ConduitCanvasItem.WIDGET_HEIGHT,
-                                line_width=LINE_WIDTH, 
-                                stroke_color="black",
-                                fill_color_rgba=TANGO_COLOR_ALUMINIUM1_LIGHT, 
-                                radius_y=RECTANGLE_RADIUS, 
-                                radius_x=RECTANGLE_RADIUS
+                                height=self.WIDGET_HEIGHT,
+                                radius_y=self.RECTANGLE_RADIUS, 
+                                radius_x=self.RECTANGLE_RADIUS,
+                                **self.get_style_properties("boundingBox")
                                 )
-        self.add_child(self.bounding_box)
+        self.add_child(self.boundingBox)
+        if self.DIVIDER:
+            #draw an underline
+            #from point
+            self.dividerPoints[0] = (true_width*0.33,5+self.WIDGET_HEIGHT)
+            self.dividerPoints[1] = (2*(true_width*0.33),5+self.WIDGET_HEIGHT)
+            
+            self.divider = goocanvas.Polyline(
+                                    points=goocanvas.Points(self.dividerPoints),
+                                    **self.get_style_properties("divider")
+                                    )
+            self.add_child(self.divider)
 
     def _resize_height(self):
         sourceh =   0.0
@@ -776,13 +910,13 @@ class ConduitCanvasItem(_CanvasItem):
         #padding between items
         numSinks = len(self.sinkDpItems)
         if numSinks:
-            sinkh += ((numSinks - 1)*SIDE_PADDING)
+            sinkh += ((numSinks - 1)*self.SIDE_PADDING)
         if self.sourceItem != None:
             sourceh += self.sourceItem.get_height()
 
         self.set_height(
-                    max(sourceh, sinkh)+    #expand to the largest
-                    (1.5*SIDE_PADDING)        #padding at the top and bottom
+                    max(sourceh, sinkh)+        #expand to the largest
+                    (1.5*self.SIDE_PADDING)        #padding at the top and bottom
                     )
 
     def _delete_connector(self, item):
@@ -826,7 +960,7 @@ class ConduitCanvasItem(_CanvasItem):
         items = self.sinkDpItems
         if len(items) > 0:
             #special case where the top one was deleted
-            top = items[0].get_top()-self.get_top()-SIDE_PADDING-LINE_WIDTH
+            top = items[0].get_top()-self.get_top()-self.SIDE_PADDING-items[0].LINE_WIDTH
             if top != 0.0:
                 for item in items:
                     #translate all those below
@@ -841,16 +975,63 @@ class ConduitCanvasItem(_CanvasItem):
                         log.debug("Sink Overlap: %s %s ----> %s" % (overlap,i,i+1))
                         #If there is anything more than the normal padding gap between then
                         #the dp must be translated
-                        if overlap < -SIDE_PADDING:
+                        if overlap < -self.SIDE_PADDING:
                             #translate all those below, and make their connectors work again
                             for item in items[i+1:]:
-                                item.translate(0,overlap+SIDE_PADDING)
+                                item.translate(0,overlap+self.SIDE_PADDING)
                                 if self.sourceItem != None:
                                     fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,item)
                                     self.connectorItems[item].reconnect(fromx,fromy,tox,toy)
                     except IndexError:
                         break
 
+    def get_styled_item_names(self):
+        return "boundingBox","progressText","divider"
+
+    def get_style_properties(self, specifier):
+        if specifier == "boundingBox":
+            if self.DIVIDER:
+                kwargs = {
+                    "line_width":0
+                }
+            else: 
+                if self.FLAT_BOX:
+                    kwargs = {
+                        "line_width":0,
+                        "fill_color_rgba":self.get_style_color_int_rgba("base","prelight")
+                    }
+                else:
+                    pattern = cairo.LinearGradient(0, -30, 0, 100)
+                    pattern.add_color_stop_rgb(
+                                            0,
+                                            *self.get_style_color_rgb("dark","selected")
+                                            );
+                    pattern.add_color_stop_rgb(
+                                            0.7,
+                                            *self.get_style_color_rgb("mid","selected")
+                                            );
+                    
+                    kwargs = {
+                        "line_width":2.0, 
+                        "fill_pattern":pattern,
+                        "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
+                    }
+
+        elif specifier == "progressText":
+            kwargs = {
+                "font":"Sans 7",
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        elif specifier == "divider":
+            kwargs = {
+                "line_width":3.0,
+                "line_cap":cairo.LINE_CAP_ROUND,
+                "stroke_color_rgba":self.get_style_color_int_rgba("text_aa","normal")
+            }
+        else:
+            kwargs = {}
+
+        return kwargs
 
     def update_appearance(self):
         self._resize_height()
@@ -930,19 +1111,32 @@ class ConduitCanvasItem(_CanvasItem):
         self.update_appearance()
 
     def set_height(self, h):
-        self.bounding_box.set_property("height",h)
+        self.boundingBox.set_property("height",h)
+
+        if self.DIVIDER:
+            #update height points for the divider line
+            self.dividerPoints[0] = (self.dividerPoints[0][0],h+10)
+            self.dividerPoints[1] = (self.dividerPoints[0][0],h+10)
+            self.divider.set_property("points", 
+                                goocanvas.Points(self.dividerPoints))        
 
     def set_width(self, w):
-        true_width = w-LINE_WIDTH
+        true_width = w-self.LINE_WIDTH
+        self.boundingBox.set_property("width",true_width)
 
-        #resize the box
-        self.bounding_box.set_property("width",true_width)
+        if self.DIVIDER:
+            #update width points for the divider line
+            self.dividerPoints[0] = (true_width*0.33,self.dividerPoints[0][1])
+            self.dividerPoints[1] = (2*(true_width*0.33),self.dividerPoints[1][1])
+            self.divider.set_property("points", 
+                                goocanvas.Points(self.dividerPoints))
+
         #resize the spacer
         p = goocanvas.Points([(0.0, 0.0), (true_width, 0.0)])
         self.l.set_property("points",p)
 
         for d in self.sinkDpItems:
-            desired = w - d.get_width() - SIDE_PADDING
+            desired = w - d.get_width() - self.SIDE_PADDING
             actual = d.get_left()
             change = desired-actual
             #move righthand dp
@@ -950,14 +1144,14 @@ class ConduitCanvasItem(_CanvasItem):
             #resize arrow (if exists)
             if self.sourceItem != None:
                 self.connectorItems[d].resize_connector_width(change)
-
+                
 class ConnectorCanvasItem(_CanvasItem):
 
     CONNECTOR_RADIUS = 30
-    CONNECTOR_LINE_WIDTH = 5
     CONNECTOR_YOFFSET = 20
     CONNECTOR_TEXT_XPADDING = 5
     CONNECTOR_TEXT_YPADDING = 10
+    LINE_WIDTH = 5.0
 
     def __init__(self, parent, fromX, fromY, toX, toY, twoway, conversionExists):
         _CanvasItem.__init__(self, parent, None)
@@ -966,13 +1160,7 @@ class ConnectorCanvasItem(_CanvasItem):
         self.fromY = fromY
         self.toX = toX
         self.toY = toY
-
         self.twoway = twoway
-
-        if conversionExists == True:
-            self.color = "black"
-        else:
-            self.color = "red"
 
         self._build_widget()
         
@@ -982,18 +1170,18 @@ class ConnectorCanvasItem(_CanvasItem):
                                     center_y=self.fromY, 
                                     radius_x=6, 
                                     radius_y=6, 
-                                    fill_color=self.color, 
-                                    line_width=0.0
+                                    line_width=0.0,
+                                    **self.get_style_properties("left_end_round")
                                     )
         points = goocanvas.Points([(self.fromX-6, self.fromY), (self.fromX-7, self.fromY)])
         self.left_end_arrow = goocanvas.Polyline(
                             points=points,
-                            stroke_color=self.color,
                             line_width=5,
                             end_arrow=True,
                             arrow_tip_length=3,
                             arrow_length=3,
-                            arrow_width=3
+                            arrow_width=3,
+                            **self.get_style_properties("left_end_arrow")
                             )
 
         
@@ -1001,18 +1189,22 @@ class ConnectorCanvasItem(_CanvasItem):
         points = goocanvas.Points([(self.toX-1, self.toY), (self.toX, self.toY)])
         self.right_end = goocanvas.Polyline(
                             points=points,
-                            stroke_color=self.color,
                             line_width=5,
                             end_arrow=True,
                             arrow_tip_length=3,
                             arrow_length=3,
-                            arrow_width=3
+                            arrow_width=3,
+                            **self.get_style_properties("right_end")
                             )
 
         self._draw_arrow_ends()
         self.add_child(self.right_end,-1)
 
-        self.path = goocanvas.Path(data="",stroke_color=self.color,line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
+        self.path = goocanvas.Path(
+                            data="",
+                            line_width=self.LINE_WIDTH,
+                            **self.get_style_properties("path")
+                            )
         self._draw_path()
 
     def _draw_arrow_ends(self):
@@ -1070,8 +1262,29 @@ class ConnectorCanvasItem(_CanvasItem):
             self.remove_child(pidx)
 
         #Reecreate the path to work round goocanvas bug
-        self.path = goocanvas.Path(data=p,stroke_color=self.color,line_width=ConnectorCanvasItem.CONNECTOR_LINE_WIDTH)
+        self.path = goocanvas.Path(
+                            data=p,
+                            line_width=self.LINE_WIDTH,
+                            **self.get_style_properties("path")
+                            )
         self.add_child(self.path,-1)
+    
+    def get_styled_item_names(self):
+        return "left_end_round", "left_end_arrow", "right_end", "path"
+        
+    def get_style_properties(self, specifier):
+        if specifier == "left_end_round":
+            kwargs = {
+                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        elif specifier in ("left_end_arrow", "right_end", "path"):
+            kwargs = {
+                "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
+            }
+        else:
+            kwargs = {}
+        
+        return kwargs
             
     def resize_connector_width(self, dw):
         """
