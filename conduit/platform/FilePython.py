@@ -12,6 +12,8 @@ class FileImpl(conduit.platform.File):
     def __init__(self, URI):
         self._path = URI.split("file://")[-1]
 
-
 class FileTransferImpl(conduit.platform.FileTransfer):
+    pass
+
+class VolumeMonitor(conduit.platform.VolumeMonitor):
     pass

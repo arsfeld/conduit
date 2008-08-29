@@ -15,9 +15,10 @@ if conduit.FILE_IMPL == "GnomeVfs":
     import conduit.platform.FileGnomeVfs as FileImpl
 elif conduit.FILE_IMPL == "GIO":
     import conduit.platform.FileGio as FileImpl
+elif conduit.FILE_IMPL == "Python":
+    import conduit.platform.FilePython as FileImpl
 else:
     raise Exception("File Implementation %s Not Supported" % conduit.FILE_IMPL)
-
 
 #
 # URI Functions
@@ -72,7 +73,7 @@ def uri_get_relative(fromURI, toURI):
     
 def uri_open(uri):
     """
-    Opens a gnomevfs or xdg compatible uri.
+    Opens a xdg compatible uri.
     """
     uri = _ensure_type(uri)
     APP = "xdg-open"
@@ -285,41 +286,13 @@ class FileMonitor(gobject.GObject):
             gnomevfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
 
-class VolumeMonitor(Singleton.Singleton, gobject.GObject):
-
-    __gsignals__ = {
-        "volume-mounted" :      (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_STRING]),      #udi
-        "volume-unmounted" :    (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_STRING])       #udi
-
-    }
-
-    def __init__(self):
-        gobject.GObject.__init__(self)
-        self._impl = gnomevfs.VolumeMonitor()
-        self._impl.connect("volume-mounted", self._mounted_unmounted_cb, "volume-mounted")
-        self._impl.connect("volume-unmounted", self._mounted_unmounted_cb, "volume-unmounted")
-
-    def _mounted_unmounted_cb(self, sender, volume, signalname):
-        self.emit(signalname, volume.get_hal_udi())
-
-    def get_mounted_volumes(self):
-        return [volume.get_hal_udi() for volume in self._impl.get_mounted_volumes()]
-
-    def volume_is_removable(self, path):
-        return self._impl.get_volume_for_path(path).is_user_visible()
-
-    def volume_get_fstype(self, path):
-        return self._impl.get_volume_for_path(path).get_filesystem_type()
-
-    def volume_get_root_uri(self, path):
-        return self._impl.get_volume_for_path(path).get_activation_uri()
+class VolumeMonitor(FileImpl.VolumeMonitor):
+    pass
 
 #
 # Scanner ThreadManager
 #
-class FolderScannerThreadManager(object):
+class FolderScannerThreadManager:
     """
     Manages many FolderScanner threads. This involves joining and cancelling
     said threads, and respecting a maximum num of concurrent threads limit

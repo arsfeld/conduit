@@ -4,6 +4,7 @@ except ImportError:
     from gnome import gnomevfs # for maemo
 
 import conduit.platform
+import conduit.utils.Singleton as Singleton
 
 import logging
 log = logging.getLogger("platform.FileGnomeVfs")
@@ -223,7 +224,28 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             log.warn("File transfer error: %s" % e)
             return False, None
     
-    
+class VolumeMonitor(Singleton.Singleton, conduit.platform.VolumeMonitor):
+
+    def __init__(self):
+        conduit.platform.VolumeMonitor(self)
+        self._vm = gnomevfs.VolumeMonitor()
+        self._vm.connect("volume-mounted", self._mounted_unmounted_cb, "volume-mounted")
+        self._vm.connect("volume-unmounted", self._mounted_unmounted_cb, "volume-unmounted")
+
+    def _mounted_unmounted_cb(self, sender, volume, signalname):
+        self.emit(signalname, volume.get_hal_udi())
+
+    def get_mounted_volumes(self):
+        return [volume.get_hal_udi() for volume in self._vm.get_mounted_volumes()]
+
+    def volume_is_removable(self, path):
+        return self._vm.get_volume_for_path(path).is_user_visible()
+
+    def volume_get_fstype(self, path):
+        return self._vm.get_volume_for_path(path).get_filesystem_type()
+
+    def volume_get_root_uri(self, path):
+        return self._vm.get_volume_for_path(path).get_activation_uri()
     
 
 

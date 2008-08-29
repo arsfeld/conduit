@@ -163,4 +163,7 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             log.warn("File transfer error: %s" % e)
             return False, None
 
+class VolumeMonitor(conduit.platform.VolumeMonitor):
+    pass
+
 

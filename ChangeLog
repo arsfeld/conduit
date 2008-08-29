@@ -1,5 +1,14 @@
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/FilePython.py:
+	* conduit/platform/__init__.py: Move volume monitor into the FileImpl
+	classes.
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/AudioVideoConverterModule.py: Fix typo in conversion
 	arguments. Really Fixes #526423 (Alexandre Rosenfeld)
 
