@@ -53,6 +53,7 @@ else:
     GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
     SHARED_MODULE_DIR =         os.path.join(DIRECTORY, "conduit", "modules")
     SETTINGS_IMPL =             "GConf"
+    FILE_IMPL =                 "GnomeVfs"
 
 import Globals
 GLOBALS = Globals.Globals()

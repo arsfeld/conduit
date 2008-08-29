@@ -48,7 +48,7 @@ class Application(dbus.service.Object):
         self.dbFile = os.path.join(conduit.USER_DIR, "mapping.db")
 
         #initialize application settings
-        conduit.GLOBALS.settings = Settings(conduit.SETTINGS_IMPL)
+        conduit.GLOBALS.settings = Settings()
 
         buildGUI = True
         iconify = False

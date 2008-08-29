@@ -7,6 +7,7 @@ Copyright: John Stowers, 2006
 License: GPLv2
 """
 import gobject
+import conduit
 
 #these dicts are used for mapping config setting types to type names
 #and back again (isnt python cool...)
@@ -81,16 +82,22 @@ class Settings(gobject.GObject):
         'web_login_browser'         :   "gtkmozembed"   #When loggin into websites use: "system","gtkmozembed","webkit","gtkhtml"
     }
         
-    def __init__(self, implName):
+    def __init__(self, **kwargs):
         gobject.GObject.__init__(self)
+        
+        #you can override the settings implementation at runtime
+        #for testing purposes only
+        implName = kwargs.get("implName", conduit.SETTINGS_IMPL)
         if implName == "GConf":
-            from conduit.platform.SettingsGConf import SettingsImpl            
+            import conduit.platform.SettingsGConf as SettingsImpl
+        elif implName == "Python":
+            import conduit.platform.SettingsPython as SettingsImpl
         else:
-            from conduit.platform.SettingsPython import SettingsImpl
+            raise Exception("Settings Implementation %s Not Supported" % implName)
 
-        self._impl = SettingsImpl(
-                        defaults=self.DEFAULTS,
-                        changedCb=self._key_changed)
+        self._settings = SettingsImpl.SettingsImpl(
+                                defaults=self.DEFAULTS,
+                                changedCb=self._key_changed)
         
     def _key_changed(self, key):
         self.emit('changed::%s' % key)
@@ -100,20 +107,20 @@ class Settings(gobject.GObject):
         Sets values of settings that only exist for this setting, and are
         never saved, nor updated.
         """
-        self._impl.set_overrides(**overrides)
+        self._settings.set_overrides(**overrides)
 
     def get(self, key, **kwargs):
         """
         Returns the value of the key or the default value if the key is 
         not yet stored
         """
-        return self._impl.get(key, **kwargs)
+        return self._settings.get(key, **kwargs)
 
     def set(self, key, value, **kwargs):
         """
         Sets the key to value.
         """
-        return self._impl.set(key, value, **kwargs)
+        return self._settings.set(key, value, **kwargs)
         
     def proxy_enabled(self):
         """
@@ -121,7 +128,7 @@ class Settings(gobject.GObject):
         the http_proxy environment variable, or in the appropriate settings
         backend, such as gconf
         """
-        return self._impl.proxy_enabled()
+        return self._settings.proxy_enabled()
         
     def get_proxy(self):
         """
@@ -129,12 +136,12 @@ class Settings(gobject.GObject):
         The http_proxy environment variable overrides the GNOME setting
         @returns: host,port,user,password
         """
-        return self._impl.get_proxy()
+        return self._settings.get_proxy()
 
     def save(self):
         """
         Performs any necessary tasks to ensure settings are saved between sessions
         """
-        self._impl.save()
+        self._settings.save()
 
 

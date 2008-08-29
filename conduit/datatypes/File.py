@@ -1,3 +1,4 @@
+import sys
 import os
 import tempfile
 import datetime
@@ -8,8 +9,6 @@ log = logging.getLogger("datatypes.File")
 import conduit
 import conduit.datatypes.DataType as DataType
 import conduit.Vfs as Vfs
-
-from conduit.platform.FileGnomeVfs import FileImpl, FileTransferImpl
 
 class FileTransferError(Exception):
     pass
@@ -29,8 +28,21 @@ class File(DataType.DataType):
           - group: A named group to which this file belongs
         """
         DataType.DataType.__init__(self)
-        self._file = FileImpl(URI)
-
+        
+        #you can override the file implmentation at runtime
+        #for testing purposes only
+        implName = kwargs.get("implName", conduit.FILE_IMPL)
+        if implName == "GnomeVfs":
+            import conduit.platform.FileGnomeVfs as FileImpl
+            self.FileImpl = FileImpl
+        elif implName == "GIO":
+            import conduit.platform.FileGio as FileImpl
+            self.FileImpl = FileImpl
+        else:
+            raise Exception("File Implementation %s Not Supported" % implName)
+            
+        self._file = self.FileImpl.FileImpl(URI)
+        
         #optional args
         self.basePath = kwargs.get("basepath","")
         self.group = kwargs.get("group","")
@@ -204,9 +216,9 @@ class File(DataType.DataType):
 
         @type newURIString: C{string}
         """
-        trans = FileTransferImpl(
-                        source=self._file,
-                        dest=newURIString)
+        trans = self.FileImpl.FileTransferImpl(
+                                source=self._file,
+                                dest=newURIString)
         
         #the default cancel function just checks conduit.GLOBALS.cancelled
         if cancel_function == None:
@@ -404,7 +416,7 @@ class File(DataType.DataType):
         os.write(fd, data['data'])
         os.close(fd)
         
-        self._file = FileImpl(name)
+        self._file = FileImpl.FileImpl(name)
         self.basePath = data['basePath']
         self.group = data['group']
         self._defer_rename(data['filename'])

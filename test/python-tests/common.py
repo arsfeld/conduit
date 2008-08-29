@@ -41,7 +41,7 @@ conduit.SETTINGS_IMPL =             "GConf"
 
 # override some conduit settings. 
 # without a gobject main loop the gtkmozembed browser hangs
-conduit.GLOBALS.settings = Settings.Settings(conduit.SETTINGS_IMPL)
+conduit.GLOBALS.settings = Settings.Settings()
 conduit.GLOBALS.settings.set_overrides(web_login_browser="system")
 
 def is_online():

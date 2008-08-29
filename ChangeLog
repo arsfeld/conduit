@@ -1,5 +1,14 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Main.py:
+	* conduit/Settings.py:
+	* conduit/__init__.py:
+	* conduit/datatypes/File.py:
+	* test/python-tests/common.py: Adjusted the manner in which the 
+	settings and file implementations can be changed at run (and test) time.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/TestCoreFile.py: Test the tempfile handling
 	directly.
 
