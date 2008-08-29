@@ -147,13 +147,19 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     """
     Removes illegal characters in uri that cannot be stored on the 
     given filesystem - particuarly fat and ntfs types
+    
+    Also see:    
+    http://bugzilla.gnome.org/show_bug.cgi?id=309584#c20
     """
     uri = conduit.utils.ensure_string(uri)
     import string
-    
+
     ILLEGAL_CHARS = {
-        "vfat"  :   "\\:*?\"<>|",
-        "ntfs"  :   "\\:*?\"<>|"
+        "fat"       :   "\\:*?\"<>|/",
+        "vfat"      :   "\\:*?\"<>|/",
+        "msdos"     :   "\\:*?\"<>|/",
+        "msdosfs"   :   "\\:*?\"<>|/",
+        "ntfs"      :   "\\:*?\"<>|/"
     }
 
     illegal = ILLEGAL_CHARS.get(filesystem,None)

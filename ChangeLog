@@ -1,5 +1,9 @@
 2008-08-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py: fat32 filesystems are reported as msdos by gio
+
+2008-08-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/utils/__init__.py:
 	* test/python-tests/TestCoreUtil.py: More util functions using urllib to
 	work around gvfs bugs.
