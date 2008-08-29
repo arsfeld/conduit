@@ -4,7 +4,7 @@ import conduit.Vfs as Vfs
 import conduit.platform
 
 import logging
-log = logging.getLogger("Settings")
+log = logging.getLogger("platform.FileGio")
 
 class FileImpl(conduit.platform.File):
     SCHEMES = ("file://","http://","ftp://","smb://")
@@ -16,7 +16,12 @@ class FileImpl(conduit.platform.File):
         if not self.triedOpen:
             try:
                 #FIXME: Only get attributes we actually care about
-                self.fileInfo = self._file.query_info("standard::*")
+                self.fileInfo = self._file.query_info("standard::*,time::*")
+                for ns in ("standard","time"):
+                    log.info("%s Attributes: %s" % (
+                            ns.title(),
+                            ','.join(self.fileInfo.list_attributes(ns)))
+                            )
                 self.fileExists = True
             except gio.Error:
                 self.fileExists = False
@@ -67,7 +72,7 @@ class FileImpl(conduit.platform.File):
         
     def get_mtime(self):
         self._get_file_info()
-        mtime = self.fileInfo.get_attribute_uint64('time::changed')
+        mtime = self.fileInfo.get_attribute_uint64('time::modified')
         if mtime:
             return mtime
         else:
@@ -87,11 +92,7 @@ class FileImpl(conduit.platform.File):
 
     def get_size(self):
         self._get_file_info()
-        size = self.fileInfo.get_size()
-        if size:
-            return size
-        else:
-            return None
+        return self.fileInfo.get_size()
 
     def close(self):
         self.fileInfo = None
@@ -100,6 +101,8 @@ class FileImpl(conduit.platform.File):
 
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):
+        raise NotImplementedError
+
         self._source = source._URI
         self._dest = gnomevfs.URI(dest)
         self._cancel_func = lambda : False

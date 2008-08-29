@@ -1,5 +1,15 @@
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreFile2.py:
+	* test/python-tests/TestCoreFile.py: Move tests into a single file
+	and test both file implementations.
+
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* scripts/run-tests.sh: FileGio now passes basic file tests.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Main.py:
 	* conduit/Settings.py:
 	* conduit/__init__.py:

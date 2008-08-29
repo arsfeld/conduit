@@ -79,7 +79,11 @@ rm $PY_TEST_DIR/TestAuto*.py 2> /dev/null
 mkdir -p $LOGDIR
 mkdir -p $COVERAGE_RESULTS
 mkdir -p $TEST_DATA_DIR
-#Prepare some test files with known mtimes
+#Prepare some test files with known sizes and mtimes
+echo "1234" > $TEST_DATA_DIR/oldest
+echo "1234" > $TEST_DATA_DIR/older
+echo "1234" > $TEST_DATA_DIR/newer
+echo "1234" > $TEST_DATA_DIR/newest
 touch -t 198308160000 $TEST_DATA_DIR/oldest
 touch -t 198308160001 $TEST_DATA_DIR/older
 touch -t 198308160002 $TEST_DATA_DIR/newer

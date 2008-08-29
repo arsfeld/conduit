@@ -7,7 +7,7 @@ import conduit.Vfs as Vfs
 import conduit.platform
 
 import logging
-log = logging.getLogger("Settings")
+log = logging.getLogger("platform.FileGnomeVfs")
 
 class FileImpl(conduit.platform.File):
     SCHEMES = ("file://","http://","ftp://","smb://")
