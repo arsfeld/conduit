@@ -11,8 +11,14 @@ import os.path
 import sys
 
 if is_online():
-    date = Utils.get_http_resource_last_modified("http://files.conduit-project.org/Conduit-0.3.0-screencast-small.mpeg")
-    ok("Got mtime of http resource", date == datetime.datetime(2007,5,6,14,47,36))
+    ts = Utils.get_http_resource_last_modified("http://files.conduit-project.org/Conduit-0.3.0-screencast-small.mpeg")
+    ok("Got mtime (timestamp) of http resource", ts == 1178419656.0)
+
+    mimetype = Utils.get_http_resource_mimetype("http://files.conduit-project.org/Conduit-0.3.0-screencast-small.mpeg")
+    ok("Got mimetype of http resource", mimetype == 'video/mpeg')
+
+    size = Utils.get_http_resource_size("http://files.conduit-project.org/Conduit-0.3.0-screencast-small.mpeg")
+    ok("Got size of http resource", size == 4792300)
 
 date1 = Utils.get_http_resource_last_modified("http://foo.com/1/2/3")
 ok("Got no mtime from missing http resource", date1 == None)
