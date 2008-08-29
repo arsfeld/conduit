@@ -1,3 +1,8 @@
+2008-08-29  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/ConverterModule.py: Dont try and convert non-text
+	mimetypes to contact/event. Fixes #549750
+
 2008-08-23  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/AudioVideoConverterModule.py:
