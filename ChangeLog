@@ -1,3 +1,83 @@
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS:
+	* conduit/__init__.py:
+	* configure.ac:
+	* release.sh: Post release version bump to 0.3.14
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS: Update for 0.3.13 release.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* help/C/figures/conduit-dp.png:
+	* help/C/figures/conduit-login.png:
+	* help/es/es.po:
+	* help/Makefile.am: Fix make distcheck.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* test/python-tests/TestDataProviderGoogleCalendar.py:
+	* test/python-tests/TestDataProviderYoutube.py: Move
+	GoogleCalendar tests to their own file. Disable google
+	calendar because its broken.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/Web.py:
+	* conduit/__init__.py:
+	* conduit/gtkui/UI.py:
+	* conduit/modules/TestModule.py:
+	* data/conduit.glade:
+	* test/python-tests/TestCoreSettings.py:
+	* test/python-tests/common.py: Using the built in web browser
+    is now the default behaviour. Selected browser is defined in 
+    conduit.BROWSER_IMPL.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/WebBrowserWebkit.py: Put the browser in a scrolled
+	window.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py: Ensure that args passed to gnomevfs functions are
+	strings and not unicode. Argh
+	
+	* test/python-tests/TestDataProviderFacebook.py:
+	* test/python-tests/TestSyncTomboyiPod.py: Fix tests.
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/Image.py:
+	* conduit/datatypes/Photo.py: Implementation for Phoro.compare() 
+	and ImageTwoWay.put. Fixes #543366 (Manuel J. Garrido)
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/utils/__init__.py: Fix crasher when hiding dialogs.
+
+	* test/python-tests/common.py: Fix Flickr test (was returning unicode
+	urls)
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/GoogleModule/GoogleModule.py: Load the
+	photo dictionary in refresh so that delete works.
+	Fixes #545728 (Manuel J. Garrido)
+
+2008-08-03  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Module.py: Remove print spew.
+	
+	* conduit/Synchronization.py:
+	* conduit/gtkui/UI.py:
+	* conduit/Web.py: Fix a nasty gtkmozembed threading crash bug caused by
+	importing gtkmozembed from a thread that is not the gtk thread.
+
 2008-08-02  John Stowers  <john.stowers@gmail.com>
 
 	* test/python-tests/TestCoreFile2.py:
@@ -29,6 +109,72 @@
 
 	* conduit/platform/FileGio.py: Add basic gio FileImpl implementation
 
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* NEWS: Update to include recent UI work.
+	
+	* conduit/Module.py:
+	* conduit/SyncSet.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/UI.py:
+	* data/conduit.glade: Add preconfigured example conduits to Knowledge.
+	Enable the ability to add these example Conduits to the Canvas from
+	a menu item.	
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Knowledge.py:
+	* conduit/Makefile.am:
+	* conduit/gtkui/Makefile.am:
+	* conduit/gtkui/Hints.py: Move hints --> Knowledge.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Hints.py:
+	* conduit/modules/GoogleModule/GoogleModule.py: Spelling
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py: Tweak the connecting arrow line widths
+	and end positions. Tweak the conduit and dataprovider size.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Settings.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/UI.py:
+	* data/conduit.glade: Hints can be enabled/disabled from the 
+	preferences menu.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/Hints.py:
+	* conduit/gtkui/Makefile.am: Move hints to their own file.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/MsgArea.py: Dont expand the button action area. Timeouts
+	can only clear the msg they were connected to.
+
+2008-08-02  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Conduit.py:
+	* conduit/ModuleWrapper.py: Utility functions to test if a conduit can
+	be synchronized (it has a source and a sink for example).
+
+2008-08-01  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py: Refactor out the hint handling code to be
+	more generic and extensible.
+
+2008-08-01  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py:
+	* conduit/hildonui/Canvas.py: Refactor the welcome message handling to
+	allow the welcome message to look like an empty conduit.
+
+>>>>>>> MERGE-SOURCE
 2008-08-01  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/Canvas.py:

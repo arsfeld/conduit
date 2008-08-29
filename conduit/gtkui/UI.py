@@ -6,6 +6,7 @@ Also manages the callbacks from menu and GUI items
 Copyright: John Stowers, 2006
 License: GPLv2
 """
+import thread
 import gobject
 import gtk, gtk.glade
 import gnome.ui
@@ -20,6 +21,7 @@ import conduit
 import conduit.Web as Web
 import conduit.Conduit as Conduit
 import conduit.gtkui.Canvas as Canvas
+import conduit.gtkui.MsgArea as MsgArea
 import conduit.gtkui.Tree as Tree
 import conduit.gtkui.ConflictResolver as ConflictResolver
 import conduit.gtkui.Database as Database
@@ -38,7 +40,35 @@ DEVELOPER_WEB_LINKS = (
 for module in gtk.glade, gettext:
     module.bindtextdomain('conduit', conduit.LOCALE_DIR)
     module.textdomain('conduit')
-    
+
+class _PreconfiguredConduitMenu(gtk.Menu):
+    def __init__(self):
+        gtk.Menu.__init__(self)
+#        self._items = {}
+#        conduit.GLOBALS.moduleManager.connect("dataprovider-available", self._dp_added)
+#        conduit.GLOBALS.moduleManager.connect("dataprovider-unavailable", self._dp_removed)
+
+        for sok,sik,desc,w in conduit.GLOBALS.moduleManager.list_preconfigured_conduits():
+            item = gtk.MenuItem(desc)
+            item.connect("activate", self._create, sok, sik, w)
+            item.show()
+            self.append(item)
+
+    def set_sync_set(self, syncSet):    
+        self.syncSet = syncSet  
+        
+    def _create(self, menu, sok, sik, w):
+        self.syncSet.create_preconfigured_conduit(sok,sik,w)
+        
+    def _dp_added(self, manager, dpw):
+        item = gtk.MenuItem(dpw.get_key())
+        self._items[dpw] = item
+        self.append(item)
+        item.show()
+        
+    def _dp_removed(self, manager, dpw):
+        self.remove(self._items[dpw])
+
 class MainWindow:
     """
     The main conduit window.
@@ -104,14 +134,17 @@ class MainWindow:
         #Configure canvas
         self.canvasSW = self.widgets.get_widget("canvasScrolledWindow")
         self.hpane = self.widgets.get_widget("hpaned1")
-
+        
         #start up the canvas
+        msg = MsgArea.MsgAreaController()
+        self.widgets.get_widget("mainVbox").pack_start(msg, False, False)
         self.canvas = Canvas.Canvas(
                         parentWindow=self.mainWindow,
                         typeConverter=self.type_converter,
                         syncManager=self.sync_manager,
                         dataproviderMenu=gtk.glade.XML(self.gladeFile, "DataProviderMenu"),
-                        conduitMenu=gtk.glade.XML(self.gladeFile, "ConduitMenu")
+                        conduitMenu=gtk.glade.XML(self.gladeFile, "ConduitMenu"),
+                        msg=msg
                         )
         self.canvasSW.add(self.canvas)
         self.canvas.connect('drag-drop', self.drop_cb)
@@ -125,13 +158,18 @@ class MainWindow:
 
         #Set up the expander used for resolving sync conflicts
         self.conflictResolver = ConflictResolver.ConflictResolver(self.widgets)
-
-        #final GUI setup
-        self.cancelSyncButton = self.widgets.get_widget('cancel')
-        self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
-        self.dataproviderTreeView.set_expand_rows()
-        self.window_state = 0
         
+        #add the preconfigured Conduit menu
+        if conduit.GLOBALS.settings.get("gui_show_hints"):
+            self.preconfiguredConduitsMenu = _PreconfiguredConduitMenu()
+            item = gtk.ImageMenuItem("Examples")
+            item.set_image(
+                    gtk.image_new_from_stock(gtk.STOCK_OPEN,gtk.ICON_SIZE_MENU))
+            item.set_submenu(self.preconfiguredConduitsMenu)
+            self.widgets.get_widget("file_menu").insert(item, 3)
+        else:
+            self.preconfiguredConduitsMenu = None
+
         #if running a development version, add some developer specific links
         #to the help menu
         if conduit.IS_DEVELOPMENT_VERSION:
@@ -152,7 +190,13 @@ class MainWindow:
                                 gtk.ICON_SIZE_MENU))
                 item.connect("activate",self.on_developer_menu_item_clicked,name,url)
                 developersMenu.append(item)
-                
+
+        #final GUI setup
+        self.cancelSyncButton = self.widgets.get_widget('cancel')
+        self.hpane.set_position(conduit.GLOBALS.settings.get("gui_hpane_postion"))
+        self.dataproviderTreeView.set_expand_rows()
+        self.window_state = 0                
+        log.info("Main window constructed  (thread: %s)" % thread.get_ident())
                 
     def on_developer_menu_item_clicked(self, menuitem, name, url):
         threading.Thread(
@@ -170,6 +214,8 @@ class MainWindow:
         self.syncSet = syncSet
         self.syncSet.connect("conduit-added", self.on_conduit_added)
         self.canvas.set_sync_set(syncSet)
+        if self.preconfiguredConduitsMenu:
+            self.preconfiguredConduitsMenu.set_sync_set(syncSet)
 
     def present(self):
         """
@@ -310,18 +356,19 @@ class MainWindow:
         status_icon_check.set_active(conduit.GLOBALS.settings.get("show_status_icon")) 
         minimize_to_tray_check = tree.get_widget("minimize_to_tray_check")
         minimize_to_tray_check.set_active(conduit.GLOBALS.settings.get("gui_minimize_to_tray")) 
-        web_browser_check = tree.get_widget("web_check")
-        web_browser_check.set_active(conduit.GLOBALS.settings.get("web_login_browser") != "system")
+        show_hints_check = tree.get_widget("show_hints_check")
+        show_hints_check.set_active(conduit.GLOBALS.settings.get("gui_show_hints"))
+
 
         #restore the current policy
         for policyName in Conduit.CONFLICT_POLICY_NAMES:
             currentValue = conduit.GLOBALS.settings.get("default_policy_%s" % policyName)
             for policyValue in Conduit.CONFLICT_POLICY_VALUES:
-                widgetName = "%s_%s" % (policyName,policyValue)
-                widget = tree.get_widget(widgetName)
+                name = "%s_%s" % (policyName,policyValue)
+                widget = tree.get_widget(name+"_radio")
                 widget.set_image(
                         gtk.image_new_from_icon_name(
-                                Conduit.CONFLICT_POLICY_VALUE_ICONS[widgetName],
+                                Conduit.CONFLICT_POLICY_VALUE_ICONS[name],
                                 gtk.ICON_SIZE_MENU))
                 if currentValue == policyValue:
                     widget.set_active(True)
@@ -345,15 +392,12 @@ class MainWindow:
             conduit.GLOBALS.settings.set("save_on_exit", save_settings_check.get_active())
             conduit.GLOBALS.settings.set("show_status_icon", status_icon_check.get_active())
             conduit.GLOBALS.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
-            if web_browser_check.get_active():
-                conduit.GLOBALS.settings.set("web_login_browser", DEFAULT_CONDUIT_BROWSER)
-            else:
-                conduit.GLOBALS.settings.set("web_login_browser", "system")
+            conduit.GLOBALS.settings.set("gui_show_hints", show_hints_check.get_active())
             #save the current policy
             for policyName in Conduit.CONFLICT_POLICY_NAMES:
                 for policyValue in Conduit.CONFLICT_POLICY_VALUES:
-                    widgetName = "%s_%s" % (policyName,policyValue)
-                    if tree.get_widget(widgetName).get_active() == True:
+                    name = "%s_%s" % (policyName,policyValue)
+                    if tree.get_widget(name+"_radio").get_active() == True:
                         conduit.GLOBALS.settings.set(
                                 "default_policy_%s" % policyName,
                                 policyValue)
@@ -373,7 +417,7 @@ class MainWindow:
         dialog.set_transient_for(self.mainWindow)
         dialog.run()
         dialog.destroy()
-
+        
     def on_help(self, widget):
         """
         Display help
@@ -478,7 +522,7 @@ class MainWindow:
                             self.mainWindow.get_size())
         conduit.GLOBALS.settings.set(
                             "gui_expanded_rows",
-                            self.dataproviderTreeView.get_expanded_rows())        
+                            self.dataproviderTreeView.get_expanded_rows())
 
 class SplashScreen:
     """

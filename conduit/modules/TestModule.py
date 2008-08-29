@@ -588,7 +588,7 @@ class TestWebTwoWay(TestTwoWay):
     def __init__(self, *args):
         TestTwoWay.__init__(self)
         self.url = "http://www.google.com"
-        self.browser = conduit.GLOBALS.settings.get("web_login_browser")
+        self.browser = conduit.BROWSER_IMPL
 
     def configure(self, window):
         import gtk

@@ -37,12 +37,10 @@ conduit.IS_INSTALLED =              False
 conduit.IS_DEVELOPMENT_VERSION =    True
 conduit.SHARED_DATA_DIR =           os.path.join(base_path,"data")
 conduit.SHARED_MODULE_DIR =         os.path.join(base_path,"conduit","modules")
+conduit.FILE_IMPL =                 "GnomeVfs"  
+conduit.BROWSER_IMPL =              "system"
 conduit.SETTINGS_IMPL =             "GConf"
-
-# override some conduit settings. 
-# without a gobject main loop the gtkmozembed browser hangs
-conduit.GLOBALS.settings = Settings.Settings()
-conduit.GLOBALS.settings.set_overrides(web_login_browser="system")
+conduit.GLOBALS.settings =          Settings.Settings()
 
 def is_online():
     try:    
@@ -468,7 +466,7 @@ class SimpleTest(object):
                 info = self.sink.module._get_photo_info(safePhotoLUID)
                 ok("Got photo info", info != None)
                 url = self.sink.module._get_raw_photo_url(info)
-                ok("Got photo url (%s)" % url, url != None and Vfs.uri_exists(url))
+                ok("Got photo url (%s)" % url, url != None and Vfs.uri_exists(str(url)))
             except Exception, err:
                 traceback.print_exc()
                 ok("Got photo info/url (%s)" % err, False)

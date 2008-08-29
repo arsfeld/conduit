@@ -4,6 +4,7 @@ conduit_PYTHON = \
 	ConflictResolver.py \
 	Database.py \
 	__init__.py \
+	MsgArea.py \
 	SimpleConfigurator.py \
 	Tree.py \
 	Util.py \

@@ -506,7 +506,7 @@ msgstr ""
 "<menuchoice><guimenu>Archivo</guimenu><guimenuitem>Guardar</guimenuitem></"
 "menuchoice>. Guarda todos los grupos configurados. Los grupos se guardan "
 "automáticamente cuando sale de Conduit si ha seleccionado <guilabel>Guardar "
-"los ajustes al salir<guilabel> en la <xref linkend=\"conduit-preferences-window\"/"
+"los ajustes al salir</guilabel> en la <xref linkend=\"conduit-preferences-window\"/"
 ">."
 
 #: C/conduit.xml:145(para)

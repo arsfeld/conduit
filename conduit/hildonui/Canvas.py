@@ -34,8 +34,9 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
         #setup the canvas
         conduit.gtkui.Canvas.Canvas.__init__(self,
                                 parentWindow,typeConverter,syncManager,
-                                #menus are set in _setup_popup_menus
-                                None,None)
+                                None,None,  #menus are set in _setup_popup_menus
+                                None        #no message hints in hildon
+                                )
         self.position = -1
         
     def _update_for_theme(self, *args):
@@ -46,6 +47,20 @@ class Canvas(conduit.gtkui.Canvas.Canvas, gobject.GObject):
         self.dataproviderMenu = DataProviderMenu(self)
         # conduit context menu
         self.conduitMenu = ConduitMenu(self)
+        
+    def _create_welcome(self):
+        c_x,c_y,c_w,c_h = self.get_bounds()
+        self.welcome = goocanvas.Text(  
+                            x=c_w/2, 
+                            y=c_w/3, 
+                            width=3*c_w/5, 
+                            text=self.WELCOME_MESSAGE, 
+                            anchor=gtk.ANCHOR_CENTER,
+                            alignment=pango.ALIGN_CENTER,
+                            font="Sans 10",
+                            fill_color="black",
+                            )
+        self.root.add_child(self.welcome,-1)
         
     def _on_conduit_button_press(self, view, target, event):        
         log.debug("Clicked View: %s" % view.model)

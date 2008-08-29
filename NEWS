@@ -1,3 +1,6 @@
+NEW in 0.3.14:
+==============
+
 NEW in 0.3.13:
 ==============
 * Much inproved RSS feed enclosure support, thanks to the use of
@@ -7,6 +10,34 @@ NEW in 0.3.13:
 * Conflict inprovements. Duplicate conflicts should no longer be shown
   in the UI.
 * The UI should will now reuse your theme colors
+* Finer borders and smaller rectangles to match closer with GNOME style
+* Usage hints are now displayed at the bottom of the window, indicating steps
+  that should be taken after one adds items to the Canvas
+* A number of example Conduits can be created from the File->Examples menu
+
+* Fixed #516646, Welcome message remains on canvas after dataprovider added (John Stowers)
+* Fixed #517877, Scrolling in Canvas Pane not working correctly (John Stowers)
+* Fixed #525259, the canvas pane become a mess for remote startup (John Stowers)
+* Fixed #528221, Evo to iPod synchronisation fails (John Carr)
+* Fixed #530768, update conflicts after a new sync (John Stowers)
+* Fixed #543366, Replacement of modified items could be more efficient (Manuel J. Garrido)
+* Fixed #543534, The "Conduit Manual" window crashes. (John Stowers)
+* Fixed #543685, Feedmodule should use feedparser (John Stowers)
+* Fixed #543738, Patch: Add data-type for bookmarks. (Andrew Stormont)
+* Fixed #544712, "Add directory" button throws error when adding "Files" source (John Stowers)
+* Fixed #545129, GoogleContact : Crash to push a contact with not email (Roumano)
+* Fixed #545728, Picasa doesn't delete photos in one way syncs (Manuel J. Garrido)
+* Fixed #509702, conduit segfaults when quitting (John Stowers)
+
+Translations:
+* Updated gl: Ignacio Casal Quinteiro
+* Updated es: Jorge Gonzalez  <jorgegonz@svn.gnome.org>
+* Updated ar: Djihed Afifi <djihed@gmail.com>
+* Updated pt_BR: Leonardo Ferreira Fontenelle
+* Updated pt: Duarte Loreto
+
+Help Manual Translations:
+* Updated es: Jorge Gonzalez, Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
 NEW in 0.3.12:
 ==============
@@ -209,6 +240,8 @@ Translations:
 
 Help Manual Translations:
 * Updated es: Jorge Gonzalez
+
+None
 
 None
 

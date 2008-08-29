@@ -47,13 +47,14 @@ if IS_INSTALLED:
     if not PYTHONDIR in sys.path:
         sys.path.insert(0, PYTHONDIR)
 else:
-    VERSION =                   "0.3.13"
+    VERSION =                   "0.3.14"
     LOCALE_DIR =                os.path.join(DIRECTORY, "po")
     SHARED_DATA_DIR =           os.path.join(DIRECTORY, "data")
     GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
     SHARED_MODULE_DIR =         os.path.join(DIRECTORY, "conduit", "modules")
-    SETTINGS_IMPL =             "GConf"
-    FILE_IMPL =                 "GnomeVfs"
+    FILE_IMPL =                 "GnomeVfs"      #{GnomeVfs, GIO}
+    BROWSER_IMPL =              "gtkmozembed"   #{gtkmozembed, webkit, system}
+    SETTINGS_IMPL =             "GConf"         #{GConf,Python}
 
 import Globals
 GLOBALS = Globals.Globals()

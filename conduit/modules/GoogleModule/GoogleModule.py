@@ -36,7 +36,7 @@ try:
     import gdata.youtube.service
 
     MODULES = {
-        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
+#        "GoogleCalendarTwoWay" : { "type": "dataprovider" },
         "PicasaTwoWay" :         { "type": "dataprovider" },
         "YouTubeTwoWay" :        { "type": "dataprovider" },    
         "ContactsTwoWay" :       { "type": "dataprovider" },
@@ -650,6 +650,8 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
         if not self.loggedIn:
             raise Exceptions.RefreshError("Could not log in")
         self._get_album()
+        if self.galbum:
+            self._get_photos()
 
     def get_all (self):
         Image.ImageTwoWay.get_all(self)
@@ -1341,7 +1343,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
     """
     _name_ = _("YouTube")
     _description_ = _("Sync data from YouTube")
-    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "twoway"
     _in_type_ = "file/video"
     _out_type_ = "file/video"
