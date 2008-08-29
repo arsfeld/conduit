@@ -1,6 +1,19 @@
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Vfs.py:
+	* conduit/__init__.py:
+	* conduit/datatypes/File.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/FilePython.py:
+	* conduit/platform/__init__.py:
+	* test/python-tests/TestDataProviderShutterfly.py: Remove the last hard
+	dependency on gnomevfs. Add a minimal working Python file implementation
+	which lets conduit start up.
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
 	* conduit/dataproviders/File.py:
 	* conduit/modules/FileModule/FileModule.py:
 	* conduit/platform/FileGio.py:

@@ -188,4 +188,10 @@ class FileTransferImpl(conduit.platform.FileTransfer):
 class VolumeMonitor(conduit.platform.VolumeMonitor):
     pass
 
+class FileMonitor(conduit.platform.FileMonitor):
+    pass
+
+class FolderScanner(conduit.platform.FolderScanner):
+    def run(self):
+        self.emit("scan-completed")
 

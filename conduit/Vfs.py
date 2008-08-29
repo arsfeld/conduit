@@ -1,12 +1,8 @@
 import os.path
 import logging
 import gobject
+import time
 log = logging.getLogger("Vfs")
-
-try:
-    import gnomevfs
-except ImportError:
-    from gnome import gnomevfs
 
 import conduit
 import conduit.utils.Singleton as Singleton
@@ -20,7 +16,9 @@ elif conduit.FILE_IMPL == "Python":
 else:
     raise Exception("File Implementation %s Not Supported" % conduit.FILE_IMPL)
 
-VolumeMonitor = FileImpl.VolumeMonitor
+VolumeMonitor   = FileImpl.VolumeMonitor
+FileMonitor     = FileImpl.FileMonitor     
+FolderScanner   = FileImpl.FolderScanner
 
 def uri_is_valid(uri):
     """
@@ -196,50 +194,6 @@ def uri_exists(uri):
     f = FileImpl.FileImpl(uri)
     return f.exists()
         
-class FileMonitor(gobject.GObject):
-
-    __gsignals__ = {
-        "changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_PYOBJECT,
-            gobject.TYPE_PYOBJECT,
-            gobject.TYPE_PYOBJECT])
-        }
-
-    MONITOR_EVENT_CREATED =             gnomevfs.MONITOR_EVENT_CREATED
-    MONITOR_EVENT_CHANGED =             gnomevfs.MONITOR_EVENT_CHANGED
-    MONITOR_EVENT_DELETED =             gnomevfs.MONITOR_EVENT_DELETED
-    MONITOR_EVENT_METADATA_CHANGED =    gnomevfs.MONITOR_EVENT_METADATA_CHANGED
-    MONITOR_EVENT_STARTEXECUTING =      gnomevfs.MONITOR_EVENT_STARTEXECUTING
-    MONITOR_EVENT_STOPEXECUTING =       gnomevfs.MONITOR_EVENT_STOPEXECUTING
-    MONITOR_FILE =                      gnomevfs.MONITOR_FILE
-    MONITOR_DIRECTORY =                 gnomevfs.MONITOR_DIRECTORY
-
-    def __init__(self):
-        gobject.GObject.__init__(self)
-        self._monitor_folder_id = None
-
-    def _monitor_cb(self, monitor_uri, event_uri, event):
-        self.emit("changed", monitor_uri, event_uri, event)
-
-    def add(self, folder, monitorType):
-        if self._monitor_folder_id != None:
-            gnomevfs.monitor_cancel(self._monitor_folder_id)
-            self._monitor_folder_id = None
-
-        try:
-            self._monitor_folder_id = gnomevfs.monitor_add(folder, monitorType, self._monitor_cb)   
-        except gnomevfs.NotSupportedError:
-            # silently fail if we are looking at a folder that doesn't support directory monitoring
-            self._monitor_folder_id = None
-        
-    def cancel(self):
-        if self._monitor_folder_id != None:
-            gnomevfs.monitor_cancel(self._monitor_folder_id)
-            self._monitor_folder_id = None
-
-#
-# Scanner ThreadManager
-#
 class FolderScannerThreadManager:
     """
     Manages many FolderScanner threads. This involves joining and cancelling
@@ -318,106 +272,5 @@ class FolderScannerThreadManager:
                 log.debug("Cancelling thread %s" % thread)
                 thread.cancel()
             thread.join() #May block
-
-#
-# FOLDER SCANNER
-#
-import threading
-import gobject
-import time
-
-class FolderScanner(threading.Thread, gobject.GObject):
-    """
-    Recursively scans a given folder URI, returning the number of
-    contained files.
-    """
-    __gsignals__ =  { 
-                    "scan-progress": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-                        gobject.TYPE_INT]),
-                    "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
-                    }
-    CONFIG_FILE_NAME = ".conduit.conf"
-    def __init__(self, baseURI, includeHidden, followSymlinks):
-        threading.Thread.__init__(self)
-        gobject.GObject.__init__(self)
-        self.baseURI = str(baseURI)
-        self.includeHidden = includeHidden
-        self.followSymlinks = followSymlinks
-
-        self.dirs = [self.baseURI]
-        self.cancelled = False
-        self.URIs = []
-        self.setName("FolderScanner Thread: %s" % self.baseURI)
-
-    def run(self):
-        """
-        Recursively adds all files in dirs within the given list.
-        
-        Code adapted from Listen (c) 2006 Mehdi Abaakouk
-        (http://listengnome.free.fr/)
-        """
-        delta = 0
-        
-        startTime = time.time()
-        t = 1
-        last_estimated = estimated = 0 
-        while len(self.dirs)>0:
-            if self.cancelled:
-                return
-            dir = self.dirs.pop(0)
-            try: hdir = gnomevfs.DirectoryHandle(dir)
-            except: 
-                log.warn("Folder %s Not found" % dir)
-                continue
-            try: fileinfo = hdir.next()
-            except StopIteration: continue;
-            while fileinfo:
-                filename = fileinfo.name
-                if filename in [".","..",self.CONFIG_FILE_NAME]: 
-                        pass
-                else:
-                    if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                        #Include hidden directories
-                        if filename[0] != "." or self.includeHidden:
-                            self.dirs.append(dir+"/"+filename)
-                            t += 1
-                    elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR or \
-                        (fileinfo.type == gnomevfs.FILE_TYPE_SYMBOLIC_LINK and self.followSymlinks):
-                        try:
-                            uri = uri_make_canonical(dir+"/"+filename)
-                            #Include hidden files
-                            if filename[0] != "." or self.includeHidden:
-                                self.URIs.append(uri)
-                        except UnicodeDecodeError:
-                            raise "UnicodeDecodeError",uri
-                    else:
-                        log.debug("Unsupported file type: %s (%s)" % (filename, fileinfo.type))
-                try: fileinfo = hdir.next()
-                except StopIteration: break;
-            #Calculate the estimated complete percentags
-            estimated = 1.0-float(len(self.dirs))/float(t)
-            estimated *= 100
-            #Enly emit progress signals every 10% (+/- 1%) change to save CPU
-            if delta+10 - estimated <= 1:
-                log.debug("Folder scan %s%% complete" % estimated)
-                self.emit("scan-progress", len(self.URIs))
-                delta += 10
-            last_estimated = estimated
-
-        i = 0
-        total = len(self.URIs)
-        endTime = time.time()
-        log.debug("%s files loaded in %s seconds" % (total, (endTime - startTime)))
-        self.emit("scan-completed")
-
-    def cancel(self):
-        """
-        Cancels the thread as soon as possible.
-        """
-        self.cancelled = True
-
-    def get_uris(self):
-        return self.URIs
-
 
 

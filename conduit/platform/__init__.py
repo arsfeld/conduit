@@ -1,3 +1,4 @@
+import threading
 import gobject
 
 class File:
@@ -100,6 +101,70 @@ class VolumeMonitor(gobject.GObject):
 
     def volume_get_root_uri(self, path):
         return None
+
+class FileMonitor(gobject.GObject):
+
+    __gsignals__ = {
+        "changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+            gobject.TYPE_PYOBJECT,
+            gobject.TYPE_PYOBJECT,
+            gobject.TYPE_PYOBJECT])
+        }
+
+    MONITOR_EVENT_CREATED = 1
+    MONITOR_EVENT_CHANGED = 2
+    MONITOR_EVENT_DELETED = 3
+    MONITOR_DIRECTORY = 4
+
+    def __init__(self):
+        gobject.GObject.__init__(self)
+
+    def add(self, folder, monitorType):
+        pass
+        
+    def cancel(self):
+        pass
+
+class FolderScanner(threading.Thread, gobject.GObject):
+    """
+    Recursively scans a given folder URI, returning the number of
+    contained files.
+    """
+    __gsignals__ =  { 
+                    "scan-progress": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
+                        gobject.TYPE_INT]),
+                    "scan-completed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [])
+                    }
+    CONFIG_FILE_NAME = ".conduit.conf"
+    def __init__(self, baseURI, includeHidden, followSymlinks):
+        threading.Thread.__init__(self)
+        gobject.GObject.__init__(self)
+        self.baseURI = str(baseURI)
+        self.includeHidden = includeHidden
+        self.followSymlinks = followSymlinks
+        self.dirs = [self.baseURI]
+        self.cancelled = False
+        self.URIs = []
+        self.setName("FolderScanner Thread: %s" % self.baseURI)
+
+    def run(self):
+        """
+        Recursively adds all files in dirs within the given list.
+        
+        Code adapted from Listen (c) 2006 Mehdi Abaakouk
+        (http://listengnome.free.fr/)
+        """
+        raise NotImplementedError
+
+    def cancel(self):
+        """
+        Cancels the thread as soon as possible.
+        """
+        self.cancelled = True
+
+    def get_uris(self):
+        return self.URIs
+
 
 class Settings:
     def __init__(self, defaults, changedCb):

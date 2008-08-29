@@ -267,8 +267,88 @@ class VolumeMonitor(Singleton.Singleton, conduit.platform.VolumeMonitor):
 
     def volume_get_root_uri(self, path):
         return self._vm.get_volume_for_path(path).get_activation_uri()
-    
 
+class FileMonitor(conduit.platform.FileMonitor):
 
-            
+    MONITOR_EVENT_CREATED =             gnomevfs.MONITOR_EVENT_CREATED
+    MONITOR_EVENT_CHANGED =             gnomevfs.MONITOR_EVENT_CHANGED
+    MONITOR_EVENT_DELETED =             gnomevfs.MONITOR_EVENT_DELETED
+    MONITOR_DIRECTORY =                 gnomevfs.MONITOR_DIRECTORY
+
+    def __init__(self):
+        conduit.platform.FileMonitor.__init__(self)
+        self._id = None
+
+    def _monitor_cb(self, monitor_uri, event_uri, event):
+        self.emit("changed", monitor_uri, event_uri, event)
+
+    def add(self, folder, monitorType):
+        if self._id != None:
+            gnomevfs.monitor_cancel(self._id)
+            self._id = None
+
+        try:
+            self._id = gnomevfs.monitor_add(folder, monitorType, self._monitor_cb)   
+        except gnomevfs.NotSupportedError:
+            # silently fail if we are looking at a folder that doesn't support directory monitoring
+            self._id = None
+        
+    def cancel(self):
+        if self._id != None:
+            gnomevfs.monitor_cancel(self._id)
+            self._id = None
+
+class FolderScanner(conduit.platform.FolderScanner):
+
+    def run(self):
+        delta = 0
+        t = 1
+        last_estimated = estimated = 0 
+        while len(self.dirs)>0:
+            if self.cancelled:
+                return
+            dir = self.dirs.pop(0)
+            try: hdir = gnomevfs.DirectoryHandle(dir)
+            except: 
+                log.warn("Folder %s Not found" % dir)
+                continue
+            try: fileinfo = hdir.next()
+            except StopIteration: continue;
+            while fileinfo:
+                filename = fileinfo.name
+                if filename in [".","..",self.CONFIG_FILE_NAME]: 
+                        pass
+                else:
+                    if fileinfo.type == gnomevfs.FILE_TYPE_DIRECTORY:
+                        #Include hidden directories
+                        if filename[0] != "." or self.includeHidden:
+                            self.dirs.append(dir+"/"+filename)
+                            t += 1
+                    elif fileinfo.type == gnomevfs.FILE_TYPE_REGULAR or \
+                        (fileinfo.type == gnomevfs.FILE_TYPE_SYMBOLIC_LINK and self.followSymlinks):
+                        try:
+                            uri = gnomevfs.make_uri_canonical(dir+"/"+filename)
+                            #Include hidden files
+                            if filename[0] != "." or self.includeHidden:
+                                self.URIs.append(uri)
+                        except UnicodeDecodeError:
+                            raise "UnicodeDecodeError",uri
+                    else:
+                        log.debug("Unsupported file type: %s (%s)" % (filename, fileinfo.type))
+                try: fileinfo = hdir.next()
+                except StopIteration: break;
+            #Calculate the estimated complete percentags
+            estimated = 1.0-float(len(self.dirs))/float(t)
+            estimated *= 100
+            #Enly emit progress signals every 10% (+/- 1%) change to save CPU
+            if delta+10 - estimated <= 1:
+                log.debug("Folder scan %s%% complete" % estimated)
+                self.emit("scan-progress", len(self.URIs))
+                delta += 10
+            last_estimated = estimated
+
+        i = 0
+        total = len(self.URIs)
+        log.debug("%s files loaded" % total)
+        self.emit("scan-completed")
 

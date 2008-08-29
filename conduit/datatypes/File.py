@@ -38,6 +38,9 @@ class File(DataType.DataType):
         elif implName == "GIO":
             import conduit.platform.FileGio as FileImpl
             self.FileImpl = FileImpl
+        elif implName == "Python":
+            import conduit.platform.FilePython as FileImpl
+            self.FileImpl = FileImpl
         else:
             raise Exception("File Implementation %s Not Supported" % implName)
             
