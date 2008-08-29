@@ -227,7 +227,7 @@ class FileTransferImpl(conduit.platform.FileTransfer):
 class VolumeMonitor(Singleton.Singleton, conduit.platform.VolumeMonitor):
 
     def __init__(self):
-        conduit.platform.VolumeMonitor(self)
+        conduit.platform.VolumeMonitor.__init__(self)
         self._vm = gnomevfs.VolumeMonitor()
         self._vm.connect("volume-mounted", self._mounted_unmounted_cb, "volume-mounted")
         self._vm.connect("volume-unmounted", self._mounted_unmounted_cb, "volume-unmounted")

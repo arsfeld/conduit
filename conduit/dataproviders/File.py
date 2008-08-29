@@ -242,7 +242,7 @@ class FolderTwoWay(DataProvider.TwoWay):
         return True
 
     def is_configured(self, isSource, isTwoWay):
-        return Vfs.uri_exists(self.folder)
+        return self.folder and Vfs.uri_exists(self.folder)
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)

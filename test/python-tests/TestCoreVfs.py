@@ -3,8 +3,6 @@ from common import *
 import conduit.Vfs as Vfs
 import conduit.utils as Utils
 
-ok("URI make canonical", Vfs.uri_make_canonical("file:///foo/bar/baz/../../bar//") == "file:///foo/bar")
-
 safe = '/&=:@'
 unsafe = ' !<>#%()[]{}'
 safeunsafe = '%20%21%3C%3E%23%25%28%29%5B%5D%7B%7D'

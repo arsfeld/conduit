@@ -8,9 +8,9 @@ try:
 except ImportError:
     from gnome import gnomevfs
 
+import conduit
 import conduit.utils.Singleton as Singleton
 
-import conduit
 if conduit.FILE_IMPL == "GnomeVfs":
     import conduit.platform.FileGnomeVfs as FileImpl
 elif conduit.FILE_IMPL == "GIO":
@@ -20,22 +20,7 @@ elif conduit.FILE_IMPL == "Python":
 else:
     raise Exception("File Implementation %s Not Supported" % conduit.FILE_IMPL)
 
-#
-# URI Functions
-#
-def _ensure_type(arg):
-    """
-    Ensures that arg is str or unicode, returns it as str.
-    
-    Gnomevfs does not seem to play well with unicode, kill it, and this
-    could probbably be done better with a decorator
-    """
-    if type(arg) == str:
-        return arg
-    elif type(arg) == unicode:
-        return str(arg)
-    else:
-        raise Exception("URIs must be str or unicode (was %s)" % type(arg))
+VolumeMonitor = FileImpl.VolumeMonitor
 
 def uri_is_valid(uri):
     """
@@ -49,21 +34,25 @@ def uri_join(first, *rest):
     Joins multiple uri components. Performs safely if the first
     argument contains a uri scheme
     """
-    first = _ensure_type(first)
+    first = conduit.utils.ensure_string(first)
     return os.path.join(first,*rest)
-    #idx = first.rfind("://")
-    #if idx == -1:
-    #    start = 0
-    #else:
-    #   start = idx + 3
-    #return first[0:start]+os.path.join(first[start:],*rest)
+
+def uri_get_scheme(uri):
+    """
+    @returns: The scheme (file,smb,ftp) for the uri, or None on error
+    """
+    try:
+        scheme,path = uri.split("://")
+        return scheme
+    except exceptions.ValueError:
+        return None
     
 def uri_get_relative(fromURI, toURI):
     """
     Returns the relative path fromURI --> toURI
     """
-    fromURI = _ensure_type(fromURI)
-    toURI = _ensure_type(toURI)
+    fromURI = conduit.utils.ensure_string(fromURI)
+    toURI = conduit.utils.ensure_string(toURI)
     rel = toURI.replace(fromURI,"")
     #strip leading /
     if rel[0] == os.sep:
@@ -75,7 +64,7 @@ def uri_open(uri):
     """
     Opens a xdg compatible uri.
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     APP = "xdg-open"
     os.spawnlp(os.P_NOWAIT, APP, APP, uri)
     
@@ -84,14 +73,14 @@ def uri_to_local_path(uri):
     @returns: The local path (/foo/bar) for the given URI. Throws a 
     RuntimeError (wtf??) if the uri is not a local one    
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     return gnomevfs.get_local_path_from_uri(uri)
     
 def uri_get_volume_root_uri(uri):
     """
     @returns: The root path of the volume at the given uri, or None
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     try:
         path = uri_to_local_path(uri)
         return VolumeMonitor().volume_get_root_uri(path)
@@ -103,7 +92,7 @@ def uri_is_on_removable_volume(uri):
     @returns: True if the specified uri is on a removable volume, like a USB key
     or removable/mountable disk.
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         #FIXME: Unfortunately this approach actually works better than gnomevfs
@@ -116,13 +105,12 @@ def uri_is_on_removable_volume(uri):
             return False
     return False
     
-    
 def uri_get_filesystem_type(uri):
     """
     @returns: The filesystem that uri is stored on or None if it cannot
     be determined
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     scheme = gnomevfs.get_uri_scheme(uri)
     if scheme == "file":
         try:
@@ -136,39 +124,29 @@ def uri_get_filesystem_type(uri):
             return None
     return None
 
-def uri_make_canonical(uri):
-    """
-    Standardizes the format of the uri
-    @param uri:an absolute or relative stringified uri. It might have scheme.
-    """
-    uri = _ensure_type(uri)
-    return gnomevfs.make_uri_canonical(uri)
-    
 def uri_escape(uri):
     """
     Escapes a uri, replacing only special characters that would not be found in 
     paths or host names.
     (so '/', '&', '=', ':' and '@' will not be escaped by this function)
     """
-    uri = _ensure_type(uri)
-    #FIXME: This function lies, it escapes @
-    #return gnomevfs.escape_host_and_path_string(uri)
     import urllib
+    uri = conduit.utils.ensure_string(uri)
     return urllib.quote(uri,safe='/&=:@')
     
 def uri_unescape(uri):
     """
     Replace "%xx" escapes by their single-character equivalent.
     """
-    uri = _ensure_type(uri)
     import urllib
+    uri = conduit.utils.ensure_string(uri)
     return urllib.unquote(uri)
     
 def uri_get_protocol(uri):
     """
     Returns the protocol (file, smb, etc) for a URI
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     if uri.rfind("://")==-1:
         return ""
     protocol = uri[:uri.index("://")+3]
@@ -176,17 +154,16 @@ def uri_get_protocol(uri):
 
 def uri_get_filename(uri):
     """
-    Method to return the filename of a file. Could use GnomeVFS for this
-    is it wasnt so slow
+    Method to return the filename of a file.
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     return uri.split(os.sep)[-1]
 
 def uri_get_filename_and_extension(uri):
     """
     Returns filename,file_extension
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     return os.path.splitext(uri_get_filename(uri))
     
 def uri_sanitize_for_filesystem(uri, filesystem=None):
@@ -194,7 +171,7 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     Removes illegal characters in uri that cannot be stored on the 
     given filesystem - particuarly fat and ntfs types
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     import string
     
     ILLEGAL_CHARS = {
@@ -223,7 +200,7 @@ def uri_is_folder(uri):
     """
     @returns: True if the uri is a folder and not a file
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     info = gnomevfs.get_file_info(uri)
     return info.type == gnomevfs.FILE_TYPE_DIRECTORY
     
@@ -231,14 +208,14 @@ def uri_format_for_display(uri):
     """
     Formats the uri so it can be displayed to the user (strips passwords, etc)
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     return gnomevfs.format_uri_for_display(uri)
     
 def uri_exists(uri):
     """
     @returns: True if the uri exists
     """
-    uri = _ensure_type(uri)
+    uri = conduit.utils.ensure_string(uri)
     try:
         return gnomevfs.exists(gnomevfs.URI(uri)) == 1
     except Exception, err:
@@ -285,9 +262,6 @@ class FileMonitor(gobject.GObject):
         if self._monitor_folder_id != None:
             gnomevfs.monitor_cancel(self._monitor_folder_id)
             self._monitor_folder_id = None
-
-class VolumeMonitor(FileImpl.VolumeMonitor):
-    pass
 
 #
 # Scanner ThreadManager

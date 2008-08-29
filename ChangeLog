@@ -1,6 +1,16 @@
 2008-08-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Vfs.py:
+	* conduit/dataproviders/File.py:
+	* conduit/modules/FileModule/FileConfiguration.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/utils/__init__.py:
+	* test/python-tests/TestCoreVfs.py: Move _ensure_type into utils as
+	ensure_string. Remove uri_make_canonical.
+
+2008-08-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
 	* conduit/platform/FileGio.py:
 	* conduit/platform/FileGnomeVfs.py:
 	* conduit/platform/FilePython.py:

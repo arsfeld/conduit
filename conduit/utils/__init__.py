@@ -51,6 +51,17 @@ def program_installed(app):
                 return True
     return False
 
+def ensure_string(arg):
+    """
+    Ensures that arg is str or unicode, returns it as str.
+    """
+    if type(arg) == str:
+        return arg
+    elif type(arg) == unicode:
+        return str(arg)
+    else:
+        raise Exception("must be str or unicode (was %s)" % type(arg))
+
 #
 # Temporary file functions
 #

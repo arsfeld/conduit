@@ -329,16 +329,8 @@ class _FolderTwoWayConfigurator:
 
     def on_response(self, dialog, response_id):
         if response_id == gtk.RESPONSE_OK:
-            #I think the logic here is ugly, and rather non-symmetric.
-            #Basically get_uri returns the selected folder uri, OR the current
-            #(read: same as get_folder_uri) uri if none is selected. 
-            #The non symmetric part is that when we pre-load the filechooser
-            #at time+1, we call set_current_folder_uri() #because the set_uri()
-            #call doesnt make sense in a folderchooser where you want 
-            #to be *inside* the selected folder and not one below it.
-            selected = self.folderChooser.get_uri()
-            self.folder = Vfs.uri_make_canonical(selected)
-            log.debug("Folderconfig returned %s (non-canonical: %s)" % (self.folder,selected))
+            self.folder = self.folderChooser.get_uri()
+            log.debug("Folderconfig returned %s" % self.folder)
             self.includeHidden = self.hiddenCb.get_active()
             self.compareIgnoreMtime = self.mtimeCb.get_active()
             self.followSymlinks = self.followSymlinksCb.get_active() 
