@@ -3,7 +3,6 @@ try:
 except ImportError:
     from gnome import gnomevfs # for maemo
 
-import conduit.Vfs as Vfs
 import conduit.platform
 
 import logging
@@ -139,6 +138,31 @@ class FileImpl(conduit.platform.File):
         self.fileExists = False
         self.triedOpen = False
 
+    def make_directory(self):
+        uri = _ensure_type(uri)
+        gnomevfs.make_directory(
+                self.get_text_uri(),
+                gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
+                )
+        
+    def make_directory_and_parents(self):
+        exists = False
+        dirs = []
+
+        directory = self._URI
+        while not exists:
+            dirs.append(directory)
+            directory = directory.parent
+            exists = gnomevfs.exists(directory)
+
+        dirs.reverse()
+        for d in dirs:
+            log.debug("Making directory %s" % d)
+            gnomevfs.make_directory(
+                    str(d),
+                    gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
+                    )
+
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):
         self._source = source._URI
@@ -178,7 +202,8 @@ class FileTransferImpl(conduit.platform.FileTransfer):
         #recursively create all parent dirs if needed
         parent = str(self._dest.parent)
         if not gnomevfs.exists(parent):
-            Vfs.uri_make_directory_and_parents(parent)
+            d = FileImpl(None, impl=self._dest.parent)
+            d.make_directory_and_parents()
 
         #Copy the file
         try:        

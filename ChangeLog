@@ -1,5 +1,19 @@
 2008-08-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py:
+	* conduit/datatypes/File.py:
+	* conduit/modules/N800Module/N800Module.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py:
+	* test/python-tests/TestCoreFile.py:
+	* test/python-tests/TestCoreVfs.py: Move some Vfs functions into
+	the File class.
+
+	* conduit/platform/FilePython.py: Skeleton implementation.
+
+2008-08-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/FileGio.py:
 	* conduit/platform/FileGnomeVfs.py:
 	* scripts/run-tests.sh: Implement a basic file transfer class.

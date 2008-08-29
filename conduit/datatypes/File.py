@@ -125,7 +125,7 @@ class File(DataType.DataType):
             return newuri
         else:
             return olduri
-            
+
     def set_from_instance(self, f):
         """
         Function to give this file all the properties of the
@@ -179,6 +179,19 @@ class File(DataType.DataType):
         @returns: True if the File is a directory
         """
         return self._file.is_directory()
+
+    def make_directory(self):
+        """
+        Makes a directory with the default permissions.
+        """
+        self._file.make_directory()
+
+    def make_directory_and_parents(self):
+        """
+        Makes a directory and all parents up till the root. Equivilent
+        to mkdir -p
+        """
+        self._file.make_directory_and_parents()
 
     def force_new_filename(self, filename):
         """

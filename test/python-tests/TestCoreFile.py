@@ -11,7 +11,7 @@ import time
 import datetime
 import tempfile
 
-for impl in ("GnomeVfs", "GIO"):
+for impl in ("GIO","GnomeVfs"):
     ok("--- TESTING FILE IMPL: %s" % impl, True)
 
     try:

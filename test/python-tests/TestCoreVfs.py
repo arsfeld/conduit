@@ -21,9 +21,6 @@ ok("/foo/bar does not exist", Vfs.uri_exists("/foo/bar") == False)
 ok("format uri", Vfs.uri_format_for_display("file:///foo") == "/foo")
 
 tmpdiruri = Utils.new_tempdir()
-newtmpdiruri = Vfs.uri_join(tmpdiruri, "foo", "bar", "baz")
-Vfs.uri_make_directory_and_parents(newtmpdiruri)
-ok("Made directory and parents: %s" % newtmpdiruri, Vfs.uri_exists(newtmpdiruri) == True)
 
 # Test the folder scanner theading stuff
 fileuri = Utils.new_tempfile("bla").get_local_uri()

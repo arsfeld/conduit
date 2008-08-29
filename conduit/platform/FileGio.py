@@ -138,16 +138,19 @@ class FileTransferImpl(conduit.platform.FileTransfer):
         else:
             mode = gio.FILE_COPY_NONE
 
-        log.debug("Transfering File %s -> %s" % (self._source.get_uri(), self._dest.get_uri()))
+        log.debug("Transfering File %s -> %s (overwrite: %s)" % (self._source.get_uri(), self._dest.get_uri(), overwrite))
 
         #recursively create all parent dirs if needed
         #http://bugzilla.gnome.org/show_bug.cgi?id=546575
+        #
+        #recursively create all parent dirs if needed
         #parent = str(self._dest.parent)
         #if not gnomevfs.exists(parent):
-        #    Vfs.uri_make_directory_and_parents(parent)
+        #    d = FileImpl(None, impl=self._dest.parent)
+        #    d.make_directory_and_parents()
 
         #Copy the file
-        #http://bugzilla.gnome.org/show_bug.cgi?id=546591
+        #http://bugzilla.gnome.org/show_bug.cgi?id=546601
         try:        
             ok = self._source.copy(
                         destination=self._dest,
@@ -158,4 +161,6 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             return True, FileImpl(None, impl=self._dest)
         except gio.Error, e:
             log.warn("File transfer error: %s" % e)
+            return False, None
+
 

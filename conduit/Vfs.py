@@ -10,6 +10,15 @@ except ImportError:
 
 import conduit.utils.Singleton as Singleton
 
+import conduit
+if conduit.FILE_IMPL == "GnomeVfs":
+    import conduit.platform.FileGnomeVfs as FileImpl
+elif conduit.FILE_IMPL == "GIO":
+    import conduit.platform.FileGio as FileImpl
+else:
+    raise Exception("File Implementation %s Not Supported" % conduit.FILE_IMPL)
+
+
 #
 # URI Functions
 #
@@ -29,11 +38,11 @@ def _ensure_type(arg):
 
 def uri_is_valid(uri):
     """
-    (weakly) checks if a uri is valid by looking for a scheme seperator
+    Checks if the uri is valid (i.e. not a local path), and its type
+    is supported by the underlying file implementation
     """
-    uri = _ensure_type(uri)
-    return uri[0] != "/" and uri.find("://") != -1
-    
+    return uri[0] != "/" and uri.split("://")[0]+"://" in FileImpl.SCHEMES
+
 def uri_join(first, *rest):
     """
     Joins multiple uri components. Performs safely if the first
@@ -235,40 +244,6 @@ def uri_exists(uri):
         log.warn("Error checking if location exists")
         return False
         
-def uri_make_directory(uri):
-    """
-    Makes a directory with the default permissions. Does not catch any
-    error
-    """
-    uri = _ensure_type(uri)
-    gnomevfs.make_directory(
-            uri,
-            gnomevfs.PERM_USER_ALL | gnomevfs.PERM_GROUP_READ | gnomevfs.PERM_GROUP_EXEC | gnomevfs.PERM_OTHER_READ | gnomevfs.PERM_OTHER_EXEC
-            )
-        
-def uri_make_directory_and_parents(uri):
-    """
-    Because gnomevfs.make_dir does not perform as mkdir -p this function
-    is required to make a heirarchy of directories.
-
-    @param uri: A directory that does not exist
-    @type uri: str
-    """
-    uri = _ensure_type(uri)
-    exists = False
-    dirs = []
-
-    directory = gnomevfs.URI(uri)
-    while not exists:
-        dirs.append(directory)
-        directory = directory.parent
-        exists = gnomevfs.exists(directory)
-
-    dirs.reverse()
-    for d in dirs:
-        log.debug("Making directory %s" % d)
-        uri_make_directory(str(d))
-
 class FileMonitor(gobject.GObject):
 
     __gsignals__ = {

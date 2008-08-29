@@ -2,6 +2,8 @@ import gobject
 
 class File:
 
+    SCHEMES = ()
+
     def __init__(self, URI):
         pass
         
@@ -48,6 +50,12 @@ class File:
         pass
         
     def close(self):
+        raise NotImplementedError
+
+    def make_directory(self):
+        raise NotImplementedError
+
+    def make_directory_and_parents(self):
         raise NotImplementedError
         
 class FileTransfer:

@@ -10,6 +10,7 @@ import logging
 log = logging.getLogger("modules.N800")
 
 import conduit
+import conduit.datatypes.File as File
 import conduit.datatypes.Video as Video
 import conduit.datatypes.Audio as Audio
 import conduit.datatypes.Photo as Photo
@@ -94,9 +95,10 @@ class N800Base(FileDataProvider.FolderTwoWay):
         dialog.run()
 
     def refresh(self):
-        if not Vfs.uri_exists(self.folder):
+        d = File.File(URI=self.folder)
+        if not d.exists():
             try:
-                Vfs.uri_make_directory_and_parents(self.folder)
+                d.make_directory_and_parents()
             except:
                 raise Exceptions.RefreshError("Error Creating Directory")
         FileDataProvider.FolderTwoWay.refresh(self)
