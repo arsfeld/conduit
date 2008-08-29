@@ -8,8 +8,11 @@ log = logging.getLogger("platform.FileGio")
 
 class FileImpl(conduit.platform.File):
     SCHEMES = ("file://","http://","ftp://","smb://")
-    def __init__(self, URI):
-        self._file = gio.File(URI)
+    def __init__(self, URI, impl=None):
+        if impl:
+            self._file = impl
+        else:
+            self._file = gio.File(URI)
         self.close()
 
     def _get_file_info(self):
@@ -46,8 +49,8 @@ class FileImpl(conduit.platform.File):
         try:
             #FIXME: Trash first?
             self._file.delete()
-        except gio.Error:
-            pass
+        except gio.Error, e:
+            log.warn("File delete error: %s" % e)
         
     def exists(self):
         self._get_file_info()
@@ -101,68 +104,58 @@ class FileImpl(conduit.platform.File):
 
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):
-        raise NotImplementedError
-
-        self._source = source._URI
-        self._dest = gnomevfs.URI(dest)
+        self._source = source._file
+        self._dest = gio.File(dest)
         self._cancel_func = lambda : False
+        self._cancellable = gio.Cancellable()
         
-    def _xfer_progress_callback(self, info):
+    def _xfer_progress_callback(self, current, total):
         #check if cancelled
         try:
             if self._cancel_func():
-                log.info("Transfer of %s -> %s cancelled" % (info.source_name, info.target_name))
-                return 0
-        except Exception, ex:
+                log.info("Transfer of %s -> %s cancelled" % (self._source.get_uri(), self._dest.get_uri()))
+                c.cancel()
+        except Exception:
             log.warn("Could not call gnomevfs cancel function")
-            return 0
         return True
         
     def set_destination_filename(self, name):
         #if it exists and its a directory then transfer into that dir
         #with the new filename
-        if gnomevfs.exists(self._dest):
-            info = gnomevfs.get_file_info(self._dest, gnomevfs.FILE_INFO_DEFAULT)
-            if info.type == gnomevfs.FILE_TYPE_DIRECTORY:
-                #append the new filename
-                self._dest = self._dest.append_file_name(name)
-        
+        try:
+            info = self._dest.query_info("standard::name,standard::type")
+            if info.get_file_type() == gio.FILE_TYPE_DIRECTORY:
+                self._dest = self._dest.get_child(name)
+        except gio.Error:
+            #file does not exist
+            pass
+
     def transfer(self, overwrite, cancel_func):
         self._cancel_func = cancel_func
     
         if overwrite:
-            mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE
+            mode = gio.FILE_COPY_OVERWRITE
         else:
-            mode = gnomevfs.XFER_OVERWRITE_MODE_SKIP
+            mode = gio.FILE_COPY_NONE
 
-        log.debug("Transfering File %s -> %s" % (self._source, self._dest))
+        log.debug("Transfering File %s -> %s" % (self._source.get_uri(), self._dest.get_uri()))
 
         #recursively create all parent dirs if needed
-        parent = str(self._dest.parent)
-        if not gnomevfs.exists(parent):
-            Vfs.uri_make_directory_and_parents(parent)
+        #http://bugzilla.gnome.org/show_bug.cgi?id=546575
+        #parent = str(self._dest.parent)
+        #if not gnomevfs.exists(parent):
+        #    Vfs.uri_make_directory_and_parents(parent)
 
         #Copy the file
+        #http://bugzilla.gnome.org/show_bug.cgi?id=546591
         try:        
-            result = gnomevfs.xfer_uri(
-                        source_uri=self._source,
-                        target_uri=self._dest,
-                        xfer_options=gnomevfs.XFER_NEW_UNIQUE_DIRECTORY,
-                        error_mode=gnomevfs.XFER_ERROR_MODE_ABORT,
-                        overwrite_mode=mode,
+            ok = self._source.copy(
+                        destination=self._dest,
+                        flags=mode,
+                        cancellable=self._cancellable,
                         progress_callback=self._xfer_progress_callback
                         )
-            #FIXME: Check error
-            return True, FileImpl(str(self._dest))
-        except gnomevfs.InterruptedError:
-            return False, None
-        except Exception, e:
+            return True, FileImpl(None, impl=self._dest)
+        except gio.Error, e:
             log.warn("File transfer error: %s" % e)
-            return False, None
-    
-    
-    
-
-
-            
 

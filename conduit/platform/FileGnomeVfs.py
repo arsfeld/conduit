@@ -11,8 +11,11 @@ log = logging.getLogger("platform.FileGnomeVfs")
 
 class FileImpl(conduit.platform.File):
     SCHEMES = ("file://","http://","ftp://","smb://")
-    def __init__(self, URI):
-        self._URI = gnomevfs.URI(URI)
+    def __init__(self, URI, impl=None):
+        if impl:
+            self._URI = impl
+        else:
+            self._URI = gnomevfs.URI(URI)
         self.close()
 
     def _open_file(self):
@@ -188,7 +191,7 @@ class FileTransferImpl(conduit.platform.FileTransfer):
                         progress_callback=self._xfer_progress_callback
                         )
             #FIXME: Check error
-            return True, FileImpl(str(self._dest))
+            return True, FileImpl(None, impl=self._dest)
         except gnomevfs.InterruptedError:
             return False, None
         except Exception, e:

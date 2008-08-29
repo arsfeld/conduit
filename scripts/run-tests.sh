@@ -9,8 +9,7 @@ TEST_DATA_DIR="$BASEDIR/test-data"
 COVERAGE_APP="scripts/coverage.py"
 COVERAGE_RESULTS="$BASEDIR/results/coverage"
 
-export LD_LIBRARY_PATH=/opt/gio/lib/
-export PYTHONPATH=/opt/gio/lib/python2.5/site-packages/gtk-2.0/
+export PYTHONPATH=/opt/conduit/lib/python2.5/site-packages/gtk-2.0/
 
 USAGE="\
 Usage:\n\

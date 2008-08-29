@@ -1,3 +1,10 @@
+2008-08-07  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* scripts/run-tests.sh: Implement a basic file transfer class.
+    Currently blocking on a few GNOME bugs.
+
 2008-08-03  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS:
