@@ -158,16 +158,15 @@ class TypeConverter:
         return False
         
     def _convert(self, conversions, data):
-        if len(conversions) > 0:
+        if data and len(conversions) > 0:
             from_type, to_type, args = conversions[0]
             message = "Converting"
             if from_type == to_type:
                 message = "Transcoding"
                 #No conversion needed, or module does not supply transcode.
                 if args == {} or not self._conversion_exists(from_type, to_type):
-                    #recurse
                     log.debug("Skipping %s -> %s" % (from_type, to_type))
-                    return self._convert(conversions[1:],data)
+                    return data
 
             log.debug("%s %s -> %s (args: %s)" % (message, from_type, to_type, args))
             try:
