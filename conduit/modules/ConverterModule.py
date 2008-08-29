@@ -107,6 +107,7 @@ class ContactConverter(TypeConverter.Converter):
                             "contact,file"    : self.contact_to_file,
                             "contact,text"    : self.contact_to_text,
                             "file,contact"    : self.file_to_contact,
+                            "text,contact"    : self.text_to_contact,
                             }
                             
     def contact_to_file(self, contact, **kwargs):
@@ -122,8 +123,24 @@ class ContactConverter(TypeConverter.Converter):
         return t
 
     def file_to_contact(self, f, **kwargs):
-        c = Contact.Contact()
-        c. set_from_vcard_string(f.get_contents_as_text())
+        c = None
+        if f.get_mimetype().split('/')[0] == "text":
+            try:
+                c = Contact.Contact()
+                c.set_from_vcard_string(f.get_contents_as_text())
+            except:
+                c = None
+                log.warn("Error converting file to contact")
+        return c
+
+    def text_to_contact(self, text, **kwargs):
+        c = None
+        try:
+            c = Contact.Contact()
+            c.set_from_vcard_string(text.get_string())
+        except:
+            c = None
+            log.warn("Error converting text to contact")
         return c
 
 class EventConverter(TypeConverter.Converter):
@@ -147,13 +164,24 @@ class EventConverter(TypeConverter.Converter):
         return t
 
     def file_to_event(self, f, **kwargs):
-        e = Event.Event()
-        e.set_from_ical_string(f.get_contents_as_text())
+        e = None
+        if f.get_mimetype().split('/')[0] == "text":
+            try:
+                e = Event.Event()
+                e.set_from_ical_string(f.get_contents_as_text())
+            except:
+                e = None
+                log.warn("Error converting file to event")
         return e
 
     def text_to_event(self, text, **kwargs):
-        e = Event.Event()
-        e.set_from_ical_string(text.get_string())
+        e = None
+        try:
+            e = Event.Event()
+            e.set_from_ical_string(text.get_string())
+        except:
+            e = None
+            log.warn("Error converting text to event")
         return e
 
 class FileConverter(TypeConverter.Converter):

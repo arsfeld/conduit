@@ -1,3 +1,13 @@
+2008-08-29  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/TypeConverter.py: Dont keep recursing if an intermediate
+	conversion fails. Fixes #549751
+
+2008-08-29  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/ConverterModule.py: Dont try and convert non-text
+	mimetypes to contact/event. Fixes #549750
+
 2008-08-28  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Vfs.py:
