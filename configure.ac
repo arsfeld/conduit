@@ -1,4 +1,4 @@
-AC_INIT([conduit], [0.3.14],[john.stowers@gmail.com],[conduit])
+AC_INIT([conduit], [0.3.15],[john.stowers@gmail.com],[conduit])
 AM_INIT_AUTOMAKE([1.9])
 AC_CONFIG_SRCDIR(conduit/__init__.py)
 AC_CONFIG_MACRO_DIR([m4])
