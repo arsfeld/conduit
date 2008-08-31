@@ -6,6 +6,34 @@ NEW in 0.3.14:
 * Support Webkit web browser
 * Support GIO
 
+* Fixed #510279, Support iPod Music (Alexandre Rosenfeld)
+* Fixed #526423, Use Gstreamer for Sound/Video conversion (Alexandre Rosenfeld)
+* Fixed #545464, conduit can't be started up without bash (Christian Schlotter)
+* Fixed #545824, Error Synchronizing in Picasa when the album doesn't exists (Manuel J. Garrido)
+* Fixed #546478, Firefox directory is not found on Gentoo (Christian Schlotter)
+* Fixed #547600, Banshee playlist icon (John Stowers)
+* Fixed #547604, Don't draw treeview lines (John Stowers)
+* Fixed #547615, No splashscreen needed (John Stowers)
+* Fixed #547617, Fix Evolution dataprovider icons (John Stowers)
+* Fixed #547618, About item in tray icon (John Stowers)
+* Fixed #548404, Three typos: N800 photo module, File dataprovider and Dataprovider (Christian Schlotter)
+* Fixed #548959, No module named MediaFile (Michael Monreal)
+* Fixed #548960, Deal with missing pygst better (John Stowers)
+* Fixed #548974, Window icon for preferences and config dialogs (John Stowers)
+* Fixed #548989, PicasaTwoWay ignores configured picture resize (Antonio G)
+* Fixed #549750, tries to sync from f-spot to evolution address book (John Stowers)
+* Fixed #549751, tries to sync f-spot to tomboy (John Stowers)
+
+Translations:
+* Updated fi: Timo Jyrinki
+* Updated ar: Djihed Afifi <djihed@gmail.com>
+* Updated pl: Tomasz Dominikowski
+* Updated es: Jorge Gonzalez
+
+Help Manual Translations:
+* Updated fr: Claude Paroz
+* Updated de: Christian Kirbach
+
 NEW in 0.3.13.1:
 ==============
 * Brown paper bag release
@@ -257,6 +285,8 @@ Translations:
 
 Help Manual Translations:
 * Updated es: Jorge Gonzalez
+
+None
 
 None
 

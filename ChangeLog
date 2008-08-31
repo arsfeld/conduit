@@ -1,5 +1,9 @@
 2008-08-31  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS: Updates for release
+
+2008-08-31  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/BansheeModule/BansheeModule.py:
 	* conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py:
 	* conduit/modules/RhythmboxModule/RhythmboxModule.py:
