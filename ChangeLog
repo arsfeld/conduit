@@ -1,3 +1,13 @@
+2008-08-31  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BansheeModule/BansheeModule.py:
+	* conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py:
+	* conduit/modules/RhythmboxModule/RhythmboxModule.py:
+	Dont show if program not installed
+
+	* conduit/platform/Makefile.am:
+	* po/POTFILES.in: Fix build
+
 2008-08-30  John Stowers  <john.stowers@gmail.com>
 
 	* NEWS: Updates

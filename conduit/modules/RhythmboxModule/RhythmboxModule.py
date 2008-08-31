@@ -24,9 +24,12 @@ import conduit.datatypes.Audio as Audio
 
 from gettext import gettext as _ 
 
-MODULES = {
-    "RhythmboxSource" :              { "type": "dataprovider" },
-}
+if Utils.program_installed("rhythmbox"):
+    MODULES = {
+        "RhythmboxSource" :              { "type": "dataprovider" },
+    }
+else:
+    MODULES = {}
 
 #list store column define
 NAME_IDX=0

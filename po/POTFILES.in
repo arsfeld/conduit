@@ -35,6 +35,7 @@ conduit/modules/GoogleModule/calendar-config.glade
 conduit/modules/GoogleModule/documents-config.glade
 conduit/modules/GoogleModule/picasa-config.glade
 conduit/modules/GoogleModule/youtube-config.glade
+conduit/modules/iPodModule/iPodModule.py
 conduit/modules/iPodModule/config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py

@@ -1,7 +1,7 @@
 conduitdir = $(pythondir)/conduit/platform
 conduit_PYTHON = \
 	__init__.py				\
-	FileGIO.py				\
+	FileGio.py				\
 	FileGnomeVfs.py			\
 	FilePython.py			\
 	SettingsGConf.py		\

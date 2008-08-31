@@ -26,9 +26,12 @@ except ImportError:
 
 from gettext import gettext as _
 
-MODULES = {
-    "RhythmboxDBusSource" :              { "type": "dataprovider" },
-}
+if Utils.program_installed("rhythmbox"):
+    MODULES = {
+        "RhythmboxDBusSource" :              { "type": "dataprovider" },
+    }
+else:
+    MODULES = {}
 
 #list store column define
 NAME_IDX=0

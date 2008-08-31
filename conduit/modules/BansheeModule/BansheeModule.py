@@ -18,9 +18,12 @@ import conduit.datatypes.Audio as Audio
 
 from gettext import gettext as _
 
-MODULES = {
-	"BansheeSource" : { "type": "dataprovider" }
-}
+if Utils.program_installed("banshee"):
+    MODULES = {
+    	"BansheeSource" : { "type": "dataprovider" }
+    }
+else:
+    MODULES = {}
 
 ID_IDX = 0
 NAME_IDX = 1
