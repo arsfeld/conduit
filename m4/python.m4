@@ -231,7 +231,7 @@ if ver >= ($v):
 	print 'yes'
 "
 out=`$PYTHON -c "$prog"`
-if test "x$out" == xyes; then
+if test "x$out" = xyes; then
   AC_MSG_RESULT([yes])
   ifelse([$4], [],, [$4
 ])dnl
