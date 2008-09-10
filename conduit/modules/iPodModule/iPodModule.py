@@ -574,7 +574,6 @@ class IPodVideo(Video.Video, IPodFileBase):
 
     def set_info_from_video(self, video):
         self.set_info_from_file(video)
-        #FIXME: Movie should be a choice between Movie, MusicVideo, TvShow and Podcast
         self.track['mediatype'] = {'movie': gpod.ITDB_MEDIATYPE_MOVIE,
                                    'musicvideo': gpod.ITDB_MEDIATYPE_MUSICVIDEO,
                                    'tvshow': gpod.ITDB_MEDIATYPE_TVSHOW,
@@ -599,7 +598,6 @@ class DBCache:
             if mount_point in self.__db_list:
                 log.debug('Getting DB in cache for %s' % (mount_point))
                 db = self.__db_list[mount_point]
-                #self.__db_locks[db][1] += 1
             else:
                 if mount_point:
                     log.debug('Creating DB for %s' % mount_point)
@@ -616,15 +614,14 @@ class DBCache:
     @classmethod
     def release_db(self, db):
         assert db in self.__db_locks
+        # We dont do nothing here yet, but we could use to release resources.
+        # The db is automatically removed from the list because of the weak 
+        # reference.
         log.debug('Releasing DB for %s' % db)
-        #self.__db_locks[db][1] -= 1
 
     @classmethod
     def lock_db(self, db):
         assert db in self.__db_locks
-        #if self.__db_locks[db][1] == 1:
-        #    log.debug('Not locking DB for %s' % db)
-        #    return
         log.debug('Locking DB %s' % db)
         self.__db_locks[db].acquire()
 
@@ -632,8 +629,6 @@ class DBCache:
     def unlock_db(self, db):
         assert db in self.__db_locks
         log.debug('Unlocking DB %s' % db)
-        #lock = self.__db_locks[db][0]
-        #if lock.locked():
         self.__db_locks[db].release()
 
 class IPodMediaTwoWay(IPodBase):
@@ -651,6 +646,7 @@ class IPodMediaTwoWay(IPodBase):
         #self.tracks = {}
         self.tracks_id = {}
         self.track_args = {}
+        self.keep_converted = True
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -723,14 +719,18 @@ class IPodMediaTwoWay(IPodBase):
             return a
         #Get an array of encodings, so it can be indexed inside a combobox
         self.config_encodings = [dict_update({'name': name}, value) for name, value in self.encodings.iteritems()]
-        initial = None
+        initial_enc = None
         for encoding in self.config_encodings:
             if encoding['name'] == self.encoding:
-                initial = encoding.get('description', None) or encoding['name']
+                initial_enc = encoding.get('description', None) or encoding['name']
 
         def selectEnc(index, text):
             self.encoding = self.config_encodings[index]['name']
             log.debug('Encoding %s selected' % self.encoding)
+            
+        def selectKeep(value):
+            self.keep_converted = value
+            log.debug("Keep converted selected: %s" % (value))
             
         return [
                     {
@@ -738,8 +738,14 @@ class IPodMediaTwoWay(IPodBase):
                     "Kind" : "list",
                     "Callback" : selectEnc,
                     "Values" : [encoding.get('description', None) or encoding['name'] for encoding in self.config_encodings],
-                    "InitialValue" : initial
-                    }
+                    "InitialValue" : initial_enc
+                    },
+                    
+                    {"Name" : _("Keep converted files"),
+                     "Kind" : "check",
+                     "Callback" : selectKeep,
+                     "InitialValue" : self.keep_converted
+                    },
                 ]        
 
     def configure(self, window):
@@ -751,13 +757,25 @@ class IPodMediaTwoWay(IPodBase):
     def set_configuration(self, config):
         if 'encoding' in config:
             self.encoding = config['encoding']
+        if 'keep_converted' in config:
+            self.keep_converted = config['keep_converted']
 
     def get_configuration(self):
-        return {'encoding':self.encoding}
+        return {'encoding':self.encoding,
+                'keep_converted': self.keep_converted}
 
     def get_input_conversion_args(self):
         try:
-            return self.encodings[self.encoding]
+            args = self.encodings[self.encoding]
+            # FIXME
+            # If we pass the bool in the args, it will become a string, and 
+            # will always return True later in the converter.
+            # So we only pass it if is True. When it's False, not being there
+            # tells the converter it isn't True.
+            # I'm not sure it was supposed to work like this.
+            if self.keep_converted:
+                args['keep_converted'] = True
+            return args
         except KeyError:
             return {}
 
@@ -774,7 +792,7 @@ IPOD_AUDIO_ENCODINGS = {
 
 class IPodMusicTwoWay(IPodMediaTwoWay):
 
-    _name_ = "Music"
+    _name_ = "iPod Music"
     _description_ = "Sync your iPod music"
     _module_type_ = "twoway"
     _in_type_ = "file/audio"
@@ -792,13 +810,24 @@ class IPodMusicTwoWay(IPodMediaTwoWay):
         self.encoding = 'aac'
 
 IPOD_VIDEO_ENCODINGS = {
-    "mp4_x264":{"description": "MP4 (H.264)","vcodec":"x264enc", "acodec":"faac", "format":"ffmux_mp4", "file_extension":"m4v", "width": 320, "height": 240},
-    "mp4_xvid":{"description": "MP4 (XVid)","vcodec":"xvidenc", "acodec":"faac", "format":"ffmux_mp4", "file_extension":"m4v", "width": 320, "height": 240},
+    #FIXME: Add iPod mpeg4 restrictions. Follow:
+    # http://rob.opendot.cl/index.php/useful-stuff/ffmpeg-x264-encoding-guide/
+    "mp4_x264":{"description": "MP4 (Better quality - H.264)","vcodec":"x264enc", "acodec":"faac", 
+        "format":"ffmux_mp4", "file_extension":"m4v", "width": 320, "height": 240, 
+        "mimetype": "video/mp4"},
+    #FIXME: Two-pass encoding is not working. The first pass never finishes.
+    #"mp4_x264_twopass":{"description": "MP4 (H.264, Two-pass EXPERIMENTAL)", 
+    #    "vcodec_pass1":"x264enc pass=1", "vcodec_pass2":"x264enc pass=2", 
+    #    "acodec":"faac", "format":"ffmux_mp4", "file_extension":"m4v", 
+    #    "width": 320, "height": 240, "mimetype": "video/mp4", 'twopass':True},
+    "mp4_xvid":{"description": "MP4 (Faster conversion - XVid)","vcodec":"ffenc_mpeg4", "acodec":"faac",
+        "format":"ffmux_mp4", "file_extension":"m4v", "width": 320, "height": 240, 
+        "mimetype": "video/mp4"},
     }
 
 class IPodVideoTwoWay(IPodMediaTwoWay):
 
-    _name_ = "Video"
+    _name_ = "iPod Video"
     _description_ = "Sync your iPod videos"
     _module_type_ = "twoway"
     _in_type_ = "file/video"
@@ -852,6 +881,7 @@ class IPodVideoTwoWay(IPodMediaTwoWay):
         IPodMediaTwoWay.set_configuration(self, config)
         if 'video_kind' in config:
             self.encoding = config['video_kind']
+        self._update_track_args()
 
     def get_configuration(self):
         config = IPodMediaTwoWay.get_configuration(self)

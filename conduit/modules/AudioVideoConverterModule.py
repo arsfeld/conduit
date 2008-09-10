@@ -1,6 +1,8 @@
 import re
 import logging
 import threading
+import tempfile
+import os
 log = logging.getLogger("modules.AVConverter")
 
 import conduit
@@ -14,7 +16,6 @@ import gobject
 
 try:
     import gst
-    from gst.extend import discoverer
     from gst import Pipeline
     MODULES = {
         "AudioVideoConverter" :  { "type": "converter" }
@@ -54,21 +55,18 @@ These are the properties the GStreamer converter can take:
     specified, the other is calculated to keep the video proportional.    
 '''
 
+PROGRESS_WAIT = 2.5
+
 class GStreamerConversionPipeline(Pipeline):
     """
     Converts between different multimedia formats.
     This class is event-based and needs a mainloop to work properly.
     Emits the 'converted' signal when conversion is finished.
-    Heavily based from gst.extend.discoverer
+    Heavily based on gst.extend.discoverer
 
     The 'converted' callback has one boolean argument, which is True if the
     file was successfully converted.
     """
-    
-    #TODO: Although this is based more on Discoverer, it might be better to base
-    # on some ideas from utils.GstMetadata, especially the pipeline reutilization
-    # (might be a temporary fix to the need to run the discover to get media 
-    # information then the conversion pipeline)
 
     __gsignals__ = {
         'converted' : (gobject.SIGNAL_RUN_FIRST,
@@ -79,8 +77,6 @@ class GStreamerConversionPipeline(Pipeline):
     
     def __init__(self, **kwargs):        
         Pipeline.__init__(self)
-        #if 'file_mux' not in kwargs:
-        #    raise Exception('Output file format not specified')        
         self._has_video_enc = ('vcodec' in kwargs) or ('vcodec_pass1' in kwargs) or ('vcodec_pass2' in kwargs)
         self._has_audio_enc = 'acodec' in kwargs
         if not self._has_video_enc and not self._has_audio_enc:
@@ -126,18 +122,18 @@ class GStreamerConversionPipeline(Pipeline):
             # Dont link videoscale to ffmpegcolorspace yet
             self._video_queue.link(self._video_scale)
             self._video_ffmpegcolorspace.link(self._video_enc)
-            #TODO: Add dynamic video scaling, thus removing the need to run
-            # the discoverer before conversion
             if ('width' in kwargs) or ('height' in kwargs):
                 log.debug("Video dimensions specified")
                 resolution = []                
                 if 'width' in kwargs:
                     width = kwargs['width']
+                    # Make sure it works with all encoders
                     resolution.append('width=%s' % (width - width % 2))
                 if 'height' in kwargs:
                     height = kwargs['height']
                     resolution.append('height=%s' % (height - height % 2))
-                caps = gst.caps_from_string('video/x-raw-yuv,%s;video/x-raw-yuv,%s' % (','.join(resolution), ','.join(resolution)))
+                resolution = ','.join(resolution)
+                caps = gst.caps_from_string('video/x-raw-yuv,%s;video/x-raw-rgb,%s' % (resolution, resolution))
                 self._video_scale.link_filtered(self._video_ffmpegcolorspace, caps)
             else:
                 self._video_scale.link(self._video_ffmpegcolorspace)
@@ -149,7 +145,6 @@ class GStreamerConversionPipeline(Pipeline):
             self._video_pad = None
         if self._has_audio_enc and self._pass != 1:
             self._audio_queue = gst.element_factory_make('queue')
-            #TODO: Add audio rate and sampler            
             self._audio_convert = gst.element_factory_make('audioconvert')
             self._audio_resample = gst.element_factory_make('audioresample')
             self._audio_rate = gst.element_factory_make('audiorate')            
@@ -163,16 +158,13 @@ class GStreamerConversionPipeline(Pipeline):
         else:
             self._audio_pad = None
             
-    def _finished(self, success=False):        
-        log.debug("Conversion finished")
+    def _finished(self, success=False):
         self._success = success
         self.bus.remove_signal_watch()
         gobject.idle_add(self._stop)
-        gobject.source_remove(self.watch)
         return False
 
     def _stop(self):
-        log.debug('Conversion stop')
         self.set_state(gst.STATE_READY)
         self.emit('converted', self._success)
 
@@ -182,12 +174,9 @@ class GStreamerConversionPipeline(Pipeline):
             # conversion?
             log.debug("Conversion sucessfull")
             self._finished(True)
-        #elif message.type == gst.MESSAGE_TAG:
-        #    for key in message.parse_tag().keys():
-        #        self.tags[key] = message.structure[key]
         elif message.type == gst.MESSAGE_ERROR:
             log.debug("Conversion error")
-            self._finished()        
+            self._finished()     
             
     def _dbin_decoded_pad(self, dbin, pad, is_last):
         caps = pad.get_caps()
@@ -215,10 +204,9 @@ class GStreamerConversionPipeline(Pipeline):
         try:
             (pos, format) = self.query_position(gst.FORMAT_TIME)
             (dur, format) = self.query_duration(gst.FORMAT_TIME)
-            log.debug("Conversion progress %.2f%%" % (float(pos)*100.0/dur))
             return (pos/float(gst.SECOND), dur/float(gst.SECOND))
         except gst.QueryError:
-            log.debug("QUERY ERROR")
+            log.debug("Conversion query ERROR")
             return (0.0, 0.0)
                 
     def convert(self):
@@ -227,49 +215,37 @@ class GStreamerConversionPipeline(Pipeline):
         self.bus.add_signal_watch()
         self.bus.connect("message", self._bus_message_cb)
         log.debug("Starting conversion")
-        self.watch  = gobject.timeout_add(2000, self.progress)
         if not self.set_state(gst.STATE_PLAYING):
             self._finished()
             
 class GStreamerConverter():
-    def __init__(self, filename):
-        self.filename = filename
-
-    def get_stream_info(self, needs_audio = False, needs_video = False):                
-        def discovered(discoverer, valid):
-            self.valid = valid
-            event.set()        
-        event = threading.Event()    
-        log.debug("Getting stream information file: %s" % self.filename)
-        self.info = discoverer.Discoverer(self.filename)
-        self.info.connect('discovered', discovered)
-        self.info.discover()
-        event.wait()        
-        if not self.valid:
-            raise Exception('Not a valid media file')
-        if needs_video and not self.info.is_video:
-            raise Exception("Not a valid video file")
-        if needs_audio and not self.info.is_audio:
-            raise Exception("Not a valid audio file")            
-        if self.info.is_video:
-            return (self.info.videowidth, self.info.videoheight, \
-                self.info.videolength / gst.SECOND)
-        elif self.info.is_audio:            
-            return (self.info.audiolength / gst.SECOND)
-        else:
-            raise Exception
-            
     def _run_pipeline(self, **kwargs):
         def converted(converter, success):
             if not success:
                 raise Exception
             self.success = success
-            event.set()            
+            event.set()
         event = threading.Event()
         pipeline = GStreamerConversionPipeline(**kwargs)
         pipeline.connect("converted", converted)
         pipeline.convert()
-        event.wait()        
+        current_thread = threading.currentThread()
+        check_progress = False
+        while not event.isSet():
+            # Dont print an error message if we havent yet started the conversion
+            if check_progress:
+                (time, total) = pipeline.progress()
+                if total:
+                    log.debug("Conversion progress: %.2f%%" % (100.0 * time/total))
+            event.wait(PROGRESS_WAIT)
+			# FIXME: A little hackish, but works.
+            if hasattr(current_thread, 'cancelled'):
+                if current_thread.cancelled:
+                    pipeline.set_state(gst.STATE_NULL)      
+                    pipeline = None
+                    return False
+            check_progress = True
+        pipeline = None
         return self.success
 
     def convert(self, **kwargs):
@@ -292,89 +268,103 @@ class AudioVideoConverter(TypeConverter.Converter):
                             "file,file/audio"           :   self.file_to_audio
                             }
 
-    def transcode_video(self, video, **kwargs):
-        #mimetype = video.get_mimetype()
-        #if not Video.mimetype_is_video(mimetype):
-        #    log.debug("File %s is not video type: %s" % (video,mimetype))
-        #    return None
-        input_file = video.get_local_uri()
+    def _get_output_file(self, input_file, **kwargs):
+        # We are not checking the contents of keep_converted, because it is a 
+        # string, not a bool, even if it was a bool in the args
+        use_temp = not kwargs.has_key("keep_converted")
+        if not use_temp:
+            try:
+                (input_folder, input_filename) = os.path.split(input_file)
+                output_folder = os.path.join(input_folder, "Converted Files")
+                if not os.path.exists(output_folder):
+                    os.mkdir(output_folder)
+                output_file = os.path.join(output_folder, input_filename)
+                if 'file_extension' in kwargs:
+                    output_file = os.path.splitext(output_file)[0] + '.' + kwargs['file_extension']
+                #TODO: If the file already exists, we could probably not convert it,
+                # because it could've been converted before
+                #if os.path.is_file(output_file):
+                #    return video
+            except Exception, e:
+                log.debug("Using temp folder as a fallback: %s" % e)
+                use_temp = True
+        if use_temp:
+            output_file = tempfile.mkstemp(suffix='conduit')[1]
+            if kwargs.has_key("file_extension"):
+                output_file += '.' + kwargs["file_extension"]
+        log.debug("Using output_file = %s", output_file)
+        return output_file
         
-        log.debug("Creating GStreamer converter")
-
-        gst_converter = GStreamerConverter(input_file) 
-        #try:
-        log.debug("Getting video information")
-        (w, h, duration) = gst_converter.get_stream_info(needs_video = True)
-        #except:
-        #    log.debug("Error getting video information")
-        #    return None
-
-        log.debug("Input Video %s: size=%swx%sh, duration=%ss" % (input_file,w,h,duration))
-
+    def transcode_video(self, video, **kwargs):
+        #FIXME: This code fails with flv. Should we add an exception?
+        mimetype = video.get_mimetype()
+        if not Video.mimetype_is_video(mimetype):
+            log.debug("File %s is not video type: %s" % (video,mimetype))
+            return None
+        
+        kwargs['in_file'] = video.get_local_uri()
+        kwargs['out_file'] = self._get_output_file(kwargs['in_file'], **kwargs)
+        if os.path.exists(kwargs['out_file']):
+            return Video.Video(kwargs['out_file'])
+        
+        #Check if we need to convert the video
+        if kwargs.get('mimetype', None) == mimetype:
+            #Check if the video is smaller or equal then the required dimensions
+            #If it does, we dont need to convert it
+            width = kwargs.get('width', None)
+            height = kwargs.get('height', None)
+            if width or height:
+                (video_width, video_height) = video.get_video_size()
+                if (not width or video_width <= width) and \
+                   (not height or video_height <= height):
+                    log.debug("Video matches the required dimensions, not converting")
+                    return video
+            else:
+                #There is no required dimensions, and we match the mimetype,
+                #so we dont convert it
+                log.debug("Video matches the mimetype, not converting")
+                return video
+        
         if 'width' in kwargs and 'height' in kwargs:
+            (width, height) = video.get_video_size()
+            if not width and not height:
+                log.debug("Can't get video dimensions")
+                return None
             kwargs['width'],kwargs['height'] = Utils.get_proportional_resize(
                             desiredW=int(kwargs['width']),
                             desiredH=int(kwargs['height']),
-                            currentW=int(w),
-                            currentH=int(h)
+                            currentW=int(width),
+                            currentH=int(height)
                             )
-
-        #TODO: Test folder_location code
-        #if kwargs.has_key("folder_location"):
-        #    output_file = kwargs.has_key("folder_location")
-        #    if not os.path.isdir(output_file):
-        #        log.debug("Output location not a folder")
-        #        return None
-        #    output_file = os.path.join(output_file, os.path.basename(input_file))
-        #    log.debug("Using output_file = %s", output_file)
-        #else:
+            log.debug("Scaling video to %swx%sh" % (kwargs['width'],kwargs['height']))
         
-        #create output file
-        output_file = video.to_tempfile()
-        if kwargs.has_key("file_extension"):
-            video.force_new_file_extension(".%s" % kwargs["file_extension"])
-        kwargs['in_file'] = input_file
-        kwargs['out_file'] = output_file
-        sucess = gst_converter.convert(**kwargs)
+        gst_converter = GStreamerConverter()
+        sucess = gst_converter.convert(**kwargs)       
         
         if not sucess:
-            log.debug("Error transcoding video\n%s" % output)
+            log.debug("Error transcoding video\n")
             return None
-
-        return video
+        
+        return Video.Video(kwargs['out_file'])
 
     def transcode_audio(self, audio, **kwargs):
         mimetype = audio.get_mimetype()
         if not Audio.mimetype_is_audio(mimetype):
             log.debug("File %s is not audio type: %s" % (audio,mimetype))
             return None
-        input_file = audio.get_local_uri()
-
-
-        gst_converter = GStreamerConverter(input_file)
-        try:
-            duration = gst_converter.get_stream_info(needs_audio = True)
-        except:
-            log.debug("Error getting audio information")
-            return None
-
-        log.debug("Input Audio %s: duration=%ss" % (input_file,duration))
-
-        #create output file
-        output_file = audio.to_tempfile()
-        if kwargs.has_key("file_extension"):
-            audio.force_new_file_extension(".%s" % kwargs["file_extension"])
+        
+        kwargs['in_file'] = audio.get_local_uri()
+        kwargs['out_file'] = self._get_output_file(kwargs['in_file'], **kwargs)
 
         #convert audio
-        kwargs['in_file'] = input_file
-        kwargs['out_file'] = output_file
+        gst_converter = GStreamerConverter()
         sucess = gst_converter.convert(**kwargs)
         
         if not sucess:
-            log.debug("Error transcoding audio\n%s" % output)
+            log.debug("Error transcoding audio\n")
             return None
 
-        return audio
+        return Audio.Audio(kwargs['out_file'])
 
     def file_to_audio(self, f, **kwargs):
         mimetype = f.get_mimetype()

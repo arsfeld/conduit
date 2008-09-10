@@ -7,7 +7,7 @@ log = logging.getLogger("datatypes.Audio")
 try:
     import gst
     from gst.extend import discoverer
-    GST_AVAILABLE = False
+    GST_AVAILABLE = True
 except ImportError:
     GST_AVAILABLE = False
 
@@ -46,11 +46,10 @@ class MediaFile(File.File):
             tags['channels'] = info.audiochannels
         return tags
 
-    def _get_metadata(self, name):
-        if GST_AVAILABLE:
-            tags = self.get_media_tags()
-            if name in tags:
-                return tags[name]
+    def _get_metadata(self, name):        
+        tags = self.get_media_tags()
+        if name in tags:
+            return tags[name]
         return None
 
     def __getattr__(self, name):
@@ -68,4 +67,6 @@ class MediaFile(File.File):
         Descendants should override this function to provide their own tags,
         or merge with these tags.
         '''
-        return self.gst_tags
+        if GST_AVAILABLE:
+            return self.gst_tags
+        return None

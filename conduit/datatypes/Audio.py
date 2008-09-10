@@ -8,7 +8,8 @@ from threading import Lock
 
 PRESET_ENCODINGS = {
     "ogg":{"acodec":"vorbisenc","format":"oggmux","file_extension":"ogg"},
-    "wav":{"acodec":"wavenc","file_extension":"wav"}
+    "wav":{"acodec":"wavenc","file_extension":"wav"},
+    "mp3":{"acodec":"lame", "file_extension": "mp3"},
     }
 
 def mimetype_is_audio(mimetype):

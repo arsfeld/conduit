@@ -20,8 +20,8 @@ class SimpleConfigurator:
                     "InitialValue" : value or function
                     }
                 ]
+                
     Or, alternatively:
-        
 
         maps = [
                     {
@@ -29,6 +29,7 @@ class SimpleConfigurator:
                     "Kind" : "text", "check" or "list",
                     "Callback" : function,
                     "InitialValue" : value or function
+                    "Values": list if Kind = "list"
                     }
                 ]        
     """
@@ -50,7 +51,8 @@ class SimpleConfigurator:
         self.dialogParent = window
         #the child widget to contain the custom settings
         self.customSettings = gtk.Table(rows=0, columns=2)
-        self.customSettings.set_row_spacings(8)
+        self.customSettings.set_row_spacings(4)
+        self.customSettings.set_border_width(4)
         
         #The dialog is loaded from a glade file
         gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
@@ -123,6 +125,8 @@ class SimpleConfigurator:
         """
         #For each item in the mappings list create the appropriate widget
         for l in self.mappings:
+            if "Title" in l:
+                label = gtk.Label(l["Title"])
             if 'Kind' in l:
                 kind = l['Kind']
                 widget = {'text': gtk.Entry,
@@ -172,7 +176,7 @@ class SimpleConfigurator:
             row = table.get_property('n-rows') + 1
             table.resize(row, 2)
             if label:
-                table.attach(label, 0, 1, row - 1, row)
+                table.attach(label, 0, 1, row - 1, row, xpadding = 8)
                 table.attach(widget, 1, 2, row - 1, row)
             else:
-                table.attach(widget, 0, 2, row - 1, row)
+                table.attach(widget, 0, 2, row - 1, row, xpadding = 8)

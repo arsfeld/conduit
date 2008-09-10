@@ -10,6 +10,7 @@ gtk.gdk.threads_init()
 import conduit.datatypes.File as File
 import conduit.datatypes.Video as Video
 import conduit.datatypes.Audio as Audio
+import conduit.modules.iPodModule.iPodModule as iPodModule
 import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 
@@ -19,11 +20,15 @@ tc = test.type_converter
 ok("Video Conversion exists", tc.conversion_exists("file","file/video") == True)
 ok("Audio Conversion exists", tc.conversion_exists("file","file/audio") == True)
 
+VIDEO_ENCODINGS = Video.PRESET_ENCODINGS
+VIDEO_ENCODINGS.update(iPodModule.IPOD_VIDEO_ENCODINGS)
+
 TEST = (
 #name.list          #encodings to test  #available encodings
-("video",           ('divx','flv','ogg'),          Video.PRESET_ENCODINGS      ),
-("audio",           ('ogg',),           Audio.PRESET_ENCODINGS      ),
+("video",           ('divx', 'flv', 'ogg', 'mp4_x264', 'mp4_xvid'), VIDEO_ENCODINGS),
+("audio",           ('ogg','mp3'),           Audio.PRESET_ENCODINGS      ),
 )
+mainloop = gobject.MainLoop()
 
 def convert():    
     for name, test_encodings, all_encodings in TEST:
@@ -41,14 +46,13 @@ def convert():
                     ok("%s: Conversion OK" % name, newdata != None and newdata.exists(), False)
                 except Exceptions.ConversionError:
                     ok("%s: Conversion Failed" % name, False, False)
-    finished()           
-    mainloop.quit()
-    return False
+    gobject.idle_add(mainloop.quit)
+    finished()
 
 def idle_cb():
     threading.Thread(target=convert).start()
+    return False
 
-mainloop = gobject.MainLoop()
 gobject.idle_add(idle_cb)
 mainloop.run()
 

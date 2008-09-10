@@ -8,7 +8,7 @@ import conduit.utils.MediaFile as MediaFile
 # "arate":44100, "abitrate":"64k"
 # "fps":15
 PRESET_ENCODINGS = {
-    "divx":{"vcodec":"xvidenc", "acodec":"lame", "format":"avimux", "vtag":"DIVX", "file_extension":"avi", },
+    "divx":{"vcodec":"xvidenc", "acodec":"lame", "format":"avimux", "vtag":"DIVX", "file_extension":"avi", "mimetype": "video/x-msvideo"},
     #breaks on single channel audio files because ffmpeg vorbis encoder only suuport stereo
     "ogg":{"vcodec":"theoraenc", "acodec":"vorbisenc", "format":"oggmux", "file_extension":"ogg"},
     #needs mencoder or ffmpeg compiled with mp3 support
@@ -36,7 +36,7 @@ class Video(MediaFile.MediaFile):
         MediaFile.MediaFile.__init__(self, URI, **kwargs)
 
     def get_video_duration(self):
-        return _get_metadata('duration')
+        return self._get_metadata('duration')
 
     def get_video_size(self):
-        return _get_metadata('width'),_get_metadata('height')
+        return self._get_metadata('width'), self._get_metadata('height')
