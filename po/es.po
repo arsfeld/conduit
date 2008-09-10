@@ -8,15 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-22 01:07+0000\n"
-"PO-Revision-Date: 2008-08-22 10:12+0200\n"
+"POT-Creation-Date: 2008-08-31 10:49+0000\n"
+"PO-Revision-Date: 2008-09-09 03:49-0400\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
-"Language-Team: Español <gnome-es-list@gnome.org>\n"
+"Language-Team: Spanish <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type:  text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
-"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);"
 
 #: ../data/conduit.desktop.in.in.h:1
 #: ../data/conduit-autostart.desktop.in.in.h:2
@@ -30,7 +29,7 @@ msgstr "Sincronización para GNOME"
 
 #. Translators: Translate this in derived classes.
 #: ../data/conduit-autostart.desktop.in.in.h:1
-#: ../conduit/modules/N800Module/N800Module.py:54
+#: ../conduit/modules/N800Module/N800Module.py:55
 msgid "Conduit"
 msgstr "Conduit"
 
@@ -420,24 +419,24 @@ msgstr "Guardar las notas en la página:"
 msgid "Username:"
 msgstr "Usuario:"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:30
+#: ../conduit/modules/BansheeModule/BansheeModule.py:33
 msgid "Banshee Playlists"
 msgstr "Listas de reproducción de Banshee"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:31
+#: ../conduit/modules/BansheeModule/BansheeModule.py:34
 msgid "Sync your Banshee playlists"
 msgstr "Sincronice sus listas de reproducción de Banshee"
 
 #. column 1 is the tag name
-#: ../conduit/modules/BansheeModule/BansheeModule.py:138
+#: ../conduit/modules/BansheeModule/BansheeModule.py:141
 #: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:129
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:132
 msgid "Tag Name"
 msgstr "Nombre de la etiqueta"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:146
+#: ../conduit/modules/BansheeModule/BansheeModule.py:149
 #: ../conduit/modules/FspotModule/FspotModule.py:254
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:137
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:140
 msgid "Enabled"
 msgstr "Activado"
 
@@ -746,25 +745,25 @@ msgstr "Picasa"
 msgid "Sync your Google Picasa photos"
 msgstr "Sincronice sus fotos en Google Picasa"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:800
+#: ../conduit/modules/GoogleModule/GoogleModule.py:803
 msgid "Google Contacts"
 msgstr "Contactos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:801
+#: ../conduit/modules/GoogleModule/GoogleModule.py:804
 msgid "Sync your Gmail contacts"
 msgstr "Sincronizar sus contactos de Gmail"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1057
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1060
 #: ../conduit/modules/GoogleModule/documents-config.glade.h:5
 msgid "Google Documents"
 msgstr "Documentos de Google"
 
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1058
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1061
 msgid "Sync your Google Documents"
 msgstr "Sincronizar sus Documentos de Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1338
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:57
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:60
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -855,6 +854,14 @@ msgstr "Subido por el usuario de encima"
 msgid "YouTube Source"
 msgstr "Fuente YouTube"
 
+#: ../conduit/modules/iPodModule/iPodModule.py:635
+msgid "Encoding"
+msgstr "Codificación"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:744
+msgid "Keep converted files"
+msgstr "Mantener archivos convertidos"
+
 #: ../conduit/modules/iPodModule/config.glade.h:1
 msgid "<b>Encoding</b>"
 msgstr "<b>Codificación</b>"
@@ -866,65 +873,65 @@ msgstr "Fotos del iPod"
 #. Translators: Format string used to describe the acceptable formats the
 #. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
 #. arg is a comma seperated list of encodings
-#: ../conduit/modules/N800Module/N800Module.py:58
+#: ../conduit/modules/N800Module/N800Module.py:59
 #, python-format
 msgid "%s Format (%s)"
 msgstr "%s formato (%s)"
 
 #. Signifies that a conversion should not take place
-#: ../conduit/modules/N800Module/N800Module.py:60
+#: ../conduit/modules/N800Module/N800Module.py:61
 msgid "unchanged"
 msgstr "sin cambiar"
 
-#: ../conduit/modules/N800Module/N800Module.py:121
+#: ../conduit/modules/N800Module/N800Module.py:123
 msgid "N800 Files"
 msgstr "Archivos en la N800"
 
-#: ../conduit/modules/N800Module/N800Module.py:122
+#: ../conduit/modules/N800Module/N800Module.py:124
 msgid "Synchronizes files/folders to a N800 device"
 msgstr "Sincroniza archivos/carpetas con un dispositivo N800"
 
 #. To translators: default backup folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:127
+#: ../conduit/modules/N800Module/N800Module.py:129
 msgid "Backups"
 msgstr "Respaldos"
 
-#: ../conduit/modules/N800Module/N800Module.py:142
+#: ../conduit/modules/N800Module/N800Module.py:144
 msgid "N800 Music"
 msgstr "Músca en la N800"
 
-#: ../conduit/modules/N800Module/N800Module.py:143
+#: ../conduit/modules/N800Module/N800Module.py:145
 msgid "Synchronizes music to a N800 device"
 msgstr "Sincroniza música con un dispositivo N800"
 
 #. To translators: defaul music folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:149
+#: ../conduit/modules/N800Module/N800Module.py:151
 msgid "Music"
 msgstr "Música"
 
-#: ../conduit/modules/N800Module/N800Module.py:166
+#: ../conduit/modules/N800Module/N800Module.py:168
 msgid "N800 Videos"
 msgstr "Vídeos de la N800"
 
-#: ../conduit/modules/N800Module/N800Module.py:167
+#: ../conduit/modules/N800Module/N800Module.py:169
 msgid "Synchronizes video to a N800 device"
 msgstr "Sincroniza vídeo con un dispositivo N800"
 
 #. To translators: defaul video folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:173
+#: ../conduit/modules/N800Module/N800Module.py:175
 msgid "Video"
 msgstr "Vídeo"
 
-#: ../conduit/modules/N800Module/N800Module.py:190
+#: ../conduit/modules/N800Module/N800Module.py:192
 msgid "N800 Photos"
 msgstr "Fotos de la N800"
 
-#: ../conduit/modules/N800Module/N800Module.py:191
+#: ../conduit/modules/N800Module/N800Module.py:193
 msgid "Synchronizes photo to a N800 device"
 msgstr "Sincroniza fotos con un dispositivo N800"
 
 #. To translators: default photos folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:197
+#: ../conduit/modules/N800Module/N800Module.py:199
 msgid "Photo"
 msgstr "Foto"
 
@@ -936,11 +943,11 @@ msgstr "Red"
 msgid "Enable synchronization via network"
 msgstr "Activar sincronización a través de red"
 
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:37
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:40
 msgid "Rhythmbox Music"
 msgstr "Música de Rhythmbox"
 
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:38
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:41
 msgid "Sync songs from your Rhythmbox playlists"
 msgstr "Sincronice las canciones de sus listas de reproducción de Rhythmbox"
 
