@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-11 09:21+0200\n"
-"PO-Revision-Date: 2008-09-11 21:24+0200\n"
+"POT-Creation-Date: 2008-09-12 22:28+0200\n"
+"PO-Revision-Date: 2008-09-12 22:29+0200\n"
 "Last-Translator: Hendrik Richter <hendrikr@gnome.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -248,7 +248,7 @@ msgstr "Lösung"
 #. Visible column2 is the display name of source and source data
 #: ../conduit/gtkui/ConflictResolver.py:110
 msgid "Sink"
-msgstr "Senke"
+msgstr "Empfänger"
 
 #: ../conduit/gtkui/ConflictResolver.py:150
 #: ../conduit/gtkui/ConflictResolver.py:151
