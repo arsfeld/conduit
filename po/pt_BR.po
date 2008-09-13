@@ -826,7 +826,7 @@ msgstr "Planilhas"
 
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
 msgid "Login"
-msgstr "Login"
+msgstr "Iniciar sessão"
 
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
 msgid "<b>Download Videos</b>"
