@@ -1,3 +1,7 @@
+2008-09-19  Mario Blättermann <mariobl@svn.gnome.org>
+
+	* de/de.po: Updated German translation
+
 2008-08-16  Christian Kirbach  <Christian.Kirbach@googlemail.com>
 
 	* Makefile.am: Added de to DOC_LINGUAS.
