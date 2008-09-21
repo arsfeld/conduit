@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-08-31 10:49+0000\n"
-"PO-Revision-Date: 2008-09-06 19:40-0300\n"
-"Last-Translator: Michel Recondo <mrecondo@gmail.com>\n"
+"POT-Creation-Date: 2008-09-13 23:03+0000\n"
+"PO-Revision-Date: 2008-09-21 10:50-0300\n"
+"Last-Translator: Vladimir Melo <vladimirmelo.psi@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <gnome-l10n-br@listas.cipsga.org.br>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -341,7 +341,7 @@ msgstr "Atualizando..."
 
 #: ../conduit/dataproviders/DataProvider.py:22
 msgid "Refreshed OK"
-msgstr "Atualizado Sem Problemas"
+msgstr "Atualizado sem problemas"
 
 #: ../conduit/dataproviders/DataProvider.py:23
 msgid "Error Refreshing"
@@ -353,7 +353,7 @@ msgstr "Sincronizando..."
 
 #: ../conduit/dataproviders/DataProvider.py:25
 msgid "Synchronized OK"
-msgstr "Sincronizado sem Problemas"
+msgstr "Sincronizado sem problemas"
 
 #: ../conduit/dataproviders/DataProvider.py:26
 msgid "Error Synchronizing"
@@ -856,9 +856,13 @@ msgstr "Enviado pelo usuário acima"
 msgid "YouTube Source"
 msgstr "Fonte do YouTube"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:640
+#: ../conduit/modules/iPodModule/iPodModule.py:635
 msgid "Encoding"
 msgstr "Codificação"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:744
+msgid "Keep converted files"
+msgstr "Manter arquivos convertidos"
 
 #: ../conduit/modules/iPodModule/config.glade.h:1
 msgid "<b>Encoding</b>"
