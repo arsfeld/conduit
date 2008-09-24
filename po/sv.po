@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-01 13:38+0200\n"
-"PO-Revision-Date: 2008-09-01 15:47+0100\n"
+"POT-Creation-Date: 2008-09-24 19:09+0200\n"
+"PO-Revision-Date: 2008-09-24 19:09+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -853,9 +853,13 @@ msgstr "Uppskickad av ovanstående användare"
 msgid "YouTube Source"
 msgstr "YouTube-källa"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:640
+#: ../conduit/modules/iPodModule/iPodModule.py:635
 msgid "Encoding"
 msgstr "Kodning"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:744
+msgid "Keep converted files"
+msgstr "Behåll konverterade filer"
 
 #: ../conduit/modules/iPodModule/config.glade.h:1
 msgid "<b>Encoding</b>"
