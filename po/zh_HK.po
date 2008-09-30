@@ -1,0 +1,992 @@
+# Chinese (Hong Kong) translation of conduit.
+# Copyright (C) 2001, 2003 Free Software Foundation, Inc.
+# Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>, 2008.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: conduit 0.3.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-26 13:45+0800\n"
+"PO-Revision-Date: 2008-09-30 19:47+0800\n"
+"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
+"Language-Team: Chinese (Hong Kong) <community@linuxhall.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/conduit.desktop.in.in.h:1
+#: ../data/conduit-autostart.desktop.in.in.h:2
+msgid "Conduit Synchronizer"
+msgstr "Conduit 同步化程式"
+
+#: ../data/conduit.desktop.in.in.h:2
+#: ../data/conduit-autostart.desktop.in.in.h:3
+msgid "Synchronization for GNOME"
+msgstr "GNOME 的同步化程式"
+
+#. Translators: Translate this in derived classes.
+#: ../data/conduit-autostart.desktop.in.in.h:1
+#: ../conduit/modules/N800Module/N800Module.py:55
+msgid "Conduit"
+msgstr "Conduit"
+
+#: ../data/conduit.glade.h:1
+msgid "<b>Default Synchronization Options</b>"
+msgstr "<b>預設同步化選項</b>"
+
+#: ../data/conduit.glade.h:2
+msgid "<b>General</b>"
+msgstr "<b>一般</b>"
+
+#: ../data/conduit.glade.h:3
+msgid "Always Up To Date"
+msgstr "永遠保持最新"
+
+#: ../data/conduit.glade.h:4
+msgid "Ask Me What to Do"
+msgstr "詢問我要怎麼做"
+
+#: ../data/conduit.glade.h:5
+msgid "Ask me what to do"
+msgstr "詢問我要怎麼做"
+
+#: ../data/conduit.glade.h:6
+msgid "Cancel Synchronization"
+msgstr "取消同步化"
+
+#: ../data/conduit.glade.h:7
+msgid "Cancel currently synchronizing groups"
+msgstr "取消目前的同步羣組"
+
+#: ../data/conduit.glade.h:8
+#, fuzzy
+msgid "Clear Canvas"
+msgstr "全部清除"
+
+#: ../data/conduit.glade.h:9
+msgid "Compare"
+msgstr "比較"
+
+#: ../data/conduit.glade.h:10
+msgid "Conduit Preferences"
+msgstr "Conduit 偏好設定"
+
+#: ../data/conduit.glade.h:11
+msgid "Configuration"
+msgstr "組態"
+
+#: ../data/conduit.glade.h:12
+msgid "Configure Item"
+msgstr "設定項目"
+
+#: ../data/conduit.glade.h:13
+msgid "Configure the synchronization settings for this item"
+msgstr "設定這個項目的同步設定值"
+
+#: ../data/conduit.glade.h:14
+msgid "Conflict Options"
+msgstr "衝突選項"
+
+#: ../data/conduit.glade.h:15
+msgid "Conflicts"
+msgstr "衝突"
+
+#: ../data/conduit.glade.h:16
+msgid "Contents"
+msgstr "內容"
+
+#: ../data/conduit.glade.h:17
+msgid "Data Conversions"
+msgstr "資料轉換"
+
+#: ../data/conduit.glade.h:18
+msgid "Data Providers"
+msgstr "資料提供者"
+
+#: ../data/conduit.glade.h:19
+msgid "Delete Group"
+msgstr "刪除羣組"
+
+#: ../data/conduit.glade.h:20
+msgid "Delete Item"
+msgstr "刪除項目"
+
+#: ../data/conduit.glade.h:21
+msgid "Delete Options"
+msgstr "刪除選項"
+
+#: ../data/conduit.glade.h:22
+#, fuzzy
+msgid "Delete from the corresponding sink"
+msgstr "從 {0} 版刪除舊資料？"
+
+#: ../data/conduit.glade.h:23
+msgid "Delete the Corresponding Item"
+msgstr "刪除對等的項目"
+
+#: ../data/conduit.glade.h:24
+msgid "Editor"
+msgstr "編輯"
+
+#: ../data/conduit.glade.h:25
+msgid "Minimize to notification area"
+msgstr "最小化至通知區域"
+
+#: ../data/conduit.glade.h:26
+msgid "Refresh Group"
+msgstr "重新整理羣組"
+
+#: ../data/conduit.glade.h:27
+msgid "Refresh Item"
+msgstr "重新整理項目"
+
+#: ../data/conduit.glade.h:28
+msgid "Replace the Older Item"
+msgstr "取代較舊的項目"
+
+#: ../data/conduit.glade.h:29
+msgid "Replace the older item"
+msgstr "取代較舊的項目"
+
+#: ../data/conduit.glade.h:30
+msgid "Resolve Conflicts"
+msgstr "解決衝突"
+
+#: ../data/conduit.glade.h:31
+msgid "Save settings on exit"
+msgstr "離開時儲存設定值"
+
+#: ../data/conduit.glade.h:32
+msgid "Show Hints"
+msgstr "顯示提示"
+
+#: ../data/conduit.glade.h:33
+msgid "Show status icon"
+msgstr "顯示狀態圖示"
+
+#: ../data/conduit.glade.h:34
+msgid "Skip"
+msgstr "略過"
+
+#: ../data/conduit.glade.h:35
+msgid "Slow Sync"
+msgstr "慢速同步"
+
+#: ../data/conduit.glade.h:36
+msgid "Sync Options"
+msgstr "同步選項"
+
+#: ../data/conduit.glade.h:37
+msgid "Synchronize All"
+msgstr "同步全部"
+
+#: ../data/conduit.glade.h:38
+msgid "Synchronize Group"
+msgstr "同步羣組"
+
+#: ../data/conduit.glade.h:39
+msgid "Synchronize group"
+msgstr "同步羣組"
+
+#: ../data/conduit.glade.h:40
+msgid "Synchronizes all groups"
+msgstr "同步所有的羣組"
+
+#: ../data/conduit.glade.h:41
+msgid "Title"
+msgstr "標題"
+
+#: ../data/conduit.glade.h:42
+msgid "Two Way Sync"
+msgstr "雙向同步"
+
+#: ../data/conduit.glade.h:43
+msgid "When an item has been deleted:"
+msgstr "當項目被刪除時："
+
+#: ../data/conduit.glade.h:44
+msgid "When an item is deleted..."
+msgstr "當項目被刪除時..."
+
+#: ../data/conduit.glade.h:45
+msgid "When there is a conflict..."
+msgstr "當發生衝突時..."
+
+#: ../data/conduit.glade.h:46
+msgid "When there is a two way conflict:"
+msgstr "當發生雙向衝突時："
+
+#: ../data/conduit.glade.h:47
+msgid "_Edit"
+msgstr "編輯(_E)"
+
+#: ../data/conduit.glade.h:48
+msgid "_File"
+msgstr "檔案(_F)"
+
+#: ../data/conduit.glade.h:49
+msgid "_Help"
+msgstr "求助(_H)"
+
+#: ../conduit/gtkui/Canvas.py:149
+msgid "Drag a Data Provider here to continue"
+msgstr "將資料提供者拖放到這裏以繼續"
+
+#. Visible column0 is
+#. [pixbuf + source display name] or
+#. [source_data.get_snippet()]
+#: ../conduit/gtkui/ConflictResolver.py:91
+msgid "Source"
+msgstr "來源"
+
+#: ../conduit/gtkui/ConflictResolver.py:105
+msgid "Resolution"
+msgstr "解像度"
+
+#. Visible column2 is the display name of source and source data
+#: ../conduit/gtkui/ConflictResolver.py:110
+msgid "Sink"
+msgstr ""
+
+#: ../conduit/gtkui/ConflictResolver.py:150
+#: ../conduit/gtkui/ConflictResolver.py:151
+#, python-format
+msgid "Conflicts (%s)"
+msgstr "衝突 (%s)"
+
+#. Build some liststores to display
+#: ../conduit/gtkui/UI.py:281
+msgid "Convert from"
+msgstr "轉換自"
+
+#: ../conduit/gtkui/UI.py:282
+msgid "into"
+msgstr "到"
+
+#: ../conduit/gtkui/UI.py:333
+msgid "Relationship Database"
+msgstr "關係資料庫"
+
+#: ../conduit/gtkui/UI.py:337
+msgid "Conversions Available"
+msgstr "可用的轉換"
+
+#: ../conduit/gtkui/UI.py:343
+#: ../conduit/gtkui/Tree.py:348
+#: ../conduit/modules/FileModule/FileConfiguration.py:105
+msgid "Name"
+msgstr "名稱"
+
+#: ../conduit/gtkui/UI.py:347
+#, fuzzy
+msgid "Loaded"
+msgstr "負載:"
+
+#: ../conduit/gtkui/UI.py:459
+#: ../conduit/hildonui/UI.py:127
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr "同步化尚在進行中。你是否要取消它？"
+
+#: ../conduit/gtkui/UI.py:625
+msgid "_Synchronize All"
+msgstr "同步全部(_S)"
+
+#: ../conduit/gtkui/UI.py:625
+msgid "Synchronizes All Groups"
+msgstr "同步所有的羣組"
+
+#: ../conduit/gtkui/UI.py:626
+msgid "_Cancel Synchronization"
+msgstr "取消同步化(_C)"
+
+#: ../conduit/gtkui/UI.py:626
+msgid "Cancels Currently Synchronizing Groups"
+msgstr "取消目前正在同步的羣組"
+
+#: ../conduit/gtkui/UI.py:627
+msgid "_Quit"
+msgstr "離開(_Q)"
+
+#: ../conduit/gtkui/UI.py:627
+msgid "Close Conduit"
+msgstr "關閉 Conduit"
+
+#: ../conduit/gtkui/UI.py:667
+msgid "Synchronization Error"
+msgstr "同步化錯誤"
+
+#: ../conduit/gtkui/UI.py:670
+msgid "Synchronization Complete"
+msgstr "同步化完成"
+
+#: ../conduit/gtkui/UI.py:686
+msgid "Synchronizing"
+msgstr "同步中"
+
+#: ../conduit/gtkui/Tree.py:357
+msgid "Description"
+msgstr "描述"
+
+#: ../conduit/dataproviders/DataProvider.py:19
+msgid "Ready"
+msgstr "就緒"
+
+#: ../conduit/dataproviders/DataProvider.py:20
+msgid "New data to sync"
+msgstr "要同步的新資料"
+
+#: ../conduit/dataproviders/DataProvider.py:21
+msgid "Refreshing..."
+msgstr "重新整理..."
+
+#: ../conduit/dataproviders/DataProvider.py:22
+msgid "Refreshed OK"
+msgstr "重新整理完成"
+
+#: ../conduit/dataproviders/DataProvider.py:23
+msgid "Error Refreshing"
+msgstr "重新整理發生錯誤"
+
+#: ../conduit/dataproviders/DataProvider.py:24
+msgid "Synchronizing..."
+msgstr "正在同步..."
+
+#: ../conduit/dataproviders/DataProvider.py:25
+msgid "Synchronized OK"
+msgstr "同步完成"
+
+#: ../conduit/dataproviders/DataProvider.py:26
+msgid "Error Synchronizing"
+msgstr "同步發生錯誤"
+
+#: ../conduit/dataproviders/DataProvider.py:27
+msgid "Synchronization Skipped"
+msgstr "同步化已略過"
+
+#: ../conduit/dataproviders/DataProvider.py:28
+msgid "Synchronization Cancelled"
+msgstr "同步化已取消"
+
+#: ../conduit/dataproviders/DataProvider.py:29
+msgid "Synchronization Conflict"
+msgstr "同步化有衝突"
+
+#: ../conduit/dataproviders/DataProvider.py:30
+msgid "Not Configured Correctly"
+msgstr "沒有正確的設定"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:56
+msgid "Backpack Notes"
+msgstr "Backpack Notes"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:57
+msgid "Store things in Backpack Notes"
+msgstr "在 Backpack Notes 中儲存東西"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:1
+#: ../conduit/modules/FlickrModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
+#: ../conduit/modules/SmugMugModule/config.glade.h:1
+#: ../conduit/modules/ZotoModule/zoto.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>帳號詳細資料</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr "<b>儲存的筆記設定值</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:3
+msgid "API key:"
+msgstr "API 鍵值:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:4
+msgid "Backpack"
+msgstr "Backpack"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:5
+msgid "Save notes in page:"
+msgstr "將筆記儲存於頁面："
+
+#: ../conduit/modules/BackpackModule/config.glade.h:6
+#: ../conduit/modules/FlickrModule/config.glade.h:8
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:7
+#: ../conduit/modules/ZotoModule/zoto.glade.h:5
+msgid "Username:"
+msgstr "使用者名稱:"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:33
+msgid "Banshee Playlists"
+msgstr "Banshee 播放清單"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:34
+msgid "Sync your Banshee playlists"
+msgstr "同步你的 Banshee 播放清單"
+
+#. column 1 is the tag name
+#: ../conduit/modules/BansheeModule/BansheeModule.py:141
+#: ../conduit/modules/FspotModule/FspotModule.py:246
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:132
+msgid "Tag Name"
+msgstr "標籤名稱"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:149
+#: ../conduit/modules/FspotModule/FspotModule.py:254
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:140
+msgid "Enabled"
+msgstr "已啟用"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:1
+msgid "<b>Return Playlists</b>"
+msgstr "<b>返回播放清單</b>"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:2
+msgid "Banshee"
+msgstr "Banshee"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr "Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
+msgid "Sync your Box.net files"
+msgstr "同步你的 Box.net 檔案"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
+msgid "Folder:"
+msgstr "資料夾:"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
+#: ../conduit/modules/FacebookModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr "載入"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
+#, python-format
+msgid "Select %s:"
+msgstr "選擇 %s："
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+msgid "Evolution Contacts"
+msgstr "Evolution 聯絡人"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
+msgid "Sync your contacts"
+msgstr "同步你的聯絡人"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+msgid "Evolution Calendar"
+msgstr "Evolution 行事曆"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+msgid "Sync your calendar"
+msgstr "同步你的行事曆"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+msgid "Evolution Tasks"
+msgstr "Evolution 工作"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+msgid "Sync your tasks"
+msgstr "同步你的工作"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+msgid "Evolution Memos"
+msgstr "Evolution 備忘錄"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+msgid "Sync your memos"
+msgstr "同步你的備忘錄"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:1
+msgid "Addressbook:"
+msgstr "通訊錄:"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr "Evolution"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+#: ../conduit/modules/FacebookModule/config.glade.h:2
+msgid "Facebook"
+msgstr "Facebook"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+msgid "Sync your Facebook photos"
+msgstr "同步你的 Facebook 相片"
+
+#: ../conduit/modules/FacebookModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/iPodModule/config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+#: ../conduit/modules/ZotoModule/zoto.glade.h:3
+msgid "Album:"
+msgstr "專輯:"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:57
+#: ../conduit/modules/FeedModule/config.glade.h:9
+msgid "RSS Feed"
+msgstr "RSS 餵送"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:58
+msgid "Sync data from RSS enclosures"
+msgstr "從 RSS enclosure(多媒體資料) 同步資料"
+
+#: ../conduit/modules/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr "<b>Enclosure 設定值</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:2
+msgid "<b>Feed Details</b>"
+msgstr "<b>餵送詳細資料</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:3
+msgid "Download Audio Files"
+msgstr "下載音樂檔案"
+
+#: ../conduit/modules/FeedModule/config.glade.h:4
+msgid "Download Photos"
+msgstr "下載相片"
+
+#: ../conduit/modules/FeedModule/config.glade.h:5
+msgid "Download Video Files"
+msgstr "下載影片檔案"
+
+#: ../conduit/modules/FeedModule/config.glade.h:6
+msgid "Feed Address:"
+msgstr "餵送位址:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:7
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloaded to:"
+msgstr ""
+"限制要下載的\n"
+"Enclosur 數量："
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:99
+msgid "Icon"
+msgstr "圖示"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:111
+msgid "Items"
+msgstr "項目"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:137
+#, python-format
+msgid "<i>Contains %s files</i>"
+msgstr "<i>包含 %s 個檔案</i>"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:228
+msgid "Include file..."
+msgstr "包含檔案..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:238
+msgid "All files"
+msgstr "所有檔案"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:253
+msgid "Include folder..."
+msgstr "包含資料夾..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:298
+msgid "Please Name All Folders"
+msgstr "請為所有的資料夾命名"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:299
+msgid "All folders require a descriptive name. To name a folder simply click on it"
+msgstr "所有的資料夾都需要一個描述用的名稱。要為資料夾命名只需點選它即可。"
+
+#: ../conduit/modules/FileModule/FileModule.py:23
+msgid "Files"
+msgstr "檔案"
+
+#: ../conduit/modules/FileModule/FileModule.py:24
+msgid "Source for synchronizing multiple files"
+msgstr "同步多個檔案的來源"
+
+#: ../conduit/modules/FileModule/FileModule.py:63
+msgid "Folder"
+msgstr "資料夾"
+
+#: ../conduit/modules/FileModule/FileModule.py:64
+msgid "Synchronize folders"
+msgstr "同步資料夾"
+
+#: ../conduit/modules/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr "<b>要同步的項目</b>"
+
+#: ../conduit/modules/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr "加入目錄"
+
+#: ../conduit/modules/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr "加入檔案"
+
+#: ../conduit/modules/FileModule/config.glade.h:4
+msgid "Advanced"
+msgstr "進階"
+
+#: ../conduit/modules/FileModule/config.glade.h:5
+msgid "File Configuration"
+msgstr "檔案組態"
+
+#: ../conduit/modules/FileModule/config.glade.h:6
+msgid "Folder Configuration"
+msgstr "資料夾組態"
+
+#: ../conduit/modules/FileModule/config.glade.h:7
+msgid "Folder Location:"
+msgstr "資料夾位置:"
+
+#: ../conduit/modules/FileModule/config.glade.h:8
+msgid "Follow Symbolic Links"
+msgstr "隨着符號連結"
+
+#: ../conduit/modules/FileModule/config.glade.h:9
+msgid "Ignore File Modification Times"
+msgstr "忽略檔案修改時刻"
+
+#: ../conduit/modules/FileModule/config.glade.h:10
+msgid "Include Hidden Files"
+msgstr "包含隱藏檔案"
+
+#: ../conduit/modules/FileModule/config.glade.h:11
+msgid "Select A Folder"
+msgstr "選擇資料夾"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:76
+#: ../conduit/modules/FlickrModule/config.glade.h:3
+msgid "Flickr"
+msgstr "Flickr"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:77
+msgid "Sync your Flickr.com photos"
+msgstr "同步你的 Flickr.com 相片"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:2
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+#: ../conduit/modules/ZotoModule/zoto.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr "<b>儲存的相片設定值</b>"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:5
+msgid "Photos are public"
+msgstr "相片是公開的"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:6
+msgid "Photoset Name:"
+msgstr "相片集名稱:"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:7
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr "重設相片大小:"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:25
+#: ../conduit/modules/FspotModule/config.glade.h:3
+msgid "F-Spot"
+msgstr "F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:26
+msgid "Sync your F-Spot photos"
+msgstr "同步你的 F-Spot 相片"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:127
+msgid "F-Spot DBus interface is operating in read only mode"
+msgstr "F-Spot DBus 介面正以唯讀模式運行"
+
+#: ../conduit/modules/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr "<b>回傳相片標籤於</b>"
+
+#: ../conduit/modules/FspotModule/config.glade.h:2
+msgid "Create Tags: "
+msgstr "建立標籤:"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:21
+msgid "GConf Settings"
+msgstr "GConf 設定值"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:22
+msgid "Sync your desktop preferences"
+msgstr "同步你的桌面偏好設定"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:369
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
+msgid "Google Calendar"
+msgstr "Google 日曆"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:370
+msgid "Sync your Google Calendar"
+msgstr "同步你的 Google 日曆"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:555
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
+msgid "Picasa"
+msgstr "Picasa"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:556
+msgid "Sync your Google Picasa photos"
+msgstr "同步你的 Google Picasa 相片"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:803
+msgid "Google Contacts"
+msgstr "Google 聯絡人"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:804
+msgid "Sync your Gmail contacts"
+msgstr "同步你的 Gmail 聯絡人"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1060
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:5
+msgid "Google Documents"
+msgstr "Google 文件"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1061
+msgid "Sync your Google Documents"
+msgstr "同步你的 Google 文件"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1338
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:60
+msgid "Unknown"
+msgstr "不明"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1339
+msgid "miscellaneous"
+msgstr "雜項"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1340
+msgid "No description."
+msgstr "沒有描述。"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1349
+msgid "YouTube"
+msgstr "YouTube"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1350
+msgid "Sync data from YouTube"
+msgstr "同步 YouTube 的資料"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
+msgid "Calendar:"
+msgstr "行事曆:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:4
+msgid "Email:"
+msgstr "電子郵件:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
+msgid "Load Calendars"
+msgstr "載入行事曆"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:6
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+#: ../conduit/modules/ZotoModule/zoto.glade.h:4
+msgid "Password:"
+msgstr "密碼:"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:2
+msgid "<b>Downloaded Document Format</b>"
+msgstr "<b>下載的文件格式</b>"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:3
+msgid "Documents"
+msgstr "文件"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:7
+msgid "Presentations"
+msgstr "簡報"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:8
+msgid "Spreadsheets"
+msgstr "試算表"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
+msgid "Login"
+msgstr "登入"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "<b>Download Videos</b>"
+msgstr "<b>下載影片</b>"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
+msgid "Favorites of above user"
+msgstr "以上使用者的最愛"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr "最多取回影片數 (0 為不限制):"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
+msgid "Most viewed"
+msgstr "最多人檢視的"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
+msgid "Top rated"
+msgstr "熱門指數"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
+msgid "Uploaded by above user"
+msgstr "由以上使用者上傳"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:10
+msgid "YouTube Source"
+msgstr "YouTube 來源"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:635
+msgid "Encoding"
+msgstr "編碼"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:744
+msgid "Keep converted files"
+msgstr "保存轉換後的檔案"
+
+#: ../conduit/modules/iPodModule/config.glade.h:1
+msgid "<b>Encoding</b>"
+msgstr "<b>編碼</b>"
+
+#: ../conduit/modules/iPodModule/config.glade.h:3
+msgid "iPod Photos"
+msgstr "iPod 相片"
+
+#. Translators: Format string used to describe the acceptable formats the
+#. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
+#. arg is a comma seperated list of encodings
+#: ../conduit/modules/N800Module/N800Module.py:59
+#, python-format
+msgid "%s Format (%s)"
+msgstr "%s 格式 (%s)"
+
+#. Signifies that a conversion should not take place
+#: ../conduit/modules/N800Module/N800Module.py:61
+msgid "unchanged"
+msgstr "未更改"
+
+#: ../conduit/modules/N800Module/N800Module.py:123
+msgid "N800 Files"
+msgstr "N800 檔案"
+
+#: ../conduit/modules/N800Module/N800Module.py:124
+msgid "Synchronizes files/folders to a N800 device"
+msgstr "同步檔案/資料夾至 N800 裝置"
+
+#. To translators: default backup folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:129
+msgid "Backups"
+msgstr "Backups"
+
+#: ../conduit/modules/N800Module/N800Module.py:144
+msgid "N800 Music"
+msgstr "N800 音樂"
+
+#: ../conduit/modules/N800Module/N800Module.py:145
+msgid "Synchronizes music to a N800 device"
+msgstr "同步音樂至 N800 裝置"
+
+#. To translators: defaul music folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:151
+msgid "Music"
+msgstr "音樂"
+
+#: ../conduit/modules/N800Module/N800Module.py:168
+msgid "N800 Videos"
+msgstr "N800 影片"
+
+#: ../conduit/modules/N800Module/N800Module.py:169
+msgid "Synchronizes video to a N800 device"
+msgstr "同步影片至 N800 裝置"
+
+#. To translators: defaul video folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:175
+msgid "Video"
+msgstr "Video"
+
+#: ../conduit/modules/N800Module/N800Module.py:192
+msgid "N800 Photos"
+msgstr "N800 相片"
+
+#: ../conduit/modules/N800Module/N800Module.py:193
+msgid "Synchronizes photo to a N800 device"
+msgstr "同步相片至 N800 裝置"
+
+#. To translators: default photos folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:199
+msgid "Photo"
+msgstr "Photo"
+
+#: ../conduit/modules/NetworkModule/Server.py:147
+msgid "Network"
+msgstr "網絡"
+
+#: ../conduit/modules/NetworkModule/Server.py:148
+msgid "Enable synchronization via network"
+msgstr "啟用透過網絡同步化"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:40
+msgid "Rhythmbox Music"
+msgstr "Rhythmbox 音樂"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:41
+msgid "Sync songs from your Rhythmbox playlists"
+msgstr "從你的 Rhythmbox 播放清單同步歌曲"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:1
+msgid "<b>Synchronize the Following Playlists</b>"
+msgstr "<b>同步下列播放清單</b>"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:2
+msgid "Rhythmbox Playlists"
+msgstr "Rhythmbox 播放清單"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr "Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
+msgid "Sync your Shutterfly photos"
+msgstr "同步你的 Shutterfly 相片"
+
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr "%Y-%m-%d %H:%M:%S"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr "SmugMug"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Sync your SmugMug.com photos"
+msgstr "同步你的 SmugMug.com 相片"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:154
+#: ../conduit/modules/ZotoModule/zoto.glade.h:6
+msgid "Zoto"
+msgstr "Zoto"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:155
+msgid "Sync your Zoto photos"
+msgstr "同步你的 Zoto 相片"
+
