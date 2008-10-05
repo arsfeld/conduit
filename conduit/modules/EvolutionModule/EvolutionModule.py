@@ -75,7 +75,7 @@ class EvoBase(DataProvider.TwoWay):
                     comp = obj.compare(existing)
                     # only update if newer
                     if comp != conduit.datatypes.COMPARISON_NEWER:
-                        raise Exceptions.SynchronizeConflictError(comp, existing, obj)
+                        raise Exceptions.SynchronizeConflictError(comp, obj, existing)
                     else:
                         # overwrite and return new ID
                         rid = self._update_object(LUID, obj)

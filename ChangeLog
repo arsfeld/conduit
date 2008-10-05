@@ -1,3 +1,8 @@
+2008-09-26  Matt Colyer <matt@colyer.name>
+
+	* conduit/modules/EvolutionModule/EvolutionModule.py: Fix arguments
+	on SynchronizeError.
+
 2008-10-05  John Stowers  <john.stowers@gmail.com>
 
 	* test/python-tests/TestCoreConvertAudioVideo.py:
