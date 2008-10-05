@@ -1,3 +1,12 @@
+2008-10-05  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py:
+	* conduit/__init__.py:
+	* conduit/conduit:
+	* conduit/defs.py.in: Change the default file and browser implementations 
+	to GIO and webkit. If running uninstalled you can override these by 
+	setting the env variables CONDUIT_FILE_IMPL and CONDUIT_BROWSER_IMPL
+
 2008-09-26  Matt Colyer <matt@colyer.name>
 
 	* conduit/MappingDB.py: Added a way to find a row based on two

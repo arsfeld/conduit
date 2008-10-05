@@ -11,10 +11,10 @@ SHARED_MODULE_DIR = "@MODULEDIR@"
 #
 
 #{GnomeVfs, GIO, Python}
-FILE_IMPL = "GnomeVfs"
+FILE_IMPL = "GIO"
 
 #{gtkmozembed, webkit, system}
-BROWSER_IMPL = "gtkmozembed"
+BROWSER_IMPL = "webkit"
 
 #{GConf,Python}
 SETTINGS_IMPL = "GConf"

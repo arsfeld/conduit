@@ -53,9 +53,9 @@ else:
     GLADE_FILE =                os.path.join(DIRECTORY, "data","conduit.glade")
     SHARED_MODULE_DIR =         os.path.join(DIRECTORY, "conduit", "modules")
                                 #{GnomeVfs, GIO, Python}
-    FILE_IMPL =                 os.environ.get("CONDUIT_FILE_IMPL","GnomeVfs")
+    FILE_IMPL =                 os.environ.get("CONDUIT_FILE_IMPL","GIO")
                                 #{gtkmozembed, webkit, system}
-    BROWSER_IMPL =              os.environ.get("CONDUIT_BROWSER_IMPL","gtkmozembed")
+    BROWSER_IMPL =              os.environ.get("CONDUIT_BROWSER_IMPL","webkit")
                                 #{GConf,Python}
     SETTINGS_IMPL =             os.environ.get("CONDUIT_SETTINGS_IMPL","GConf")
 

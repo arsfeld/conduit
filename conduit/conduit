@@ -8,20 +8,20 @@
 # Run mozilla takes care of settin up the appropriate environment variables
 # to run a program using mozilla libs
 
-export LD_LIBRARY_PATH=/opt/gio/lib/
-export PYTHONPATH=/opt/gio/lib/python2.5/site-packages/gtk-2.0/
+if [ x$CONDUIT_BROWSER_IMPL = x"gtkmozembed" ]; then
+    for d in `ls -d /usr/lib*/firefox* /usr/lib*/mozilla-firefox* 2> /dev/null | sort -r`
+    do
+        if [ -x $d/run-mozilla.sh ]; then
+            echo INFO: FOUND FIREFOX LIBS AT $d
+            $d/run-mozilla.sh `dirname $0`/conduit.real $*
+            exit
+        fi
+    done
 
-for d in `ls -d /usr/lib*/firefox* /usr/lib*/mozilla-firefox* 2> /dev/null | sort -r`
-do
-    if [ -x $d/run-mozilla.sh ]; then
-        echo INFO: FOUND FIREFOX LIBS AT $d
-        $d/run-mozilla.sh `dirname $0`/conduit.real $*
-        exit
-    fi
-done
+    echo "WARNING: COULD NOT FIND FIREFOX LIBRARIES"
+    echo "WARNING: CONDUIT MAY CRASH UNEXPECTEDLY"
+    echo "WARNING: PLEASE TALK TO THE PERSON WHO PACKAGED CONDUIT"
+fi
 
-echo "WARNING: COULD NOT FIND FIREFOX LIBRARIES"
-echo "WARNING: CONDUIT MAY CRASH UNEXPECTEDLY"
-echo "WARNING: PLEASE TALK TO THE PERSON WHO PACKAGED CONDUIT"
 `dirname $0`/conduit.real $*
 

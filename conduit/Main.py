@@ -98,6 +98,7 @@ class Application(dbus.service.Object):
 
         log.info("Conduit v%s Installed: %s" % (conduit.VERSION, conduit.IS_INSTALLED))
         log.info("Python: %s" % sys.version)
+        log.info("Platform Implementations: %s,%s,%s" % (conduit.FILE_IMPL,conduit.BROWSER_IMPL, conduit.SETTINGS_IMPL))
         if settings:
             log.info("Settings have been overridden: %s" % settings)
         
