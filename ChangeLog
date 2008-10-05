@@ -1,3 +1,12 @@
+2008-10-05  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/UI.py:
+	* conduit/modules/iPodModule/iPodModule.py: The gpod module fails
+    to import if a different locale is used. 
+
+	* configure.ac: Fix generation of the locale directory in defs.py
+    Fixes #532854.
+
 2008-09-01  Halton Huo  <halton.huo@sun.com>
 
 	* m4/python.m4:

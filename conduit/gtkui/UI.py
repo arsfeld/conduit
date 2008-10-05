@@ -39,6 +39,9 @@ DEVELOPER_WEB_LINKS = (
 for module in gtk.glade, gettext:
     module.bindtextdomain('conduit', conduit.LOCALE_DIR)
     module.textdomain('conduit')
+    if hasattr(module, 'bind_textdomain_codeset'):
+        module.bind_textdomain_codeset('conduit','UTF-8')
+
 
 class _PreconfiguredConduitMenu(gtk.Menu):
     def __init__(self):

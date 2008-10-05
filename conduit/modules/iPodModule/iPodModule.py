@@ -18,7 +18,6 @@ import socket
 import locale
 import weakref
 import threading
-DEFAULT_ENCODING = locale.getpreferredencoding()
 log = logging.getLogger("modules.iPod")
 
 import conduit
@@ -35,17 +34,19 @@ import conduit.datatypes.Video as Video
 
 from gettext import gettext as _
 
-MODULES = {
-    "iPodFactory" :         { "type":   "dataprovider-factory"  },
-}
-
 try:
     import gpod
-    LIBGPOD_PHOTOS = gpod.version_info >= (0,6,0)
-    log.info("Module Information: %s" % Utils.get_module_information(gpod, 'version_info'))
+    if gpod.version_info >= (0,6,0):
+        MODULES = {
+            "iPodFactory" :         { "type":   "dataprovider-factory"  },
+        }
+        log.info("Module Information: %s" % Utils.get_module_information(gpod, 'version_info'))
 except ImportError:
-    LIBGPOD_PHOTOS = False
-    log.info("iPod photo support disabled")
+    MODULES = {}
+    log.info("iPod support disabled")
+except locale.Error:
+    MODULES = {}
+    log.info("iPod support disabled (Incorrect locale)")
 
 def _string_to_unqiue_file(txt, base_uri, prefix, postfix=''):
     for i in range(1, 10000):
@@ -75,17 +76,16 @@ class iPodFactory(VolumeFactory.VolumeFactory):
                     kwargs['mount'])
 
     def get_dataproviders(self, udi, **kwargs):
-        if LIBGPOD_PHOTOS:
-            #Read information about the ipod, like if it supports
-            #photos or not
-            d = gpod.itdb_device_new()
-            gpod.itdb_device_set_mountpoint(d,kwargs['mount'])
-            supportsPhotos = gpod.itdb_device_supports_photo(d)
-            gpod.itdb_device_free(d)
-            if supportsPhotos:
-                return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
-
-        return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
+        #Read information about the ipod, like if it supports
+        #photos or not
+        d = gpod.itdb_device_new()
+        gpod.itdb_device_set_mountpoint(d,kwargs['mount'])
+        supportsPhotos = gpod.itdb_device_supports_photo(d)
+        gpod.itdb_device_free(d)
+        if supportsPhotos:
+            return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
+        else:
+            return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
 
 
 class IPodBase(DataProvider.TwoWay):
@@ -544,7 +544,7 @@ class IPodFileBase:
         self.track['time_added'] = int(time.time())
         self.track['userdata'] = {'transferred': 0,
                                   'hostname': socket.gethostname(),
-                                  'charset': DEFAULT_ENCODING}
+                                  'charset': locale.getpreferredencoding()}
         self.track._set_userdata_utf8('filename', f.get_local_uri())
 
     #FIXME: Remove this. Use native operations from Conduit instead.
@@ -836,8 +836,8 @@ class IPodVideoTwoWay(IPodMediaTwoWay):
     _configurable_ = True
 
     _mediatype_ = (gpod.ITDB_MEDIATYPE_MUSICVIDEO,
-                   gpod.ITDB_MEDIATYPE_MOVIE,
-                   gpod.ITDB_MEDIATYPE_TVSHOW)
+                  gpod.ITDB_MEDIATYPE_MOVIE,
+                  gpod.ITDB_MEDIATYPE_TVSHOW)
     _mediafile_ = Video.Video
     _ipodmedia_ = IPodVideo
 
