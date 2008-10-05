@@ -1,5 +1,15 @@
 2008-09-26  Matt Colyer <matt@colyer.name>
 
+	* conduit/MappingDB.py: Added a way to find a row based on two
+	objects and the sink.
+	* conduit/datatypes/*.py: Forced get_hash to string values and
+	changed compare to use the hashes (when no mtimes present).
+	* conduit/modules/EvolutionModule/EvolutionModule.py: Changed
+	compare to use new hash functionality. Fixed Note not return a proper
+	rid.
+
+2008-09-26  Matt Colyer <matt@colyer.name>
+
 	* conduit/modules/EvolutionModule/EvolutionModule.py: Fix arguments
 	on SynchronizeError.
 

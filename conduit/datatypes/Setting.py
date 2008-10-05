@@ -22,4 +22,4 @@ class Setting(DataType.DataType):
         DataType.DataType.__setstate__(self, data)
 
     def get_hash(self):
-        return hash( (self.key,self.value) )
+        return str(hash( (self.key,self.value) ))

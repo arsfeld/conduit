@@ -23,7 +23,7 @@ class Bookmark(DataType.DataType):
         return self.uri
         
     def get_hash(self):
-        return hash( (self.get_title(), self.get_uri()) )
+        return str(hash( (self.get_title(), self.get_uri()) ))
 
     def get_bookmark_string(self):
         return self.__str__()

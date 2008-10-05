@@ -21,7 +21,7 @@ class Note(DataType.DataType):
         return self.contents
         
     def get_hash(self):
-        return hash( (self.get_title(), self.get_contents()) )
+        return str(hash( (self.get_title(), self.get_contents()) ))
 
     def get_note_string(self):
         return self.__str__()

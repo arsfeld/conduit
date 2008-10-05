@@ -314,7 +314,7 @@ class File(DataType.DataType):
         # they change.
         tagstr = "".join(self.get_tags())
         #FIXME: self.get_size() does not seem reliable
-        return hash(tagstr)
+        return str(hash(tagstr))
                        
     def get_filename(self):
         """

@@ -93,5 +93,5 @@ class Email(DataType.DataType):
         DataType.DataType.__setstate__(self, data)
 
     def get_hash(self):
-        return hash( self.get_email_string() )
+        return str(hash( self.get_email_string() ))
         

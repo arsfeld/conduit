@@ -72,7 +72,7 @@ class EvoBase(DataProvider.TwoWay):
                     rid = self._update_object(LUID, obj)
                     return rid
                 else:
-                    comp = obj.compare(existing)
+                    comp = obj.compare(existing, "%s-%s" % (self.__class__.__name__, self.get_UID()))
                     # only update if newer
                     if comp != conduit.datatypes.COMPARISON_NEWER:
                         raise Exceptions.SynchronizeConflictError(comp, obj, existing)
@@ -352,7 +352,8 @@ class EvoMemoTwoWay(EvoBase):
         
         if uid != None:
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return conduit.datatypes.Rid(uid=uid, mtime=mtime, hash=mtime)
+            note = self._get_object(uid)
+            return note.get_rid()
         else:
             raise Exceptions.SyncronizeError("Error creating memo")
 

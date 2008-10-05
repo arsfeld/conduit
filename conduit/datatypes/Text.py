@@ -30,5 +30,5 @@ class Text(DataType.DataType):
         DataType.DataType.__setstate__(self, data)
             
     def get_hash(self):
-        return hash(self.text)
+        return str(hash(self.text))
 

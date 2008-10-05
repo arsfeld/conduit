@@ -94,6 +94,32 @@ class MappingDB:
             os.unlink(filename)
             self._open_db_and_check_structure(filename)
 
+    def get_mapping_from_objects(self, sourceDataLUID, sinkDataLUID, sinkUID):
+        
+        sql = "SELECT * FROM mappings WHERE sourceDataLUID = ? AND sinkDataLUID = ? AND sinkUID = ?"
+        res = self._db.select_one(sql, (sourceDataLUID, sinkDataLUID, sinkUID))
+        
+        #a mapping is always returned relative to the source -> sink
+        #order in which it was called.
+        if (res[5] == sinkUID):
+            m = Mapping(
+                    res[0],
+                    sourceUID=res[1],
+                    sourceRid=conduit.datatypes.Rid(res[2],res[3],res[4]),
+                    sinkUID=res[5],
+                    sinkRid=conduit.datatypes.Rid(res[6],res[7],res[8])
+                    )
+        else:
+            m = Mapping(
+                    res[0],
+                    sourceUID=res[5],
+                    sourceRid=conduit.datatypes.Rid(res[6],res[7],res[8]),
+                    sinkUID=res[1],
+                    sinkRid=conduit.datatypes.Rid(res[2],res[3],res[4])
+                    )
+
+        return m
+
     def get_mapping(self, sourceUID, dataLUID, sinkUID):
         """
         pass

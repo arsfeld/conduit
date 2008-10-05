@@ -86,6 +86,6 @@ class Contact(DataType.DataType):
         return "Name: %s" % self.get_name()
         
     def get_hash(self):
-        return hash(self.get_vcard_string())
+        return str(hash(self.get_vcard_string()))
     
 

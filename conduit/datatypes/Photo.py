@@ -84,7 +84,7 @@ class Photo(File.File):
         file_hash = File.File.get_hash(self)       
         hash_data = "%s%s%s" % (file_hash, self.get_photo_size(),
                 self.get_caption())
-        return hash(hash_data)
+        return str(hash(hash_data))
         
     def __getstate__(self):
         data = File.File.__getstate__(self)

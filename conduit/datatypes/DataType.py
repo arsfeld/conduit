@@ -39,7 +39,7 @@ class DataType(object):
         """
         return self._name_
 
-    def compare(self, B):
+    def compare(self, B, sinkUID=None):
         """
         Comparison function to be overridden by datatypes who support two
         way synchronisation. 
@@ -55,13 +55,20 @@ class DataType(object):
         """
         log.debug("COMPARE: %s <----> %s " % (self.get_UID(), B.get_UID()))
 
+        m = None
+        if sinkUID:
+            m = conduit.GLOBALS.mappingDB.get_mapping_from_objects(self.get_UID(), B.get_UID(), sinkUID)
+
         if self.get_rid() == B.get_rid():
             return conduit.datatypes.COMPARISON_EQUAL
 
         mtime1 = self.get_mtime()
         mtime2 = B.get_mtime()
 
-        if mtime1 == None or mtime2 == None:
+        # resolve conflicts with hashes if only one side has changed and mtimes are not useful
+        if (mtime1 == None or mtime2 == None) and m and m.get_sink_rid().get_hash() == B.get_hash():
+            return conduit.datatypes.COMPARISON_NEWER
+        elif mtime1 == None or mtime2 == None:
             return conduit.datatypes.COMPARISON_UNKNOWN
 
         if mtime1 > mtime2:
