@@ -46,8 +46,9 @@ def convert():
                     ok("%s: Conversion OK" % name, newdata != None and newdata.exists(), False)
                 except Exceptions.ConversionError:
                     ok("%s: Conversion Failed" % name, False, False)
+                except Exception:
+                    ok("GENERAL CONVERSION FAILURE" % name, False, False)
     gobject.idle_add(mainloop.quit)
-    finished()
 
 def idle_cb():
     threading.Thread(target=convert).start()
@@ -55,7 +56,5 @@ def idle_cb():
 
 gobject.idle_add(idle_cb)
 mainloop.run()
-
-
-
+finished()
 

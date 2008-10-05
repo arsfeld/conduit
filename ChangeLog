@@ -1,5 +1,10 @@
 2008-10-05  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreConvertAudioVideo.py:
+	* test/python-tests/data/folder.list: Fix AudioVideo tests.
+
+2008-10-05  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/UI.py:
 	* conduit/modules/iPodModule/iPodModule.py: The gpod module fails
     to import if a different locale is used. 

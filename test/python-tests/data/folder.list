@@ -7,6 +7,8 @@
 #the one in the default section
 [DEFAULT]
 folder=file:///tmp
+removable-volume=file:///media/disk
+ntfs-volume=file:///media/disk
 
 [john@nzjrs-desktop]
 removable-volume=file:///media/JRS89
