@@ -1,5 +1,13 @@
 2008-10-06  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreFileCopyMany.py:
+	* test/python-tests/data/music-list.txt: Copy 5000 files to test
+    the file escaping and unicode performance
+
+	* test/python-tests/common.py: GIO is the default FILE_IMPL
+
+2008-10-06  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Vfs.py:
 	* conduit/datatypes/File.py:
 	* conduit/platform/FileGio.py:
