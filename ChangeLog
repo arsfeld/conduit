@@ -1,3 +1,12 @@
+2008-10-06  Matt Colyer <matt@colyer.name>
+
+	* conduit/DeltaProvider.py:
+	* conduit/MappingDB.py:
+	* conduit/dataproviders/SimpleFactory.py:
+	* conduit/dataproviders/VolumeFactory.py:
+	* conduit/datatypes/__init__.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py: Many small tidy ups.
+
 2008-10-06  John Stowers  <john.stowers@gmail.com>
 
 	* test/python-tests/TestCoreFileCopyMany.py:

@@ -37,7 +37,7 @@ class VolumeFactory(SimpleFactory.SimpleFactory):
         return True
 
     def _volume_unmounted_cb(self, monitor, device_udi):
-        log.info("Volume mounted, udi: %s" % device_udi)
+        log.info("Volume unmounted, udi: %s" % device_udi)
         if device_udi :
             if self.is_interesting(device_udi, self._get_properties(device_udi)):
                 self.item_removed(device_udi)

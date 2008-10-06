@@ -94,14 +94,15 @@ class MappingDB:
             os.unlink(filename)
             self._open_db_and_check_structure(filename)
 
-    def get_mapping_from_objects(self, sourceDataLUID, sinkDataLUID, sinkUID):
+    def get_mapping_from_objects(self, LUID1, LUID2, UID):
         
-        sql = "SELECT * FROM mappings WHERE sourceDataLUID = ? AND sinkDataLUID = ? AND sinkUID = ?"
-        res = self._db.select_one(sql, (sourceDataLUID, sinkDataLUID, sinkUID))
+        # Check in both directions, as a conflict resolution can reverse the direction of the mapping
+        sql = "SELECT * FROM mappings WHERE (sourceUID = ? OR sinkUID = ? ) AND ((sinkDataLUID = ? AND sourceDataLUID = ?) OR (sourceDataLUID = ? AND sinkDataLUID = ?))"
+        res = self._db.select_one(sql, (UID, UID, LUID1, LUID2, LUID1, LUID2))
         
         #a mapping is always returned relative to the source -> sink
         #order in which it was called.
-        if (res[5] == sinkUID):
+        if (res[5] == UID):
             m = Mapping(
                     res[0],
                     sourceUID=res[1],

@@ -340,7 +340,6 @@ class EvoMemoTwoWay(EvoBase):
 
         note.set_UID(obj.get_uid())
         note.set_mtime(mtime)
-        print note.get_note_string()
         return note
 
     def _create_object(self, note):

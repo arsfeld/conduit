@@ -78,12 +78,3 @@ class Rid(object):
         self.mtime = data['mtime']
         self.hash = data['hash']
 
-
-def compare_mtimes_and_hashes(data1, data2):
-    """
-    Compares data based upon its mtime and hashes only
-    """
-    mtime1 = data1.get_mtime()
-    mtime2 = data2.get_mtime()
-    hash1 = data1.get_hash()
-    hash2 = data2.get_hash()

@@ -57,7 +57,7 @@ class DeltaProvider:
         for i in allItems[:]:
             if i in rids:
                 data = self.me.module.get(i)
-                if data.get_rid() != rids[i]:
+                if data.get_rid().get_hash() != rids[i].get_hash():
                     log.debug("Modified: Actual:%s v DB:%s" % (data.get_rid(), rids[i]))
                     modified.append(i)
                 del(rids[i])

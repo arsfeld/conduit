@@ -25,6 +25,7 @@ class SimpleFactory(DataProvider.DataProviderFactory):
         self.items[key] = idxs
 
     def item_removed(self, key):
+        log.info("Item Removed: %s" % key)
         if key in self.items:
             for idx in self.items[key]:
                 self.emit_removed(idx)
