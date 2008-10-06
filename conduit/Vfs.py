@@ -19,6 +19,7 @@ else:
 VolumeMonitor   = FileImpl.VolumeMonitor
 FileMonitor     = FileImpl.FileMonitor     
 FolderScanner   = FileImpl.FolderScanner
+FileTransfer    = FileImpl.FileTransferImpl
 
 def uri_is_valid(uri):
     """
@@ -32,31 +33,19 @@ def uri_join(first, *rest):
     Joins multiple uri components. Performs safely if the first
     argument contains a uri scheme
     """
-    first = conduit.utils.ensure_string(first)
-    return os.path.join(first,*rest)
+    return FileImpl.FileImpl.uri_join(first,*rest)
 
 def uri_get_scheme(uri):
     """
     @returns: The scheme (file,smb,ftp) for the uri, or None on error
     """
-    try:
-        scheme,path = uri.split("://")
-        return scheme
-    except exceptions.ValueError:
-        return None
+    return FileImpl.FileImpl.uri_get_scheme(uri)
     
 def uri_get_relative(fromURI, toURI):
     """
     Returns the relative path fromURI --> toURI
     """
-    fromURI = conduit.utils.ensure_string(fromURI)
-    toURI = conduit.utils.ensure_string(toURI)
-    rel = toURI.replace(fromURI,"")
-    #strip leading /
-    if rel[0] == os.sep:
-        return rel[1:]
-    else:
-        return rel
+    return FileImpl.FileImpl.uri_get_relative(fromURI, toURI)
     
 def uri_open(uri):
     """

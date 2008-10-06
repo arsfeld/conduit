@@ -40,6 +40,14 @@ for impl in ("GIO","GnomeVfs"):
     f = File.File(tmpdir2,implName=impl)
     ok("Base: make directory", f.make_directory() == True)
 
+    temp = Utils.new_tempfile(Utils.random_string(), implName=impl)
+    temp.set_contents_as_text("123")
+    contents = temp.get_contents_as_text()
+    ok("Base: wrote contents", contents == "123")
+
+    temp.set_contents_as_text("456")
+    contents = temp.get_contents_as_text()
+    ok("Base: wrote contents again", contents == "456")
 
     folder = File.File(os.environ["HOME"],implName=impl)
     ok("Base: check if HOME exists", folder.exists() == True)

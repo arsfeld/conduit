@@ -5,7 +5,7 @@ class File:
     SCHEMES = ()
     def __init__(self, URI):
         pass
-        
+
     def get_text_uri(self):
         raise NotImplementedError
         
@@ -42,6 +42,9 @@ class File:
     def get_contents(self):
         raise NotImplementedError
 
+    def set_contents(self, contents):
+        raise NotImplementedError
+
     def get_mimetype(self):
         raise NotImplementedError
         
@@ -68,6 +71,18 @@ class File:
 
     def get_filesystem_type(self):
         return None
+
+    @staticmethod
+    def uri_join(first, *rest):
+        raise NotImplementedError
+
+    @staticmethod
+    def uri_get_relative(fromURI, toURI):
+        raise NotImplementedError
+
+    @staticmethod
+    def uri_get_scheme(URI):
+        raise NotImplementedError
 
 class FileTransfer:
     def __init__(self, source, dest):

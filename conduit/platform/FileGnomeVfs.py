@@ -6,6 +6,7 @@ except ImportError:
 import conduit.platform
 import conduit.utils.Singleton as Singleton
 
+import os.path
 import logging
 log = logging.getLogger("platform.FileGnomeVfs")
 
@@ -121,6 +122,16 @@ class FileImpl(conduit.platform.File):
         
     def get_contents(self):
         return gnomevfs.read_entire_file(self.get_text_uri())
+
+    def set_contents(self, contents):
+        if self.exists():
+            h = gnomevfs.Handle(self._URI, open_mode=gnomevfs.OPEN_WRITE)
+        else:
+            h = gnomevfs.create(self._URI, open_mode=gnomevfs.OPEN_WRITE)
+
+        h.write(contents)
+        h.close()
+        self.close()
         
     def get_mimetype(self):
         self._get_file_info()
@@ -151,10 +162,10 @@ class FileImpl(conduit.platform.File):
         return True
         
     def make_directory_and_parents(self):
-        exists = False
         dirs = []
 
         directory = self._URI
+        exists = gnomevfs.exists(self._URI)
         while not exists:
             dirs.append(directory)
             directory = directory.parent
@@ -186,6 +197,30 @@ class FileImpl(conduit.platform.File):
             return VolumeMonitor().volume_get_fstype(path)
         return None
 
+    @staticmethod
+    def uri_join(first, *rest):
+        first = conduit.utils.ensure_string(first)
+        return os.path.join(first,*rest)
+
+    @staticmethod
+    def uri_get_relative(fromURI, toURI):
+        fromURI = conduit.utils.ensure_string(fromURI)
+        toURI = conduit.utils.ensure_string(toURI)
+        rel = toURI.replace(fromURI,"")
+        #strip leading /
+        if rel[0] == os.sep:
+            return rel[1:]
+        else:
+            return rel
+
+    @staticmethod
+    def uri_get_scheme(uri):
+        try:
+            scheme,path = uri.split("://")
+            return scheme
+        except exceptions.ValueError:
+            return None
+
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):
         self._source = source._URI
@@ -198,8 +233,8 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             if self._cancel_func():
                 log.info("Transfer of %s -> %s cancelled" % (info.source_name, info.target_name))
                 return 0
-        except Exception, ex:
-            log.warn("Could not call gnomevfs cancel function")
+        except Exception:
+            log.warn("Could not call transfer cancel function", exc_info=True)
             return 0
         return True
         
@@ -213,7 +248,8 @@ class FileTransferImpl(conduit.platform.FileTransfer):
                 self._dest = self._dest.append_file_name(name)
         
     def transfer(self, overwrite, cancel_func):
-        self._cancel_func = cancel_func
+        if cancel_func:
+            self._cancel_func = cancel_func
     
         if overwrite:
             mode = gnomevfs.XFER_OVERWRITE_MODE_REPLACE

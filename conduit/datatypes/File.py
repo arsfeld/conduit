@@ -129,6 +129,9 @@ class File(DataType.DataType):
         else:
             return olduri
 
+    def _get_impl(self):
+        return self._file
+
     def set_from_instance(self, f):
         """
         Function to give this file all the properties of the
@@ -333,6 +336,9 @@ class File(DataType.DataType):
 
     def get_contents_as_text(self):
         return self._file.get_contents()
+
+    def set_contents_as_text(self, contents):
+        return self._file.set_contents(contents)
         
     def get_local_uri(self):
         """

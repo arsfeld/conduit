@@ -75,7 +75,8 @@ for impl in ("GIO", "GnomeVfs",):
     )
 
     for parts, result in URIS_TO_JOIN:
-        ok("Join uri: %s" % result, Vfs.uri_join(*parts) == result)
+        got = Vfs.uri_join(*parts)
+        ok("Join uri: %s" % result, got == result)
         
     RELATIVE_URIS = (
         #from                   #to                         #relativ    
@@ -83,7 +84,8 @@ for impl in ("GIO", "GnomeVfs",):
     (   "file:///foo/bar",      "file:///foo/bar/baz/bob",  "baz/bob"           ),
     (   "file:///foo/bar",      "file:///foo/bar/baz",      "baz"               ))
     for f,t,result in RELATIVE_URIS:
-        ok("Get relative uri: %s" % result, Vfs.uri_get_relative(f,t) == result)
+        got = Vfs.uri_get_relative(f,t)
+        ok("Get relative uri: %s" % result, got == result)
         
     VALID_URIS = (
         #uri                                #valid

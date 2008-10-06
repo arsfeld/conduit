@@ -1,3 +1,19 @@
+2008-10-06  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Vfs.py:
+	* conduit/datatypes/File.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py: Delegate uri joining to the
+    File implementation. This improves unicode support when using GIO.
+    Fixes #523181
+
+	* test/python-tests/TestCoreFile.py:
+	* test/python-tests/TestCoreVfs.py: Test new uri functions
+
+	* test/python-tests/common.py: Dont modifiy PYTHONPATH in tests. GIO
+    is the default now
+
 2008-10-05  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Main.py:

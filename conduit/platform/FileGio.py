@@ -2,6 +2,7 @@ import gio
 
 import conduit.platform
 
+import os.path
 import logging
 log = logging.getLogger("platform.FileGio")
 
@@ -97,7 +98,11 @@ class FileImpl(conduit.platform.File):
         return self._file.get_parse_name()
         
     def get_contents(self):
-        return self._file.load_contents()
+        contents,length,etag = self._file.load_contents()
+        return contents
+
+    def set_contents(self, contents):
+        self._file.replace_contents(contents)
         
     def get_mimetype(self):
         self._get_file_info()
@@ -189,6 +194,25 @@ class FileImpl(conduit.platform.File):
         except gio.Error, e:
             return None
 
+    @staticmethod
+    def uri_join(first, *rest):
+        return os.path.join(first, *rest)
+
+    @staticmethod
+    def uri_get_relative(fromURI, toURI):
+        f = gio.File(fromURI)
+        t = gio.File(toURI)
+        res = f.get_relative_path(t)
+        #if not relative, return abs path
+        if not res:
+            res = toURI
+        return res
+
+    @staticmethod
+    def uri_get_scheme(URI):
+        f = gio.File(URI)
+        return f.get_uri_scheme()
+
 class FileTransferImpl(conduit.platform.FileTransfer):
     def __init__(self, source, dest):
         self._source = source._file
@@ -203,7 +227,7 @@ class FileTransferImpl(conduit.platform.FileTransfer):
                 log.info("Transfer of %s -> %s cancelled" % (self._source.get_uri(), self._dest.get_uri()))
                 c.cancel()
         except Exception:
-            log.warn("Could not call gnomevfs cancel function")
+            log.warn("Could not call transfer cancel function", exc_info=True)
         return True
         
     def set_destination_filename(self, name):
@@ -218,7 +242,8 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             pass
 
     def transfer(self, overwrite, cancel_func):
-        self._cancel_func = cancel_func
+        if cancel_func:
+            self._cancel_func = cancel_func
     
         if overwrite:
             mode = gio.FILE_COPY_OVERWRITE
@@ -270,7 +295,7 @@ class FolderScanner(conduit.platform.FolderScanner):
                 f = gio.File(dir)
                 enumerator = f.enumerate_children('standard::type,standard::name,standard::is-hidden,standard::is-symlink')
             except gio.Error:
-                log.warn("Folder %s Not found" % dir)
+                log.warn("Folder %s Not found" % dir, exc_info=True)
                 continue
 
             try: fileinfo = enumerator.next()

@@ -9,8 +9,6 @@ TEST_DATA_DIR="$BASEDIR/test-data"
 COVERAGE_APP="scripts/coverage.py"
 COVERAGE_RESULTS="$BASEDIR/results/coverage"
 
-export PYTHONPATH=/opt/conduit/lib/python2.5/site-packages/gtk-2.0/
-
 USAGE="\
 Usage:\n\
 ./scripts/run-tests.sh [OPTIONS]\n\n\
