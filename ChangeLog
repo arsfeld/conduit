@@ -1,3 +1,8 @@
+2008-10-08  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/File.py: Call get_removable_volume_info is with a
+	File object and not a string. Fixes #555401 (Luca Ognibene)
+
 2008-10-07  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Vfs.py: This patch fix two possible errors:

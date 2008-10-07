@@ -39,7 +39,7 @@ def save_removable_volume_group_file(folderUri, folderGroupName):
     f = File.File(URI=folderUri)
     if f.is_on_removale_volume():
         #write to the /volume/root/.conduit file
-        rooturi,path = get_removable_volume_info(folderUri)
+        rooturi,path = get_removable_volume_info(f)
         if rooturi and path:
             conf = ConfigParser.SafeConfigParser()
             conf.read(path)
@@ -61,7 +61,7 @@ def read_removable_volume_group_file(folderUri):
     f = File.File(URI=folderUri)
     if f.is_on_removale_volume():
         #read from the /volume/root/.conduit file
-        rooturi,path = get_removable_volume_info(folderUri)
+        rooturi,path = get_removable_volume_info(f)
         if rooturi and path:
             conf = ConfigParser.SafeConfigParser()
             conf.read(path)
