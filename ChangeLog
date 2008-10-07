@@ -1,5 +1,14 @@
 2008-10-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Vfs.py: This patch fix two possible errors:
+	1) sync with directories with a ? fails (sanitize is called with %3F instead of
+	? so it doesn't work)
+	2) if you sync a directory called ? and replace the ? with a space sync fails
+	because you can't create a directory called " " (at least on vfat).
+    Fixes #555421 (Luca Ognibene)
+
+2008-10-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Exceptions.py:
 	* conduit/modules/AmazonS3Module/AmazonS3Module.py:
 	* conduit/modules/BansheeModule/BansheeModule.py:

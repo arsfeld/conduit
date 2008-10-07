@@ -4,6 +4,7 @@ import gobject
 import time
 log = logging.getLogger("Vfs")
 
+import urllib
 import conduit
 import conduit.utils.Singleton as Singleton
 
@@ -140,6 +141,7 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     Also see:    
     http://bugzilla.gnome.org/show_bug.cgi?id=309584#c20
     """
+    
     uri = conduit.utils.ensure_string(uri)
     import string
 
@@ -153,6 +155,10 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
 
     illegal = ILLEGAL_CHARS.get(filesystem,None)
     if illegal:
+        
+        #call urllib.unescape otherwise for example ? is rapresented as %3F
+        uri = urllib.unquote(uri)
+
         #dont escape the scheme part
         idx = uri.rfind("://")
         if idx == -1:
@@ -160,12 +166,14 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
         else:
             start = idx + 3        
 
-        #replace illegal chars with a space, ignoring the scheme
-        return uri[0:start]+uri[start:].translate(string.maketrans(
-                                                illegal,
-                                                " "*len(illegal)
-                                                )
-                                            )
+        #replace illegal chars with a -, ignoring the scheme (don't use a space because you can't create a directory with just a space)
+        ret = uri[0:start]+uri[start:].translate(string.maketrans(
+                illegal,
+                "_"*len(illegal)
+                )
+                                                 )
+        ret = uri[0:start]+urllib.quote (ret[start:])
+        return ret
     return uri
     
 def uri_is_folder(uri):
