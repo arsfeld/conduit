@@ -356,6 +356,12 @@ class File(DataType.DataType):
             return self.to_tempfile()
         else:
             return path
+
+    def get_removable_volume_root_uri(self):
+        return self._file.get_removable_volume_root_uri()
+
+    def is_on_removale_volume(self):
+        return self._file.is_on_removale_volume()
             
     def get_relative_uri(self):
         """

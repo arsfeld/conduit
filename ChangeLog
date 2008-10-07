@@ -1,5 +1,14 @@
 2008-10-08  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/File.py: get_removable_volume_root_uri and 
+	is_on_removale_volume are called but not implemented.
+	Fixes #555403 (Luca Ognibene)
+
+	* test/python-tests/TestCoreFile.py:
+	* test/python-tests/data/folder.list: Add tests for the above
+
+2008-10-08  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/dataproviders/File.py: Call get_removable_volume_info is with a
 	File object and not a string. Fixes #555401 (Luca Ognibene)
 

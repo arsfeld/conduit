@@ -12,7 +12,8 @@ import datetime
 import tempfile
 
 #for impl in ("GIO",):
-for impl in ("GIO","GnomeVfs"):
+#for impl in ("GnomeVfs",):
+for impl in ("GIO", "GnomeVfs"):
     ok("--- TESTING FILE IMPL: %s" % impl, True)
 
     try:
@@ -48,6 +49,12 @@ for impl in ("GIO","GnomeVfs"):
     temp.set_contents_as_text("456")
     contents = temp.get_contents_as_text()
     ok("Base: wrote contents again", contents == "456")
+
+    remUri = get_external_resources('folder')['removable-volume']
+    rf = File.File(remUri,implName=impl)
+    if Vfs.uri_exists(remUri):
+        ok("Base: Removable volume detected", rf.is_on_removale_volume() == True)
+        ok("Base: Removable volume calculate root path", rf.get_removable_volume_root_uri() == remUri)
 
     folder = File.File(os.environ["HOME"],implName=impl)
     ok("Base: check if HOME exists", folder.exists() == True)

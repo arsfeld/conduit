@@ -18,3 +18,7 @@ ntfs-volume=file:///media/disk
 removable-volume=file:///media/sda2/dell
 ntfs-volume=file:///media/sda2
 
+[john@nzjrs-laptop]
+removable-volume=file:///media/JRS89
+ntfs-volume=file:///media/disk
+
