@@ -99,7 +99,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     LUID is the tomboy uid string
     """
     _name_ = "Tomboy Notes"
-    _description_ = "Sync your Tomboy notes"
+    _description_ = "Synchronize your Tomboy notes"
     _category_ = conduit.dataproviders.CATEGORY_NOTES
     _module_type_ = "twoway"
     _in_type_ = "note/tomboy"

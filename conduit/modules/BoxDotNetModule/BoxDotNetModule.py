@@ -27,7 +27,7 @@ MODULES = {
 class BoxDotNetTwoWay(DataProvider.TwoWay):
 
     _name_ = _("Box.net")
-    _description_ = _("Sync your Box.net files")
+    _description_ = _("Synchronize your Box.net files")
     _category_ = conduit.dataproviders.CATEGORY_FILES
     _module_type_ = "twoway"
     _in_type_ = "file"

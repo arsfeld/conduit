@@ -19,7 +19,7 @@ MODULES = {
 
 class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _name_ = _("GConf Settings")
-    _description_ = _("Sync your desktop preferences")
+    _description_ = _("Synchronize your desktop preferences")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
     _in_type_ = "setting"

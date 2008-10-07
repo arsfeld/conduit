@@ -145,7 +145,7 @@ class EvoContactTwoWay(EvoBase):
     DEFAULT_ADDRESSBOOK_URI = "default"
 
     _name_ = _("Evolution Contacts")
-    _description_ = _("Sync your contacts")
+    _description_ = _("Synchronize your contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "contact"
@@ -196,7 +196,7 @@ class EvoCalendarTwoWay(EvoBase):
     DEFAULT_CALENDAR_URI = "default"
 
     _name_ = _("Evolution Calendar")
-    _description_ = _("Sync your calendar")
+    _description_ = _("Synchronize your calendar")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "event"
@@ -254,7 +254,7 @@ class EvoTasksTwoWay(EvoBase):
     DEFAULT_TASK_URI = "default"
 
     _name_ = _("Evolution Tasks")
-    _description_ = _("Sync your tasks")
+    _description_ = _("Synchronize your tasks")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "event"
@@ -311,7 +311,7 @@ class EvoMemoTwoWay(EvoBase):
     DEFAULT_MEMO_URI = ""
 
     _name_ = _("Evolution Memos")
-    _description_ = _("Sync your memos")
+    _description_ = _("Synchronize your memos")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "note"

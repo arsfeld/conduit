@@ -73,6 +73,6 @@ class StopSync(Exception):
     def __init__(self, step=0):    
         self.step = step
         Exception.__init__(self,
-            "Sync aborted at step %s" % self.step
+            "Synchronization aborted at step %s" % self.step
             )
 

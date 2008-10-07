@@ -24,7 +24,7 @@ MODULES = {
 class ShutterflySink(Image.ImageSink):
 	
 	_name_ = _("Shutterfly")
-	_description_ = _("Sync your Shutterfly photos")
+	_description_ = _("Synchronize your Shutterfly photos")
 	_module_type_ = "sink"
 	_icon_ = "shutterfly"
 	_configurable_ = True

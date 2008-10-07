@@ -30,7 +30,7 @@ else:
 class PicasaDesktopSource(DataProvider.DataSource):
 
     _name_ = _("Picasa Desktop")
-    _description_ = _("Sync Picasa from Picasa Desktop")
+    _description_ = _("Synchronize Picasa from Picasa Desktop")
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _module_type_ = "source"
     _in_type_ = "file/photo"

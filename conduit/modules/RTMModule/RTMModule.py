@@ -30,7 +30,7 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
     DEFAULT_TASK_URI = "default"
 
     _name_ = _("Remember The Milk Tasks")
-    _description_ = _("Sync your tasks to Remember The Milk")
+    _description_ = _("Synchronize your tasks to Remember The Milk")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _configurable_ = True
     _module_type_ = "twoway"

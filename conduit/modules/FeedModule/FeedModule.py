@@ -55,7 +55,7 @@ except ImportError:
 class RSSSource(DataProvider.DataSource):
 
     _name_ = _("RSS Feed")
-    _description_ = _("Sync data from RSS enclosures")
+    _description_ = _("Synchronize data from RSS enclosures")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "source"
     _in_type_ = ""

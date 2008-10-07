@@ -367,7 +367,7 @@ class _GoogleEvent:
 class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
 
     _name_ = _("Google Calendar")
-    _description_ = _("Sync your Google Calendar")
+    _description_ = _("Synchronize your Google Calendar")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "event"
@@ -553,7 +553,7 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
 class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
 
     _name_ = _("Picasa")
-    _description_ = _("Sync your Google Picasa photos")
+    _description_ = _("Synchronize your Google Picasa photos")
     _icon_ = "picasa"
 
     def __init__(self, *args):
@@ -801,7 +801,7 @@ class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
     Contacts GData provider
     """
     _name_ = _("Google Contacts")
-    _description_ = _("Sync your Gmail contacts")
+    _description_ = _("Synchronize your Gmail contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "contact"
@@ -1058,7 +1058,7 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
     See: http://code.google.com/p/gdatacopier/source/browse/trunk/python/gdatacopier.py
     """
     _name_ = _("Google Documents")
-    _description_ = _("Sync your Google Documents")
+    _description_ = _("Synchronize your Google Documents")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "sink"
     _out_type_ = "contact"
@@ -1347,7 +1347,7 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
     http://base-art.net/Articles/87/
     """
     _name_ = _("YouTube")
-    _description_ = _("Sync data from YouTube")
+    _description_ = _("Synchronize data from YouTube")
     _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "twoway"
     _in_type_ = "file/video"

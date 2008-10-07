@@ -102,7 +102,7 @@ class DBusConnection:
 class RhythmboxDBusSource(DataProvider.DataSource):
 
     _name_ = _("Rhythmbox Music (DBus)")
-    _description_ = _("Sync songs from your Rhythmbox playlists")
+    _description_ = _("Synchronize songs from your Rhythmbox playlists")
     _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "source"
     _in_type_ = "file/audio"

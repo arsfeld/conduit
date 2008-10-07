@@ -152,7 +152,7 @@ class MyZotoAPI:
 
 class ZotoSink(Image.ImageTwoWay):
     _name_ = _("Zoto")
-    _description_ = _("Sync your Zoto photos")
+    _description_ = _("Synchronize your Zoto photos")
     _module_type_ = "twoway"
     _icon_ = "zoto"
     _configurable_ = True

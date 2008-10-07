@@ -155,7 +155,7 @@ class IPodNoteTwoWay(IPodBase):
     """
 
     _name_ = "Notes"
-    _description_ = "Sync your iPod notes"
+    _description_ = "Synchronize your iPod notes"
     _module_type_ = "twoway"
     _in_type_ = "note"
     _out_type_ = "note"
@@ -271,7 +271,7 @@ class IPodNoteTwoWay(IPodBase):
 class IPodContactsTwoWay(IPodBase):
 
     _name_ = "Contacts"
-    _description_ = "Sync your iPod contacts"
+    _description_ = "Synchronize your iPod contacts"
     _module_type_ = "twoway"
     _in_type_ = "contact"
     _out_type_ = "contact"
@@ -307,7 +307,7 @@ class IPodContactsTwoWay(IPodBase):
 class IPodCalendarTwoWay(IPodBase):
 
     _name_ = "Calendar"
-    _description_ = "Sync your iPod calendar"
+    _description_ = "Synchronize your iPod calendar"
     _module_type_ = "twoway"
     _in_type_ = "event"
     _out_type_ = "event"
@@ -343,7 +343,7 @@ class IPodCalendarTwoWay(IPodBase):
 class IPodPhotoSink(IPodBase):
 
     _name_ = "Photos"
-    _description_ = "Sync your iPod photos"
+    _description_ = "Synchronize your iPod photos"
     _module_type_ = "sink"
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"
@@ -793,7 +793,7 @@ IPOD_AUDIO_ENCODINGS = {
 class IPodMusicTwoWay(IPodMediaTwoWay):
 
     _name_ = "iPod Music"
-    _description_ = "Sync your iPod music"
+    _description_ = "Synchronize your iPod music"
     _module_type_ = "twoway"
     _in_type_ = "file/audio"
     _out_type_ = "file/audio"
@@ -828,7 +828,7 @@ IPOD_VIDEO_ENCODINGS = {
 class IPodVideoTwoWay(IPodMediaTwoWay):
 
     _name_ = "iPod Video"
-    _description_ = "Sync your iPod videos"
+    _description_ = "Synchronize your iPod videos"
     _module_type_ = "twoway"
     _in_type_ = "file/video"
     _out_type_ = "file/video"

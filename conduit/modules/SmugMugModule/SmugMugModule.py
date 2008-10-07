@@ -26,7 +26,7 @@ MODULES = {
 class SmugMugTwoWay(Image.ImageTwoWay):
 
     _name_ = _("SmugMug")
-    _description_ = _("Sync your SmugMug.com photos")
+    _description_ = _("Synchronize your SmugMug.com photos")
     _module_type_ = "twoway"
     _icon_ = "smugmug"
     _configurable_ = True

@@ -1,5 +1,29 @@
 2008-10-07  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Exceptions.py:
+	* conduit/modules/AmazonS3Module/AmazonS3Module.py:
+	* conduit/modules/BansheeModule/BansheeModule.py:
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* conduit/modules/FacebookModule/FacebookModule.py:
+	* conduit/modules/FeedModule/FeedModule.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FspotModule/FspotModule.py:
+	* conduit/modules/GConfModule/GConfModule.py:
+	* conduit/modules/GoogleModule/GoogleModule.py:
+	* conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py:
+	* conduit/modules/RTMModule/RTMModule.py:
+	* conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py:
+	* conduit/modules/RhythmboxModule/RhythmboxModule.py:
+	* conduit/modules/ShutterflyModule/ShutterflyModule.py:
+	* conduit/modules/SmugMugModule/SmugMugModule.py:
+	* conduit/modules/TomboyModule.py:
+	* conduit/modules/ZotoModule/ZotoModule.py:
+	* conduit/modules/iPodModule/iPodModule.py: Remove informal use of the
+	word Sync. Fixes #529328
+
+2008-10-07  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/FileGio.py: Close the FileEnumerator.
 	Fixes #555305
 

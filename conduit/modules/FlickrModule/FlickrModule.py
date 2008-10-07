@@ -74,7 +74,7 @@ class MyFlickrAPI(flickrapi.FlickrAPI):
 class FlickrTwoWay(Image.ImageTwoWay):
 
     _name_ = _("Flickr")
-    _description_ = _("Sync your Flickr.com photos")
+    _description_ = _("Synchronize your Flickr.com photos")
     _module_type_ = "twoway"
     _icon_ = "flickr"
     _configurable_ = True

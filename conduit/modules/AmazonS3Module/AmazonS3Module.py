@@ -25,7 +25,7 @@ class AmazonS3TwoWay(DataProvider.TwoWay):
     """
 
     _name_ = "Amazon S3"
-    _description_ = "Sync with Amazon S3"
+    _description_ = "Synchronize with Amazon S3"
     _category_ = conduit.dataproviders.CATEGORY_FILES
     _module_type_ = "twoway"
     _in_type_ = "file"

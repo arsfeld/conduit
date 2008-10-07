@@ -35,7 +35,7 @@ else:
 class FacebookSink(Image.ImageSink):
 
     _name_ = _("Facebook")
-    _description_ = _("Sync your Facebook photos")
+    _description_ = _("Synchronize your Facebook photos")
     _module_type_ = "sink"
     _icon_ = "facebook"
     _configurable_ = True

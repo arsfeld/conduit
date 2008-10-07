@@ -31,7 +31,7 @@ NAME_IDX = 1
 class BansheeSource(DataProvider.DataSource):
 
     _name_ = _("Banshee Playlists")
-    _description_ = _("Sync your Banshee playlists")
+    _description_ = _("Synchronize your Banshee playlists")
     _category_ = conduit.dataproviders.CATEGORY_MEDIA
     _module_type_ = "source"
     _in_type_ = "file/audio"

@@ -23,7 +23,7 @@ ID_IDX = 1
 
 class FSpotDbusTwoWay(Image.ImageTwoWay):
     _name_ = _("F-Spot")
-    _description_ = _("Sync your F-Spot photos")
+    _description_ = _("Synchronize your F-Spot photos")
     _category_ = conduit.dataproviders.CATEGORY_PHOTOS
     _icon_ = "f-spot"
     _configurable_ = True
