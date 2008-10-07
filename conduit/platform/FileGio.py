@@ -298,8 +298,11 @@ class FolderScanner(conduit.platform.FolderScanner):
                 log.warn("Folder %s Not found" % dir, exc_info=True)
                 continue
 
-            try: fileinfo = enumerator.next()
-            except StopIteration: continue;
+            try: 
+                fileinfo = enumerator.next()
+            except StopIteration:
+                enumerator.close()
+                continue
             while fileinfo:
                 filename = fileinfo.get_name()
                 filetype = fileinfo.get_file_type()
@@ -317,8 +320,11 @@ class FolderScanner(conduit.platform.FolderScanner):
                                 self.URIs.append(uri)
                     else:
                         log.debug("Unsupported file type: %s (%s)" % (filename, filetype))
-                try: fileinfo = enumerator.next()
-                except StopIteration: break;
+                try: 
+                    fileinfo = enumerator.next()
+                except StopIteration:
+                    enumerator.close()
+                    break
 
             #Calculate the estimated complete percentags
             estimated = 1.0-float(len(self.dirs))/float(t)
