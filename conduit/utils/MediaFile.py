@@ -22,10 +22,7 @@ class MediaFile(File.File):
         '''
         event = threading.Event()
         def discovered(discoverer, valid):
-            if not valid:
-                log.debug("Media file not valid")
-                #FIXME: What exception should be raised here?
-                raise Exception
+            self._valid = valid
             event.set()
         # FIXME: Using Discoverer for now, but we should switch to utils.GstMetadata
         #        when we get thumbnails working on it.
@@ -34,7 +31,11 @@ class MediaFile(File.File):
         info.discover()
         # Wait for discover to finish (which is async and emits discovered)
         event.wait()
-        tags = info.tags
+        if self._valid:
+            tags = info.tags
+        else:
+            log.debug("Media file not valid")
+            return {}
         if info.is_video:
             tags['width'] = info.videowidth
             tags['height'] = info.videoheight
@@ -69,4 +70,4 @@ class MediaFile(File.File):
         '''
         if GST_AVAILABLE:
             return self.gst_tags
-        return None
+        return {}

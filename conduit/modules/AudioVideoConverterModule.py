@@ -221,8 +221,6 @@ class GStreamerConversionPipeline(Pipeline):
 class GStreamerConverter():
     def _run_pipeline(self, **kwargs):
         def converted(converter, success):
-            if not success:
-                raise Exception
             self.success = success
             event.set()
         event = threading.Event()
@@ -302,11 +300,6 @@ class AudioVideoConverter(TypeConverter.Converter):
             log.debug("File %s is not video type: %s" % (video,mimetype))
             return None
         
-        kwargs['in_file'] = video.get_local_uri()
-        kwargs['out_file'] = self._get_output_file(kwargs['in_file'], **kwargs)
-        if os.path.exists(kwargs['out_file']):
-            return Video.Video(kwargs['out_file'])
-        
         #Check if we need to convert the video
         if kwargs.get('mimetype', None) == mimetype:
             #Check if the video is smaller or equal then the required dimensions
@@ -314,7 +307,7 @@ class AudioVideoConverter(TypeConverter.Converter):
             width = kwargs.get('width', None)
             height = kwargs.get('height', None)
             if width or height:
-                (video_width, video_height) = video.get_video_size()
+                (video_width, video_height) = video.get_video_size()                
                 if (not width or video_width <= width) and \
                    (not height or video_height <= height):
                     log.debug("Video matches the required dimensions, not converting")
@@ -324,7 +317,13 @@ class AudioVideoConverter(TypeConverter.Converter):
                 #so we dont convert it
                 log.debug("Video matches the mimetype, not converting")
                 return video
-        
+
+        kwargs['in_file'] = video.get_local_uri()
+        kwargs['out_file'] = self._get_output_file(kwargs['in_file'], **kwargs)
+        if os.path.exists(kwargs['out_file']):
+            log.debug('Converted video already exists, using it')
+            return Video.Video(kwargs['out_file'])
+                       
         if 'width' in kwargs and 'height' in kwargs:
             (width, height) = video.get_video_size()
             if not width and not height:
@@ -337,9 +336,13 @@ class AudioVideoConverter(TypeConverter.Converter):
                             currentH=int(height)
                             )
             log.debug("Scaling video to %swx%sh" % (kwargs['width'],kwargs['height']))
-        
-        gst_converter = GStreamerConverter()
-        sucess = gst_converter.convert(**kwargs)       
+ 
+        try:
+            gst_converter = GStreamerConverter()
+            sucess = gst_converter.convert(**kwargs)       
+        except Exception, e:
+            log.debug("Error transcoding video: %s" % e)
+            return None
         
         if not sucess:
             log.debug("Error transcoding video\n")
