@@ -8,14 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Conduit HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-14 11:07+0100\n"
+"POT-Creation-Date: 2008-10-19 12:04+0100\n"
 "PO-Revision-Date: 2008-09-18 02:24+0100\n"
 "Last-Translator: Djihed Afifi <djihed@gmail.com>\n"
 "Language-Team: Arabic <doc@arabeyes.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #: ../data/conduit.desktop.in.in.h:1
 #: ../data/conduit-autostart.desktop.in.in.h:2
@@ -257,70 +258,68 @@ msgid "Conflicts (%s)"
 msgstr "التعارضات (%s)"
 
 #. Build some liststores to display
-#: ../conduit/gtkui/UI.py:281
+#: ../conduit/gtkui/UI.py:284
 msgid "Convert from"
 msgstr "حوّل من"
 
-#: ../conduit/gtkui/UI.py:282
+#: ../conduit/gtkui/UI.py:285
 msgid "into"
 msgstr "إلى"
 
-#: ../conduit/gtkui/UI.py:333
+#: ../conduit/gtkui/UI.py:336
 msgid "Relationship Database"
 msgstr "قاعدة بيانات العلاقات"
 
-#: ../conduit/gtkui/UI.py:337
+#: ../conduit/gtkui/UI.py:340
 msgid "Conversions Available"
 msgstr "التحويلات المتوفرة:"
 
-#: ../conduit/gtkui/UI.py:343
-#: ../conduit/gtkui/Tree.py:348
+#: ../conduit/gtkui/UI.py:346 ../conduit/gtkui/Tree.py:348
 #: ../conduit/modules/FileModule/FileConfiguration.py:105
 msgid "Name"
 msgstr "اسم"
 
-#: ../conduit/gtkui/UI.py:347
+#: ../conduit/gtkui/UI.py:350
 msgid "Loaded"
 msgstr "محمّل"
 
-#: ../conduit/gtkui/UI.py:459
-#: ../conduit/hildonui/UI.py:127
+#: ../conduit/gtkui/UI.py:462 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "المزامنة جارية. هل تريد إلغائها؟"
 
-#: ../conduit/gtkui/UI.py:625
+#: ../conduit/gtkui/UI.py:628
 msgid "_Synchronize All"
 msgstr "_زامن الكل"
 
-#: ../conduit/gtkui/UI.py:625
+#: ../conduit/gtkui/UI.py:628
 msgid "Synchronizes All Groups"
 msgstr "زامن كل المجموعات"
 
-#: ../conduit/gtkui/UI.py:626
+#: ../conduit/gtkui/UI.py:629
 msgid "_Cancel Synchronization"
 msgstr "_ألغي المزامنة"
 
-#: ../conduit/gtkui/UI.py:626
+#: ../conduit/gtkui/UI.py:629
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "يلغي المجموعات المزامنة حالياً"
 
-#: ../conduit/gtkui/UI.py:627
+#: ../conduit/gtkui/UI.py:630
 msgid "_Quit"
 msgstr "أ_نه"
 
-#: ../conduit/gtkui/UI.py:627
+#: ../conduit/gtkui/UI.py:630
 msgid "Close Conduit"
 msgstr "اغلق Conduit"
 
-#: ../conduit/gtkui/UI.py:667
+#: ../conduit/gtkui/UI.py:670
 msgid "Synchronization Error"
 msgstr "خطأ التزامن"
 
-#: ../conduit/gtkui/UI.py:670
+#: ../conduit/gtkui/UI.py:673
 msgid "Synchronization Complete"
 msgstr "تم التزامن"
 
-#: ../conduit/gtkui/UI.py:686
+#: ../conduit/gtkui/UI.py:689
 msgid "Synchronizing"
 msgstr "مزامنة"
 
@@ -427,7 +426,8 @@ msgid "Banshee Playlists"
 msgstr "قوائم تشغيل Banshee"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:34
-msgid "Sync your Banshee playlists"
+#, fuzzy
+msgid "Synchronize your Banshee playlists"
 msgstr "زامن قوائم تشغيل Banshee"
 
 #. column 1 is the tag name
@@ -457,7 +457,8 @@ msgid "Box.net"
 msgstr "Box.net"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
-msgid "Sync your Box.net files"
+#, fuzzy
+msgid "Synchronize your Box.net files"
 msgstr "زامن ملفات Box.net"
 
 #: ../conduit/modules/BoxDotNetModule/config.glade.h:2
@@ -480,7 +481,8 @@ msgid "Evolution Contacts"
 msgstr "مراسَلو إيفُليوشن"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
-msgid "Sync your contacts"
+#, fuzzy
+msgid "Synchronize your contacts"
 msgstr "زامن المراسلبن"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
@@ -488,7 +490,8 @@ msgid "Evolution Calendar"
 msgstr "تقويم إيفُليوشِن"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
-msgid "Sync your calendar"
+#, fuzzy
+msgid "Synchronize your calendar"
 msgstr "زامن التقويم"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
@@ -496,7 +499,8 @@ msgid "Evolution Tasks"
 msgstr "مهام إيفُليوشِن"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
-msgid "Sync your tasks"
+#, fuzzy
+msgid "Synchronize your tasks"
 msgstr "زامن المهام"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
@@ -504,7 +508,8 @@ msgid "Evolution Memos"
 msgstr "مذكرات إيفُليوشِن"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
-msgid "Sync your memos"
+#, fuzzy
+msgid "Synchronize your memos"
 msgstr "زامن المذكرات"
 
 #: ../conduit/modules/EvolutionModule/config.glade.h:1
@@ -521,7 +526,8 @@ msgid "Facebook"
 msgstr "Facebook"
 
 #: ../conduit/modules/FacebookModule/FacebookModule.py:38
-msgid "Sync your Facebook photos"
+#, fuzzy
+msgid "Synchronize your Facebook photos"
 msgstr "مزامنة صور Facebook"
 
 #: ../conduit/modules/FacebookModule/config.glade.h:1
@@ -539,7 +545,8 @@ msgid "RSS Feed"
 msgstr "تلقيم RSS"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:58
-msgid "Sync data from RSS enclosures"
+#, fuzzy
+msgid "Synchronize data from RSS enclosures"
 msgstr "مزامنة البيانات من مرفقات RSS"
 
 #: ../conduit/modules/FeedModule/config.glade.h:1
@@ -604,7 +611,8 @@ msgid "Please Name All Folders"
 msgstr "الرجاء تسمية كل المجلدات"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:299
-msgid "All folders require a descriptive name. To name a folder simply click on it"
+msgid ""
+"All folders require a descriptive name. To name a folder simply click on it"
 msgstr "كل المجلدات تتطلب إسما وصفيا. لتسمية مجلد ببساطة إنقر عليه"
 
 #: ../conduit/modules/FileModule/FileModule.py:23
@@ -673,7 +681,8 @@ msgid "Flickr"
 msgstr "فلكر"
 
 #: ../conduit/modules/FlickrModule/FlickrModule.py:77
-msgid "Sync your Flickr.com photos"
+#, fuzzy
+msgid "Synchronize your Flickr.com photos"
 msgstr "مزامنة صور Flickr.com"
 
 #: ../conduit/modules/FlickrModule/config.glade.h:2
@@ -704,7 +713,8 @@ msgid "F-Spot"
 msgstr "F-Spot"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:26
-msgid "Sync your F-Spot photos"
+#, fuzzy
+msgid "Synchronize your F-Spot photos"
 msgstr "مزامنة صور F-Spot"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:127
@@ -724,7 +734,8 @@ msgid "GConf Settings"
 msgstr "إعدادات GConf"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
-msgid "Sync your desktop preferences"
+#, fuzzy
+msgid "Synchronize your desktop preferences"
 msgstr "زامن تفضيلات مكتبك"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:369
@@ -733,7 +744,8 @@ msgid "Google Calendar"
 msgstr "تقويم جنوم"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:370
-msgid "Sync your Google Calendar"
+#, fuzzy
+msgid "Synchronize your Google Calendar"
 msgstr "مزامنة تقويم Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:555
@@ -742,7 +754,8 @@ msgid "Picasa"
 msgstr "بيكاسا"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:556
-msgid "Sync your Google Picasa photos"
+#, fuzzy
+msgid "Synchronize your Google Picasa photos"
 msgstr "مزامنة صور Google Picasa "
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:803
@@ -750,7 +763,8 @@ msgid "Google Contacts"
 msgstr "مراسلي Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:804
-msgid "Sync your Gmail contacts"
+#, fuzzy
+msgid "Synchronize your Gmail contacts"
 msgstr "مزامنة مراسلي Gmail"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1060
@@ -759,7 +773,8 @@ msgid "Google Documents"
 msgstr "مستندات Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1061
-msgid "Sync your Google Documents"
+#, fuzzy
+msgid "Synchronize your Google Documents"
 msgstr "مزامنة مستندات Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1338
@@ -780,7 +795,8 @@ msgid "YouTube"
 msgstr "يوتوب"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1350
-msgid "Sync data from YouTube"
+#, fuzzy
+msgid "Synchronize data from YouTube"
 msgstr "زامن البيانات من يوتوب"
 
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
@@ -948,7 +964,8 @@ msgid "Rhythmbox Music"
 msgstr "موسيقى رذمبكس"
 
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:41
-msgid "Sync songs from your Rhythmbox playlists"
+#, fuzzy
+msgid "Synchronize songs from your Rhythmbox playlists"
 msgstr "مزامنة الأغاني من قائمة تشغيل Rhythmbox"
 
 #: ../conduit/modules/RhythmboxModule/config.glade.h:1
@@ -965,7 +982,8 @@ msgid "Shutterfly"
 msgstr "Shutterfly"
 
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
-msgid "Sync your Shutterfly photos"
+#, fuzzy
+msgid "Synchronize your Shutterfly photos"
 msgstr "زامن صور Shutterfly"
 
 #: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
@@ -978,7 +996,8 @@ msgid "SmugMug"
 msgstr "SmugMug"
 
 #: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
-msgid "Sync your SmugMug.com photos"
+#, fuzzy
+msgid "Synchronize your SmugMug.com photos"
 msgstr "زامن صور SmugMug"
 
 #: ../conduit/modules/ZotoModule/ZotoModule.py:154
@@ -987,29 +1006,39 @@ msgid "Zoto"
 msgstr "Zoto"
 
 #: ../conduit/modules/ZotoModule/ZotoModule.py:155
-msgid "Sync your Zoto photos"
+#, fuzzy
+msgid "Synchronize your Zoto photos"
 msgstr "مزامنة صور Zoto"
 
 #~ msgid "_About"
 #~ msgstr "_حول"
+
 #~ msgid "About Conduit"
 #~ msgstr "حول كوندويت"
+
 #~ msgid "Use built in Web browser"
 #~ msgstr "إستخدام المتصفح المدمج"
+
 #~ msgid "Please Enter a Folder Name"
 #~ msgstr "أدخل اسم مجلد"
+
 #~ msgid ""
 #~ "All folders require a descriptive name. To name a folder enter its name "
 #~ "where indicated"
 #~ msgstr "كل المجلدات تتطلب إسما وصفيا. لتسمية مجلد أدخل إسمه حيث الإشارة"
+
 #~ msgid "Folder Name:"
 #~ msgstr "اسم المجلّد:"
+
 #~ msgid "By user"
 #~ msgstr "المستخدم"
+
 #~ msgid "User: "
 #~ msgstr "المستخدم:"
+
 #~ msgid "dialog1"
 #~ msgstr "dialog1"
+
 #~ msgid "_Synchronize"
 #~ msgstr "_زامن"
 
@@ -1024,56 +1053,77 @@ msgstr "مزامنة صور Zoto"
 #, fuzzy
 #~ msgid "Failed to get remotes"
 #~ msgstr "فشل تلقي البكسماب %s"
+
 #~ msgid "Email"
 #~ msgstr "البريد الإلكتروني"
+
 #~ msgid "<b>Login Details</b>"
 #~ msgstr "<b>تفاصيل الدخول</b>"
 
 #, fuzzy
 #~ msgid "<b>Return Emails Matching</b>"
 #~ msgstr "ظَلِّل القوس الموافق"
+
 #~ msgid "<b>Saved Email Settings</b>"
 #~ msgstr "<b>إعدادات البريد المحفوظة</b>"
+
 #~ msgid "<b>When Saving Emails</b>"
 #~ msgstr "<b>عند حفظ البريد</b>"
+
 #~ msgid "All emails"
 #~ msgstr "كل البريد"
+
 #~ msgid "Attach label to email"
 #~ msgstr "الصق تسمية ببريد"
+
 #~ msgid "Emails in folder:"
 #~ msgstr "بريد في مجلد:"
+
 #~ msgid "Emails with label:"
 #~ msgstr "بريد بتسمية:"
+
 #~ msgid "Gmail Emails"
 #~ msgstr "بريد جوجل"
 
 #, fuzzy
 #~ msgid "Gmail Sink Properties"
 #~ msgstr "خصائص عنصر القائمة"
+
 #~ msgid "Password:   "
 #~ msgstr "كلمة المرور:   "
+
 #~ msgid "Save with label:"
 #~ msgstr "احفظ بالتسمية:"
+
 #~ msgid "Unread emails"
 #~ msgstr "الرسائل غير المقروءة"
+
 #~ msgid "Username: "
 #~ msgstr "اسم المستخدم: "
+
 #~ msgid "Network your desktop"
 #~ msgstr "اربط سطح مكتبك شبكيا"
+
 #~ msgid "Evolution Events"
 #~ msgstr "أحداث إيفليوشن"
+
 #~ msgid "Evolution Todo"
 #~ msgstr "مهام إيفليوشن"
+
 #~ msgid "Sync your Evolution tasks"
 #~ msgstr "زامن أشغال إيفليوشن"
+
 #~ msgid "%Y-%m-%dT%H:%M:%S"
 #~ msgstr "%Y-%m-%dT%H:%M:%S"
+
 #~ msgid "Sync your devices contacts"
 #~ msgstr "زامن اتصالات أجهزتك"
+
 #~ msgid "Synce Events"
 #~ msgstr "زامن الأحداث"
+
 #~ msgid "Synce Todo"
 #~ msgstr "زامن قائمة المهام"
+
 #~ msgid "Sync your devices tasks"
 #~ msgstr "زامن أشغال أجهزتك"
-
