@@ -1,3 +1,18 @@
+2008-10-20  Alexandre Rosenfeld  <airmind@gemini>
+
+	* conduit/datatypes/Audio.py:
+	* conduit/datatypes/Video.py: Improved documentation and added genre
+	and playcount to Audio	
+	* conduit/modules/AudioVideoConverterModule.py: Fixed no conversion
+	needed for Audio
+	* conduit/modules/RhythmboxModule/RhythmboxModule.py: Applied patch
+	from bug 556763 - Adds rating, play-count and partial cover-location
+	support. Extended to include all required fields from the Rhythmbox
+	DB.	
+	* conduit/modules/iPodModule/iPodModule.py: Improved Configuration 
+	code and fixed small bugs
+	* conduit/utils/MediaFile.py: Improved documentation
+
 2008-10-08  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/datatypes/File.py: get_removable_volume_root_uri and 

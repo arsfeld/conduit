@@ -4,12 +4,12 @@ import conduit.utils.MediaFile as MediaFile
 import logging
 log = logging.getLogger("datatypes.Audio")
 
-from threading import Lock
-
 PRESET_ENCODINGS = {
-    "ogg":{"acodec":"vorbisenc","format":"oggmux","file_extension":"ogg"},
-    "wav":{"acodec":"wavenc","file_extension":"wav"},
-    "mp3":{"acodec":"lame", "file_extension": "mp3"},
+    "ogg":{"description": "Ogg", "acodec": "vorbisenc", "format":"oggmux","file_extension":"ogg", 'mimetype': 'application/ogg'},
+    "wav":{"description": "Wav", "acodec": "wavenc", "file_extension":"wav", 'mimetype': 'audio/x-wav'},
+    "mp3":{"description": "Mp3", "acodec": "lame", "file_extension": "mp3", 'mimetype':'audio/mpeg'},
+    #AAC conversion doesn't work
+    #"aac":{"description": "AAC", "acodec": "faac", "file_extension": "m4a"},    
     }
 
 def mimetype_is_audio(mimetype):
@@ -32,38 +32,49 @@ class Audio(MediaFile.MediaFile):
 
     def get_audio_title(self):
         '''
-        Song title (string)
+        Song title (str)
         '''
         return self._get_metadata('title')
 
     def get_audio_artist(self):
         '''
-        Song artist (string)
+        Song artist (str)
         '''
         return self._get_metadata('artist')
 
     def get_audio_album(self):
         '''
-        Song album (string)
+        Song album (str)
         '''
         return self._get_metadata('album')
 
+    def get_audio_genre(self):
+        '''
+        Song genre (str)
+        '''
+        return self._get_metadata('genre')
+
     def get_audio_track(self):
+        '''
+        Get number of the track inside the album (int)
+        '''
         return self._get_metadata('track-number')
 
     def get_audio_tracks(self):
-
+        '''
+        Get number of tracks in album (int)
+        '''
         return self._get_metadata('track-count')
 
     def get_audio_bitrate(self):
         '''
-        Bitrate of the audio stream (int)
+        Bitrate of the audio stream, in bits/sec (int)
         '''
         return self._get_metadata('bitrate')
 
     def get_audio_composer(self):
         '''
-        Song composer
+        Song composer (str)
         '''
         return self._get_metadata('composer')
 
@@ -85,11 +96,20 @@ class Audio(MediaFile.MediaFile):
         '''
         return self._get_metadata('channels')
 
+    def get_audio_playcount(self):
+        '''
+        Audio play count (int)
+        '''
+        return self._get_metadata('play_count')
+
     def get_audio_rating(self):
         '''
-        Audio rating from 0.0 to 5.0
+        Audio rating from 0.0 to 5.0 (float)
         '''
         return self._get_metadata('rating')
 
     def get_audio_cover_location(self):
+        '''
+        Get path to the track album cover (str)
+        '''
         return self._get_metadata('cover_location')

@@ -239,10 +239,12 @@ class GStreamerConverter():
 			# FIXME: A little hackish, but works.
             if hasattr(current_thread, 'cancelled'):
                 if current_thread.cancelled:
+                    log.debug("Stopping conversion")
                     pipeline.set_state(gst.STATE_NULL)      
                     pipeline = None
                     return False
             check_progress = True
+        pipeline.set_state(gst.STATE_NULL)
         pipeline = None
         return self.success
 
@@ -358,7 +360,11 @@ class AudioVideoConverter(TypeConverter.Converter):
         
         kwargs['in_file'] = audio.get_local_uri()
         kwargs['out_file'] = self._get_output_file(kwargs['in_file'], **kwargs)
-
+        
+        if kwargs.get('mimetype', None) == mimetype:    
+            log.debug('No need to convert file')
+            return audio
+        
         #convert audio
         gst_converter = GStreamerConverter()
         sucess = gst_converter.convert(**kwargs)

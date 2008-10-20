@@ -2,19 +2,13 @@ import conduit
 import conduit.datatypes.File as File
 import conduit.utils.MediaFile as MediaFile
 
-#The preset encodings must be robust. That means, in the case of ffmpeg,
-#you must be explicit with the options, otherwise it tries to retain sample
-#rates between the input and output files, leading to invalid rates in the output
-# "arate":44100, "abitrate":"64k"
-# "fps":15
 PRESET_ENCODINGS = {
     "divx":{"vcodec":"xvidenc", "acodec":"lame", "format":"avimux", "vtag":"DIVX", "file_extension":"avi", "mimetype": "video/x-msvideo"},
-    #breaks on single channel audio files because ffmpeg vorbis encoder only suuport stereo
+    #FIXME: The following comment has not been tested with GStreamer, it may or may not still be true:
+    # breaks on single channel audio files because ffmpeg vorbis encoder only suuport stereo
     "ogg":{"vcodec":"theoraenc", "acodec":"vorbisenc", "format":"oggmux", "file_extension":"ogg"},
-    #needs mencoder or ffmpeg compiled with mp3 support
     #requires gst-ffmpeg and gst-plugins-ugly
     "flv":{"vcodec":"ffenc_flv", "acodec":"lame", "format":"ffmux_flv", "file_extension":"flv"}
-    #"arate":22050,"abitrate":32,
     }
 
 def mimetype_is_video(mimetype):
@@ -36,7 +30,13 @@ class Video(MediaFile.MediaFile):
         MediaFile.MediaFile.__init__(self, URI, **kwargs)
 
     def get_video_duration(self):
+        '''
+        Video duration, in milisecs (int)
+        '''
         return self._get_metadata('duration')
 
     def get_video_size(self):
+        '''
+        Video size, as a tuple (width, height), both in pixels (int, int)
+        '''
         return self._get_metadata('width'), self._get_metadata('height')

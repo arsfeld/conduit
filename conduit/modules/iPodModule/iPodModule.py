@@ -714,30 +714,27 @@ class IPodMediaTwoWay(IPodBase):
 
     def get_config_items(self):
         import gtk
-        def dict_update(a, b):
-            a.update(b)
-            return a
         #Get an array of encodings, so it can be indexed inside a combobox
-        self.config_encodings = [dict_update({'name': name}, value) for name, value in self.encodings.iteritems()]
+        self.config_encodings = tuple(self.encodings.iteritems())
         initial_enc = None
-        for encoding in self.config_encodings:
-            if encoding['name'] == self.encoding:
-                initial_enc = encoding.get('description', None) or encoding['name']
+        for (encoding_name, encoding_opts) in self.config_encodings:
+            if encoding_name == self.encoding:
+                initial_enc = encoding_opts.get('description', None) or encoding_name
 
         def selectEnc(index, text):
-            self.encoding = self.config_encodings[index]['name']
+            self.encoding = self.config_encodings[index][0]
             log.debug('Encoding %s selected' % self.encoding)
-            
+        
         def selectKeep(value):
             self.keep_converted = value
             log.debug("Keep converted selected: %s" % (value))
-            
+        
         return [
                     {
                     "Name" : self.FORMAT_CONVERSION_STRING,
                     "Kind" : "list",
                     "Callback" : selectEnc,
-                    "Values" : [encoding.get('description', None) or encoding['name'] for encoding in self.config_encodings],
+                    "Values" : [enc_opts.get('description', None) or enc_name for enc_name, enc_opts in self.config_encodings],
                     "InitialValue" : initial_enc
                     },
                     
@@ -786,8 +783,8 @@ class IPodMediaTwoWay(IPodBase):
 
 IPOD_AUDIO_ENCODINGS = {
     "mp3": {"description": "Mp3", "acodec": "lame", "file_extension": "mp3"},
-    #FIXME: Does AAC needs a MP4 mux?
-    "aac": {"description": "AAC", "acodec": "faac", "file_extension": "m4a"},
+    #FIXME: AAC needs a MP4 mux
+    #"aac": {"description": "AAC", "acodec": "faac", "file_extension": "m4a"},
     }
 
 class IPodMusicTwoWay(IPodMediaTwoWay):
@@ -880,10 +877,10 @@ class IPodVideoTwoWay(IPodMediaTwoWay):
     def set_configuration(self, config):
         IPodMediaTwoWay.set_configuration(self, config)
         if 'video_kind' in config:
-            self.encoding = config['video_kind']
+            self.video_kind = config['video_kind']
         self._update_track_args()
 
     def get_configuration(self):
         config = IPodMediaTwoWay.get_configuration(self)
-        config.update({'encoding':self.encoding})
+        config.update({'video_kind':self.video_kind})
         return config
