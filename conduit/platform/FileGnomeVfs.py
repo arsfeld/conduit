@@ -291,10 +291,11 @@ class VolumeMonitor(Singleton.Singleton, conduit.platform.VolumeMonitor):
         self._vm.connect("volume-unmounted", self._unmounted_cb)
 
     def _mounted_cb(self, sender, volume):
-        self.emit("volume-mounted", 
-            volume.get_hal_udi(),
-            volume.get_activation_uri(),
-            volume.get_display_name())
+        if volume.is_user_visible():
+            self.emit("volume-mounted", 
+                volume.get_hal_udi(),
+                volume.get_activation_uri(),
+                volume.get_display_name())
 
     def _unmounted_cb(self, sender, volume):
         self.emit("volume-unmounted", volume.get_hal_udi())
@@ -302,7 +303,8 @@ class VolumeMonitor(Singleton.Singleton, conduit.platform.VolumeMonitor):
     def get_mounted_volumes(self):
         vols = {}
         for v in self._vm.get_mounted_volumes():
-            vols[v.get_hal_udi()] = (v.get_activation_uri(), v.get_display_name())
+            if v.is_user_visible():
+                vols[v.get_hal_udi()] = (v.get_activation_uri(), v.get_display_name())
         return vols
 
 class FileMonitor(conduit.platform.FileMonitor):

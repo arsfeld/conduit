@@ -1,5 +1,10 @@
 2008-10-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/platform/FileGnomeVfs.py: Only show user visible 
+    gnomevfs volumes
+
+2008-10-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/FileGio.py:
 	* conduit/platform/FileGnomeVfs.py:
 	* conduit/platform/__init__.py: Change the base class interface as necessary
