@@ -34,14 +34,16 @@ class HalFactory(SimpleFactory.SimpleFactory):
         self.item_removed(device_udi)
 
     def _get_properties(self, device):
+        buf = {}
         try:
             device_dbus_obj = self.bus.get_object("org.freedesktop.Hal" ,device)
-            buffer = {}
             for x, y in device_dbus_obj.GetAllProperties(dbus_interface="org.freedesktop.Hal.Device").items():
-                buffer[str(x)] = str(y)
-            return buffer
+                #DBus *still* does not marshal dbus.String to str correctly,
+                #so we force it to
+                buf[str(x)] = str(y)
         except:
-            return {}
+            log.warn("Could not get HAL properties for %s" % device_udi)
+        return buf
 
     def probe(self):
         """ Enumerate HAL for any entries of interest """

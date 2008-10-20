@@ -97,25 +97,21 @@ class FileTransfer:
 class VolumeMonitor(gobject.GObject):
     __gsignals__ = {
         "volume-mounted" :      (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_STRING]),      #udi
+            gobject.TYPE_STRING,        #udi/uuid
+            gobject.TYPE_STRING,        #mount point
+            gobject.TYPE_STRING]),      #label
         "volume-unmounted" :    (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_STRING])       #udi
+            gobject.TYPE_STRING])       #udi/uuid
 
     }
     def __init__(self):
         gobject.GObject.__init__(self)
 
     def get_mounted_volumes(self):
-        return []
-
-    def volume_is_removable(self, path):
-        return False
-
-    def volume_get_fstype(self, path):
-        return None
-
-    def volume_get_root_uri(self, path):
-        return None
+        """
+        @returs: Dict of mounted volumes, uuid : (mount, name) 
+        """
+        return {}
 
 class FileMonitor(gobject.GObject):
 

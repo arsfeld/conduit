@@ -1,3 +1,17 @@
+2008-10-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py: Change the base class interface as necessary
+    to add a GIO VolumeMonitor implementation
+	* conduit/dataproviders/VolumeFactory.py: Derive directly from HalFactory
+    and no longer use the Vfs.VolumeMonitor implementations to monitor volumes,
+    it was not in the spirit of what other derived classes were using VF for
+	* conduit/dataproviders/HalFactory.py: Doc updates.
+	* conduit/modules/FileModule/FileModule.py: Use the VolumeMonitor class
+    directly, and no longer through VolumeFactory. 
+    Fixes #557105
+
 2008-10-20  Alexandre Rosenfeld  <airmind@gemini>
 
 	* conduit/datatypes/Audio.py:

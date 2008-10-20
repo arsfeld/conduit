@@ -7,7 +7,7 @@ import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.dataproviders.DataProviderCategory as DataProviderCategory
 import conduit.dataproviders.File as FileDataProvider
-import conduit.dataproviders.VolumeFactory as VolumeFactory
+import conduit.dataproviders.SimpleFactory as SimpleFactory
 import conduit.dataproviders.AutoSync as AutoSync
 import conduit.utils as Utils
 import conduit.Vfs as Vfs
@@ -133,12 +133,26 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         elif event == self._monitor.MONITOR_EVENT_DELETED:
             self.handle_deleted(event_uri)
 
-class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
+class RemovableDeviceFactory(SimpleFactory.SimpleFactory):
 
     def __init__(self, **kwargs):
-        VolumeFactory.VolumeFactory.__init__(self, **kwargs)
+        SimpleFactory.SimpleFactory.__init__(self, **kwargs)
         self._volumes = {}
         self._categories = {}
+        self._vm = Vfs.VolumeMonitor()
+        self._vm.connect("volume-mounted",self._volume_mounted_cb)
+        self._vm.connect("volume-unmounted",self._volume_unmounted_cb)
+
+    def _volume_mounted_cb(self, monitor, device_udi, mount, label):
+        log.info("Volume mounted, %s : (%s : %s)" % (device_udi,mount,label))
+        if device_udi:
+            self._check_preconfigured(device_udi, mount, label)
+            self.item_added(device_udi, mount=mount, label=label)
+
+    def _volume_unmounted_cb(self, monitor, device_udi):
+        log.info("Volume unmounted, %s" % device_udi)
+        if device_udi and device_udi in self._volumes:
+            self.item_removed(device_udi)
 
     def _make_class(self, udi, folder, name):
         log.info("Creating preconfigured folder dataprovider: %s" % folder)
@@ -152,9 +166,47 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
         klass = type(
                 "FolderTwoWay",
                 (FolderTwoWay,),
-                info
-                )
+                info)
         return klass
+
+    def _check_preconfigured(self, udi, mountUri, label):
+        #check for the presence of a mount/.conduit group file
+        #which describe the folder sync groups, and their names,
+        try:
+            groups = FileDataProvider.read_removable_volume_group_file(mountUri)
+        except Exception, e:
+            log.warn("Error reading volume group file: %s" % e)
+            groups = ()
+            
+        if len(groups) > 0:
+            self._volumes[udi] = []
+            for relativeUri,name in groups:
+                klass = self._make_class(
+                                    udi=udi,
+                                    #uri is relative, make it absolute
+                                    folder="%s%s" % (mountUri,relativeUri),
+                                    name=name)
+                self._volumes[udi].append(klass)
+        else:
+            klass = self._make_class(
+                                udi=udi,
+                                folder=mountUri,
+                                name=None)
+            self._volumes[udi] = [klass]
+
+    def probe(self):
+        """
+        Called after initialised to detect already connected volumes
+        """
+        volumes = self._vm.get_mounted_volumes()
+        for device_udi in volumes:
+            if device_udi:
+                mount,label = volumes[device_udi]
+                self._check_preconfigured(device_udi, mount, label)
+                self.item_added(device_udi, mount=mount, label=label)
+            if device_udi:
+                mount,label = volumes[device_udi]
+                self.item_added(device_udi, mount=mount, label=label)
 
     def emit_added(self, klass, initargs, category):
         """
@@ -162,57 +214,13 @@ class RemovableDeviceFactory(VolumeFactory.VolumeFactory):
         the folder and the udi to allow multiple preconfigured groups per
         usb key
         """
-        return VolumeFactory.VolumeFactory.emit_added(self, 
+        return SimpleFactory.SimpleFactory.emit_added(self, 
                         klass, 
                         initargs, 
                         category, 
                         customKey="%s-%s" % (klass.DEFAULT_FOLDER, klass._udi_)
                         )
 
-    def is_interesting(self, udi, props):
-        if props.has_key("info.parent") and props.has_key("info.parent") != "":
-            prop2 = self._get_properties(props["info.parent"])
-            if prop2.has_key("storage.removable") and prop2["storage.removable"] == True:
-                mount,label = self._get_device_info(props)
-                log.info("Detected removable volume %s@%s" % (label,mount))
-
-                #short circuit the logic here to test if this is a volume being
-                #unmounted. Its still interesting, we just dont make a 
-                #klass for it
-                if udi in self._volumes and not mount:
-                    log.debug("This is a FileModule being removed")
-                    del(self._volumes[udi])
-                    return True
-
-                #check for the presence of a mount/.conduit group file
-                #which describe the folder sync groups, and their names,
-                mountUri = "file://%s" % mount
-                try:
-                    groups = FileDataProvider.read_removable_volume_group_file(mountUri)
-                except Exception, e:
-                    log.warn("Error reading volume group file: %s" % e)
-                    groups = ()
-                    
-                if len(groups) > 0:
-                    self._volumes[udi] = []
-                    for relativeUri,name in groups:
-                        klass = self._make_class(
-                                            udi=udi,
-                                            #uri is relative, make it absolute
-                                            folder="%s%s" % (mountUri,relativeUri),
-                                            name=name)
-                        self._volumes[udi].append(klass)
-                else:
-                    if Vfs.uri_is_on_removable_volume(mountUri):
-                        klass = self._make_class(
-                                            udi=udi,
-                                            folder=mountUri,
-                                            name=None)
-                        self._volumes[udi] = [klass]
-                        
-                return True
-        return False
-    
     def get_category(self, udi, **kwargs):
         if not self._categories.has_key(udi):
             self._categories[udi] = DataProviderCategory.DataProviderCategory(

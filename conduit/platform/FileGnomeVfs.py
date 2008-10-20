@@ -182,19 +182,19 @@ class FileImpl(conduit.platform.File):
     def is_on_removale_volume(self):
         path = self.get_local_path()
         if path:
-            return VolumeMonitor().volume_is_removable(path)
+            return gnomevfs.VolumeMonitor().get_volume_for_path(path).is_user_visible()
         return False
 
     def get_removable_volume_root_uri(self):
         path = self.get_local_path()
         if path:
-            return VolumeMonitor().volume_get_root_uri(path)
+            return gnomevfs.VolumeMonitor().get_volume_for_path(path).get_activation_uri()
         return False
 
     def get_filesystem_type(self):
         path = self.get_local_path()
         if path:
-            return VolumeMonitor().volume_get_fstype(path)
+            return gnomevfs.VolumeMonitor().get_volume_for_path(path).get_filesystem_type()
         return None
 
     @staticmethod
@@ -287,23 +287,23 @@ class VolumeMonitor(Singleton.Singleton, conduit.platform.VolumeMonitor):
     def __init__(self):
         conduit.platform.VolumeMonitor.__init__(self)
         self._vm = gnomevfs.VolumeMonitor()
-        self._vm.connect("volume-mounted", self._mounted_unmounted_cb, "volume-mounted")
-        self._vm.connect("volume-unmounted", self._mounted_unmounted_cb, "volume-unmounted")
+        self._vm.connect("volume-mounted", self._mounted_cb)
+        self._vm.connect("volume-unmounted", self._unmounted_cb)
 
-    def _mounted_unmounted_cb(self, sender, volume, signalname):
-        self.emit(signalname, volume.get_hal_udi())
+    def _mounted_cb(self, sender, volume):
+        self.emit("volume-mounted", 
+            volume.get_hal_udi(),
+            volume.get_activation_uri(),
+            volume.get_display_name())
+
+    def _unmounted_cb(self, sender, volume):
+        self.emit("volume-unmounted", volume.get_hal_udi())
 
     def get_mounted_volumes(self):
-        return [volume.get_hal_udi() for volume in self._vm.get_mounted_volumes()]
-
-    def volume_is_removable(self, path):
-        return self._vm.get_volume_for_path(path).is_user_visible()
-
-    def volume_get_fstype(self, path):
-        return self._vm.get_volume_for_path(path).get_filesystem_type()
-
-    def volume_get_root_uri(self, path):
-        return self._vm.get_volume_for_path(path).get_activation_uri()
+        vols = {}
+        for v in self._vm.get_mounted_volumes():
+            vols[v.get_hal_udi()] = (v.get_activation_uri(), v.get_display_name())
+        return vols
 
 class FileMonitor(conduit.platform.FileMonitor):
 
