@@ -1,5 +1,10 @@
 2008-10-24  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/File.py: Restore self.FileImpl when unpickling
+	Fixes #557589
+
+2008-10-24  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FspotModule/FspotModule.py:
 	* conduit/modules/GoogleModule/GoogleModule.py:
 	* conduit/modules/N800Module/N800Module.py:
