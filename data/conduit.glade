@@ -53,7 +53,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="tooltip" translatable="yes">Cancel currently synchronizing groups</property>
+                        <property name="tooltip" translatable="yes">Cancel currently-synchronizing groups</property>
                         <property name="label" translatable="yes">Cancel Synchronization</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_cancel_activate"/>
@@ -485,14 +485,14 @@
     <child>
       <widget class="GtkMenuItem" id="sync_options">
         <property name="visible">True</property>
-        <property name="label" translatable="yes">Sync Options</property>
+        <property name="label" translatable="yes">Synchronization Options</property>
         <property name="use_underline">True</property>
         <child>
           <widget class="GtkMenu" id="sync_options_menu">
             <child>
               <widget class="GtkCheckMenuItem" id="slow_sync">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Slow Sync</property>
+                <property name="label" translatable="yes">Slow Synchronization</property>
                 <property name="use_underline">True</property>
                 <signal name="activate" handler="on_slow_sync_activate"/>
               </widget>
@@ -500,7 +500,7 @@
             <child>
               <widget class="GtkCheckMenuItem" id="two_way_sync">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Two Way Sync</property>
+                <property name="label" translatable="yes">Two-Way Synchronization</property>
                 <property name="use_underline">True</property>
                 <signal name="activate" handler="on_two_way_sync_group_clicked"/>
               </widget>
@@ -508,7 +508,7 @@
             <child>
               <widget class="GtkCheckMenuItem" id="auto_sync">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Always Up To Date</property>
+                <property name="label" translatable="yes">Always Up-To-Date</property>
                 <property name="use_underline">True</property>
                 <signal name="activate" handler="on_autosync_clicked"/>
               </widget>
@@ -917,7 +917,7 @@
                               <widget class="GtkLabel" id="label77">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">When there is a two way conflict:</property>
+                                <property name="label" translatable="yes">When there is a two-way conflict:</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>

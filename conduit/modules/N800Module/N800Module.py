@@ -190,7 +190,7 @@ class N800PhotoTwoWay(N800Base):
     """
 
     _name_ = _("N800 Photos")
-    _description_ = _("Synchronizes photo to a N800 device")
+    _description_ = _("Synchronizes photos to an N800 device")
     _in_type_ = "file/photo"
     _out_type_ = "file/photo"
     _icon_ = "image-x-generic"

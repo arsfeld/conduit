@@ -801,7 +801,7 @@ class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
     Contacts GData provider
     """
     _name_ = _("Google Contacts")
-    _description_ = _("Synchronize your Gmail contacts")
+    _description_ = _("Synchronize your Google Mail contacts")
     _category_ = conduit.dataproviders.CATEGORY_OFFICE
     _module_type_ = "twoway"
     _in_type_ = "contact"

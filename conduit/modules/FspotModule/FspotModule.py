@@ -124,7 +124,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         """
         # Check if remote is read only
         if self.photo_remote.IsReadOnly ():
-            raise Exceptions.SyncronizeError (_("F-Spot DBus interface is operating in read only mode"))
+            raise Exceptions.SyncronizeError (_("F-Spot DBus interface is operating in read-only mode"))
 
         # create roll if necessary
         if not self.has_roll:
