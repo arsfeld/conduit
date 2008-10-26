@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-22 17:34+0200\n"
-"PO-Revision-Date: 2008-10-22 17:35+0100\n"
+"POT-Creation-Date: 2008-10-26 10:07+0100\n"
+"PO-Revision-Date: 2008-10-26 10:08+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -40,7 +40,7 @@ msgid "<b>General</b>"
 msgstr "<b>Allmänt</b>"
 
 #: ../data/conduit.glade.h:3
-msgid "Always Up To Date"
+msgid "Always Up-To-Date"
 msgstr "Alltid uppdaterad"
 
 #: ../data/conduit.glade.h:4
@@ -56,7 +56,7 @@ msgid "Cancel Synchronization"
 msgstr "Avbryt synkronisering"
 
 #: ../data/conduit.glade.h:7
-msgid "Cancel currently synchronizing groups"
+msgid "Cancel currently-synchronizing groups"
 msgstr "Avbryt aktuella synkroniseringsgrupper"
 
 #: ../data/conduit.glade.h:8
@@ -168,12 +168,12 @@ msgid "Skip"
 msgstr "Hoppa över"
 
 #: ../data/conduit.glade.h:35
-msgid "Slow Sync"
+msgid "Slow Synchronization"
 msgstr "Långsam synkronisering"
 
 #: ../data/conduit.glade.h:36
-msgid "Sync Options"
-msgstr "Synkalternativ"
+msgid "Synchronization Options"
+msgstr "Alternativ för synkronisering"
 
 #: ../data/conduit.glade.h:37
 msgid "Synchronize All"
@@ -196,8 +196,8 @@ msgid "Title"
 msgstr "Titel"
 
 #: ../data/conduit.glade.h:42
-msgid "Two Way Sync"
-msgstr "Tvåvägssynkroniering"
+msgid "Two-Way Synchronization"
+msgstr "Tvåvägssynkronisering"
 
 #: ../data/conduit.glade.h:43
 msgid "When an item has been deleted:"
@@ -212,7 +212,7 @@ msgid "When there is a conflict..."
 msgstr "När en konflikt inträffar..."
 
 #: ../data/conduit.glade.h:46
-msgid "When there is a two way conflict:"
+msgid "When there is a two-way conflict:"
 msgstr "När en tvåvägskonflikt inträffar:"
 
 #: ../data/conduit.glade.h:47
@@ -707,8 +707,8 @@ msgid "Synchronize your F-Spot photos"
 msgstr "Synkronisera dina F-Spot-foton"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:127
-msgid "F-Spot DBus interface is operating in read only mode"
-msgstr "F-Spot DBus-gränssnitt kör i skrivskyddat läge"
+msgid "F-Spot DBus interface is operating in read-only mode"
+msgstr "F-Spots DBus-gränssnitt kör i skrivskyddat läge"
 
 #: ../conduit/modules/FspotModule/config.glade.h:1
 msgid "<b>Return Photos Tagged With</b>"
@@ -749,8 +749,8 @@ msgid "Google Contacts"
 msgstr "Google-kontakter"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:804
-msgid "Synchronize your Gmail contacts"
-msgstr "Synkronisera dina Gmail-kontakter"
+msgid "Synchronize your Google Mail contacts"
+msgstr "Synkronisera dina Google Mail-kontakter"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1060
 #: ../conduit/modules/GoogleModule/documents-config.glade.h:5
@@ -926,8 +926,8 @@ msgid "N800 Photos"
 msgstr "N800 Foton"
 
 #: ../conduit/modules/N800Module/N800Module.py:193
-msgid "Synchronizes photo to a N800 device"
-msgstr "Synkroniserar bild till en N800-enhet"
+msgid "Synchronizes photos to an N800 device"
+msgstr "Synkroniserar bilder till en N800-enhet"
 
 #. To translators: default photos folder of N800
 #: ../conduit/modules/N800Module/N800Module.py:199
@@ -989,6 +989,12 @@ msgstr "Zoto"
 msgid "Synchronize your Zoto photos"
 msgstr "Synkronisera dina Zoto-foton"
 
+#~ msgid "Slow Sync"
+#~ msgstr "Långsam synkronisering"
+#~ msgid "Sync Options"
+#~ msgstr "Synkalternativ"
+#~ msgid "Two Way Sync"
+#~ msgstr "Tvåvägssynkroniering"
 #~ msgid "Use Built in Web Browser"
 #~ msgstr "Använd inbyggd webbläsare"
 #~ msgid "_About"
