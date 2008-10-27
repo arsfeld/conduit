@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-07 20:53+0000\n"
-"PO-Revision-Date: 2008-10-10 14:50+0200\n"
+"POT-Creation-Date: 2008-10-24 14:55+0000\n"
+"PO-Revision-Date: 2008-10-27 22:19+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -42,7 +42,7 @@ msgid "<b>General</b>"
 msgstr "<b>General</b>"
 
 #: ../data/conduit.glade.h:3
-msgid "Always Up To Date"
+msgid "Always Up-To-Date"
 msgstr "Siempre actualizado"
 
 #: ../data/conduit.glade.h:4
@@ -58,7 +58,7 @@ msgid "Cancel Synchronization"
 msgstr "Cancelar la sincronización"
 
 #: ../data/conduit.glade.h:7
-msgid "Cancel currently synchronizing groups"
+msgid "Cancel currently-synchronizing groups"
 msgstr "Cancelar la sincronización actual de grupos"
 
 #: ../data/conduit.glade.h:8
@@ -170,11 +170,11 @@ msgid "Skip"
 msgstr "Saltar"
 
 #: ../data/conduit.glade.h:35
-msgid "Slow Sync"
+msgid "Slow Synchronization"
 msgstr "Sincronización lenta"
 
 #: ../data/conduit.glade.h:36
-msgid "Sync Options"
+msgid "Synchronization Options"
 msgstr "Opciones de sincronización"
 
 #: ../data/conduit.glade.h:37
@@ -198,7 +198,7 @@ msgid "Title"
 msgstr "Título"
 
 #: ../data/conduit.glade.h:42
-msgid "Two Way Sync"
+msgid "Two-Way Synchronization"
 msgstr "Sincronización de dos vías"
 
 #: ../data/conduit.glade.h:43
@@ -214,7 +214,7 @@ msgid "When there is a conflict..."
 msgstr "Cuando hay un conflicto..."
 
 #: ../data/conduit.glade.h:46
-msgid "When there is a two way conflict:"
+msgid "When there is a two-way conflict:"
 msgstr "Cuando hay un conflicto de dos vías:"
 
 #: ../data/conduit.glade.h:47
@@ -430,13 +430,13 @@ msgstr "Sincronizar sus listas de reproducción de Banshee"
 #. column 1 is the tag name
 #: ../conduit/modules/BansheeModule/BansheeModule.py:141
 #: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:132
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
 msgid "Tag Name"
 msgstr "Nombre de la etiqueta"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:149
 #: ../conduit/modules/FspotModule/FspotModule.py:254
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:140
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
 msgid "Enabled"
 msgstr "Activado"
 
@@ -708,8 +708,8 @@ msgid "Synchronize your F-Spot photos"
 msgstr "Sincronizar sus fotos en F-Spot"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:127
-msgid "F-Spot DBus interface is operating in read only mode"
-msgstr "La interfaz D-Bus de F-Spot está funcionando en modo de sólo lectura"
+msgid "F-Spot DBus interface is operating in read-only mode"
+msgstr "La interfaz DBus de F-Spot está funcionando en modo de sólo lectura"
 
 #: ../conduit/modules/FspotModule/config.glade.h:1
 msgid "<b>Return Photos Tagged With</b>"
@@ -750,8 +750,8 @@ msgid "Google Contacts"
 msgstr "Contactos de Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:804
-msgid "Synchronize your Gmail contacts"
-msgstr "Sincronizar sus contactos de Gmail"
+msgid "Synchronize your Google Mail contacts"
+msgstr "Sincronizar sus contactos de Google Mail"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1060
 #: ../conduit/modules/GoogleModule/documents-config.glade.h:5
@@ -763,7 +763,7 @@ msgid "Synchronize your Google Documents"
 msgstr "Sincronizar sus Documentos de Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1338
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:60
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:67
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -858,7 +858,7 @@ msgstr "Fuente YouTube"
 msgid "Encoding"
 msgstr "Codificación"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:744
+#: ../conduit/modules/iPodModule/iPodModule.py:741
 msgid "Keep converted files"
 msgstr "Mantener archivos convertidos"
 
@@ -927,7 +927,7 @@ msgid "N800 Photos"
 msgstr "Fotos de la N800"
 
 #: ../conduit/modules/N800Module/N800Module.py:193
-msgid "Synchronizes photo to a N800 device"
+msgid "Synchronizes photos to an N800 device"
 msgstr "Sincroniza fotos con un dispositivo N800"
 
 #. To translators: default photos folder of N800
@@ -943,11 +943,11 @@ msgstr "Red"
 msgid "Enable synchronization via network"
 msgstr "Activar sincronización a través de red"
 
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:40
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:44
 msgid "Rhythmbox Music"
 msgstr "Música de Rhythmbox"
 
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:41
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:45
 msgid "Synchronize songs from your Rhythmbox playlists"
 msgstr "Sincronizr las canciones de sus listas de reproducción de Rhythmbox"
 
@@ -989,6 +989,15 @@ msgstr "Zoto"
 #: ../conduit/modules/ZotoModule/ZotoModule.py:155
 msgid "Synchronize your Zoto photos"
 msgstr "Sincronizar sus fotos de Zoto"
+
+#~ msgid "Slow Sync"
+#~ msgstr "Sincronización lenta"
+
+#~ msgid "Sync Options"
+#~ msgstr "Opciones de sincronización"
+
+#~ msgid "Two Way Sync"
+#~ msgstr "Sincronización de dos vías"
 
 #~ msgid "Use built in Web browser"
 #~ msgstr "Usar el navegador web integrado"
