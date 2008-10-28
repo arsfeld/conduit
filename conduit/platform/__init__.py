@@ -117,9 +117,8 @@ class FileMonitor(gobject.GObject):
 
     __gsignals__ = {
         "changed" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [
-            gobject.TYPE_PYOBJECT,
-            gobject.TYPE_PYOBJECT,
-            gobject.TYPE_PYOBJECT])
+            gobject.TYPE_PYOBJECT,      #uri that changed
+            gobject.TYPE_PYOBJECT])     #event type
         }
 
     MONITOR_EVENT_CREATED = 1

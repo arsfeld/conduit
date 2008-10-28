@@ -319,7 +319,7 @@ class FileMonitor(conduit.platform.FileMonitor):
         self._id = None
 
     def _monitor_cb(self, monitor_uri, event_uri, event):
-        self.emit("changed", monitor_uri, event_uri, event)
+        self.emit("changed", event_uri, event)
 
     def add(self, folder, monitorType):
         if self._id != None:

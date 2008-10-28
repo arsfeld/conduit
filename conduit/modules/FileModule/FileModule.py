@@ -121,7 +121,7 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
     def _monitor_folder(self):
         self._monitor.add(self.folder, self._monitor.MONITOR_DIRECTORY)
 
-    def _monitor_folder_cb(self, sender, monitor_uri, event_uri, event):
+    def _monitor_folder_cb(self, sender, event_uri, event):
         """
         Called when a file in the current folder is changed, added or deleted
         """

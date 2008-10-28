@@ -1,3 +1,11 @@
+2008-10-28  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/FileModule/FileModule.py:
+	* conduit/platform/FileGio.py:
+	* conduit/platform/FileGnomeVfs.py:
+	* conduit/platform/__init__.py: Implement FileMonitor for GIO
+	Fixes #558176it__.py:
+
 2008-10-24  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/datatypes/File.py: Restore self.FileImpl when unpickling

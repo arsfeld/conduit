@@ -299,8 +299,34 @@ class VolumeMonitor(conduit.platform.VolumeMonitor):
         return vols
 
 class FileMonitor(conduit.platform.FileMonitor):
-    pass
 
+    MONITOR_EVENT_CREATED =             gio.FILE_MONITOR_EVENT_CREATED
+    MONITOR_EVENT_CHANGED =             gio.FILE_MONITOR_EVENT_CHANGED
+    MONITOR_EVENT_DELETED =             gio.FILE_MONITOR_EVENT_DELETED
+    MONITOR_DIRECTORY =                 255
+
+    def __init__(self):
+        conduit.platform.FileMonitor.__init__(self)
+        self._fm = None
+
+    def _on_change(self, monitor, f1, f2, event):
+        self.emit("changed", f1.get_uri(), event)
+
+    def add(self, URI, monitorType):
+        if monitorType == self.MONITOR_DIRECTORY:
+            self._fm = gio.File(URI).monitor_directory()
+        else:
+            self._fm = gio.File(URI).monitor_file()
+
+        self._fm.connect("changed", self._on_change)
+
+    def cancel(self):
+        if self._fm:
+            try:
+                self._fm.disconnect_by_func(self._on_change)
+            except TypeError:
+                pass
+            
 class FolderScanner(conduit.platform.FolderScanner):
     def run(self):
         delta = 0
