@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-24 14:55+0000\n"
-"PO-Revision-Date: 2008-10-27 22:19+0100\n"
+"POT-Creation-Date: 2008-10-27 21:38+0000\n"
+"PO-Revision-Date: 2008-11-04 08:22+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -653,7 +653,7 @@ msgstr "Ubicación de la carpeta:"
 
 #: ../conduit/modules/FileModule/config.glade.h:8
 msgid "Follow Symbolic Links"
-msgstr "Siga los enlaces simbólicos"
+msgstr "Seguir los enlaces simbólicos"
 
 #: ../conduit/modules/FileModule/config.glade.h:9
 msgid "Ignore File Modification Times"
@@ -760,7 +760,7 @@ msgstr "Documentos de Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1061
 msgid "Synchronize your Google Documents"
-msgstr "Sincronizar sus Documentos de Google"
+msgstr "Sincronizar sus documentos de Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1338
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:67
@@ -988,7 +988,7 @@ msgstr "Zoto"
 
 #: ../conduit/modules/ZotoModule/ZotoModule.py:155
 msgid "Synchronize your Zoto photos"
-msgstr "Sincronizar sus fotos de Zoto"
+msgstr "Sincronizar sus fotos en Zoto"
 
 #~ msgid "Slow Sync"
 #~ msgstr "Sincronización lenta"
