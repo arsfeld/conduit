@@ -1,5 +1,9 @@
 2008-11-06  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreUtil.py: Fix coreutil tests
+
+2008-11-06  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FacebookModule/FacebookModule.py: Facebook should
     respect the default browser.
     Fixes #559599
