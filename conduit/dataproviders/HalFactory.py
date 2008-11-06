@@ -19,16 +19,17 @@ class HalFactory(SimpleFactory.SimpleFactory):
         self.hal.connect_to_signal("DeviceRemoved", self._device_removed)
         self.hal.connect_to_signal("NewCapability", self._new_capability)
 
-    def _device_added(self, device_udi, *args):
+    def _maybe_new(self, device_udi):
         props = self._get_properties(device_udi)
         if self.is_interesting(device_udi, props):
             self.item_added(device_udi, **props)
 
+    def _device_added(self, device_udi, *args):
+        self._maybe_new(device_udi)
+
     def _new_capability(self, device_udi, *args):
         if not device_udi in self.items.keys():
-            props = self._get_properties(device_udi)
-            if self.is_interesting(device_udi, props):
-                self.item_added(device_udi, **props)
+            self._maybe_new(device_udi)
 
     def _device_removed(self, device_udi):
         self.item_removed(device_udi)
@@ -40,19 +41,18 @@ class HalFactory(SimpleFactory.SimpleFactory):
             for x, y in device_dbus_obj.GetAllProperties(dbus_interface="org.freedesktop.Hal.Device").items():
                 #DBus *still* does not marshal dbus.String to str correctly,
                 #so we force it to
-                buf[str(x)] = str(y)
+                buf[str(x)] = y
         except:
             log.warn("Could not get HAL properties for %s" % device_udi)
         return buf
 
     def probe(self):
-        """ Enumerate HAL for any entries of interest """
+        """
+        Enumerate HAL for any entries of interest
+        """
         devices = self.hal.GetAllDevices()
         for device in self.hal.GetAllDevices():
-            device = str(device)
-            props = self._get_properties(device)
-            if self.is_interesting(device, props):
-                 self.item_added(device, **props)
+            self._maybe_new(str(device))
 
     def get_args(self, udi, **kwargs):
         return (udi,)

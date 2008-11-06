@@ -214,7 +214,10 @@ class Conduit(gobject.GObject):
         
         #needed to close the db in file dataproviders
         if dataprovider.module != None:
-            dataprovider.module.uninitialize()
+            try:
+                dataprovider.module.uninitialize()
+            except Exception:
+                log.warn("Could not uninitialize %s" % dataprovider, exc_info=True)
 
         #Sources and sinks are stored seperately so must be deleted from different
         #places. Lucky there is only one source or this would be harder....

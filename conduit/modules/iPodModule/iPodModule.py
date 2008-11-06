@@ -18,6 +18,7 @@ import socket
 import locale
 import weakref
 import threading
+import gobject
 log = logging.getLogger("modules.iPod")
 
 import conduit
@@ -62,31 +63,43 @@ def _string_to_unqiue_file(txt, base_uri, prefix, postfix=''):
     return temp.get_rid()
 
 class iPodFactory(VolumeFactory.VolumeFactory):
+
+    def _get_mount_path(self, props):
+        return str(props["volume.mount_point"])
+
     def is_interesting(self, udi, props):
-        if props.has_key("info.parent") and props.has_key("info.parent")!="":
-            prop2 = self._get_properties(props["info.parent"])
-            if prop2.has_key("storage.model") and prop2["storage.model"]=="iPod":
+        if props.get("info.parent"):
+            parent = self._get_properties(props["info.parent"])
+            if parent.get("storage.model") == "iPod":
+                props.update(parent)
                 return True
         return False
 
     def get_category(self, udi, **kwargs):
         return DataProviderCategory.DataProviderCategory(
-                    kwargs['label'],
+                    kwargs['volume.label'],
                     "multimedia-player-ipod-standard-color",
-                    kwargs['mount'])
+                    self._get_mount_path(kwargs))
 
     def get_dataproviders(self, udi, **kwargs):
         #Read information about the ipod, like if it supports
         #photos or not
         d = gpod.itdb_device_new()
-        gpod.itdb_device_set_mountpoint(d,kwargs['mount'])
+        gpod.itdb_device_set_mountpoint(d,self._get_mount_path(kwargs))
         supportsPhotos = gpod.itdb_device_supports_photo(d)
         gpod.itdb_device_free(d)
         if supportsPhotos:
             return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay, IPodPhotoSink]
         else:
+            log.info("iPod does not report photo support")
             return [IPodMusicTwoWay, IPodVideoTwoWay, IPodNoteTwoWay, IPodContactsTwoWay, IPodCalendarTwoWay]
 
+    def get_args(self, udi, **kwargs):
+        """
+        iPod needs a local path to the DB, not a URI
+        """
+        kwargs["mount_path"] = self._get_mount_path(kwargs)
+        return (kwargs['mount_path'], udi)
 
 class IPodBase(DataProvider.TwoWay):
     def __init__(self, *args):
@@ -94,6 +107,8 @@ class IPodBase(DataProvider.TwoWay):
         self.mountPoint = args[0]
         self.uid = args[1]
         self.objects = None
+
+        log.debug("Created ipod %s at %s" % (self.__class__.__name__, self.mountPoint))
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)

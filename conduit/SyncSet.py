@@ -50,7 +50,10 @@ class SyncSet(gobject.GObject):
     def _unitialize_dataproviders(self, cond):
         for dp in cond.get_all_dataproviders():
             if dp.module:
-                dp.module.uninitialize()
+                try:
+                    dp.module.uninitialize()
+                except Exception:
+                    log.warn("Could not uninitialize %s" % dp, exc_info=True)
                 
     def _restore_dataprovider(self, cond, wrapperKey, dpName="", dpxml="", trySourceFirst=True):
         """

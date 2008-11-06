@@ -1,10 +1,24 @@
+2008-11-06  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Conduit.py: Dont hang at exit if we cannot unitialize
+    a dataprovider
+
+	* conduit/SyncSet.py:
+	* conduit/dataproviders/HalFactory.py:
+	* conduit/dataproviders/VolumeFactory.py:
+	* conduit/modules/iPodModule/iPodModule.py: Add a gobject timeout
+    handler which checks if a volume has been mounted for VolumeFactory. This
+    is necessary to work around a race condition where HAL gets some volume.*
+    properties before it gets the volume.mound_point property.
+    Fixes #557676 and #557669
+
 2008-10-28  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/FileModule/FileModule.py:
 	* conduit/platform/FileGio.py:
 	* conduit/platform/FileGnomeVfs.py:
 	* conduit/platform/__init__.py: Implement FileMonitor for GIO
-	Fixes #558176it__.py:
+	Fixes #558176
 
 2008-10-24  John Stowers  <john.stowers@gmail.com>
 
