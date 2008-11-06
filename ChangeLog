@@ -1,5 +1,11 @@
 2008-11-06  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FacebookModule/FacebookModule.py: Facebook should
+    respect the default browser.
+    Fixes #559599
+
+2008-11-06  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Conduit.py: Dont hang at exit if we cannot unitialize
     a dataprovider
 

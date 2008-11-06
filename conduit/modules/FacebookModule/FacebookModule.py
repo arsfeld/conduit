@@ -46,7 +46,7 @@ class FacebookSink(Image.ImageSink):
     def __init__(self, *args):
         Image.ImageSink.__init__(self)
         self.fapi = pyfacebook.Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
-        self.browser = "gtkmozembed"
+        self.browser = conduit.BROWSER_IMPL
         self.albumname = ""
         self.albums = {}
 
