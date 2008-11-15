@@ -1,3 +1,8 @@
+2008-11-15  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/UI.py: Use gtk_show_uri to show the help
+    Fixes #559055
+
 2008-11-06  John Stowers  <john.stowers@gmail.com>
 
 	* test/python-tests/TestCoreUtil.py: Fix coreutil tests

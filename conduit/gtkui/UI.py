@@ -430,11 +430,19 @@ class MainWindow:
         else:
             #if we are not installed then launch the ghelp uri with a full path
             uri = "ghelp:%s" % os.path.join(conduit.DIRECTORY,"help","C","conduit.xml")
+
         log.debug("Launching help: %s" % uri)
-        gobject.spawn_async(
-                    argv=("xdg-open",uri),
-                    flags=gobject.SPAWN_SEARCH_PATH | gobject.SPAWN_STDOUT_TO_DEV_NULL | gobject.SPAWN_STDERR_TO_DEV_NULL
-                    )
+
+        if gtk.gtk_version >= (2,14,0):
+            gtk.show_uri(
+                self.mainWindow.get_screen(),
+                uri,
+                gtk.get_current_event_time())
+        else:
+            gobject.spawn_async(
+                        argv=("xdg-open",uri),
+                        flags=gobject.SPAWN_SEARCH_PATH | gobject.SPAWN_STDOUT_TO_DEV_NULL | gobject.SPAWN_STDERR_TO_DEV_NULL
+                        )
 
     def on_window_state_event(self, widget, event):
         visible = self.is_visible()
