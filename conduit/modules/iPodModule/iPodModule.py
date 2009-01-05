@@ -516,71 +516,116 @@ class IPodPhotoSink(IPodBase):
     def uninitialize(self):
         self.db.close()
 
-STR_CONV = lambda v: unicode(v).encode('UTF-8','replace')
+unicode_conv = lambda v: unicode(v).encode('UTF-8','replace')
 INT_CONV = lambda v: int(v)
 
 class IPodFileBase:
-    # Supported tags from the Audio class supported in the iPod database
-    SUPPORTED_TAGS = ['title', 'artist', 'album', 'composer', 'rating',
-        'genre', 'track-number', 'track-count', 'bitrate', 'duration',
-        'samplerate']
-    # Conversion between Audio names and iPod names in tags
-    KEYS_CONV = {'duration': 'tracklen',
-                 'track-number': 'track_nr',
-                 'track-count': 'tracks'}
-    # Convert values into their native types
-    VALUES_CONV = {
-        'rating': lambda v: float(v) / 0.05,
-        'samplerate': INT_CONV,
-        'bitrate': INT_CONV,
-        'track-number': INT_CONV,
-        'track-count': INT_CONV,
-        'duration': INT_CONV,
-        'width': INT_CONV,
-        'height': INT_CONV
+    '''
+    A wrapper around an iPod track. iPod track properties are converted into
+    Audio properties, and vice-versa.
+    '''
+    
+    audio_to_ipod = {
+        'title' : ('title', unicode_conv),
+        'artist' : ('artist', unicode_conv),
+        'album' : ('album', unicode_conv),
+        'composer' : ('composer', unicode_conv),
+        'rating' : ('rating', lambda v: float(v) / 0.05),
+        'genre' : ('genre', unicode_conv),
+        'track_nr' : ('track-number', int),
+        'tracks' : ('track-count', int),
+        'bitrate' : ('bitrate', int),
+        'tracklen' : ('duration', int),
+        'samplerate' : ('samplerate', int),
+        'width' : ('width', int),
+        'height' : ('height', int),
+    }
+    
+    ipod_to_audio = {
+        'title' : ('title', unicode_conv),
+        'artist' : ('artist', unicode_conv),
+        'album' : ('album', unicode_conv),
+        'composer' : ('composer', unicode_conv),
+        'rating' : ('rating', lambda v: float(v) * 0.05),
+        'genre' : ('genre', unicode_conv),
+        'track-number' : ('track_nr', int),
+        'track-count' : ('tracks', int),
+        'bitrate' : ('bitrate', int),
+        'duration' : ('tracklen', int),
+        'samplerate' : ('samplerate', int),
+        'width' : ('width', int),
+        'height' : ('height', int),        
     }
 
     def __init__(self, db):
+        '''
+        Creates an empty track for this db
+        '''
         self.db = db
         self.track = self.db.new_Track()
+        
+    def get_UID(self):
+        '''
+        Returns the database ID (usually a random number, which is always valid
+        for this track in this db, even across application restarts)
+        '''
+        return self.track['dbid']
+
+    def _convert_tags(self, from_tags, mapping, strict = True):
+        '''
+        Convert from one mapping to another. If strict is True, them only
+        let the names defined in mapping go through.
+        '''
+        for from_name, from_value in from_tags.iteritems():
+            if strict and from_name in mapping:
+                to_name, to_converter = mapping[from_name]
+                to_value = to_converter(from_value)
+                yield to_name, to_value                
 
     def set_info_from_file(self, f):
-        # Missing: samplerate (int), samplerate2 (float), bitrate (int),
-        # composer (str), filetype (str, "MPEG audio file"), mediatype (int, 1)
-        # tracks (int)
-        # unk126 (int, "65535"), unk144 (int, "12"),
+        '''
+        Get the track information from a file, including the metadata (make sure
+        it has the GStreamer metadata on MediaFile)
+        '''
         tags = f.get_media_tags()
-        for key, value in tags.iteritems():
-            if key not in self.SUPPORTED_TAGS:
-                continue
-            if key in self.VALUES_CONV:
-                # Convert values into nativa types
-                tag_value = self.VALUES_CONV[key](value)
-            else:
-                # Encode into UTF-8
-                tag_value = STR_CONV(value)
-            if key in self.KEYS_CONV:
-                tag_name = self.KEYS_CONV[key]
-            else:
-                tag_name = key
-            self.track[tag_name] = tag_value
-        print self.track['title']
+        for name, value in self._convert_tags(tags, self.audio_to_ipod):
+            print (name, value)
+            self.track[name] = value
+        #Make sure we have a title to this song, even if it's just the filename
         if self.track['title'] is None:
             self.track['title'] = os.path.basename(f.get_local_uri())
-            print self.track['title']
         self.track['time_modified'] = os.stat(f.get_local_uri()).st_mtime
         self.track['time_added'] = int(time.time())
         self.track['userdata'] = {'transferred': 0,
                                   'hostname': socket.gethostname(),
                                   'charset': locale.getpreferredencoding()}
         self.track._set_userdata_utf8('filename', f.get_local_uri())
+        
+    def get_media_tags(self):
+        '''
+        Extends the MediaFile class to include the iPod metadata, instead of
+        calling the GStreamer loader. It's much faster this way, and provides
+        some nice information to other dataproviders, like ratings.
+        '''
+        #FIXME: Cache this information
+        
+        #Get the information from the iPod track.
+        #The track might look like a dict, but it isnt, so we make it into one.
+        track_tags = dict([(name, track[name]) for name in audio_to_ipod.keys()])
+        return dict(self._convert_tags(track_tags, self.ipod_to_audio))
 
     #FIXME: Remove this. Use native operations from Conduit instead.
+    #       We would have to define the transfered userdata as 1 and then call
+    #       Conduit to copy the file. 
+    #       But that is Conduit's copy file way?
     def copy_ipod(self):
         self.track.copy_to_ipod()
 
-class IPodAudio(Audio.Audio, IPodFileBase):
+class IPodAudio(IPodFileBase, Audio.Audio):
     def __init__(self, f, db, **kwargs):
+        '''
+        Initialize a new Audio track for this db and file.
+        '''
         Audio.Audio.__init__(self, f.get_local_uri())
         IPodFileBase.__init__(self, db)
         self.set_info_from_audio(f)
@@ -592,8 +637,11 @@ class IPodAudio(Audio.Audio, IPodFileBase):
         if cover_location:
             self.track.set_coverart_from_file(str(cover_location))
 
-class IPodVideo(Video.Video, IPodFileBase):
+class IPodVideo(IPodFileBase, Video.Video):
     def __init__(self, f, db, **kwargs):
+        '''
+        Initialize a new Video track for this db and file.
+        '''
         Video.Video.__init__(self, f.get_local_uri())
         IPodFileBase.__init__(self, db)
         log.debug('Video kind selected: %s' % (kwargs['video_kind']))
@@ -663,24 +711,45 @@ class IPodMediaTwoWay(IPodBase):
     FORMAT_CONVERSION_STRING = _("Encoding")
 
     def __init__(self, *args):
-        if len(args) != 0:
+        self.local_db = (len(args) == 0)
+        if not self.local_db:
             IPodBase.__init__(self, *args)
-            self.db = DBCache.get_db(self.mountPoint)
         else:
             # Use local database for testing
-            DataProvider.TwoWay.__init__(self)
-            self.db = DBCache.get_db(None)
+            DataProvider.TwoWay.__init__(self)        
             self.uid = "Local"
+        self.db = None
         #self.tracks = {}
         self.tracks_id = {}
         self.track_args = {}
         self.keep_converted = True
+        
+    def get_db(self):
+        if self.db:
+            DBCache.lock_db(self.db)
+            return self.db
+        if not self.local_db:
+            self.db = DBCache.get_db(self.mountPoint)
+        else:
+            self.db = DBCache.get_db(None)        
+        DBCache.lock_db(self.db)
+        return self.db
+    
+    def unlock_db(self):
+        DBCache.unlock_db(self.db)
+        
+    def release_db(self):
+        if not self.db:
+            return
+        self.db.close()
+        DBCache.release_db(self.db)
+        self.db = None        
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
         self.tracks = {}
         self.tracks_id = {}
-        DBCache.lock_db(self.db)
+        self.get_db()
         try:
             def add_track(track):
                 self.tracks_id[track['dbid']] = track
@@ -689,36 +758,43 @@ class IPodMediaTwoWay(IPodBase):
             [add_track(track) for track in self.db \
                 if track['mediatype'] in self._mediatype_]
         finally:
-            DBCache.unlock_db(self.db)
+            self.unlock_db()
 
     def get_all(self):
         return self.tracks_id.keys()
 
     def get(self, LUID = None):
-        DBCache.lock_db(self.db)
+        self.get_db()
         try:
+            if LUID not in self.tracks_id:
+                print 'ID not found in db'
+                return None
             track = self.tracks_id[LUID]
             if track and track.ipod_filename() and os.path.exists(track.ipod_filename()):
                 f = self._mediafile_(URI=track.ipod_filename())
                 f.set_UID(LUID)
                 f.set_open_URI(track.ipod_filename())
+                #Set a nice "Artist - Title" name with the original filename
+                #extesion
                 if track['artist'] and track['title']:
                     f.force_new_filename("%(artist)s - %(title)s" % track + \
                         os.path.splitext(track.ipod_filename())[1])
                 return f
         finally:
-            DBCache.unlock_db(self.db)
+            self.unlock_db()
         return None
 
     def put(self, f, overwrite, LUID=None):
-        DBCache.lock_db(self.db)
+        self.get_db()
         try:
             media_file = self._ipodmedia_(f, self.db, **self.track_args)
             #FIXME: We keep the db locked while we copy the file. Not good
+            #media_file.
             media_file.copy_ipod()
+            print  media_file.track['mediatype'], gpod.ITDB_MEDIATYPE_AUDIO
+            self.tracks_id[media_file.track['dbid']] = media_file.track
             #FIXME: Writing the db here is for debug only. Closing does not actually
-            # close the db, it only writes it's contents to disk.
-            
+            # close the db, it only writes it's contents to disk.            
             # Sometimes, if we only close the db when the sync is over, it might
             # take a long time to close the db, because many files are being 
             # copied to the iPod. Closing the DB every time not only keeps
@@ -728,17 +804,17 @@ class IPodMediaTwoWay(IPodBase):
             self.db.close()
             return media_file
         finally:
-            DBCache.unlock_db(self.db)
+            self.unlock_db()
 
     def delete(self, LUID):
         track = self.tracks_id[LUID]
         if track:
-            DBCache.lock_db(db)
+            self.get_db()
             try:
                 self.db.remove(track)
                 self.db.close()
             finally:
-                DBCache.unlock_db(db)
+                self.unlock_db()
 
     def get_config_items(self):
         import gtk
@@ -805,9 +881,7 @@ class IPodMediaTwoWay(IPodBase):
             return {}
 
     def uninitialize(self):
-        self.db.close()
-        DBCache.release_db(self.db)
-        self.db = None
+        self.release_db()
 
 IPOD_AUDIO_ENCODINGS = {
     "mp3": {"description": "Mp3", "acodec": "lame", "file_extension": "mp3"},
