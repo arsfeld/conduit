@@ -129,9 +129,13 @@ class SimpleConfigurator:
                 label = gtk.Label(l["Title"])
             if 'Kind' in l:
                 kind = l['Kind']
-                widget = {'text': gtk.Entry,
-                          'list': gtk.combo_box_new_text,
-                          'check': gtk.CheckButton}[kind]()
+                # I'm sure john will hate this
+                password = gtk.Entry()
+                password.set_visibility( False )
+                widget = {'text': gtk.Entry(),
+                          'list': gtk.combo_box_new_text(),
+                          'check': gtk.CheckButton(),
+                          'password': password }[kind]
             elif 'Widget' in l:
                 kind = None
                 #New instance of the widget

@@ -1,3 +1,12 @@
+2009-01-18  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/SimpleConfigurator.py: Add hack to allow password types
+	in SimpleConfigurator.
+
+	* conduit/modules/GoogleBookmarksModule.py
+	* conduit/modules/Makefile.am: Add new Google bookmarks datasource.
+	Fixes #568091 (Andrew Stormont)
+
 2008-11-15  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/UI.py: Use gtk_show_uri to show the help

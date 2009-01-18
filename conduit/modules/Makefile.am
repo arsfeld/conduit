@@ -24,7 +24,8 @@ conduit_handlers_PYTHON = \
 	TomboyModule.py \
 	ConverterModule.py \
 	PhotoConverterModule.py \
-	AudioVideoConverterModule.py
+	AudioVideoConverterModule.py \
+	GoogleBookmarksModule.py
 
 clean-local:
 	rm -rf *.pyc *.pyo
