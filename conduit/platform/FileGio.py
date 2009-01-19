@@ -262,7 +262,6 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             d.make_directory_and_parents()
 
         #Copy the file
-        #http://bugzilla.gnome.org/show_bug.cgi?id=546601
         try:        
             ok = self._source.copy(
                         destination=self._dest,

@@ -12,7 +12,7 @@ tmpdir = tempfile.mkdtemp()
 ok("Created tempdir %s" % tmpdir, True)
 
 contents = Utils.random_string()
-name = Utils.random_string()
+name = Utils.random_string()+".foo"
 tmpFile = File.TempFile(contents)
 
 tmpFile.force_new_filename(name)
@@ -25,6 +25,9 @@ ok("Transferred -> %s" % newPath, os.path.isfile(newPath))
 f = File.File(newPath)
 ok("File contents = %s" % contents, f.get_contents_as_text() == contents)
 mtime = f.get_mtime()
+
+f = File.File(newPath)
+ok("File name ok", f.get_filename() == name)
 
 #make some 'real' files to play with
 testDir = os.path.join(os.environ['TEST_DIRECTORY'],"TempFile")

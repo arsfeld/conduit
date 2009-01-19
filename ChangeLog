@@ -1,3 +1,8 @@
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/FileGio.py: Remove old bug link
+	* test/python-tests/TestCoreTempFile.py: Add force_new_filename test
+
 2009-01-19  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/iPodModule/iPodModule.py: Dont crash when
