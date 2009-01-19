@@ -1,5 +1,10 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GoogleBookmarksModule.py: Add missing file.
+	Fixes #568091 (Andrew Stormont)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/ConverterModule.py: Bookmarks should
 	convert to desktop files. 
 	Fixes #568293 (Andrew Stormont)
