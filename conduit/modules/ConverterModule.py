@@ -307,22 +307,32 @@ class BookmarkConverter(TypeConverter.Converter):
         return bookmark
         
     def bookmark_to_file(self, bookmark):
-        f = File.TempFile(self._to_text(bookmark))
-        f.force_new_filename(bookmark.title.replace("/","_"))
-        f.force_new_file_extension(".txt")
-        return f
+        # Now actually creates a useful filetype
+        if bookmark.get_title() != None and bookmark.get_uri() != None:
+            desktop = "[Desktop Entry]\n"
+            desktop += "Version=1.0\n"
+            desktop += "Encoding=UTF-8\n"
+            desktop += "Name=%s\n" % bookmark.get_title()
+            desktop += "Type=Link\n"
+            desktop += "URL=%s\n" % bookmark.get_uri()
+            desktop += "Icon=gnome-fs-bookmark\n"
+            f = File.TempFile(desktop)
+            f.force_new_filename(bookmark.get_title().replace("/","_") + ".desktop" )
+            return f
         
     def file_to_bookmark(self, f):
-        bookmark = None
+        # This too. Now parses .desktop files... badly
         if f.get_mimetype().startswith("text"):
             txt = f.get_contents_as_text()
-            k,v = self._to_key_value(txt)
-            if k != None and v != None:
-                bookmark = Bookmark.Bookmark(
-                                    title=k,
-                                    uri=v
-                                    )
-        return bookmark            
+            title = None
+            uri = None
+            for line in txt.split("\n"):
+                if line.startswith( "Name" ):
+                    title = line.split( "=" )[1]
+                elif line.startswith( "URL" ):
+                    uri = line.split( "=" )[1]
+            if uri != None and title != None:
+                return Bookmark.Bookmark( title, uri )       
             
         
         

@@ -1,5 +1,11 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/ConverterModule.py: Bookmarks should
+	convert to desktop files. 
+	Fixes #568293 (Andrew Stormont)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/FileGio.py: Remove old bug link
 	* test/python-tests/TestCoreTempFile.py: Add force_new_filename test
 
