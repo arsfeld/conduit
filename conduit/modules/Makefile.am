@@ -16,7 +16,8 @@ SUBDIRS = \
 	N800Module \
 	NetworkModule \
 	GConfModule \
-	ZotoModule
+	ZotoModule \
+	Firefox3Module
 
 conduit_handlersdir = $(libdir)/conduit/modules
 conduit_handlers_PYTHON = \
@@ -25,8 +26,7 @@ conduit_handlers_PYTHON = \
 	ConverterModule.py \
 	PhotoConverterModule.py \
 	AudioVideoConverterModule.py \
-	GoogleBookmarksModule.py \
-	Firefox3Module.py
+	GoogleBookmarksModule.py
 
 clean-local:
 	rm -rf *.pyc *.pyo

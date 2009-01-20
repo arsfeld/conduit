@@ -1,3 +1,14 @@
+2009-01-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/Firefox3Module.py:
+	* conduit/modules/Firefox3Module/Firefox3Module.py:
+	* conduit/modules/Firefox3Module/Makefile.am:
+	* conduit/modules/Firefox3Module/config.glade:
+	* conduit/modules/Makefile.am:
+	* configure.ac: Add a more comprehensive firefox module
+	with support for multiple profiles.
+	Fixes #568372 (Andrew Stormont)
+
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/platform/FileGio.py: Close the file after

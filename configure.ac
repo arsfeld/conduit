@@ -175,6 +175,7 @@ conduit/modules/N800Module/Makefile
 conduit/modules/NetworkModule/Makefile
 conduit/modules/GConfModule/Makefile
 conduit/modules/ZotoModule/Makefile
+conduit/modules/Firefox3Module/Makefile
 data/Makefile
 data/conduit.desktop.in
 data/conduit-autostart.desktop.in
