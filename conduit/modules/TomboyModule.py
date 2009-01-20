@@ -79,7 +79,7 @@ class TomboyNoteConverter(TypeConverter.Converter):
         title,ext = f.get_filename_and_extension()
         text = f.get_contents_as_text()
         #A tomboy formatted XML file
-        if text.startswith('<?xml version="1.0" encoding="utf-8"?>') and text.find('xmlns="http://beatniksoftware.com/tomboy">') > 0:
+        if text.startswith('<?xml version="1.0"') and text.find('xmlns="http://beatniksoftware.com/tomboy">') > 0:
             note = TomboyNote(
                     title=Utils.xml_extract_value_from_tag("title", text),
                     contents=None,

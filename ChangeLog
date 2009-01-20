@@ -1,5 +1,10 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/TomboyModule.py: Dont bork on utk-16 XML
+	Fixes #564020 (Brian Teague)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/TomboyModule.py: Tomboy arguements
 	to SyncException are reversed.
 	Fixes #568363 (Brian Teague)
