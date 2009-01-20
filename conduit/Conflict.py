@@ -83,13 +83,17 @@ class Conflict:
             data = self.sourceData
             dataRid = self.sourceDataRid
             source = self.sourceWrapper
+            sourceDataType = self.sourceData.get_type()
             sink = self.sinkWrapper
+            sinkDataType = self.sinkWrapper.get_input_type()
         elif direction == CONFLICT_COPY_SINK_TO_SOURCE:
             log.debug("Resolving source <-- sink data")
             data = self.sinkData
             dataRid = self.sinkDataRid
             source = self.sinkWrapper
+            sourceDataType = self.sinkData.get_type()
             sink = self.sourceWrapper
+            sinkDataType = self.sourceWrapper.get_input_type()
         elif direction == CONFLICT_DELETE:
             log.debug("Resolving deletion  --->")
             data = self.sinkData
@@ -107,7 +111,8 @@ class Conflict:
                 conduit.Synchronization.delete_data(source, sink, data.get_UID())
             else:
                 log.debug("Resolving self. Putting %s --> %s" % (data, sink))
-                conduit.Synchronization.put_data(source, sink, data, dataRid, True)
+                newdata = conduit.GLOBALS.typeConverter.convert( sourceDataType, sinkDataType, data )
+                conduit.Synchronization.put_data(source, sink, newdata, dataRid, True)
 
             self.cond.resolved_conflict(self)
 

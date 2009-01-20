@@ -1,5 +1,11 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Conflict.py: Convert data appropriately in
+	conflict resolution
+	Fixes #568361 (Brian Teague)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/Firefox3Module.py:
 	* conduit/modules/Makefile.am: Support firefox 3 bookmarks.
 	Fixes #510126 (Andrew Stormont)
