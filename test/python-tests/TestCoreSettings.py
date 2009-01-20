@@ -1,9 +1,9 @@
-import os
-
 #common sets up the conduit environment
 from common import *
 
 import conduit.Settings as Settings
+
+import os
 
 #Value not important. Needed to compare TYPES
 SETTINGS = {
@@ -13,7 +13,11 @@ SETTINGS = {
         'default_policy_conflict'   :   "ask"
 }
 
-for impl in ("GConf", "Python"):
+if os.environ.has_key("CONDUIT_SETTINGS_IMPL"):
+    impls = (os.environ["CONDUIT_SETTINGS_IMPL"],)
+else:
+    impls = ("GConf", "Python")
+for impl in impls:
     ok("--- TESTING SETTINGS IMPL: %s" % impl, True)
 
     s = Settings.Settings(implName=impl)

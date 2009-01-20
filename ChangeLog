@@ -1,5 +1,13 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreFile.py: Only run the appropriate
+	test if CONDUIT_FILE_IMPL is set
+
+	* test/python-tests/TestCoreSettings.py: Only run the appropriate
+	test if CONDUIT_SETTINGS_IMPL is set
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Conflict.py: Convert data appropriately in
 	conflict resolution
 	Fixes #568361 (Brian Teague)

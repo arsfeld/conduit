@@ -11,9 +11,12 @@ import time
 import datetime
 import tempfile
 
-#for impl in ("GIO",):
-#for impl in ("GnomeVfs",):
-for impl in ("GIO", "GnomeVfs"):
+if os.environ.has_key("CONDUIT_FILE_IMPL"):
+    impls = (os.environ["CONDUIT_FILE_IMPL"],)
+else:
+    impls = ("GIO", "GnomeVfs")
+
+for impl in impls:
     ok("--- TESTING FILE IMPL: %s" % impl, True)
 
     try:
