@@ -53,6 +53,11 @@ for impl in impls:
     contents = temp.get_contents_as_text()
     ok("Base: wrote contents again", contents == "456")
 
+    tempsize = random.randint(100, 200)
+    contents = "a"*tempsize
+    temp.set_contents_as_text(contents)
+    ok( "Base: file size is accurate", temp.get_size() == tempsize )
+
     remUri = get_external_resources('folder')['removable-volume']
     rf = File.File(remUri,implName=impl)
     if Vfs.uri_exists(remUri):
@@ -79,7 +84,8 @@ for impl in impls:
         f = File.File(i,implName=impl)
         ok("Local: %s exists" % i, f.exists())
         remote = f.is_local() == 1
-        ok("Local: is local = %s" % remote,remote)
+        # these might not be local, we might be on nfs after all!
+        ok("Local: is local = %s" % remote,remote,die=False)
         mime = f.get_mimetype()
         ok("Local: file mimetype = %s" % mime,type(mime) == str and len(mime) > 0)
         mtime = f.get_mtime()        

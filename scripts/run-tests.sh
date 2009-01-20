@@ -120,7 +120,11 @@ FOOTER="</body></html>"
 
 #test results go to index.html
 indexfile=$LOGDIR/index.html
-tempfile=`tempfile`
+if [ -e '/bin/tempfile' ] ; then
+    tempfile=`tempfile`
+else
+    tempfile=`mktemp`
+fi
 
 echo $HEADER > $indexfile
 echo $STYLE >> $indexfile

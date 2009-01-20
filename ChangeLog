@@ -1,5 +1,13 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreFile.py: Add filesize 
+	test to TestCoreFile.py. Make is_local not fatal
+
+	* scripts/run-tests.sh: use 'mktemp'
+	instead of 'tempfile'. Patch by Brian Teague
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/EvolutionModule/EvolutionModule.py: 
 	Modify EvoCalendar's _get_object to return a VEVENT instead of a VCALENDAR. 
 	Fixes #564141 (Brian Teague)
