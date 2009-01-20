@@ -1,5 +1,11 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* configure.ac: Now that HEAD uses GIO by default, it
+	makes sense to check for it in configure.
+	Fixes #561554 (Tom Parker)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/utils/MediaFile.py: Require pygst 0.10
 	Fixes #561555 (Tom Parker)
 
