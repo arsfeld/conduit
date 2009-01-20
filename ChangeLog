@@ -1,5 +1,13 @@
 2009-01-21  John Stowers  <john.stowers@gmail.com>
 
+	* NEWS:
+	* conduit/modules/Makefile.am:
+	* conduit/modules/NautilusBookmarksModule.py: Add
+	support for syncing local and remote Nautilus bookmarks
+	Fixes #531250
+
+2009-01-21  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/Firefox3Module.py:
 	* conduit/modules/Firefox3Module/Firefox3Module.py:
 	* conduit/modules/Firefox3Module/Makefile.am:
