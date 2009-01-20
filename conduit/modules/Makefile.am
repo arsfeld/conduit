@@ -25,7 +25,8 @@ conduit_handlers_PYTHON = \
 	ConverterModule.py \
 	PhotoConverterModule.py \
 	AudioVideoConverterModule.py \
-	GoogleBookmarksModule.py
+	GoogleBookmarksModule.py \
+	Firefox3Module.py
 
 clean-local:
 	rm -rf *.pyc *.pyo
