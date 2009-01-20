@@ -213,7 +213,11 @@ class EvoCalendarTwoWay(EvoBase):
         """
         raw = self.calendar.get_object(LUID, "")
         event = Event.Event()
-        event.set_from_ical_string(self.calendar.get_object_as_string(raw))
+        #http://bugzilla.gnome.org/show_bug.cgi?id=564141
+        #EvoCalendar's _get_object returns an iCal VCALENDAR containing a single VEVENT
+        #for each event on the calendar.  However, EvoCalendar's _create_object expects
+        #an iCal VEVENT.  The evolution-data-server can't parse the VCALENDAR and fails.
+        event.set_from_ical_string(raw.get_as_string())
         event.set_UID(raw.get_uid())
         event.set_mtime(datetime.datetime.fromtimestamp(raw.get_modified()))
         return event
