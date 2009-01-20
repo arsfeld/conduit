@@ -1,5 +1,11 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/TomboyModule.py: Tomboy arguements
+	to SyncException are reversed.
+	Fixes #568363 (Brian Teague)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/TestCoreFile.py: Only run the appropriate
 	test if CONDUIT_FILE_IMPL is set
 

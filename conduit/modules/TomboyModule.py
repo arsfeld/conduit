@@ -237,7 +237,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                 log.info("Updating note")
                 self._update_note(LUID, note)
             else:
-                raise Exceptions.SynchronizeConflictError(comp, existingNote, note)
+                raise Exceptions.SynchronizeConflictError(comp, note, existingNote)
         else:                    
             log.info("Saving new Note")
             LUID = self._create_note(note)
