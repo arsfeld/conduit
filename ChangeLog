@@ -1,5 +1,10 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/utils/MediaFile.py: Require pygst 0.10
+	Fixes #561555 (Tom Parker)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Module.py: Print more helpful errors during
 	import. Fixes #561557 (Tom Parker)
 

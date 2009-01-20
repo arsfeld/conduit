@@ -5,8 +5,9 @@ import logging
 log = logging.getLogger("datatypes.Audio")
 
 try:
+    import pygst
+    pygst.require('0.10')
     import gst
-    from gst.extend import discoverer
     GST_AVAILABLE = True
 except ImportError:
     GST_AVAILABLE = False
