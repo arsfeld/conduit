@@ -40,7 +40,7 @@ class TomboyNote(Note.Note):
 
 class TomboyNoteConverter(TypeConverter.Converter):
     NOTE_EXTENSION = ".xml"
-    ILLEGAL_TITLE_CHARS = " /"
+    ILLEGAL_TITLE_CHARS = " /#&$?[]{}()\\"
     def __init__(self):
         self.conversions =  {
                 "note,note/tomboy"  : self.note_to_tomboy_note,
