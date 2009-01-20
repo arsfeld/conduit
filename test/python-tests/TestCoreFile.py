@@ -53,10 +53,25 @@ for impl in impls:
     contents = temp.get_contents_as_text()
     ok("Base: wrote contents again", contents == "456")
 
+    # write a random amount to the temp file
+
     tempsize = random.randint(100, 200)
     contents = "a"*tempsize
     temp.set_contents_as_text(contents)
     ok( "Base: file size is accurate", temp.get_size() == tempsize )
+    old_mtime = temp.get_mtime();
+    old_hash = temp.get_hash();
+
+    # now, add some more
+    tempsize = random.randint(100, 200)
+    contents += "b"*tempsize
+    temp.set_contents_as_text(contents)
+    ok("Base: Check if appending to a file changes its hash", temp.get_hash() != old_hash)
+
+    # reset the mtime, and make sure the hash is still different
+    temp.set_mtime( old_mtime )
+    ok( "Base: Check if reseting a file's mtime is successful", temp.get_mtime() == old_mtime )
+    ok( "Base: Check that the hash is still different, even with the same mtime.", temp.get_hash() != old_hash )
 
     remUri = get_external_resources('folder')['removable-volume']
     rf = File.File(remUri,implName=impl)
