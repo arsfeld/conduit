@@ -44,11 +44,10 @@ class FileImpl(conduit.platform.File):
         return self.fileInfo.get_file_type() == gio.FILE_TYPE_DIRECTORY
         
     def delete(self):
-        #close the file and the handle so that the file info is refreshed
-        self.close()
         try:
             #FIXME: Trash first?
             self._file.delete()
+            self.close()
         except gio.Error, e:
             log.warn("File delete error: %s" % e)
         
@@ -103,6 +102,7 @@ class FileImpl(conduit.platform.File):
 
     def set_contents(self, contents):
         self._file.replace_contents(contents)
+        self.close()
         
     def get_mimetype(self):
         self._get_file_info()
