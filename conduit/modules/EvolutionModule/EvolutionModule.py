@@ -230,7 +230,7 @@ class EvoCalendarTwoWay(EvoBase):
         obj = evolution.ecal.ECalComponent(evolution.ecal.CAL_COMPONENT_EVENT, event.get_ical_string())
         if self.calendar.add_object(obj):
             mtime = datetime.datetime.fromtimestamp(obj.get_modified())
-            return conduit.datatypes.Rid(uid=obj.get_uid(), mtime=mtime, hash=mtime)
+            return conduit.datatypes.Rid(uid=obj.get_uid(), mtime=mtime, hash=event.get_hash())
         else:
             raise Exceptions.SyncronizeError("Error creating event")
 

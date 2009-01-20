@@ -1,5 +1,11 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	actually use the event's hash when creating a new rid.
+	Fixes #564144 (Brian Teague)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/TestCoreFile.py: Add filesize 
 	test to TestCoreFile.py. Make is_local not fatal
 
