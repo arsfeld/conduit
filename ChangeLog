@@ -1,5 +1,10 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Module.py: Print more helpful errors during
+	import. Fixes #561557 (Tom Parker)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/TomboyModule.py: Escape more characters in tomboy
 	note titles. Fixes #564187 (Brian Teague)
 

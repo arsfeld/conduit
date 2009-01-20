@@ -197,8 +197,11 @@ class ModuleManager(gobject.GObject):
                         log.warn("Class is an unknown type: %s" % klass)
                 except AttributeError:
                     log.warn("Could not find module %s in %s\n%s" % (modules,filename,traceback.format_exc()))
+        except pydoc.ErrorDuringImport, e:
+            log.warn("Error loading the file: %s\n%s" % (filename, "".join(traceback.format_exception(e.exc,e.value,e.tb))))
+            self.invalidFiles.append(os.path.basename(filename))
         except Exception, e:
-            log.warn("Error loading the file: %s\n%s" % (filename, traceback.format_exc()))
+            log.warn("Error loading the file: %s\n%s" % (filename, "".join(traceback.format_exception(e.exc,e.value,e.tb))))
             self.invalidFiles.append(os.path.basename(filename))
 
     def load_all(self, whitelist, blacklist):
