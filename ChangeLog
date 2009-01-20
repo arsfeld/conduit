@@ -1,5 +1,11 @@
 2009-01-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/datatypes/Event.py: Ignore certain fields in the
+	Event vcal data because it changes the hash.
+	Fixes #564144 (Brian Teague)
+
+2009-01-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/TomboyModule.py: Dont bork on utk-16 XML
 	Fixes #564020 (Brian Teague)
 

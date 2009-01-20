@@ -26,4 +26,11 @@ class Event(DataType.DataType):
         DataType.DataType.__setstate__(self, data)
         
     def get_hash(self):
-        return str(hash(self.get_ical_string()))
+        ical_string = self.get_ical_string()
+        p = re.compile('CREATED:.*\n')
+        ical_string = p.sub( '', ical_string )
+        p = re.compile('LAST-MODIFIED:.*\n')
+        ical_string = p.sub( '', ical_string )
+        p = re.compile('UID:.*\n')
+        ical_string = p.sub( '', ical_string )
+        return str(hash(ical_string))
