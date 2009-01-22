@@ -1,8 +1,27 @@
-NEW in 0.3.15:
+NEW in 0.3.16:
 ==============
 * Support Firefox3 Bookmarks
 * Support Google Bookmarks
 * Support Nautilus Bookmarks
+
+NEW in 0.3.15:
+==============
+* Fixed #523181, Can't sync folders - escaping/unicode problem (John Stowers)
+* Fixed #555401, fix get_removable_volume_info call (Luca Ognibene)
+* Fixed #555403, some fixes to File datatype (Luca Ognibene)
+* Fixed #555421, fix sync with directories with illegal chars (Luca Ognibene)
+* Fixed #557105, Removable Volume support is broken on GIO (John Stowers)
+* Fixed #532854, Italian translation don't work (John Stowers)
+
+Translations:
+* Updated nb: Kjartan Maraas
+* Updated de: Hendrik Richter
+* Updated fr: Claude Paroz
+* Updated pt_BR: Og Maciel
+* Updated sv: Daniel Nylander
+
+Manual Translations:
+* Updated de: Mario Blättermann
 
 NEW in 0.3.14:
 ==============
