@@ -8,6 +8,7 @@ class WebBrowserImpl(conduit.platform.WebBrowser):
         self.sw = gtk.ScrolledWindow()
         self.sw.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
         self.webView = webkit.WebView()
+        self.webView.get_settings().props.enable_plugins = False
         self.sw.add(self.webView)
 
     def widget(self):

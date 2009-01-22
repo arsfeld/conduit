@@ -1,5 +1,10 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/platform/WebBrowserWebkit.py: Disable plugins
+	in webkit to stop segfaults.
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
 	* NEWS:
 	* conduit/__init__.py:
 	* configure.ac:
