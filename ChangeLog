@@ -1,5 +1,10 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FacebookModule/pyfacebook/__init__.py:
+	Update to latest upstream svn snapshot
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FacebookModule/FacebookModule.py:
 	Facebook now returns longs for pids. Convert to str before
 	makin a rid. Fixes #562516

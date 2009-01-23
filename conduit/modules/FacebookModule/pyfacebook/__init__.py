@@ -12,14 +12,14 @@
 #     * Redistributions in binary form must reproduce the above copyright
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
-#     * Neither the name of the <organization> nor the
-#       names of its contributors may be used to endorse or promote products
-#       derived from this software without specific prior written permission.
+#     * Neither the name of the author nor the names of its contributors may
+#       be used to endorse or promote products derived from this software
+#       without specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY <copyright holder> ``AS IS'' AND ANY
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS``AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL <copyright holder> BE LIABLE FOR ANY
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
 # DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 # LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -47,33 +47,45 @@ apt-get install python-simplejson on a Debian-like system.
 import md5
 import sys
 import time
+import struct
 import urllib
 import urllib2
 import httplib
+import hashlib
+import binascii
+import urlparse
 import mimetypes
 
 # try to use simplejson first, otherwise fallback to XML
+RESPONSE_FORMAT = 'JSON'
 try:
-    import simplejson
-    RESPONSE_FORMAT = 'JSON'
+    import json as simplejson
 except ImportError:
     try:
-        from django.utils import simplejson
-        RESPONSE_FORMAT = 'JSON'
+        import simplejson
     except ImportError:
-        from xml.dom import minidom
-        RESPONSE_FORMAT = 'XML'
+        try:
+            from django.utils import simplejson
+        except ImportError:
+            try:
+                import jsonlib as simplejson
+                simplejson.loads
+            except (ImportError, AttributeError):
+                from xml.dom import minidom
+                RESPONSE_FORMAT = 'XML'
 
 # support Google App Engine.  GAE does not have a working urllib.urlopen.
 try:
     from google.appengine.api import urlfetch
 
-    def urlread(url, data=None):
+    def urlread(url, data=None, headers=None):
         if data is not None:
-            headers = {"Content-type": "application/x-www-form-urlencoded"}
+            if headers is None:
+                headers = {"Content-type": "application/x-www-form-urlencoded"}
             method = urlfetch.POST
         else:
-            headers = {}
+            if headers is None:
+                headers = {}
             method = urlfetch.GET
 
         result = urlfetch.fetch(url, method=method,
@@ -93,8 +105,6 @@ __all__ = ['Facebook']
 
 VERSION = '0.1'
 
-# REST URLs
-# Change these to /bestserver.php to use the bestserver.
 FACEBOOK_URL = 'http://api.facebook.com/restserver.php'
 FACEBOOK_SECURE_URL = 'https://api.facebook.com/restserver.php'
 
@@ -102,6 +112,21 @@ class json(object): pass
 
 # simple IDL for the Facebook API
 METHODS = {
+    'application': {
+        'getPublicInfo': [
+            ('application_id', int, ['optional']),
+            ('application_api_key', str, ['optional']),
+            ('application_canvas_name ', str,['optional']),
+        ],
+    },
+
+    # admin methods
+    'admin': {
+        'getAllocation': [
+            ('integration_point_name', str, []),
+        ],
+    },
+
     # feed methods
     'feed': {
         'publishStoryToUser': [
@@ -133,15 +158,11 @@ METHODS = {
         ],
 
         'publishTemplatizedAction': [
-            # facebook expects title_data and body_data to be JSON
-            # simplejson.dumps({'place':'Florida'}) would do fine
-            # actor_id is now deprecated, use page_actor_id instead
-            ('actor_id', int, []),
-            ('page_actor_id', int, []),
             ('title_template', str, []),
-            ('title_data', str, ['optional']),
+            ('page_actor_id', int, ['optional']),
+            ('title_data', json, ['optional']),
             ('body_template', str, ['optional']),
-            ('body_data', str, ['optional']),
+            ('body_data', json, ['optional']),
             ('body_general', str, ['optional']),
             ('image_1', str, ['optional']),
             ('image_1_link', str, ['optional']),
@@ -152,6 +173,30 @@ METHODS = {
             ('image_4', str, ['optional']),
             ('image_4_link', str, ['optional']),
             ('target_ids', list, ['optional']),
+        ],
+
+        'registerTemplateBundle': [
+            ('one_line_story_templates', json, []),
+            ('short_story_templates', json, ['optional']),
+            ('full_story_template', json, ['optional']),
+            ('action_links', json, ['optional']),
+        ],
+
+        'deactivateTemplateBundleByID': [
+            ('template_bundle_id', int, []),
+        ],
+
+        'getRegisteredTemplateBundles': [],
+
+        'getRegisteredTemplateBundleByID': [
+            ('template_bundle_id', str, []),
+        ],
+
+        'publishUserAction': [
+            ('template_bundle_id', int, []),
+            ('template_data', json, ['optional']),
+            ('target_ids', list, ['optional']),
+            ('body_general', str, ['optional']),
         ],
     },
 
@@ -169,7 +214,11 @@ METHODS = {
             ('uids2', list, []),
         ],
 
-        'get': [],
+        'get': [
+            ('flid', int, ['optional']),
+        ],
+
+        'getLists': [],
 
         'getAppUsers': [],
     },
@@ -182,6 +231,7 @@ METHODS = {
             ('to_ids', list, []),
             ('notification', str, []),
             ('email', str, ['optional']),
+            ('type', str, ['optional']),
         ],
 
         'sendRequest': [
@@ -208,10 +258,32 @@ METHODS = {
             ('profile', str, ['optional']),
             ('profile_action', str, ['optional']),
             ('mobile_fbml', str, ['optional']),
+            ('profile_main', str, ['optional']),
         ],
 
         'getFBML': [
             ('uid', int, ['optional']),
+            ('type', int, ['optional']),
+        ],
+
+        'setInfo': [
+            ('title', str, []),
+            ('type', int, []),
+            ('info_fields', json, []),
+            ('uid', int, []),
+        ],
+
+        'getInfo': [
+            ('uid', int, []),
+        ],
+
+        'setInfoOptions': [
+            ('field', str, []),
+            ('options', json, []),
+        ],
+
+        'getInfoOptions': [
+            ('field', str, []),
         ],
     },
 
@@ -222,17 +294,25 @@ METHODS = {
             ('fields', list, [('default', ['name'])]),
         ],
 
+        'getStandardInfo': [
+            ('uids', list, []),
+            ('fields', list, [('default', ['uid'])]),
+        ],
+
         'getLoggedInUser': [],
 
         'isAppAdded': [],
 
         'hasAppPermission': [
             ('ext_perm', str, []),
+            ('uid', int, ['optional']),
         ],
 
         'setStatus': [
             ('status', str, []),
             ('clear', bool, []),
+            ('status_includes_verb', bool, ['optional']),
+            ('uid', int, ['optional']),
         ],
     },
 
@@ -248,6 +328,10 @@ METHODS = {
 
         'getMembers': [
             ('eid', int, []),
+        ],
+
+        'create': [
+            ('event_info', json, []),
         ],
     },
 
@@ -371,6 +455,20 @@ METHODS = {
         ],
     },
 
+    # SMS Methods
+    'sms' : {
+        'canSend' : [
+            ('uid', int, []),
+        ],
+
+        'send' : [
+            ('uid', int, []),
+            ('message', str, []),
+            ('session_id', int, []),
+            ('req_session', bool, []),
+        ],
+    },
+
     'data': {
         'getCookies': [
             ('uid', int, []),
@@ -385,8 +483,21 @@ METHODS = {
             ('path', str, ['optional']),
         ],
     },
-}
 
+    # connect methods
+    'connect': {
+        'registerUsers': [
+            ('accounts', json, []),
+        ],
+
+        'unregisterUsers': [
+            ('email_hashes', json, []),
+        ],
+
+        'getUnconnectedFriendsCount': [
+        ],
+    },
+}
 
 class Proxy(object):
     """Represents a "namespace" of Facebook API calls."""
@@ -395,7 +506,11 @@ class Proxy(object):
         self._client = client
         self._name = name
 
-    def __call__(self, method, args=None, add_session_args=True):
+    def __call__(self, method=None, args=None, add_session_args=True):
+        # for Django templates
+        if method is None:
+            return self
+
         if add_session_args:
             self._client._add_session_args(args)
 
@@ -421,6 +536,10 @@ def __generate_proxies():
                             body.append('if %s is None: %s = %s' % (param_name, param_name, repr(option[1])))
                         else:
                             param = '%s=%s' % (param_name, repr(option[1]))
+
+                if param_type == json:
+                    # we only jsonify the argument if it's a list or a dict, for compatibility
+                    body.append('if isinstance(%s, list) or isinstance(%s, dict): %s = simplejson.dumps(%s)' % ((param_name,) * 4))
 
                 if 'optional' in param_options:
                     param = '%s=None' % param_name
@@ -488,17 +607,17 @@ class AuthProxy(Proxy):
 class FriendsProxy(FriendsProxy):
     """Special proxy for facebook.friends."""
 
-    def get(self):
+    def get(self, **kwargs):
         """Facebook API call. See http://developers.facebook.com/documentation.php?v=1.0&method=friends.get"""
-        if self._client._friends:
+        if not kwargs.get('flid') and self._client._friends:
             return self._client._friends
-        return super(FriendsProxy, self).get()
+        return super(FriendsProxy, self).get(**kwargs)
 
 
 class PhotosProxy(PhotosProxy):
     """Special proxy for facebook.photos."""
 
-    def upload(self, image, aid=None, caption=None, size=(604, 1024)):
+    def upload(self, image, aid=None, caption=None, size=(604, 1024), filename=None):
         """Facebook API call. See http://developers.facebook.com/documentation.php?v=1.0&method=photos.upload
 
         size -- an optional size (width, height) to resize the image to before uploading. Resizes by default
@@ -519,33 +638,55 @@ class PhotosProxy(PhotosProxy):
         except ImportError:
             import StringIO
 
-        try:
-            import Image
-        except ImportError:
-            data = StringIO.StringIO(open(image, 'rb').read())
+        # check for a filename specified...if the user is passing binary data in
+        # image then a filename will be specified
+        if filename is None:
+            try:
+                import Image
+            except ImportError:
+                data = StringIO.StringIO(open(image, 'rb').read())
+            else:
+                img = Image.open(image)
+                if size:
+                    img.thumbnail(size, Image.ANTIALIAS)
+                data = StringIO.StringIO()
+                img.save(data, img.format)
         else:
-            img = Image.open(image)
-            if size:
-                img.thumbnail(size, Image.ANTIALIAS)
-            data = StringIO.StringIO()
-            img.save(data, img.format)
+            # there was a filename specified, which indicates that image was not
+            # the path to an image file but rather the binary data of a file
+            data = StringIO.StringIO(image)
+            image = filename
 
         content_type, body = self.__encode_multipart_formdata(list(args.iteritems()), [(image, data)])
-        h = httplib.HTTP('api.facebook.com')
-        h.putrequest('POST', '/restserver.php')
-        h.putheader('Content-Type', content_type)
-        h.putheader('Content-Length', str(len(body)))
-        h.putheader('MIME-Version', '1.0')
-        h.putheader('User-Agent', 'PyFacebook Client Library')
-        h.endheaders()
-        h.send(body)
+        urlinfo = urlparse.urlsplit(self._client.facebook_url)
+        try:
+            h = httplib.HTTP(urlinfo[1])
+            h.putrequest('POST', urlinfo[2])
+            h.putheader('Content-Type', content_type)
+            h.putheader('Content-Length', str(len(body)))
+            h.putheader('MIME-Version', '1.0')
+            h.putheader('User-Agent', 'PyFacebook Client Library')
+            h.endheaders()
+            h.send(body)
 
-        reply = h.getreply()
+            reply = h.getreply()
 
-        if reply[0] != 200:
-            raise Exception('Error uploading photo: Facebook returned HTTP %s (%s)' % (reply[0], reply[1]))
+            if reply[0] != 200:
+                raise Exception('Error uploading photo: Facebook returned HTTP %s (%s)' % (reply[0], reply[1]))
 
-        response = h.file.read()
+            response = h.file.read()
+        except:
+            # sending the photo failed, perhaps we are using GAE
+            try:
+                from google.appengine.api import urlfetch
+
+                try:
+                    response = urlread(url=self._client.facebook_url,data=body,headers={'POST':urlinfo[2],'Content-Type':content_type,'MIME-Version':'1.0'})
+                except urllib2.URLError:
+                    raise Exception('Error uploading photo: Facebook returned %s' % (response))
+            except ImportError:
+                # could not import from google.appengine.api, so we are not running in GAE
+                raise Exception('Error uploading photo.')
 
         return self._client._parse_response(response, 'facebook.photos.upload')
 
@@ -609,6 +750,12 @@ class Facebook(object):
         True if this is a desktop app, False otherwise. Used for determining how to
         authenticate.
 
+    facebook_url
+        The url to use for Facebook requests.
+
+    facebook_secure_url
+        The url to use for secure Facebook requests.
+
     in_canvas
         True if the current request is for a canvas page.
 
@@ -639,7 +786,7 @@ class Facebook(object):
 
     """
 
-    def __init__(self, api_key, secret_key, auth_token=None, app_name=None, callback_path=None, internal=None):
+    def __init__(self, api_key, secret_key, auth_token=None, app_name=None, callback_path=None, internal=None, proxy=None, facebook_url=None, facebook_secure_url=None):
         """
         Initializes a new Facebook object which provides wrappers for the Facebook API.
 
@@ -670,6 +817,15 @@ class Facebook(object):
         self.callback_path = callback_path
         self.internal = internal
         self._friends = None
+        self.proxy = proxy
+        if facebook_url is None:
+            self.facebook_url = FACEBOOK_URL
+        else:
+            self.facebook_url = facebook_url
+        if facebook_secure_url is None:
+            self.facebook_secure_url = FACEBOOK_SECURE_URL
+        else:
+            self.facebook_secure_url = facebook_secure_url
 
         for namespace in METHODS:
             self.__dict__[namespace] = eval('%sProxy(self, \'%s\')' % (namespace.title(), 'facebook.%s' % namespace))
@@ -679,7 +835,9 @@ class Facebook(object):
 
     def _hash_args(self, args, secret=None):
         """Hashes arguments by joining key=value pairs, appending a secret, and then taking the MD5 hex digest."""
-        hasher = md5.new(''.join(['%s=%s' % (x, args[x]) for x in sorted(args.keys())]))
+        # @author: houyr
+        # fix for UnicodeEncodeError
+        hasher = md5.new(''.join(['%s=%s' % (isinstance(x, unicode) and x.encode("utf-8") or x, isinstance(args[x], unicode) and args[x].encode("utf-8") or args[x]) for x in sorted(args.keys())]))
         if secret:
             hasher.update(secret)
         elif self.secret:
@@ -742,6 +900,8 @@ class Facebook(object):
                 args[arg[0]] = ','.join(str(a) for a in arg[1])
             elif type(arg[1]) == unicode:
                 args[arg[0]] = arg[1].encode("UTF-8")
+            elif type(arg[1]) == bool:
+                args[arg[0]] = str(arg[1]).lower()
 
         args['method'] = method
         args['api_key'] = self.api_key
@@ -758,7 +918,9 @@ class Facebook(object):
             args = {}
 
         if not self.session_key:
-            raise RuntimeError('Session key not set. Make sure auth.getSession has been called.')
+            return args
+            #some calls don't need a session anymore. this might be better done in the markup
+            #raise RuntimeError('Session key not set. Make sure auth.getSession has been called.')
 
         args['session_key'] = self.session_key
         args['call_id'] = str(int(time.time() * 1000))
@@ -790,15 +952,52 @@ class Facebook(object):
         return result
 
 
-    def __call__(self, method, args=None, secure=False):
+    def hash_email(self, email):
+        """
+        Hash an email address in a format suitable for Facebook Connect.
+
+        """
+        email = email.lower().strip()
+        return "%s_%s" % (
+            struct.unpack("I", struct.pack("i", binascii.crc32(email)))[0],
+            hashlib.md5(email).hexdigest(),
+        )
+
+
+    def unicode_urlencode(self, params):
+        """
+        @author: houyr
+        A unicode aware version of urllib.urlencode.
+        """
+        if isinstance(params, dict):
+            params = params.items()
+        return urllib.urlencode([(k, isinstance(v, unicode) and v.encode('utf-8') or v)
+                          for k, v in params])
+
+
+    def __call__(self, method=None, args=None, secure=False):
         """Make a call to Facebook's REST server."""
+        # for Django templates, if this object is called without any arguments
+        # return the object itself
+        if method is None:
+            return self
 
-        post_data = urllib.urlencode(self._build_post_args(method, args))
+        # @author: houyr
+        # fix for bug of UnicodeEncodeError
+        post_data = self.unicode_urlencode(self._build_post_args(method, args))
 
-        if secure:
-            response = urlread(FACEBOOK_SECURE_URL, post_data)
+        if self.proxy:
+            proxy_handler = urllib2.ProxyHandler(self.proxy)
+            opener = urllib2.build_opener(proxy_handler)
+            if secure:
+                response = opener.open(self.facebook_secure_url, post_data).read() 
+            else:
+                response = opener.open(self.facebook_url, post_data).read()
         else:
-            response = urlread(FACEBOOK_URL, post_data)
+            if secure:
+                response = urlread(self.facebook_secure_url, post_data)
+            else:
+                response = urlread(self.facebook_url, post_data)
 
         return self._parse_response(response, method)
 
@@ -836,7 +1035,8 @@ class Facebook(object):
 
     def get_authorize_url(self, next=None, next_cancel=None):
         """
-        Returns the URL that the user should be redirected to in order to authorize certain actions for application.
+        Returns the URL that the user should be redirected to in order to
+        authorize certain actions for application.
 
         """
         args = {'api_key': self.api_key, 'v': '1.0'}
@@ -880,6 +1080,31 @@ class Facebook(object):
         webbrowser.open(self.get_login_url(popup=popup))
 
 
+    def get_ext_perm_url(self, ext_perm, next=None, popup=False):
+        """
+        Returns the URL that the user should be redirected to in order to grant an extended permission.
+
+        ext_perm -- the name of the extended permission to request
+        next     -- the URL that Facebook should redirect to after login
+
+        """
+        args = {'ext_perm': ext_perm, 'api_key': self.api_key, 'v': '1.0'}
+
+        if next is not None:
+            args['next'] = next
+
+        if popup is True:
+            args['popup'] = 1
+
+        return self.get_url('authorize', **args)
+
+
+    def request_extended_permission(self, ext_perm, popup=False):
+        """Open a web browser telling the user to grant an extended permission."""
+        import webbrowser
+        webbrowser.open(self.get_ext_perm_url(ext_perm, popup=popup))
+
+
     def check_session(self, request):
         """
         Checks the given Django HttpRequest for Facebook parameters such as
@@ -917,6 +1142,15 @@ class Facebook(object):
             params = self.validate_signature(request.GET)
 
         if not params:
+            # first check if we are in django - to check cookies
+            if hasattr(request, 'COOKIES'):
+                params = self.validate_cookie_signature(request.COOKIES)
+            else:
+                # if not, then we might be on GoogleAppEngine, check their request object cookies
+                if hasattr(request,'cookies'):
+                    params = self.validate_cookie_signature(request.cookies)
+
+        if not params:
             return False
 
         if params.get('in_canvas') == '1':
@@ -940,6 +1174,12 @@ class Facebook(object):
                 self.uid = params['user']
             elif 'page_id' in params:
                 self.page_id = params['page_id']
+            else:
+                return False
+        elif 'profile_session_key' in params:
+            self.session_key = params['profile_session_key']
+            if 'profile_user' in params:
+                self.uid = params['profile_user']
             else:
                 return False
         else:
@@ -971,6 +1211,33 @@ class Facebook(object):
             return args
         else:
             return None
+
+    def validate_cookie_signature(self, cookies):
+        """
+        Validate parameters passed by cookies, namely facebookconnect or js api.
+        """
+        if not self.api_key in cookies.keys():
+            return None
+
+        sigkeys = []
+        params = dict()
+        for k in sorted(cookies.keys()):
+            if k.startswith(self.api_key+"_"):
+                sigkeys.append(k)
+                params[k.replace(self.api_key+"_","")] = cookies[k]
+
+
+        vals = ''.join(['%s=%s' % (x.replace(self.api_key+"_",""), cookies[x]) for x in sigkeys])
+        hasher = md5.new(vals)
+        
+        hasher.update(self.secret_key)
+        digest = hasher.hexdigest()
+        if digest == cookies[self.api_key]:
+            return params
+        else:
+            return False
+
+
 
 
 if __name__ == '__main__':
