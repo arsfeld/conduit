@@ -145,7 +145,7 @@ class Conduit(gobject.GObject):
             else:
                 log.debug("Adding twoway dataprovider into sink position")
                 self.datasinks.append(dataprovider_wrapper)
-                #Datasinks go on the right
+
         else:
                 log.warn("Only sinks, sources or twoway dataproviders may be added")
                 return False

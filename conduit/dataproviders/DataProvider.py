@@ -27,7 +27,7 @@ STATUS_DONE_SYNC_ERROR = _("Error Synchronizing")
 STATUS_DONE_SYNC_SKIPPED = _("Synchronization Skipped")
 STATUS_DONE_SYNC_CANCELLED = _("Synchronization Cancelled")
 STATUS_DONE_SYNC_CONFLICT = _("Synchronization Conflict")
-STATUS_DONE_SYNC_NOT_CONFIGURED = _("Not Configured Correctly")
+STATUS_DONE_SYNC_NOT_CONFIGURED = _("Not Configured")
 
 class DataProviderBase(gobject.GObject):
     """

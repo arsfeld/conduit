@@ -1,5 +1,14 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Conduit.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/gtkui/Canvas.py: If dataproviders need configuration
+	on the canvas then show their status as such, instead 
+	of just displaying ready all the time. 
+	Fixes #550641
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FacebookModule/FacebookModule.py:
 	Print the chosen facebook parsing method
 
@@ -21,7 +30,8 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/platform/WebBrowserWebkit.py: Disable plugins
-	in webkit to stop segfaults.
+	in webkit to reduce webkit segfaults.
+	Fixes #566588
 
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 

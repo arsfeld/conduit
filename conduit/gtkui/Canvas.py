@@ -21,6 +21,7 @@ import conduit.Conduit as Conduit
 import conduit.Knowledge as Knowledge
 import conduit.gtkui.Tree
 import conduit.gtkui.Util as GtkUtil
+import conduit.dataproviders.DataProvider as DataProvider
 
 log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
@@ -460,6 +461,17 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
                     except IndexError: 
                         break
 
+    def _check_if_dataprovider_needs_configuration(self, cond, dpw):
+        if cond and not dpw.is_pending():
+            dp = dpw.module
+            x,y = cond.get_dataprovider_position(dpw)
+            if dp.is_configured(
+                        isSource=x==0,
+                        isTwoWay=cond.is_two_way()):
+                dp.set_status(DataProvider.STATUS_NONE)
+            else:
+                dp.set_status(DataProvider.STATUS_DONE_SYNC_NOT_CONFIGURED)
+
     def on_conduit_removed(self, sender, conduitRemoved):
         for item in self._get_child_conduit_canvas_items():
             if item.model == conduitRemoved:
@@ -543,6 +555,11 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         
         self._show_hint(conduitCanvasItem, item, item)
 
+        self._check_if_dataprovider_needs_configuration(
+                conduitCanvasItem.model,
+                dataproviderAdded
+                )
+
     def get_sync_set(self):
         return self.model
 
@@ -591,10 +608,14 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         """
         Calls the configure method on the selected dataprovider
         """
-        dp = self.selectedDataproviderItem.model.module
-        log.info("Configuring %s" % dp)
-        #May block
+        dpw = self.selectedDataproviderItem.model
+        dp = dpw.module
+        conduitCanvasItem = self.selectedDataproviderItem.get_parent()
+
         dp.configure(self.parentWindow)
+        self._check_if_dataprovider_needs_configuration(
+                conduitCanvasItem.model,
+                dpw)
         self.selectedDataproviderItem.update_appearance()
 
     def on_refresh_dataprovider_clicked(self, widget):
@@ -602,7 +623,6 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         Refreshes a single dataprovider
         """
         dp = self.selectedDataproviderItem.model
-        #dp.module.refresh()
         cond = self.selectedConduitItem.model
         cond.refresh_dataprovider(dp)
 
