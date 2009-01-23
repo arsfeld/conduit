@@ -1,5 +1,16 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/RTMModule/RTMModule.py:
+	* conduit/modules/RTMModule/rtm.py:
+	Make RTMModule not crash hard. Seriously someone needs to finish this
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/RTMModule/rtm.py:
+	Be more flexible with the jsonlib used. Fixes #556892
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/FileGnomeVfs.py:
 	Dont crash so hard if stupid GnomeVfs sucks and cant
 	get the volume. Remember, do not use GnomeVfs, conduit

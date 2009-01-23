@@ -13,12 +13,21 @@ import warnings
 import urllib
 import logging
 from md5 import md5
-_use_simplejson = False
+
+_use_simplejson = True
 try:
-    import simplejson
-    _use_simplejson = True
-except ImportError:
-    pass
+    import json as simplejson
+    simplejson.loads
+except (ImportError, AttributeError):
+    try:
+        import simplejson
+        simplejson.loads
+    except (ImportError, AttributeError):
+        try:
+            import jsonlib as simplejson
+            simplejson.loads
+        except (ImportError, AttributeError):
+            _use_simplejson = False
 
 LOG = logging.getLogger(__name__)
 

@@ -44,13 +44,12 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         self.uids = None
-	self.token = None
         self.tasks = {}
-	self.ical = None
-	self.username = None
-	self.password = None
-	self.rtm = rtm.RTM(apiKey=self.API_KEY,secret=self.SECRET,token=self.get_configuration().get('token'))
-
+        self.ical = None
+        self.username = ""
+        self.password = ""
+        self.token = ""
+        self.rtm = rtm.RTM(apiKey=self.API_KEY,secret=self.SECRET,token=self.get_configuration().get('token'))
 
     def refresh(self):
         DataProvider.TwoWay.refresh(self)
@@ -58,10 +57,10 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
         tempt = rtm.get_all_tasks(self.rtm)
         #self.tasks.sort(key='id')
         self.ical =open(urllib.urlretrieve('http://%s:%s@www.rememberthemilk.com/icalendar/%s/events/'%(
-	    self.get_configuration().get('username'),
-	    self.get_configuration().get('password'),
-	    self.get_configuration().get('username')))[0]).read()
-	
+        self.get_configuration().get('username'),
+        self.get_configuration().get('password'),
+        self.get_configuration().get('username')))[0]).read()
+    
         for t in tempt:
             self.tasks[t.id] = t
             
@@ -70,8 +69,8 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
         return list(self.tasks.iterkeys())
 
     def get (self, LUID):
-	log.warn("LUID: %s"%LUID)
-	task = None
+        log.warn("LUID: %s" % LUID)
+        task = None
         if self.tasks.has_key(LUID):
             task = self.tasks[LUID]
         else:
@@ -94,17 +93,13 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
         del self.tasks[LUID]
     
     def put(self, putData, overwrite, LUID):
-	raise NotImplementedError("Not done")
+        raise NotImplementedError("Not done")
     
     #----------------------------------------------------------------------
     def get_UID(self):
-	""""""
-	return "RTM#%s"%(self.get_configuration().get("username"))
+        return "RTM#%s"%(self.get_configuration().get("username"))
 
     def _login(self):
-        
-	    
-
         if self.token is None:
             # get the ticket and open login url
             #self.token = self.rtm.getToken()
@@ -112,18 +107,17 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
 
             #wait for log in
             Web.LoginMagic("Log into RememberTheMilk", url, login_function=self._try_login)
+
     def _try_login (self):
         """
         Try to perform a login, return None if it does not succeed
         """
         try:
-	    
             self.token = self.rtm.getToken()
             return self.token
         except:
             return None
 
-    
     def configure(self, window):
         """
         Configures the RTM Backend
@@ -135,8 +129,8 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
             
         def on_response(sender, responseID):
             if responseID == gtk.RESPONSE_OK:
-		self.username = str(tree.get_widget('user_entry').get_text())
-		self.password = str(tree.get_widget('pass_entry').get_text())
+                self.username = str(tree.get_widget('user_entry').get_text())
+                self.password = str(tree.get_widget('pass_entry').get_text())
                 
         def load_button_clicked(button):
             Utils.dialog_set_busy_cursor(dlg)
@@ -167,9 +161,9 @@ class RTMTasksTwoWay(DataProvider.TwoWay):
     def get_configuration(self):
         return {
             "token" : self.token,
-	    "username" : self.username,
-	    "password" : self.password
-            }
-	
+            "username" : self.username,
+            "password" : self.password
+        }
+    
   
 
