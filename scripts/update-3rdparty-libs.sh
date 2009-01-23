@@ -20,5 +20,7 @@ for i in COPYING backpack.py; do
     wget -qO conduit/modules/BackpackModule/backpack/${i} http://github.com/dustin/py-backpack/tree/master%2F${i}?raw=true
 done
 
-
+#update pyrtm
+echo "Updating pyrtm"
+wget -qO conduit/modules/RTMModule/rtm.py "http://repo.or.cz/w/pyrtm.git?a=blob_plain;f=rtm.py;hb=HEAD
 
