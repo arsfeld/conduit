@@ -1,5 +1,11 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FacebookModule/FacebookModule.py:
+	Facebook now returns longs for pids. Convert to str before
+	makin a rid. Fixes #562516
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/WebBrowserWebkit.py: Disable plugins
 	in webkit to stop segfaults.
 

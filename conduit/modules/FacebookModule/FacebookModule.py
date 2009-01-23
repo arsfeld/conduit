@@ -58,7 +58,8 @@ class FacebookSink(Image.ImageSink):
             rsp = self.fapi.photos.upload(
                                         uploadInfo.url,
                                         aid=self.albums.get(self.albumname, None))
-            return Rid(uid=rsp["pid"])
+            pid = str(rsp["pid"])
+            return Rid(uid=pid)
         except pyfacebook.FacebookError, f:
             raise Exceptions.SyncronizeError("Facebook Upload Error %s" % f)
             
@@ -77,7 +78,8 @@ class FacebookSink(Image.ImageSink):
             for p in self.fapi.photos.get(aid=albumID):
                 #only return big photos
                 if p.get("src_big", ""):
-                    photos[p['pid']] = p
+                    pid = str(p["pid"])
+                    photos[pid] = p
         except pyfacebook.FacebookError, f:
             log.warn("Error getting photos from album %s list: %s" % (albumID,f))
         return photos
