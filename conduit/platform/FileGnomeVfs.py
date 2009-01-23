@@ -182,19 +182,31 @@ class FileImpl(conduit.platform.File):
     def is_on_removale_volume(self):
         path = self.get_local_path()
         if path:
-            return gnomevfs.VolumeMonitor().get_volume_for_path(path).is_user_visible()
+            vol = gnomevfs.VolumeMonitor().get_volume_for_path(path)
+            if vol:
+                return vol.is_user_visible()
+            else:
+                log.warn("Could not get volume for path: %s" % path)
         return False
 
     def get_removable_volume_root_uri(self):
         path = self.get_local_path()
         if path:
-            return gnomevfs.VolumeMonitor().get_volume_for_path(path).get_activation_uri()
+            vol = gnomevfs.VolumeMonitor().get_volume_for_path(path)
+            if vol:
+                return vol.get_activation_uri()
+            else:
+                log.warn("Could not get volume for path: %s" % path)
         return False
 
     def get_filesystem_type(self):
         path = self.get_local_path()
         if path:
-            return gnomevfs.VolumeMonitor().get_volume_for_path(path).get_filesystem_type()
+            vol = gnomevfs.VolumeMonitor().get_volume_for_path(path)
+            if vol:
+                return vol.get_filesystem_type()
+            else:
+                log.warn("Could not get volume for path: %s" % path)
         return None
 
     @staticmethod
