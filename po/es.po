@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Gabriel Felipe Cornejo Salas <gnomeusr@gmail.com>, 2008.
-# Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008.
+# Jorge González <jorgegonz@svn.gnome.org>, 2007, 200, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-27 21:38+0000\n"
-"PO-Revision-Date: 2008-11-04 08:22+0100\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=conduit&component=general\n"
+"POT-Creation-Date: 2009-01-23 10:18+0000\n"
+"PO-Revision-Date: 2009-01-23 17:42+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -229,7 +230,7 @@ msgstr "_Archivo"
 msgid "_Help"
 msgstr "Ay_uda"
 
-#: ../conduit/gtkui/Canvas.py:149
+#: ../conduit/gtkui/Canvas.py:150
 msgid "Drag a Data Provider here to continue"
 msgstr "Suelte aquí el proveedor de datos para continuar"
 
@@ -281,43 +282,43 @@ msgstr "Nombre"
 msgid "Loaded"
 msgstr "Cargado"
 
-#: ../conduit/gtkui/UI.py:462 ../conduit/hildonui/UI.py:127
+#: ../conduit/gtkui/UI.py:470 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Sincronización en progreso. ¿Quiere cancelarla?"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:636
 msgid "_Synchronize All"
 msgstr "_Sincronizar todo"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:636
 msgid "Synchronizes All Groups"
 msgstr "Sincronizar todo los grupos"
 
-#: ../conduit/gtkui/UI.py:629
+#: ../conduit/gtkui/UI.py:637
 msgid "_Cancel Synchronization"
 msgstr "_Cancelar la sincronización"
 
-#: ../conduit/gtkui/UI.py:629
+#: ../conduit/gtkui/UI.py:637
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "Cancela la sincronización actual de grupos"
 
-#: ../conduit/gtkui/UI.py:630
+#: ../conduit/gtkui/UI.py:638
 msgid "_Quit"
 msgstr "_Salir"
 
-#: ../conduit/gtkui/UI.py:630
+#: ../conduit/gtkui/UI.py:638
 msgid "Close Conduit"
 msgstr "Cerrar Conduit"
 
-#: ../conduit/gtkui/UI.py:670
+#: ../conduit/gtkui/UI.py:678
 msgid "Synchronization Error"
 msgstr "Error de sincronización"
 
-#: ../conduit/gtkui/UI.py:673
+#: ../conduit/gtkui/UI.py:681
 msgid "Synchronization Complete"
 msgstr "Sincronización completada"
 
-#: ../conduit/gtkui/UI.py:689
+#: ../conduit/gtkui/UI.py:697
 msgid "Synchronizing"
 msgstr "Sincronizando"
 
@@ -370,8 +371,9 @@ msgid "Synchronization Conflict"
 msgstr "Conflicto en la sincronización"
 
 #: ../conduit/dataproviders/DataProvider.py:30
-msgid "Not Configured Correctly"
-msgstr "No está configurado correctamente"
+#| msgid "Not Configured Correctly"
+msgid "Not Configured"
+msgstr "Sin configurar"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:56
 msgid "Backpack Notes"
@@ -419,22 +421,20 @@ msgstr "Guardar las notas en la página:"
 msgid "Username:"
 msgstr "Usuario:"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:33
+#: ../conduit/modules/BansheeModule/BansheeModule.py:51
 msgid "Banshee Playlists"
 msgstr "Listas de reproducción de Banshee"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:34
+#: ../conduit/modules/BansheeModule/BansheeModule.py:52
 msgid "Synchronize your Banshee playlists"
 msgstr "Sincronizar sus listas de reproducción de Banshee"
 
 #. column 1 is the tag name
-#: ../conduit/modules/BansheeModule/BansheeModule.py:141
-#: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
-msgid "Tag Name"
-msgstr "Nombre de la etiqueta"
+#: ../conduit/modules/BansheeModule/BansheeModule.py:217
+msgid "Playlist Name"
+msgstr "Nombre de la lista de reproducción"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:149
+#: ../conduit/modules/BansheeModule/BansheeModule.py:225
 #: ../conduit/modules/FspotModule/FspotModule.py:254
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
 msgid "Enabled"
@@ -488,19 +488,19 @@ msgstr "Calendario de Evolution"
 msgid "Synchronize your calendar"
 msgstr "Sincronizar su calendario"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:260
 msgid "Evolution Tasks"
 msgstr "Tareas de Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:261
 msgid "Synchronize your tasks"
 msgstr "Sincronizar sus tareas"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:317
 msgid "Evolution Memos"
 msgstr "Notas de Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:318
 msgid "Synchronize your memos"
 msgstr "Sincronizar sus notas"
 
@@ -512,12 +512,12 @@ msgstr "Libreta de direcciones:"
 msgid "Evolution"
 msgstr "Evolution"
 
-#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
 #: ../conduit/modules/FacebookModule/config.glade.h:2
 msgid "Facebook"
 msgstr "Facebook"
 
-#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+#: ../conduit/modules/FacebookModule/FacebookModule.py:39
 msgid "Synchronize your Facebook photos"
 msgstr "Sincronice sus fotos en Facebook"
 
@@ -711,6 +711,12 @@ msgstr "Sincronizar sus fotos en F-Spot"
 msgid "F-Spot DBus interface is operating in read-only mode"
 msgstr "La interfaz DBus de F-Spot está funcionando en modo de sólo lectura"
 
+#. column 1 is the tag name
+#: ../conduit/modules/FspotModule/FspotModule.py:246
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
+msgid "Tag Name"
+msgstr "Nombre de la etiqueta"
+
 #: ../conduit/modules/FspotModule/config.glade.h:1
 msgid "<b>Return Photos Tagged With</b>"
 msgstr "<b>Devolver fotos etiquetadas con</b>"
@@ -854,11 +860,11 @@ msgstr "Subido por el usuario de encima"
 msgid "YouTube Source"
 msgstr "Fuente YouTube"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:635
+#: ../conduit/modules/iPodModule/iPodModule.py:663
 msgid "Encoding"
 msgstr "Codificación"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:741
+#: ../conduit/modules/iPodModule/iPodModule.py:769
 msgid "Keep converted files"
 msgstr "Mantener archivos convertidos"
 
