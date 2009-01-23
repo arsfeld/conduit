@@ -1,5 +1,14 @@
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FacebookModule/FacebookModule.py:
+	Print the chosen facebook parsing method
+
+	* conduit/modules/FacebookModule/pyfacebook/__init__.py:
+	Make facebook json selection better by applying patch at
+	http://code.google.com/p/pyfacebook/issues/detail?id=104
+
+2009-01-23  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FacebookModule/pyfacebook/__init__.py:
 	Update to latest upstream svn snapshot
 

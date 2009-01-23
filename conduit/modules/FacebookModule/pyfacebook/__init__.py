@@ -60,16 +60,23 @@ import mimetypes
 RESPONSE_FORMAT = 'JSON'
 try:
     import json as simplejson
-except ImportError:
+    simplejson.loads
+    JSON_MODULE = "json"
+except (ImportError, AttributeError):
     try:
         import simplejson
-    except ImportError:
+        simplejson.loads
+        JSON_MODULE = "simplejson"
+    except (ImportError, AttributeError):
         try:
             from django.utils import simplejson
-        except ImportError:
+            simplejson.loads
+            JSON_MODULE = "django.utils.simplejson"
+        except (ImportError, AttributeError):
             try:
                 import jsonlib as simplejson
                 simplejson.loads
+                JSON_MODULE = "jsonlib"
             except (ImportError, AttributeError):
                 from xml.dom import minidom
                 RESPONSE_FORMAT = 'XML'
@@ -1061,7 +1068,7 @@ class Facebook(object):
 
         if next is not None:
             args['next'] = next
-			
+
         if canvas is True:
             args['canvas'] = 1
 

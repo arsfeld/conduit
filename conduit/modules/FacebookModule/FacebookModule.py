@@ -28,6 +28,7 @@ if pyfacebook.VERSION < '0.1':
     MODULES = {}
 else:
     log.info("Module Information: %s" % Utils.get_module_information(pyfacebook, 'VERSION'))
+    log.info("Facebook parsing using: %s (%s)" % (pyfacebook.RESPONSE_FORMAT, getattr(pyfacebook, "JSON_MODULE", "N/A")))
     MODULES = {
         "FacebookSink" :          { "type": "dataprovider" }        
     }
