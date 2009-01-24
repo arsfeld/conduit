@@ -1,11 +1,15 @@
-# Mario Blättermann <mario.blaettermann@t-online.de>, 2008
-# comicinker <comicinker@gmx.de>, 2008
+# German translation of Conduit user manual.
+#
+# Mario Blättermann <mario.blaettermann@t-online.de>, 2008.
+# comicinker <comicinker@gmx.de>, 2008.
+# Andre Klapper <ak-47@gmx.net>, 2009.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "POT-Creation-Date: 2008-09-19 03:20+0000\n"
-"PO-Revision-Date: 2008-09-19 11:04+0200\n"
-"Last-Translator: Mario Blättermann <mario.blaettermann@t-online.de>\n"
+"PO-Revision-Date: 2009-01-24 17:59+0100\n"
+"Last-Translator: Andre Klapper <ak-47@gmx.net>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -119,7 +123,7 @@ msgid ""
 "Conduit allows you to;"
 msgstr ""
 "<ulink type=\"http\" url=\"http://www.conduit-project.org\">Conduit</ulink> "
-"ist ein Synchronisationsprogramm für GNOME. Es ermöglicht die Synchronisation "
+"ist ein Datenabgleichsprogramm für GNOME. Es ermöglicht den Abgleich "
 "von Dateien, Fotos, E-Mails, Kontakten, Notizen, Kalenderdaten und vieler "
 "anderer Arten von persönlichen Informationen. Diese Daten können mit anderen "
 "Computern, Online-Datenquellen oder anderen elektronischen Geräten "
@@ -131,7 +135,7 @@ msgid ""
 "Synchronize your <ulink type=\"http\" url=\"http://www.gnome.org/projects/"
 "tomboy/\">Tomboy notes</ulink> with another computer"
 msgstr ""
-"Synchonisation von <ulink type=\"http\" url=\"http://www.gnome.org/projects/"
+"Datenabgleich von <ulink type=\"http\" url=\"http://www.gnome.org/projects/"
 "tomboy/\">Tomboy-Notizen</ulink> mit einem anderen Computer"
 
 #: C/conduit.xml:56(para)
@@ -141,7 +145,7 @@ msgid ""
 "\"http://en.wikipedia.org/wiki/Nokia_N800\">Nokia Internet tablet</ulink>, or "
 "between computers"
 msgstr ""
-"Synchronisation von PIM-Daten mit einem Mobiltelefon, einem <ulink type=\"http"
+"Datenabgleich von PIM-Daten mit einem Mobiltelefon, einem <ulink type=\"http"
 "\" url=\"http://en.wikipedia.org/wiki/IPod\">iPod</ulink>, <ulink type=\"http"
 "\" url=\"http://en.wikipedia.org/wiki/Nokia_N800\">Nokia Internet tablet</"
 "ulink>, oder zwischen Computern"
@@ -169,8 +173,8 @@ msgid ""
 "Any combination you can imagine, Conduit will take care of the conversion and "
 "synchronization."
 msgstr ""
-"In jeder nur denkbaren Kombination wird Conduit auf die korrekte "
-"Datenumwandlung und Synchronisation achten. "
+"In jeder nur denkbaren Kombination wird Conduit auf korrekte "
+"Datenumwandlung und korrekten Datenabgleich achten. "
 
 #: C/conduit.xml:65(title)
 msgid "Use Cases"
@@ -182,7 +186,7 @@ msgid ""
 "www.google.com/notebook\">Google notebook</ulink>"
 msgstr ""
 "Fred möchte seine Tomboy-Notizen mit dem  <ulink type=\"http\" url=\"http://"
-"www.google.com/notebook\">Google-Notizbuch</ulink> abgleichen."
+"www.google.com/notebook\">Google-Notizbuch</ulink> abgleichen"
 
 #: C/conduit.xml:71(para)
 msgid ""
@@ -244,7 +248,7 @@ msgid ""
 "your mobile devices could be synchronized automatically by Conduit. Home file "
 "back-ups to a remote server? Synced automatically."
 msgstr ""
-"Das Ziel von Conduit ist die Synchronisation der Daten so nahtlos wie möglich "
+"Das Ziel von Conduit ist es, den Abgleich der Daten so nahtlos wie möglich "
 "zu gestalten, sei es von einem anderen Gerät oder einer entfernten Website. "
 
 #: C/conduit.xml:85(para)
@@ -462,7 +466,7 @@ msgid ""
 "data pane to create a group. For more explanation on groups please check "
 "<xref linkend=\"conduit-providers-and-groups\"/>."
 msgstr ""
-"Wird verwendet, um Gruppen von Datenquellen zur Synchronisation anzulegen. "
+"Wird verwendet, um Gruppen von Datenquellen zum Abgleichen anzulegen. "
 "Ziehen Sie eine Datenquelle in die linke Hälfte des Ansichtsfensters und "
 "einen oder mehrere Datenempfänger in die rechte Hälfte, um eine Gruppe "
 "anzulegen. Nähere Erläuterungen über Gruppen finden Sie in <xref linkend="
@@ -479,7 +483,7 @@ msgid ""
 "please check the <emphasis>Conflicts and Resolutions</emphasis> section of "
 "the documentation."
 msgstr ""
-"Eventuelle Fehlermeldungen während eines Synchronisationsvorgangs werden hier "
+"Eventuelle Fehlermeldungen während eines Datenabgleichs werden hier "
 "angezeigt. Weitere Informationen über den Umgang mit möglichen "
 "Fehlermeldungen finden Sie im Abschnitt <emphasis>Konflikte und Lösungen</"
 "emphasis> in dieser Dokumentation."
@@ -532,7 +536,7 @@ msgid ""
 msgstr ""
 "<menuchoice><guimenu>Datei</guimenu><guimenuitem>Beenden</guimenuitem></"
 "menuchoice> Beendet Conduit. Bei eventuell noch laufenden "
-"Synchronisationsvorgängen wird um eine Bestätigung gebeten."
+"Datenabgleichsvorgängen wird um eine Bestätigung gebeten."
 
 #: C/conduit.xml:150(title)
 msgid "The Edit Menu"
@@ -563,7 +567,7 @@ msgid ""
 msgstr ""
 "<menuchoice><guimenu>Bearbeiten</guimenu><guimenuitem>Einstellungen</"
 "guimenuitem></menuchoice> Globale Conduit-Einstellungen, die sich auf alle "
-"Synchronisationsgruppen und auf grundlegende Conduit-Aktionen auswirken. "
+"Datenabgleichsgruppen und auf grundlegende Conduit-Aktionen auswirken. "
 "Weitere Informationen finden Sie in <xref linkend=\"conduit-preferences-window"
 "\"/>."
 
@@ -609,7 +613,7 @@ msgid ""
 msgstr ""
 "Die Conduit-Einstellungen erreichen Sie über das Bearbeiten-Menü. Jede im "
 "Einstellungsdialog vorgenommene Änderung wird auf alle "
-"Synchronisationsgruppen und Conduit-Aktionen angewendet."
+"Datenabgleichsgruppen und Conduit-Aktionen angewendet."
 
 #: C/conduit.xml:169(title)
 msgid "Configuration Tab"
@@ -645,7 +649,7 @@ msgid ""
 "a sync is in progress."
 msgstr ""
 "Zeigt das Benachrichtigungssymbol im Benachrichtigungsfeld. Dieses Symbol "
-"wird animiert, während eine Synchronisation stattfindet."
+"wird animiert, während ein Datenabgleich stattfindet."
 
 #: C/conduit.xml:181(guilabel)
 msgid "Minimize to Notification Area"
@@ -711,7 +715,7 @@ msgid ""
 "from different sources. Here you have the option to clear the mapping "
 "database."
 msgstr ""
-"Dies ist eine Liste von UIDs, die Conduit verwendet, um die Synchronisation "
+"Dies ist eine Liste von UIDs, die Conduit verwendet, um den Datenabgleich "
 "der Daten aus verschiedenen Quellen korrekt zu handhaben. Hier haben Sie die "
 "Möglichkeit, die Datenbank-Zuordnung zu löschen."
 
@@ -759,26 +763,26 @@ msgid ""
 "group is a collection of data providers that share data. In the figure below "
 "you will see the following parts"
 msgstr ""
-"Conduit stellt die Synchronisationen grafisch dar. Sobald Datenquellen zum "
+"Conduit stellt den Datenabgleich grafisch dar. Sobald Datenquellen zum "
 "Ansichtsfenster hinzugefügt werden, werden sie in so genannten Gruppen "
 "angeordnet. Eine Gruppe ist eine Ansammlung von Anbietern, welche Daten "
 "austauschen. Im unten stehenden Bild sehen Sie folgende Teile:"
 
 #: C/conduit.xml:229(title)
 msgid "Conduit Depicts Synchronizations Graphically"
-msgstr "Conduit stellt Synchronisationen grafisch dar"
+msgstr "Conduit stellt Datenabgleiche grafisch dar"
 
 #: C/conduit.xml:236(para)
 msgid "Parts of a Synchronization Group"
-msgstr "Teile einer Synchronisationsgruppe"
+msgstr "Teile einer Datenabgleichsgruppe"
 
 #: C/conduit.xml:243(para)
 msgid ""
 "A data provider for synchronizing two way whose status indicates that it is "
 "ready to be synchronized."
 msgstr ""
-"Eine Datenquelle zum Synchronisieren in zwei Richtungen, dessen Status "
-"anzeigt, dass er bereit zur Synchronisation ist."
+"Eine Datenquelle zum Abgleichen in zwei Richtungen, dessen Status "
+"anzeigt, dass er bereit zum Datenabgleich ist."
 
 #: C/conduit.xml:244(para)
 msgid ""
@@ -788,9 +792,9 @@ msgid ""
 "same information once the sync finishes."
 msgstr ""
 "Eine Gruppe, die zwei Datenquellen in Form von Ordnern enthält. Der Pfeil hat "
-"zwei Spitzen, was eine Zweiwege-Synchronisation für diese Gruppe anzeigt. Das "
+"zwei Spitzen, was ein Zweiwege-Datenabgleich für diese Gruppe anzeigt. Das "
 "bedeutet, dass die Daten in zwei Richtungen fließen, wobei beide Ordner die "
-"gleichen Informationen enthalten werden, sobald die Synchronisation beendet "
+"gleichen Informationen enthalten werden, sobald der Datenabgleich beendet "
 "ist."
 
 #: C/conduit.xml:245(para)
@@ -800,7 +804,7 @@ msgid ""
 "sync, data can only flow into them."
 msgstr ""
 "Ein zweiter Datenquellen-Ordner. Nach Konvention sind Datenquellen auf der "
-"rechten Seite einer Gruppe Datenempfänger. Bei einer Einweg-Synchronisation "
+"rechten Seite einer Gruppe Datenempfänger. Bei einem Einweg-Datenabgleich "
 "können die Daten nur in dieser Richtung fließen."
 
 #: C/conduit.xml:246(para)
@@ -813,7 +817,7 @@ msgstr ""
 
 #: C/conduit.xml:251(title)
 msgid "Synchronizing Something"
-msgstr "Synchronisationsvorgänge"
+msgstr "Datenabgleichsvorgänge"
 
 #: C/conduit.xml:252(para)
 msgid ""
@@ -823,8 +827,8 @@ msgid ""
 "information on specific settings please refer to the corresponding section of "
 "the documentation."
 msgstr ""
-"Dieser Abschnitt beschreibt die zur Synchronisation zweier Datenquellen "
-"auszuführenden Schritte. Das gegebene Beispiel beschreibt die Synchronisation "
+"Dieser Abschnitt beschreibt die zum Datenabgleich zweier Datenquellen "
+"auszuführenden Schritte. Das gegebene Beispiel beschreibt den Datenabgleich "
 "zweier Ordner, aber die Konzepte sind auf jeden möglichen Fall anwendbar. "
 "Weitere Informationen über spezifische Einstellungen finden Sie in den "
 "entsprechenden Abschnitten der Dokumentation."
@@ -840,26 +844,26 @@ msgstr ""
 #: C/conduit.xml:257(para)
 msgid "The top group depicts a two way synchronization of two folders"
 msgstr ""
-"Die obere Gruppe stellt eine Zweiwege-Synchronisation zweier Ordner dar."
+"Die obere Gruppe stellt einen Zweiwege-Datenabgleich zweier Ordner dar."
 
 #: C/conduit.xml:258(para)
 msgid ""
 "The bottom group depicts a one way sync of images, from F-Spot to Facebook, "
 "and to the Picasa web albums."
 msgstr ""
-"Die untere Gruppe stellt eine Einweg-Synchronisation von Bildern dar, von F-"
+"Die untere Gruppe stellt einen Einweg-Datenabgleich von Bildern dar, von F-"
 "Spot zu Facebook und den Picasa-Webalben."
 
 #: C/conduit.xml:262(title)
 msgid "Example 1: Synchronizing Two Folders"
-msgstr "Beispiel 1: Synchronisieren zweier Ordner"
+msgstr "Beispiel 1: Abgleichen zweier Ordner"
 
 #: C/conduit.xml:263(para)
 msgid ""
 "The following steps will recreate the two way synchronization group shown as "
 "<emphasis>#1</emphasis> in the figure above."
 msgstr ""
-"Folgende Schritte erstellen die Zweiwege-Synchronisation, wie sie in "
+"Folgende Schritte erstellen den Zweiwege-Datenabgleich, wie er in "
 "<emphasis>#1</emphasis> im Bild oben gezeigt wird."
 
 #: C/conduit.xml:265(para)
@@ -886,7 +890,7 @@ msgid ""
 msgstr ""
 "Ziehen Sie aus dem Datenquellen-Teilfenster eine Ordner-Datenquelle auf die "
 "linke Seite des Ansichtsteilfensters. Das wird die Datenquelle als "
-"Ausgangspunkt der Synchronisation."
+"Ausgangspunkt des Datenabgleichs."
 
 #: C/conduit.xml:272(para)
 msgid "Configure <emphasis>folder1</emphasis>"
@@ -941,7 +945,7 @@ msgstr ""
 
 #: C/conduit.xml:295(para)
 msgid "Configure the synchronization parameters"
-msgstr "Einstellen der Synchronisationsparameter"
+msgstr "Einstellen der Datenabgleichsparameter"
 
 #: C/conduit.xml:296(para)
 msgid ""
@@ -952,8 +956,8 @@ msgid ""
 "see <xref linkend=\"conduit-providers-and-groups\"/>."
 msgstr ""
 "Klicken Sie mit der rechten Maustaste auf die zugehörige Gruppe. Aus den "
-"Synchronisationsoptionen wählen Sie die Zweiwege-Synchronisation. Weil dies "
-"eine grundlegende Option beim Konfigurieren einer Synchronisation ist, werden "
+"Datenabgleichsoptionen wählen Sie den Zweiwege-Datenabgleich. Weil dies "
+"eine grundlegende Option beim Konfigurieren eines Datenabgleichs ist, werden "
 "wir zunächst in diesem Abschnitt der Dokumentation nicht auf die erweiterten "
 "Einstellungen eingehen. Wenn Sie weitere Informationen zu den Einstellungen "
 "wünschen, lesen Sie bitte unter <xref linkend=\"conduit-providers-and-groups"
@@ -965,9 +969,9 @@ msgid ""
 "from the File menu. Once the sync is finished you should see the file that "
 "you placed in folder1 on your desktop within folder2."
 msgstr ""
-"Die Synchronisation kann entweder durch Rechtsklick und dann Auswahl von "
-"Synchronisation oder über das Datei-Menü gestartet werden. Sobald die "
-"Synchronisation beendet ist, können Sie die Datei, welche Sie im Ordner1 "
+"Der Datenabgleich kann entweder durch Rechtsklick und dann Auswahl von "
+"Datenabgleich oder über das Datei-Menü gestartet werden. Sobald der "
+"Datenabgleich beendet ist, können Sie die Datei, welche Sie im Ordner1 "
 "platziert haben, in Ordner2 sehen."
 
 #: C/conduit.xml:302(title)
@@ -1017,7 +1021,7 @@ msgid ""
 "Facebook using the Conduit login window, shown in <xref linkend=\"conduit-FIG-"
 "login\"/>."
 msgstr ""
-"Synchronisieren Sie jetzt die Gruppe, um Fotos zu übertragen. Sie werden über "
+"Gleichen Sie jetzt die Gruppe ab, um Fotos zu übertragen. Sie werden über "
 "ein  Anmeldefenster von Conduit gebeten, sich bei Facebook anzumelden, wie in "
 "Bild <xref linkend=\"conduit-FIG-login\"/> zu sehen ist."
 
@@ -1058,11 +1062,11 @@ msgstr "Eine Gruppe konfigurieren, Vorgehen bei Fehlermeldungen, usw."
 
 #: C/conduit.xml:320(para)
 msgid "Synchronize the dataproviders as you wish."
-msgstr "Synchronisieren Sie die Datenquellen nach Ihren Wünschen."
+msgstr "Gleichen Sie die Datenquellen nach Ihren Wünschen ab."
 
 #: C/conduit.xml:325(title)
 msgid "Network Synchronization"
-msgstr "Netzwerk-Synchronisation"
+msgstr "Netzwerk-Datenabgleich"
 
 #: C/conduit.xml:326(para)
 msgid ""
@@ -1073,7 +1077,7 @@ msgid ""
 "will be used to help explain the setup procedure."
 msgstr ""
 "Wenn Sie zu Hause zwei Computer haben, können Sie Conduit zum direkten "
-"Synchronisieren von Daten zwischen diesen beiden Computern verwenden, ohne "
+"Abgleichen von Daten zwischen diesen beiden Computern verwenden, ohne "
 "dass zuvor irgendwo Daten gespeichert werden müssen. Die nachfolgenden "
 "Schritte zeigen, wie Tomboy-Notizen auf zwei Computern abgeglichen werden "
 "können, nennen wir sie nzjrs-desktop und nzjrs-laptop. Der folgende Schlüssel "
@@ -1097,7 +1101,7 @@ msgstr ""
 
 #: C/conduit.xml:335(title)
 msgid "Network Synchronization Tip"
-msgstr "Tip zur Netzwerk-Synchronisation"
+msgstr "Tip zum Netzwerk-Datenabgleich"
 
 #: C/conduit.xml:336(para)
 msgid ""
@@ -1120,7 +1124,7 @@ msgid ""
 "dataprovider pane. This makes Tomboy available for synchronization on the "
 "second computer. <placeholder-1/>"
 msgstr ""
-"Erstellen Sie auf dem ersten Computer eine Synchronisationsgruppe, welche "
+"Erstellen Sie auf dem ersten Computer eine Datenabgleichsgruppe, welche "
 "Tomboy und eine Netzwerk-Datenquelle miteinander verbindet. Netzwerk-"
 "Datenquellen finden Sie in der Kategorie »Verschiedenes«. Dies ermöglicht es "
 "Tomboy, seine Daten mit einem zweiten Computer abzugleichen. <placeholder-1/>"
@@ -1135,7 +1139,7 @@ msgstr ""
 "Nach einer kurzen Verzögerung führt das zur Erstellung einer neuen Kategorie "
 "auf dem zweiten Computer. Die Kategorie übernimmt den Namen des ersten "
 "Computers, in diesem Fall »nzjrs-desktop«, und beinhaltet alle Datenquellen, "
-"die zur Synchronisation zur Verfügung stehen."
+"die zum Datenabgleich zur Verfügung stehen."
 
 #: C/conduit.xml:354(title)
 msgid "Configuration of the Second Computer"
@@ -1152,8 +1156,8 @@ msgstr ""
 #: C/conduit.xml:364(para)
 msgid "Finally, on the second computer, start the sync in the normal manner."
 msgstr ""
-"Zum Schluss starten Sie auf dem zweiten Computer wie gewohnt die "
-"Synchronisation."
+"Zum Schluss starten Sie auf dem zweiten Computer wie gewohnt den "
+"Datenabgleich."
 
 #: C/conduit.xml:365(para)
 msgid "Your tomboy notes should now be synchronized between the two computers."
@@ -1172,7 +1176,7 @@ msgid ""
 "hope to address this limitation in the future."
 msgstr ""
 "Aus Sicherheits- und Geschwindigkeitsgründen ist es nicht empfehlenswert, "
-"große Dateien zwischen zwei Computern über das Netzwerk zu abzugleichen. Wir "
+"große Dateien zwischen zwei Computern über das Netzwerk abzugleichen. Wir "
 "hoffen, dass wir diese Einschränkung in Zukunft beseitigen können."
 
 #. Put one translator per line, in the form of NAME <EMAIL>, YEAR1, YEAR2.
