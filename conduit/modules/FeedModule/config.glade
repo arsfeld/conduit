@@ -92,6 +92,18 @@ Enclosures Downloaded to:</property>
               </packing>
             </child>
             <child>
+              <widget class="GtkCheckButton" id="randomize">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Randomize Enclosures</property>
+                <property name="response_id">0</property>
+                <property name="draw_indicator">True</property>
+              </widget>
+              <packing>
+                <property name="position">6</property>
+              </packing>
+            </child>
+            <child>
               <widget class="GtkCheckButton" id="downloadphotos">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -104,7 +116,7 @@ Enclosures Downloaded to:</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">6</property>
+                <property name="position">7</property>
               </packing>
             </child>
             <child>
@@ -120,7 +132,7 @@ Enclosures Downloaded to:</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">7</property>
+                <property name="position">8</property>
               </packing>
             </child>
             <child>
@@ -136,7 +148,7 @@ Enclosures Downloaded to:</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">8</property>
+                <property name="position">9</property>
               </packing>
             </child>
           </widget>

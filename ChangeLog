@@ -1,5 +1,19 @@
 2009-01-29  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/FeedModule/FeedModule.py:
+	* conduit/modules/FeedModule/config.glade:
+	Feedmodule can now choose n random enclosures from
+	a feed.
+
+	* NEWS:
+	* conduit/modules/Makefile.am:
+	* conduit/modules/DesktopWallpaperModule.py:
+	Add a new dataprovider that changes the desktop
+	wallpaper. Connect to a flickr rss feed to see an
+	example of it in use.
+
+2009-01-29  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/utils/__init__.py:
 	* test/python-tests/TestCoreUtil.py:
 	Add utility funtions, and tests, for executing OS commands

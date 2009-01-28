@@ -1,3 +1,4 @@
+import random
 import logging
 log = logging.getLogger("modules.Feed")
 
@@ -68,6 +69,7 @@ class RSSSource(DataProvider.DataSource):
         self.feedUrl = ""
         self.files = {}
         self.limit = 0        
+        self.randomize = False
         self.downloadPhotos = True
         self.downloadAudio = True
         self.downloadVideo = True
@@ -85,7 +87,7 @@ class RSSSource(DataProvider.DataSource):
     def _add_file(self, url, title, t):
         log.debug("Got enclosure %s %s (%s)" % (title,url,t))
         if self._is_allowed_type(t):
-            if len(self.files) < self.limit or self.limit == 0:
+            if len(self.files) < self.limit or self.limit == 0 or self.randomize:
                 self.files[url] = (title,t)
         else:
             log.debug("Enclosure %s is an illegal type (%s)" % (title,t))
@@ -104,6 +106,7 @@ class RSSSource(DataProvider.DataSource):
         url = tree.get_widget("url")
         limitCb = tree.get_widget("limitdownloads")
         limitSb = tree.get_widget("limitnumber")        
+        randomize = tree.get_widget("randomize")
         photosCb = tree.get_widget("downloadphotos")
         audioCb = tree.get_widget("downloadaudio")
         videoCb = tree.get_widget("downloadvideo")
@@ -115,6 +118,7 @@ class RSSSource(DataProvider.DataSource):
         else:
             limitCb.set_active(False)
         url.set_text(self.feedUrl)
+        randomize.set_active(self.randomize)
         photosCb.set_active(self.downloadPhotos)
         audioCb.set_active(self.downloadAudio)
         videoCb.set_active(self.downloadVideo)
@@ -125,8 +129,8 @@ class RSSSource(DataProvider.DataSource):
         if response == True:
             self.feedUrl = url.get_text()
             if limitCb.get_active():
-                #Need to cast to a float cause it returns an int
                 self.limit = int(limitSb.get_value())
+            self.randomize = randomize.get_active()
             self.downloadPhotos = photosCb.get_active()
             self.downloadAudio = audioCb.get_active()
             self.downloadVideo = videoCb.get_active()
@@ -147,8 +151,24 @@ class RSSSource(DataProvider.DataSource):
                 self._add_file(media['url'], entry.title, media['type'])
 
     def get_all(self):
-        DataProvider.DataSource.get_all(self)                            
-        return self.files.keys()
+        DataProvider.DataSource.get_all(self)
+        all_files = self.files.keys()
+
+        if self.randomize:
+            if self.limit == 0:
+                #no need to randomly choose between *all* files,
+                #as order is irellevant, really
+                return all_files
+            else:
+                #randomly choose limit files from all_files
+                lim = self.limit
+                files = []
+                while lim > 0:
+                    files.append(all_files.pop(random.randint(0,len(all_files)-1)))
+                    lim -= 1
+                return files
+        else:
+            return all_files
             
     def get(self, url):
         DataProvider.DataSource.get(self, url)
@@ -176,6 +196,7 @@ class RSSSource(DataProvider.DataSource):
         return {
             "feedUrl" : self.feedUrl,
             "limit" : self.limit,
+            "randomize" : self.randomize,
             "downloadPhotos" : self.downloadPhotos,
             "downloadAudio" : self.downloadAudio,
             "downloadVideo" : self.downloadVideo
