@@ -17,11 +17,11 @@ class NautilusBookmarksDataProviderTwoWay( DataProvider.TwoWay ):
 
     _name_ = "Nautilus Bookmarks"
     _description_ = "Sync your Nautilus Bookmarks"
-    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _category_ = conduit.dataproviders.CATEGORY_BOOKMARKS
     _module_type_ = "twoway"
     _in_type_ = "bookmark"
     _out_type_ = "bookmark"
-    _icon_ = "applications-internet"
+    _icon_ = "nautilus"
     _configurable_ = True
 
     def __init__( self ):

@@ -19,7 +19,7 @@ class GoogleBookmarksDataProviderSource( DataProvider.DataSource ):
 
     _name_ = "Google Bookmarks"
     _description_ = "Sync your Google Bookmarks"
-    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _category_ = conduit.dataproviders.CATEGORY_BOOKMARKS
     _module_type_ = "source"
     _out_type_ = "bookmark"
     _icon_ = "applications-internet"

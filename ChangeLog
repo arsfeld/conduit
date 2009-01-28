@@ -1,3 +1,11 @@
+2009-01-29  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/__init__.py:
+	* conduit/modules/Firefox3Module/Firefox3Module.py:
+	* conduit/modules/GoogleBookmarksModule.py:
+	* conduit/modules/NautilusBookmarksModule.py: Add bookmarks
+	category, and place bookmarks dps into it.
+
 2009-01-23  John Stowers  <john.stowers@gmail.com>
 
 	* scripts/update-3rdparty-libs.sh: Add updater for pyrtm

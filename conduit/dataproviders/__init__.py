@@ -8,4 +8,5 @@ CATEGORY_OFFICE = DataProviderCategory.DataProviderCategory("Office", "applicati
 CATEGORY_SETTINGS = DataProviderCategory.DataProviderCategory("Settings", "applications-system")
 CATEGORY_MISC = DataProviderCategory.DataProviderCategory("Miscellaneous", "applications-accessories")
 CATEGORY_MEDIA = DataProviderCategory.DataProviderCategory("Media", "applications-multimedia")
+CATEGORY_BOOKMARKS = DataProviderCategory.DataProviderCategory("Bookmarks", "user-bookmarks")
 CATEGORY_TEST = DataProviderCategory.DataProviderCategory("Test")

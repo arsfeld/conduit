@@ -23,7 +23,7 @@ class Firefox3DataProviderSource( DataProvider.DataSource ):
 
     _name_ = "Firefox 3 Bookmarks"
     _description_ = "Syncronize your Firefox 3 Bookmarks"
-    _category_ = conduit.dataproviders.CATEGORY_MISC
+    _category_ = conduit.dataproviders.CATEGORY_BOOKMARKS
     _module_type_ = "source"
     _out_type_ = "bookmark"
     _icon_ = "applications-internet"
