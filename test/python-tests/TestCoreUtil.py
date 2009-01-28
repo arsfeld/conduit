@@ -62,6 +62,11 @@ ok("uuid string: %s" % s, len(s) > 0 and type(s) == str)
 s = Utils.get_user_string()
 ok("user string: %s" % s, len(s) > 0 and type(s) == str)
 
+#test command line processing
+ok("Cmd executed", len(Utils.exec_command_and_return_result("ls",".")) > 0)
+ok("Cmd with wrong args", Utils.exec_command_and_return_result("ls","does-not-exist") == None) 
+ok("Cmd that doesnt exist", Utils.exec_command_and_return_result("cmd-does-not-exist",".") == None)  
+
 ts = 0
 dt = datetime.datetime(1970, 1, 1, 1, 0)
 ok("Datetime to unix timestamp", Utils.datetime_get_timestamp(dt) == ts)

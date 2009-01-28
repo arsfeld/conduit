@@ -1,5 +1,11 @@
 2009-01-29  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/utils/__init__.py:
+	* test/python-tests/TestCoreUtil.py:
+	Add utility funtions, and tests, for executing OS commands
+
+2009-01-29  John Stowers  <john.stowers@gmail.com>
+
 	* data/liferea.png:
 	* data/f-spot.png:
 	* data/tomboy.png:

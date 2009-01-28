@@ -15,6 +15,7 @@ import urllib2
 import time
 import re
 import logging
+import subprocess
 log = logging.getLogger("Utils")
 
 def _get_http_resource(url):
@@ -391,4 +392,18 @@ def get_module_information(module, versionAttributeName):
     except: pass
         
     return "%s%s%s" % (module.__name__, version, path)
+
+def exec_command_and_return_result(cmd, arg):
+    """
+    Executes a commmand and returns the result, or None on error
+    """
+    try:
+        p = subprocess.Popen([cmd, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out,err = p.communicate()
+        if p.returncode == 0:
+            return out
+        else:
+            return None
+    except OSError:
+        return None
 
