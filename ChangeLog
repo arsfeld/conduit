@@ -1,5 +1,13 @@
 2009-01-29  John Stowers  <john.stowers@gmail.com>
 
+	* data/liferea.png:
+	* data/f-spot.png:
+	* data/tomboy.png:
+	* data/Makefile.am: Delete some icons, they
+	are shipped with the program we are syncing with anyway
+
+2009-01-29  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/dataproviders/__init__.py:
 	* conduit/modules/Firefox3Module/Firefox3Module.py:
 	* conduit/modules/GoogleBookmarksModule.py:

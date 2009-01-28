@@ -41,9 +41,6 @@ resources_DATA = \
 	conduit-splash.png \
 	facebook.png \
 	feed.png \
-	f-spot.png \
-	liferea.png \
-	tomboy.png \
 	picasa.png \
 	smugmug.png \
 	boxdotnet.png \
