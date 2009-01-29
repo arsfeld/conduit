@@ -18,6 +18,7 @@ class SimpleConfigurator:
                     "Widget" : gtk.TextView,
                     "Callback" : function,
                     "InitialValue" : value or function
+                    "UserData" : tuple of additional args to callback (optional)
                     }
                 ]
                 
@@ -80,16 +81,18 @@ class SimpleConfigurator:
         """
         log.debug("OK Clicked")
         for w in self.widgetInstances:
+            args = w["UserData"]
+
             #FIXME: This seems hackish
             if isinstance(w["Widget"], gtk.Entry):
-                w["Callback"](w["Widget"].get_text())
+                w["Callback"](w["Widget"].get_text(), *args)
             elif isinstance(w["Widget"], gtk.CheckButton):
-                w["Callback"](w["Widget"].get_active())
+                w["Callback"](w["Widget"].get_active(), *args)
             elif w["Kind"] == "list":
-                w["Callback"](w["Widget"].get_active(), w["Widget"].get_active_text())
+                w["Callback"](w["Widget"].get_active(), w["Widget"].get_active_text(), *args)
             else:
                 # Just return the widget, so the caller should know what to do with this
-                w["Callback"](w["Widget"])
+                w["Callback"](w["Widget"], *args)
 
         self.dialog.destroy()
         
@@ -118,6 +121,7 @@ class SimpleConfigurator:
         run
         """
         resp = self.dialog.run()
+        return resp == gtk.RESPONSE_OK
         
     def build_child(self):
         """
@@ -166,14 +170,20 @@ class SimpleConfigurator:
                 #gtk.CheckButton has its label built in
                 label = None
                 widget.set_label(l["Name"])
-                widget.set_active(bool(l["InitialValue"])) 
+                widget.set_active(bool(l["InitialValue"]))
+
+            if "UserData" in l:
+                args = l["UserData"]
+            else:
+                args = ()
                                        
             #FIXME: There must be a better way to do this but we need some way 
             #to identify the widget *instance* when we save the values from it            
             self.widgetInstances.append({
                                         "Widget" : widget,
                                         "Kind" : kind,
-                                        "Callback" : l["Callback"]
+                                        "Callback" : l["Callback"],
+                                        "UserData" : args
                                         })
                                         
             table = self.customSettings

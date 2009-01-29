@@ -18,28 +18,27 @@ MODULES = {
 }
 
 class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
-    _name_ = _("GConf Settings")
-    _description_ = _("Synchronize your desktop preferences")
+    _name_ = _("Application Settings")
+    _description_ = _("Synchronize your application settings")
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "twoway"
     _in_type_ = "setting"
     _out_type_ = "setting"
     _icon_ = "preferences-desktop"
-    _configurable_ = False
+    _configurable_ = True
     
-    DEFAULT_WHITELIST = [
-                '/apps/metacity/*',
-                '/desktop/gnome/applications/*',
-                '/desktop/gnome/background/*',
-                '/desktop/gnome/interface/*',
-                '/desktop/gnome/url-handlers/*'
-                ]
+    WHITELIST = {
+        "Metacity"  :   ('/apps/metacity/*',),
+        "Nautilus"  :   ('/apps/nautilus/*',),
+        "Preferred Applications"   :   ('/desktop/gnome/applications/*'),
+        "Desktop Interface" :   ('/desktop/gnome/interface/*',)
+    }
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
 
-        self.whitelist = self.DEFAULT_WHITELIST
+        self.sections = []
         self.awaitingChanges = {}
 
         self.gconf = gconf.client_get_default()
@@ -47,9 +46,10 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         self.gconf.notify_add('/', self._on_change)
 
     def _in_the_list(self, key):
-        for pattern in self.whitelist:
-            if fnmatch.fnmatch(key, pattern):
-                return True
+        for section in self.sections:
+            for pattern in self.WHITELIST[section]:
+                if fnmatch.fnmatch(key, pattern):
+                    return True
         return False
 
     def _get_all(self, path):
@@ -133,15 +133,40 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                 #the change wasnt from us
                 self.handle_modified(entry.key)
 
-    def refresh(self):
-        pass
+    def is_configured(self, isSource, isTwoWay):
+        return len(self.sections) > 0
+
+    def configure( self, window ):
+        import gtk
+        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+
+        sections = []
+        def check_active(active, sectionName):
+            if active:
+                sections.append(sectionName)
+    
+        items = []
+        for n in self.WHITELIST:
+            item = {
+                "Name" : "%s Settings" % n,
+                "Kind" : "check",
+                "Callback" : check_active,
+                "InitialValue" : n in self.sections,
+                "UserData" : (n,)
+            }
+            items.append(item)
+        dialog = SimpleConfigurator.SimpleConfigurator(window, "Applications to Synchronize", items)
+        if dialog.run():
+            self.sections = sections
 
     def get_all(self):
         """ loop through all gconf keys and see which ones match our whitelist """
+        DataProvider.TwoWay.get_all(self)
         return self._get_all("/")
 
     def get(self, uid):
         """ Get a Setting object based on UID (key path) """
+        DataProvider.TwoWay.get(self, uid)
         node = self.gconf.get(uid)
         if not node:
             log.debug("Could not find uid %s" % uid)
@@ -154,13 +179,10 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         return s
         
     def get_configuration(self):
-        return {"whitelist" : self.whitelist}
+        return {"sections" : self.sections}
         
-    def set_configuration(self, config):
-        self.whitelist = config.get("whitelist",self.DEFAULT_WHITELIST)
-        log.debug("%s" % self.whitelist)
-
     def put(self, setting, overwrite, uid=None):
+        DataProvider.TwoWay.put(self, setting, overwrite, uid)
         log.debug("Saving value in Gconf: %s=%s" % (setting.key, setting.value))
         self._to_gconf(setting.key, setting.value)
         if uid == None:
@@ -168,6 +190,7 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         return self.get(uid).get_rid()
 
     def delete(self, uid):
+        DataProvider.TwoWay.delete(self, uid)
         self.gconf.unset(uid)
 
     def get_UID(self):

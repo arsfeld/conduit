@@ -1,5 +1,16 @@
 2009-01-29  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/SimpleConfigurator.py: Add ability
+	to attach userdata to callbacks. Also return the
+	result of the dialog.
+
+	* conduit/modules/GConfModule/GConfModule.py:
+	Generalise the GConfSettings module to 
+	group settings into categories, and add the ability to
+	selectively sync those settings.
+
+2009-01-29  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/FeedModule/FeedModule.py:
 	* conduit/modules/FeedModule/config.glade:
 	Feedmodule can now choose n random enclosures from
