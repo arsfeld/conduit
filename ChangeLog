@@ -1,3 +1,8 @@
+2009-01-30  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/Makefile.am: 
+	Fix build (Julien Lavergne).
+
 2009-01-29  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/SimpleConfigurator.py: Add ability
