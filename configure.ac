@@ -120,7 +120,9 @@ AS_AC_EXPAND(BINDIR, $bindir)
 AS_AC_EXPAND(LIBDIR, $libdir)
 AS_AC_EXPAND(LOCALEDIR, $datarootdir/locale)
 AS_AC_EXPAND(PKGDATADIR, $datarootdir/$PACKAGE)
+AS_AC_EXPAND(DATADIR, $datarootdir/$PACKAGE)
 AS_AC_EXPAND(MODULEDIR, $libdir/$PACKAGE/modules)
+AS_AC_EXPAND(DESKTOPFILEDIR, $datadir/applications)
 
 ################################################################################
 #-------------------------------------------------------------------------------
@@ -178,7 +180,6 @@ conduit/modules/ZotoModule/Makefile
 conduit/modules/Firefox3Module/Makefile
 data/Makefile
 data/conduit.desktop.in
-data/conduit-autostart.desktop.in
 data/conduit.pc
 data/icons/Makefile
 data/icons/hicolor/Makefile

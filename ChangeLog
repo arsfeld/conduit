@@ -1,5 +1,21 @@
 2009-01-30  John Stowers  <john.stowers@gmail.com>
 
+	* data/conduit-autostart.desktop.in.in: deleted
+
+	* NEWS:
+	* conduit/__init__.py:
+	* conduit/defs.py.in:
+	* conduit/gtkui/UI.py:
+	* configure.ac:
+	* data/Makefile.am: Manage our own autostart
+	capability by copying the conduit desktop file
+	the the user autostart directory.
+
+	* data/conduit.glade: Add an option
+	in the UI to reflect this.
+
+2009-01-30  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/Makefile.am: 
 	Fix build (Julien Lavergne).
 

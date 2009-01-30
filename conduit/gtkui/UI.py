@@ -280,6 +280,43 @@ class MainWindow:
             conduit.GLOBALS.mappingDB.delete()
             treeview.set_model(sqliteListStore)
 
+        def is_start_at_login_enabled():
+            autostartFile = os.path.join(conduit.AUTOSTART_FILE_DIR, "conduit.desktop")
+            if os.path.exists(autostartFile):
+                #if it contains X-GNOME-Autostart-enabled=false then it has
+                #has been disabled by the user in the session applet, otherwise
+                #it is enabled
+                return open(autostartFile).read().find("X-GNOME-Autostart-enabled=false") == -1
+            else:
+                return False
+
+        def update_start_at_login(update):
+            autostartFile = os.path.join(conduit.AUTOSTART_FILE_DIR, "conduit.desktop")
+            desktopFile = os.path.join(conduit.DESKTOP_FILE_DIR, "conduit.desktop")
+
+            if os.path.exists(autostartFile):
+                log.info("Removing autostart desktop file")
+                os.remove(autostartFile)
+
+
+
+            if update and os.path.exists(desktopFile):
+                log.info("Adding autostart desktop file")
+                #copy the original file to the new file, but 
+                #add -i to the exec line (start iconified)
+                old = open(desktopFile, "r")
+                new = open(autostartFile, "w")
+
+                for l in old.readlines():         
+                    if l.startswith("Exec="):
+                        new.write(l[0:-1])
+                        new.write(" -i\n")
+                    else:
+                        new.write(l)
+
+                old.close()
+                new.close()
+               
         #Build some liststores to display
         CONVERT_FROM_MESSAGE = _("Convert from")
         CONVERT_INTO_MESSAGE = _("into")
@@ -362,6 +399,13 @@ class MainWindow:
         show_hints_check = tree.get_widget("show_hints_check")
         show_hints_check.set_active(conduit.GLOBALS.settings.get("gui_show_hints"))
 
+        #special case start at login. Because we copy the desktop file from the
+        #system to ~/.config/autostart, we require conduit to be installed
+        start_at_login_check = tree.get_widget("start_at_login")
+        if conduit.IS_INSTALLED:
+            start_at_login_check.set_active(is_start_at_login_enabled())
+        else:
+            start_at_login_check.set_sensitive(False)
 
         #restore the current policy
         for policyName in Conduit.CONFLICT_POLICY_NAMES:
@@ -396,6 +440,7 @@ class MainWindow:
             conduit.GLOBALS.settings.set("show_status_icon", status_icon_check.get_active())
             conduit.GLOBALS.settings.set("gui_minimize_to_tray", minimize_to_tray_check.get_active())
             conduit.GLOBALS.settings.set("gui_show_hints", show_hints_check.get_active())
+            update_start_at_login(start_at_login_check.get_active())
             #save the current policy
             for policyName in Conduit.CONFLICT_POLICY_NAMES:
                 for policyValue in Conduit.CONFLICT_POLICY_VALUES:

@@ -1,3 +1,8 @@
+2009-01-30  John Stowers  <john.stowers@gmail.com>
+
+	* POTFILES.in:
+	* POTFILES.skip: Remove conduit-autostart.desktop.*
+
 2009-01-28  Jorge Gonzalez  <jorgegonz@svn.gnome.org>
 
 	* es.po: Updated Spanish translation

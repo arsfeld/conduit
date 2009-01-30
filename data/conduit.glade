@@ -750,6 +750,15 @@
                             <property name="visible">True</property>
                             <property name="spacing">5</property>
                             <child>
+                              <widget class="GtkCheckButton" id="start_at_login">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Start Conduit at login</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                              </widget>
+                            </child>
+                            <child>
                               <widget class="GtkCheckButton" id="save_settings_check">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -761,6 +770,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
@@ -775,7 +785,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
@@ -790,7 +800,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="position">2</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                             <child>
@@ -802,7 +812,7 @@
                                 <property name="draw_indicator">True</property>
                               </widget>
                               <packing>
-                                <property name="position">3</property>
+                                <property name="position">4</property>
                               </packing>
                             </child>
                           </widget>

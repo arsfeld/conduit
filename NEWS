@@ -4,6 +4,8 @@ NEW in 0.3.16:
 * Support Google Bookmarks
 * Support Nautilus Bookmarks
 * Add dataprovider for changing desktop wallpaper
+* Autostart capability can now be controlled from 
+  the preferences UI
 
 NEW in 0.3.15:
 ==============

@@ -1,6 +1,5 @@
 [encoding: UTF-8]
 data/conduit.desktop.in.in
-data/conduit-autostart.desktop.in.in
 data/conduit.glade
 conduit/gtkui/Canvas.py
 conduit/gtkui/ConflictResolver.py

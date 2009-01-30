@@ -53,15 +53,11 @@ resources_DATA = \
 conduitbindir = $(libdir)/conduit
 
 ################################################################################
-# Desktop and autostart file
+# Desktop file
 ################################################################################
 desktopdir = $(datadir)/applications
 desktop_in_files = conduit.desktop.in 
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
-
-autostartdir = $(datadir)/gnome/autostart
-autostart_in_files = conduit-autostart.desktop.in
-autostart_DATA = $(autostart_in_files:.desktop.in=.desktop)
 
 @INTLTOOL_DESKTOP_RULE@
 
@@ -87,15 +83,13 @@ $(dbusservice_DATA): $(dbusservice_in_files) Makefile
 
 DISTCLEANFILES = \
 	$(pkgconfig_DATA) \
-	$(desktop_DATA) \
-	$(autostart_DATA)
+	$(desktop_DATA)
 
 EXTRA_DIST = \
 	$(resources_DATA) \
 	$(pkgconfig_in_files) \
 	$(dbusservice_in_files) \
 	conduit.desktop.in.in \
-	conduit-autostart.desktop.in.in \
 	COPYING
 	
 CLEANFILES = conduit.desktop org.conduit.service
