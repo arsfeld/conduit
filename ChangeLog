@@ -1,5 +1,10 @@
 2009-01-30  John Stowers  <john.stowers@gmail.com>
 
+	* configure.ac: Used $datarootdir instead of
+	datadir to make the new autostart foo work. 
+
+2009-01-30  John Stowers  <john.stowers@gmail.com>
+
 	* po/POTFILES.in: Add Firefox 3 glade file
 	* */*/*: svn:ignore Makefile.in
 

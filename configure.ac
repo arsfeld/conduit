@@ -122,7 +122,7 @@ AS_AC_EXPAND(LOCALEDIR, $datarootdir/locale)
 AS_AC_EXPAND(PKGDATADIR, $datarootdir/$PACKAGE)
 AS_AC_EXPAND(DATADIR, $datarootdir/$PACKAGE)
 AS_AC_EXPAND(MODULEDIR, $libdir/$PACKAGE/modules)
-AS_AC_EXPAND(DESKTOPFILEDIR, $datadir/applications)
+AS_AC_EXPAND(DESKTOPFILEDIR, $datarootdir/applications)
 
 ################################################################################
 #-------------------------------------------------------------------------------
