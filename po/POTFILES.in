@@ -47,4 +47,5 @@ conduit/modules/SmugMugModule/SmugMugModule.py
 conduit/modules/SmugMugModule/config.glade
 conduit/modules/ZotoModule/ZotoModule.py
 conduit/modules/ZotoModule/zoto.glade
+conduit/modules/Firefox3Module/config.glade
 
