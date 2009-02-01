@@ -1,14 +1,14 @@
 # Swedish translation for conduit.
-# Copyright (C) 2007-2008 Free Software Foundation, Inc.
+# Copyright (C) 2007-2009 Free Software Foundation, Inc.
 # This file is distributed under the same license as the conduit package.
-# Daniel Nylander <po@danielnylander.se>, 2007, 2008.
+# Daniel Nylander <po@danielnylander.se>, 2007, 2008, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-26 10:07+0100\n"
-"PO-Revision-Date: 2008-10-26 10:08+0100\n"
+"POT-Creation-Date: 2009-02-01 11:53+0100\n"
+"PO-Revision-Date: 2009-02-01 11:54+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -16,20 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../data/conduit.desktop.in.in.h:1
-#: ../data/conduit-autostart.desktop.in.in.h:2
 msgid "Conduit Synchronizer"
 msgstr "Synkroniseraren Conduit"
 
 #: ../data/conduit.desktop.in.in.h:2
-#: ../data/conduit-autostart.desktop.in.in.h:3
 msgid "Synchronization for GNOME"
 msgstr "Synkronisering för GNOME"
-
-#. Translators: Translate this in derived classes.
-#: ../data/conduit-autostart.desktop.in.in.h:1
-#: ../conduit/modules/N800Module/N800Module.py:55
-msgid "Conduit"
-msgstr "Conduit"
 
 #: ../data/conduit.glade.h:1
 msgid "<b>Default Synchronization Options</b>"
@@ -172,62 +164,66 @@ msgid "Slow Synchronization"
 msgstr "Långsam synkronisering"
 
 #: ../data/conduit.glade.h:36
+msgid "Start Conduit at login"
+msgstr "Starta Conduit vid inloggning"
+
+#: ../data/conduit.glade.h:37
 msgid "Synchronization Options"
 msgstr "Alternativ för synkronisering"
 
-#: ../data/conduit.glade.h:37
+#: ../data/conduit.glade.h:38
 msgid "Synchronize All"
 msgstr "Synkronisera allt"
 
-#: ../data/conduit.glade.h:38
+#: ../data/conduit.glade.h:39
 msgid "Synchronize Group"
 msgstr "Synkronisera grupp"
 
-#: ../data/conduit.glade.h:39
+#: ../data/conduit.glade.h:40
 msgid "Synchronize group"
 msgstr "Synkronisera grupp"
 
-#: ../data/conduit.glade.h:40
+#: ../data/conduit.glade.h:41
 msgid "Synchronizes all groups"
 msgstr "Synkroniserar alla grupper"
 
-#: ../data/conduit.glade.h:41
+#: ../data/conduit.glade.h:42
 msgid "Title"
 msgstr "Titel"
 
-#: ../data/conduit.glade.h:42
+#: ../data/conduit.glade.h:43
 msgid "Two-Way Synchronization"
 msgstr "Tvåvägssynkronisering"
 
-#: ../data/conduit.glade.h:43
+#: ../data/conduit.glade.h:44
 msgid "When an item has been deleted:"
 msgstr "När ett objekt har tagits bort:"
 
-#: ../data/conduit.glade.h:44
+#: ../data/conduit.glade.h:45
 msgid "When an item is deleted..."
 msgstr "När ett objekt tas bort..."
 
-#: ../data/conduit.glade.h:45
+#: ../data/conduit.glade.h:46
 msgid "When there is a conflict..."
 msgstr "När en konflikt inträffar..."
 
-#: ../data/conduit.glade.h:46
+#: ../data/conduit.glade.h:47
 msgid "When there is a two-way conflict:"
 msgstr "När en tvåvägskonflikt inträffar:"
 
-#: ../data/conduit.glade.h:47
+#: ../data/conduit.glade.h:48
 msgid "_Edit"
 msgstr "R_edigera"
 
-#: ../data/conduit.glade.h:48
+#: ../data/conduit.glade.h:49
 msgid "_File"
 msgstr "_Arkiv"
 
-#: ../data/conduit.glade.h:49
+#: ../data/conduit.glade.h:50
 msgid "_Help"
 msgstr "_Hjälp"
 
-#: ../conduit/gtkui/Canvas.py:149
+#: ../conduit/gtkui/Canvas.py:150
 msgid "Drag a Data Provider here to continue"
 msgstr "Dra en dataleverantör hit för att fortsätta"
 
@@ -254,71 +250,71 @@ msgid "Conflicts (%s)"
 msgstr "Konflikter (%s)"
 
 #. Build some liststores to display
-#: ../conduit/gtkui/UI.py:284
+#: ../conduit/gtkui/UI.py:321
 msgid "Convert from"
 msgstr "Konvertera från"
 
-#: ../conduit/gtkui/UI.py:285
+#: ../conduit/gtkui/UI.py:322
 msgid "into"
 msgstr "till"
 
-#: ../conduit/gtkui/UI.py:336
+#: ../conduit/gtkui/UI.py:373
 msgid "Relationship Database"
 msgstr "Relationsdatabas"
 
-#: ../conduit/gtkui/UI.py:340
+#: ../conduit/gtkui/UI.py:377
 msgid "Conversions Available"
 msgstr "Konversioner tillgängliga"
 
-#: ../conduit/gtkui/UI.py:346
+#: ../conduit/gtkui/UI.py:383
 #: ../conduit/gtkui/Tree.py:348
 #: ../conduit/modules/FileModule/FileConfiguration.py:105
 msgid "Name"
 msgstr "Namn"
 
 # FIXME. Kolla denna
-#: ../conduit/gtkui/UI.py:350
+#: ../conduit/gtkui/UI.py:387
 msgid "Loaded"
 msgstr "Inläst"
 
-#: ../conduit/gtkui/UI.py:462
+#: ../conduit/gtkui/UI.py:515
 #: ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Synkronisering pågår. Vill du avbryta den?"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:681
 msgid "_Synchronize All"
 msgstr "_Synkronisera allt"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:681
 msgid "Synchronizes All Groups"
 msgstr "Synkroniserar alla grupper"
 
-#: ../conduit/gtkui/UI.py:629
+#: ../conduit/gtkui/UI.py:682
 msgid "_Cancel Synchronization"
 msgstr "_Avbryt synkronisering"
 
-#: ../conduit/gtkui/UI.py:629
+#: ../conduit/gtkui/UI.py:682
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "Avbryter aktuella synkroniseringsgrupper"
 
-#: ../conduit/gtkui/UI.py:630
+#: ../conduit/gtkui/UI.py:683
 msgid "_Quit"
 msgstr "_Avsluta"
 
-#: ../conduit/gtkui/UI.py:630
+#: ../conduit/gtkui/UI.py:683
 msgid "Close Conduit"
 msgstr "Stäng Conduit"
 
-#: ../conduit/gtkui/UI.py:670
+#: ../conduit/gtkui/UI.py:723
 msgid "Synchronization Error"
 msgstr "Fel vid synkronisering"
 
-#: ../conduit/gtkui/UI.py:673
+#: ../conduit/gtkui/UI.py:726
 msgid "Synchronization Complete"
 msgstr "Synkronisering färdigställd"
 
-#: ../conduit/gtkui/UI.py:689
+#: ../conduit/gtkui/UI.py:742
 msgid "Synchronizing"
 msgstr "Synkronisering"
 
@@ -371,8 +367,8 @@ msgid "Synchronization Conflict"
 msgstr "Konflikt i synkronisering"
 
 #: ../conduit/dataproviders/DataProvider.py:30
-msgid "Not Configured Correctly"
-msgstr "Inte konfigurerad korrekt"
+msgid "Not Configured"
+msgstr "Inte konfigurerad"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:56
 msgid "Backpack Notes"
@@ -420,22 +416,20 @@ msgstr "Spara anteckningar i sida:"
 msgid "Username:"
 msgstr "Användarnamn:"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:33
+#: ../conduit/modules/BansheeModule/BansheeModule.py:51
 msgid "Banshee Playlists"
 msgstr "Banshee-spellistor"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:34
+#: ../conduit/modules/BansheeModule/BansheeModule.py:52
 msgid "Synchronize your Banshee playlists"
 msgstr "Synkronisera dina Banshee-spellistor"
 
 #. column 1 is the tag name
-#: ../conduit/modules/BansheeModule/BansheeModule.py:141
-#: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
-msgid "Tag Name"
-msgstr "Taggnamn"
+#: ../conduit/modules/BansheeModule/BansheeModule.py:217
+msgid "Playlist Name"
+msgstr "Spellistenamn"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:149
+#: ../conduit/modules/BansheeModule/BansheeModule.py:225
 #: ../conduit/modules/FspotModule/FspotModule.py:254
 #: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
 msgid "Enabled"
@@ -490,19 +484,19 @@ msgstr "Evolution-kalender"
 msgid "Synchronize your calendar"
 msgstr "Synkronisera din kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:260
 msgid "Evolution Tasks"
 msgstr "Evolution-uppgifter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:261
 msgid "Synchronize your tasks"
 msgstr "Synkronisera dina uppgifter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:317
 msgid "Evolution Memos"
 msgstr "Evolution-memon"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:318
 msgid "Synchronize your memos"
 msgstr "Synkronisera dina memon"
 
@@ -514,12 +508,12 @@ msgstr "Adressbok:"
 msgid "Evolution"
 msgstr "Evolution"
 
-#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
 #: ../conduit/modules/FacebookModule/config.glade.h:2
 msgid "Facebook"
 msgstr "Facebook"
 
-#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+#: ../conduit/modules/FacebookModule/FacebookModule.py:39
 msgid "Synchronize your Facebook photos"
 msgstr "Synkronisera dina Facebook-foton"
 
@@ -532,12 +526,12 @@ msgstr "Synkronisera dina Facebook-foton"
 msgid "Album:"
 msgstr "Album:"
 
-#: ../conduit/modules/FeedModule/FeedModule.py:57
+#: ../conduit/modules/FeedModule/FeedModule.py:58
 #: ../conduit/modules/FeedModule/config.glade.h:9
 msgid "RSS Feed"
 msgstr "RSS-kanal"
 
-#: ../conduit/modules/FeedModule/FeedModule.py:58
+#: ../conduit/modules/FeedModule/FeedModule.py:59
 msgid "Synchronize data from RSS enclosures"
 msgstr "Synkronisera data från RSS-bilagor"
 
@@ -572,6 +566,10 @@ msgid ""
 msgstr ""
 "Begränsa antalet bilagor\n"
 "att hämta ner till:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:10
+msgid "Randomize Enclosures"
+msgstr "Slumpa bilagor"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:99
 msgid "Icon"
@@ -710,6 +708,12 @@ msgstr "Synkronisera dina F-Spot-foton"
 msgid "F-Spot DBus interface is operating in read-only mode"
 msgstr "F-Spots DBus-gränssnitt kör i skrivskyddat läge"
 
+#. column 1 is the tag name
+#: ../conduit/modules/FspotModule/FspotModule.py:246
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
+msgid "Tag Name"
+msgstr "Taggnamn"
+
 #: ../conduit/modules/FspotModule/config.glade.h:1
 msgid "<b>Return Photos Tagged With</b>"
 msgstr "<b>Returnera foton som är taggade med</b>"
@@ -719,12 +723,12 @@ msgid "Create Tags: "
 msgstr "Skapa taggar: "
 
 #: ../conduit/modules/GConfModule/GConfModule.py:21
-msgid "GConf Settings"
-msgstr "GConf-inställningar"
+msgid "Application Settings"
+msgstr "Programinställningar"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
-msgid "Synchronize your desktop preferences"
-msgstr "Synkronisera dina skrivbordsinställningar"
+msgid "Synchronize your application settings"
+msgstr "Synkronisera dina programinställningar"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:369
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
@@ -853,11 +857,11 @@ msgstr "Uppskickad av ovanstående användare"
 msgid "YouTube Source"
 msgstr "YouTube-källa"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:635
+#: ../conduit/modules/iPodModule/iPodModule.py:663
 msgid "Encoding"
 msgstr "Kodning"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:741
+#: ../conduit/modules/iPodModule/iPodModule.py:769
 msgid "Keep converted files"
 msgstr "Behåll konverterade filer"
 
@@ -868,6 +872,11 @@ msgstr "<b>Kodning</b>"
 #: ../conduit/modules/iPodModule/config.glade.h:3
 msgid "iPod Photos"
 msgstr "iPod-bilder"
+
+#. Translators: Translate this in derived classes.
+#: ../conduit/modules/N800Module/N800Module.py:55
+msgid "Conduit"
+msgstr "Conduit"
 
 #. Translators: Format string used to describe the acceptable formats the
 #. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
@@ -989,6 +998,18 @@ msgstr "Zoto"
 msgid "Synchronize your Zoto photos"
 msgstr "Synkronisera dina Zoto-foton"
 
+#: ../conduit/modules/Firefox3Module/config.glade.h:1
+msgid "Firefox"
+msgstr "Firefox"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:2
+msgid "Firefox Profile:"
+msgstr "Firefox-profil:"
+
+#~ msgid "Not Configured Correctly"
+#~ msgstr "Inte konfigurerad korrekt"
+#~ msgid "Synchronize your desktop preferences"
+#~ msgstr "Synkronisera dina skrivbordsinställningar"
 #~ msgid "Slow Sync"
 #~ msgstr "Långsam synkronisering"
 #~ msgid "Sync Options"
@@ -1097,8 +1118,6 @@ msgstr "Synkronisera dina Zoto-foton"
 #~ msgstr "Användarnamn: "
 #~ msgid "%Y-%m-%dT%H:%M:%S"
 #~ msgstr "%Y-%m-%dT%H.%M.%S"
-#~ msgid "Configure "
-#~ msgstr "Konfigurera "
 #~ msgid "Settings Configuration"
 #~ msgstr "Konfiguration"
 #~ msgid "Enable iPod and USB Key Support"
