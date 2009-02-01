@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=conduit&component=general\n"
-"POT-Creation-Date: 2009-01-28 13:22+0000\n"
-"PO-Revision-Date: 2009-01-28 22:10+0100\n"
+"POT-Creation-Date: 2009-01-30 03:28+0000\n"
+"PO-Revision-Date: 2009-02-01 12:27+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -19,20 +19,12 @@ msgstr ""
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
 #: ../data/conduit.desktop.in.in.h:1
-#: ../data/conduit-autostart.desktop.in.in.h:2
 msgid "Conduit Synchronizer"
 msgstr "Sincronizador Conduit"
 
 #: ../data/conduit.desktop.in.in.h:2
-#: ../data/conduit-autostart.desktop.in.in.h:3
 msgid "Synchronization for GNOME"
 msgstr "Sincronización para GNOME"
-
-#. Translators: Translate this in derived classes.
-#: ../data/conduit-autostart.desktop.in.in.h:1
-#: ../conduit/modules/N800Module/N800Module.py:55
-msgid "Conduit"
-msgstr "Conduit"
 
 #: ../data/conduit.glade.h:1
 msgid "<b>Default Synchronization Options</b>"
@@ -175,58 +167,62 @@ msgid "Slow Synchronization"
 msgstr "Sincronización lenta"
 
 #: ../data/conduit.glade.h:36
+msgid "Start Conduit at login"
+msgstr "Iniciar Conduit al iniciar la sesión"
+
+#: ../data/conduit.glade.h:37
 msgid "Synchronization Options"
 msgstr "Opciones de sincronización"
 
-#: ../data/conduit.glade.h:37
+#: ../data/conduit.glade.h:38
 msgid "Synchronize All"
 msgstr "Sincronizar todo"
 
-#: ../data/conduit.glade.h:38
+#: ../data/conduit.glade.h:39
 msgid "Synchronize Group"
 msgstr "Sincronizar grupo"
 
-#: ../data/conduit.glade.h:39
+#: ../data/conduit.glade.h:40
 msgid "Synchronize group"
 msgstr "Sincronizar grupo"
 
-#: ../data/conduit.glade.h:40
+#: ../data/conduit.glade.h:41
 msgid "Synchronizes all groups"
 msgstr "Sincronizar todos los grupos"
 
-#: ../data/conduit.glade.h:41
+#: ../data/conduit.glade.h:42
 msgid "Title"
 msgstr "Título"
 
-#: ../data/conduit.glade.h:42
+#: ../data/conduit.glade.h:43
 msgid "Two-Way Synchronization"
 msgstr "Sincronización de dos vías"
 
-#: ../data/conduit.glade.h:43
+#: ../data/conduit.glade.h:44
 msgid "When an item has been deleted:"
 msgstr "Cuando se ha borrado un elemento"
 
-#: ../data/conduit.glade.h:44
+#: ../data/conduit.glade.h:45
 msgid "When an item is deleted..."
 msgstr "Cuando se borra un elemento..."
 
-#: ../data/conduit.glade.h:45
+#: ../data/conduit.glade.h:46
 msgid "When there is a conflict..."
 msgstr "Cuando hay un conflicto..."
 
-#: ../data/conduit.glade.h:46
+#: ../data/conduit.glade.h:47
 msgid "When there is a two-way conflict:"
 msgstr "Cuando hay un conflicto de dos vías:"
 
-#: ../data/conduit.glade.h:47
+#: ../data/conduit.glade.h:48
 msgid "_Edit"
 msgstr "_Editar"
 
-#: ../data/conduit.glade.h:48
+#: ../data/conduit.glade.h:49
 msgid "_File"
 msgstr "_Archivo"
 
-#: ../data/conduit.glade.h:49
+#: ../data/conduit.glade.h:50
 msgid "_Help"
 msgstr "Ay_uda"
 
@@ -257,68 +253,68 @@ msgid "Conflicts (%s)"
 msgstr "Conflictos (%s)"
 
 #. Build some liststores to display
-#: ../conduit/gtkui/UI.py:284
+#: ../conduit/gtkui/UI.py:321
 msgid "Convert from"
 msgstr "Convertir de"
 
-#: ../conduit/gtkui/UI.py:285
+#: ../conduit/gtkui/UI.py:322
 msgid "into"
 msgstr "en"
 
-#: ../conduit/gtkui/UI.py:336
+#: ../conduit/gtkui/UI.py:373
 msgid "Relationship Database"
 msgstr "Base de datos relacional"
 
-#: ../conduit/gtkui/UI.py:340
+#: ../conduit/gtkui/UI.py:377
 msgid "Conversions Available"
 msgstr "Conversiones disponibles"
 
-#: ../conduit/gtkui/UI.py:346 ../conduit/gtkui/Tree.py:348
+#: ../conduit/gtkui/UI.py:383 ../conduit/gtkui/Tree.py:348
 #: ../conduit/modules/FileModule/FileConfiguration.py:105
 msgid "Name"
 msgstr "Nombre"
 
-#: ../conduit/gtkui/UI.py:350
+#: ../conduit/gtkui/UI.py:387
 msgid "Loaded"
 msgstr "Cargado"
 
-#: ../conduit/gtkui/UI.py:470 ../conduit/hildonui/UI.py:127
+#: ../conduit/gtkui/UI.py:515 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Sincronización en progreso. ¿Quiere cancelarla?"
 
-#: ../conduit/gtkui/UI.py:636
+#: ../conduit/gtkui/UI.py:681
 msgid "_Synchronize All"
 msgstr "_Sincronizar todo"
 
-#: ../conduit/gtkui/UI.py:636
+#: ../conduit/gtkui/UI.py:681
 msgid "Synchronizes All Groups"
 msgstr "Sincronizar todo los grupos"
 
-#: ../conduit/gtkui/UI.py:637
+#: ../conduit/gtkui/UI.py:682
 msgid "_Cancel Synchronization"
 msgstr "_Cancelar la sincronización"
 
-#: ../conduit/gtkui/UI.py:637
+#: ../conduit/gtkui/UI.py:682
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "Cancela la sincronización actual de grupos"
 
-#: ../conduit/gtkui/UI.py:638
+#: ../conduit/gtkui/UI.py:683
 msgid "_Quit"
 msgstr "_Salir"
 
-#: ../conduit/gtkui/UI.py:638
+#: ../conduit/gtkui/UI.py:683
 msgid "Close Conduit"
 msgstr "Cerrar Conduit"
 
-#: ../conduit/gtkui/UI.py:678
+#: ../conduit/gtkui/UI.py:723
 msgid "Synchronization Error"
 msgstr "Error de sincronización"
 
-#: ../conduit/gtkui/UI.py:681
+#: ../conduit/gtkui/UI.py:726
 msgid "Synchronization Complete"
 msgstr "Sincronización completada"
 
-#: ../conduit/gtkui/UI.py:697
+#: ../conduit/gtkui/UI.py:742
 msgid "Synchronizing"
 msgstr "Sincronizando"
 
@@ -729,12 +725,14 @@ msgid "Create Tags: "
 msgstr "Crear etiquetas: "
 
 #: ../conduit/modules/GConfModule/GConfModule.py:21
-msgid "GConf Settings"
-msgstr "Ajustes de GConf"
+#| msgid "GConf Settings"
+msgid "Application Settings"
+msgstr "Configuración de aplicaciones"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
-msgid "Synchronize your desktop preferences"
-msgstr "Sincronizar sus preferencias del escritorio"
+#| msgid "Synchronize your contacts"
+msgid "Synchronize your application settings"
+msgstr "Sincronizar los ajustes de sus aplicaciones"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:369
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
@@ -879,6 +877,11 @@ msgstr "<b>Codificación</b>"
 msgid "iPod Photos"
 msgstr "Fotos del iPod"
 
+#. Translators: Translate this in derived classes.
+#: ../conduit/modules/N800Module/N800Module.py:55
+msgid "Conduit"
+msgstr "Conduit"
+
 #. Translators: Format string used to describe the acceptable formats the
 #. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
 #. arg is a comma seperated list of encodings
@@ -998,6 +1001,17 @@ msgstr "Zoto"
 #: ../conduit/modules/ZotoModule/ZotoModule.py:155
 msgid "Synchronize your Zoto photos"
 msgstr "Sincronizar sus fotos en Zoto"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:1
+msgid "Firefox"
+msgstr "Firefox"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:2
+msgid "Firefox Profile:"
+msgstr "Perfil de Firefox:"
+
+#~ msgid "Synchronize your desktop preferences"
+#~ msgstr "Sincronizar sus preferencias del escritorio"
 
 #~ msgid "Slow Sync"
 #~ msgstr "Sincronización lenta"
