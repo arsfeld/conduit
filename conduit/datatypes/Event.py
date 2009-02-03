@@ -1,4 +1,5 @@
 import vobject 
+import re
 import conduit.datatypes.DataType as DataType
 
 class Event(DataType.DataType):

@@ -1,3 +1,8 @@
+2009-02-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/datatypes/Event.py: Import re
+	Fixes #570434 (Brian Teague)
+
 2009-01-30  John Stowers  <john.stowers@gmail.com>
 
 	* configure.ac: Used $datarootdir instead of
