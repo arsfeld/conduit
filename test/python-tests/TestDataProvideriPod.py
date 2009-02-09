@@ -1,6 +1,8 @@
 #common sets up the conduit environment
+    
 from common import *
 
+import threading
 import os.path
 import shutil
 import traceback
@@ -17,6 +19,7 @@ ipodNoteDp = iPodModule.IPodNoteTwoWay(fakeIpodDir,"")
 ipodContactsDp = iPodModule.IPodContactsTwoWay(fakeIpodDir,"")
 ipodCalendarDp = iPodModule.IPodCalendarTwoWay(fakeIpodDir,"")
 ipodPhotoDp = iPodModule.IPodPhotoSink(fakeIpodDir,"")
+ipodMusicDp = iPodModule.IPodMusicTwoWay(None,"")
 
 #The ipod photo (and music AFAICT) require some initialization of 
 #a skeleton database file. 
@@ -35,22 +38,42 @@ TESTS = (
 (ipodNoteDp,        new_note,               "IPodNoteTwoWay",       True),
 (ipodContactsDp,    new_contact,            "IPodContactsTwoWay",   True),
 (ipodCalendarDp,    new_event,              "IPodCalendarTwoWay",   True),
-(ipodPhotoDp,       new_photo,              "IPodPhotoSink",        False),
+(ipodMusicDp,       new_audio,              "IPodMusicTwoWay",      True),
+#(ipodPhotoDp,       new_photo,              "IPodPhotoSink",        False),
 )
 
-for dp, newdata_func, name, istwoway in TESTS:
-    test = SimpleTest()
-    test.set_sink(
-            test.wrap_dataprovider(dp)
-            )
-    
-    newdata = newdata_func(None)
-    test.do_dataprovider_tests(
-        supportsGet=istwoway,
-        supportsDelete=True,
-        safeLUID=None,
-        data=newdata,
-        name="%s:%s" % (name,dp._in_type_)
-        )
+import gobject
+import gtk
+gtk.gdk.threads_init()
 
+
+mainloop = gobject.MainLoop()
+
+def run_tests():
+    try:
+        for dp, newdata_func, name, istwoway in TESTS:
+            test = SimpleTest()
+            test.set_sink(
+                    test.wrap_dataprovider(dp)
+                    )
+            
+            newdata = newdata_func(None)
+            test.do_dataprovider_tests(
+                supportsGet=istwoway,
+                supportsDelete=True,
+                safeLUID=None,
+                data=newdata,
+                name="%s:%s" % (name,dp._in_type_)
+                )
+                
+    finally:
+        mainloop.quit()
+
+def idle_cb():
+    threading.Thread(target=run_tests).start()
+    return False
+
+gobject.idle_add(idle_cb)
+mainloop.run()
 finished()
+

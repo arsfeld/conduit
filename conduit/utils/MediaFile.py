@@ -44,7 +44,13 @@ class MediaFile(File.File):
 
     def _create_gst_metadata(self):
         '''
-        Create metadata from GStreamer
+        Create metadata from GStreamer.
+        
+        Requires a mainloop and the calling thread MUST BE outside the main 
+        loop (usually not a problem inside the synchronization process, which
+        has it's own thread).
+        This is also a very expensive operation, should be called only when 
+        necessary.   
         '''
         event = threading.Event()
         def discovered(discoverer, valid):
@@ -56,6 +62,8 @@ class MediaFile(File.File):
         info.connect('discovered', discovered)
         info.discover()
         # Wait for discover to finish (which is async and emits discovered)
+        # This thread MUST NOT be the mainloop thread, because then the signal
+        # will NEVER be received, and this will deadlock.
         event.wait()
         if self._valid:
             tags = info.tags
@@ -96,6 +104,8 @@ class MediaFile(File.File):
         '''
         Get a dict containing all availiable metadata.
 
+        It defaults to get the metadata from GStreamer and make a cache that is
+        accessed later.
         Descendants should override this function to provide their own tags,
         or merge with these tags, by calling MediaFile.get_media_tags().
         '''

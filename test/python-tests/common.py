@@ -223,21 +223,23 @@ def new_text(txt):
     t.set_open_URI(Utils.random_string())
     return t
 
-#def new_audio(filename):
-#    a = Audio.Audio(
-#                URI=filename
-#                )                
-#    a.set_UID(Utils.random_string())
-#    a.set_open_URI(filename)
-#    return a
+def new_audio(filename = None):
+    if not filename:
+        filename = get_files_from_data_dir("*.mp3")[0]
+    a = Audio.Audio(
+                URI=filename
+                )                
+    a.set_UID(Utils.random_string())
+    a.set_open_URI(filename)
+    return a
 
-#def new_video(filename):
-#    v = Video.Video(
-#                URI=filename
-#                )                
-#    v.set_UID(Utils.random_string())
-#    v.set_open_URI(filename)
-#    return v
+def new_video(filename):
+    v = Video.Video(
+                URI=filename
+                )                
+    v.set_UID(Utils.random_string())
+    v.set_open_URI(filename)
+    return v
 
 def new_photo(filename):
     if filename == None:
