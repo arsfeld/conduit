@@ -201,7 +201,7 @@ class ModuleManager(gobject.GObject):
             log.warn("Error loading the file: %s\n%s" % (filename, "".join(traceback.format_exception(e.exc,e.value,e.tb))))
             self.invalidFiles.append(os.path.basename(filename))
         except Exception, e:
-            log.warn("Error loading the file: %s\n%s" % (filename, "".join(traceback.format_exception(e.exc,e.value,e.tb))))
+            log.error("Error loading the file: %s\n%s" % (filename, traceback.format_exc()))
             self.invalidFiles.append(os.path.basename(filename))
 
     def load_all(self, whitelist, blacklist):

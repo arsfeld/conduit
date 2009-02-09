@@ -22,6 +22,7 @@ import conduit.Knowledge as Knowledge
 import conduit.gtkui.Tree
 import conduit.gtkui.Util as GtkUtil
 import conduit.dataproviders.DataProvider as DataProvider
+import conduit.gtkui.WindowConfigurator as WindowConfigurator
 
 log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
@@ -168,6 +169,8 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         self.typeConverter = typeConverter
         self.parentWindow = parentWindow
         self.msg = msg
+
+        self.configurator = WindowConfigurator.WindowConfigurator(self.parentWindow)
 
         self._setup_popup_menus(dataproviderMenu, conduitMenu)
 
@@ -351,12 +354,50 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
 
         for i in self._get_child_conduit_canvas_items():
             i.set_width(allocation.width)
+    
+    def _update_configuration(self, selectedItem):
+        if not selectedItem:
+            self.configurator.set_containers([])
+            return 
+        
+        dps = []
+        for dp in selectedItem.model.get_all_dataproviders():
+            if not dp.module: 
+                continue
+            container = dp.module.get_config_container(self.configurator)
+            if container:
+                #FIXME: Should be moved inside the container
+                container.icon = dp.get_icon()
+                container.name = dp.get_name()
+                dps.append(container)
+        if dps:
+            self.configurator.set_containers(dps)
+        
+    def _update_selection(self, selected_conduit, selected_dataprovider):
+        changed_conduit = (selected_conduit != self.selectedConduitItem)
+        if changed_conduit:
+            self._update_configuration(selected_conduit)
+
+        self.selectedDataproviderItem = selected_dataprovider
+        self.selectedConduitItem = selected_conduit
+        
+    def get_selected_conduit(self):
+        if self.selectedConduitItem:
+            return self.selectedConduitItem.model
+        else:
+            return None
+    
+    def get_selected_dataprovider(self):
+        if self.selectedDataproviderItem:
+            return self.selectedDataproviderItem.model        
+        else:
+            return None
 
     def _on_conduit_button_press(self, view, target, event):
         """
         Handle button clicks on conduits
         """
-        self.selectedConduitItem = view
+        self._update_selection(view, None)
 
         #right click
         if event.type == gtk.gdk.BUTTON_PRESS:
@@ -394,8 +435,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         @param user_data_dataprovider_wrapper: The dpw that was clicked
         @type user_data_dataprovider_wrapper: L{conduit.Module.ModuleWrapper}
         """
-        self.selectedDataproviderItem = view
-        self.selectedConduitItem = view.get_parent()
+        self._update_selection(view.get_parent(), view)
 
         #single right click
         if event.type == gtk.gdk.BUTTON_PRESS:
@@ -553,6 +593,11 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         conduitCanvasItem.add_dataprovider_canvas_item(item)
         self._remove_overlap()
         
+        #The embed configurator needs notification when a new dataprovider
+        #is added and the currently selected Conduit is being configured
+        if self.selectedConduitItem == conduitCanvasItem:
+            self._update_configuration(self.selectedConduitItem)
+
         self._show_hint(conduitCanvasItem, item, item)
 
         self._check_if_dataprovider_needs_configuration(
@@ -612,7 +657,12 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         dp = dpw.module
         conduitCanvasItem = self.selectedDataproviderItem.get_parent()
 
-        dp.configure(self.parentWindow)
+        if hasattr(dp, "configure"):
+            log.critical("%s using old configuration system" % dpw.get_name())
+            dp.configure(self.parentWindow)
+        else:
+            config_container = dp.get_config_container(self.configurator)
+            self.configurator.run(config_container)
         self._check_if_dataprovider_needs_configuration(
                 conduitCanvasItem.model,
                 dpw)
