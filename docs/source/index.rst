@@ -7,13 +7,12 @@ Welcome to Conduit's documentation!
 
 .. automodule:: conduit
 
-.. automodule:: conduit.gtkui.SimpleConfigurator
-   :members:
-
 Contents:
 
 .. toctree::
    :maxdepth: 2
+     
+   development/configuration
 
 Indices and tables
 ==================
