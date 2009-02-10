@@ -14,7 +14,6 @@ log = logging.getLogger("gtkui.Config")
 
 from gettext import gettext as _ 
 import conduit
-#import conduit.gtkui.ConfigContainer as ConfigContainer
 
 class Section(gobject.GObject):
     def __init__(self, container, title, order, **kwargs):
@@ -57,12 +56,7 @@ class Section(gobject.GObject):
             
     def apply(self):
         self.container.apply_config(sections = [self])
-
-class ItemMetaClass(gobject.GObjectMeta):
-    def __init__(cls, name, bases, dct):
-        print "Creating class %s using ItemMetaClass" % name
-        super(ItemMetaClass, cls).__init__(name, bases, dct)
-
+        
 class ConfigItem(gobject.GObject):
     '''
     A config item is basically a wrapper to a widget.
@@ -103,7 +97,6 @@ class ConfigItem(gobject.GObject):
         #'reset' : (gobject.SIGNAL_RUN_LAST, None, []),
         #'initial-state' : (gobject.SIGNAL_RUN_FIRST, None, []),
     }
-    __metaclass__ = ItemMetaClass
     
     def __init__(self, container, title, order, config_name=None, 
             config_type=None, choices=None, needs_label=True, 
