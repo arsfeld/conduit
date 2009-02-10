@@ -1,3 +1,29 @@
+2009-02-10  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	New configuration system commit. Only the core classes are 
+	commited, no dataprovider is changed yet. These will be
+	commited when ready.
+
+	* conduit/Configurator.py:
+	Base configuration classes
+	* conduit/Module.py:
+	Log an error when not able to load a module
+	* conduit/dataproviders/DataProvider.py:
+	Added update_configuration as an alternative to 
+	implementing get/set_configuration in data
+	providers.
+	Added new configuration system methods
+	* conduit/gtkui/Canvas.py:
+	Use the new configuration system if availiable in a data
+	provider, or logs a critical message if not, and runs
+	the old configure method.
+	* conduit/gtkui/ConfigContainer.py:
+	* conduit/gtkui/ConfigWidgets.py:
+	* conduit/gtkui/EmbedConfigurator.py:
+	* conduit/gtkui/WindowConfigurator.py:
+	New configuration system. Temporarily documented in 
+	http://wiki.arosenfeld.net/Conduit
+
 2009-02-09  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/modules/iPodModule/iPodModule.py:

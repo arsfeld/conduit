@@ -57,6 +57,8 @@ class DataProviderBase(gobject.GObject):
         self.pendingChangeDetected = False
         self.icon = None
         self.status = STATUS_NONE
+        self.config_container = None
+        self.configuration = {}
 
     def __emit_status_changed(self):
         """
@@ -168,13 +170,46 @@ class DataProviderBase(gobject.GObject):
         else:
             return False
 
-    def configure(self, window):
+    def get_config_container(self, configurator):
         """
-        Show a configuration box for configuring the dataprovider instance.
-        @param window: The parent gtk.Window (to show a modal dialog)
+        Retrieves the configuration container
+        @param configurator: The configurator object
         """
+        # If the dataprovider is using the old system, returns None (a message
+        # will be thrown in the Canvas module)
+        if hasattr(self, "configure"):
+            return None
+        if not self.config_container:
+            import conduit.gtkui.ConfigContainer as ConfigContainer
+            self.config_container = ConfigContainer.ConfigContainer(self, configurator)
+            self.config_container.connect('apply', self.config_apply)
+            self.config_container.connect('cancel', self.config_cancel)
+            self.config_setup(self.config_container)
+            #FIXME: This is definetely just for debugging (it prints everything
+            # that is changed in the configuration dialog)
+            def print_item(config, item):
+                log.debug("%s: %s = %s" % (item.title, item.config_name, item.get_value()))
+            self.config_container.connect("item-changed", print_item)
+        return self.config_container
+    
+    def config_setup(self, config_container):
+        '''
+        Configures the configuration controller, to show the controls needed
+        '''
         pass
-
+        
+    def config_apply(self, config_container):
+        '''
+        Called when the configuration was applied
+        '''
+        pass
+        
+    def config_cancel(self, config_container):
+        '''
+        Called when the configuration was cancelled
+        '''
+        pass
+        
     def is_configured(self, isSource, isTwoWay):
         """
         Checks if the dp has been configured or not (and if it needs to be)
@@ -191,6 +226,19 @@ class DataProviderBase(gobject.GObject):
         @returns: Dictionary of strings containing application settings
         @rtype: C{dict(string)}
         """
+        if self.configuration:
+            ret = {}
+            for name, default, setter, getter in self._get_configuration_parameters(self.configuration):
+                if getter:
+                    value = getter()
+                elif hasattr(self, name):
+                    value = getattr(self, name)
+                else:
+                    value = default
+                ret[name] = value
+            return ret
+        else:
+            log.critical("No configuration set (probably old-style module)")
         return {}
 
     def get_configuration_xml(self):
@@ -207,7 +255,7 @@ class DataProviderBase(gobject.GObject):
                     vtype = Settings.TYPE_TO_TYPE_NAME[ type(configDict[config]) ]
                     value = Settings.TYPE_TO_STRING[  type(configDict[config]) ](configDict[config])
                 except KeyError:
-                    log.warn("Cannot convert %s to string. Value of %s not saved" % (type(value), config))
+                    log.warn("Cannot convert %s to string. Value of %s not saved" % (type(configDict[config]), config))
                     vtype = Settings.TYPE_TO_TYPE_NAME[str]
                     value = Settings.TYPE_TO_STRING[str](configDict[config])
                 configxml.setAttribute("type", vtype)
@@ -218,22 +266,90 @@ class DataProviderBase(gobject.GObject):
 
         return doc.toxml()
 
+    def _get_configuration_parameters(self, configuration):
+        '''
+        Normalize the configuration dict to 3 params and yields the name plus
+        the parameters. See update_configuration for more information.
+        '''
+        for name, params in configuration.iteritems():
+            if not isinstance(params, tuple):
+                params = (params,)
+            # Normalize to 3 parameters plus name
+            yield (name,) + params + (None,) * (3 - len(params))
+
+    def _set_configuration_values(self, configuration, config = None):
+        '''
+        Set attributes according to configuration. See update_configuration
+        for more information.
+        '''
+        for name, default, setter, getter in self._get_configuration_parameters(configuration):
+            if hasattr(self, name) and callable(getattr(self, name)):
+                continue            
+            if not config or (name in config):                
+                #if not klass:
+                klass = default.__class__
+                if config:
+                    value = klass(config[name])
+                else:
+                    value = default
+                if setter:
+                    if not hasattr(self, name):
+                        setattr(self, name, value)
+                    setter(value)
+                else:
+                    setattr(self, name, value)        
+
+    def update_configuration(self, **kwargs):
+        '''
+        Set the configuration values to be automatically saved and loaded.
+        
+        The keys to kwargs are the attribute names that will be used. The values
+        to kwargs may be a default value or a tuple, containing the default
+        value, a setter and a getter. Not all values must exist in the 
+        tuple. In the case the tuple's length is smaller then 3, the later 
+        properties are defaulted to None.
+        The default value is immediately applied to the attribute if no other 
+        value is set to that attribute. So calling this function on 
+        initialization already initializes all attributes.
+        The getter and setter are functions to get and set the value. They are
+        very simple, getter should return the value to an attribute, so that
+        value can be saved, while setter, which receives a value trough it's 
+        arguments, should propably set an attribute with that value.
+        Notice that if the setter is used, the value is not automatically set
+        as an attribute, unless that attribute does not exist. This allows a 
+        setter to compare the current attribute value to new value to be set,
+        and only set the new value if it wishes so.
+        
+        Note if the dataprovider overrides set_configuration or 
+        get_configuration without calling the implementations in this class, 
+        then the properties defined here have no affect. Either do not override 
+        those functions, or call them like 
+        DataProviderBase.get_configuration(self).
+        '''
+        #FIXME: Rewrite and clarify the documentation above
+
+        self.configuration.update(kwargs)
+        self._set_configuration_values(kwargs)
+
     def set_configuration(self, config):
         """
         Restores applications settings
         @param config: dictionary of dataprovider settings to restore
         """
-        for c in config:
-            #Perform these checks to stop malformed xml from stomping on
-            #unintended variables or posing a security risk by overwriting methods
-            if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
-                setattr(self,c,config[c])
-            else:
-                log.warn("Not restoring %s setting: Exists=%s Callable=%s" % (
-                    c,
-                    getattr(self, c, False),
-                    callable(getattr(self, c, None)))
-                    )
+        if self.configuration:
+            self._set_configuration_values(self.configuration, config)
+        else:
+            for c in config:
+                #Perform these checks to stop malformed xml from stomping on
+                #unintended variables or posing a security risk by overwriting methods
+                if getattr(self, c, None) != None and callable(getattr(self, c, None)) == False:
+                    setattr(self,c,config[c])
+                else:
+                    log.warn("Not restoring %s setting: Exists=%s Callable=%s" % (
+                        c,
+                        getattr(self, c, False),
+                        callable(getattr(self, c, None)))
+                        )
 
     def set_configuration_xml(self, xmltext):
         """
