@@ -1,3 +1,20 @@
+2009-02-09  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/modules/iPodModule/iPodModule.py:
+	Rewrote iPod track data type, now the code is more clear, and
+	the iPod track information can be used in any direction.
+	Changed iPod Media dataproviders to return that data type
+	when getting items (metadata can be retrieved much faster).
+	Made the DB creation only when needed, and the DB locking more
+	granular (still needs atention tough).
+	* conduit/utils/MediaFile.py:
+	* test/python-tests/TestCoreConvertAudioVideo.py:
+	Just added a few warnings regarding GStreamer.
+	* test/python-tests/TestDataProvideriPod.py:
+	Added iPod Music test (it might fail, but it's a start).
+	* test/python-tests/common.py:
+	Re-enabled the Audio and Video data types.
+
 2009-02-04  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/datatypes/Event.py: Import re

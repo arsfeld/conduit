@@ -51,6 +51,8 @@ def convert():
     gobject.idle_add(mainloop.quit)
 
 def idle_cb():
+    # We must run the conversion tests in a thread because the GStreamer 
+    # conversion uses Locks internally which blocks the main loop
     threading.Thread(target=convert).start()
     return False
 
