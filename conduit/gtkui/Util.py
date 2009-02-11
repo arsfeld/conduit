@@ -1,4 +1,5 @@
 import gtk.gdk
+import colorsys
 
 #
 # Tango colors taken from 
@@ -62,6 +63,9 @@ def gdk2rgb(color):
 def gdk2rgba(color, a=1):
     return (color.red / 65535.0, color.green / 65535.0, color.blue / 65535.0, a)
 
+def rgba2int(r, g, b, a):
+    return gdk2intrgba(gtk.gdk.Color(r, g, b))
+
 def convert(color, converter):
     if isinstance(color, gtk.gdk.Color):
         pass
@@ -82,4 +86,24 @@ def to_rgb(color):
 def to_rgba(color):
     return convert(color, gdk2rgba)
 
+def shade_color_rgb(color_rgb, ratio):
+    #color_rgb = [c / float(255) for c in color_rgb]
+    #log.debug(color_rgb)
+    h, l, s = colorsys.rgb_to_hls(*color_rgb)             
+    l = max(min(l * ratio, 1), 0);
+    s = max(min(s * ratio, 1), 0);
+    #log.debug(colorsys.hls_to_rgb(h, l, s))
+    return colorsys.hls_to_rgb(h, l, s)
 
+def shade_color(color, ratio):
+    r, g, b = shade_color_rgb(gdk2rgb(color))
+    return gtk.gdk.Color(r * 65535, g * 65535, b * 65535)
+
+def rgba2int(r, g, b, a = 1.0):
+    return gdk2intrgba(gtk.gdk.Color(r * 65535, g * 65535, b * 65535), a * 65535)
+
+def rgb_to_int(r, g, b):
+    return (r  / 256 << 24) \
+            | (g  / 256 << 16) \
+            | (b  / 256 <<  8) \
+            | 0xff

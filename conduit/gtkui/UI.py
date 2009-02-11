@@ -70,6 +70,41 @@ class _PreconfiguredConduitMenu(gtk.Menu):
         
     def _dp_removed(self, manager, dpw):
         self.remove(self._items[dpw])
+        
+main_window_ui = '''
+<ui>
+  <menubar>
+    <menu name="ConduitMenu" action="ConduitMenuAction">
+      <menuitem name="Save" action="SaveAction" />
+      <menuitem name="SyncAll" action="SyncAllAction" />
+      <menuitem name="CancelAll" action="CancelAllAction" />
+      <placeholder name="ConduitMenuAdditions" />
+      <separator/>
+      <menuitem name="Quit" action="QuitAction" />
+    </menu>
+    <menu name="EditMenu" action="EditMenuAction">
+      <menuitem name="ClearCanvas" action="ClearCanvasAction" />      
+      <menuitem name="Preferences" action="PreferencesAction" />
+    </menu>
+    <menu name="HelpMenu" action="HelpMenuAction"> 
+      <menuitem name="Contents" action="ContentsAction" />
+      <menuitem name="About" action="AboutAction" />
+    </menu>
+  </menubar>
+  <toolbar action="ConduitToolbar">
+    <placeholder name="ConduitItems">
+      <toolitem name="View" action="ViewConduitAction" />
+      <toolitem name="Configure" action="ConfigureAction" />
+      <separator/>
+      <toolitem name="Delete" action="DeleteAction" />
+      <toolitem name="Cancel" action="CancelSyncAction" />
+      <toolitem name="Refresh" action="RefreshAction" />
+      <toolitem name="Sync" action="SyncAction" />
+      <separator/>
+    </placeholder>
+  </toolbar>
+</ui>
+'''        
 
 class MainWindow:
     """
@@ -110,10 +145,52 @@ class MainWindow:
                 "on_about_activate" : self.on_about_conduit,
                 "on_contents_activate" : self.on_help,
                 "on_save1_activate" : self.save_settings,
+                "on_sync_clicked": self.sync_clicked,
+                "on_refresh_clicked": self.refresh_clicked,
                 None : None
                 }
         self.widgets.signal_autoconnect(dic)
-
+        
+        self.action_group = gtk.ActionGroup('main-window')
+        self.action_group.add_actions((
+            ('ConduitMenuAction', None, _("Conduit")),
+            ('SaveAction', gtk.STOCK_SAVE, None, None, None, self.save_settings),
+            ('SyncAllAction', gtk.STOCK_EXECUTE, _('Synchronize All'), None, None, self.sync_clicked),
+            ('CancelAllAction', gtk.STOCK_CANCEL, _('Cancel All'), None, None, self.on_cancel_all_clicked),
+            ('QuitAction', gtk.STOCK_QUIT, None, None, None, self.on_window_closed),
+            
+            ('EditMenuAction', None, _('Edit')),
+            ('PreferencesAction', gtk.STOCK_PREFERENCES, None, None, None, self.on_conduit_preferences),
+            ('ClearCanvasAction', gtk.STOCK_CLEAR, _('Clear Canvas'), None, None, self.on_clear_canvas),
+            
+            ('HelpMenuAction', None, _('Help')),
+            ('ContentsAction', gtk.STOCK_HELP, _('Contents'), None, None, self.on_help),
+            ('AboutAction', gtk.STOCK_ABOUT, None, None, None, self.on_about_conduit),
+            
+            ('SyncAction', gtk.STOCK_EXECUTE, _('Synchronize'), None, None, self.sync_clicked),
+            ('RefreshAction', gtk.STOCK_REFRESH, _('Refresh'), None, None, self.refresh_clicked),
+            ('CancelSyncAction', gtk.STOCK_CANCEL, _('Cancel selected')),
+            ('DeleteAction', gtk.STOCK_DELETE, None, None, None, None),
+            ('ViewConduitAction', gtk.STOCK_INDEX, _('View Conduit'), None, None, self.on_conduit_view),
+            ('ConfigureAction', gtk.STOCK_PREFERENCES, _('Configure')),
+            
+            ('ConduitToolbar', None, 'Conduit'),
+        ))
+        
+        self.ui_manager = gtk.UIManager()
+        self.ui_manager.insert_action_group(self.action_group)
+        self.ui_manager.add_ui_from_string(main_window_ui)
+        
+        vbox1 = self.widgets.get_widget("vbox1")
+        menu = self.ui_manager.get_widget("/menubar")
+        toolbar = self.ui_manager.get_widget('/ConduitToolbar')
+        vbox1.pack_start(menu, False, True)
+        vbox1.reorder_child(menu, 0)
+        vbox1.pack_start(toolbar, False, True)
+        vbox1.reorder_child(toolbar, 1)
+        
+        self.action_group.get_action('CancelSyncAction').set_sensitive(False)
+        
         #type converter and sync manager
         self.type_converter = typeConverter
         self.sync_manager = syncManager
@@ -152,6 +229,7 @@ class MainWindow:
         self.canvasSW.add(self.canvas)
         self.canvas.connect('drag-drop', self.drop_cb)
         self.canvas.connect("drag-data-received", self.drag_data_received_data)
+        self.canvas.connect('selection-changed', self.on_canvas_selection_changed)
         
         # Populate the tree model
         self.dataproviderTreeModel = Tree.DataProviderTreeModel() 
@@ -201,6 +279,12 @@ class MainWindow:
         self.window_state = 0                
         log.info("Main window constructed  (thread: %s)" % thread.get_ident())
                 
+    def refresh_clicked(self, button):
+        self.canvas.on_refresh_conduit_clicked(None)
+        
+    def sync_clicked(self, button):
+        self.canvas.on_synchronize_conduit_clicked(None)
+    
     def on_developer_menu_item_clicked(self, menuitem, name, url):
         threading.Thread(
                     target=Web.LoginMagic,
@@ -212,6 +296,72 @@ class MainWindow:
         cond.connect("sync-started", self.on_sync_started)
         cond.connect("sync-completed", self.on_sync_completed)
         cond.connect("sync-conflict", self.conflictResolver.on_conflict)
+        
+    def on_canvas_selection_changed(self, canvas):
+        has_conduit = (canvas.get_selected_conduit() != None)
+        has_dataprovider = (canvas.get_selected_dataprovider() != None)
+        self.action_group.get_action('SyncAction').set_sensitive(has_dataprovider)
+        
+    def on_conduit_view(self, item):
+        dp = self.canvas.get_selected_dataprovider()
+        if not dp:
+            return
+        window = gtk.Window()
+        window.set_default_size(640, 480)
+        thread = None
+        def window_deleted(window, event):
+            if thread:
+                thread.canceled = True
+        window.connect('delete-event', window_deleted)
+        tree = gtk.TreeView()
+        model = gtk.ListStore(str, str)
+        tree.set_model(model)
+        tree.insert_column_with_attributes(0, 'Data', gtk.CellRendererText(), text = 0)
+        tree.insert_column_with_attributes(1, 'Time', gtk.CellRendererText(), text = 1)
+        def set_status(text):
+            gobject.idle_add(lbl.set_text, text)
+        def thread_execution():
+            def add_row(data):
+                gobject.idle_add(add_text, data)
+            set_status('Refreshing')
+            start = time.time()
+            dp.module.refresh()
+            add_row(("Refreshing", "%.4f sec" % (time.time() - start)))
+            set_status('Getting all items')
+            start = time.time()
+            items = dp.module.get_all()
+            add_row(("Got all items", "%.4f sec" % (time.time() - start)))
+            idx = 0
+            total = len(items)
+            try:
+                for name in items:
+                    if thread.canceled or conduit.GLOBALS.cancelled:
+                        return
+                    idx += 1
+                    set_status("Item %d of %d" % (idx, total))
+                    start = time.time()
+                    text = repr(dp.module.get(name))
+                    finish = time.time()
+                    timing = "%.4f sec" % (finish - start)
+                    add_row((text, timing))
+            finally:
+                dp.module.finish(False, False, False)
+        def add_text(text):
+            model.append(text)
+            return False
+        #log.critical(dp.get_all())
+        sw = gtk.ScrolledWindow()
+        sw.add(tree)        
+        vbox = gtk.VBox()
+        vbox.pack_start(sw)
+        lbl = gtk.Label()        
+        lbl.set_alignment(0.0, 0.5)
+        vbox.pack_start(lbl, False)
+        window.add(vbox)
+        window.show_all()
+        thread = threading.Thread(target=thread_execution)
+        thread.canceled = False
+        thread.start()
 
     def set_model(self, syncSet):
         self.syncSet = syncSet

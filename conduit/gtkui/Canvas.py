@@ -9,6 +9,7 @@ License: GPLv2
 """
 import cairo
 import goocanvas
+import gobject
 import gtk
 import pango
 from gettext import gettext as _
@@ -147,6 +148,12 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
     DND_TARGETS = [
         ('conduit/element-name', 0, 0)
     ]
+    
+    __gsignals__ = {
+        'selection-changed' : (gobject.SIGNAL_RUN_FIRST, None, []),
+    }    
+    
+    SIDEBAR_CONFIGURATOR = True
 
     WELCOME_MESSAGE = _("Drag a Data Provider here to continue")
     def __init__(self, parentWindow, typeConverter, syncManager, dataproviderMenu, conduitMenu, msg):
@@ -374,12 +381,27 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             self.configurator.set_containers(dps)
         
     def _update_selection(self, selected_conduit, selected_dataprovider):
+        if self.selectedConduitItem:
+            self.selectedConduitItem.set_selected(False)
+        if self.selectedDataproviderItem:
+            self.selectedDataproviderItem.set_selected(False)            
+
         changed_conduit = (selected_conduit != self.selectedConduitItem)
         if changed_conduit:
             self._update_configuration(selected_conduit)
-
+            
+        changed_dataprovider = (selected_dataprovider != self.selectedDataproviderItem)
+        
         self.selectedDataproviderItem = selected_dataprovider
         self.selectedConduitItem = selected_conduit
+
+        if self.selectedConduitItem:
+            self.selectedConduitItem.set_selected(True)
+        if self.selectedDataproviderItem:
+            self.selectedDataproviderItem.set_selected(True)
+        
+        if changed_dataprovider or changed_conduit:
+            self.emit('selection-changed')
         
     def get_selected_conduit(self):
         if self.selectedConduitItem:
@@ -768,6 +790,8 @@ class DataProviderCanvasItem(_CanvasItem):
     def __init__(self, parent, model):
         _CanvasItem.__init__(self, parent, model)
 
+        self.selected = False
+
         self._build_widget()
         self.set_model(model)
         
@@ -847,6 +871,7 @@ class DataProviderCanvasItem(_CanvasItem):
         return "box","name","statusText"
         
     def get_style_properties(self, specifier):
+        state = {True: 'normal', False:'normal'}[self.selected]
         if specifier == "box":
             #color the box differently if it is pending, i.e. unavailable,
             #disconnected, etc.
@@ -859,33 +884,70 @@ class DataProviderCanvasItem(_CanvasItem):
                 }
                 
             else:
-                pattern = cairo.LinearGradient(0, 0, 0, 100)
+                if not self.selected:
+                    color = self.get_style_color_rgb("base","prelight")
+#                    pattern = cairo.LinearGradient(0, 0, 0, 100)
+#                    pattern.add_color_stop_rgb(
+#                                            0,
+#                                            *self.get_style_color_rgb("base","active")
+#                                            );
+#                    pattern.add_color_stop_rgb(
+#                                            0.5,
+#                                            *self.get_style_color_rgb("base","prelight")
+#                                            );
+                else:
+                    color = self.get_style_color_rgb("light","selected")
+                dark = GtkUtil.shade_color_rgb(color, 0.95)
+                light = GtkUtil.shade_color_rgb(color, 1.12)
+                pattern = cairo.LinearGradient(0, 0, 0, self.get_height())
                 pattern.add_color_stop_rgb(
                                         0,
-                                        *self.get_style_color_rgb("dark","active")
+                                        *light
                                         );
                 pattern.add_color_stop_rgb(
-                                        0.5,
-                                        *self.get_style_color_rgb("dark","prelight")
+                                        0.4,
+                                        *dark
                                         );
+#                pattern.add_color_stop_rgb(
+#                                        0.8,
+#                                        *light
+#                                        );                                        
+                pattern.add_color_stop_rgb(
+                                        1.0,
+                                        *light
+                                        );
+                
+                #stroke_color = selection_stroke           
+                if not self.selected:
+                    stroke_color = self.get_style_color_int_rgba("dark","prelight")
+                else:
+                    stroke_color = self.get_style_color_rgb("dark","selected")
+                    stroke_color = GtkUtil.rgba2int(*GtkUtil.shade_color_rgb(stroke_color, 1.2))
+                line_width = 1.0
             
                 kwargs = {
-                    "line_width":2.0,
-                    "stroke_color":"black",
+                    "line_width":line_width,
+                    "stroke_color_rgba":stroke_color,
                     "fill_pattern":pattern
                 }
         elif specifier == "name":
             kwargs = {
                 "font":"Sans 8",
-                "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
+                "fill_color_rgba":self.get_style_color_int_rgba("text",state)
             }
         elif specifier == "statusText":
             kwargs = {
                 "font":"Sans 7",
-                "fill_color_rgba":self.get_style_color_int_rgba("text_aa","normal")
+                "fill_color_rgba":self.get_style_color_int_rgba("text_aa",state)
             }
         
         return kwargs
+    
+
+    def set_selected(self, selected):
+        self.selected = selected
+        log.critical("Dataprovider selecting")
+        self._automatic_style_updater()    
         
     def update_appearance(self):
         #the image
@@ -917,8 +979,13 @@ class ConduitCanvasItem(_CanvasItem):
 
     BUTTONS = False
     DIVIDER = False
+    DRAW_SELECTION = True
     FLAT_BOX = True
-    WIDGET_HEIGHT = 63.0
+    # If we draw the selection we have to use flat boxes
+    if DRAW_SELECTION:
+        FLAT_BOX = True
+    PROGRESS_TEXT_HEIGHT = 10
+    WIDGET_HEIGHT = 63.0 + PROGRESS_TEXT_HEIGHT
     SIDE_PADDING = 10.0
     LINE_WIDTH = 2.0
 
@@ -937,6 +1004,8 @@ class ConduitCanvasItem(_CanvasItem):
         self.l = None
         self.progressText = None
         self.boundingBox = None        
+        
+        self.selected = False
 
         #if self.DIVIDER, show an transparent bouding box, and a
         #simple dividing line
@@ -956,9 +1025,9 @@ class ConduitCanvasItem(_CanvasItem):
             if self.progressText == None:
                 fromx,fromy,tox,toy = self._get_connector_coordinates(self.sourceItem,self.sinkDpItems[0])
                 self.progressText = goocanvas.Text(  
-                                    x=fromx+5, 
-                                    y=fromy-15, 
-                                    width=100, 
+                                    x=5, 
+                                    y=self.get_height() - self.PROGRESS_TEXT_HEIGHT,
+                                    width=self.get_width(), 
                                     text="", 
                                     anchor=gtk.ANCHOR_WEST,
                                     alignment=pango.ALIGN_LEFT,
@@ -1068,7 +1137,8 @@ class ConduitCanvasItem(_CanvasItem):
 
         self.set_height(
                     max(sourceh, sinkh)+        #expand to the largest
-                    (1.5*self.SIDE_PADDING)        #padding at the top and bottom
+                    (1.5*self.SIDE_PADDING)+        #padding at the top and bottom
+                    self.PROGRESS_TEXT_HEIGHT
                     )
 
     def _delete_connector(self, item):
@@ -1140,38 +1210,55 @@ class ConduitCanvasItem(_CanvasItem):
     def get_styled_item_names(self):
         return "boundingBox","progressText","divider"
 
+    def set_selected(self, selected):
+        self.selected = selected
+        #self.update_appearance()
+        self._automatic_style_updater()
+
     def get_style_properties(self, specifier):
         if specifier == "boundingBox":
             if self.DIVIDER:
                 kwargs = {
                     "line_width":0
                 }
-            else: 
-                if self.FLAT_BOX:
+            else:
+                if not (self.DRAW_SELECTION and self.selected) and self.FLAT_BOX:
                     kwargs = {
-                        "line_width":0,
+                        "line_width":0.0,
                         "fill_color_rgba":self.get_style_color_int_rgba("base","prelight")
                     }
-                else:
-                    pattern = cairo.LinearGradient(0, -30, 0, 100)
+                else:                    
+                    color = self.get_style_color_rgb("base","selected")
+                    dark = GtkUtil.shade_color_rgb(color, 0.90)
+                    light = GtkUtil.shade_color_rgb(color, 1.12)
+                    selection_stroke = self.get_style_color_rgb("bg","selected")
+                    selection_stroke = GtkUtil.rgba2int(*GtkUtil.shade_color_rgb(selection_stroke, 1.2))
+                    
+                    pattern = cairo.LinearGradient(0, 0, 0, self.get_height())
                     pattern.add_color_stop_rgb(
                                             0,
-                                            *self.get_style_color_rgb("dark","selected")
+                                            *light
                                             );
                     pattern.add_color_stop_rgb(
-                                            0.7,
-                                            *self.get_style_color_rgb("mid","selected")
+                                            0.4,
+                                            *dark
                                             );
+                    pattern.add_color_stop_rgb(
+                                            1.0,
+                                            *light
+                                            );
+                                            
                     
                     kwargs = {
-                        "line_width":2.0, 
+                        "line_width":1.0, 
                         "fill_pattern":pattern,
-                        "stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
+                        "stroke_color_rgba":selection_stroke #self.get_style_color_int_rgba("bg","selected"),
+                        #"stroke_color_rgba":self.get_style_color_int_rgba("text","normal")
                     }
 
         elif specifier == "progressText":
             kwargs = {
-                "font":"Sans 7",
+                "font":"Sans %d" % (self.PROGRESS_TEXT_HEIGHT),
                 "fill_color_rgba":self.get_style_color_int_rgba("text","normal")
             }
         elif specifier == "divider":

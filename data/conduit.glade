@@ -15,7 +15,7 @@
         <property name="visible">True</property>
         <child>
           <widget class="GtkMenuBar" id="menubar1">
-            <property name="visible">True</property>
+            <property name="no_show_all">True</property>
             <child>
               <widget class="GtkMenuItem" id="file_menu_item">
                 <property name="visible">True</property>
