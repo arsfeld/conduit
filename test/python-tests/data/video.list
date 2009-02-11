@@ -5,8 +5,8 @@
 #Note: Items in the default section should always be accessible
 #Note: If two items have the same key, the one in your section replaces
 #the one in the default section
-#[DEFAULT]
-#ogg=http://files.conduit-project.org/Conduit-0.3.0-screencast-small.ogg
+[DEFAULT]
+ogg=http://files.conduit-project.org/Conduit-0.3.0-screencast-small.ogg
 
 [john@nzjrs-desktop]
 ogg=/home/john/testing/test-data/Conduit-0.3.0-screencast-small.ogg
@@ -14,6 +14,9 @@ flv=/home/john/testing/test-data/spyplane_080506_300k.flv
 avi=/home/john/testing/test-data/spyplane_080506_300k.avi
 mov=ftp://anonymous@192.168.1.1/Disk-1/Videos/alternativefreedomtrailer.mov
 wmv=ftp://anonymous@192.168.1.1/Disk-1/Videos/Daily Show/tds-question-mark.wmv
+
+[john@nzjrs-uni]
+ogg=/home/john/Videos/Conduit-0.3.0-screencast-small.ogg
 
 [airmind@gemini]
 #flv=/home/airmind/Projects/gsoc08/pranks.flv

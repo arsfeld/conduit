@@ -402,7 +402,7 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
         
         if changed_dataprovider or changed_conduit:
             self.emit('selection-changed')
-        
+            
     def get_selected_conduit(self):
         if self.selectedConduitItem:
             return self.selectedConduitItem.model

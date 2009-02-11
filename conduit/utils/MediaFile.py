@@ -8,6 +8,7 @@ try:
     import pygst
     pygst.require('0.10')
     import gst
+    import gst.extend.discoverer
     GST_AVAILABLE = True
 except ImportError:
     GST_AVAILABLE = False
@@ -58,7 +59,7 @@ class MediaFile(File.File):
             event.set()
         # FIXME: Using Discoverer for now, but we should switch to utils.GstMetadata
         #        when we get it to work (and eventually support thumbnails).
-        info = discoverer.Discoverer(self.get_local_uri())
+        info = gst.extend.discoverer.Discoverer(self.get_local_uri())
         info.connect('discovered', discovered)
         info.discover()
         # Wait for discover to finish (which is async and emits discovered)
