@@ -1,3 +1,8 @@
+2009-02-12  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/gtkui/ConfigContainer.py: 
+	Removed unnecessary log message
+
 2009-02-13  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/Logging.py: Coloured logging output.

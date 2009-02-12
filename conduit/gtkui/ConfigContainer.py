@@ -252,8 +252,6 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self._reset()
         self._reset_modified_items()
 
-
-log.debug(dir(ConfigWidgets))
 # Register all item classes in this module
 for klass_name in dir(ConfigWidgets):
     klass = getattr(ConfigWidgets, klass_name)
