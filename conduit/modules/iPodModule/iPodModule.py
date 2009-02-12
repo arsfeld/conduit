@@ -835,44 +835,23 @@ class IPodMediaTwoWay(IPodBase):
             finally:
                 self.unlock_db()
 
-    def get_config_items(self):
-        import gtk
+    def config_setup(self, config):
         #Get an array of encodings, so it can be indexed inside a combobox
-        self.config_encodings = tuple(self.encodings.iteritems())
-        initial_enc = None
-        for (encoding_name, encoding_opts) in self.config_encodings:
-            if encoding_name == self.encoding:
-                initial_enc = encoding_opts.get('description', None) or encoding_name
-
-        def selectEnc(index, text):
-            self.encoding = self.config_encodings[index][0]
-            log.debug('Encoding %s selected' % self.encoding)
+        encodings = [(enc_name, enc_opts.get('description', None) or enc_name)
+                      for enc_name, enc_opts in self.encodings.iteritems()]
         
-        def selectKeep(value):
-            self.keep_converted = value
-            log.debug("Keep converted selected: %s" % (value))
-        
-        return [
-                    {
-                    "Name" : self.FORMAT_CONVERSION_STRING,
-                    "Kind" : "list",
-                    "Callback" : selectEnc,
-                    "Values" : [enc_opts.get('description', None) or enc_name for enc_name, enc_opts in self.config_encodings],
-                    "InitialValue" : initial_enc
-                    },
-                    
-                    {"Name" : _("Keep converted files"),
-                     "Kind" : "check",
-                     "Callback" : selectKeep,
-                     "InitialValue" : self.keep_converted
-                    },
-                ]        
+        config.add_section("Conversion options")
+        config.add_item("Encoding", "combo", 
+            config_name = "encoding",
+            choices = encodings
+        )
+        config.add_item("Keep converted files", "check",
+            config_name = "keep_converted"
+        )
 
-    def configure(self, window):
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+    #def configure(self, window):
+    #    import conduit.gtkui.GlobalConfigurator as GlobalConfigurator
 
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, self.get_config_items())
-        dialog.run()
 
     def set_configuration(self, config):
         if 'encoding' in config:
@@ -965,32 +944,16 @@ class IPodVideoTwoWay(IPodMediaTwoWay):
     def _update_track_args(self):
         self.track_args['video_kind'] = self.video_kind
 
-    def get_config_items(self):
-        video_kinds = [('Movie', 'movie'), 
-                       ('Music Video', 'musicvideo'),
-                       ('TV Show', 'tvshow')]
-        initial = None
-        for description, name in video_kinds:
-            if name == self.video_kind:
-                initial = description
-
-        def selectKind(index, text):
-            self.video_kind = video_kinds[index][1]
-            self._update_track_args()
-
-        items = IPodMediaTwoWay.get_config_items(self)
-        items.append( 
-                        {
-                            "Name" : "Video Kind",
-                            "Kind" : "list",
-                            "Callback" : selectKind,
-                            "Values" : [description for description, name in video_kinds],
-                            "InitialValue" : initial
-                        } 
-                    )             
-                    
-        return items
-    
+    def config_setup(self, config):
+        IPodMediaTwoWay.config_setup(self, config)
+        video_kinds = [('movie', 'Movie'), 
+                       ('musicvideo', 'Music Video'),
+                       ('tvshow', 'TV Show')]            
+        config.add_section()
+        config.add_item("Video kind", "combo",
+            config_name = "video_kind",
+            choices = video_kinds)
+        
     def set_configuration(self, config):
         IPodMediaTwoWay.set_configuration(self, config)
         if 'video_kind' in config:

@@ -110,6 +110,16 @@ class _GoogleBase:
 
     def get_UID(self):
         return self.username
+    
+    def config_setup(self, config):
+        self.login_section = config.add_section("Account")
+        self.username_config = config.add_item("Email", "text",
+            config_name = "username"
+        )
+        self.passwd_config = config.add_item("Password", "text",
+            config_name = "password",
+            password = True
+        )        
 
 class _GoogleCalendar:
     def __init__(self, name, uri):
@@ -393,24 +403,28 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
         for calendarFeed in allCalendarsFeed:
             yield _GoogleCalendar.from_google_format(calendarFeed)
 
-    def _load_calendars(self, widget, tree):
-        import gtk, gtk.gdk
-        dlg = tree.get_widget("GoogleCalendarConfigDialog")
-        oldCursor = dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        gtk.gdk.flush()
+    def _load_calendars(self):
+        #dlg = tree.get_widget("GoogleCalendarConfigDialog")
+        #oldCursor = dlg.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        #gtk.gdk.flush()
         
-        sourceComboBox = tree.get_widget("sourceComboBox")
-        store = sourceComboBox.get_model()
-        store.clear()
+        #sourceComboBox = tree.get_widget("sourceComboBox")
+        #store = sourceComboBox.get_model()
+        #store.clear()
+        
+        self.login_section.set_enabled(False)
+        self.loadCalendars_config.set_enabled(False)
 
-        self._set_username(tree.get_widget("username").get_text())
-        self._set_password(tree.get_widget("password").get_text())
+        # FIXME: This sets the username and password, leaving no way to 
+        # get them back to the original value
+        self._set_username(self.username_config.get_value())
+        self._set_password(self.passwd_config.get_value())
+        
+        calendars = [(45, 'Teste 1'), (46, 'teste 2')]
+        self.selectedCalendar = 46
         
         try:
-            for calendar in self._get_all_calendars():
-                rowref = store.append( (calendar.get_name(), calendar) )
-                if calendar == self.selectedCalendar:
-                    sourceComboBox.set_active_iter(rowref)
+            calendars = [(calendar.get_name(), calendar) for calendar in self._get_all_calendars()]
         except gdata.service.BadAuthentication:
             errorMsg = "Login Failed"
             errorDlg = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, message_format=errorMsg, buttons=gtk.BUTTONS_OK)
@@ -418,13 +432,34 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
             errorDlg.destroy()
             dlg.window.set_cursor(oldCursor)
             return
-            
-        sourceComboBox.set_sensitive(True)
-        tree.get_widget("calendarLbl").set_sensitive(True)
-        tree.get_widget("okBtn").set_sensitive(True)
-        dlg.window.set_cursor(oldCursor)
+        except:
+            pass
         
-    def configure(self, window):
+        self.calendars_config.set_choices(calendars)
+        self.calendars_config.set_value(self.selectedCalendar)
+            
+
+        self.login_section.set_enabled(True)
+        self.loadCalendars_config.set_enabled(True)            
+            
+        #sourceComboBox.set_sensitive(True)
+        #tree.get_widget("calendarLbl").set_sensitive(True)
+        #tree.get_widget("okBtn").set_sensitive(True)
+        #dlg.window.set_cursor(oldCursor)
+        
+    def config_setup(self, config):
+        _GoogleBase.config_setup(self, config)
+        config.add_section("Calendars")
+        self.loadCalendars_config = config.add_item("Load Calendars", "button",
+            initial_value = lambda t: self._load_calendars(),
+            needs_space = False
+        )
+        self.calendars_config = config.add_item("Calendar", "combo",
+            choices = [],
+            initial_value = None
+        )
+        
+    def configure_(self, window):
         import gtk
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -689,7 +724,21 @@ class PicasaTwoWay(_GoogleBase, Image.ImageTwoWay):
         self.service.Delete(self.gphoto_dict[LUID])
         del self.gphoto_dict[LUID]
 
-    def configure(self, window):
+    def config_setup(self, config):
+        _GoogleBase.config_setup(self, config)
+        # FIXME: Add button action
+        config.add_item("Login", "button")
+        config.add_section("Saved photos settings", enabled = False)
+        config.add_item("Album", "combotext",
+            config_name = "album",
+            choices = [],
+        )
+        config.add_item("Resize photos", "combo",
+            choices = [("None", "None"), ("640x480", "640x480"), ("800x600", "800x600"), ("1024x768", "1024x768")],
+            config_name = "imageSize"
+        )
+
+    def configure_(self, window):
         """
         Configures the PicasaTwoWay
         """
@@ -997,29 +1046,6 @@ class ContactsTwoWay(_GoogleBase,  DataProvider.TwoWay):
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
 
-    def configure(self, window):
-        """
-        Configures the PicasaTwoWay
-        """
-        widget = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "contacts-config.glade", 
-                        "GoogleContactsConfigDialog")
-                        
-        #get a whole bunch of widgets
-        username = widget.get_widget("username")
-        password = widget.get_widget("password")
-        
-        #preload the widgets        
-        username.set_text(self.username)
-        password.set_text(self.password)
-        
-        dlg = widget.get_widget("GoogleContactsConfigDialog")
-        response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self._set_username(username.get_text())
-            self._set_password(password.get_text())
-        dlg.destroy()    
         
 class _GoogleDocument:
     def __init__(self, doc):
@@ -1271,7 +1297,26 @@ class DocumentsSink(_GoogleBase,  DataProvider.DataSink):
             return True
         return False
 
-    def configure(self, window):
+    def config_setup(self, config):
+        _GoogleBase.config_setup(self, config)
+        config.add_section("Documents format")
+        config.add_item("Documents", "combo",
+            choices = [(name, name) for name in self.SUPPORTED_DOCUMENTS],
+            config_name = "documentFormat",
+            enabled = True            
+        )
+        config.add_item("Spreadsheets", "combo",
+            choices = [(name, name) for name in self.SUPPORTED_SPREADSHEETS],
+            config_name = "spreadsheetFormat",
+            enabled = False            
+        )
+        config.add_item("Presentation", "combo",
+            choices = [(name, name) for name in self.SUPPORTED_PRESENTATIONS],
+            config_name = "presentationFormat",
+            enabled = False            
+        )    
+
+    def configure_(self, window):
         import gtk
 
         def make_combo(widget, docType, val, values):
@@ -1372,11 +1417,29 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
         DataProvider.TwoWay.__init__(self)
 
         self.entries = None
-        self.max_downloads = 0
-        #filter type {0 = mostviewed, 1 = toprated, 2 = user upload, 3 = user favorites}
-        self.filter_type = 0
+        self.update_configuration(
+            max_downloads = 0,
+            #filter type {0 = mostviewed, 1 = toprated, 2 = user upload, 3 = user favorites}
+            filter_type = 0
+        )
 
-    def configure(self, window):
+    
+    def config_setup(self, config):
+        _GoogleBase.config_setup(self, config)
+        filters = [(0, "Most viewed"),
+                   (1, "Top rated"),
+                   (2, "Uploaded by"),
+                   (3, "Favorites of")]
+        config.add_section("Download videos")
+        config.add_item("Filter by", "combo",
+            config_name = "filter_type",
+            choices = filters,
+        )
+        config.add_item("Retrieved videos\n(0 for unlimited)", "spin",
+            config_name = "max_downloads",
+        )
+        
+    def configure2(self, window):    
         tree = Utils.dataprovider_glade_get_widget (
                 __file__,
                 "youtube-config.glade",
@@ -1538,14 +1601,6 @@ class YouTubeTwoWay(_GoogleBase, DataProvider.TwoWay):
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.entries = None
-
-    def get_configuration(self):
-        return {
-            "filter_type"       :   self.filter_type,
-            "max_downloads"     :   self.max_downloads,
-            "username"          :   self.username,
-            "password"          :   self.password
-        }
 
     def get_UID(self):
         return Utils.get_user_string()

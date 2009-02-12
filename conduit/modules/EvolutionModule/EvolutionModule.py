@@ -32,8 +32,14 @@ class EvoBase(DataProvider.TwoWay):
         DataProvider.TwoWay.__init__(self)
         self.defaultSourceURI = sourceURI
         self.selectedSourceURI = sourceURI
+        self.update_configuration(
+            sourceURI = (sourceURI, self._set_selectedSourceURI, lambda: self.selectedSourceURI),
+        )
         self.allSourceURIs = []
         self.uids = None
+        
+    def _set_selectedSourceURI(self, value):
+        self.selectedSourceURI = value
 
     def _get_object(self, uid):
         raise NotImplementedError
@@ -93,8 +99,15 @@ class EvoBase(DataProvider.TwoWay):
     def finish(self, aborted, error, conflict):
         DataProvider.TwoWay.finish(self)
         self.uids = None
+        
+    def config_setup(self, config, name):
+        config.add_section("Select %s" % name)
+        config.add_item("%s" % name, "combo",
+            choices = [(uri, name) for name, uri in self.allSourceURIs],
+            initial_value = self.selectedSourceURI,
+            config_name = "sourceURI" )
 
-    def configure(self, window, name):
+    def configure_(self, window, name):
         import gtk
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
@@ -127,14 +140,6 @@ class EvoBase(DataProvider.TwoWay):
         if response == True:
             self.selectedSourceURI = store.get_value(sourceComboBox.get_active_iter(), 1)
         dlg.destroy()  
-
-    def get_configuration(self):
-        return {
-            "sourceURI" : self.selectedSourceURI
-            }
-
-    def set_configuration(self, config):
-        self.selectedSourceURI = config.get("sourceURI", self.defaultSourceURI)
 
     def get_UID(self):
         return self.selectedSourceURI
@@ -188,8 +193,8 @@ class EvoContactTwoWay(EvoBase):
         for i in self.book.get_all_contacts():
             self.uids.append(i.get_uid())
 
-    def configure(self, window):
-        EvoBase.configure(self, window, "Addressbook")
+    def config_setup(self, window):
+        EvoBase.config_setup(self, window, "Addressbook")
 
 class EvoCalendarTwoWay(EvoBase):
 
@@ -250,8 +255,8 @@ class EvoCalendarTwoWay(EvoBase):
         for i in self.calendar.get_all_objects():
             self.uids.append(i.get_uid())
 
-    def configure(self, window):
-        EvoBase.configure(self, window, "Calendar")
+    def config_setup(self, window):
+        EvoBase.config_setup(self, window, "Calendar")
 
 class EvoTasksTwoWay(EvoBase):
 
@@ -307,8 +312,8 @@ class EvoTasksTwoWay(EvoBase):
         for i in self.tasks.get_all_objects():
             self.uids.append(i.get_uid())
 
-    def configure(self, window):
-        EvoBase.configure(self, window, "Tasks")
+    def config_setup(self, window):
+        EvoBase.config_setup(self, window, "Tasks")
 
 class EvoMemoTwoWay(EvoBase):
 
@@ -375,6 +380,6 @@ class EvoMemoTwoWay(EvoBase):
         for i in self.memos.get_all_objects():
             self.uids.append(i.get_uid())
 
-    def configure(self, window):
-        EvoBase.configure(self, window, "Memos")
+    def config_setup(self, window):
+        EvoBase.config_setup(self, window, "Memos")
 

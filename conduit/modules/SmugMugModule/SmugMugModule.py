@@ -101,7 +101,25 @@ class SmugMugTwoWay(Image.ImageTwoWay):
     def _get_photo_size (self):
         return self.imageSize
  
-    def configure(self, window):
+    def config_setup(self, config):
+        config.add_section("Account")
+        config.add_item("Email", "text",
+            config_name = "username"
+        )
+        config.add_item("Password", "text",
+            config_name = "password",
+            password = True
+        ) 
+        config.add_section("Saved photos settings")
+        config.add_item("Album", "text",
+            config_name = "album",
+        )
+        config.add_item("Resize photos", "combo",
+            choices = [("None", "No resize"), ("640x480", "640x480"), ("800x600", "800x600"), ("1024x768", "1024x768")],
+            config_name = "imageSize"
+        )
+ 
+    def configure_(self, window):
         """
         Configures the SmugMugTwoWay
         """

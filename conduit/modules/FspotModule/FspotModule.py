@@ -38,20 +38,42 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
 
+        self.update_configuration(
+            enabledTags = ([], self.set_tags, self.get_tags),
+        )
+        
         self.enabledTags = []
         self.photos = []
         self.has_roll = False
         self.photo_remote = None
         self.tag_remote = None
+        
+        self._connection_name = None
 
         self.list_store = None
 
         self._connect_to_fspot()
         self._hookup_signal_handlers()
+        
+    def set_tags(self, tags):
+        self.enabledTags = []
+        for tag in tags:
+            self.enabledTags.append(str(tag))
+
+    def get_tags(self):
+        return self.enabledTags
 
     def _connect_to_fspot(self):
         bus = dbus.SessionBus()
         if Utils.dbus_service_available(FSpotDbusTwoWay.SERVICE_PATH, bus):
+            #If the connection was broken and remade, the connection name changes
+            #and the connection objects no longer works. 
+            #F-Spot restarting does exactly that, so we need to remake our objects.
+            connection_name = bus.get_name_owner(FSpotDbusTwoWay.SERVICE_PATH)
+            if self._connection_name != connection_name:
+                self.photo_remote = None
+                self.tag_remote = None
+            self._connection_name = connection_name
             if self.photo_remote == None:
                 try:
                     remote_object = bus.get_object(FSpotDbusTwoWay.SERVICE_PATH, FSpotDbusTwoWay.PHOTOREMOTE_PATH)
@@ -67,6 +89,9 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
                 except dbus.exceptions.DBusException:
                     print "#"*34
                     self.tag_remote = None
+        else:
+            self.photo_remote = None
+            self.tag_remote = None            
 
         #need both tag and photo remote to be OK
         return self.tag_remote != None and self.photo_remote != None
@@ -189,7 +214,43 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.photo_remote = None
         self.tag_remote = None
 
-    def configure(self, window):
+    def config_setup(self, config):
+        def watch(name):
+            connected = bool(name and self._connect_to_fspot())
+            if connected:            
+                tags_config.set_choices(self._get_all_tags())            
+            add_tags_section.set_enabled(connected)
+            if config.showing:
+                if connected:
+                    status_label.set_value("F-Spot is running")
+                else:
+                    status_label.set_value("Please start F-Spot or activate the D-Bus Extension")
+        status_label = config.add_item("Status", "label")
+        #config.add_item("Start F-Spot", "button",
+        #    initial_value = lambda x: dbus.SessionBus().start_service_by_name(self.SERVICE_PATH)
+        #)
+        config.add_section("Tags")
+        tags_config = config.add_item("Tags", "list",
+            config_name = 'tags',
+            choices = [],
+        )
+        def add_tag_cb(button):
+            text = tag_name_config.get_value()
+            tags = text.split(',')
+            for tag in tags:
+                self._create_tag (tag.strip ())   
+            tags_config.set_choices(self._get_all_tags())
+            tag_name_config.set_value('')
+        add_tags_section = config.add_section("Add tags")
+        tag_name_config = config.add_item("Tag name", "text",
+            initial_value = ""
+        )
+        config.add_item("Add tag", "button",
+            initial_value = add_tag_cb
+        )
+        dbus.SessionBus().watch_name_owner(self.SERVICE_PATH, watch)
+
+    def configure_(self, window):
         import gtk
         def create_tags_clicked_cb(button):
             text = self.tags_entry.get_text()
@@ -266,14 +327,6 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 
         response = Utils.run_dialog (dlg, window)
         dlg.destroy()
-
-    def set_configuration(self, config):
-        self.enabledTags = []
-        for tag in config.get("tags", []):
-            self.enabledTags.append(str(tag))
-            
-    def get_configuration(self):
-        return {"tags": self.enabledTags}
 
     def get_UID(self):
         return Utils.get_user_string()

@@ -66,13 +66,15 @@ class RSSSource(DataProvider.DataSource):
 
     def __init__(self, *args):
         DataProvider.DataSource.__init__(self)
-        self.feedUrl = ""
+        self.update_configuration(
+            feedUrl = "",
+            limit = 0,
+            randomize = False,
+            downloadPhotos = True,
+            downloadAudio = True,
+            downloadVideo = True,
+        )
         self.files = {}
-        self.limit = 0        
-        self.randomize = False
-        self.downloadPhotos = True
-        self.downloadAudio = True
-        self.downloadVideo = True
         
     def _is_allowed_type(self, mimetype):
         ok = False
@@ -95,7 +97,23 @@ class RSSSource(DataProvider.DataSource):
     def initialize(self):
         return True
 
-    def configure(self, window):
+    def config_setup(self, config):
+        #FIXME: Add Randomize
+        config.add_section("Feed details")
+        config.add_item("Feed address", "text",
+            config_name = 'feedUrl',
+        )
+        config.add_section("Enclosure settings")
+        limit_config = config.add_item("Limit downloaded enclosures to:", "check",
+            initial_value = (self.limit > 0)
+        )
+        limit_config.connect("value-changed", lambda item, changed, value: limit_spin_config.set_enabled(value))        
+        limit_spin_config = config.add_item("", "spin",
+            config_name = 'limit',
+            enabled = (self.limit > 0),
+            needs_label = False)
+
+    def configure_(self, window):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
@@ -192,16 +210,5 @@ class RSSSource(DataProvider.DataSource):
         DataProvider.DataSource.finish(self)
         self.files = {}
 
-    def get_configuration(self):
-        return {
-            "feedUrl" : self.feedUrl,
-            "limit" : self.limit,
-            "randomize" : self.randomize,
-            "downloadPhotos" : self.downloadPhotos,
-            "downloadAudio" : self.downloadAudio,
-            "downloadVideo" : self.downloadVideo
-            }
-
     def get_UID(self):
         return self.feedUrl
-

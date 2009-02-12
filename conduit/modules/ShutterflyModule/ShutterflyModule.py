@@ -102,7 +102,22 @@ class ShutterflySink(Image.ImageSink):
 		except Exception, e:
 			raise Exceptions.SyncronizeError("Shutterfly Upload Error.")
 	
-	def configure(self, window):
+
+	def config_setup(self, config):
+		config.add_section('Account details')
+		config.add_item('Username', 'text',
+			config_name = 'username',
+		)
+		config.add_item('Password', 'text',
+			config_name = 'password',
+			password = True
+		)
+		config.add_section('Saved photo settings')
+		config.add_item('Album', 'text',
+			config_name = 'album',
+		)	
+	
+	def configure_(self, window):
 		"""
 		Configures the ShutterflySink
 		"""

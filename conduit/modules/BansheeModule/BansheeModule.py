@@ -66,10 +66,12 @@ class BansheeSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self)
         #Names of the playlists we know
         self.allPlaylists = []
-        #Playlist Ids we wish to sync
-        self.playlists = []
-        self.smart_playlists = []
-        self.video_playlists = []
+        self.update_configuration(
+            #Playlist Ids we wish to sync
+            playlists = [],
+            smart_playlists = [],
+            video_playlists = [],
+        }
         self.tracks = []
 
     def _get_full_uri(self, uri):
@@ -159,7 +161,15 @@ class BansheeSource(DataProvider.DataSource):
         f.set_open_URI(LUID)
         return f
 
-    def configure(self, window):
+    def config_setup(self, config):
+        config.add_section("Playlists")
+        config.add_item("Playlists", "list", 
+            config_name = "playlists",
+            choices = self._get_all_playlists()
+        )
+    
+    '''
+    def configure_(self, window):
         import gtk
         def col1_toggled_cb(cell, path, model ):
             #not because we get this cb before change state
@@ -231,23 +241,6 @@ class BansheeSource(DataProvider.DataSource):
         
         response = Utils.run_dialog (dlg, window)
         dlg.destroy()
-
-    def set_configuration(self, config):
-        self.playlists = []
-        self.smart_playlists = []
-        self.video_playlist = []
-        for playlistid in config.get("playlists", []):
-            self.playlists.append( playlistid )
-        for playlistid in config.get("smart_playlists", []):
-            self.smart_playlists.append( playlistid )
-        for playlistid in config.get("video_playlists", []):
-            self.video_playlists.append( playlistid )
-            
-    def get_configuration(self):
-        return { "playlists"       : self.playlists,
-                 "smart_playlists" : self.smart_playlists,
-                 "video_playlists" : self.video_playlists
-        }
 
     def get_UID(self):
         return Utils.get_user_string()

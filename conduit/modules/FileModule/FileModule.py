@@ -26,21 +26,63 @@ class FileSource(FileDataProvider.FileSource):
 
     def __init__(self, *args):
         FileDataProvider.FileSource.__init__(self)
+        self._files_folders = None
+        self.update_configuration(
+            files = ([], self.set_files, self.get_files),
+            folders = ([], self.set_folders, self.get_folders)
+        )
+        
+    def set_files(self, files):
+        for f in files:
+            self._add_file(f)        
+            
+    def set_folders(self, folders):
+        for folder in folders:
+            folder, group = folder.split("---FIXME---")
+            self._add_folder(folder, group)
 
-    def configure(self, window):
+    def get_config_controller(self, config_view):
         Utils.dataprovider_add_dir_to_path(__file__, "")
         import FileConfiguration
-        f = FileConfiguration._FileSourceConfigurator(window, self.db)
-        response = f.show_dialog()
-       
-    def set_configuration(self, config):
+        f = FileConfiguration._FileSourceConfigurator(config_view, self.db, self)
+        return f
+        #response = f.show_dialog()
+    
+    '''
+    def set_configuration_(self, config):
         for f in config.get("files",[]):
             self._add_file(f)
         for f in config.get("folders",[]):
             f,group = f.split("---FIXME---")
             self._add_folder(f,group)
+    '''
+    
+    def _get_files_folders(self, get_files = False, get_folders = False):
+        if self._files_folders:
+            files, folders = self._files_folders
+            self._files_folders = None
+        else:
+            files = []
+            folders = []
+            for uri,ftype,group in self.db.select("SELECT URI,TYPE,GROUP_NAME FROM config"):
+                if ftype == FileDataProvider.TYPE_FILE:
+                    files.append(uri)
+                else:
+                    folders.append("%s---FIXME---%s" % (uri,group))        
+            self._files_folders = (files, folders)
+        if get_files:
+            return files
+        if get_folders:
+            return folders
+    
+    def get_files(self):
+        self._get_files_folders(get_files = True)
 
-    def get_configuration(self):
+    def get_folders(self):
+        self._get_files_folders(get_folders = True)        
+
+    '''
+    def get_configuration_(self):
         files = []
         folders = []
         for uri,ftype,group in self.db.select("SELECT URI,TYPE,GROUP_NAME FROM config"):
@@ -51,6 +93,7 @@ class FileSource(FileDataProvider.FileSource):
 
         return {"files" : files,
                 "folders" : folders}
+    '''
 
     def get_UID(self):
         return Utils.get_user_string()
@@ -78,6 +121,12 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
                 self.DEFAULT_COMPARE_IGNORE_MTIME,
                 self.DEFAULT_FOLLOW_SYMLINKS
                 )
+        self.update_configuration(
+            folder = self.DEFAULT_FOLDER,
+            includeHidden = self.DEFAULT_HIDDEN,
+            compareIgnoreMtime = self.DEFAULT_COMPARE_IGNORE_MTIME,
+            followSymlinks = self.DEFAULT_FOLLOW_SYMLINKS,
+        )     
         AutoSync.AutoSync.__init__(self)
         self._monitor = Vfs.FileMonitor()
         self._monitor.connect("changed", self._monitor_folder_cb)
@@ -98,19 +147,8 @@ class FolderTwoWay(FileDataProvider.FolderTwoWay, AutoSync.AutoSync):
         self._monitor_folder()
         
     def set_configuration(self, config):
-        self.folder = config.get("folder", self.DEFAULT_FOLDER)
-        self.includeHidden = config.get("includeHidden", self.DEFAULT_HIDDEN)
-        self.compareIgnoreMtime = config.get("compareIgnoreMtime", self.DEFAULT_COMPARE_IGNORE_MTIME)
-        self.followSymlinks = config.get("followSymlinks", self.DEFAULT_FOLLOW_SYMLINKS)        
+        super(FolderTwoWay, self).set_configuration(config)
         self._monitor_folder()
-
-    def get_configuration(self):
-        return {
-            "folder" : self.folder,
-            "includeHidden" : self.includeHidden,
-            "compareIgnoreMtime" : self.compareIgnoreMtime,
-            "followSymlinks" : self.followSymlinks
-            }
 
     def get_UID(self):
         return self.folder

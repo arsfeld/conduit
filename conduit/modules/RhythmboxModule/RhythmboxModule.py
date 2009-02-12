@@ -58,7 +58,9 @@ class RhythmboxSource(DataProvider.DataSource):
         #Names of the playlists we know
         self.allPlaylists = []
         #Names we wish to sync
-        self.playlists = []
+        self.update_configuration(
+            playlists = [],
+        )
         self.songdata = {}
 
     def _parse_playlists(self, path, allowed=[]):
@@ -78,12 +80,11 @@ class RhythmboxSource(DataProvider.DataSource):
 
                 if element.keys():
                     for name, value in element.items():
-                        if name == "type" and value == "static":
-                            is_static = True
+                        is_static = (name == "type" and value == "static")
                         if name == "name":
                             temp_name = value
 
-                if is_static == True: # new playlist found
+                if is_static: # new playlist found
                     playlist_name = temp_name
                     songs = []
                     playlists.append( [playlist_name, songs] )
@@ -108,57 +109,14 @@ class RhythmboxSource(DataProvider.DataSource):
         self.songdata = rb_handler.songdata
         return rb_handler.cleansongs
 
-    def configure(self, window):
-        import gtk
-        import gobject
-        def col1_toggled_cb(cell, path, model ):
-            #not because we get this cb before change state
-            checked = not cell.get_active()
-            model[path][CHECK_IDX] = checked
-            val = model[path][NAME_IDX]
-            if checked and val not in self.playlists:
-                self.playlists.append(val)
-            elif not checked and val in self.playlists:
-                self.playlists.remove(val)
-
-            log.debug("Toggle '%s' to: %s" % (val, checked))
-            return
-
-        #FIXME: This should not run here, it should run in initialize() instead
-        self.allPlaylists = self._parse_playlists(RhythmboxSource.PLAYLIST_PATH)
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade",
-						"RBConfigDialog"
-						)
-        tagtreeview = tree.get_widget("tagtreeview")
-        #Build a list of all the playlists
-        list_store = gtk.ListStore( gobject.TYPE_STRING,    #name
-                                    gobject.TYPE_BOOLEAN,   #active
-                                    )
-        #Fill the list store, preselect some playlists
-        for p in self.allPlaylists:
-            list_store.append( (p[0],p[0] in self.playlists) )
-        #Set up the treeview
-        tagtreeview.set_model(list_store)
-        #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
-                                    gtk.CellRendererText(), 
-                                    text=NAME_IDX)
-                                    )
-        #column 2 is a checkbox for selecting the tag to sync
-        renderer1 = gtk.CellRendererToggle()
-        renderer1.set_property('activatable', True)
-        renderer1.connect( 'toggled', col1_toggled_cb, list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
-                                    renderer1, 
-                                    active=CHECK_IDX)
-                                    )
-
-        dlg = tree.get_widget("RBConfigDialog")
-
-        response = Utils.run_dialog (dlg, window)
-        dlg.destroy()
+    def config_setup(self, config):
+        self.allPlaylists = [(name, name) for name, songs in self._parse_playlists(RhythmboxSource.PLAYLIST_PATH)]
+        
+        config.add_section("Playlists")
+        config.add_item("Playlists", "list", 
+            config_name = "playlists",
+            choices = self.allPlaylists
+        )
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -184,9 +142,6 @@ class RhythmboxSource(DataProvider.DataSource):
 
         return f
 
-    def get_configuration(self):
-        return { "playlists" : self.playlists }
- 
     def get_UID(self):
         return ""
 
@@ -236,6 +191,7 @@ class RhythmDBHandler(handler.ContentHandler):
         'play-count', 'rating', 'duration', 'bitrate')
 
     def __init__(self, searchlist):
+        handler.ContentHandler.__init__(self)
         self.searchlist = searchlist
         self.cleansongs = []
         self.songdata = {}
@@ -244,7 +200,7 @@ class RhythmDBHandler(handler.ContentHandler):
     def _clean_location(self, location):
         song_location = ''.join(urllib.url2pathname(location).split("://")[1:])
         if not os.path.exists(song_location):
-            print "WARNING: A song referred to from the playlist '%s' cannot be found on the harddrive." % playlist_name
+            print "WARNING: The song %s cannot be found on the harddrive." % song_location
             return None
         return song_location
 

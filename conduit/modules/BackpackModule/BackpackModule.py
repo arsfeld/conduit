@@ -25,8 +25,10 @@ class BackpackBase(DataProvider.DataProviderBase):
     _configurable_ = True
     def __init__(self, *args):
         DataProvider.DataProviderBase.__init__(self)
-        self.username = ""
-        self.apikey = ""
+        self.update_configuration(
+            username = "",
+            apikey = ""
+        )
         self.ba = None
         self.loggedIn = False
 
@@ -64,8 +66,9 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
     def __init__(self, *args):
         DataProvider.DataSink.__init__(self)
         BackpackBase.__init__(self, *args)
-
-        self.storeInPage = "Conduit"
+        self.update_configuration(
+            storeInPage = 'Conduit',
+        )
         self.pageID = None
         #there is no way to pragmatically see if a note exists so we list them
         #and cache the results. 
@@ -98,7 +101,20 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
             self._notes[title] = (uid,timestamp,text)
             log.debug("Found existing note: %s (uid:%s timestamp:%s)" % (title, uid, timestamp))
 
-    def configure(self, window):
+    def config_setup(self, config):
+        config.add_section("Account details")
+        config.add_item("Login", "text",
+            config_name = "username"
+        )
+        config.add_item("API key", "text", 
+            config_name = "apikey"
+        )
+        config.add_section("Saved notes")
+        config.add_item("Save notes in page", "text",
+            config_name = "storeInPage"
+        )            
+
+    def configure_(self, window):
         tree = Utils.dataprovider_glade_get_widget(
                         __file__, 
                         "config.glade",
@@ -172,13 +188,3 @@ class BackpackNoteSink(DataProvider.DataSink, BackpackBase):
 
     def get_UID(self):
         return "%s:%s" % (self.username,self.storeInPage)
-
-    def get_configuration(self):
-        return {
-            "username" : self.username,
-            "apikey" : self.apikey,
-            "storeInPage" : self.storeInPage
-            }
-
-
-

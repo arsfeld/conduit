@@ -48,7 +48,9 @@ class FacebookSink(Image.ImageSink):
         Image.ImageSink.__init__(self)
         self.fapi = pyfacebook.Facebook(FacebookSink.API_KEY, FacebookSink.SECRET)
         self.browser = conduit.BROWSER_IMPL
-        self.albumname = ""
+        self.update_configuration(
+            albumname = ""
+        )
         self.albums = {}
 
     def _upload_photo (self, uploadInfo):
@@ -114,7 +116,14 @@ class FacebookSink(Image.ImageSink):
         rsp = self.fapi.auth.getSession()
         return rsp.has_key("secret") and rsp.has_key("session_key")
         
-    def configure(self, window):
+    def config_setup(self, config):
+        config.add_section("Album")
+        # FIXME: Add button action
+        config.add_item("Load albums", "button")
+        config.add_item("Album name", "combotext",
+            config_name = "albumname")
+        
+    def configure_(self, window):
         import gtk
         import gobject
         def on_login_finish(*args):
@@ -201,9 +210,3 @@ class FacebookSink(Image.ImageSink):
     def is_configured (self, isSource, isTwoWay):
         #Specifing an album is optional
         return True
-
-    def get_configuration(self):
-        return {
-            "albumname" : self.albumname
-        }
-            

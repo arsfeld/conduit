@@ -84,14 +84,20 @@ class FlickrTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
+        self.status = 'Not connected'
         self.fapi = None
         self.token = None
-        self.username = ""
+        #self.username = ""
         self.logged_in = False
-        self.photoSetName = ""
-        self.showPublic = True
+        #self.photoSetName = ""
+        #self.showPublic = True
         self.photoSetId = None
-        self.imageSize = "None"
+        self.update_configuration(
+            imageSize = "None",
+            username = ("", self._set_username),
+            photoSetName = "",
+            showPublic = True
+        )
 
     # Helper methods
     def _get_user_quota(self):
@@ -272,7 +278,63 @@ class FlickrTwoWay(Image.ImageTwoWay):
         else:
             log.warn("Error deleting %s: doesnt exist" % LUID)
 
-    def configure(self, window):
+    def config_setup(self, config):
+        def set_status(status):
+            self.status = status
+            status_config.set_value(self.status)
+            #Make status persisten across config runs
+            status_config.save_state()
+        def login_finish_cb(*args):
+            if self.logged_in:
+                set_status('Loading album list...')
+                try:
+                    #FIXME: Blocks and brings the whole UI with it.
+                    photosets = self._get_photosets()
+                except:
+                    set_status('<span foreground="red">Failed to connect.</span>')    
+                else:
+                    photoset_config.set_choices([(name, name) for name, photoSetId in photosets])
+                    set_status('Album names loaded.')
+            else:
+                set_status('<span foreground="red">Failed to login.</span>')                
+        def load_photosets_cb(button):
+            log.critical(self.username)
+            username_config.apply()
+            log.critical(self.username)
+            status_config.set_value('Logging in, please wait...')
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                self, login_finish_cb, self._login)
+
+        config.add_section('Account details')
+        username_config = config.add_item('Username', 'text',
+            config_name = 'username',
+        )
+        username_config.connect('value-changed',
+            lambda item, initial, value: load_photosets_config.set_enabled(bool(value)))                
+        status_config = config.add_item('Status', 'label',
+            initial_value = self.status,
+            use_markup = True,
+            needs_label = True,
+            needs_space = True,
+            xalignment = 0.0,
+        )
+        config.add_section('Saved photo settings')
+        load_photosets_config = config.add_item("Load photosets", "button",
+            initial_value = load_photosets_cb
+        )        
+        photoset_config = config.add_item('Photoset name', 'combotext',
+            config_name = 'photoSetName',
+            choices = [],
+        )
+        config.add_item("Resize photos", "combo",
+            choices = [("None", "Do not resize"), ("640x480", "640x480"), ("800x600", "800x600"), ("1024x768", "1024x768")],
+            config_name = "imageSize"
+        )
+        config.add_item('Photos are public', 'check',
+            config_name = 'showPublic'
+        )
+
+    def configure_(self, window):
         """
         Configures the Flickr sink
         """
@@ -358,14 +420,6 @@ class FlickrTwoWay(Image.ImageTwoWay):
     def is_configured (self, isSource, isTwoWay):
         return len(self.username) > 0 and len(self.photoSetName) > 0
         
-    def get_configuration(self):
-        return {
-            "imageSize" : self.imageSize,
-            "username" : self.username,
-            "photoSetName" : self.photoSetName,
-            "showPublic" : self.showPublic
-            }
-
     def get_UID(self):
         return self.token
             

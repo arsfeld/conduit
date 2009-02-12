@@ -40,10 +40,12 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
 
+        self.update_configuration(
+            foldername = "",
+        )
         self.boxapi = None
         self.user_id = None
         self.token = None
-        self.foldername = ""
         self.folder_id = None
 
         self.files = {}
@@ -273,7 +275,20 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                             target='file',
                             target_id=LUID)
 
-    def configure(self, window):
+    def config_setup(self, config):
+        config.add_section("Folder")
+        def load_button_clicked(button):
+            self._login()
+            folders_config.set_choices(self._get_folders().keys())
+        config.add_item("Load folders", "button",
+            callback = load_button_clicked
+        )
+        folders_config = config.add_item("Folder name", "combotext",
+            config_name = "foldername",
+            choices = [],
+        )
+
+    def configure_(self, window):
         """
         Configures the BoxDotNet sink
         """
@@ -338,11 +353,6 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
 
     def is_configured (self, isSource, isTwoWay):
         return len(self.foldername) > 0
-
-    def get_configuration(self):
-        return {
-            "foldername" : self.foldername
-            }
 
     def get_UID(self):
         return "%s-%s" % (self.user_id, self.foldername)
