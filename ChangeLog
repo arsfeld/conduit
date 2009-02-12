@@ -1,3 +1,8 @@
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py: Use optparse instead of
+	getopt. Will make it easier to translate.
+
 2009-02-11  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/utils/MediaFile.py:
