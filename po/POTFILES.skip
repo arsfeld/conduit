@@ -6,8 +6,6 @@ tools/test-db-wrapper/main.glade
 tools/test-db-wrapper/main.glade
 conduit/modules/GoogleModule/contacts-config.glade
 conduit/modules/OSyncEvoModule.py
-conduit/modules/PicasaDesktopModule/PicasaDesktopModule.py
-conduit/modules/PicasaDesktopModule/config.glade
 conduit/modules/RhythmboxDBusModule/RhythmboxDBusModule.py
 conduit/modules/RhythmboxDBusModule/config.glade
 conduit/modules/SynceModule.py
@@ -16,6 +14,8 @@ conduit/modules/SettingsModule/layout_loader.py
 conduit/modules/SettingsModule/layout_save.py
 conduit/modules/UNSUPPORTED/RTMModule/RTMModule.py
 conduit/modules/UNSUPPORTED/RTMModule/config.glade
+conduit/modules/UNSUPPORTED/PicasaDesktopModule/PicasaDesktopModule.py
+conduit/modules/UNSUPPORTED/PicasaDesktopModule/config.glade
 
 
 

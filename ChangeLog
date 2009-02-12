@@ -1,5 +1,11 @@
 2009-02-12  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/UNSUPPORTED/PicasaDesktopModule/*:
+	* conduit/modules/PicasaDesktopModule/*: 
+	Move PicasaDesktopModule to UNSUPPORTED.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/UNSUPPORTED/PhoneModule/*:
 	* conduit/modules/PhoneModule/*: Move PhoneModule
 	to UNSUPPORTED.
