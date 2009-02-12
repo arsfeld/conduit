@@ -1,5 +1,11 @@
 2009-02-12  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestCoreConvertAudioVideo.py:
+	* test/python-tests/data/video.list:
+	Clean up test output.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/UNSUPPORTED/AmazonS3Module/*:
 	* conduit/modules/AmazonS3Module/*: 
 	Move AmazonS3Module to UNSUPPORTED.

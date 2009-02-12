@@ -6,7 +6,9 @@
 #Note: If two items have the same key, the one in your section replaces
 #the one in the default section
 [DEFAULT]
-ogg=http://files.conduit-project.org/Conduit-0.3.0-screencast-small.ogg
+ogg=http://gstreamer.freedesktop.org/media/small/videotestsrc-720x576-16-15.ogg
+avi=http://samples.mplayerhq.hu/MPEG2/Futurama1-tmp.avi
+flv=http://samples.mplayerhq.hu/FLV/zelda.flv
 
 [john@nzjrs-desktop]
 ogg=/home/john/testing/test-data/Conduit-0.3.0-screencast-small.ogg

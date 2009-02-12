@@ -40,16 +40,16 @@ def convert():
             if exists:
                 for encoding in test_encodings:
                     args = all_encodings[encoding]
-                    ok("%s: Testing encoding of %s -> %s" % (name,description,encoding), True)
                     
                     to_type = "file/%s?%s" % (name,Utils.encode_conversion_args(args))
                     try:
                         newdata = tc.convert("file",to_type, f)
-                        ok("%s: Conversion OK" % name, newdata != None and newdata.exists(), False)
-                    except Exceptions.ConversionError:
-                        ok("%s: Conversion Failed" % name, False, False)
-                    except Exception:
-                        ok("GENERAL CONVERSION FAILURE" % name, False, False)
+                        success = newdata != None and newdata.exists()
+                    except: 
+                        success = False
+
+                    ok("%s: Conversion of %s -> %s" % (name,description,encoding), success, False)
+
     gobject.idle_add(mainloop.quit)
 
 def idle_cb():
