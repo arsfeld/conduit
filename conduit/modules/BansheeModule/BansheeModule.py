@@ -24,17 +24,17 @@ import conduit.datatypes.Audio as Audio
 
 from gettext import gettext as _
 
+BANSHEE_INSTALLED = False
+BANSHEE_VERSION_1 = False
+BANSHEE_BASE_LOCATION = ""
+
 if Utils.program_installed("banshee"):
     BANSHEE_INSTALLED = True
-    BANSHEE_VERSION_1 = False
-    BANSHEE_BASE_LOCATION = ""
 elif Utils.program_installed("banshee-1"):
     BANSHEE_INSTALLED = True
     BANSHEE_VERSION_1 = True
     import gconf
     BANSHEE_BASE_LOCATION = "file://%s/" % gconf.Client().get_string( "/apps/banshee-1/library/base_location" )
-else:
-    BANSHEE_INSTALLED = False
 
 if BANSHEE_INSTALLED:
     MODULES = {

@@ -1,5 +1,10 @@
 2009-02-12  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/BansheeModule/BansheeModule.py:
+	Fix banshee error when not installed.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Main.py: Use optparse instead of
 	getopt. Will make it easier to translate.
 
