@@ -1,5 +1,16 @@
 2009-02-12  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Main.py:
+	* conduit/modules/UNSUPPORTED: Add a new directory
+	in which to store unsuppored or incomplete dataproviders.
+	Use -U command line switch to tell conduit to look in 
+	this directory.
+
+	* conduit/modules/RTMModule/*: Move POS remember the milk
+	module to this new directory.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/BansheeModule/BansheeModule.py:
 	Fix banshee error when not installed.
 

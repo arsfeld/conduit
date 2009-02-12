@@ -83,6 +83,10 @@ class Application(dbus.service.Object):
                 "-s", "--settings",
                 metavar="key=val,key=val",
                 help="Explicitly set internal Conduit settings (keys) to the given values for this session. [default: do not set]")
+        parser.add_option(
+                "-U", "--enable-unsupported",
+                action="store_true", default=False,
+                help="Enable loading of unfinished or unsupported dataproviders. [default: %default]")
         options, args = parser.parse_args()
 
         whitelist = None
@@ -138,10 +142,12 @@ class Application(dbus.service.Object):
             self.ShowStatusIcon()
 
         #Dynamically load all datasources, datasinks and converters
-        dirs_to_search =    [
-                            conduit.SHARED_MODULE_DIR,
-                            os.path.join(conduit.USER_DIR, "modules")
-                            ]
+        dirs_to_search = [
+            conduit.SHARED_MODULE_DIR,
+            os.path.join(conduit.USER_DIR, "modules")
+        ]
+        if options.enable_unsupported:
+            dirs_to_search.append(os.path.join(conduit.SHARED_MODULE_DIR, "UNSUPPORTED"))
 
         #Initialize all globals variables
         conduit.GLOBALS.app = self
