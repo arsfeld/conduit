@@ -1,5 +1,11 @@
 2009-02-12  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/UNSUPPORTED/RhythmboxDBusModule/*:
+	* conduit/modules/RhythmboxDBusModule/*: 
+	Move RhythmboxDBusModule to UNSUPPORTED.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/UNSUPPORTED/PicasaDesktopModule/*:
 	* conduit/modules/PicasaDesktopModule/*: 
 	Move PicasaDesktopModule to UNSUPPORTED.
