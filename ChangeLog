@@ -1,3 +1,12 @@
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* AUTHORS: Add Alexandre.
+
+	* conduit/Makefile.am:
+	* conduit/gtkui/Makefile.am:
+	Add new configuration system files. 
+	Fixes #571506 (Manuel Rego Casasnovas)
+
 2009-02-12  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/gtkui/ConfigContainer.py: 

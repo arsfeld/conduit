@@ -8,6 +8,7 @@ conduitbin_SCRIPTS = \
 conduitdir = $(pythondir)/conduit
 conduit_PYTHON = \
 	Conduit.py \
+	Configurator.py \
 	Conflict.py \
 	Database.py \
 	DBus.py \
