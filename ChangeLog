@@ -1,5 +1,11 @@
 2009-02-13  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/TestSyncFolderFolder.py:
+	* test/python-tests/TestSyncFolderFolder2.py:
+	Move to core tests.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/common.py: Initialize the
 	typeconverter for tests properly.
 
