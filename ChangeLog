@@ -1,5 +1,15 @@
 2009-02-13  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/platform/FileGio.py: Copy the mtime
+	when copying the file. Also check that copy
+	and setting the mtime succeeds.
+
+	* test/python-tests/TestSyncFolderFolder.py:
+	Improve readability and make possible to test
+	much larger numbers of files.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
 	* AUTHORS: Add Alexandre.
 
 	* conduit/Makefile.am:
