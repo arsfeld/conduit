@@ -6,7 +6,7 @@
 	* conduit/Vfs.py: Dont strip '/' from URIs,
 	it breaks lots. Techinically I think we should
 	still strip them from the filename, but I m not sure.
-	The tests pass and it fixes #571540
+	The tests pass and it fixes #571540 and #555404 
 
 2009-02-13  John Stowers  <john.stowers@gmail.com>
 
