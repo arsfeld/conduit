@@ -1,5 +1,17 @@
 2009-02-13  John Stowers  <john.stowers@gmail.com>
 
+	* test/python-tests/common.py: Initialize the
+	typeconverter for tests properly.
+
+	* conduit/datatypes/File.py: Fix pickling of
+	proxy file types
+
+	* conduit/platform/FileGio.py: Drop the workaround
+	for bug #547133 now that all distros are 
+	shipping gvfs > 0.99.6
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/platform/FileGio.py: Copy the mtime
 	when copying the file. Also check that copy
 	and setting the mtime succeeds.
