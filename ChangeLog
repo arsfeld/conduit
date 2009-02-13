@@ -1,5 +1,15 @@
 2009-02-13  John Stowers  <john.stowers@gmail.com>
 
+	* scripts/continuous-tester.sh: Can now
+	specify the args to pass to run_tests.sh script.
+
+	* conduit/Vfs.py: Dont strip '/' from URIs,
+	it breaks lots. Techinically I think we should
+	still strip them from the filename, but I m not sure.
+	The tests pass and it fixes #571540
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
 	* test/python-tests/TestSyncFolderFolder.py:
 	* test/python-tests/TestSyncFolderFolder2.py:
 	Move to core tests.
