@@ -9,12 +9,48 @@ import conduit
 import conduit.Exceptions as Exceptions
 import conduit.Utils as Utils
 import conduit.datatypes.DataType as DataType
+import conduit.utils.MediaFile as MediaFile
+import conduit.datatypes.Audio as Audio
 import conduit.dataproviders.DataProvider as DataProvider
 
 MODULES = {
     "ExampleDataProviderTwoWay" :   { "type": "dataprovider" },
     "ExampleConverter"          :   { "type": "converter" }
 }
+
+class MediaDataType(object):
+    __storm_table__ = "media_datatype"
+    uri = Unicode()
+    
+    def __init__(self, URI, *args, **kwargs):
+        self.uri = URI
+    
+class AudioDataType(Audio.Audio, MediaDataType):
+    __storm_table__ = "audio_datatype"
+    title = Unicode()
+    artist = Unicode()
+    album = Unicode()
+    genre = Unicode()
+    track = Int()
+    tracks = Int()
+    bitrate = Int()
+    composer = Unicode()
+    duration = Int()
+    samplerate = Int()
+    channels = Int()
+    play_count = Int()
+    rating = Float()
+    cover_location = Unicode()
+    
+    def __init__(self, URI, *args, **kwargs):
+        Audio.Audio.__init__(self, URI, *args, **kwargs)
+        MediaDataType.__init__(self, URI, *args, **kwargs)
+        self.provides = []    
+        
+    def get_media_tags(self):
+        for tag_name, tag_value in Audio.Audio.get_media_tags(self):
+            if hasattr(tag_name)
+    
 
 class ExampleDataProviderTwoWay(DataProvider.TwoWay):
     """
