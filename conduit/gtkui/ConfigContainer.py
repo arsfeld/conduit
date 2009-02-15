@@ -16,7 +16,7 @@ log = logging.getLogger("gtkui.ConfigContainer")
 
 from gettext import gettext as _ 
 import conduit
-import conduit.gtkui.ConfigWidgets as ConfigWidgets
+import conduit.gtkui.ConfigItems as ConfigItems
 import conduit.Configurator as Configurator
 
 class Error(Exception):
@@ -253,10 +253,10 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self._reset_modified_items()
 
 # Register all item classes in this module
-for klass_name in dir(ConfigWidgets):
-    klass = getattr(ConfigWidgets, klass_name)
+for klass_name in dir(ConfigItems):
+    klass = getattr(ConfigItems, klass_name)
     #log.debug("Class: %s" % getattr(ConfigWidgets, klass_name))    
-    if isinstance(klass, type) and issubclass(klass, ConfigWidgets.ConfigItem) and klass != ConfigWidgets.ConfigItem:
+    if isinstance(klass, type) and issubclass(klass, ConfigItems.ConfigItem) and klass != ConfigItems.ConfigItem:
         #log.debug("-- ConfigItem: %s", klass)
         ConfigContainer.register_item(klass.__item_name__, klass)
 
