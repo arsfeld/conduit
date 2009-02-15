@@ -71,7 +71,7 @@ class BansheeSource(DataProvider.DataSource):
             playlists = [],
             smart_playlists = [],
             video_playlists = [],
-        }
+        )
         self.tracks = []
 
     def _get_full_uri(self, uri):
@@ -241,6 +241,7 @@ class BansheeSource(DataProvider.DataSource):
         
         response = Utils.run_dialog (dlg, window)
         dlg.destroy()
+    '''
 
     def get_UID(self):
         return Utils.get_user_string()

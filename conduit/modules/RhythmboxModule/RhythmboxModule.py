@@ -75,12 +75,13 @@ class RhythmboxSource(DataProvider.DataSource):
         iter = root.getiterator()
         for element in iter:
 
-            if element.tag == "playlist":
+            if element.tag == "playlist":                
                 is_static = False
 
                 if element.keys():
                     for name, value in element.items():
-                        is_static = (name == "type" and value == "static")
+                        if name == "type" and value == "static":
+                            is_static = True
                         if name == "name":
                             temp_name = value
 
@@ -111,7 +112,7 @@ class RhythmboxSource(DataProvider.DataSource):
 
     def config_setup(self, config):
         self.allPlaylists = [(name, name) for name, songs in self._parse_playlists(RhythmboxSource.PLAYLIST_PATH)]
-        
+
         config.add_section("Playlists")
         config.add_item("Playlists", "list", 
             config_name = "playlists",
@@ -191,7 +192,6 @@ class RhythmDBHandler(handler.ContentHandler):
         'play-count', 'rating', 'duration', 'bitrate')
 
     def __init__(self, searchlist):
-        handler.ContentHandler.__init__(self)
         self.searchlist = searchlist
         self.cleansongs = []
         self.songdata = {}
