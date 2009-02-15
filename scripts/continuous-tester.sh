@@ -3,8 +3,8 @@
 TEST_DIR='/home/john/testing/conduit'
 LOGFILE='/home/john/testing/conduit-test.log'
 SVN_REPO='http://svn.gnome.org/svn/conduit/trunk'
-TEST_OPTIONS='cuDSN'
 SLEEP_TIME='1h'
+DEFAULT_TEST_OPTIONS='cuDSN'
 
 ME=`basename $0`
 USAGE="\
@@ -17,6 +17,7 @@ Options:\n\
 \t-d\t\tDisable buliding of documentation\n\
 \t-l\t\tRun in a never ending loop\n\
 \t-b\t\tRun with dbus-launch\n\
+\t-o [options]\tRun tests with the specified options [default: $DEFAULT_TEST_OPTIONS]\n\
 \t-h\t\tShow this help message\n"
 
 FORCE=no
@@ -24,7 +25,8 @@ DOCS=yes
 CNT=-1
 LOOP=no
 DBUS_LAUNCH=''
-while getopts "fdlbh" options
+TEST_OPTIONS=$DEFAULT_TEST_OPTIONS
+while getopts "fdlbho:" options
 do
     case $options in
         f )     FORCE=yes;;
@@ -32,6 +34,7 @@ do
         l )     LOOP=yes
                 CNT=1;;
         b )     DBUS_LAUNCH=dbus-launch;;
+        o )     TEST_OPTIONS=$OPTARG;;
         h )     echo -e $USAGE
                 exit 0;;
         * )     echo -e $USAGE

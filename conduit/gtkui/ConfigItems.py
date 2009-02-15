@@ -606,15 +606,15 @@ class ConfigList(ConfigItem):
         check_renderer = gtk.CellRendererToggle()
         check_renderer.set_property('activatable', True)
         check_renderer.connect( 'toggled', self.cellcheck_cb, self.model )
-        self.list.append_column(gtk.TreeViewColumn(_("Enabled"), check_renderer, active=1))                    
-        self.list.append_column(gtk.TreeViewColumn(_("Text"), gtk.CellRendererText(), text=0))     
+        self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active=1))                    
+        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text=0))     
         self._build_choices()
         self.scrolled_window.add(self.list)
         self.widget = self.vbox
         self.widget.set_size_request(-1, 150)
     
     def _update_total(self):
-        self.total_label.set_text("Total: %d" % len(self._checked_items))
+        self.total_label.set_text(_("Total: %d") % len(self._checked_items))
     
     def _get_value(self):
         if not self._checked_items:

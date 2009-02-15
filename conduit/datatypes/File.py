@@ -433,7 +433,9 @@ class File(DataType.DataType):
         data['group'] = self.group
         data['filename'] = self.get_filename()
         data['filemtime'] = self.get_mtime()
-
+        data['isproxyfile'] = self._isProxyFile
+        data['proxyfilesize'] = self._proxyFileSize
+        
         #FIXME: Maybe we should tar this first...
         data['data'] = open(self.get_local_uri(), 'rb').read()
 
@@ -462,6 +464,8 @@ class File(DataType.DataType):
         self.group = data['group']
         self._defer_rename(data['filename'])
         self._defer_new_mtime(data['filemtime'])
+        self._isProxyFile = data['isproxyfile']
+        self._proxyFileSize = data['proxyfilesize']
 
         DataType.DataType.__setstate__(self, data)
 

@@ -1,3 +1,63 @@
+2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
+
+	* conduit/gtkui/ConfigContainer.py:
+	Removed code to detect item classes.
+	* conduit/gtkui/ConfigItems.py:
+	Added Item metaclass to register item classes.
+	Every descendant to ConfigItem now gets
+	automatically registered, no matter where they
+	are (good for custom items).
+	* conduit/gtkui/ConfigWidgets.py:
+	* conduit/gtkui/Makefile.am:
+	Renamed ConfigWidgets to ConfigItems.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* scripts/continuous-tester.sh: Can now
+	specify the args to pass to run_tests.sh script.
+
+	* conduit/Vfs.py: Dont strip '/' from URIs,
+	it breaks lots. Techinically I think we should
+	still strip them from the filename, but I m not sure.
+	The tests pass and it fixes #571540 and #555404 
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/TestSyncFolderFolder.py:
+	* test/python-tests/TestSyncFolderFolder2.py:
+	Move to core tests.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/common.py: Initialize the
+	typeconverter for tests properly.
+
+	* conduit/datatypes/File.py: Fix pickling of
+	proxy file types
+
+	* conduit/platform/FileGio.py: Drop the workaround
+	for bug #547133 now that all distros are 
+	shipping gvfs > 0.99.6
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/FileGio.py: Copy the mtime
+	when copying the file. Also check that copy
+	and setting the mtime succeeds.
+
+	* test/python-tests/TestSyncFolderFolder.py:
+	Improve readability and make possible to test
+	much larger numbers of files.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* AUTHORS: Add Alexandre.
+
+	* conduit/Makefile.am:
+	* conduit/gtkui/Makefile.am:
+	Add new configuration system files. 
+	Fixes #571506 (Manuel Rego Casasnovas)
+
 2009-02-12  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/gtkui/ConfigContainer.py: 
