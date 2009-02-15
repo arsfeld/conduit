@@ -2,7 +2,7 @@ conduitdir = $(pythondir)/conduit/gtkui
 conduit_PYTHON = \
 	Canvas.py \
 	ConfigContainer.py \
-	ConfigWidgets.py \
+	ConfigItems.py \
 	ConflictResolver.py \
 	Database.py \
 	__init__.py \
