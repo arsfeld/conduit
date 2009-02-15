@@ -212,7 +212,7 @@ class ConfigItem(gobject.GObject):
     
     def save_state(self):
         '''
-        Seve the current value as the initial value.
+        Save the current value as the initial value.
         '''
         value = self.get_value()
         self.initial_value = value
@@ -221,7 +221,7 @@ class ConfigItem(gobject.GObject):
         
     def apply(self):
         '''
-        Seve the current value as the initial value and calls the dataprovider
+        Save the current value as the initial value and calls the dataprovider
         to save the current value
         '''
         self.save_state()
