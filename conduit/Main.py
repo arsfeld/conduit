@@ -1,5 +1,5 @@
 import os
-import getopt
+import optparse
 import sys
 import dbus, dbus.service, dbus.mainloop.glib
 import gobject
@@ -50,51 +50,58 @@ class Application(dbus.service.Object):
         #initialize application settings
         conduit.GLOBALS.settings = Settings()
 
-        buildGUI = True
-        iconify = False
+        #command line parsing
+        parser = optparse.OptionParser(
+                prog="conduit",
+                version="%%prog %s" % conduit.VERSION,
+                description="Conduit is a synchronization application.")
+        parser.add_option(
+                "-c", "--console",
+                dest="build_gui", action="store_false", default=True,
+                help="Launch without GUI. [default: %default]")
+        parser.add_option(
+                "-f", "--config-file",
+                metavar="FILE", default=self.settingsFile,
+                help="Save dataprovider configuration to FILE. [default: %default]")
+        parser.add_option(
+                "-i", "--iconify",
+                action="store_true", default=False,
+                help="Iconify on startup. [default: %default]")
+        parser.add_option(
+                "-u", "--ui",
+                metavar="NAME", default="gtk",
+                help="Run with the specified UI. [default: %default]")
+        parser.add_option(
+                "-w", "--with-modules",
+                metavar="mod1,mod2",
+                help="Only load modules in the named files. [default: load all modules]")
+        parser.add_option(
+                "-x", "--without-modules",
+                metavar="mod1,mod2",
+                help="Do not load modules in the named files. [default: load all modules]")
+        parser.add_option(
+                "-s", "--settings",
+                metavar="key=val,key=val",
+                help="Explicitly set internal Conduit settings (keys) to the given values for this session. [default: do not set]")
+        parser.add_option(
+                "-U", "--enable-unsupported",
+                action="store_true", default=False,
+                help="Enable loading of unfinished or unsupported dataproviders. [default: %default]")
+        options, args = parser.parse_args()
+
         whitelist = None
         blacklist = None
-        self.ui = "gtk"
         settings = {}
-        try:
-            opts, args = getopt.getopt(
-                            sys.argv[1:],
-                            "hvf:ciu:w:x:s:",
-                                ("help", "version", "config-file=",
-                                 "console", "iconify", "ui=", "with-modules=",
-                                 "without-modules=", "settings="))
-            #parse args
-            for o, a in opts:
-                if o in ("-h", "--help"):
-                    self._usage()
-                    sys.exit(0)
-                if o in ("-v", "--version"):
-                    print "Conduit %s" % conduit.VERSION
-                    sys.exit(0)
-                if o in ("-f", "--config-file"):
-                     self.settingsFile = os.path.join(os.getcwd(), a)
-                if o in ("-c", "--console"):
-                   buildGUI = False
-                if o in ("-i", "--iconify"):
-                    iconify = True
-                if o in ("-u", "--ui"):
-                    self.ui = a
-                if o in ("-w", "--with-modules"):
-                    whitelist = a.split(",")
-                if o in ("-x", "--without-modules"):
-                    blacklist = a.split(",")
-                if o in ("-s", "--settings"):
-                    try:
-                        for i in a.split(','):
-                            k,v = i.split('=')
-                            settings[k] = v
-                    except: pass
-                    conduit.GLOBALS.settings.set_overrides(**settings)
-
-        except getopt.GetoptError:
-            log.warn("Unknown command line option")
-            self._usage()
-            sys.exit(1)
+        if options.settings:
+            for i in options.settings.split(','):
+                k,v = i.split('=')
+                settings[k] = v
+        if options.with_modules:
+            whitelist = options.with_modules.split(",")
+        if options.without_modules:
+            blacklist = options.without_modules.split(",")
+        self.ui = options.ui
+        self.settingsFile = os.path.abspath(options.config_file)
 
         log.info("Conduit v%s Installed: %s" % (conduit.VERSION, conduit.IS_INSTALLED))
         log.info("Python: %s" % sys.version)
@@ -109,7 +116,7 @@ class Application(dbus.service.Object):
             log.info("Conduit is already running")
             obj = sessionBus.get_object(APPLICATION_DBUS_IFACE, "/activate")
             conduitApp = dbus.Interface(obj, APPLICATION_DBUS_IFACE)
-            if buildGUI:
+            if options.build_gui:
                 if conduitApp.HasGUI():
                     conduitApp.ShowGUI()
                 else:
@@ -127,18 +134,20 @@ class Application(dbus.service.Object):
         dbus.service.Object.__init__(self, bus_name, "/activate")
         
         #Throw up a splash screen ASAP. Dont show anything if launched via --console.
-        if buildGUI:
+        if options.build_gui:
             log.info("Using UI: %s" % self.ui)
             self.ImportGUI()
-            if not iconify:
+            if not options.iconify:
                 self.ShowSplash()
             self.ShowStatusIcon()
 
         #Dynamically load all datasources, datasinks and converters
-        dirs_to_search =    [
-                            conduit.SHARED_MODULE_DIR,
-                            os.path.join(conduit.USER_DIR, "modules")
-                            ]
+        dirs_to_search = [
+            conduit.SHARED_MODULE_DIR,
+            os.path.join(conduit.USER_DIR, "modules")
+        ]
+        if options.enable_unsupported:
+            dirs_to_search.append(os.path.join(conduit.SHARED_MODULE_DIR, "UNSUPPORTED"))
 
         #Initialize all globals variables
         conduit.GLOBALS.app = self
@@ -161,9 +170,9 @@ class Application(dbus.service.Object):
                     )
 
         #Set the view models
-        if buildGUI:
+        if options.build_gui:
             self.BuildGUI()
-            if not iconify:
+            if not options.iconify:
                 self.ShowGUI()
         
         #Dbus view...
@@ -186,26 +195,6 @@ class Application(dbus.service.Object):
             conduit.GLOBALS.mainloop.run()
         except KeyboardInterrupt:
             self.Quit()
-
-    def _usage(self):
-        print """Usage: conduit [OPTIONS] - Synchronize things
-OPTIONS:
-    -h, --help                  Show this message.
-    -c, --console               Launch with no GUI.
-                                (default=no)
-    -f, --config-file=FILE      Save dataprovider configuration to FILE.
-                                (default=$XDG_CONFIG_DIR/.conduit/settings.xml)
-    -i, --iconify               Iconify on startup.
-                                (default=no)
-    -u, --ui=NAME               Run with the specified UI.
-                                (default=gtk)
-    -w, --with-modules          Only load modules in the named files.
-                                (default=load all modules)
-    -x, --without-modules       Do not load modules in the named files.
-                                (default=load all modules)
-    -s, --settings=key=val,..   Explicitly set internal Conduit settings (keys)
-                                to the given values for this session.
-    -v, --version               Show version information."""
 
     @dbus.service.method(APPLICATION_DBUS_IFACE, in_signature='', out_signature='b')
     def HasGUI(self):

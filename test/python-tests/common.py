@@ -299,7 +299,7 @@ class SimpleTest(object):
         conduit.GLOBALS.moduleManager = self.model
         self.model.load_all(whitelist=None, blacklist=None)
         self.type_converter = TypeConverter.TypeConverter(self.model)
-        conduit.GLOBALS.typeManager = self.type_converter
+        conduit.GLOBALS.typeConverter = self.type_converter
         self.sync_manager = Synchronization.SyncManager(self.type_converter)
         conduit.GLOBALS.syncManager = self.sync_manager
 

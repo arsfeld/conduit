@@ -146,11 +146,11 @@ def uri_sanitize_for_filesystem(uri, filesystem=None):
     import string
 
     ILLEGAL_CHARS = {
-        "fat"       :   "\\:*?\"<>|/",
-        "vfat"      :   "\\:*?\"<>|/",
-        "msdos"     :   "\\:*?\"<>|/",
-        "msdosfs"   :   "\\:*?\"<>|/",
-        "ntfs"      :   "\\:*?\"<>|/"
+        "fat"       :   "\\:*?\"<>|",
+        "vfat"      :   "\\:*?\"<>|",
+        "msdos"     :   "\\:*?\"<>|",
+        "msdosfs"   :   "\\:*?\"<>|",
+        "ntfs"      :   "\\:*?\"<>|"
     }
 
     illegal = ILLEGAL_CHARS.get(filesystem,None)

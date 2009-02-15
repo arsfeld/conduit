@@ -33,7 +33,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
     __gsignals__ = {
         'item-changed' : (gobject.SIGNAL_RUN_FIRST, None, (gobject.TYPE_OBJECT,)),
     }
-        
+
     def __init__(self, dataprovider, configurator):
         super(ConfigContainer, self).__init__(dataprovider, configurator)
         
@@ -54,7 +54,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self.config_widget = self.widgetTable
         
         self.firstRow = True
-    
+
     def _reset_modified_items(self, empty = True):
         '''
         Reset the list of modified items. If empty is true, just create a new

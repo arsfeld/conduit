@@ -20,11 +20,11 @@ class FileImpl(conduit.platform.File):
             try:
                 #FIXME: Only get attributes we actually care about
                 self.fileInfo = self._file.query_info("standard::*,time::*")
-                for ns in ("standard","time"):
-                    log.info("%s Attributes: %s" % (
-                            ns.title(),
-                            ','.join(self.fileInfo.list_attributes(ns)))
-                            )
+                #for ns in ("standard","time"):
+                #    log.info("%s Attributes: %s" % (
+                #            ns.title(),
+                #            ','.join(self.fileInfo.list_attributes(ns)))
+                #            )
                 self.fileExists = True
             except gio.Error:
                 self.fileExists = False
@@ -57,12 +57,11 @@ class FileImpl(conduit.platform.File):
         
     def set_mtime(self, timestamp=None, datetime=None):
         try:
-            self._file.set_attribute_uint64(
-                        "time::modified",
-                        long(timestamp)
-                        )
-            self.close()
-            return timestamp
+            if self._file.set_attribute_uint64("time::modified", long(timestamp)):
+                self.close()
+                return timestamp
+            else:
+                return None
         except gio.Error, e:
             return None
         
@@ -75,19 +74,13 @@ class FileImpl(conduit.platform.File):
             return None
         
     def get_mtime(self):
-        #FIXME: Workaround for 
-        #http://bugzilla.gnome.org/show_bug.cgi?id=547133
-        if self._file.get_uri_scheme() in ("http", "ftp"):
-            from conduit.utils import get_http_resource_last_modified
-            return get_http_resource_last_modified(self._file.get_uri())
+        self._get_file_info()
+        mtime = self.fileInfo.get_attribute_uint64('time::modified')
+        if mtime:
+            return mtime
         else:
-            self._get_file_info()
-            mtime = self.fileInfo.get_attribute_uint64('time::modified')
-            if mtime:
-                return mtime
-            else:
-                #convert 0L -> None
-                return None
+            #convert 0L -> None
+            return None
 
     def get_filename(self):
         self._get_file_info()
@@ -262,14 +255,14 @@ class FileTransferImpl(conduit.platform.FileTransfer):
             d.make_directory_and_parents()
 
         #Copy the file
-        try:        
+        try:      
             ok = self._source.copy(
                         destination=self._dest,
-                        flags=mode,
+                        flags=mode|gio.FILE_COPY_ALL_METADATA,
                         cancellable=self._cancellable,
                         progress_callback=self._xfer_progress_callback
                         )
-            return True, FileImpl(None, impl=self._dest)
+            return ok, FileImpl(None, impl=self._dest)
         except gio.Error, e:
             log.warn("File transfer error: %s" % e)
             return False, None

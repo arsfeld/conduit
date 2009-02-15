@@ -22,5 +22,5 @@ done
 
 #update pyrtm
 echo "Updating pyrtm"
-wget -qO conduit/modules/RTMModule/rtm.py "http://repo.or.cz/w/pyrtm.git?a=blob_plain;f=rtm.py;hb=HEAD
+wget -qO conduit/modules/UNSUPPORTED/RTMModule/rtm.py "http://repo.or.cz/w/pyrtm.git?a=blob_plain;f=rtm.py;hb=HEAD
 

@@ -1,3 +1,143 @@
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* scripts/continuous-tester.sh: Can now
+	specify the args to pass to run_tests.sh script.
+
+	* conduit/Vfs.py: Dont strip '/' from URIs,
+	it breaks lots. Techinically I think we should
+	still strip them from the filename, but I m not sure.
+	The tests pass and it fixes #571540 and #555404 
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/TestSyncFolderFolder.py:
+	* test/python-tests/TestSyncFolderFolder2.py:
+	Move to core tests.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/common.py: Initialize the
+	typeconverter for tests properly.
+
+	* conduit/datatypes/File.py: Fix pickling of
+	proxy file types
+
+	* conduit/platform/FileGio.py: Drop the workaround
+	for bug #547133 now that all distros are 
+	shipping gvfs > 0.99.6
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/platform/FileGio.py: Copy the mtime
+	when copying the file. Also check that copy
+	and setting the mtime succeeds.
+
+	* test/python-tests/TestSyncFolderFolder.py:
+	Improve readability and make possible to test
+	much larger numbers of files.
+
+2009-02-13  John Stowers  <john.stowers@gmail.com>
+
+	* AUTHORS: Add Alexandre.
+
+	* conduit/Makefile.am:
+	* conduit/gtkui/Makefile.am:
+	Add new configuration system files. 
+	Fixes #571506 (Manuel Rego Casasnovas)
+
+2009-02-12  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/gtkui/ConfigContainer.py: 
+	Removed unnecessary log message
+
+2009-02-13  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/Logging.py: Coloured logging output.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* test/python-tests/TestCoreConvertAudioVideo.py:
+	* test/python-tests/data/video.list:
+	Clean up test output.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/UNSUPPORTED/AmazonS3Module/*:
+	* conduit/modules/AmazonS3Module/*: 
+	Move AmazonS3Module to UNSUPPORTED.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/UNSUPPORTED/RhythmboxDBusModule/*:
+	* conduit/modules/RhythmboxDBusModule/*: 
+	Move RhythmboxDBusModule to UNSUPPORTED.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/UNSUPPORTED/PicasaDesktopModule/*:
+	* conduit/modules/PicasaDesktopModule/*: 
+	Move PicasaDesktopModule to UNSUPPORTED.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/UNSUPPORTED/PhoneModule/*:
+	* conduit/modules/PhoneModule/*: Move PhoneModule
+	to UNSUPPORTED.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py:
+	* conduit/modules/UNSUPPORTED: Add a new directory
+	in which to store unsuppored or incomplete dataproviders.
+	Use -U command line switch to tell conduit to look in 
+	this directory.
+
+	* conduit/modules/RTMModule/*: Move POS remember the milk
+	module to this new directory.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BansheeModule/BansheeModule.py:
+	Fix banshee error when not installed.
+
+2009-02-12  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Main.py: Use optparse instead of
+	getopt. Will make it easier to translate.
+
+2009-02-11  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/utils/MediaFile.py:
+	* test/python-tests/TestCoreConvertAudioVideo.py:
+	* test/python-tests/data/video.list: Import gst.discover 
+	which fixes the av conversion tests.
+
+2009-02-10  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	New configuration system commit. Only the core classes are 
+	commited, no dataprovider is changed yet. These will be
+	commited when ready.
+
+	* conduit/Configurator.py:
+	Base configuration classes
+	* conduit/Module.py:
+	Log an error when not able to load a module
+	* conduit/dataproviders/DataProvider.py:
+	Added update_configuration as an alternative to 
+	implementing get/set_configuration in data
+	providers.
+	Added new configuration system methods
+	* conduit/gtkui/Canvas.py:
+	Use the new configuration system if availiable in a data
+	provider, or logs a critical message if not, and runs
+	the old configure method.
+	* conduit/gtkui/ConfigContainer.py:
+	* conduit/gtkui/ConfigWidgets.py:
+	* conduit/gtkui/EmbedConfigurator.py:
+	* conduit/gtkui/WindowConfigurator.py:
+	New configuration system. Temporarily documented in 
+	http://wiki.arosenfeld.net/Conduit
+
 2009-02-09  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/modules/iPodModule/iPodModule.py:
