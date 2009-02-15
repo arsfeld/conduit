@@ -40,7 +40,7 @@ class Section(gobject.GObject):
             table.resize(row, 2)
             table.attach(label, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.SHRINK, yoptions = 0 )
         for item in sorted(self.items, key = lambda item: item.order):
-            row = item.attach(table, row, bool(self.title))
+            row = item._attach(table, row, bool(self.title))
         return row
     
     enabled = property(lambda self: self.__enabled, 
@@ -56,6 +56,21 @@ class Section(gobject.GObject):
             
     def apply(self):
         self.container.apply_config(sections = [self])
+        
+class ItemMeta(gobject.GObjectMeta):
+    def __init__(cls, name, bases, attrs):
+        gobject.GObjectMeta.__init__(cls, name, bases, attrs)
+        if not hasattr(cls, 'items'):
+            # This branch only executes when processing the mount point itself.
+            # So, since this is a new plugin type, not an implementation, this
+            # class shouldn't be registered as a plugin. Instead, it sets up a
+            # list where plugins can be registered later.
+            cls.items = []
+        else:
+            # This must be a plugin implementation, which should be registered.
+            # Simply appending it to the list is all that's needed to keep
+            # track of it later.
+            cls.items.append(cls)
         
 class ConfigItem(gobject.GObject):
     '''
@@ -79,7 +94,7 @@ class ConfigItem(gobject.GObject):
             is called. It is especially useful for items that keep their state
             somewhere else.
         :choices: Valid when the user needs to select a value from a list.
-            It has be a tuple with ``(value, label)``.
+            It has to be a tuple with ``(value, label)``.
         :needs_label: If True, the widget will have a label with title as
             the text.
         :needs_space: If ``needs_label`` is False, but the widget still wants 
@@ -89,8 +104,11 @@ class ConfigItem(gobject.GObject):
     selected and the value must be saved.
         
     Signals emitted:
-        :value-changed: Emitted everytime the value changes.   
+        :value-changed: Emitted everytime the value changes, emitting two 
+            parameters, the first is a bool wheter the value is the same
+            as the initial value, and the second is the value.
     '''
+    __metaclass__ = ItemMeta
     
     __gsignals__ = {
         'value-changed' : (gobject.SIGNAL_RUN_FIRST, None, [bool, object]),
@@ -125,7 +143,10 @@ class ConfigItem(gobject.GObject):
 
     def _value_changed(self, *args):
         '''
-        Called everytime the value changes.
+        Called everytime the value changes. Emits the value-changed signal.
+        
+        This method can be chained into widget signals. It will safely ignore
+        any argument passed to it.
         '''
         #if self.is_initial_value():
         #    self.emit('initial-state')
@@ -160,13 +181,13 @@ class ConfigItem(gobject.GObject):
     
     def is_initial_value(self):
         '''
-        Returns True if the current value is the initial value
+        Returns True if the current value is the initial value.
         '''
         return self.initial_value == self.value
         
     def set_enabled(self, enabled):
         '''
-        Set the button sensibility.
+        Set the widget sensibility.
         '''
         self.enabled = enabled
         if self.widget:
@@ -174,7 +195,7 @@ class ConfigItem(gobject.GObject):
         
     def reset(self):
         '''
-        Resets the widget to it's initial state
+        Resets the widget to it's initial value.
         '''
         if self.__widget:
             #self.emit('reset')
@@ -185,7 +206,7 @@ class ConfigItem(gobject.GObject):
     
     def save_state(self):
         '''
-        Set the current value as the initial value.
+        Seve the current value as the initial value.
         '''
         value = self.get_value()
         self.initial_value = value
@@ -194,7 +215,7 @@ class ConfigItem(gobject.GObject):
         
     def apply(self):
         '''
-        Set the current value as the initial value and calls the dataprovider
+        Seve the current value as the initial value and calls the dataprovider
         to save the current value
         '''
         self.save_state()
@@ -262,21 +283,39 @@ class ConfigItem(gobject.GObject):
         else:
             return {self.config_name: value}
     
-    def _get_value(self):
-        self.get_value()
-    
     #Set value as a property and make sure get_value and set_value can be 
     #overriden in descendants without conflicting with this property
     value = property(lambda self: self.get_value(),
                      lambda self, v: self.set_value(v))
         
     def get_value(self):
-        pass
+        '''
+        Gets the value from the widget.
+        
+        This is a public interface method, should not be overriden by 
+        descendants. Implement _get_value instead.
+        '''
+        return self._get_value()
     
     def set_value(self, value):
-        pass
+        '''
+        Sets the value from the widget.
+        
+        This is a public interface method, should not be overriden by 
+        descendants. Implement _set_value instead.
+        '''
+        #FIXME: We should probably check for exceptions here, to avoid not 
+        # showing the configuration dialog because a value was invalid,
+        # which could occur with invalid config values.
+        # We should probably assign the initial value here in case of an 
+        # Exception. In case of another Exception, then it's the module fault,
+        # and no exception handling should be done.
+        self._set_value(value)
 
-    def attach(self, table, row, in_section):
+    def _attach(self, table, row, in_section):
+        '''
+        Attach this item's widget to a table.
+        '''
         widget = self.get_widget()
         label = self.get_label()
         row += 1
@@ -303,10 +342,10 @@ class ConfigItem(gobject.GObject):
 
 #FIXME: Finish the CustomWidget implementation (if we need the custom widget support)
 #class ConfigCustomWidget(ConfigItem):
-#    def get_value(self):
+#    def _get_value(self):
 #        return self.load_callback(self.widget)
 #    
-#    def set_value(self, value):
+#    def _set_value(self, value):
 #        self.widget_callback(self.widget)
 
 class ConfigLabel(ConfigItem):
@@ -323,10 +362,10 @@ class ConfigLabel(ConfigItem):
         self.widget.set_alignment(self.xalignment, self.yalignment)
         self.widget.set_use_markup(self.use_markup)
     
-    def get_value(self):
+    def _get_value(self):
         return self.widget.get_text()
     
-    def set_value(self, value):
+    def _set_value(self, value):
         if self.use_markup:
             self.widget.set_markup(str(value))
         else:
@@ -347,7 +386,7 @@ class ConfigButton(ConfigItem):
     def build_widget(self):
         self.widget = gtk.Button(self.title)
         
-    def set_value(self, value):
+    def _set_value(self, value):
         if self.callback_id:
             self.widget.disconnect(self.callback_id)
         self.callback_id = None
@@ -358,7 +397,7 @@ class ConfigButton(ConfigItem):
         if self.callback:
             self.callback_id = self.widget.connect("clicked", value)            
         
-    def get_value(self):
+    def _get_value(self):
         return self.callback
     
 class ConfigFileButton(ConfigItem):
@@ -382,10 +421,10 @@ class ConfigFileButton(ConfigItem):
         else:
             self.widget.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
     
-    def set_value(self, value):
+    def _set_value(self, value):
         self.widget.set_filename(str(value))
     
-    def get_value(self):
+    def _get_value(self):
         return self._current_filename
 
 class ConfigRadio(ConfigItem):
@@ -420,13 +459,13 @@ class ConfigRadio(ConfigItem):
         self.widget = gtk.VBox()
         self._build_choices()
     
-    def get_value(self):
+    def _get_value(self):
         for value, button in self.buttons.iteritems():
             if button == self._active_button:
                 return value
         return None
     
-    def set_value(self, new_value):
+    def _set_value(self, new_value):
         if new_value in self.buttons:
             self.buttons[new_value].set_active(True)
         else:
@@ -446,10 +485,10 @@ class ConfigSpin(ConfigItem):
         self.widget = gtk.SpinButton(self.adjust)
         self.widget.connect("value-changed", self._value_changed)
     
-    def get_value(self):
+    def _get_value(self):
         return float(self.widget.get_value())
     
-    def set_value(self, value):
+    def _set_value(self, value):
         try:
             value = float(value)
             self.widget.set_value(value)
@@ -481,7 +520,7 @@ class ConfigCombo(ConfigItem):
         self._build_choices()
         self.widget.connect("changed", self._value_changed)
 
-    def get_value(self):
+    def _get_value(self):
         active = self.widget.get_active()
         if len(self.choices) > active and active >= 0:
             return self.choices[active][0]
@@ -489,7 +528,7 @@ class ConfigCombo(ConfigItem):
             log.warning("No value selected in combo")
             return None
     
-    def set_value(self, new_value):
+    def _set_value(self, new_value):
         for idx, (value, text) in enumerate(self.choices):
             if value == new_value:
                 self.widget.set_active(idx)
@@ -504,10 +543,10 @@ class ConfigComboText(ConfigCombo):
         self._build_choices()
         self.widget.connect("changed", self._value_changed)
     
-    def get_value(self):
+    def _get_value(self):
         return self.widget.child.get_text()
     
-    def set_value(self, value):
+    def _set_value(self, value):
         self.widget.child.set_text(str(value))
     
 class ConfigText(ConfigItem):
@@ -522,10 +561,10 @@ class ConfigText(ConfigItem):
         self.widget.connect("notify::text", self._value_changed)
         self.widget.set_visibility(not self.password)
     
-    def get_value(self):
+    def _get_value(self):
         return self.widget.get_text()
     
-    def set_value(self, value):
+    def _set_value(self, value):
         self.widget.set_text(str(value))
             
 class ConfigList(ConfigItem):
@@ -577,13 +616,13 @@ class ConfigList(ConfigItem):
     def _update_total(self):
         self.total_label.set_text("Total: %d" % len(self._checked_items))
     
-    def get_value(self):
+    def _get_value(self):
         if not self._checked_items:
             self._checked_items = sorted([row[0] for row in self.model if row[1]])
             self._update_total()
         return self._checked_items
     
-    def set_value(self, value):
+    def _set_value(self, value):
         self._checked_items = []
         try:
             for row in self.model:
@@ -606,10 +645,10 @@ class ConfigCheckBox(ConfigItem):
         self.widget.set_label(self.title)
         self.widget.connect("toggled", self._value_changed)
     
-    def get_value(self):
+    def _get_value(self):
         return self.widget.get_active()
     
-    def set_value(self, value):
+    def _set_value(self, value):
         self.widget.set_active(bool(value))
 
 
