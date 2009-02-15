@@ -58,6 +58,9 @@ class Section(gobject.GObject):
         self.container.apply_config(sections = [self])
         
 class ItemMeta(gobject.GObjectMeta):
+    '''
+    Meta class to automatically register item classes.
+    '''
     def __init__(cls, name, bases, attrs):
         gobject.GObjectMeta.__init__(cls, name, bases, attrs)
         if not hasattr(cls, 'items'):
@@ -65,12 +68,13 @@ class ItemMeta(gobject.GObjectMeta):
             # So, since this is a new plugin type, not an implementation, this
             # class shouldn't be registered as a plugin. Instead, it sets up a
             # list where plugins can be registered later.
-            cls.items = []
+            cls.items = {}
         else:
             # This must be a plugin implementation, which should be registered.
             # Simply appending it to the list is all that's needed to keep
             # track of it later.
-            cls.items.append(cls)
+            if hasattr(cls, '__item_name__'):
+                cls.items[cls.__item_name__] = cls
         
 class ConfigItem(gobject.GObject):
     '''
@@ -108,6 +112,8 @@ class ConfigItem(gobject.GObject):
             parameters, the first is a bool wheter the value is the same
             as the initial value, and the second is the value.
     '''
+    
+    #Automatically registers item descendants
     __metaclass__ = ItemMeta
     
     __gsignals__ = {

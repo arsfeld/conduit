@@ -33,10 +33,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
     __gsignals__ = {
         'item-changed' : (gobject.SIGNAL_RUN_FIRST, None, (gobject.TYPE_OBJECT,)),
     }
-    
-    # List of registered items. Call register_item to change it.
-    __config_classes = {}
-    
+        
     def __init__(self, dataprovider, configurator):
         super(ConfigContainer, self).__init__(dataprovider, configurator)
         
@@ -58,10 +55,6 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         
         self.firstRow = True
     
-    @classmethod
-    def register_item(cls, name, item_class):
-        cls.__config_classes[name] = item_class
-        
     def _reset_modified_items(self, empty = True):
         '''
         Reset the list of modified items. If empty is true, just create a new
@@ -134,7 +127,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
                     found = True
                     break
         if not use_existing or not found:
-            self.section = ConfigWidgets.Section(self, title, order, **kwargs)
+            self.section = ConfigItems.Section(self, title, order, **kwargs)
             self.sections.append(self.section)
         self._rebuild_widgets()
         return self.section
@@ -145,8 +138,6 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         
         You can pass properties to the configuration item in kwargs.
         '''
-        if kind not in self.__config_classes:
-            raise Error("Config widget %s not found" % kind)
         if not self.section:
             self.add_section()
         # If we have a saved configuration in the config dict from the dp, 
@@ -160,8 +151,12 @@ class ConfigContainer(Configurator.BaseConfigContainer):
             if kwargs['config_name'] in self.config_values:
                 kwargs['initial_value'] = self.config_values[kwargs['config_name']]
         if 'enabled' not in kwargs:
-            kwargs['enabled'] = self.section.enabled            
-        item = self.__config_classes[kind](self, title, order, **kwargs)
+            kwargs['enabled'] = self.section.enabled
+        try:    
+            item_cls = ConfigItems.ConfigItem.items[kind]
+        except KeyError:
+            raise Error("Config kind %s not found" % kind)
+        item = item_cls(self, title, order, **kwargs)
         item.connect("value-changed", self._item_changed)
         self.items.append(item)
         self.section.add_item(item)
@@ -251,12 +246,3 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         super(ConfigContainer, self).cancel_config()
         self._reset()
         self._reset_modified_items()
-
-# Register all item classes in this module
-for klass_name in dir(ConfigItems):
-    klass = getattr(ConfigItems, klass_name)
-    #log.debug("Class: %s" % getattr(ConfigWidgets, klass_name))    
-    if isinstance(klass, type) and issubclass(klass, ConfigItems.ConfigItem) and klass != ConfigItems.ConfigItem:
-        #log.debug("-- ConfigItem: %s", klass)
-        ConfigContainer.register_item(klass.__item_name__, klass)
-
