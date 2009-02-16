@@ -1,3 +1,15 @@
+2009-02-16  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Logging.py: No longer use CONDUIT_LOGLEVEL to set
+	the logging level, set it programatically on the root logger instead.
+
+	* conduit/Main.py: Add --debug, --quiet, and --silent command line
+	options, and use these to manipulate the debug level. 
+	Fixes #548962.
+
+	* conduit/conduit.real:
+	* test/python-tests/common.py: Update to the new API.
+
 2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
 
 	* conduit/gtkui/ConfigContainer.py:

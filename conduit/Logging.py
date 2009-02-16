@@ -36,11 +36,7 @@ class ConduitLogger(logging.Logger):
     NO_COLOR_FORMAT = "[%(name)-20s][%(levelname)-18s]  %(message)s (%(filename)s:%(lineno)d)"
     LOG_FILE_HANDLER = None
     def __init__(self, name):
-        try:
-            level = getattr(logging,os.environ.get('CONDUIT_LOGLEVEL','DEBUG'))
-        except AttributeError:
-            level = logging.DEBUG
-        logging.Logger.__init__(self, name, level)                
+        logging.Logger.__init__(self, name)     
         
         #Add two handlers, a stderr one, and a file one
         color_formatter = ColoredFormatter(ConduitLogger.COLOR_FORMAT)
@@ -58,5 +54,14 @@ class ConduitLogger(logging.Logger):
         self.addHandler(ConduitLogger.LOG_FILE_HANDLER)
         self.addHandler(console)
         return
+
+def enable_debugging():
+    logging.getLogger().setLevel(logging.DEBUG)
+
+def disable_debugging():
+    logging.getLogger().setLevel(logging.INFO)
+
+def disable_logging():
+    logging.getLogger().setLevel(logging.CRITICAL+1)
 
 logging.setLoggerClass(ConduitLogger)

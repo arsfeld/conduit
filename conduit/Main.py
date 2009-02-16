@@ -3,15 +3,14 @@ import optparse
 import sys
 import dbus, dbus.service, dbus.mainloop.glib
 import gobject
+import logging
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 dbus.mainloop.glib.threads_init()
 
-import logging
-log = logging.getLogger("Main")
-
 import conduit
 import conduit.utils as Utils
+import conduit.Logging as Logging
 from conduit.Module import ModuleManager
 from conduit.MappingDB import MappingDB
 from conduit.TypeConverter import TypeConverter
@@ -20,6 +19,8 @@ from conduit.Synchronization import SyncManager
 from conduit.DBus import DBusInterface
 from conduit.Settings import Settings
 
+
+log = logging.getLogger("Main")
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 
 class Application(dbus.service.Object):
@@ -80,13 +81,25 @@ class Application(dbus.service.Object):
                 metavar="mod1,mod2",
                 help="Do not load modules in the named files. [default: load all modules]")
         parser.add_option(
-                "-s", "--settings",
+                "-e", "--settings",
                 metavar="key=val,key=val",
                 help="Explicitly set internal Conduit settings (keys) to the given values for this session. [default: do not set]")
         parser.add_option(
                 "-U", "--enable-unsupported",
                 action="store_true", default=False,
                 help="Enable loading of unfinished or unsupported dataproviders. [default: %default]")
+        parser.add_option(
+                "-d", "--debug",
+                action="store_true", default=False,
+                help="Generate more debugging information. [default: %default]")
+        parser.add_option(
+                "-q", "--quiet",
+                action="store_true", default=False,
+                help="Generate less debugging information. [default: %default]")
+        parser.add_option(
+                "-s", "--silent",
+                action="store_true", default=False,
+                help="Generate no debugging information. [default: %default]")
         options, args = parser.parse_args()
 
         whitelist = None
@@ -102,6 +115,13 @@ class Application(dbus.service.Object):
             blacklist = options.without_modules.split(",")
         self.ui = options.ui
         self.settingsFile = os.path.abspath(options.config_file)
+
+        if options.debug or not conduit.IS_INSTALLED:
+            Logging.enable_debugging()
+        if options.quiet:
+            Logging.disable_debugging()
+        if options.silent:
+            Logging.disable_logging()
 
         log.info("Conduit v%s Installed: %s" % (conduit.VERSION, conduit.IS_INSTALLED))
         log.info("Python: %s" % sys.version)

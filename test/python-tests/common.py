@@ -16,7 +16,6 @@ sys.path.insert(0, base_path)
 
 # import main conduit modules
 import conduit
-import conduit.Logging as Logging
 import conduit.Settings as Settings
 
 # set up expected paths & variables 
@@ -28,6 +27,10 @@ conduit.FILE_IMPL =                 os.environ.get("CONDUIT_FILE_IMPL","GIO")
 conduit.BROWSER_IMPL =              os.environ.get("CONDUIT_BROWSER_IMPL","system")
 conduit.SETTINGS_IMPL =             os.environ.get("CONDUIT_SETTINGS_IMPL","GConf")
 conduit.GLOBALS.settings =          Settings.Settings()
+
+# enable all logging output
+import conduit.Logging as Logging
+Logging.enable_debugging()
 
 import conduit.utils as Utils
 import conduit.Vfs as Vfs

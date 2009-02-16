@@ -19,7 +19,6 @@ if os.path.exists(os.path.join(_dirname,"ChangeLog")):
     sys.path.insert(0, _dirname)
 
 import conduit
-import conduit.Logging
 import conduit.Main
 app = conduit.Main.Application()
  
