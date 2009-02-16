@@ -757,7 +757,7 @@ class StatusIcon(gtk.StatusIcon):
         self.conduitApplication.Cancel()
 
     def on_popup_menu(self, status, button, time):
-        self.menu.popup(None, None, None, button, time)
+        self.menu.popup(None, None, gtk.status_icon_position_menu, button, time, data=status)
 
     def on_quit(self, data):
         self.conduitApplication.Quit()

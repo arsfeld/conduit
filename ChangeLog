@@ -1,5 +1,10 @@
 2009-02-16  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/UI.py: Show the popup menu over
+	the status icon. Patch by Christian Hergert.
+
+2009-02-16  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/Logging.py: No longer use CONDUIT_LOGLEVEL to set
 	the logging level, set it programatically on the root logger instead.
 
