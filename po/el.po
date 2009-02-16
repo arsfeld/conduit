@@ -1,0 +1,1008 @@
+# translation of conduit.HEAD.po to Greek
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Jennie Petoumenou <epetoumenou@gmail.com>, 2009.
+msgid ""
+msgstr ""
+"Project-Id-Version: conduit.HEAD\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-02-16 17:18+0000\n"
+"PO-Revision-Date: 2009-02-03 12:08+0100\n"
+"Last-Translator: Jennie Petoumenou <epetoumenou@gmail.com>\n"
+"Language-Team: Greek <team@gnome.gr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../data/conduit.desktop.in.in.h:1
+msgid "Conduit Synchronizer"
+msgstr "Conduit: εφαρμογή συγχρονισμού"
+
+#: ../data/conduit.desktop.in.in.h:2
+msgid "Synchronization for GNOME"
+msgstr "Συγχρονισμός για GNOME"
+
+#: ../data/conduit.glade.h:1
+msgid "<b>Default Synchronization Options</b>"
+msgstr "<b>Προεπιλογές συγχρονισμού</b>"
+
+#: ../data/conduit.glade.h:2
+msgid "<b>General</b>"
+msgstr "<b>Γενικά</b>"
+
+#: ../data/conduit.glade.h:3
+msgid "Always Up-To-Date"
+msgstr "Πάντα επικαιροποιημένη"
+
+#: ../data/conduit.glade.h:4
+msgid "Ask Me What to Do"
+msgstr "Ερώτηση για το τι θα συμβεί"
+
+#: ../data/conduit.glade.h:5
+msgid "Ask me what to do"
+msgstr "Ερώτηση για το τι θα συμβεί"
+
+#: ../data/conduit.glade.h:6
+msgid "Cancel Synchronization"
+msgstr "Ακύρωση συγχρονισμού"
+
+#: ../data/conduit.glade.h:7
+msgid "Cancel currently-synchronizing groups"
+msgstr "Ακύρωση των ομάδων που συγχρονίζονται αυτή τη στιγμή"
+
+#: ../data/conduit.glade.h:8
+msgid "Clear Canvas"
+msgstr "Εκκαθάριση πίνακα"
+
+#: ../data/conduit.glade.h:9
+msgid "Compare"
+msgstr "Σύγκριση"
+
+#: ../data/conduit.glade.h:10
+msgid "Conduit Preferences"
+msgstr "Προτιμήσεις του Conduit"
+
+#: ../data/conduit.glade.h:11
+msgid "Configuration"
+msgstr "Ρύθμιση"
+
+#: ../data/conduit.glade.h:12
+msgid "Configure Item"
+msgstr "Ρύθμιση αντικειμένου"
+
+#: ../data/conduit.glade.h:13
+msgid "Configure the synchronization settings for this item"
+msgstr "Επιλογή των ρυθμίσεων συγχρονισμού για αυτό το αντικείμενο"
+
+#: ../data/conduit.glade.h:14
+msgid "Conflict Options"
+msgstr "Επιλογές σε περίπτωση συγκρούσεων"
+
+#: ../data/conduit.glade.h:15
+msgid "Conflicts"
+msgstr "Συγκρούσεις"
+
+#: ../data/conduit.glade.h:16
+msgid "Contents"
+msgstr "Περιεχόμενα"
+
+#: ../data/conduit.glade.h:17
+msgid "Data Conversions"
+msgstr "Μετατροπές δεδομένων"
+
+#: ../data/conduit.glade.h:18
+msgid "Data Providers"
+msgstr "Πάροχοι δεδομένων"
+
+#: ../data/conduit.glade.h:19
+msgid "Delete Group"
+msgstr "Διαγραφή ομάδας"
+
+#: ../data/conduit.glade.h:20
+msgid "Delete Item"
+msgstr "Διαγραφή αντικειμένου"
+
+#: ../data/conduit.glade.h:21
+msgid "Delete Options"
+msgstr "Επιλογές διαγραφής"
+
+#: ../data/conduit.glade.h:22
+msgid "Delete from the corresponding sink"
+msgstr "Διαγραφή από τον αντίστοιχο ταμιευτήρα"
+
+#: ../data/conduit.glade.h:23
+msgid "Delete the Corresponding Item"
+msgstr "Διαγραφή του αντίστοιχου αντικειμένου"
+
+#: ../data/conduit.glade.h:24
+msgid "Editor"
+msgstr "Επεξεργαστής"
+
+#: ../data/conduit.glade.h:25
+msgid "Minimize to notification area"
+msgstr "Ελαχιστοποίηση στην περιοχή ειδοποιήσεων"
+
+#: ../data/conduit.glade.h:26
+msgid "Refresh Group"
+msgstr "Ανανέωση ομάδας"
+
+#: ../data/conduit.glade.h:27
+msgid "Refresh Item"
+msgstr "Ανανέωση αντικειμένου"
+
+#: ../data/conduit.glade.h:28
+msgid "Replace the Older Item"
+msgstr "Αντικατάσταση του παλαιότερου αντικειμένου"
+
+#: ../data/conduit.glade.h:29
+msgid "Replace the older item"
+msgstr "Αντικατάσταση του παλαιότερου αντικειμένου"
+
+#: ../data/conduit.glade.h:30
+msgid "Resolve Conflicts"
+msgstr "Επίλυση συγκρούσεων"
+
+#: ../data/conduit.glade.h:31
+msgid "Save settings on exit"
+msgstr "Αποθήκευση των αλλαγών κατά την έξοδο"
+
+#: ../data/conduit.glade.h:32
+msgid "Show Hints"
+msgstr "Εμφάνιση συμβουλών"
+
+#: ../data/conduit.glade.h:33
+msgid "Show status icon"
+msgstr "Εμφάνιση εικονιδίου κατάστασης στην περιοχή ειδοποιήσεων"
+
+#: ../data/conduit.glade.h:34
+msgid "Skip"
+msgstr "Προσπέραση"
+
+#: ../data/conduit.glade.h:35
+msgid "Slow Synchronization"
+msgstr "Αργός συγχρονισμός"
+
+#: ../data/conduit.glade.h:36
+msgid "Start Conduit at login"
+msgstr "Εκκίνηση του Conduit κατά την είσοδο"
+
+#: ../data/conduit.glade.h:37
+msgid "Synchronization Options"
+msgstr "Επιλογές συγχρονισμού"
+
+#: ../data/conduit.glade.h:38
+msgid "Synchronize All"
+msgstr "Συγχρονισμός όλων"
+
+#: ../data/conduit.glade.h:39
+msgid "Synchronize Group"
+msgstr "Συγχρονισμός ομάδας"
+
+#: ../data/conduit.glade.h:40
+msgid "Synchronize group"
+msgstr "Συγχρονισμός ομάδας"
+
+#: ../data/conduit.glade.h:41
+msgid "Synchronizes all groups"
+msgstr "Συγχρονισμός όλων των ομάδων"
+
+#: ../data/conduit.glade.h:42
+msgid "Title"
+msgstr "Τίτλος"
+
+#: ../data/conduit.glade.h:43
+msgid "Two-Way Synchronization"
+msgstr "Αμφίδρομος συγχρονισμός"
+
+#: ../data/conduit.glade.h:44
+msgid "When an item has been deleted:"
+msgstr "Όταν ένα αντικείμενο έχει διαγραφεί:"
+
+#: ../data/conduit.glade.h:45
+msgid "When an item is deleted..."
+msgstr "Όταν ένα αντικείμενο έχει διαγραφεί..."
+
+#: ../data/conduit.glade.h:46
+msgid "When there is a conflict..."
+msgstr "Όταν υπάρχει σύγκρουση..."
+
+#: ../data/conduit.glade.h:47
+msgid "When there is a two-way conflict:"
+msgstr "Όταν υπάρχει αμφίδρομη σύγκρουση:"
+
+#: ../data/conduit.glade.h:48
+msgid "_Edit"
+msgstr "_Επεξεργασία"
+
+#: ../data/conduit.glade.h:49
+msgid "_File"
+msgstr "_Αρχείο"
+
+#: ../data/conduit.glade.h:50
+msgid "_Help"
+msgstr "_Βοήθεια"
+
+#: ../conduit/gtkui/Canvas.py:151
+msgid "Drag a Data Provider here to continue"
+msgstr "Για να συνεχίσετε, σύρτε έναν πάροχο δεδομένων εδώ"
+
+#. Visible column0 is
+#. [pixbuf + source display name] or
+#. [source_data.get_snippet()]
+#: ../conduit/gtkui/ConflictResolver.py:91
+msgid "Source"
+msgstr "Πηγή"
+
+#: ../conduit/gtkui/ConflictResolver.py:105
+msgid "Resolution"
+msgstr "Επίλυση"
+
+#. Visible column2 is the display name of source and source data
+#: ../conduit/gtkui/ConflictResolver.py:110
+msgid "Sink"
+msgstr "Ταμιευτήρας"
+
+#: ../conduit/gtkui/ConflictResolver.py:150
+#: ../conduit/gtkui/ConflictResolver.py:151
+#, python-format
+msgid "Conflicts (%s)"
+msgstr "Συγκρούσεις (%s)"
+
+#. Build some liststores to display
+#: ../conduit/gtkui/UI.py:321
+msgid "Convert from"
+msgstr "Μετατροπή από"
+
+#: ../conduit/gtkui/UI.py:322
+msgid "into"
+msgstr "σε"
+
+#: ../conduit/gtkui/UI.py:373
+msgid "Relationship Database"
+msgstr "Βάση συσχετισμών"
+
+#: ../conduit/gtkui/UI.py:377
+msgid "Conversions Available"
+msgstr "Διαθέσιμες μετατροπές"
+
+#: ../conduit/gtkui/UI.py:383 ../conduit/gtkui/Tree.py:348
+#: ../conduit/modules/FileModule/FileConfiguration.py:105
+msgid "Name"
+msgstr "Όνομα"
+
+#: ../conduit/gtkui/UI.py:387
+msgid "Loaded"
+msgstr "Φορτωμένο"
+
+#: ../conduit/gtkui/UI.py:515 ../conduit/hildonui/UI.py:127
+msgid "Synchronization in progress. Do you want to cancel it?"
+msgstr "Γίνεται συγχρονισμός. Θέλετε να τον ακυρώσετε;"
+
+#: ../conduit/gtkui/UI.py:681
+msgid "_Synchronize All"
+msgstr "_Συγχρονισμός όλων"
+
+#: ../conduit/gtkui/UI.py:681
+msgid "Synchronizes All Groups"
+msgstr "Συγχρονισμός όλων των ομάδων"
+
+#: ../conduit/gtkui/UI.py:682
+msgid "_Cancel Synchronization"
+msgstr "Α_κύρωση συγχρονισμού"
+
+#: ../conduit/gtkui/UI.py:682
+msgid "Cancels Currently Synchronizing Groups"
+msgstr "Ακύρωση των ομάδων που συγχρονίζονται αυτή τη στιγμή"
+
+#: ../conduit/gtkui/UI.py:683
+msgid "_Quit"
+msgstr "Έ_ξοδος"
+
+#: ../conduit/gtkui/UI.py:683
+msgid "Close Conduit"
+msgstr "Κλείσιμο του Conduit"
+
+#: ../conduit/gtkui/UI.py:723
+msgid "Synchronization Error"
+msgstr "Σφάλμα συγχρονισμού"
+
+#: ../conduit/gtkui/UI.py:726
+msgid "Synchronization Complete"
+msgstr "Ο συγχρονισμός ολοκληρώθηκε"
+
+#: ../conduit/gtkui/UI.py:742
+msgid "Synchronizing"
+msgstr "Γίνεται συγχρονισμός"
+
+#: ../conduit/gtkui/Tree.py:357
+msgid "Description"
+msgstr "Περιγραφή"
+
+#: ../conduit/dataproviders/DataProvider.py:19
+msgid "Ready"
+msgstr "Έτοιμο"
+
+#: ../conduit/dataproviders/DataProvider.py:20
+msgid "New data to sync"
+msgstr "Νέα δεδομένα για συγχρονισμό"
+
+#: ../conduit/dataproviders/DataProvider.py:21
+msgid "Refreshing..."
+msgstr "Ανανέωση..."
+
+#: ../conduit/dataproviders/DataProvider.py:22
+msgid "Refreshed OK"
+msgstr "Ολοκληρώθηκε η ανανέωση"
+
+#: ../conduit/dataproviders/DataProvider.py:23
+msgid "Error Refreshing"
+msgstr "Σφάλμα κατά την ανανέωση"
+
+#: ../conduit/dataproviders/DataProvider.py:24
+msgid "Synchronizing..."
+msgstr "Γίνεται συγχρονισμός..."
+
+#: ../conduit/dataproviders/DataProvider.py:25
+msgid "Synchronized OK"
+msgstr "Ολοκληρώθηκε ο συγχρονισμός"
+
+#: ../conduit/dataproviders/DataProvider.py:26
+msgid "Error Synchronizing"
+msgstr "Σφάλμα κατά το συγχρονισμό"
+
+#: ../conduit/dataproviders/DataProvider.py:27
+msgid "Synchronization Skipped"
+msgstr "Έγινε προσπέραση του συγχρονισμού"
+
+#: ../conduit/dataproviders/DataProvider.py:28
+msgid "Synchronization Cancelled"
+msgstr "Ακυρώθηκε ο συγχρονισμός"
+
+#: ../conduit/dataproviders/DataProvider.py:29
+msgid "Synchronization Conflict"
+msgstr "Σύγκρουση συγχρονισμού"
+
+#: ../conduit/dataproviders/DataProvider.py:30
+msgid "Not Configured"
+msgstr "Δεν έχει ρυθμιστεί"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:56
+msgid "Backpack Notes"
+msgstr "Backpack σημειώσεις"
+
+#: ../conduit/modules/BackpackModule/BackpackModule.py:57
+msgid "Store things in Backpack Notes"
+msgstr "Αποθήκευση σε σημειώσεις Backpack"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:1
+#: ../conduit/modules/FlickrModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
+#: ../conduit/modules/SmugMugModule/config.glade.h:1
+#: ../conduit/modules/ZotoModule/zoto.glade.h:1
+msgid "<b>Account Details</b>"
+msgstr "<b>Στοιχεία λογαριασμού</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:2
+msgid "<b>Saved Note Settings</b>"
+msgstr "<b>Ρυθμίσεις αποθηκευμένων σημειώσεων</b>"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:3
+msgid "API key:"
+msgstr "Κλειδί API:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:4
+msgid "Backpack"
+msgstr "Backpack"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:5
+msgid "Save notes in page:"
+msgstr "Αποθήκευση σημειώσεων στη σελίδα:"
+
+#: ../conduit/modules/BackpackModule/config.glade.h:6
+#: ../conduit/modules/FlickrModule/config.glade.h:8
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
+#: ../conduit/modules/SmugMugModule/config.glade.h:7
+#: ../conduit/modules/ZotoModule/zoto.glade.h:5
+msgid "Username:"
+msgstr "Όνομα χρήστη:"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:51
+msgid "Banshee Playlists"
+msgstr "Banshee λίστες αναπαραγωγής"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:52
+msgid "Synchronize your Banshee playlists"
+msgstr "Συγχρονισμός των λιστών αναπαραγωγής σας στο Banshee"
+
+#. column 1 is the tag name
+#: ../conduit/modules/BansheeModule/BansheeModule.py:217
+msgid "Playlist Name"
+msgstr "Όνομα λίστας"
+
+#: ../conduit/modules/BansheeModule/BansheeModule.py:225
+#: ../conduit/modules/FspotModule/FspotModule.py:254
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
+msgid "Enabled"
+msgstr "Ενεργοποιημένες"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:1
+msgid "<b>Return Playlists</b>"
+msgstr "<b>Επιστροφή λιστών αναπαραγωγής</b>"
+
+#: ../conduit/modules/BansheeModule/config.glade.h:2
+msgid "Banshee"
+msgstr "Banshee"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
+msgid "Box.net"
+msgstr "Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
+msgid "Synchronize your Box.net files"
+msgstr "Συγχρονισμός των αρχείων σας στο Box.net"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
+msgid "Folder:"
+msgstr "Φάκελος:"
+
+#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
+#: ../conduit/modules/FacebookModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr "Φόρτωση"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
+#, python-format
+msgid "Select %s:"
+msgstr "Επιλέξτε %s:"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+msgid "Evolution Contacts"
+msgstr "Evolution επαφές"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
+msgid "Synchronize your contacts"
+msgstr "Συγχρονισμός των επαφών σας"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+msgid "Evolution Calendar"
+msgstr "Evolution ημερολόγιο"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+msgid "Synchronize your calendar"
+msgstr "Συγχρονισμός του ημερολογίου σας"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:260
+msgid "Evolution Tasks"
+msgstr "Evolution εργασίες"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:261
+msgid "Synchronize your tasks"
+msgstr "Συγχρονισμός των εργασιών σας"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:317
+msgid "Evolution Memos"
+msgstr "Evolution υπενθυμίσεις"
+
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:318
+msgid "Synchronize your memos"
+msgstr "Συγχρονισμός των υπενθυμίσεών σας"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:1
+msgid "Addressbook:"
+msgstr "Βιβλίο διευθύνσεων:"
+
+#: ../conduit/modules/EvolutionModule/config.glade.h:2
+msgid "Evolution"
+msgstr "Evolution"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+#: ../conduit/modules/FacebookModule/config.glade.h:2
+msgid "Facebook"
+msgstr "Facebook"
+
+#: ../conduit/modules/FacebookModule/FacebookModule.py:39
+msgid "Synchronize your Facebook photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο Facebook"
+
+#: ../conduit/modules/FacebookModule/config.glade.h:1
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/iPodModule/config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+#: ../conduit/modules/ZotoModule/zoto.glade.h:3
+msgid "Album:"
+msgstr "Άλμπουμ:"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:58
+#: ../conduit/modules/FeedModule/config.glade.h:9
+msgid "RSS Feed"
+msgstr "Ροή RSS"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:59
+msgid "Synchronize data from RSS enclosures"
+msgstr "Συγχρονισμός δεδομένων από ροές RSS"
+
+#: ../conduit/modules/FeedModule/config.glade.h:1
+msgid "<b>Enclosure Settings</b>"
+msgstr "<b>Ρυθμίσεις συνδεδεμένων αρχείων</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:2
+msgid "<b>Feed Details</b>"
+msgstr "<b>Λεπτομέρειες ροής</b>"
+
+#: ../conduit/modules/FeedModule/config.glade.h:3
+msgid "Download Audio Files"
+msgstr "Λήψη αρχείων ήχου"
+
+#: ../conduit/modules/FeedModule/config.glade.h:4
+msgid "Download Photos"
+msgstr "Λήψη φωτογραφιών"
+
+#: ../conduit/modules/FeedModule/config.glade.h:5
+msgid "Download Video Files"
+msgstr "Λήψη αρχείων βίντεο"
+
+#: ../conduit/modules/FeedModule/config.glade.h:6
+msgid "Feed Address:"
+msgstr "Διεύθυνση ροής:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:7
+msgid ""
+"Limit the Number of\n"
+"Enclosures Downloaded to:"
+msgstr ""
+"Περιορισμός αριθμού\n"
+"ληφθέντων αρχείων σε:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:10
+msgid "Randomize Enclosures"
+msgstr "Τυχαία σειρά αρχείων"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:99
+msgid "Icon"
+msgstr "Εικονίδιο"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:111
+msgid "Items"
+msgstr "Αντικείμενα"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:137
+#, python-format
+msgid "<i>Contains %s files</i>"
+msgstr "<i>Περιέχει %s αρχεία</i>"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:228
+msgid "Include file..."
+msgstr "Συμπερίληψη αρχείου..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:238
+msgid "All files"
+msgstr "Όλα τα αρχεία"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:253
+msgid "Include folder..."
+msgstr "Συμπερίληψη φακέλου..."
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:298
+msgid "Please Name All Folders"
+msgstr "Παρακαλώ, ονομάστε όλους τους φακέλους"
+
+#: ../conduit/modules/FileModule/FileConfiguration.py:299
+msgid ""
+"All folders require a descriptive name. To name a folder simply click on it"
+msgstr ""
+"Όλοι οι φάκελοι πρέπει να διαθέτουν ένα περιγραφικό όνομα. Για να ονομάσετε "
+"ένα φάκελο, απλά κάντε κλικ πάνω του"
+
+#: ../conduit/modules/FileModule/FileModule.py:23
+msgid "Files"
+msgstr "Αρχεία"
+
+#: ../conduit/modules/FileModule/FileModule.py:24
+msgid "Source for synchronizing multiple files"
+msgstr "Πηγή για το συγχρονισμό πολλαπλών αρχείων"
+
+#: ../conduit/modules/FileModule/FileModule.py:63
+msgid "Folder"
+msgstr "Φάκελος"
+
+#: ../conduit/modules/FileModule/FileModule.py:64
+msgid "Synchronize folders"
+msgstr "Συγχρονισμός φακέλων"
+
+#: ../conduit/modules/FileModule/config.glade.h:1
+msgid "<b>Items to Synchronize</b>"
+msgstr "<b>Αντικείμενα για συγχρονισμό</b>"
+
+#: ../conduit/modules/FileModule/config.glade.h:2
+msgid "Add Directory"
+msgstr "Προσθήκη καταλόγου"
+
+#: ../conduit/modules/FileModule/config.glade.h:3
+msgid "Add File"
+msgstr "Προσθήκη αρχείου"
+
+#: ../conduit/modules/FileModule/config.glade.h:4
+msgid "Advanced"
+msgstr "Για προχωρημένους"
+
+#: ../conduit/modules/FileModule/config.glade.h:5
+msgid "File Configuration"
+msgstr "Ρύθμιση αρχείων"
+
+#: ../conduit/modules/FileModule/config.glade.h:6
+msgid "Folder Configuration"
+msgstr "Ρύθμιση φακέλου"
+
+#: ../conduit/modules/FileModule/config.glade.h:7
+msgid "Folder Location:"
+msgstr "Τοποθεσία φακέλου:"
+
+#: ../conduit/modules/FileModule/config.glade.h:8
+msgid "Follow Symbolic Links"
+msgstr "Να ακολουθούνται οι συμβολικοί σύνδεσμοι"
+
+#: ../conduit/modules/FileModule/config.glade.h:9
+msgid "Ignore File Modification Times"
+msgstr "Να αγνοείται ο χρόνος τροποποίησης των αρχείων"
+
+#: ../conduit/modules/FileModule/config.glade.h:10
+msgid "Include Hidden Files"
+msgstr "Να συμπεριλαμβάνονται τα κρυφά αρχεία"
+
+#: ../conduit/modules/FileModule/config.glade.h:11
+msgid "Select A Folder"
+msgstr "Επιλογή φακέλου"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:76
+#: ../conduit/modules/FlickrModule/config.glade.h:3
+msgid "Flickr"
+msgstr "Flickr"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:77
+msgid "Synchronize your Flickr.com photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο Flickr.com"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:2
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+#: ../conduit/modules/ZotoModule/zoto.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr "<b>Ρυθμίσεις αποθηκευμένων φωτογραφιών</b>"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:5
+msgid "Photos are public"
+msgstr "Δημόσιες φωτογραφίες"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:6
+msgid "Photoset Name:"
+msgstr "Όνομα ομάδας φωτογραφιών:"
+
+#: ../conduit/modules/FlickrModule/config.glade.h:7
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr "Αλλαγή διαστάσεων φωτογραφιών:"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:25
+#: ../conduit/modules/FspotModule/config.glade.h:3
+msgid "F-Spot"
+msgstr "F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:26
+msgid "Synchronize your F-Spot photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:127
+msgid "F-Spot DBus interface is operating in read-only mode"
+msgstr "Η διεπαφή DBus του F-Spot βρίσκεται σε λειτουργία μόνο ανάγνωσης."
+
+#. column 1 is the tag name
+#: ../conduit/modules/FspotModule/FspotModule.py:246
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
+msgid "Tag Name"
+msgstr "Όνομα ετικέτας"
+
+#: ../conduit/modules/FspotModule/config.glade.h:1
+msgid "<b>Return Photos Tagged With</b>"
+msgstr "<b>Επιστροφή φωτογραφιών με ετικέτα</b>"
+
+#: ../conduit/modules/FspotModule/config.glade.h:2
+msgid "Create Tags: "
+msgstr "Δημιουργία ετικετών:"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:21
+msgid "Application Settings"
+msgstr "Ρυθμίσεις εφαρμογών"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:22
+msgid "Synchronize your application settings"
+msgstr "Συγχρονισμός των ρυθμίσεων των εφαρμογών σας"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:369
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
+msgid "Google Calendar"
+msgstr "Google ημερολόγιο"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:370
+msgid "Synchronize your Google Calendar"
+msgstr "Συγχρονισμός του ημερολογίου σας στο Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:555
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
+msgid "Picasa"
+msgstr "Picasa"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:556
+msgid "Synchronize your Google Picasa photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο Picasa του Google"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:803
+msgid "Google Contacts"
+msgstr "Google επαφές"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:804
+msgid "Synchronize your Google Mail contacts"
+msgstr "Συγχρονισμός των επαφών σας στο Google Mail"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1060
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:5
+msgid "Google Documents"
+msgstr "Google έγγραφα"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1061
+msgid "Synchronize your Google Documents"
+msgstr "Συγχρονισμός των εγγράφων σας στο Google Docs"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1338
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:67
+msgid "Unknown"
+msgstr "Άγνωστο"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1339
+msgid "miscellaneous"
+msgstr "Διάφορα"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1340
+msgid "No description."
+msgstr "Χωρίς περιγραφή."
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1349
+msgid "YouTube"
+msgstr "YouTube"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1350
+msgid "Synchronize data from YouTube"
+msgstr "Συγχρονισμός δεδομένων από το YouTube"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
+msgid "Calendar:"
+msgstr "Ημερολόγιο:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:4
+msgid "Email:"
+msgstr "Email:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
+msgid "Load Calendars"
+msgstr "Φόρτωση ημερολογίων"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:6
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+#: ../conduit/modules/ZotoModule/zoto.glade.h:4
+msgid "Password:"
+msgstr "Συνθηματικό:"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:2
+msgid "<b>Downloaded Document Format</b>"
+msgstr "<b>Μορφή ληφθέντων εγγράφων</b>"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:3
+msgid "Documents"
+msgstr "Έγγραφα"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:7
+msgid "Presentations"
+msgstr "Παρουσιάσεις"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:8
+msgid "Spreadsheets"
+msgstr "Λογ. φύλλα"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
+msgid "Login"
+msgstr "Είσοδος"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "<b>Download Videos</b>"
+msgstr "<b>Λήψη βίντεο</b>"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
+msgid "Favorites of above user"
+msgstr "Αγαπημένα του χρήστη"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr "Μέγιστος αριθμός βίντεο (0 για απειρα):"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
+msgid "Most viewed"
+msgstr "Πιο δημοφιλή"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
+msgid "Top rated"
+msgstr "Με την υψηλότερη βαθμολογία"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
+msgid "Uploaded by above user"
+msgstr "Ανεβασμένα από το χρήστη"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:10
+msgid "YouTube Source"
+msgstr "Πηγή YouTube"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:732
+msgid "Encoding"
+msgstr "Κωδικοποίηση"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:864
+msgid "Keep converted files"
+msgstr "Διατήρηση των αρχείων που μετατράπηκαν"
+
+#: ../conduit/modules/iPodModule/config.glade.h:1
+msgid "<b>Encoding</b>"
+msgstr "<b>Κωδικοποίηση</b>"
+
+#: ../conduit/modules/iPodModule/config.glade.h:3
+msgid "iPod Photos"
+msgstr "iPod φωτογραφίες"
+
+#. Translators: Translate this in derived classes.
+#: ../conduit/modules/N800Module/N800Module.py:55
+msgid "Conduit"
+msgstr "Conduit"
+
+#. Translators: Format string used to describe the acceptable formats the
+#. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
+#. arg is a comma seperated list of encodings
+#: ../conduit/modules/N800Module/N800Module.py:59
+#, python-format
+msgid "%s Format (%s)"
+msgstr "%s Μορφή (%s)"
+
+#. Signifies that a conversion should not take place
+#: ../conduit/modules/N800Module/N800Module.py:61
+msgid "unchanged"
+msgstr "μη τροποποιημένο"
+
+#: ../conduit/modules/N800Module/N800Module.py:123
+msgid "N800 Files"
+msgstr "N800 αρχεία"
+
+#: ../conduit/modules/N800Module/N800Module.py:124
+msgid "Synchronizes files/folders to a N800 device"
+msgstr "Συγχρονισμός αρχείων/φακέλων με συσκευή N800"
+
+#. To translators: default backup folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:129
+msgid "Backups"
+msgstr "Αντίγραφα Ασφαλείας"
+
+#: ../conduit/modules/N800Module/N800Module.py:144
+msgid "N800 Music"
+msgstr "N800 μουσική"
+
+#: ../conduit/modules/N800Module/N800Module.py:145
+msgid "Synchronizes music to a N800 device"
+msgstr "Συγχρονισμός μουσικής με συσκευή Ν800"
+
+#. To translators: defaul music folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:151
+msgid "Music"
+msgstr "Μουσική"
+
+#: ../conduit/modules/N800Module/N800Module.py:168
+msgid "N800 Videos"
+msgstr "N800 βίντεο"
+
+#: ../conduit/modules/N800Module/N800Module.py:169
+msgid "Synchronizes video to a N800 device"
+msgstr "Συγχρονισμός βίντεο με συσκευή Ν800"
+
+#. To translators: defaul video folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:175
+msgid "Video"
+msgstr "Βίντεο"
+
+#: ../conduit/modules/N800Module/N800Module.py:192
+msgid "N800 Photos"
+msgstr "Ν800 φωτογραφίες"
+
+#: ../conduit/modules/N800Module/N800Module.py:193
+msgid "Synchronizes photos to an N800 device"
+msgstr "Συγχρονισμός φωτογραφιών με συσκευή Ν800"
+
+#. To translators: default photos folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:199
+msgid "Photo"
+msgstr "Φωτογραφίες"
+
+#: ../conduit/modules/NetworkModule/Server.py:147
+msgid "Network"
+msgstr "Δίκτυο"
+
+#: ../conduit/modules/NetworkModule/Server.py:148
+msgid "Enable synchronization via network"
+msgstr "Να επιτρέπεται ο συγχρονισμός μέσω δικτύου"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:44
+msgid "Rhythmbox Music"
+msgstr "Rhythmbox μουσική"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:45
+msgid "Synchronize songs from your Rhythmbox playlists"
+msgstr "Συγχρονισμός τραγουδιών από τις λίστες αναπαραγωγής σας στο Rhythmbox"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:1
+msgid "<b>Synchronize the Following Playlists</b>"
+msgstr "<b>Συγχρονισμός των ακόλουθων λιστών</b>"
+
+#: ../conduit/modules/RhythmboxModule/config.glade.h:2
+msgid "Rhythmbox Playlists"
+msgstr "Rhythmbox λίστες αναπαραγωγής"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr "Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
+msgid "Synchronize your Shutterfly photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr "%d-%m-%Y %H:%M:%S"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr "SmugMug"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Synchronize your SmugMug.com photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο SmugMug.com"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:154
+#: ../conduit/modules/ZotoModule/zoto.glade.h:6
+msgid "Zoto"
+msgstr "Zoto"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:155
+msgid "Synchronize your Zoto photos"
+msgstr "Συγχρονισμός των φωτογραφιών σας στο Zoto"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:1
+msgid "Firefox"
+msgstr "Firefox"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:2
+msgid "Firefox Profile:"
+msgstr "Προφίλ Firefox:"
