@@ -15,6 +15,7 @@ import conduit
 import conduit.ModuleWrapper as ModuleWrapper
 import conduit.utils as Utils
 import conduit.Settings as Settings
+import conduit.Property as Property
 
 STATUS_NONE = _("Ready")
 STATUS_CHANGE_DETECTED = _("New data to sync")
@@ -28,6 +29,9 @@ STATUS_DONE_SYNC_SKIPPED = _("Synchronization Skipped")
 STATUS_DONE_SYNC_CANCELLED = _("Synchronization Cancelled")
 STATUS_DONE_SYNC_CONFLICT = _("Synchronization Conflict")
 STATUS_DONE_SYNC_NOT_CONFIGURED = _("Not Configured")
+
+class Property(Property.BaseProperty):
+    pass
 
 class DataProviderBase(gobject.GObject):
     """

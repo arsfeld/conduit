@@ -52,6 +52,11 @@ FORMAT_STRING = "%Y-%m-%dT%H:%M:%S"
 
 class _GoogleBase:
     _configurable_ = True
+    
+    username = DataProvider.Property("", verbose_name = "Email")
+    password = DataProvider.Property("")
+    __config_dialog__ = (_("Google Account"), (username, password))
+    
     def __init__(self, service):
         self.username = ""
         self.password = ""
@@ -383,6 +388,10 @@ class GoogleCalendarTwoWay(_GoogleBase, DataProvider.TwoWay):
     _in_type_ = "event"
     _out_type_ = "event"
     _icon_ = "appointment-new"
+    
+    selectedCalendar = DataProvider.Property("")
+    __config_dialog__ = (_GoogleBase.__config_dialog__,
+                         _("Calendar"), (loadCalendars, ))
     
     def __init__(self):
         _GoogleBase.__init__(self,gdata.calendar.service.CalendarService())

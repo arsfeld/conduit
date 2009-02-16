@@ -49,6 +49,9 @@ class RhythmboxSource(DataProvider.DataSource):
     _out_type_ = "file/audio"
     _icon_ = "rhythmbox"
     _configurable_ = True
+    
+    playlists = DataProvider.Property([])
+    __config_dialog__ = (_("Playlists"), (playlist,))
 
     PLAYLIST_PATH="~/.gnome2/rhythmbox/playlists.xml"
     RHYTHMDB_PATH="~/.gnome2/rhythmbox/rhythmdb.xml"
@@ -57,10 +60,6 @@ class RhythmboxSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self)
         #Names of the playlists we know
         self.allPlaylists = []
-        #Names we wish to sync
-        self.update_configuration(
-            playlists = [],
-        )
         self.songdata = {}
 
     def _parse_playlists(self, path, allowed=[]):
@@ -112,12 +111,7 @@ class RhythmboxSource(DataProvider.DataSource):
 
     def config_setup(self, config):
         self.allPlaylists = [(name, name) for name, songs in self._parse_playlists(RhythmboxSource.PLAYLIST_PATH)]
-
-        config.add_section("Playlists")
-        config.add_item("Playlists", "list", 
-            config_name = "playlists",
-            choices = self.allPlaylists
-        )
+        config["playlists"].choices = self.allPlaylists
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)

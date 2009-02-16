@@ -15,6 +15,10 @@ log = logging.getLogger("gtkui.Config")
 from gettext import gettext as _ 
 import conduit
 
+class Error(Exception):
+    """Base exception for all exceptions raised in this module."""
+    pass
+
 class Section(gobject.GObject):
     def __init__(self, container, title, order, **kwargs):
         '''
@@ -78,6 +82,8 @@ class ConfigItem(gobject.GObject):
     
     It works by exposing a value that should be translated to the underlying
     widget. The type of the value depends on the item.
+    
+    Subclasses should implement _build_widget, _set_value and _get_value
 
     A few properties are supported to customize their behaviours. They
     should be passed in ``kwargs``:
@@ -155,7 +161,7 @@ class ConfigItem(gobject.GObject):
     def _build_choices(self):
         '''
         Implement this when you need to build the choices of a widget.
-        It's usually called on build_widget. If implemented together with 
+        It's usually called on _build_widget. If implemented together with 
         _clear_choices, there is no need to implement set_choices
         '''
         pass
@@ -178,7 +184,126 @@ class ConfigItem(gobject.GObject):
         self._clear_choices()
         self._build_choices()
         self.set_value(value)
+        
+    def _attach(self, table, row, in_section):
+        '''
+        Attach this item's widget to a table.
+        '''
+        widget = self.get_widget()
+        label = self.get_label()
+        row += 1
+        table.resize(row, 2)
+        align = gtk.Alignment(0.5, 0.5, 1.0, 1.0)
+        if in_section:
+            align.set_padding(0, 0, 12, 0)
+        #FIXME: This would allow the configurator widget to shrink more then
+        # it's original size. It might be useful for PaneConfigurator, but
+        # it feels weird. And it screws the size requisition, so it's smaller
+        # then it should be.
+        #if label:
+        #    label.set_ellipsize(pango.ELLIPSIZE_END)
+        right_align = label or self.needs_space
+        if self.fill:
+            yoptions = gtk.FILL | gtk.EXPAND
+        else:
+            yoptions = 0
+        if right_align:
+            if label:
+                align.add(label)
+                table.attach(align, 0, 1, row - 1, row, xoptions = gtk.SHRINK | gtk.FILL, yoptions = 0)
+            table.attach(widget, 1, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)
+        else:
+            align.add(widget)
+            table.attach(align, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)    
+        return row        
+
+    label = property(lambda self: self.get_label(), 
+                     lambda self, v: self.set_label(v))        
+                
+    def get_label(self):
+        '''
+        Returns the gtk.Label to this item (if needed)
+        '''
+        if self.needs_label and not self.__label:
+            label_text = self.title
+            if label_text and not label_text.rstrip().endswith(':'):
+                label_text += ':'
+            self.__label = gtk.Label(label_text)
+            self.__label.set_alignment(0.0, 0.5)
+        return self.__label
     
+    def set_label(self, label):
+        '''
+        Sets the label widget
+        '''
+        self.__label = label        
+
+    widget = property(lambda self: self.get_widget(), 
+                      lambda self, v: self.set_widget(v))        
+    
+    def get_widget(self):
+        '''
+        Return the widget, building it as needed.
+        '''
+        if not self.__widget:
+            self._build_widget()
+            if not self.__widget:
+                raise Error("Widget could not be built")            
+            self.reset()
+        return self.__widget
+
+    def set_widget(self, widget):
+        '''
+        Sets the widget
+        '''
+        self.__widget = widget
+
+    #Set value as a property
+    value = property(self.get_value, self.set_value)
+        
+    def get_value(self):
+        '''
+        Gets the value from the widget.
+        
+        This is a public interface method, should not be overriden by 
+        descendants. Implement _get_value instead.
+        '''
+        return self._get_value()
+    
+    def set_value(self, value):
+        '''
+        Sets the value from the widget.
+        
+        This is a public interface method, should not be overriden by 
+        descendants. Implement _set_value instead.
+        '''
+        #FIXME: We should probably check for exceptions here, to avoid not 
+        # showing the configuration dialog because a value was invalid,
+        # which could occur with invalid config values.
+        # We should probably assign the initial value here in case of an 
+        # Exception. In case of another Exception, then it's the module fault,
+        # and no exception handling should be done.
+        self._set_value(value)
+        
+    def get_config_value(self):
+        '''
+        Returns a dict suitable to a dataprovider set_configuration.
+        
+        Returning a dict allows subclasses to provide more then one configuration
+        value if needed.
+        '''
+        if not self.config_name:
+            return None
+        value = self.get_value()
+        try:
+            if self.config_type:
+                self.config_type(value)
+        except:
+            log.warning("Value %s could not be translated with %s" % (value, self.config_type))
+            #raise TypeError()
+        else:
+            return {self.config_name: value}      
+        
     def is_initial_value(self):
         '''
         Returns True if the current value is the initial value.
@@ -219,134 +344,7 @@ class ConfigItem(gobject.GObject):
         to save the current value
         '''
         self.save_state()
-        self.container.apply_config([self])
-
-    label = property(lambda self: self.get_label(), 
-                     lambda self, v: self.set_label(v))        
-                
-    def get_label(self):
-        '''
-        Returns the gtk.Label to this item (if needed)
-        '''
-        if self.needs_label and not self.__label:
-            label_text = self.title
-            if label_text and not label_text.rstrip().endswith(':'):
-                label_text += ':'
-            self.__label = gtk.Label(label_text)
-            self.__label.set_alignment(0.0, 0.5)
-        return self.__label
-    
-    def set_label(self, label):
-        '''
-        Sets the label widget
-        '''
-        self.__label = label        
-
-    widget = property(lambda self: self.get_widget(), 
-                      lambda self, v: self.set_widget(v))        
-    
-    def get_widget(self):
-        '''
-        Return the widget, building it as needed.
-        '''
-        if not self.__widget:
-            self.build_widget()
-            self.reset()
-        return self.__widget
-
-    def set_widget(self, widget):
-        '''
-        Sets the widget
-        '''
-        self.__widget = widget
-
-    def build_widget(self):
-        '''
-        Implement this to build the underlying widget as needed. Has to assign
-        the widget to self.widget (no need to return it)
-        '''
-        pass
-    
-    def get_config_value(self):
-        '''
-        Return a value suitable to a dataprovider
-        '''
-        if not self.config_name:
-            return None
-        value = self.get_value()
-        try:
-            if self.config_type:
-                self.config_type(value)
-        except:
-            log.warning("Value %s could not be translated with %s" % (value, self.config_type))
-            #raise TypeError()
-        else:
-            return {self.config_name: value}
-    
-    #Set value as a property and make sure get_value and set_value can be 
-    #overriden in descendants without conflicting with this property
-    value = property(lambda self: self.get_value(),
-                     lambda self, v: self.set_value(v))
-        
-    def get_value(self):
-        '''
-        Gets the value from the widget.
-        
-        This is a public interface method, should not be overriden by 
-        descendants. Implement _get_value instead.
-        '''
-        return self._get_value()
-    
-    def set_value(self, value):
-        '''
-        Sets the value from the widget.
-        
-        This is a public interface method, should not be overriden by 
-        descendants. Implement _set_value instead.
-        '''
-        #FIXME: We should probably check for exceptions here, to avoid not 
-        # showing the configuration dialog because a value was invalid,
-        # which could occur with invalid config values.
-        # We should probably assign the initial value here in case of an 
-        # Exception. In case of another Exception, then it's the module fault,
-        # and no exception handling should be done.
-        self._set_value(value)
-
-    def _attach(self, table, row, in_section):
-        '''
-        Attach this item's widget to a table.
-        '''
-        widget = self.get_widget()
-        label = self.get_label()
-        row += 1
-        table.resize(row, 2)
-        align = gtk.Alignment(0.5, 0.5, 1.0, 1.0)
-        if in_section:
-            align.set_padding(0, 0, 12, 0)
-        #if label:
-        #    label.set_ellipsize(pango.ELLIPSIZE_END)
-        right_align = label or self.needs_space
-        if self.fill:
-            yoptions = gtk.FILL | gtk.EXPAND
-        else:
-            yoptions = 0
-        if right_align:
-            if label:
-                align.add(label)
-                table.attach(align, 0, 1, row - 1, row, xoptions = gtk.SHRINK | gtk.FILL, yoptions = 0)
-            table.attach(widget, 1, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)
-        else:
-            align.add(widget)
-            table.attach(align, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)    
-        return row
-
-#FIXME: Finish the CustomWidget implementation (if we need the custom widget support)
-#class ConfigCustomWidget(ConfigItem):
-#    def _get_value(self):
-#        return self.load_callback(self.widget)
-#    
-#    def _set_value(self, value):
-#        self.widget_callback(self.widget)
+        self.container.apply_config([self])          
 
 class ConfigLabel(ConfigItem):
     __item_name__ = 'label'
@@ -357,7 +355,7 @@ class ConfigLabel(ConfigItem):
         self.yalignment = kwargs.get('yalignment', 0.5)
         self.use_markup = kwargs.get('use_markup', False)
     
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.Label()
         self.widget.set_alignment(self.xalignment, self.yalignment)
         self.widget.set_use_markup(self.use_markup)
@@ -383,7 +381,7 @@ class ConfigButton(ConfigItem):
         if 'action' in kwargs:
             self.initial_value = kwargs['action']
     
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.Button(self.title)
         
     def _set_value(self, value):
@@ -413,7 +411,7 @@ class ConfigFileButton(ConfigItem):
             self._current_filename = filechooser.get_filename()
             self._value_changed()            
     
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.FileChooserButton(self.title)
         self.widget.connect("selection-changed", self._selection_changed)
         if self.directory:
@@ -455,7 +453,7 @@ class ConfigRadio(ConfigItem):
             self.buttons[value] = last_button
             self.widget.pack_start(last_button)
     
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.VBox()
         self._build_choices()
     
@@ -480,7 +478,7 @@ class ConfigSpin(ConfigItem):
         self.minimum = kwargs.get('minimum', 0)
         self.step = kwargs.get('step', 1)
     
-    def build_widget(self):
+    def _build_widget(self):
         self.adjust = gtk.Adjustment(lower = self.minimum, upper = self.maximum, step_incr = self.step)
         self.widget = gtk.SpinButton(self.adjust)
         self.widget.connect("value-changed", self._value_changed)
@@ -515,7 +513,7 @@ class ConfigCombo(ConfigItem):
     def _clear_choices(self):
         self.widget.get_model().clear()
     
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.combo_box_new_text()
         self._build_choices()
         self.widget.connect("changed", self._value_changed)
@@ -538,7 +536,7 @@ class ConfigCombo(ConfigItem):
 class ConfigComboText(ConfigCombo):
     __item_name__ = 'combotext'
 
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.combo_box_entry_new_text()
         self._build_choices()
         self.widget.connect("changed", self._value_changed)
@@ -556,7 +554,7 @@ class ConfigText(ConfigItem):
         ConfigItem.__init__(self, *args, **kwargs)
         self.password = kwargs.get('password', False)
     
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.Entry()
         self.widget.connect("notify::text", self._value_changed)
         self.widget.set_visibility(not self.password)
@@ -578,7 +576,7 @@ class ConfigList(ConfigItem):
         self._checked_items = None
         self.model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_BOOLEAN)
     
-    def cellcheck_cb(self, cell, path, model):
+    def _cellcheck_cb(self, cell, path, model):
         model[path][1] = not cell.get_active()
         self._checked_items = None        
         self._value_changed()
@@ -590,7 +588,7 @@ class ConfigList(ConfigItem):
     def _clear_choices(self):
         self.model.clear()
         
-    def build_widget(self):
+    def _build_widget(self):
         self.vbox = gtk.VBox()
         self.vbox.set_spacing(4)
         self.scrolled_window = gtk.ScrolledWindow()        
@@ -605,7 +603,10 @@ class ConfigList(ConfigItem):
         self.list.set_model(self.model)        
         check_renderer = gtk.CellRendererToggle()
         check_renderer.set_property('activatable', True)
-        check_renderer.connect( 'toggled', self.cellcheck_cb, self.model )
+        check_renderer.connect( 'toggled', self._cellcheck_cb, self.model )
+        #FIXME: We could probably support more columns, maybe by automatically
+        # detecting if choices include tuples, and which types are inside the 
+        # tuple.
         self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active=1))                    
         self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text=0))     
         self._build_choices()
@@ -640,7 +641,7 @@ class ConfigCheckBox(ConfigItem):
         ConfigItem.__init__(self, *args, **kwargs)
         self.needs_label = False
         
-    def build_widget(self):
+    def _build_widget(self):
         self.widget = gtk.CheckButton()
         self.widget.set_label(self.title)
         self.widget.connect("toggled", self._value_changed)
