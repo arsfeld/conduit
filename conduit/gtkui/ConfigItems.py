@@ -591,7 +591,7 @@ class ConfigList(ConfigItem):
     
     def _build_choices(self):
         for value, label in self.choices:
-            self.model.append((label, False))
+            self.model.append((label, value))
 
     def _clear_choices(self):
         self.model.clear()

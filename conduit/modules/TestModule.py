@@ -22,6 +22,7 @@ import conduit.Web as Web
 from conduit.datatypes import Rid, DataType, Text, Video, Audio, File
 
 MODULES = {
+    "TestEasyConfig" :          { "type": "dataprovider" },
     "TestSource" :              { "type": "dataprovider" },
     "TestSink" :                { "type": "dataprovider" },
     "TestWebTwoWay" :           { "type": "dataprovider" },
@@ -98,24 +99,118 @@ class TestDataType(DataType.DataType):
         else:
             return conduit.datatypes.COMPARISON_UNKNOWN
 
+class TestEasyConfig(DataProvider.DataProviderBase):
+    _name_ = "Test EasyConfig"
+    _description_ = "Testes the EasyConfigurator"
+    _category_ = conduit.dataproviders.CATEGORY_TEST
+    _module_type_ = "source"
+    _in_type_ = "test_type"
+    _out_type_ = "test_type"
+    _icon_ = "preferences-desktop"
+    _configurable_ = True
+    
+    def __init__(self):
+        DataProvider.DataProviderBase.__init__(self)
+        self.update_configuration(
+            folder = ('', self._set_folder, lambda: self.folder),
+            checktest = 1,
+            number = 0,
+            items = [],
+            password = '',
+        )
+
+    def _set_folder(self, f):
+        self.folder = f
+        
+    def config_setup(self, config):
+        config.add_section("Test1")
+        config.add_item("Select folder", "filebutton", order = 1,
+            config_name = "folder",
+            directory = True,
+        )
+        radio_config = config.add_item("Radio button test", "radio",
+            config_name = "checktest",
+            choices = [(1, "Test 1"), (2, "Test 2"), (3, "Test 3")],
+        )
+        config.add_section('Test2', order = 1)
+        config.add_section()
+        config.add_item("Number", "spin",
+            config_name = "number",
+            maximum = 100,
+        )        
+        config.add_section("Test1")
+        items_config = config.add_item("Items", "list",
+            config_name = "items",
+            choices = [(True,"tst"), (False,"tst2")],
+        )
+        config.add_item("Password", "text",
+            config_name = "password",
+            password = True
+        )
+        config.add_section("Test3", order = -1)
+        def radio_buttons_clicked(button):
+            #radio_config.set_choices([(1, 'TestI'), (2, 'TestII'), (3, 'TestIII')])
+            radio_config.set_value(2)
+            #radio_config.set_enabled(not items_config.enabled)
+            config.add_item("Radio buttons", "button",
+            initial_value = radio_buttons_clicked
+        )
+        def button_clicked(button):
+            items_config.set_choices(['Test1', 'Test2', 'Test3', 'Test4', 'Test5'])
+            items_config.set_enabled(not items_config.enabled)
+            config.add_section("Test1", use_existing = False)
+            config.add_item("Check values", "button",
+            initial_value = button_clicked
+        )
+
+    '''
+    def get_configuration(self):            
+        return {'folder': self.folder,
+                'checktest': self.checktest,
+                'number': self.number,
+                'items': self.items,
+                'password': self.password}
+    
+    def set_configuration(self, values):
+        super(TestEasyConfig, self).set_configuration(values,
+            folder = str,
+            checktest = int,
+            number = int,
+            items = list,
+            password = str
+        )
+                if 'folder' in values:
+            self.folder = values['folder']
+        if 'checktest' in values:
+            self.checktest = values['checktest']
+        if 'number' in values:
+            self.number = values['number']
+        if 'items' in values:
+            self.items = values['items']
+        if 'password' in values:
+            self.password = values['password']
+        '''
+
 class _TestBase(DataProvider.DataProviderBase):
     _configurable_ = True
     def __init__(self):
         DataProvider.DataProviderBase.__init__(self)
         #Through an error on the nth time through
-        self.errorAfter = 999
-        self.errorFatal = False
-        self.newHash = False
-        self.newMtime = False
-        self.slow = False
-        self.UID = Utils.random_string()
-        self.numData = 5
-        #Variables to test the config fuctions
-        self.aString = ""
-        self.aInt = 0
-        self.aBool = False
-        self.aList = []
-        self.count = 0
+        self.update_configuration(
+            errorAfter = 999,
+            errorFatal = False,
+            newHash = False,
+            newMtime = False,
+            slow = False,
+            UID = Utils.random_string(),
+            numData = 5,
+            #Variables to test the config fuctions
+            aString = "",
+            aInt = 0,
+            aBool = False,
+            aList = [],
+            count = 0,
+        )
         
     def _change_detected(self, *args):
         gobject.timeout_add(3000, self.emit_change_detected)    
@@ -123,7 +218,17 @@ class _TestBase(DataProvider.DataProviderBase):
     def initialize(self):
         return True
 
-    def configure(self, window):
+    def config_setup(self, config):
+        config.add_item("Error at", "spin", config_name = "errorAfter")
+        config.add_item("Fatal Error?", "check", config_name = "errorFatal")
+        config.add_item("Take a long time", 'check', config_name = "slow")
+        config.add_item("Data gets a new hash", 'check', config_name = 'newHash')
+        config.add_item('Data gets a new mtime', 'check', config_name = 'newMtime')
+        config.add_item('UID', 'text', config_name = 'UID')
+        config.add_item('Num data', 'spin', config_name = 'numData')
+        config.add_item('Emit change detected', 'button', initial_value = lambda b: self._change_detected())
+        
+    def configure_(self, window):
         import gtk
         import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
 
@@ -196,21 +301,7 @@ class _TestBase(DataProvider.DataProviderBase):
 
     def get_UID(self):
         return self.UID
-        
-    def get_configuration(self):
-        return {
-            "errorAfter" : self.errorAfter,
-            "errorFatal" : self.errorFatal,
-            "slow" : self.slow,
-            "newHash" : self.newHash,
-            "newMtime" : self.newMtime,
-            "UID" : self.UID,
-            "aString" : "im a string",
-            "aInt" : 5,
-            "aBool" : True,
-            "aList" : ["ListItem1", "ListItem2"]
-            }
-            
+   
 class _TestConversionBase(DataProvider.DataSink):
     _configurable_ = True
     def __init__(self, *args):
@@ -218,24 +309,13 @@ class _TestConversionBase(DataProvider.DataSink):
         self.encodings =  {}
         self.encoding = "unchanged"
 
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
+    def config_setup(self, config):
 
-        def setEnc(param):
-            self.encoding = str(param)
-
-        encodings = self.encodings.keys()+["unchanged"]
-        items = [
-                    {
-                    "Name" : "Format (%s)" % ",".join(encodings),
-                    "Widget" : gtk.Entry,
-                    "Callback" : setEnc,
-                    "InitialValue" : self.encoding
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
+        config.add_item("Format:", "combo",
+            choices = [(name, opts['description'] or name) for name, opts in self.encodings.iteritems()],
+            config_name = 'encoding'
+        )
+        #FIXME Add None as conversion option
 
     def get_input_conversion_args(self):
         try:
@@ -593,33 +673,14 @@ class TestWebTwoWay(TestTwoWay):
         self.url = "http://www.google.com"
         self.browser = conduit.BROWSER_IMPL
 
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setUrl(param):
-            self.url = str(param)
-        def setBrowser(param):
-            self.browser = str(param)
-
-        items = [
-                    {
-                    "Name" : "Url",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setUrl,
-                    "InitialValue" : self.url
-                    },
-                    {
-                    "Name" : "Browser",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setBrowser,
-                    "InitialValue" : self.browser
-                    }
-
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-
+    def config_setup(self, config):
+        config.add_item("Url", "text",
+            config_name = 'url'
+        )
+        config.add_item("Browser", "text",
+            config_name = "browser"
+        )
+        
     def _login(self):
         return True
 

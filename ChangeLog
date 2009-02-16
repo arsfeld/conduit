@@ -1,3 +1,11 @@
+2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
+
+	* conduit/gtkui/ConfigItems.py: Fix bug in setting the
+	initial values for config item type list items.
+
+	* conduit/modules/TestModule.py: Add TestEasyConfig to test
+	the new config system.
+
 2009-02-16  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/gtkui/UI.py: Show the popup menu over
