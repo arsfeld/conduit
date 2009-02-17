@@ -39,7 +39,6 @@ conduit/modules/iPodModule/config.glade
 conduit/modules/N800Module/N800Module.py
 conduit/modules/NetworkModule/Server.py
 conduit/modules/RhythmboxModule/RhythmboxModule.py
-conduit/modules/RhythmboxModule/config.glade
 conduit/modules/ShutterflyModule/ShutterflyModule.py
 conduit/modules/ShutterflyModule/shutterfly.glade
 conduit/modules/ShutterflyModule/shutterfly/shutterfly.py

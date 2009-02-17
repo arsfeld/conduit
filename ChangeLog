@@ -1,5 +1,12 @@
 2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
 
+	* po/POTFILES.in:
+	* conduit/modules/RhythmboxModule/RhythmboxModule.py:
+	* conduit/modules/RhythmboxModule/config.glade:
+	Port to new config system.
+
+2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
+
 	* conduit/gtkui/ConfigItems.py: Fix bug in setting the
 	initial values for config item type list items.
 
