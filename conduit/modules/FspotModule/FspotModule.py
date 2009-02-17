@@ -38,20 +38,42 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
 
+        self.update_configuration(
+            tags = ([], self.set_tags, self.get_tags),
+        )
+        
         self.enabledTags = []
         self.photos = []
         self.has_roll = False
         self.photo_remote = None
         self.tag_remote = None
+        
+        self._connection_name = None
 
         self.list_store = None
 
         self._connect_to_fspot()
         self._hookup_signal_handlers()
+        
+    def set_tags(self, tags):
+        self.enabledTags = []
+        for tag in tags:
+            self.enabledTags.append(str(tag))
+
+    def get_tags(self):
+        return self.enabledTags
 
     def _connect_to_fspot(self):
         bus = dbus.SessionBus()
         if Utils.dbus_service_available(FSpotDbusTwoWay.SERVICE_PATH, bus):
+            #If the connection was broken and remade, the connection name changes
+            #and the connection objects no longer works. 
+            #F-Spot restarting does exactly that, so we need to remake our objects.
+            connection_name = bus.get_name_owner(FSpotDbusTwoWay.SERVICE_PATH)
+            if self._connection_name != connection_name:
+                self.photo_remote = None
+                self.tag_remote = None
+            self._connection_name = connection_name
             if self.photo_remote == None:
                 try:
                     remote_object = bus.get_object(FSpotDbusTwoWay.SERVICE_PATH, FSpotDbusTwoWay.PHOTOREMOTE_PATH)
@@ -67,6 +89,9 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
                 except dbus.exceptions.DBusException:
                     print "#"*34
                     self.tag_remote = None
+        else:
+            self.photo_remote = None
+            self.tag_remote = None            
 
         #need both tag and photo remote to be OK
         return self.tag_remote != None and self.photo_remote != None
@@ -189,91 +214,67 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.photo_remote = None
         self.tag_remote = None
 
-    def configure(self, window):
-        import gtk
-        def create_tags_clicked_cb(button):
-            text = self.tags_entry.get_text()
-            if not text:
-                return
-            tags = text.split(',')
-            for tag in tags:
-                self._create_tag (tag.strip ())
-            refresh_list_store()                
+    def config_setup(self, config):
+        RUNNING_MESSAGE = "F-Spot is running"
+        STOPPED_MESSAGE = "Please start F-Spot or activate the D-Bus Extension"
 
-        def col1_toggled_cb(cell, path, model ):
-            #not because we get this cb before change state
-            checked = not cell.get_active()
+        def start_fspot(button):
+            #would be cleaner if we could autostart using dbus,
+            #dbus.SessionBus().start_service_by_name(self.SERVICE_PATH)
+            gobject.spawn_async(
+                    ("f-spot",), 
+                    flags=gobject.SPAWN_SEARCH_PATH|gobject.SPAWN_STDOUT_TO_DEV_NULL|gobject.SPAWN_STDERR_TO_DEV_NULL
+            )
 
-            model[path][1] = checked
-            val = model[path][NAME_IDX]
-
-            if checked and val not in self.enabledTags:
-                self.enabledTags.append(val)
-            elif not checked and val in self.enabledTags:
-                self.enabledTags.remove(val)
-
-            log.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
-            return
-
-        def refresh_list_store ():
-            #Build a list of all the tags
-            if not self.list_store:
-                self.list_store = gtk.ListStore(gobject.TYPE_STRING,    #NAME_IDX
-                                                gobject.TYPE_BOOLEAN,   #active
-                                               )
+        def watch(name):
+            connected = bool(name and self._connect_to_fspot())
+            if connected:            
+                tags_config.set_choices([(tag, tag) for tag in self._get_all_tags()])
             else:
-                self.list_store.clear ()                
-            #Fill the list store
-            i = 0
-            for tag in self._get_all_tags():
-                self.list_store.append((tag,tag in self.enabledTags))
-                i += 1
+                tags_config.set_choices([])
+            add_tags_section.set_enabled(connected)
+            if config.showing:
+                if connected:
+                    status_label.set_value(RUNNING_MESSAGE)
+                else:
+                    status_label.set_value(STOPPED_MESSAGE)
 
-        #Fspot must be running
-        if not self._connect_to_fspot():
-            return
+        if self._connect_to_fspot():
+            tags = [(tag, tag) for tag in self._get_all_tags()]
+            message = RUNNING_MESSAGE
+        else:
+            tags = []
+            message = STOPPED_MESSAGE
 
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade",
-						"FspotConfigDialog"
-						)
-        tagtreeview = tree.get_widget("tagtreeview")
-        refresh_list_store()
-        tagtreeview.set_model(self.list_store)
+        status_label = config.add_item("Status", "label",
+            initial_value = message
+        )
+        config.add_item("Start F-Spot", "button",
+            initial_value = start_fspot
+        )
 
-        #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
-                                    gtk.CellRendererText(), 
-                                    text=NAME_IDX)
-                                    )
-        #column 2 is a checkbox for selecting the tag to sync
-        renderer1 = gtk.CellRendererToggle()
-        renderer1.set_property('activatable', True)
-        renderer1.connect( 'toggled', col1_toggled_cb, self.list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
-                                    renderer1, 
-                                    active=1)
-                                    )
-  
-        # Area for creating additional tags
-        create_button = tree.get_widget ('create_button')
-        self.tags_entry = tree.get_widget ('tags_entry')
-        create_button.connect('clicked', create_tags_clicked_cb)
+        config.add_section("Tags")
+        tags_config = config.add_item("Tags", "list",
+            config_name = 'tags',
+            choices = tags,
+        )
 
-        dlg = tree.get_widget("FspotConfigDialog")
-        dlg.set_transient_for(window)
+        def add_tag_cb(button):
+            text = tag_name_config.get_value()
+            newtags = text.split(',')
+            for tag in newtags:
+                self._create_tag (tag.strip ())   
+            tags_config.set_choices(self._get_all_tags())
+            tag_name_config.set_value('')
 
-        response = Utils.run_dialog (dlg, window)
-        dlg.destroy()
-
-    def set_configuration(self, config):
-        self.enabledTags = []
-        for tag in config.get("tags", []):
-            self.enabledTags.append(str(tag))
-            
-    def get_configuration(self):
-        return {"tags": self.enabledTags}
+        add_tags_section = config.add_section("Add tags")
+        tag_name_config = config.add_item("Tag name", "text",
+            initial_value = ""
+        )
+        config.add_item("Add tag", "button",
+            initial_value = add_tag_cb
+        )
+        dbus.SessionBus().watch_name_owner(self.SERVICE_PATH, watch)
 
     def get_UID(self):
         return Utils.get_user_string()

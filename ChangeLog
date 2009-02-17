@@ -1,6 +1,13 @@
 2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
 
 	* po/POTFILES.in:
+	* conduit/modules/FspotModule/FspotModule.py:
+	* conduit/modules/FspotModule/config.glade:
+	Port to new config system.
+
+2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
+
+	* po/POTFILES.in:
 	* conduit/modules/RhythmboxModule/RhythmboxModule.py:
 	* conduit/modules/RhythmboxModule/config.glade:
 	Port to new config system.
