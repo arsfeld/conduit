@@ -5,6 +5,8 @@ conduit/gtkui/Canvas.py
 conduit/gtkui/ConflictResolver.py
 conduit/gtkui/UI.py
 conduit/gtkui/Tree.py
+conduit/gtkui/ConfigItems.py
+conduit/gtkui/WindowConfigurator.py
 conduit/dataproviders/DataProvider.py
 conduit/hildonui/Canvas.py
 conduit/hildonui/UI.py

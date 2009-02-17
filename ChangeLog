@@ -1,3 +1,10 @@
+2009-02-17  John Stowers  <john.stowers@gmail.com>
+
+	* po/POTFILES.in:
+	* conduit/modules/FspotModule/Makefile.am:
+	* conduit/modules/RhythmboxModule/Makefile.am:
+	Pass make distcheck
+
 2009-02-15  Alexandre Rosenfeld  <arosenfeld@gemini>
 
 	* po/POTFILES.in:
