@@ -1,5 +1,13 @@
 2009-02-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/libconduit.py: Also remove the exporter
+	from the syncset when cleared.
+
+	* tools/eog-plugin/conduit.py: Be more robust when
+	Conduit is started and stopped.
+
+2009-02-20  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/libconduit.py: Always add any created 
 	exporter conduits to a syncset, either GUI or DBus,
 	to prevent Conduit hanging on exit.

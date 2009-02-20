@@ -136,7 +136,6 @@ class ConduitWrapper:
             self.clear()
             #update the status
             self.store.set_value(rowref, self.STATUS_IDX, "finished")
-            self.syncset.DeleteConduit(self.conduit, dbus_interface=SYNCSET_DBUS_IFACE)
         else:
             #show the error message in the conduit gui
             self.store.set_value(rowref, self.STATUS_IDX, "error")
@@ -172,6 +171,8 @@ class ConduitWrapper:
         #need to do in two steps so we dont modify the store while iterating
         for d in delete:
             self.store.remove(d)
+        #delete conduit's remote instance
+        self.syncset.DeleteConduit(self.conduit, dbus_interface=SYNCSET_DBUS_IFACE)
 
     def sync(self):
         if self.configured == True:
@@ -224,6 +225,8 @@ class ConduitApplicationWrapper(gobject.GObject):
                                 str,                #ConduitWrapper.STATUS_IDX
                                 gtk.gdk.Pixbuf      #ConduitWrapper.PB_IDX
                                 )
+        else:
+            self.store = None
 
         self.dbus_iface = dbus.Interface(
             dbus.SessionBus().get_object('org.freedesktop.DBus', '/org/freedesktop/DBus'), 
@@ -329,8 +332,11 @@ class ConduitApplicationWrapper(gobject.GObject):
 
     def clear(self):
         if self.connected():
-            for c in self.conduits:
-                self.conduits[c].clear()
+            for name,c in self.conduits.items():
+                c.clear()
+                if self.store and c.rowref:
+                    self.store.remove(c.rowref)
+                del(self.conduits[name])
 
     def connected(self):
         return self.app != None

@@ -10,7 +10,6 @@ except ImportError:
 
 DEBUG = True
 ICON_SIZE = 24
-MENU_PATH="/MainMenu/ToolsMenu/ToolsOps_2"
 SUPPORTED_SINKS = {
     "FlickrTwoWay"      :   "Upload to Flickr",
     "PicasaTwoWay"      :   "Upload to Picasa",
@@ -21,7 +20,7 @@ SUPPORTED_SINKS = {
     "IPodPhotoSink"     :   "Add to iPod"
 }
 if DEBUG:
-    SUPPORTED_SINKS["TestImageSink"] = "Test"
+    SUPPORTED_SINKS["TestImageSink"] = "Test Image Sink"
 
 class EogConduitWrapper(libconduit.ConduitWrapper):
 
@@ -49,6 +48,10 @@ class ConduitPlugin(eog.Plugin):
                                         )
         self.conduit.connect("conduit-started", self._on_conduit_started)
         self.running = self.conduit.connect_to_conduit(startConduit=True)
+
+        #dictionary holding items that are set sensitive or not when
+        #conduit is started/stopped
+        self.windows = {}
     
     def _debug(self, msg):
         if self.debug:
@@ -57,7 +60,10 @@ class ConduitPlugin(eog.Plugin):
     def _on_conduit_started(self, sender, started):
         self._debug("Conduit started: %s" % started)
         self.running = started
-        self.box.set_sensitive(self.running)
+        #set (in)sensitive on widgets in all windows
+        for box, ui_action_group in self.windows.values():
+            box.set_sensitive(self.running)
+            ui_action_group.set_sensitive(self.running)
 
     def _on_upload_clicked(self, sender, window):
         eogImage = window.get_image()
@@ -70,10 +76,10 @@ class ConduitPlugin(eog.Plugin):
 
             self.conduit.upload(name, uri, pb)
 
-    def _on_sync_clicked(self, *args):
+    def _on_sync_clicked(self, sender, window):
         self.conduit.sync()
 
-    def _on_clear_clicked(self, *args):
+    def _on_clear_clicked(self, sender, window):
         self.conduit.clear()
 
     def _on_row_activated(self, treeview, path, view_column):
@@ -87,21 +93,20 @@ class ConduitPlugin(eog.Plugin):
         app = eog.eog_application_get_instance()
         app.open_uri_list((clickedUri,))
 
-    def _prepare_sidebar(self, window):
-        #the sidebar is a treeview where 
-        #photos to upload are grouped by the
-        #upload service, with a clear button and
-        #an upload button below
-
-        self.box = gtk.VBox()
-        self.box.set_sensitive(self.running)
+    def _prepare_ui(self, window):
+        #
+        #the sidebar is a treeview where photos to upload are grouped by the
+        #upload service, with a clear button and an upload button below
+        #
+        box = gtk.VBox()
+        box.set_sensitive(self.running)
         view = gtk.TreeView(self.conduit.store)
         view.connect("row-activated", self._on_row_activated)
         view.set_headers_visible(False)
 
-        self.box.pack_start(view,expand=True,fill=True)
+        box.pack_start(view,expand=True,fill=True)
         bbox = gtk.HButtonBox()
-        self.box.pack_start(bbox,expand=False)
+        box.pack_start(bbox,expand=False,fill=True)
         
         #two colums, an icon and a description/name
         col0 = gtk.TreeViewColumn("Pic", gtk.CellRendererPixbuf(), pixbuf=libconduit.ConduitWrapper.PB_IDX)
@@ -117,17 +122,21 @@ class ConduitPlugin(eog.Plugin):
         okbtn.set_image(
                 gtk.image_new_from_stock(gtk.STOCK_REFRESH,gtk.ICON_SIZE_BUTTON)
                 )
-        okbtn.connect("clicked",self._on_sync_clicked)
+        okbtn.connect("clicked",self._on_sync_clicked, window)
         clearbtn = gtk.Button(stock=gtk.STOCK_CLEAR)
-        clearbtn.connect("clicked",self._on_clear_clicked)        
+        clearbtn.connect("clicked",self._on_clear_clicked, window)
         bbox.pack_start(okbtn,expand=True)
         bbox.pack_start(clearbtn,expand=True)
 
         sidebar = window.get_sidebar()
-        sidebar.add_page("Photo Uploads", self.box)
+        sidebar.add_page("Photo Uploads", box)
         sidebar.show_all()
 
-    def _prepare_tools_menu(self, window):
+
+        #
+        #add items to the tools menu, when clicked the current
+        #image is queued with the service to upload
+        #
         ui_action_group = gtk.ActionGroup("ConduitPluginActions")
         manager = window.get_ui_manager()
 
@@ -150,11 +159,15 @@ class ConduitPlugin(eog.Plugin):
             mid = manager.new_merge_id()
             manager.add_ui(
                     merge_id=mid,
-                    path=MENU_PATH,
+                    path="/MainMenu/ToolsMenu/ToolsOps_2",  #Tools menu
     			    name=sinkName, 
     			    action=sinkName,
     			    type=gtk.UI_MANAGER_MENUITEM, 
     			    top=False)
+
+        #store a reference to the box and action_group as we
+        #set them (in)sensitive when conduit is started/stopped
+        self.windows[window] = (box, ui_action_group)
     			    
     def _name_data_func(self, column, cell_renderer, tree_model, rowref):
         name = tree_model.get_value(rowref, libconduit.ConduitWrapper.NAME_IDX)
@@ -166,12 +179,14 @@ class ConduitPlugin(eog.Plugin):
 
     def activate(self, window):
         self._debug("Activate")
-        #the sidebar and menu integration must be done once per eog window instance
-        self._prepare_sidebar(window) 
-        self._prepare_tools_menu(window)
+        self._prepare_ui(window) 
 
     def deactivate(self, window):
         self._debug("Deactivate")
+        box,ui_action_group = self.windows[window]
+        window.get_sidebar().remove_page(box)
+        window.get_ui_manager().remove_action_group(ui_action_group)
+        self.conduit.clear()
 
     def update_ui(self, window):
         self._debug("Update UI")
