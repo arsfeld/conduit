@@ -24,6 +24,8 @@ class BaseConfigContainer(gobject.GObject):
         'changed': (gobject.SIGNAL_RUN_FIRST, None, [bool]),
         'apply': (gobject.SIGNAL_RUN_FIRST, None, []),
         'cancel': (gobject.SIGNAL_RUN_FIRST, None, []),
+        'show': (gobject.SIGNAL_RUN_FIRST, None, []),
+        'hide': (gobject.SIGNAL_RUN_FIRST, None, []),
     }
     
     def __init__(self, dataprovider, configurator):
@@ -62,12 +64,14 @@ class BaseConfigContainer(gobject.GObject):
         '''
         Show the configuration widget
         '''
+        self.emit('show')
         self.showing = True
         
     def hide(self):
         '''
         Hide the configuration widget
         '''
+        self.emit('hide')
         self.showing = False
         
     def apply_config(self):

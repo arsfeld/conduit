@@ -1,3 +1,28 @@
+2009-02-20  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/Configurator.py:
+	Config Show/Hide signals.
+	* conduit/dataproviders/DataProvider.py:
+	Config Show/Hide signals.
+	* conduit/gtkui/ConfigContainer.py:
+	Tried to made it more clear why a configuration 
+	might fail when the configuration value was not 
+	found
+	* conduit/gtkui/ConfigItems.py:
+	Fixes and improved documentation.
+	Changed ConfigItem to ItemBase.
+	Improved public API and pythonic properties (much
+	better documented in ItemBase).
+	Private API for ItemBase subclasses, allows much 
+	better error handler for public API.
+	Reverted "list" fix.
+	* conduit/modules/FspotModule/FspotModule.py:
+	Fixed a few remaining config bugs (make use of
+	some changes to ConfigItems, including the better
+	public API).
+	Improved dialog when F-Spot is not running (tags
+	are still visible, but disabled).
+
 2009-02-20  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/Makefile.am:

@@ -215,8 +215,8 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.tag_remote = None
 
     def config_setup(self, config):
-        RUNNING_MESSAGE = "F-Spot is running"
-        STOPPED_MESSAGE = "Please start F-Spot or activate the D-Bus Extension"
+        RUNNING_MESSAGE = _("F-Spot is running")
+        STOPPED_MESSAGE = _("Please start F-Spot or activate the D-Bus Extension")
 
         def start_fspot(button):
             #would be cleaner if we could autostart using dbus,
@@ -228,35 +228,27 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 
         def watch(name):
             connected = bool(name and self._connect_to_fspot())
-            if connected:            
-                tags_config.set_choices([(tag, tag) for tag in self._get_all_tags()])
+            start_fspot_config.enabled = not connected
+            tags_config.enabled = connected
+            if connected:
+                tags_config.choices = self._get_all_tags()
             else:
-                tags_config.set_choices([])
-            add_tags_section.set_enabled(connected)
-            if config.showing:
-                if connected:
-                    status_label.set_value(RUNNING_MESSAGE)
-                else:
-                    status_label.set_value(STOPPED_MESSAGE)
+                tags_config.choices = tags_config.value
+            add_tags_section.enabled = connected            
+            if connected:
+                status_label.value = RUNNING_MESSAGE
+            else:
+                status_label.value = STOPPED_MESSAGE
 
-        if self._connect_to_fspot():
-            tags = [(tag, tag) for tag in self._get_all_tags()]
-            message = RUNNING_MESSAGE
-        else:
-            tags = []
-            message = STOPPED_MESSAGE
-
-        status_label = config.add_item("Status", "label",
-            initial_value = message
-        )
-        config.add_item("Start F-Spot", "button",
+        status_label = config.add_item("Status", "label")
+        start_fspot_config = config.add_item("Start F-Spot", "button",
             initial_value = start_fspot
         )
 
         config.add_section("Tags")
         tags_config = config.add_item("Tags", "list",
             config_name = 'tags',
-            choices = tags,
+            choices = self.enabledTags,
         )
 
         def add_tag_cb(button):

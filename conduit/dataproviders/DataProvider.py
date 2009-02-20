@@ -180,21 +180,39 @@ class DataProviderBase(gobject.GObject):
         if hasattr(self, "configure"):
             return None
         if not self.config_container:
+            #FIXME: GtkUI is hard-coded because we dont have another interface
+            # yet, but we could make it more modular (we already import it here
+            # not to depend on it on initialization)
             import conduit.gtkui.ConfigContainer as ConfigContainer
             self.config_container = ConfigContainer.ConfigContainer(self, configurator)
             self.config_container.connect('apply', self.config_apply)
             self.config_container.connect('cancel', self.config_cancel)
+            self.config_container.connect('show', self.config_show)
+            self.config_container.connect('hide', self.config_hide)
             self.config_setup(self.config_container)
             #FIXME: This is definetely just for debugging (it prints everything
             # that is changed in the configuration dialog)
-            def print_item(config, item):
-                log.debug("%s: %s = %s" % (item.title, item.config_name, item.get_value()))
-            self.config_container.connect("item-changed", print_item)
+            #def print_item(config, item):
+            #    log.debug("%s: %s = %s" % (item.title, item.config_name, item.get_value()))
+            #self.config_container.connect("item-changed", print_item)
         return self.config_container
     
     def config_setup(self, config_container):
         '''
-        Configures the configuration controller, to show the controls needed
+        Called when the configuration container was just built. Should be 
+        implemented by subclasses that want to show their own configuration.
+        '''
+        pass
+    
+    def config_show(self, config_container):
+        '''
+        Called when the configuration is about to be shown
+        '''
+        pass
+    
+    def config_hide(self, config_container):
+        '''
+        Called when the configuration is about to be hidden
         '''
         pass
         
@@ -285,11 +303,15 @@ class DataProviderBase(gobject.GObject):
         for name, default, setter, getter in self._get_configuration_parameters(configuration):
             if hasattr(self, name) and callable(getattr(self, name)):
                 continue            
-            if not config or (name in config):                
-                #if not klass:
-                klass = default.__class__
+            if not config or (name in config):
+                klass = None
+                if default is not None:            
+                    klass = default.__class__
                 if config:
-                    value = klass(config[name])
+                    value = config[name]
+                    #FIXME: Wrap a try/except clause with logging
+                    if klass:
+                        value = klass(value)
                 else:
                     value = default
                 if setter:
