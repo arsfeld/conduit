@@ -1,3 +1,8 @@
+2009-02-21  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/TestModule.py: Finish
+	port to new config system.
+
 2009-02-20  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/libconduit.py: Also remove the exporter

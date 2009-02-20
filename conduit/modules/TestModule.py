@@ -191,11 +191,9 @@ class TestEasyConfig(DataProvider.DataProviderBase):
             self.password = values['password']
         '''
 
-class _TestBase(DataProvider.DataProviderBase):
+class _TestBase:
     _configurable_ = True
     def __init__(self):
-        DataProvider.DataProviderBase.__init__(self)
-        #Through an error on the nth time through
         self.update_configuration(
             errorAfter = 999,
             errorFatal = False,
@@ -219,98 +217,30 @@ class _TestBase(DataProvider.DataProviderBase):
         return True
 
     def config_setup(self, config):
+        config.add_section("Basic Settings")
         config.add_item("Error at", "spin", config_name = "errorAfter")
         config.add_item("Fatal Error?", "check", config_name = "errorFatal")
-        config.add_item("Take a long time", 'check', config_name = "slow")
         config.add_item("Data gets a new hash", 'check', config_name = 'newHash')
         config.add_item('Data gets a new mtime', 'check', config_name = 'newMtime')
+        config.add_item("Take a long time", 'check', config_name = "slow")
         config.add_item('UID', 'text', config_name = 'UID')
         config.add_item('Num data', 'spin', config_name = 'numData')
         config.add_item('Emit change detected', 'button', initial_value = lambda b: self._change_detected())
         
-    def configure_(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setError(param):
-            self.errorAfter = int(param)
-        def setErrorFatal(param):
-            self.errorFatal = bool(param)
-        def setSlow(param):
-            self.slow = bool(param)
-        def setNewHash(param):
-            self.newHash = bool(param)
-        def setNewMtime(param):
-            self.newMtime = bool(param)
-        def setUID(param):
-            self.UID = str(param)        
-        def setNumData(param):
-            self.numData = int(param)
-        items = [
-                    {
-                    "Name" : "Error At:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setError,
-                    "InitialValue" : self.errorAfter
-                    },
-                    {
-                    "Name" : "Error is Fatal?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setErrorFatal,
-                    "InitialValue" : self.errorFatal
-                    },
-                    {
-                    "Name" : "Take a Long Time?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setSlow,
-                    "InitialValue" : self.slow
-                    },
-                    {
-                    "Name" : "Data gets a New Hash",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setNewHash,
-                    "InitialValue" : self.newHash
-                    },
-                    {
-                    "Name" : "Data gets a New Mtime",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setNewMtime,
-                    "InitialValue" : self.newMtime
-                    },
-                    {
-                    "Name" : "UID",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setUID,
-                    "InitialValue" : self.UID
-                    },
-                    {
-                    "Name" : "Num Data",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setNumData,
-                    "InitialValue" : self.numData
-                    },
-                    {
-                    "Name" : "Emit Change Detected",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : self._change_detected,
-                    "InitialValue" : False
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-
     def get_UID(self):
         return self.UID
    
-class _TestConversionBase(DataProvider.DataSink):
+class _TestConversionBase:
     _configurable_ = True
-    def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
-        self.encodings =  {}
-        self.encoding = "unchanged"
+
+    def __init__(self):
+        self.encodings = {}
+        self.update_configuration(
+            encoding = "ogg",
+        )
 
     def config_setup(self, config):
-
+        config.add_section("Conversion Settings")
         config.add_item("Format:", "combo",
             choices = [(name, opts['description'] or name) for name, opts in self.encodings.iteritems()],
             config_name = 'encoding'
@@ -327,9 +257,6 @@ class _TestConversionBase(DataProvider.DataSink):
             else:
                 return {}
             
-    def get_configuration(self):
-        return {'encoding':self.encoding}
-
     def get_UID(self):
         return Utils.random_string()
 
@@ -346,8 +273,8 @@ class TestSource(_TestBase, DataProvider.DataSource):
     DEFAULT_NUM_DATA = 10
 
     def __init__(self, *args):
+        DataProvider.DataSource.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self)
         self.data = []
         self.numData = self.DEFAULT_NUM_DATA
         
@@ -406,8 +333,8 @@ class TestSink(_TestBase, DataProvider.DataSink):
     _icon_ = "edit-redo"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
         
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
@@ -447,8 +374,8 @@ class TestFileSource(_TestBase, DataProvider.DataSource):
     _icon_ = "text-x-generic"
     
     def __init__(self, *args):
+        DataProvider.DataSource.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self)
         self.UID = Utils.random_string()
         
     def get_all(self):
@@ -477,8 +404,8 @@ class TestFileSink(_TestBase, DataProvider.DataSink):
     _icon_ = "text-x-generic"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
         self.folder = "file://"+Utils.new_tempdir()
 
     def put(self, data, overwrite, LUID=None):
@@ -541,13 +468,13 @@ class TestImageSink(_TestBase, Image.ImageSink):
     _category_ = conduit.dataproviders.CATEGORY_TEST
 
     def __init__(self, *args):
+        Image.ImageSink.__init__(self, *args)
         _TestBase.__init__(self)
-        Image.ImageSink.__init__(self)
-
-        self.format = "image/jpeg"
-        self.defaultFormat = "image/jpeg"
-        self.size = "640x480"
-        self.slow = False
+        self.update_configuration(
+            format = "image/jpeg",
+            defaultFormat = "image/jpeg",
+            size = "640x480"
+        )
 
     #ImageSink Methods
     def _upload_photo(self, uploadInfo):
@@ -568,50 +495,14 @@ class TestImageSink(_TestBase, Image.ImageSink):
     def _get_photo_size (self):
         return self.size
 
-    #DataProvider Methods
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setFormat(param):
-            self.format = str(param)
-        def setDefaultFormat(param):
-            self.defaultFormat = str(param)
-        def setSize(param):
-            self.size = str(param)
-        def setSlow(param):
-            self.slow = bool(param)
-
-        items = [
-                    {
-                    "Name" : "Format",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setFormat,
-                    "InitialValue" : self.format
-                    },
-                    {
-                    "Name" : "Default Format",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setDefaultFormat,
-                    "InitialValue" : self.defaultFormat
-                    },
-                    {
-                    "Name" : "Size",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setSize,
-                    "InitialValue" : self.size
-                    },
-                    {
-                    "Name" : "Take a Long Time?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setSlow,
-                    "InitialValue" : self.slow
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
+    def config_setup(self, config):
+        _TestBase.config_setup(self, config)
+        config.add_section("Image Settings")
+        config.add_item('Format', 'text', config_name = 'format')
+        config.add_item('Default Format', 'text', config_name = 'defaultFormat')
+        config.add_item('Size', 'text', config_name = 'size')
         
-class TestConversionArgs(_TestConversionBase):
+class TestConversionArgs(_TestConversionBase, TestSink):
 
     _name_ = "Test Conversion Args"
     _description_ = "Pass Arguments to TestConverter"
@@ -622,6 +513,7 @@ class TestConversionArgs(_TestConversionBase):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
+        TestSink.__init__(self)
         _TestConversionBase.__init__(self)
 
     def put(self, data, overwrite, LUID=None):
@@ -638,9 +530,8 @@ class TestVideoSink(_TestConversionBase, TestFileSink):
     _icon_ = "video-x-generic"
 
     def __init__(self, *args):
-        _TestConversionBase.__init__(self)
         TestFileSink.__init__(self)
-        self.encoding = "ogg"
+        _TestConversionBase.__init__(self)
         self.encodings = Video.PRESET_ENCODINGS.copy()
 
 class TestAudioSink(_TestConversionBase, TestFileSink):
@@ -652,9 +543,8 @@ class TestAudioSink(_TestConversionBase, TestFileSink):
     _icon_ = "audio-x-generic"
 
     def __init__(self, *args):
-        _TestConversionBase.__init__(self)
         TestFileSink.__init__(self)
-        self.encoding = "ogg"
+        _TestConversionBase.__init__(self)
         self.encodings = Audio.PRESET_ENCODINGS.copy()
 
 class TestWebTwoWay(TestTwoWay):
@@ -670,10 +560,14 @@ class TestWebTwoWay(TestTwoWay):
 
     def __init__(self, *args):
         TestTwoWay.__init__(self)
-        self.url = "http://www.google.com"
-        self.browser = conduit.BROWSER_IMPL
+        self.update_configuration(
+            url = "http://www.google.com",
+            browser = conduit.BROWSER_IMPL
+        )
 
     def config_setup(self, config):
+        TestTwoWay.config_setup(self, config)
+        config.add_section("Browser Settings")
         config.add_item("Url", "text",
             config_name = 'url'
         )
@@ -700,8 +594,8 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
     _icon_ = "preferences-system"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
         self.isConfigured = False
         
     def configure(self, window):
@@ -741,8 +635,8 @@ class TestConflict(_TestBase, DataProvider.DataSink):
     _icon_ = "dialog-warning"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
