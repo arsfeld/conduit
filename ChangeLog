@@ -1,3 +1,17 @@
+2009-02-20  John Stowers  <john.stowers@gmail.com>
+
+	* scripts/install-conduit-extensions.sh: Add
+	script to install conduit extension if running conduit
+	uninstalled.
+
+	* tools/eog-plugin/Makefile.am:
+	* tools/nautilus-extension/Makefile.am:
+	* tools/totem-plugin/Makefile.am:
+	* tools/totem-plugin/conduit.totem-plugin:
+	* tools/totem-plugin/conduit.totem-plugin.in:
+	Autofoo jiggery to make unistalled installation
+	easier.
+
 2009-02-20  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/Configurator.py:
