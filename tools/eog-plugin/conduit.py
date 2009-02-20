@@ -43,6 +43,7 @@ class ConduitPlugin(eog.Plugin):
         self.debug = DEBUG
         self.conduit = libconduit.ConduitApplicationWrapper(
                                         conduitWrapperKlass=EogConduitWrapper,
+                                        addToGui=self.debug,
                                         store=True,
                                         debug=self.debug
                                         )

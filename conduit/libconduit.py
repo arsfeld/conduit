@@ -20,10 +20,12 @@ class ConduitWrapper:
     STATUS_IDX=2
     PB_IDX=3
 
-    def __init__(self, conduit, name, store):
+    def __init__(self, syncset, conduit, name, store, debug):
+        self.syncset = syncset
         self.conduit = conduit
         self.name = name
         self.store = store
+        self.debug = debug
         self.rowref = None
         self.configured = False
         self.pendingSync = False
@@ -44,19 +46,29 @@ class ConduitWrapper:
                         dbus_interface=CONDUIT_DBUS_IFACE
                         )
 
+    def _debug(self, msg):
+        if self.debug:
+            print "LCW: ", msg
+
     def _get_configuration(self):
         """
         Gets the latest configuration for a given
         dataprovider
         """
         config_path = os.path.expanduser(self.CONFIG_PATH)
+        xml = None
 
-        if not os.path.exists(os.path.join(config_path, self.name)):
-            return
+        try:
+            if not os.path.exists(os.path.join(config_path, self.name)):
+                return
 
-        f = open(os.path.join(config_path, self.name), 'r')
-        xml = f.read()
-        f.close()
+            f = open(os.path.join(config_path, self.name), 'r')
+            xml = f.read()
+            f.close()
+        except OSError, e:
+            self._debug("Error getting config: %s" % e)
+        except Exception, e:
+            self._debug("Error getting config: %s" % e)
 
         return xml
 
@@ -66,12 +78,17 @@ class ConduitWrapper:
         """
         config_path = os.path.expanduser(self.CONFIG_PATH)
 
-        if not os.path.exists(config_path):
-            os.mkdir(config_path)
+        try:
+            if not os.path.exists(config_path):
+                os.mkdir(config_path)
 
-        f = open(os.path.join(config_path, self.name), 'w')
-        f.write(xml)
-        f.close()
+            f = open(os.path.join(config_path, self.name), 'w')
+            f.write(xml)
+            f.close()
+        except OSError, e:
+            self._debug("Error saving config: %s" % e)
+        except Exception, e:
+            self._debug("Error saving config: %s" % e)
 
     def _get_rowref(self):
         if self.rowref == None:
@@ -119,6 +136,7 @@ class ConduitWrapper:
             self.clear()
             #update the status
             self.store.set_value(rowref, self.STATUS_IDX, "finished")
+            self.syncset.DeleteConduit(self.conduit, dbus_interface=SYNCSET_DBUS_IFACE)
         else:
             #show the error message in the conduit gui
             self.store.set_value(rowref, self.STATUS_IDX, "error")
@@ -189,9 +207,10 @@ class ConduitApplicationWrapper(gobject.GObject):
         "conduit-started" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, [gobject.TYPE_BOOLEAN]),
         }
        
-    def __init__(self, conduitWrapperKlass, store=True, debug=False):
+    def __init__(self, conduitWrapperKlass, addToGui, store=True, debug=False):
         gobject.GObject.__init__(self)
         self.conduitWrapperKlass = conduitWrapperKlass
+        self.addToGui = addToGui
         self.debug = debug
         self.app = None
         self.conduits = {}
@@ -214,7 +233,7 @@ class ConduitApplicationWrapper(gobject.GObject):
 
     def _debug(self, msg):
         if self.debug:
-            print "CON: ", msg
+            print "LCA: ", msg
 
     def _get_conduit_app(self):
         try:
@@ -248,12 +267,24 @@ class ConduitApplicationWrapper(gobject.GObject):
         if sinkName in a:
             realName = a[sinkName]
             self._debug("Building exporter conduit %s (%s)" % (sinkName, realName))
-            path = self.app.BuildExporter(realName)
-            exporter = dbus.SessionBus().get_object(CONDUIT_DBUS_IFACE,path)
+
+            bus = dbus.SessionBus()
+
+            exporter_path = self.app.BuildExporter(realName)
+            exporter = bus.get_object(CONDUIT_DBUS_IFACE, exporter_path)
+
+            if self.addToGui:
+                ss = bus.get_object(SYNCSET_DBUS_IFACE, SYNCSET_GUI_PATH)
+            else:
+                ss = bus.get_object(SYNCSET_DBUS_IFACE, SYNCSET_NOGUI_PATH)
+            ss.AddConduit(exporter, dbus_interface=SYNCSET_DBUS_IFACE)
+
             self.conduits[sinkName] = self.conduitWrapperKlass(
+                                                syncset=ss,
                                                 conduit=exporter,
                                                 name=sinkName,
-                                                store=self.store
+                                                store=self.store,
+                                                debug=self.debug
             )
         else:
             self._debug("Could not build Conduit %s" % sinkName)

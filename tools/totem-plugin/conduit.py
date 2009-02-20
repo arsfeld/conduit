@@ -36,6 +36,7 @@ class ConduitPlugin(totem.Plugin):
         self.debug = DEBUG
         self.conduit = libconduit.ConduitApplicationWrapper(
                                         conduitWrapperKlass=TotemConduitWrapper,
+                                        addToGui=self.debug,
                                         store=True,
                                         debug=self.debug
                                         )

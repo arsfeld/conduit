@@ -175,8 +175,9 @@ class ConduitExtension(nautilus.MenuProvider):
     def __init__(self):
         self.debug = DEBUG
         self.conduit = libconduit.ConduitApplicationWrapper(
-                                        conduitWrapperKlass=None,
-                                        store=False,
+                                        conduitWrapperKlass=None,   #N/A in out usage cf. eog-plugin
+                                        addToGui=False,             #N/A in our usage cf. eog-plugin
+                                        store=False,                #N/A in our usage cf. eog-plugin
                                         debug=self.debug
                                         )
         self.conduit.connect("conduit-started", self._on_conduit_started)

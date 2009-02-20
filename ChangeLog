@@ -1,5 +1,16 @@
 2009-02-20  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/libconduit.py: Always add any created 
+	exporter conduits to a syncset, either GUI or DBus,
+	to prevent Conduit hanging on exit.
+
+	* tools/eog-plugin/conduit.py:
+	* tools/nautilus-extension/conduit.py:
+	* tools/totem-plugin/conduit.py: When in debug mode
+	add all exporters to GUI syncset
+
+2009-02-20  John Stowers  <john.stowers@gmail.com>
+
 	* scripts/install-conduit-extensions.sh: Add
 	script to install conduit extension if running conduit
 	uninstalled.
