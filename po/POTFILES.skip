@@ -1,8 +1,8 @@
 conduit/Main.py
+conduit/libconduit.py
 data/conduit.desktop.in
-tools/eog-plugin/config.glade
+tools/eog-plugin/conduit.py
 tools/totem-plugin/conduit.py
-tools/test-db-wrapper/main.glade
 tools/test-db-wrapper/main.glade
 conduit/modules/GoogleModule/contacts-config.glade
 conduit/modules/SynceModule.py

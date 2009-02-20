@@ -1,3 +1,19 @@
+2009-02-20  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/Makefile.am:
+	* conduit/libconduit.py: Create a common python
+	library which handles a remote conduit instance
+	via DBus.
+
+	* tools/eog-plugin/conduit.py:
+	* tools/nautilus-extension/conduit.py:
+	* tools/totem-plugin/conduit.py: Use this new common
+	library for considerable code savings.
+
+	* tools/eog-plugin/config.glade:
+	* tools/eog-plugin/Makefile.am: Delete config.glade, it
+	was not used.
+
 2009-02-17  John Stowers  <john.stowers@gmail.com>
 
 	* po/POTFILES.in:

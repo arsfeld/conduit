@@ -19,6 +19,7 @@ conduit_PYTHON = \
 	__init__.py \
 	Knowledge.py \
 	Logging.py \
+	libconduit.py \
 	Main.py \
 	MappingDB.py \
 	Module.py \
