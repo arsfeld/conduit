@@ -170,9 +170,15 @@ class DataProviderBase(gobject.GObject):
         else:
             return False
 
-    def get_config_container(self, configurator):
+    def get_config_container(self, configContainerKlass, name, icon, configurator):
         """
         Retrieves the configuration container
+        @param configContainerKlass: The class used to instantiate the graphical
+        configuration widget.
+        @param name: The name of the dataprovider being configured. Typically
+        used in the graphical config widget
+        @param icon: The icon of the dataprovider being configured. Typically
+        used in the graphical config widget
         @param configurator: The configurator object
         """
         # If the dataprovider is using the old system, returns None (a message
@@ -180,21 +186,20 @@ class DataProviderBase(gobject.GObject):
         if hasattr(self, "configure"):
             return None
         if not self.config_container:
-            #FIXME: GtkUI is hard-coded because we dont have another interface
-            # yet, but we could make it more modular (we already import it here
-            # not to depend on it on initialization)
-            import conduit.gtkui.ConfigContainer as ConfigContainer
-            self.config_container = ConfigContainer.ConfigContainer(self, configurator)
+            self.config_container = configContainerKlass(self, configurator)
+            self.config_container.name = name
+            self.config_container.icon = icon
             self.config_container.connect('apply', self.config_apply)
             self.config_container.connect('cancel', self.config_cancel)
             self.config_container.connect('show', self.config_show)
             self.config_container.connect('hide', self.config_hide)
             self.config_setup(self.config_container)
-            #FIXME: This is definetely just for debugging (it prints everything
+            # This is definetely just for debugging (it prints everything
             # that is changed in the configuration dialog)
-            #def print_item(config, item):
-            #    log.debug("%s: %s = %s" % (item.title, item.config_name, item.get_value()))
-            #self.config_container.connect("item-changed", print_item)
+            #self.config_container.connect(
+            #        "item-changed", 
+            #        lambda c, i: log.debug("%s: %s = %s" % (i.title, i.config_name, i.get_value()))
+            #)
         return self.config_container
     
     def config_setup(self, config_container):

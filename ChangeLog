@@ -1,3 +1,12 @@
+2009-02-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/dataproviders/DataProvider.py:
+	Remove hard dependency on Gtk by changing
+	get_config_container to accept the class used to
+	construct the container, along with the icon and name
+	* conduit/gtkui/Canvas.py: Update to reflect
+	API changes above.
+
 2009-02-21  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/TestModule.py: Finish
