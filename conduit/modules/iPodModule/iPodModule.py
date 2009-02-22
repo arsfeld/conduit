@@ -89,8 +89,11 @@ class iPodFactory(VolumeFactory.VolumeFactory):
         return False
 
     def get_category(self, udi, **kwargs):
+        label = kwargs['volume.label']
+        if not label:
+            label = "Apple iPod Music Player"
         return DataProviderCategory.DataProviderCategory(
-                    kwargs['volume.label'],
+                    label,
                     "multimedia-player-ipod-standard-color",
                     self._get_mount_path(kwargs))
 

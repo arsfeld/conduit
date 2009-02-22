@@ -1,5 +1,12 @@
 2009-02-22  Tobias Mueller  <tobiasmue@svn.gnome.org>
 
+	* conduit/modules/iPodModule/iPodModule.py: Display a 
+	default category for an ipod without any name. Patch by Andrew 
+	Stormont.
+	Fixes bug 572132.
+
+2009-02-22  Tobias Mueller  <tobiasmue@svn.gnome.org>
+
 	* configure.ac:
 	* conduit/defs.py.in: Allow the file-impl to be selectable with a 
 	parameter to ./configure. Patch by Andrew Stormont.
