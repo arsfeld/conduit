@@ -1,3 +1,10 @@
+2009-02-22  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/BoxDotNetModule/Makefile.am:
+	* conduit/modules/BoxDotNetModule/config.glade:
+	* po/POTFILES.in: Port to new config system
+
 2009-02-22  John Stowers  <john.stowers@gmail.com>	
 
 	* conduit/Web.py: When showing the web browser

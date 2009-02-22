@@ -16,7 +16,6 @@ conduit/modules/BackpackModule/backpack/backpack.py
 conduit/modules/BansheeModule/BansheeModule.py
 conduit/modules/BansheeModule/config.glade
 conduit/modules/BoxDotNetModule/BoxDotNetModule.py
-conduit/modules/BoxDotNetModule/config.glade
 conduit/modules/EvolutionModule/EvolutionModule.py
 conduit/modules/EvolutionModule/config.glade
 conduit/modules/FacebookModule/FacebookModule.py
