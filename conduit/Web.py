@@ -79,6 +79,16 @@ class LoginWindow(Singleton.Singleton):
             self.notebook = gtk.Notebook()
             self.window.add(self.notebook)
 
+        #If we have been launched from a Gtk.Dialog (usually a configure
+        #dialog), then we should be transient for that dialog, and we
+        #must ensure that the dialog is no longer modal so we can close the browser
+        for w in gtk.window_list_toplevels():
+            if type(w) == gtk.Dialog:
+                #center the browser window over the dialog
+                self.window.set_transient_for(w)
+                #disable dialog modality
+                w.set_modal(False)                
+
         self.window.set_default_size(700, 600)
         self.window.set_position(gtk.WIN_POS_CENTER)
         self.window.show_all()

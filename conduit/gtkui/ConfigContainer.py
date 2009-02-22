@@ -207,13 +207,6 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         super(ConfigContainer, self).show()
         self.config_widget.show_all()
         
-    #def set_busy(self, busy):
-    #    if busy:
-    #        self.old_cursor = self.widgetTable.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-    #    else:
-    #        self.widgetTable.set_cursor(self.old_cursor)
-    #    gtk.gdk.flush()
-        
     def apply_config(self, items = None, sections = None):
         '''
         Save the current configuration state to the dataprovider and to each 

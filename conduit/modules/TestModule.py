@@ -566,6 +566,24 @@ class TestWebTwoWay(TestTwoWay):
         )
 
     def config_setup(self, config):
+
+        def _login(*args):
+            log.debug("Logging in")
+            Web.LoginMagic("The Internets", self.url, login_function=lambda: True)
+
+        def _login_finished(*args):
+            log.debug("Login finished")
+            #Utils.dialog_reset_cursor(dlg)
+            pass
+
+        def _login_clicked(button):
+            #Utils.dialog_set_busy_cursor(dlg)
+            log.debug("Login clicked")
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            _login_finished,
+                                            _login)
+
         TestTwoWay.config_setup(self, config)
         config.add_section("Browser Settings")
         config.add_item("Url", "text",
@@ -574,14 +592,14 @@ class TestWebTwoWay(TestTwoWay):
         config.add_item("Browser", "text",
             config_name = "browser"
         )
-        
-    def _login(self):
-        return True
+        config.add_item("Launch Browser", "button", 
+            initial_value = _login_clicked
+        )
 
     def refresh(self):
         TestTwoWay.refresh(self)
         log.debug("REFRESH (thread: %s)" % thread.get_ident())
-        Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=self._login)
+        Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=lambda: True)
 
 class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
 

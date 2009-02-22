@@ -132,6 +132,12 @@ class SyncManager:
             self.syncWorkers[c].join(timeout)
 
     def run_blocking_dataprovider_function_calls(self, dataprovider, callback, *functions):
+        """
+        Runs functions in a seperate thread, calling callback when complete
+        @param dataprovider: The dataprovider associated with the functions to be run
+        @param callback: The function to call when all functions have been run
+        @param functions: A list of functions to call
+        """
         #need to get the conduit assocated with this dataprovider because the sync-completed
         #signal is emmited from the conduit object
         conds = []

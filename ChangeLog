@@ -1,3 +1,19 @@
+2009-02-22  John Stowers  <john.stowers@gmail.com>	
+
+	* conduit/Web.py: When showing the web browser
+	window, find any top level dialogs and un-modal them.
+	This is a consequence of Conduit sharing a single 
+	login window among many dataproviders which may launch
+	modal config dialogs.
+	* conduit/gtkui/ConfigContainer.py: Remove set_busy 
+	method, which does not fit into new config architecture. 
+	* conduit/Synchronization.py: Documentation for
+	run_blocking function used for running web logins.
+	* conduit/gtkui/WindowConfigurator.py: No need to
+	inherit from GObject.
+	* conduit/modules/TestModule.py: Test the new web
+	login behaviour.
+
 2009-02-22  Tobias Mueller  <tobiasmue@svn.gnome.org>
 
 	* conduit/modules/iPodModule/iPodModule.py: Display a 

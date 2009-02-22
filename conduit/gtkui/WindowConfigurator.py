@@ -1,5 +1,4 @@
 import os.path
-import gobject
 import gtk, gtk.glade
 import logging
 log = logging.getLogger("gtkui.WindowConfigurator")
@@ -8,13 +7,11 @@ from gettext import gettext as _
 import conduit
 import conduit.gtkui.ConfigContainer as ConfigContainer
 
-class WindowConfigurator(gobject.GObject):
+class WindowConfigurator:
     """
     A window configurator to embed a configuration widget.
     """
-    
     CONFIG_WINDOW_TITLE_TEXT = _("Configure")
-    
     #Show multiple containers or only shows the currently selected dataprovider
     #This should be set to False until all dataproviders use the new system
     MULTIPLE_VIEW = False
@@ -29,9 +26,7 @@ class WindowConfigurator(gobject.GObject):
         """
         @param window: Parent window (this dialog is modal)
         @type window: C{gtk.Window}
-        """
-        gobject.GObject.__init__(self)
-        
+        """        
         self.showing = False
         self.built_configs = False
         
