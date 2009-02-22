@@ -12,7 +12,7 @@ DESKTOP_FILE_DIR = "@DESKTOPFILEDIR@"
 #
 
 #{GnomeVfs, GIO, Python}
-FILE_IMPL = "GIO"
+FILE_IMPL = "@FILE_IMPL@"
 
 #{gtkmozembed, webkit, system}
 BROWSER_IMPL = "webkit"
