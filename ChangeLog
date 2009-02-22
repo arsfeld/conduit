@@ -98,6 +98,7 @@
 	public API).
 	Improved dialog when F-Spot is not running (tags
 	are still visible, but disabled).
+    Fixes #552418
 
 2009-02-20  John Stowers  <john.stowers@gmail.com>
 
