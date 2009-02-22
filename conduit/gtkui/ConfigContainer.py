@@ -54,6 +54,15 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self.config_widget = self.widgetTable
         
         self.firstRow = True
+        
+    def __getitem__(self, key):
+        #FIXME: This could be done faster by using a dict (it would changed
+        # other parts of this class, so I left it out for now)
+        for item in self.items:
+            if key == item.config_name:
+                return item
+        else:
+            raise KeyError(key)
 
     def _reset_modified_items(self, empty = True):
         '''
@@ -134,7 +143,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
     
     def add_item(self, title, kind, order = 0, **kwargs):
         '''
-        Add a configuration widget. Returns the Item object.
+        Add a configuration item. Returns the Item object.
         
         You can pass properties to the configuration item in kwargs.
         '''
@@ -147,16 +156,18 @@ class ConfigContainer(Configurator.BaseConfigContainer):
                 self.config_values = self.dataprovider.get_configuration()
             else:
                 self.config_values = {}        
-        if 'config_name' in kwargs:
+        if kwargs.get('config_name', None) and kwargs.pop('persistent', True):
             if kwargs['config_name'] in self.config_values:
                 kwargs['initial_value'] = self.config_values[kwargs['config_name']]
+            else:
+                raise Error("Value for %s (configuration item %s) not found in dataprovider" % (kwargs['config_name'], title))
         if 'enabled' not in kwargs:
             kwargs['enabled'] = self.section.enabled
-        try:    
-            item_cls = ConfigItems.ConfigItem.items[kind]
+        try:
+            item_cls = ConfigItems.ItemBase.items[kind]
         except KeyError:
             raise Error("Config kind %s not found" % kind)
-        item = item_cls(self, title, order, **kwargs)
+        item = item_cls(container = self, title = title, order = order, **kwargs)
         item.connect("value-changed", self._item_changed)
         self.items.append(item)
         self.section.add_item(item)

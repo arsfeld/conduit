@@ -28,6 +28,15 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
     _icon_ = "f-spot"
     _configurable_ = True
 
+    tags = DataProvider.Property([], "list", config_name = "enabledTags")
+    status = DataProvider.Widget("", "label")
+    tag_name = DataProvider.Widget("", "text")
+    # We add the callback later
+    add_tag = DataProvider.Widget(None, "button")
+    _config_dialog_ = (None, (status),
+                       _("Tags"), (tags),
+                       _("Add tags"), (tag_name, add_tag))
+
     SERVICE_PATH = "org.gnome.FSpot"
     PHOTOREMOTE_IFACE = "org.gnome.FSpot.PhotoRemoteControl"
     PHOTOREMOTE_PATH = "/org/gnome/FSpot/PhotoRemoteControl"
@@ -37,12 +46,8 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-
-        self.update_configuration(
-            enabledTags = ([], self.set_tags, self.get_tags),
-        )
         
-        self.enabledTags = []
+        #self.enabledTags = []
         self.photos = []
         self.has_roll = False
         self.photo_remote = None
@@ -215,25 +220,30 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.tag_remote = None
 
     def config_setup(self, config):
+        status_label = config["status"]
+        tags_config = config["enabledTags"]
+        
+        #add_tags_section = config.sections["Add tags"]
         def watch(name):
             connected = bool(name and self._connect_to_fspot())
-            if connected:            
-                tags_config.set_choices(self._get_all_tags())            
-            add_tags_section.set_enabled(connected)
-            if config.showing:
-                if connected:
-                    status_label.set_value("F-Spot is running")
-                else:
-                    status_label.set_value("Please start F-Spot or activate the D-Bus Extension")
-        status_label = config.add_item("Status", "label")
+            log.critical("Connected: %s"% connected)
+            if connected:
+                tags_config.choices = [(tag, tag) for tag in self._get_all_tags()]
+            #add_tags_section.enabled = connected
+            #if config.showing:
+            if connected:
+                status_label.value = "F-Spot is running"
+            else:
+                status_label.value = "Please start F-Spot and activate the D-Bus Extension"
+        #status_label = config.add_item("Status", "label")
         #config.add_item("Start F-Spot", "button",
         #    initial_value = lambda x: dbus.SessionBus().start_service_by_name(self.SERVICE_PATH)
         #)
-        config.add_section("Tags")
-        tags_config = config.add_item("Tags", "list",
-            config_name = 'tags',
-            choices = [],
-        )
+        #config.add_section("Tags")
+        #tags_config = config.add_item("Tags", "list",
+        #    config_name = 'tags',
+        #    choices = [],
+        #)
         def add_tag_cb(button):
             text = tag_name_config.get_value()
             tags = text.split(',')
@@ -241,13 +251,13 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
                 self._create_tag (tag.strip ())   
             tags_config.set_choices(self._get_all_tags())
             tag_name_config.set_value('')
-        add_tags_section = config.add_section("Add tags")
-        tag_name_config = config.add_item("Tag name", "text",
-            initial_value = ""
-        )
-        config.add_item("Add tag", "button",
-            initial_value = add_tag_cb
-        )
+        #add_tags_section = config.add_section("Add tags")
+        #tag_name_config = config.add_item("Tag name", "text",
+        #    initial_value = ""
+        #)
+        #config.add_item("Add tag", "button",
+        #    initial_value = add_tag_cb
+        #)
         dbus.SessionBus().watch_name_owner(self.SERVICE_PATH, watch)
 
     def configure_(self, window):

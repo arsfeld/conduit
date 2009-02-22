@@ -56,6 +56,11 @@ class BansheeSource(DataProvider.DataSource):
     _out_type_ = "file/audio"
     _icon_ = "media-player-banshee"
     _configurable_ = True
+    _config_window_ = (_("Playlists", "playlists"))
+    
+    playlists = DataProvider.Property([], "list")
+    smart_playlists = DataProvider.Property([], "list")
+    video_playlists = DataProvider.Property([], "list")
 
     if BANSHEE_VERSION_1:
         MUSIC_DB = os.path.join(os.path.expanduser("~"),".config", "banshee-1", "banshee.db")
@@ -125,6 +130,9 @@ class BansheeSource(DataProvider.DataSource):
     def is_configured(self, isSource, isTwoWay):
         return len(self.playlists+self.smart_playlists+self.video_playlists) > 0
         
+    def config_apply():
+        
+    
     def refresh(self):
         DataProvider.DataSource.refresh(self)
         #only work if Banshee is installed

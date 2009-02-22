@@ -50,8 +50,12 @@ class RhythmboxSource(DataProvider.DataSource):
     _icon_ = "rhythmbox"
     _configurable_ = True
     
-    playlists = DataProvider.Property([])
-    __config_dialog__ = (_("Playlists"), (playlist,))
+    playlists = DataProvider.Property([], 'list')
+    username = DataProvider.Property("", "text")
+    password = DataProvider.Property("", "text", password = True)
+    _config_dialog_ = (_("User account"), (username, password),
+                         _("Playlists"), (playlists),                         
+                         )
 
     PLAYLIST_PATH="~/.gnome2/rhythmbox/playlists.xml"
     RHYTHMDB_PATH="~/.gnome2/rhythmbox/rhythmdb.xml"

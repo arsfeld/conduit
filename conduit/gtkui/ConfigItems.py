@@ -20,7 +20,7 @@ class Error(Exception):
     pass
 
 class Section(gobject.GObject):
-    def __init__(self, container, title, order, **kwargs):
+    def __init__(self, container, title, order, enabled = True):
         '''
         A section containing items and a title
         '''
@@ -29,7 +29,7 @@ class Section(gobject.GObject):
         self.title = title
         self.order = order
         self.items = []
-        self.__enabled = kwargs.get('enabled', True)
+        self.__enabled = enabled
     
     def add_item(self, item):
         ''' Adds an item to this section (this does not update the dialog) '''
@@ -62,6 +62,9 @@ class Section(gobject.GObject):
         self.container.apply_config(sections = [self])
         
 class ItemMeta(gobject.GObjectMeta):
+    '''
+    Meta class to automatically register item classes.
+    '''
     def __init__(cls, name, bases, attrs):
         gobject.GObjectMeta.__init__(cls, name, bases, attrs)
         if not hasattr(cls, 'items'):
@@ -69,87 +72,102 @@ class ItemMeta(gobject.GObjectMeta):
             # So, since this is a new plugin type, not an implementation, this
             # class shouldn't be registered as a plugin. Instead, it sets up a
             # list where plugins can be registered later.
-            cls.items = []
+            cls.items = {}
         else:
             # This must be a plugin implementation, which should be registered.
             # Simply appending it to the list is all that's needed to keep
             # track of it later.
-            cls.items.append(cls)
+            if hasattr(cls, '__item_name__'):
+                cls.items[cls.__item_name__] = cls
         
-class ConfigItem(gobject.GObject):
+class ItemBase(gobject.GObject):
     '''
     A config item is basically a wrapper to a widget.
     
     It works by exposing a value that should be translated to the underlying
     widget. The type of the value depends on the item.
     
-    Subclasses should implement _build_widget, _set_value and _get_value
-
-    A few properties are supported to customize their behaviours. They
-    should be passed in ``kwargs``:
-        :config_name: Used to save/load the configuration value from the 
-            dataprovider.
-        :config_type: ``function(value)`` that converts the config value into
-            something a dataprovider will accept. This could be something 
-            like int, str, etc., or a custom function.
-        :initial_value: When the item is created or cancel is called,
-            the item returns to this value. Changes to the current value
-            when apply is called.
-        :initial_value_callback: It's a function that should return a value
-            to initial value, called when the item is created or when cancel
-            is called. It is especially useful for items that keep their state
-            somewhere else.
-        :choices: Valid when the user needs to select a value from a list.
-            It has to be a tuple with ``(value, label)``.
-        :needs_label: If True, the widget will have a label with title as
-            the text.
-        :needs_space: If ``needs_label`` is False, but the widget still wants 
-            to be aligned to the right in the window, set this to True.
-        :enabled: If the widget can be edited by the user.
-        :save_callback: A ``function(item, value)`` called when apply is 
-    selected and the value must be saved.
-        
+    Subclasses should implement _build_widget, _set_value and _get_value.
+    If they include choices, they also must implement _set_choices or 
+    _clear_choices and _build_choices.
+    
     Signals emitted:
-        :value-changed: Emitted everytime the value changes, emitting two 
-            parameters, the first is a bool wheter the value is the same
-            as the initial value, and the second is the value.
+        :value-changed: Emitted everytime the value changes. It's signature
+            is ``function(is_initial_value, value)`` or 
+            ``method(self, is_initial_value, value)``. See the is_initial_value
+            function below.
     '''
     __metaclass__ = ItemMeta
     
     __gsignals__ = {
         'value-changed' : (gobject.SIGNAL_RUN_FIRST, None, [bool, object]),
-        #'reset' : (gobject.SIGNAL_RUN_LAST, None, []),
-        #'initial-state' : (gobject.SIGNAL_RUN_FIRST, None, []),
     }
     
     def __init__(self, container, title, order, config_name=None, 
-            config_type=None, choices=None, needs_label=True, 
+            config_type=None, choices=[], needs_label=True, 
             needs_space=False, initial_value=None, initial_value_callback=None,
-            save_callback=None, fill=False, enabled=True, **kwargs):
+            save_callback=None, fill=False, enabled=True):
         '''
-        Create a config item.
+        Creates a config item.
+        
+        The parameters can customize how the item behaves:
+        @param config_name: Used to save/load the configuration value from the 
+            dataprovider.
+        @param config_type: ``function(value)`` that converts the config value into
+            something a dataprovider will accept. This could be something 
+            like int, str, etc., or a custom function.
+        @param initial_value: When the item is created or cancel is called,
+            the item returns to this value. Changes to the current value
+            when apply is called.
+        @param initial_value_callback: It's a function that should return a value
+            to initial value, called when the item is created or when cancel
+            is called. It is especially useful for items that keep their state
+            somewhere else.
+        @param choices: Valid when the user needs to select a value from a list.
+            It has to be a tuple with ``(value, label)``.
+        @param needs_label: If True, the widget will have a label with title as
+            the text. Items such as list sets this to False.
+        @param needs_space: If ``needs_label`` is False, but the widget still wants 
+            to be aligned to the right in the window, set this to True.
+        @param enabled: If the widget can be edited by the user.
+        @param save_callback: A ``function(item, value)`` called when apply is 
+            selected and the value must be saved.        
         '''
         gobject.GObject.__init__(self)
+        
+        # These properties should not be changed
         self.container = container
+        
+        
+        # Properties that take in effect while the configuration is running
+        # Access then using with their public attributes (as implemented
+        # with properties below)
         self.__widget = None
         self.__label = None
-        self.title = title
-        self.order = order
+        self.__enabled = enabled #kwargs.get('enabled', True)
         self.__choices = choices #kwargs.get('choices', None)
-        self.needs_label = needs_label #kwargs.get('needs_label', True)
-        self.needs_space = needs_space #kwargs.get('needs_space', False)
+
+        # These properties do not need any special processing when changed, 
+        # they can probably be directly assigned to another value
         self.config_name = config_name #kwargs.get('config_name', None)
         self.config_type = config_type #kwargs.get('config_type', None)
         self.save_callback = save_callback #kwargs.get('save_callback', None)
         self.initial_value = initial_value #kwargs.get('initial_value', None)
         self.initial_value_callback = initial_value_callback #kwargs.get('initial_value_callback', None)
         
+        # These properties takes no effect while the configuration is running,
+        # unless the widgets are rebuilt (there are no provisions to make that
+        # happen at the moment)
+        self.title = title
+        self.order = order
+        self.needs_label = needs_label #kwargs.get('needs_label', True)
+        self.needs_space = needs_space #kwargs.get('needs_space', False)
         self.fill = fill #kwargs.get('fill', False)
-        self.enabled = enabled #kwargs.get('enabled', True)
-
+    
     def _value_changed(self, *args):
         '''
-        Called everytime the value changes. Emits the value-changed signal.
+        Should be called everytime the value changes. Emits the value-changed 
+        signal.
         
         This method can be chained into widget signals. It will safely ignore
         any argument passed to it.
@@ -161,8 +179,6 @@ class ConfigItem(gobject.GObject):
     def _build_choices(self):
         '''
         Implement this when you need to build the choices of a widget.
-        It's usually called on _build_widget. If implemented together with 
-        _clear_choices, there is no need to implement set_choices
         '''
         pass
     
@@ -172,18 +188,27 @@ class ConfigItem(gobject.GObject):
         '''
         pass
     
-    choices = property(lambda self: self.__choices, 
-                       lambda self, v: self.set_choices(v))
-
-    def set_choices(self, choices):
+    def _set_choices(self, choices):
         '''
-        Set choices and automatically rebuild a widget containing a set of choices.
+        Should set choices and reassign it's old value.
+        
+        Subclasses do not need no implement this, they should implement 
+        _build_choices and _clear_choices. If they do implement it, they should
+        not call this method, unless they know what they are doing.
         '''
         value = self.get_value()
         self.__choices = choices
         self._clear_choices()
         self._build_choices()
         self.set_value(value)
+
+    def set_choices(self, choices):
+        '''
+        Set the choices and recovers the old state if possible.
+        '''
+        self._set_choices(choices)
+    
+    choices = property(lambda self: self.__choices, set_choices)
         
     def _attach(self, table, row, in_section):
         '''
@@ -217,9 +242,6 @@ class ConfigItem(gobject.GObject):
             table.attach(align, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)    
         return row        
 
-    label = property(lambda self: self.get_label(), 
-                     lambda self, v: self.set_label(v))        
-                
     def get_label(self):
         '''
         Returns the gtk.Label to this item (if needed)
@@ -237,10 +259,10 @@ class ConfigItem(gobject.GObject):
         Sets the label widget
         '''
         self.__label = label        
+        
+    label = property(lambda self: self.get_label(), 
+                     lambda self, v: self.set_label(v))        
 
-    widget = property(lambda self: self.get_widget(), 
-                      lambda self, v: self.set_widget(v))        
-    
     def get_widget(self):
         '''
         Return the widget, building it as needed.
@@ -257,17 +279,23 @@ class ConfigItem(gobject.GObject):
         Sets the widget
         '''
         self.__widget = widget
-
-    #Set value as a property
-    value = property(self.get_value, self.set_value)
         
+    widget = property(lambda self: self.get_widget(), 
+                      lambda self, v: self.set_widget(v))
+
     def get_value(self):
         '''
         Gets the value from the widget.
         
         This is a public interface method, should not be overriden by 
         descendants. Implement _get_value instead.
+        
+        Note that this method is expected to be cheap. Take care of not having
+        heavy processing in this method. 
+        It is called every time the user changes the value.
         '''
+        if not self.__widget:
+            return None
         return self._get_value()
     
     def set_value(self, value):
@@ -283,8 +311,14 @@ class ConfigItem(gobject.GObject):
         # We should probably assign the initial value here in case of an 
         # Exception. In case of another Exception, then it's the module fault,
         # and no exception handling should be done.
+        if not self.__widget:
+            return
+        log.critical("Setting value of %s: %s (config_name: %s)" % (self.title, value, self.config_name))
         self._set_value(value)
-        
+
+    #Set value as a property
+    value = property(get_value, set_value)
+    
     def get_config_value(self):
         '''
         Returns a dict suitable to a dataprovider set_configuration.
@@ -314,9 +348,11 @@ class ConfigItem(gobject.GObject):
         '''
         Set the widget sensibility.
         '''
-        self.enabled = enabled
+        self.__enabled = enabled
         if self.widget:
             self.widget.set_sensitive(enabled)
+            
+    enabled = property(lambda self: self.__enabled, set_enabled)
         
     def reset(self):
         '''
@@ -341,19 +377,19 @@ class ConfigItem(gobject.GObject):
     def apply(self):
         '''
         Seve the current value as the initial value and calls the dataprovider
-        to save the current value
+        to save the current value.
         '''
         self.save_state()
         self.container.apply_config([self])          
 
-class ConfigLabel(ConfigItem):
+class ConfigLabel(ItemBase):
     __item_name__ = 'label'
     
-    def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)
-        self.xalignment = kwargs.get('xalignment', 0.0)
-        self.yalignment = kwargs.get('yalignment', 0.5)
-        self.use_markup = kwargs.get('use_markup', False)
+    def __init__(self, xalignment = 0.0, yalignment = 0.5, use_markup = False, **kwargs):
+        ItemBase.__init__(self, **kwargs)
+        self.xalignment = xalignment #kwargs.get('xalignment', 0.0)
+        self.yalignment = yalignment #kwargs.get('yalignment', 0.5)
+        self.use_markup = use_markup #kwargs.get('use_markup', False)
     
     def _build_widget(self):
         self.widget = gtk.Label()
@@ -369,17 +405,18 @@ class ConfigLabel(ConfigItem):
         else:
             self.widget.set_text(str(value))
             
-class ConfigButton(ConfigItem):
+class ConfigButton(ItemBase):
     __item_name__ = 'button'
     
     def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)
+        action = kwargs.pop('action', None)
+        ItemBase.__init__(self, *args, **kwargs)
         self.callback_id = None
         self.callback = None
         self.needs_space = kwargs.get('needs_space', True)
         self.needs_label = kwargs.get('needs_label', False)
-        if 'action' in kwargs:
-            self.initial_value = kwargs['action']
+        if action:
+            self.initial_value = action
     
     def _build_widget(self):
         self.widget = gtk.Button(self.title)
@@ -398,12 +435,12 @@ class ConfigButton(ConfigItem):
     def _get_value(self):
         return self.callback
     
-class ConfigFileButton(ConfigItem):
+class ConfigFileButton(ItemBase):
     __item_name__ = 'filebutton'
     
     def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)        
-        self.directory = kwargs.get('directory', False)
+        self.directory = kwargs.pop('directory', False)
+        ItemBase.__init__(self, *args, **kwargs)        
         self._current_filename = None
     
     def _selection_changed(self, filechooser):
@@ -425,11 +462,11 @@ class ConfigFileButton(ConfigItem):
     def _get_value(self):
         return self._current_filename
 
-class ConfigRadio(ConfigItem):
+class ConfigRadio(ItemBase):
     __item_name__ = 'radio'
     
     def __init__(self, container, title, order, **kwargs):
-        ConfigItem.__init__(self, container, title, order, **kwargs)
+        ItemBase.__init__(self, container, title, order, **kwargs)
         self.needs_label = title is not None
         self.buttons = {}
         self._active_button = None
@@ -469,14 +506,14 @@ class ConfigRadio(ConfigItem):
         else:
             log.warn("Value %s could not be applied to config %s" % (repr(self.title), new_value))
 
-class ConfigSpin(ConfigItem):
+class ConfigSpin(ItemBase):
     __item_name__ = 'spin'
     
     def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)
-        self.maximum = kwargs.get('maximum', sys.maxint)
-        self.minimum = kwargs.get('minimum', 0)
-        self.step = kwargs.get('step', 1)
+        self.maximum = kwargs.pop('maximum', sys.maxint)
+        self.minimum = kwargs.pop('minimum', 0)
+        self.step = kwargs.pop('step', 1)        
+        ItemBase.__init__(self, *args, **kwargs)
     
     def _build_widget(self):
         self.adjust = gtk.Adjustment(lower = self.minimum, upper = self.maximum, step_incr = self.step)
@@ -493,7 +530,7 @@ class ConfigSpin(ConfigItem):
         except:
             log.warn("Value %s could not be applied to config %s" % (repr(self.title), value))        
 
-class ConfigCombo(ConfigItem):
+class ConfigCombo(ItemBase):
     '''
     A box where the user can select one value from several
     
@@ -547,12 +584,12 @@ class ConfigComboText(ConfigCombo):
     def _set_value(self, value):
         self.widget.child.set_text(str(value))
     
-class ConfigText(ConfigItem):
+class ConfigText(ItemBase):
     __item_name__ = 'text'
     
-    def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)
-        self.password = kwargs.get('password', False)
+    def __init__(self, password = False, **kwargs):
+        self.password = password #kwargs.pop('password', False)
+        ItemBase.__init__(self, **kwargs)        
     
     def _build_widget(self):
         self.widget = gtk.Entry()
@@ -565,12 +602,14 @@ class ConfigText(ConfigItem):
     def _set_value(self, value):
         self.widget.set_text(str(value))
             
-class ConfigList(ConfigItem):
+class ConfigList(ItemBase):
     __item_name__ = 'list'
     
     def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)
+        ItemBase.__init__(self, *args, **kwargs)
         self.needs_label = kwargs.get('needs_label', False)
+        #FIXME: Sorted should be optional
+        #FIXME: Without an initial_value, sorted will raise an Exception
         self.initial_value = sorted(self.initial_value)
         self.fill = kwargs.get('fill', True)
         self._checked_items = None
@@ -583,6 +622,7 @@ class ConfigList(ConfigItem):
     
     def _build_choices(self):
         for value, label in self.choices:
+            #Set's the list text and initial (unchecked) value
             self.model.append((label, False))
 
     def _clear_choices(self):
@@ -608,7 +648,8 @@ class ConfigList(ConfigItem):
         # detecting if choices include tuples, and which types are inside the 
         # tuple.
         self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active=1))                    
-        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text=0))     
+        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text=0))   
+        self._clear_choices()  
         self._build_choices()
         self.scrolled_window.add(self.list)
         self.widget = self.vbox
@@ -634,11 +675,11 @@ class ConfigList(ConfigItem):
             log.warn("Value %s could not be applied to config %s" % (value, repr(self.title)))
         self._update_total()
 
-class ConfigCheckBox(ConfigItem):
+class ConfigCheckBox(ItemBase):
     __item_name__ = 'check'
     
     def __init__(self, *args, **kwargs):
-        ConfigItem.__init__(self, *args, **kwargs)
+        ItemBase.__init__(self, *args, **kwargs)
         self.needs_label = False
         
     def _build_widget(self):
