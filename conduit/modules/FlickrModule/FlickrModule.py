@@ -86,12 +86,14 @@ class FlickrTwoWay(Image.ImageTwoWay):
         Image.ImageTwoWay.__init__(self)
         self.fapi = None
         self.token = None
-        self.username = ""
         self.logged_in = False
-        self.photoSetName = ""
-        self.showPublic = True
         self.photoSetId = None
-        self.imageSize = "None"
+        self.update_configuration(
+            imageSize = "None",
+            username = ("", self._set_username),
+            photoSetName = "",
+            showPublic = True
+        )
 
     # Helper methods
     def _get_user_quota(self):
@@ -272,100 +274,66 @@ class FlickrTwoWay(Image.ImageTwoWay):
         else:
             log.warn("Error deleting %s: doesnt exist" % LUID)
 
-    def configure(self, window):
-        """
-        Configures the Flickr sink
-        """
-        import gobject
-        import gtk
-        def on_login_finish(*args):
-            if self.logged_in:
-                build_photoset_model()
-            Utils.dialog_reset_cursor(dlg)
+    def config_setup(self, config):
+              
+        def _login_finished(*args):
+            try:
+                if self.logged_in:
+                    status_label.value = 'Loading album list...'
+                    try:
+                        #FIXME: Blocks and brings the whole UI with it.
+                        photosets = self._get_photosets()
+                    except:
+                        status_label.value = '<span foreground="red">Failed to connect.</span>'
+                    else:
+                        photoset_config.choices = [name for name, photoSetId in photosets]
+                        status_label.value = 'Album names loaded.'
+                else:
+                    #FIXME: The red color is pretty eye-candy, but might be too
+                    #distracting and unnecessary, we should re-evaluate it's 
+                    #usefulness
+                    status_label.value = '<span foreground="red">Failed to login.</span>'
+            finally:
+                load_photosets_config.enabled = True
                 
-        def on_response(sender, responseID):
-            if responseID == gtk.RESPONSE_OK:
-                self._set_username(username.get_text())
-                self.photoSetName = photosetCombo.get_active_text()
-                self.showPublic = publicCb.get_active()
-                self.imageSize = self._resize_combobox_get_active(resizecombobox)
-        
-        def load_click(button, window, usernameEntry):
-            self._set_username(usernameEntry.get_text())
-            Utils.dialog_set_busy_cursor(dlg)
+        def _load_photosets(button):
+            load_photosets_config.enabled = False
+            #FIXME: This applies the username value before OK/Apply is clicked, 
+            #we should do a better job
+            username_config.apply()
+            status_label.value = 'Logging in, please wait...'
             conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
-                                            self,
-                                            on_login_finish,
-                                            self._login)            
+                self, _login_finished, self._login)
 
-        def username_changed(entry, load_button):
-            load_button.set_sensitive (len(entry.get_text()) > 0)
-
-        def build_photoset_model():
-            photoset_store.clear()
-            photoset_count = 0
-            photoset_iter = None
-            for name, photoSetId in self._get_photosets():       
-                iter = photoset_store.append((name,))
-                if name == self.photoSetName:
-                    photoset_iter = iter
-                photoset_count += 1
-
-            if photoset_iter:
-                photosetCombo.set_active_iter(photoset_iter)
-            elif self.photoSetName:
-                photosetCombo.child.set_text(self.photoSetName)
-            elif photoset_count:
-                photosetCombo.set_active(0)
- 
-        #get a whole bunch of widgets
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade", 
-                        "FlickrTwoWayConfigDialog")
-        photosetCombo = tree.get_widget("photoset_combo")
-        publicCb = tree.get_widget("public_check")
-        username = tree.get_widget("username")
-        load_button = tree.get_widget('load_button')
-        ok_button = tree.get_widget('ok_button')
-        dlg = tree.get_widget("FlickrTwoWayConfigDialog")
-
-        resizecombobox = tree.get_widget("resizecombobox")
-        self._resize_combobox_build(resizecombobox, self.imageSize)
-
-        #signals
-        load_button.connect('clicked', load_click, window, username)
-        username.connect('changed', username_changed, load_button)
-        
-        #preload the widgets
-        publicCb.set_active(self.showPublic)
-        username.set_text(self.username)
-
-        #setup photoset combo
-        photoset_store = gtk.ListStore (gobject.TYPE_STRING)
-        photosetCombo.set_model(photoset_store)
-        cell = gtk.CellRendererText()
-        photosetCombo.pack_start(cell, True)
-        photosetCombo.set_text_column(0)
-
-        #disable photoset lookup if no username entered
-        enabled = len(self.username) > 0
-        load_button.set_sensitive(enabled)
-        
-        # run dialog 
-        Utils.run_dialog_non_blocking(dlg, on_response, window)
+        config.add_section('Account details')
+        username_config = config.add_item('Username', 'text',
+            config_name = 'username',
+        )
+        username_config.connect('value-changed',
+            lambda item, initial, value: load_photosets_config.set_enabled(bool(value)))
+        status_label = config.add_item('Status', 'label',
+            initial_value = self.status,
+            use_markup = True,
+        )
+        config.add_section('Saved photo settings')
+        load_photosets_config = config.add_item("Load photosets", "button",
+            initial_value = _load_photosets
+        )        
+        photoset_config = config.add_item('Photoset name', 'combotext',
+            config_name = 'photoSetName',
+            choices = [],
+        )
+        config.add_item("Resize photos", "combo",
+            choices = [("None", "Do not resize"), "640x480", "800x600", "1024x768"],
+            config_name = "imageSize"
+        )
+        config.add_item('Photos are public', 'check',
+            config_name = 'showPublic'
+        )
        
     def is_configured (self, isSource, isTwoWay):
         return len(self.username) > 0 and len(self.photoSetName) > 0
         
-    def get_configuration(self):
-        return {
-            "imageSize" : self.imageSize,
-            "username" : self.username,
-            "photoSetName" : self.photoSetName,
-            "showPublic" : self.showPublic
-            }
-
     def get_UID(self):
         return self.token
             

@@ -1,5 +1,12 @@
 2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
 
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FlickrModule/Makefile.am:
+	* conduit/modules/FlickrModule/config.glade:
+	Port to new config system.
+
+2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
+
 	* conduit/modules/FeedModule/FeedModule.py:
 	* conduit/modules/FeedModule/Makefile.am:
 	* conduit/modules/FeedModule/config.glade:
