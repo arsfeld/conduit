@@ -1,14 +1,14 @@
 # conduit's Portuguese translation
-# Copyright © 2008 conduit
+# Copyright © 2008, 2009 conduit
 # This file is distributed under the same license as the conduit package.
-# António Lima <amrlima@gmail.com>, 2008.
 #
+# António Lima <amrlima@gmail.com>, 2008, 2009.
 msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-11 23:08+0000\n"
-"PO-Revision-Date: 2008-10-29 22:02-0100\n"
+"POT-Creation-Date: 2009-02-23 00:20+0000\n"
+"PO-Revision-Date: 2009-01-27 23:01-0100\n"
 "Last-Translator: António Lima <amrlima@gmail.com>\n"
 "Language-Team: portuguese <gnome_pt@yahoogroups.com>\n"
 "MIME-Version: 1.0\n"
@@ -18,20 +18,12 @@ msgstr ""
 "X-Poedit-Country: PORTUGAL\n"
 
 #: ../data/conduit.desktop.in.in.h:1
-#: ../data/conduit-autostart.desktop.in.in.h:2
 msgid "Conduit Synchronizer"
 msgstr "Sincronizador Conduit"
 
 #: ../data/conduit.desktop.in.in.h:2
-#: ../data/conduit-autostart.desktop.in.in.h:3
 msgid "Synchronization for GNOME"
 msgstr "Sincronização para o GNOME"
-
-#. Translators: Translate this in derived classes.
-#: ../data/conduit-autostart.desktop.in.in.h:1
-#: ../conduit/modules/N800Module/N800Module.py:55
-msgid "Conduit"
-msgstr "Conduit"
 
 #: ../data/conduit.glade.h:1
 msgid "<b>Default Synchronization Options</b>"
@@ -174,62 +166,66 @@ msgid "Slow Synchronization"
 msgstr "Sincronização Lenta"
 
 #: ../data/conduit.glade.h:36
+msgid "Start Conduit at login"
+msgstr "Iniciar o Conduit ao iniciar uma sessão"
+
+#: ../data/conduit.glade.h:37
 msgid "Synchronization Options"
 msgstr "Opções de Sincronização"
 
-#: ../data/conduit.glade.h:37
+#: ../data/conduit.glade.h:38
 msgid "Synchronize All"
 msgstr "Sincronizar Tudo"
 
-#: ../data/conduit.glade.h:38
+#: ../data/conduit.glade.h:39
 msgid "Synchronize Group"
 msgstr "Sincronizar Grupo"
 
-#: ../data/conduit.glade.h:39
+#: ../data/conduit.glade.h:40
 msgid "Synchronize group"
 msgstr "Sincronizar grupo"
 
-#: ../data/conduit.glade.h:40
+#: ../data/conduit.glade.h:41
 msgid "Synchronizes all groups"
 msgstr "Sincronizar todos os grupos"
 
-#: ../data/conduit.glade.h:41
+#: ../data/conduit.glade.h:42
 msgid "Title"
 msgstr "Título"
 
-#: ../data/conduit.glade.h:42
+#: ../data/conduit.glade.h:43
 msgid "Two-Way Synchronization"
 msgstr "Sincronização Bi-Direccional"
 
-#: ../data/conduit.glade.h:43
+#: ../data/conduit.glade.h:44
 msgid "When an item has been deleted:"
 msgstr "Quando um item tiver sido eliminado:"
 
-#: ../data/conduit.glade.h:44
+#: ../data/conduit.glade.h:45
 msgid "When an item is deleted..."
 msgstr "Quando um item é eliminado..."
 
-#: ../data/conduit.glade.h:45
+#: ../data/conduit.glade.h:46
 msgid "When there is a conflict..."
 msgstr "Quando houver um conflito..."
 
-#: ../data/conduit.glade.h:46
+#: ../data/conduit.glade.h:47
 msgid "When there is a two-way conflict:"
 msgstr "Quando houver um conflito bi-direccional:"
 
-#: ../data/conduit.glade.h:47
+#: ../data/conduit.glade.h:48
 msgid "_Edit"
 msgstr "_Editar"
 
-#: ../data/conduit.glade.h:48
+#: ../data/conduit.glade.h:49
 msgid "_File"
 msgstr "_Ficheiro"
 
-#: ../data/conduit.glade.h:49
+#: ../data/conduit.glade.h:50
 msgid "_Help"
 msgstr "_Ajuda"
 
-#: ../conduit/gtkui/Canvas.py:149
+#: ../conduit/gtkui/Canvas.py:152
 msgid "Drag a Data Provider here to continue"
 msgstr "Arraste para aqui um Fornecedor de Dados para continuar"
 
@@ -256,74 +252,83 @@ msgid "Conflicts (%s)"
 msgstr "Conflitos (%s)"
 
 #. Build some liststores to display
-#: ../conduit/gtkui/UI.py:284
+#: ../conduit/gtkui/UI.py:321
 msgid "Convert from"
 msgstr "Converter a partir de"
 
-#: ../conduit/gtkui/UI.py:285
+#: ../conduit/gtkui/UI.py:322
 msgid "into"
 msgstr "para"
 
-#: ../conduit/gtkui/UI.py:336
+#: ../conduit/gtkui/UI.py:373
 msgid "Relationship Database"
 msgstr "Base de Dados de Relações"
 
-#: ../conduit/gtkui/UI.py:340
+#: ../conduit/gtkui/UI.py:377
 msgid "Conversions Available"
 msgstr "Conversões Disponíveis"
 
-#: ../conduit/gtkui/UI.py:346 ../conduit/gtkui/Tree.py:348
+#: ../conduit/gtkui/UI.py:383 ../conduit/gtkui/Tree.py:348
 #: ../conduit/modules/FileModule/FileConfiguration.py:105
 msgid "Name"
 msgstr "Nome"
 
-#: ../conduit/gtkui/UI.py:350
+#: ../conduit/gtkui/UI.py:387
 msgid "Loaded"
 msgstr "Carregado"
 
-#: ../conduit/gtkui/UI.py:462 ../conduit/hildonui/UI.py:127
+#: ../conduit/gtkui/UI.py:515 ../conduit/hildonui/UI.py:127
 msgid "Synchronization in progress. Do you want to cancel it?"
 msgstr "Sincronização em progresso. Deseja cancelar?"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:681
 msgid "_Synchronize All"
 msgstr "_Sincronizar Tudo"
 
-#: ../conduit/gtkui/UI.py:628
+#: ../conduit/gtkui/UI.py:681
 msgid "Synchronizes All Groups"
 msgstr "Sincronizar Todos os Grupos"
 
-#: ../conduit/gtkui/UI.py:629
+#: ../conduit/gtkui/UI.py:682
 msgid "_Cancel Synchronization"
 msgstr "_Cancelar Sincronização"
 
-#: ../conduit/gtkui/UI.py:629
+#: ../conduit/gtkui/UI.py:682
 msgid "Cancels Currently Synchronizing Groups"
 msgstr "Cancela os Grupos Actuais a Sincronizar"
 
-#: ../conduit/gtkui/UI.py:630
+#: ../conduit/gtkui/UI.py:683
 msgid "_Quit"
 msgstr "_Sair"
 
-#: ../conduit/gtkui/UI.py:630
+#: ../conduit/gtkui/UI.py:683
 msgid "Close Conduit"
 msgstr "Fechar o Conduit"
 
-#: ../conduit/gtkui/UI.py:670
+#: ../conduit/gtkui/UI.py:723
 msgid "Synchronization Error"
 msgstr "Erro de Sincronização"
 
-#: ../conduit/gtkui/UI.py:673
+#: ../conduit/gtkui/UI.py:726
 msgid "Synchronization Complete"
 msgstr "Sincronização Terminada"
 
-#: ../conduit/gtkui/UI.py:689
+#: ../conduit/gtkui/UI.py:742
 msgid "Synchronizing"
 msgstr "A Sincronizar"
 
 #: ../conduit/gtkui/Tree.py:357
 msgid "Description"
 msgstr "Descrição"
+
+#: ../conduit/gtkui/ConfigItems.py:685
+#, python-format
+msgid "Total: %d"
+msgstr "Total: %d"
+
+#: ../conduit/gtkui/WindowConfigurator.py:14
+msgid "Configure"
+msgstr "Configurar"
 
 #: ../conduit/dataproviders/DataProvider.py:19
 msgid "Ready"
@@ -370,8 +375,8 @@ msgid "Synchronization Conflict"
 msgstr "Conflito de Sincronização"
 
 #: ../conduit/dataproviders/DataProvider.py:30
-msgid "Not Configured Correctly"
-msgstr "Configurado Incorrectamente"
+msgid "Not Configured"
+msgstr "Não Configurado"
 
 #: ../conduit/modules/BackpackModule/BackpackModule.py:56
 msgid "Backpack Notes"
@@ -419,24 +424,20 @@ msgstr "Gravar notas na página:"
 msgid "Username:"
 msgstr "Nome de Utilizador:"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:33
+#: ../conduit/modules/BansheeModule/BansheeModule.py:51
 msgid "Banshee Playlists"
 msgstr "Listas de Reprodução do Banshee"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:34
+#: ../conduit/modules/BansheeModule/BansheeModule.py:52
 msgid "Synchronize your Banshee playlists"
 msgstr "Sincronizar as suas listas de reprodução do Banshee"
 
 #. column 1 is the tag name
-#: ../conduit/modules/BansheeModule/BansheeModule.py:141
-#: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
-msgid "Tag Name"
-msgstr "Nome de Etiqueta"
+#: ../conduit/modules/BansheeModule/BansheeModule.py:217
+msgid "Playlist Name"
+msgstr "Nome da Lista de Reprodução"
 
-#: ../conduit/modules/BansheeModule/BansheeModule.py:149
-#: ../conduit/modules/FspotModule/FspotModule.py:254
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
+#: ../conduit/modules/BansheeModule/BansheeModule.py:225
 msgid "Enabled"
 msgstr "Activado"
 
@@ -449,23 +450,12 @@ msgid "Banshee"
 msgstr "Banshee"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
 msgid "Box.net"
 msgstr "Box.net"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
 msgid "Synchronize your Box.net files"
 msgstr "Sincronizar os seus ficheiros Box.net"
-
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
-msgid "Folder:"
-msgstr "Pasta:"
-
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
-#: ../conduit/modules/FacebookModule/config.glade.h:3
-#: ../conduit/modules/FlickrModule/config.glade.h:4
-msgid "Load"
-msgstr "Carregar"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
 #, python-format
@@ -488,19 +478,19 @@ msgstr "Calendário do Evolution"
 msgid "Synchronize your calendar"
 msgstr "Sincronizar o seu calendário"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:256
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:260
 msgid "Evolution Tasks"
 msgstr "Tarefas do Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:257
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:261
 msgid "Synchronize your tasks"
 msgstr "Sincronizar as suas tarefas"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:313
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:317
 msgid "Evolution Memos"
 msgstr "Memos do Evolution"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:314
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:318
 msgid "Synchronize your memos"
 msgstr "Sincronizar os seus memos"
 
@@ -512,12 +502,12 @@ msgstr "Livro de Endereços:"
 msgid "Evolution"
 msgstr "Evolution"
 
-#: ../conduit/modules/FacebookModule/FacebookModule.py:37
+#: ../conduit/modules/FacebookModule/FacebookModule.py:38
 #: ../conduit/modules/FacebookModule/config.glade.h:2
 msgid "Facebook"
 msgstr "Facebook"
 
-#: ../conduit/modules/FacebookModule/FacebookModule.py:38
+#: ../conduit/modules/FacebookModule/FacebookModule.py:39
 msgid "Synchronize your Facebook photos"
 msgstr "Sincronizar as suas fotos do Facebook"
 
@@ -530,12 +520,17 @@ msgstr "Sincronizar as suas fotos do Facebook"
 msgid "Album:"
 msgstr "Álbum:"
 
-#: ../conduit/modules/FeedModule/FeedModule.py:57
+#: ../conduit/modules/FacebookModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr "Carregar"
+
+#: ../conduit/modules/FeedModule/FeedModule.py:58
 #: ../conduit/modules/FeedModule/config.glade.h:9
 msgid "RSS Feed"
 msgstr "Fontes RSS"
 
-#: ../conduit/modules/FeedModule/FeedModule.py:58
+#: ../conduit/modules/FeedModule/FeedModule.py:59
 msgid "Synchronize data from RSS enclosures"
 msgstr "Sincronizar dados de componentes RSS"
 
@@ -570,6 +565,10 @@ msgid ""
 msgstr ""
 "Limitar o Número de\n"
 "Componentes Transferidos para:"
+
+#: ../conduit/modules/FeedModule/config.glade.h:10
+msgid "Randomize Enclosures"
+msgstr "Tornar Fechos Aleatórios"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:99
 msgid "Icon"
@@ -699,7 +698,6 @@ msgid "Resize Photos:"
 msgstr "Redimensionar Fotos:"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:25
-#: ../conduit/modules/FspotModule/config.glade.h:3
 msgid "F-Spot"
 msgstr "F-Spot"
 
@@ -707,25 +705,25 @@ msgstr "F-Spot"
 msgid "Synchronize your F-Spot photos"
 msgstr "Sincronizar as suas fotos do F-Spot"
 
-#: ../conduit/modules/FspotModule/FspotModule.py:127
+#: ../conduit/modules/FspotModule/FspotModule.py:152
 msgid "F-Spot DBus interface is operating in read-only mode"
 msgstr "A interface DBus do F-Spot está a operar em modo só de leitura"
 
-#: ../conduit/modules/FspotModule/config.glade.h:1
-msgid "<b>Return Photos Tagged With</b>"
-msgstr "<b>Apresentar Fotos Etiquetadas Com</b>"
+#: ../conduit/modules/FspotModule/FspotModule.py:218
+msgid "F-Spot is running"
+msgstr "F-Spot encontra-se em execução"
 
-#: ../conduit/modules/FspotModule/config.glade.h:2
-msgid "Create Tags: "
-msgstr "Criar Etiquetas:"
+#: ../conduit/modules/FspotModule/FspotModule.py:219
+msgid "Please start F-Spot or activate the D-Bus Extension"
+msgstr "Inicie o F-Spot ou active a Extensão D-Bus"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:21
-msgid "GConf Settings"
-msgstr "Definições GConf"
+msgid "Application Settings"
+msgstr "Definições da Aplicação"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
-msgid "Synchronize your desktop preferences"
-msgstr "Sincronizar as suas preferências de ambiente trabalho"
+msgid "Synchronize your application settings"
+msgstr "Sincronizar as definições da aplicação"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:369
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
@@ -763,7 +761,7 @@ msgid "Synchronize your Google Documents"
 msgstr "Sincronizar os seus documentos do Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1338
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:67
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:69
 msgid "Unknown"
 msgstr "Desconhecido"
 
@@ -854,11 +852,11 @@ msgstr "Carregado pelo utilizador acima"
 msgid "YouTube Source"
 msgstr "Fonte do YouTube"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:650
+#: ../conduit/modules/iPodModule/iPodModule.py:735
 msgid "Encoding"
 msgstr "Codificação"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:756
+#: ../conduit/modules/iPodModule/iPodModule.py:867
 msgid "Keep converted files"
 msgstr "Manter ficheiros convertidos"
 
@@ -869,6 +867,11 @@ msgstr "<b>Codificação</b>"
 #: ../conduit/modules/iPodModule/config.glade.h:3
 msgid "iPod Photos"
 msgstr "Fotos do iPod"
+
+#. Translators: Translate this in derived classes.
+#: ../conduit/modules/N800Module/N800Module.py:55
+msgid "Conduit"
+msgstr "Conduit"
 
 #. Translators: Format string used to describe the acceptable formats the
 #. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
@@ -951,14 +954,6 @@ msgstr "Música do Rhythmbox"
 msgid "Synchronize songs from your Rhythmbox playlists"
 msgstr "Sincronizar músicas das suas listas de reprodução do Rhythmbox"
 
-#: ../conduit/modules/RhythmboxModule/config.glade.h:1
-msgid "<b>Synchronize the Following Playlists</b>"
-msgstr "<b>Sincronizar as Seguintes Listas de Reprodução</b>"
-
-#: ../conduit/modules/RhythmboxModule/config.glade.h:2
-msgid "Rhythmbox Playlists"
-msgstr "Listas de Reprodução do Rhythmbox"
-
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
 msgid "Shutterfly"
@@ -989,6 +984,35 @@ msgstr "Zoto"
 #: ../conduit/modules/ZotoModule/ZotoModule.py:155
 msgid "Synchronize your Zoto photos"
 msgstr "Sincronizar as suas fotos do Zoto"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:1
+msgid "Firefox"
+msgstr "Firefox"
+
+#: ../conduit/modules/Firefox3Module/config.glade.h:2
+msgid "Firefox Profile:"
+msgstr "Perfil Firefox:"
+
+#~ msgid "Folder:"
+#~ msgstr "Pasta:"
+
+#~ msgid "Tag Name"
+#~ msgstr "Nome de Etiqueta"
+
+#~ msgid "<b>Return Photos Tagged With</b>"
+#~ msgstr "<b>Apresentar Fotos Etiquetadas Com</b>"
+
+#~ msgid "Create Tags: "
+#~ msgstr "Criar Etiquetas:"
+
+#~ msgid "Synchronize your desktop preferences"
+#~ msgstr "Sincronizar as suas preferências de ambiente trabalho"
+
+#~ msgid "<b>Synchronize the Following Playlists</b>"
+#~ msgstr "<b>Sincronizar as Seguintes Listas de Reprodução</b>"
+
+#~ msgid "Rhythmbox Playlists"
+#~ msgstr "Listas de Reprodução do Rhythmbox"
 
 #~ msgid "Slow Sync"
 #~ msgstr "Sincronização Lenta"
