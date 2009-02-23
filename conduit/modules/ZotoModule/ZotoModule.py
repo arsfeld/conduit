@@ -159,9 +159,11 @@ class ZotoSink(Image.ImageTwoWay):
     
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
-        self.username = ""
-        self.password = ""
-        self.albumName = ""
+        self.update_configuration(
+            username = "",
+            password = "",
+            albumName = "",
+        )
         self.albumId = None
         self.sphotos = None
         self.zapi = None
@@ -237,43 +239,20 @@ class ZotoSink(Image.ImageTwoWay):
         
         return Rid(uid=fotoId)
 
-    def configure(self, window):
-        """
-        Configures the ZotoSink
-        """
-        widget = Utils.dataprovider_glade_get_widget(
-                __file__,
-                "zoto.glade",
-                "ZotoSinkConfigDialog")
-                
-        # Get configuration widgets
-        username = widget.get_widget("username")
-        password = widget.get_widget("password")
-        album = widget.get_widget("album")
-                
-        # Load the widgets with presets
-        username.set_text(self.username)
-        password.set_text(self.password)
-        album.set_text(self.albumName)
-                
-        dlg = widget.get_widget("ZotoSinkConfigDialog")
-        
-        response = Utils.run_dialog(dlg, window)
-                
-        if response == True:
-            self.username = username.get_text()
-            self.password = password.get_text()
-            self.albumName = album.get_text()
-                
-        dlg.destroy()
-        
-    def get_configuration(self):
-        return {
-                "username" : self.username, 
-                "password" : self.password, 
-                "albumName" : self.albumName
-                }
-        
+    def config_setup(self, config):
+        config.add_section('Account details')
+        config.add_item('Username', 'text',
+            config_name = 'username',
+        )
+        config.add_item('Password', 'text',
+            config_name = 'password',
+            password = True
+        )
+        config.add_section('Saved photo settings')
+        config.add_item('Album', 'text',
+            config_name = 'albumName',
+        )
+
     def is_configured(self, isSource, isTwoWay):
         if len(self.username) < 1:
             return False

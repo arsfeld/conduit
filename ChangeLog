@@ -1,5 +1,12 @@
 2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
 
+	* conduit/modules/ZotoModule/ZotoModule.py:
+	* conduit/modules/ZotoModule/zoto.glade:
+	* conduit/modules/ZotoModule/Makefile.am:
+	Port to new config system.
+
+2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
+
 	* conduit/gtkui/ConfigContainer.py:
 	Removed deprecated sets.Set (using set instead).
 	
