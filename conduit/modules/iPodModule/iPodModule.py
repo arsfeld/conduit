@@ -43,24 +43,21 @@ try:
             "iPodFactory" :         { "type":   "dataprovider-factory"  },
         }
         log.info("Module Information: %s" % Utils.get_module_information(gpod, 'version_info'))
-    MEDIATYPE_MUSICVIDEO = gpod.ITDB_MEDIATYPE_MUSICVIDEO
-    MEDIATYPE_MOVIE = gpod.ITDB_MEDIATYPE_MOVIE
-    MEDIATYPE_TVSHOW = gpod.ITDB_MEDIATYPE_TVSHOW
-    MEDIATYPE_AUDIO = gpod.ITDB_MEDIATYPE_AUDIO
-    MEDIATYPE_PODCAST = gpod.ITDB_MEDIATYPE_PODCAST
 except ImportError:
-    errormsg = "iPod support disabled"
+    errormsg = "iPod support disabled (python-gpod not availiable)"
 except locale.Error:
     errormsg = "iPod support disabled (Incorrect locale)"
 
 if errormsg:
     MODULES = {}
-    log.info(errormsg)
-    MEDIATYPE_MUSICVIDEO = 0
-    MEDIATYPE_MOVIE = 1
-    MEDIATYPE_TVSHOW = 2
-    MEDIATYPE_AUDIO = 3
-    MEDIATYPE_PODCAST = 4
+    log.warn(errormsg)
+    #Solve the initialization problem without gpod
+    class gpod():
+        ITDB_MEDIATYPE_MUSICVIDEO = 0
+        ITDB_MEDIATYPE_MOVIE = 1
+        ITDB_MEDIATYPE_TVSHOW = 2
+        ITDB_MEDIATYPE_AUDIO = 3
+        ITDB_MEDIATYPE_PODCAST = 4
 
 def _string_to_unqiue_file(txt, base_uri, prefix, postfix=''):
     for i in range(1, 10000):
@@ -674,10 +671,10 @@ class IPodVideo(IPodFileBase, Video.Video):
         
     def set_info_from_file(self, video):
         IPodFileBase.set_info_from_file(video)
-        self.track['mediatype'] = {'movie': MEDIATYPE_MOVIE,
-                                   'musicvideo': MEDIATYPE_MUSICVIDEO,
-                                   'tvshow': MEDIATYPE_TVSHOW,
-                                   'podcast': MEDIATYPE_PODCAST
+        self.track['mediatype'] = {'movie': gpod.ITDB_MEDIATYPE_MOVIE,
+                                   'musicvideo': gpod.ITDB_MEDIATYPE_MUSICVIDEO,
+                                   'tvshow': gpod.ITDB_MEDIATYPE_TVSHOW,
+                                   'podcast': gpod.ITDB_MEDIATYPE_PODCAST
                                    } [self.video_kind]
 
 class DBCache:
@@ -921,7 +918,7 @@ class IPodMusicTwoWay(IPodMediaTwoWay):
     _icon_ = "audio-x-generic"
     _configurable_ = True
 
-    _mediatype_ = (MEDIATYPE_AUDIO,)
+    _mediatype_ = (gpod.ITDB_MEDIATYPE_AUDIO,)
     _ipodmedia_ = IPodAudio
 
     def __init__(self, *args):
@@ -955,7 +952,7 @@ class IPodVideoTwoWay(IPodMediaTwoWay):
     _icon_ = "video-x-generic"
     _configurable_ = True
 
-    _mediatype_ = (MEDIATYPE_MUSICVIDEO, MEDIATYPE_MOVIE, MEDIATYPE_TVSHOW)
+    _mediatype_ = (gpod.ITDB_MEDIATYPE_MUSICVIDEO, gpod.ITDB_MEDIATYPE_MOVIE, gpod.ITDB_MEDIATYPE_TVSHOW)
     _ipodmedia_ = IPodVideo
 
     def __init__(self, *args):

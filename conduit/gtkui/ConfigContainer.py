@@ -7,15 +7,13 @@ Copyright: Alexandre Rosenfeld, 2009
 License: GPLv2
 '''
 
-import sys
-import sets
 import gobject
-import gtk, gtk.glade
+import gtk
+import gtk.glade
 import logging
 log = logging.getLogger("gtkui.ConfigContainer")
 
 from gettext import gettext as _ 
-import conduit
 import conduit.gtkui.ConfigItems as ConfigItems
 import conduit.Configurator as Configurator
 
@@ -63,7 +61,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         next time get_modified_items is called.
         '''
         if empty:
-            self.modified_items = sets.Set()
+            self.modified_items = set()
         else:
             self.modified_items = None
         
@@ -164,15 +162,15 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self.section.add_item(item)
         self._rebuild_widgets()
         return item
-        
+    
     def get_modified_items(self):
         '''
         Return a list of items that has been modified
         '''
         if self.modified_items is None:
-            self.modified_items = sets.Set([item for item in self.items if not item.is_initial_value()])
+            self.modified_items = set([item for item in self.items if not item.is_initial_value()])
         return self.modified_items
-                
+    
     def is_modified(self):
         '''
         Returns true if any item has been modified
@@ -206,7 +204,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         '''
         super(ConfigContainer, self).show()
         self.config_widget.show_all()
-        
+
     def apply_config(self, items = None, sections = None):
         '''
         Save the current configuration state to the dataprovider and to each 

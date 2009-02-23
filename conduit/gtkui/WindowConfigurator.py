@@ -30,11 +30,6 @@ class WindowConfigurator:
         self.showing = False
         self.built_configs = False
         
-        #self.dialogParent = window
-        #The dialog is loaded from a glade file
-        #gladeFile = os.path.join(conduit.SHARED_DATA_DIR, "conduit.glade")
-        #widgets = gtk.glade.XML(gladeFile, "DataProviderConfigDialog")
-
         self.dialog = gtk.Dialog(self.CONFIG_WINDOW_TITLE_TEXT,
                           window,
                           gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -47,17 +42,10 @@ class WindowConfigurator:
         self.dialog.set_has_separator(False)
         self.dialog.set_response_sensitive(gtk.RESPONSE_HELP, False)
         self.dialog.set_default_size(300, -1)
-        #self.dialog = widgets.get_widget("DataProviderConfigDialog")
-        #self.dialog.set_transient_for(self.dialogParent)
-        #self.dialog.set_title(WindowConfigurator.CONFIG_WINDOW_TITLE_TEXT)
-        #self.dialog.set_border_width(6)
         
-        #self.configVBox = widgets.get_widget("configVBox")
         self.dialog_box = self.dialog.vbox
-        
-        self.dialog_box.pack_start(self._make_config_widget())        
-        #self.configVBox.pack_start(self.conduit_config.get_config_widget())
-        self.dialog_box.show_all()        
+        self.dialog_box.pack_start(self._make_config_widget())
+        self.dialog_box.show_all()
         
         self.container_widgets = {}
         
@@ -78,25 +66,13 @@ class WindowConfigurator:
         self.built_containers = False
         
         self.containers = containers
-        #self.configVBox.hide()
-        #import threading
-        #log.debug("THREADS: %s" % threading.activeCount())
-        #if self.notebook:
-        #    self.configVBox.remove(self.notebook)
-        #self.notebook = gtk.Notebook()
-        #self.configVBox.pack_start(self.notebook)
-        
-        #self.notebook.show_all()
-        #self.configVBox.pack_start(self.config.get_config_widget())
         
     def _clear_containers(self):
         if self.NOTEBOOK:
-            #self.notebook.foreach(lambda widget: self.notebook.remove(widget))
             while self.notebook.get_n_pages() > 0:
                 self.notebook.remove_page(0)
             self.tabs = {}
         else:
-            #self.containers_box.foreach(lambda widget: self.containers_box.remove(widget))
             for container, widget in self.container_widgets.iteritems():
                 self.containers_box.remove(widget)
                 container_widget = container.get_config_widget()
@@ -125,7 +101,6 @@ class WindowConfigurator:
                 title_box.pack_start(lbl, False, False, 4)
                 title_box.show_all()
                 container_box.pack_start(title_box, False, False)
-            #config_widget = config.get_config_widget()
             container_box.pack_start(container_widget, True, True)
             container_box.pack_start(gtk.HSeparator(), False, False)
             self.containers_box.pack_start(container_box)
@@ -171,10 +146,7 @@ class WindowConfigurator:
             assert config_container in self.container_widgets
             for container, container_widget in self.container_widgets.iteritems():
                 if container != config_container:
-                    #log.debug("Hiding: %s" % container)
-                    container_widget.hide()       
-                    
-            #log.debug("Showing: %s" % config_container)         
+                    container_widget.hide()
             config_container.show()
             self.container_widgets[config_container].show()
             containers = [config_container]
@@ -185,13 +157,11 @@ class WindowConfigurator:
             containers = self.container_widgets.keys()
         if self.NOTEBOOK and config_container:
             self.notebook.set_current_page(self.tabs[config_container])
-        #self.dialog.show()
         self.dialog.reshow_with_initial_size()
         resp = self.dialog.run()
         for container in containers:
             container.hide()
         self.dialog.hide()
-        #self.dialog = None
         self.showing = False
         if resp == gtk.RESPONSE_OK:
             for container in containers:

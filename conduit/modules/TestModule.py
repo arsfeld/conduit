@@ -113,7 +113,7 @@ class TestEasyConfig(DataProvider.DataProviderBase):
         DataProvider.DataProviderBase.__init__(self)
         self.update_configuration(
             folder = ('', self._set_folder, lambda: self.folder),
-            checktest = 1,
+            checktest = "Choice 3",
             number = 0,
             items = [],
             password = '',
@@ -123,73 +123,76 @@ class TestEasyConfig(DataProvider.DataProviderBase):
         self.folder = f
         
     def config_setup(self, config):
-        config.add_section("Test1")
+        status_label = config.add_item("Status label", "label")
+        def status_changed(config, item):
+            status_label.value = "%s: %s" % (item.title, item.value)
+        config.connect("item-changed", status_changed)
+        
+        def change_label_callback(button_item):
+            status_label.value = text_config.value
+        text_config = config.add_item("Type some text", "text", initial_value = "Then click below")    
+        config.add_item("Change label", "button", initial_value = change_label_callback)
+        
+        config.add_section("Section")
         config.add_item("Select folder", "filebutton", order = 1,
             config_name = "folder",
             directory = True,
         )
+        #The next item shows most choice-based features.
         radio_config = config.add_item("Radio button test", "radio",
             config_name = "checktest",
-            choices = [(1, "Test 1"), (2, "Test 2"), (3, "Test 3")],
+            choices = [1, ("My value 2", "Choice 2"), "Choice 3"],
         )
-        config.add_section('Test2', order = 1)
-        config.add_section()
+        
+        #Defining a order prioritize sections. The grouping is done by sections
+        #of the same order, then on the order they were declared.
+        #So, even if this is declared here, because it has order 1, it will be
+        #below all other sections, which are order -1 by default.
+        #This allows for subclasses to put sections below or above it's parents
+        #sections.
+        config.add_section('Section', order = 1)
+        combo_config = config.add_item("Combo test", "combo",
+            initial_value = 0,
+            choices = [choice for choice in enumerate(["Choice %s" % i for i in range(5)])],
+        )
+        
         config.add_item("Number", "spin",
             config_name = "number",
             maximum = 100,
-        )        
-        config.add_section("Test1")
+        )
+
+        #These items will actually be added in "Section 1" defined above, 
+        #because by default it will look for existing sections with this title
+        section = config.add_section("Section")
         items_config = config.add_item("Items", "list",
             config_name = "items",
+            # The actual value returned from this list would be either True or
+            # False, but their text would be tst and tst2 respectively
             choices = [(True,"tst"), (False,"tst2")],
         )
         config.add_item("Password", "text",
             config_name = "password",
             password = True
         )
-        config.add_section("Test3", order = -1)
-        def radio_buttons_clicked(button):
-            #radio_config.set_choices([(1, 'TestI'), (2, 'TestII'), (3, 'TestIII')])
-            radio_config.set_value(2)
-            #radio_config.set_enabled(not items_config.enabled)
-            config.add_item("Radio buttons", "button",
-            initial_value = radio_buttons_clicked
-        )
+        
+        #use_existing allows for duplicate sections with the same title.
+        #By default, and prefereable, adding another with the same title, adds
+        #items to the existing section instead of creating a new one.
+        #Please keep in mind two sections with the same title is very confusing.
+        #config.add_section("Section 1", use_existing = False)
         def button_clicked(button):
-            items_config.set_choices(['Test1', 'Test2', 'Test3', 'Test4', 'Test5'])
-            items_config.set_enabled(not items_config.enabled)
-            config.add_section("Test1", use_existing = False)
-            config.add_item("Check values", "button",
+            #A list is smart enough to detect if choices contain tuples with
+            #values and labels, or just labels.
+            items_config.choices = ['Test1', 'Test2', 'Test3', 'Test4', 'Test5']
+            #items_config.enabled = not items_config.enabled
+            section.enabled = not section.enabled
+            
+        #Adding an empty section actually puts next items unidented in the
+        #configuration dialog, so it looks to be outside a section.
+        config.add_section()            
+        config.add_item("Disable section / Change choices", "button",
             initial_value = button_clicked
         )
-
-    '''
-    def get_configuration(self):            
-        return {'folder': self.folder,
-                'checktest': self.checktest,
-                'number': self.number,
-                'items': self.items,
-                'password': self.password}
-    
-    def set_configuration(self, values):
-        super(TestEasyConfig, self).set_configuration(values,
-            folder = str,
-            checktest = int,
-            number = int,
-            items = list,
-            password = str
-        )
-                if 'folder' in values:
-            self.folder = values['folder']
-        if 'checktest' in values:
-            self.checktest = values['checktest']
-        if 'number' in values:
-            self.number = values['number']
-        if 'items' in values:
-            self.items = values['items']
-        if 'password' in values:
-            self.password = values['password']
-        '''
 
 class _TestBase:
     _configurable_ = True

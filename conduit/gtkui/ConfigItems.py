@@ -5,15 +5,14 @@ Copyright: Alexandre Rosenfeld, 2009
 License: GPLv2
 """
 import sys
-import os.path
+
 import gobject
-import pango
-import gtk, gtk.glade
+import gtk
+import gtk.glade
 import logging
 log = logging.getLogger("gtkui.Config")
 
-from gettext import gettext as _ 
-import conduit
+from gettext import gettext as _
 
 class Error(Exception):
     """Base exception for all exceptions raised in this module."""
@@ -42,7 +41,7 @@ class Section(gobject.GObject):
             label.set_alignment(0.0, 0.5)
             label.set_use_markup(True)
             table.resize(row, 2)
-            table.attach(label, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.SHRINK, yoptions = 0 )
+            table.attach(label, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.SHRINK, yoptions = 0)
         for item in sorted(self.items, key = lambda item: item.order):
             row = item._attach(table, row, bool(self.title))
         return row
@@ -102,13 +101,13 @@ class ItemBase(gobject.GObject):
     __metaclass__ = ItemMeta
     
     __gsignals__ = {
-        'value-changed' : (gobject.SIGNAL_RUN_FIRST, None, [bool, object]),
+        'value-changed': (gobject.SIGNAL_RUN_FIRST, None, [bool, object]),
     }
     
-    def __init__(self, container, title, order, config_name=None, 
-            config_type=None, choices=[], needs_label=True, 
-            needs_space=False, initial_value=None, initial_value_callback=None,
-            save_callback=None, fill=False, enabled=True):
+    def __init__(self, container, title, order, config_name = None,
+        config_type = None, choices = [], needs_label = True,
+        needs_space = False, initial_value = None, initial_value_callback = None,
+        save_callback = None, fill = False, enabled = True):
         '''
         Creates a config item.
         
@@ -178,6 +177,26 @@ class ItemBase(gobject.GObject):
         #    self.emit('initial-state')
         self.emit('value-changed', self.is_initial_value(), self.value)
         
+    def _get_choices_labels(self):
+        for value, label in self._get_choices_all():
+            yield label
+        
+    def _get_choices_values(self):
+        for value, label in self._get_choices_all():
+            yield value
+        
+    def _get_choices_all(self):
+        try:
+            for choice in self.choices:
+                if isinstance(choice, tuple):
+                    if len(choice) != 2:
+                        raise ValueError
+                    yield choice
+                else:
+                    yield choice, str(choice)
+        except (ValueError, TypeError):
+            raise Error("Choices '%s' for '%s' is not valid, it should be a (value, label) list or a list of labels" % (self.choices, self.title))
+        
     def _build_choices(self):
         '''
         Implement this when you need to build the choices of a widget.
@@ -241,7 +260,7 @@ class ItemBase(gobject.GObject):
             table.attach(widget, 1, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)
         else:
             align.add(widget)
-            table.attach(align, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)    
+            table.attach(align, 0, 2, row - 1, row, xoptions = gtk.FILL | gtk.EXPAND, yoptions = yoptions)
         return row        
 
     def get_label(self):
@@ -263,7 +282,7 @@ class ItemBase(gobject.GObject):
         self.__label = label        
         
     label = property(lambda self: self.get_label(), 
-                     lambda self, v: self.set_label(v))        
+                     lambda self, v: self.set_label(v))
 
     def get_widget(self):
         '''
@@ -420,27 +439,29 @@ class ConfigButton(ItemBase):
     def __init__(self, *args, **kwargs):
         action = kwargs.pop('action', None)
         ItemBase.__init__(self, *args, **kwargs)
-        self.callback_id = None
         self.callback = None
         self.needs_space = kwargs.get('needs_space', True)
         self.needs_label = kwargs.get('needs_label', False)
         if action:
             self.initial_value = action
         self.read_only = True
+        
+    def _button_clicked(self, button_widget):
+        if self.callback:
+            self.callback(self)
     
     def _build_widget(self):
         self.widget = gtk.Button(self.title)
+        self.widget.connect("clicked", self._button_clicked)
         
     def _set_value(self, value):
-        if self.callback_id:
-            self.widget.disconnect(self.callback_id)
-        self.callback_id = None
-        self.callback = None
-        if not callable(value):
-            return None        
+        #if self.callback_id:
+        #    self.widget.disconnect(self.callback_id)
+        #self.callback_id = None
+        #self.callback = None
+        if value is not None and not callable(value):
+            raise Error("Button callback must be callable (%s is not)" % (value))
         self.callback = value
-        if self.callback:
-            self.callback_id = self.widget.connect("clicked", value)            
         
     def _get_value(self):
         return self.callback
@@ -450,7 +471,7 @@ class ConfigFileButton(ItemBase):
     
     def __init__(self, *args, **kwargs):
         self.directory = kwargs.pop('directory', False)
-        ItemBase.__init__(self, *args, **kwargs)        
+        ItemBase.__init__(self, *args, **kwargs)
         self._current_filename = None
     
     def _selection_changed(self, filechooser):
@@ -493,7 +514,7 @@ class ConfigRadio(ItemBase):
   
     def _build_choices(self):
         last_button = None
-        for value, text in self.choices:
+        for value, text in self._get_choices_all():
             last_button = gtk.RadioButton(last_button, text)
             last_button.connect("toggled", self._button_changed)
             last_button.show()
@@ -514,7 +535,7 @@ class ConfigRadio(ItemBase):
         if new_value in self.buttons:
             self.buttons[new_value].set_active(True)
         else:
-            log.warn("Value %s could not be applied to config %s" % (repr(self.title), new_value))
+            log.warn("Value %s could not be applied to config %s" % (new_value, self.title))
 
 class ConfigSpin(ItemBase):
     __item_name__ = 'spin'
@@ -541,21 +562,11 @@ class ConfigSpin(ItemBase):
             log.warn("Value %s could not be applied to config %s" % (repr(self.title), value))        
 
 class ConfigCombo(ItemBase):
-    '''
-    A box where the user can select one value from several
-    
-    The combo box takes as choices a list of tuples, with a value and a 
-    description. 
-    The value is what is returned by get_value and what should be set with 
-    set_value. The value can have any type.
-    The description is the text shown to the user.
-    '''
     __item_name__ = 'combo'
     
     def _build_choices(self):
-        if self.choices:
-            for value, text in self.choices:
-                self.widget.append_text(text)
+        for label in self._get_choices_labels():
+            self.widget.append_text(label)
     
     def _clear_choices(self):
         self.widget.get_model().clear()
@@ -568,17 +579,17 @@ class ConfigCombo(ItemBase):
     def _get_value(self):
         active = self.widget.get_active()
         if len(self.choices) > active and active >= 0:
-            return self.choices[active][0]
+            return [value for value in self._get_choices_values()][active]
         else:
-            log.warning("No value selected in combo")
+            log.warn("No value selected in combo")
             return None
     
     def _set_value(self, new_value):
-        for idx, (value, text) in enumerate(self.choices):
+        for idx, value in enumerate(self._get_choices_values()):
             if value == new_value:
                 self.widget.set_active(idx)
                 return
-        log.warn("%s not found in %s" % (new_value, self.title))
+        log.warn("Value %s not found in config %s" % (new_value, self.title))
         
 class ConfigComboText(ConfigCombo):
     __item_name__ = 'combotext'
@@ -599,7 +610,7 @@ class ConfigText(ItemBase):
     
     def __init__(self, password = False, **kwargs):
         self.password = password #kwargs.pop('password', False)
-        ItemBase.__init__(self, **kwargs)        
+        ItemBase.__init__(self, **kwargs)
     
     def _build_widget(self):
         self.widget = gtk.Entry()
@@ -634,19 +645,8 @@ class ConfigList(ItemBase):
         self._value_changed()
     
     def _build_choices(self):
-        try:
-            for choice in self.choices:
-                if isinstance(choice, tuple):
-                    if len(choice) != 2:
-                        raise ValueError
-                    value, label = choice
-                else:
-                    label = choice
-                #Set's the list text and initial (unchecked) value, it will be
-                #checked or unchecked later by set_value
-                self.model.append((str(label), False))
-        except (ValueError, TypeError):
-            raise Error("Choices is not valid, it should be a (value, label) list or a list of labels (%s is not)" % self.choices)
+        for label in self._get_choices_labels():
+            self.model.append((str(label), False))
 
     def _clear_choices(self):
         self.model.clear()
@@ -669,12 +669,12 @@ class ConfigList(ItemBase):
         self.list.set_model(self.model)        
         check_renderer = gtk.CellRendererToggle()
         check_renderer.set_property('activatable', True)
-        check_renderer.connect( 'toggled', self._cellcheck_cb, self.model )
+        check_renderer.connect('toggled', self._cellcheck_cb, self.model)
         #FIXME: We could probably support more columns, maybe by automatically
         # detecting if choices include tuples, and which types are inside the 
         # tuple.
-        self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active=1))                    
-        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text=0))   
+        self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active = 1))
+        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text = 0))
         self._clear_choices()  
         self._build_choices()
         self.scrolled_window.add(self.list)
@@ -698,7 +698,7 @@ class ConfigList(ItemBase):
                 if row[1]:
                     self._checked_items.append(row[0])
         except:
-            log.warn("Value %s could not be applied to config %s" % (value, repr(self.title)))
+            log.warn("Value %s could not be added to list %s" % (value, repr(self.title)))
         self._update_total()
 
 class ConfigCheckBox(ItemBase):

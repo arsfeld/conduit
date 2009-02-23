@@ -1,3 +1,27 @@
+2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/gtkui/ConfigContainer.py:
+	Removed deprecated sets.Set (using set instead).
+	
+	* conduit/gtkui/ConfigItems.py:
+	Added better support for choices handling, which
+	is used by all choices-based items. Now it is
+	possible to use a list of strings to all choice
+	based items, instead of the (value, label) list.
+	Better button callback handling. The button item
+	is now the parameter to the callback (instead of
+	the button widget).
+	
+	* conduit/gtkui/WindowConfigurator.py:
+	Removed unnecessary comments.
+	
+	* conduit/modules/TestModule.py:
+	Added more configuration items examples and added
+	comments explaining them.
+	
+	* conduit/modules/iPodModule/iPodModule.py:
+	Changes to the case where gpod cannot be loaded.
+
 2009-02-22  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
