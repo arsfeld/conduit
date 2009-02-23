@@ -1,5 +1,12 @@
 2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
 
+	* conduit/modules/FeedModule/FeedModule.py:
+	* conduit/modules/FeedModule/Makefile.am:
+	* conduit/modules/FeedModule/config.glade:
+	Port to new config system.
+
+2009-02-23  Alexandre Rosenfeld  <airmind@gmail.com>
+
 	* conduit/modules/EvolutionModule/EvolutionModule.py:
 	* conduit/modules/EvolutionModule/Makefile.am:
 	* conduit/modules/EvolutionModule/config.glade:
