@@ -6,7 +6,7 @@ test = SimpleSyncTest()
 
 #Setup the key to sync
 gconf = test.get_dataprovider("GConfTwoWay")
-gconf.module.whitelist = ['/apps/metacity/general/num_workspaces']
+gconf.module.sections = ['/apps/metacity/general/num_workspaces']
 folder = test.get_dataprovider("TestFolderTwoWay")
 
 test.prepare(gconf, folder)

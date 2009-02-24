@@ -27,29 +27,28 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     _icon_ = "preferences-desktop"
     _configurable_ = True
     
-    WHITELIST = {
-        "Metacity"  :   ('/apps/metacity/*',),
-        "Nautilus"  :   ('/apps/nautilus/*',),
-        "Preferred Applications"   :   ('/desktop/gnome/applications/*'),
-        "Desktop Interface" :   ('/desktop/gnome/interface/*',)
-    }
+    WHITELIST = (
+        ("Metacity",                "/apps/metacity/*"),
+        ("Nautilus",                "/apps/nautilus/*"),
+        ("Preferred Applications",  "/desktop/gnome/applications/*"),
+        ("Desktop Interface",       "/desktop/gnome/interface/*")
+    )
 
     def __init__(self, *args):
         DataProvider.TwoWay.__init__(self)
         AutoSync.AutoSync.__init__(self)
-
-        self.sections = []
+        self.update_configuration(
+            sections = []
+        )
         self.awaitingChanges = {}
-
         self.gconf = gconf.client_get_default()
         self.gconf.add_dir('/', gconf.CLIENT_PRELOAD_NONE)
         self.gconf.notify_add('/', self._on_change)
 
     def _in_the_list(self, key):
-        for section in self.sections:
-            for pattern in self.WHITELIST[section]:
-                if fnmatch.fnmatch(key, pattern):
-                    return True
+        for pattern in self.sections:
+            if fnmatch.fnmatch(key, pattern):
+                return True
         return False
 
     def _get_all(self, path):
@@ -133,36 +132,20 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                 #the change wasnt from us
                 self.handle_modified(entry.key)
 
-    def is_configured(self, isSource, isTwoWay):
-        return len(self.sections) > 0
-
-    def configure( self, window ):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        sections = []
-        def check_active(active, sectionName):
-            if active:
-                sections.append(sectionName)
-    
-        items = []
-        for n in self.WHITELIST:
-            item = {
-                "Name" : "%s Settings" % n,
-                "Kind" : "check",
-                "Callback" : check_active,
-                "InitialValue" : n in self.sections,
-                "UserData" : (n,)
-            }
-            items.append(item)
-        dialog = SimpleConfigurator.SimpleConfigurator(window, "Applications to Synchronize", items)
-        if dialog.run():
-            self.sections = sections
+    def config_setup(self, config):
+        config.add_section(_("Applications to Synchronize"))
+        items_config = config.add_item("Items", "list",
+            config_name = "sections",
+            choices = [(path, name) for name, path in self.WHITELIST]
+        )
 
     def get_all(self):
         """ loop through all gconf keys and see which ones match our whitelist """
         DataProvider.TwoWay.get_all(self)
-        return self._get_all("/")
+        if self.sections:
+            return self._get_all("/")
+        else:
+            return []
 
     def get(self, uid):
         """ Get a Setting object based on UID (key path) """
@@ -177,9 +160,6 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
                         )
         s.set_UID(uid)
         return s
-        
-    def get_configuration(self):
-        return {"sections" : self.sections}
         
     def put(self, setting, overwrite, uid=None):
         DataProvider.TwoWay.put(self, setting, overwrite, uid)
