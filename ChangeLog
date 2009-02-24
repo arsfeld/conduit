@@ -1,5 +1,12 @@
 2009-02-25  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/Firefox3Module/Firefox3Module.py:
+	* conduit/modules/Firefox3Module/Makefile.am:
+	* conduit/modules/Firefox3Module/config.glade:
+	Port to new config system.
+
+2009-02-25  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/GConfModule/GConfModule.py:
 	* test/python-tests/TestSyncGConfFolder.py:
 	Port to new config system.
