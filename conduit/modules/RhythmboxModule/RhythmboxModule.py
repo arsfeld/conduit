@@ -86,11 +86,9 @@ class RhythmboxSource(DataProvider.DataSource):
                             temp_name = value
 
                 if is_static: # new playlist found
-                    #print name,value,temp_name
                     playlist_name = temp_name
                     songs = []
                     playlists.append( [playlist_name, songs] )
-                    
 
             #Text that precedes all child elements (may be None)
             if element.text:

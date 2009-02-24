@@ -626,27 +626,30 @@ class ConfigText(ItemBase):
 class ConfigList(ItemBase):
     __item_name__ = 'list'
     
+    CHECKED_COLUMN, LABEL_COLUMN, VALUE_COLUMN = range(3)
+    
     def __init__(self, *args, **kwargs):
         ItemBase.__init__(self, *args, **kwargs)
         self.needs_label = kwargs.get('needs_label', False)
         if self.initial_value:
-            #FIXME: Sorted should be optional
             try:
                 self.initial_value = sorted(self.initial_value)
             except TypeError:
                 raise Error("List only supports iterables as value (%s is not)" % (self.initial_value))
         self.fill = kwargs.get('fill', True)
         self._checked_items = None
-        self.model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_BOOLEAN)
+        self.model = gtk.ListStore(gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, object)
     
     def _cellcheck_cb(self, cell, path, model):
-        model[path][1] = not cell.get_active()
+        model[path][self.CHECKED_COLUMN] = not cell.get_active()
+        #FIXME: Use _checked_items here too, so it's faster to get the values
+        #But we should take care that this list must be always sorted
         self._checked_items = None        
         self._value_changed()
     
     def _build_choices(self):
-        for label in self._get_choices_labels():
-            self.model.append((str(label), False))
+        for value, label in self._get_choices_all():
+            self.model.append((False, str(label), value))
 
     def _clear_choices(self):
         self.model.clear()
@@ -673,8 +676,8 @@ class ConfigList(ItemBase):
         #FIXME: We could probably support more columns, maybe by automatically
         # detecting if choices include tuples, and which types are inside the 
         # tuple.
-        self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active = 1))
-        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text = 0))
+        self.list.append_column(gtk.TreeViewColumn("Enabled", check_renderer, active = self.CHECKED_COLUMN))
+        self.list.append_column(gtk.TreeViewColumn("Label", gtk.CellRendererText(), text = self.LABEL_COLUMN))
         self._clear_choices()  
         self._build_choices()
         self.scrolled_window.add(self.list)
@@ -686,17 +689,17 @@ class ConfigList(ItemBase):
     
     def _get_value(self):
         if not self._checked_items:
-            self._checked_items = sorted([row[0] for row in self.model if row[1]])
-            self._update_total()
+            self._checked_items = sorted([row[self.VALUE_COLUMN] for row in self.model if row[self.CHECKED_COLUMN]])
+            #self._update_total()
         return self._checked_items
     
     def _set_value(self, value):
         self._checked_items = []
         try:
             for row in self.model:
-                row[1] = (row[0] in value)
-                if row[1]:
-                    self._checked_items.append(row[0])
+                row[self.CHECKED_COLUMN] = (row[self.VALUE_COLUMN] in value)
+                if row[self.CHECKED_COLUMN]:
+                    self._checked_items.append(row[self.VALUE_COLUMN])
         except:
             log.warn("Value %s could not be added to list %s" % (value, repr(self.title)))
         self._update_total()
