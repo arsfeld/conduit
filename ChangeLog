@@ -1,3 +1,8 @@
+2009-02-24  Alexandre Rosenfeld  <airmind@gmail.com>
+
+	* conduit/modules/TestModule.py:
+	Make it not crash the save settings code.
+
 2009-02-25  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/EvolutionModule/EvolutionModule.py:

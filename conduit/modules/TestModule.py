@@ -168,7 +168,7 @@ class TestEasyConfig(DataProvider.DataProviderBase):
             config_name = "items",
             # The actual value returned from this list would be either True or
             # False, but their text would be tst and tst2 respectively
-            choices = [(1, "Item with value 1"), (2,"Item with value 2"), 3],
+            choices = [("Value 1", "Item with value 1"), ("Value 2","Item with value 2"), "Value 3"],
         )
         config.add_item("Password", "text",
             config_name = "password",
