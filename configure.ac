@@ -30,13 +30,28 @@ AM_PATH_PYTHON(2.4)
 FILE_IMPL="GIO"
 
 AC_ARG_WITH([file_impl],
-            AC_HELP_STRING([--with-file-impl], [GIO, GnomeVfs, Python]))
+            AC_HELP_STRING([--with-file-impl], [GIO (default), GnomeVfs, Python]))
 
 if test "$with_file_impl" = "GnomeVfs" || test "$with_file_impl" = "Python" ; then
 	FILE_IMPL=$with_file_impl
 fi
 
 AC_SUBST(FILE_IMPL)
+
+################################################################################
+# Browser Implementation
+################################################################################
+BROWSER_IMPL="webkit"
+
+AC_ARG_WITH([browser_impl],
+            AC_HELP_STRING([--with-browser-impl], [webkit (default), gtkmozembed, system]))
+if test "$with_browser_impl" = "webkit" || 
+   test "$with_browser_impl" = "gtkmozembed" || 
+   test "$with_browser_impl" = "system"; then
+        BROWSER_IMPL=$with_browser_impl
+fi
+
+AC_SUBST(BROWSER_IMPL)
 
 ################################################################################
 # Check for neccessary python modules (that dont install pc files)
@@ -232,6 +247,7 @@ echo $PACKAGE v$VERSION
 echo
 echo Prefix............... : $prefix
 echo File Implementation.. : $FILE_IMPL
+echo Browser Implementation: $BROWSER_IMPL
 echo Dbus Services Dir.... : $DBUS_SERVICES_DIR
 echo Nautilus Extension... : $enable_nautilus_extension
 echo EOG Plugin........... : $enable_eog_plugin

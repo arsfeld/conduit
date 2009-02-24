@@ -1,3 +1,11 @@
+2009-02-24  Andrew Stormont  <andy@andys-desktop>
+
+        First commit!
+
+	* conduit/defs.py.in:
+	* configure.ac:
+        Adds --with-browser-impl configure option.
+
 2009-02-24  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/modules/TestModule.py:

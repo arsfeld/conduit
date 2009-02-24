@@ -15,7 +15,7 @@ DESKTOP_FILE_DIR = "@DESKTOPFILEDIR@"
 FILE_IMPL = "@FILE_IMPL@"
 
 #{gtkmozembed, webkit, system}
-BROWSER_IMPL = "webkit"
+BROWSER_IMPL = "@BROWSER_IMPL@"
 
 #{GConf,Python}
 SETTINGS_IMPL = "GConf"
