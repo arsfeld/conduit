@@ -23,6 +23,9 @@ try:
                 "EvoMemoTwoWay"     : { "type": "dataprovider" },
         }
         log.info("Module Information: %s" % Utils.get_module_information(evolution, '__version__'))
+    if evolution.__version__ <= (2,2,2):
+        #Work around bug #561354
+        import bonobo
 except ImportError:
     log.info("Evolution support disabled")
 

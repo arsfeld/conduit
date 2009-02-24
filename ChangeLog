@@ -1,3 +1,14 @@
+2009-02-25  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	Import bonobo, causing bonobo_init() to be called,
+	working around an e-d-s policy of lazy initializing
+	bonobo on the first call. In our case this call 
+	happened from the non Gtk+ thread, causing a 
+	hang. The workaround has been incorporated upstream
+	so is only necessary for older gnome-python-desktop versions.
+	Fixes #561354
+
 2009-02-24  Alexandre Rosenfeld  <airmind@gmail.com>
 
 	* conduit/gtkui/ConfigItems.py:
