@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: conduit.HEAD\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=conduit&component=general\n"
-"POT-Creation-Date: 2009-01-30 03:28+0000\n"
-"PO-Revision-Date: 2009-02-01 12:27+0100\n"
+"POT-Creation-Date: 2009-02-22 10:22+0000\n"
+"PO-Revision-Date: 2009-02-24 08:43+0100\n"
 "Last-Translator: Jorge González <jorgegonz@svn.gnome.org>\n"
 "Language-Team: Español <gnome-es-list@gnome.org>\n"
 "MIME-Version: 1.0\n"
@@ -226,7 +226,7 @@ msgstr "_Archivo"
 msgid "_Help"
 msgstr "Ay_uda"
 
-#: ../conduit/gtkui/Canvas.py:150
+#: ../conduit/gtkui/Canvas.py:152
 msgid "Drag a Data Provider here to continue"
 msgstr "Suelte aquí el proveedor de datos para continuar"
 
@@ -321,6 +321,16 @@ msgstr "Sincronizando"
 #: ../conduit/gtkui/Tree.py:357
 msgid "Description"
 msgstr "Descripción"
+
+#: ../conduit/gtkui/ConfigItems.py:685
+#, python-format
+msgid "Total: %d"
+msgstr "Total: %d"
+
+#: ../conduit/gtkui/WindowConfigurator.py:14
+#| msgid "Configure Item"
+msgid "Configure"
+msgstr "Configurar"
 
 #: ../conduit/dataproviders/DataProvider.py:19
 msgid "Ready"
@@ -430,8 +440,6 @@ msgid "Playlist Name"
 msgstr "Nombre de la lista de reproducción"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:225
-#: ../conduit/modules/FspotModule/FspotModule.py:254
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
 msgid "Enabled"
 msgstr "Activado"
 
@@ -444,23 +452,12 @@ msgid "Banshee"
 msgstr "Banshee"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
 msgid "Box.net"
 msgstr "Box.net"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:30
 msgid "Synchronize your Box.net files"
 msgstr "Sincronizar sus archivos Box.net"
-
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
-msgid "Folder:"
-msgstr "Carpeta:"
-
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
-#: ../conduit/modules/FacebookModule/config.glade.h:3
-#: ../conduit/modules/FlickrModule/config.glade.h:4
-msgid "Load"
-msgstr "Cargar"
 
 #: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
 #, python-format
@@ -524,6 +521,11 @@ msgstr "Sincronice sus fotos en Facebook"
 #: ../conduit/modules/ZotoModule/zoto.glade.h:3
 msgid "Album:"
 msgstr "Álbum:"
+
+#: ../conduit/modules/FacebookModule/config.glade.h:3
+#: ../conduit/modules/FlickrModule/config.glade.h:4
+msgid "Load"
+msgstr "Cargar"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:58
 #: ../conduit/modules/FeedModule/config.glade.h:9
@@ -698,7 +700,6 @@ msgid "Resize Photos:"
 msgstr "Redimensionar fotos:"
 
 #: ../conduit/modules/FspotModule/FspotModule.py:25
-#: ../conduit/modules/FspotModule/config.glade.h:3
 msgid "F-Spot"
 msgstr "F-Spot"
 
@@ -706,31 +707,23 @@ msgstr "F-Spot"
 msgid "Synchronize your F-Spot photos"
 msgstr "Sincronizar sus fotos en F-Spot"
 
-#: ../conduit/modules/FspotModule/FspotModule.py:127
+#: ../conduit/modules/FspotModule/FspotModule.py:152
 msgid "F-Spot DBus interface is operating in read-only mode"
 msgstr "La interfaz DBus de F-Spot está funcionando en modo de sólo lectura"
 
-#. column 1 is the tag name
-#: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
-msgid "Tag Name"
-msgstr "Nombre de la etiqueta"
+#: ../conduit/modules/FspotModule/FspotModule.py:218
+msgid "F-Spot is running"
+msgstr "F-Spot se está ejecutando"
 
-#: ../conduit/modules/FspotModule/config.glade.h:1
-msgid "<b>Return Photos Tagged With</b>"
-msgstr "<b>Devolver fotos etiquetadas con</b>"
-
-#: ../conduit/modules/FspotModule/config.glade.h:2
-msgid "Create Tags: "
-msgstr "Crear etiquetas: "
+#: ../conduit/modules/FspotModule/FspotModule.py:219
+msgid "Please start F-Spot or activate the D-Bus Extension"
+msgstr "Inicie F-Spot para activar la extensión D-Bus"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:21
-#| msgid "GConf Settings"
 msgid "Application Settings"
 msgstr "Configuración de aplicaciones"
 
 #: ../conduit/modules/GConfModule/GConfModule.py:22
-#| msgid "Synchronize your contacts"
 msgid "Synchronize your application settings"
 msgstr "Sincronizar los ajustes de sus aplicaciones"
 
@@ -770,7 +763,7 @@ msgid "Synchronize your Google Documents"
 msgstr "Sincronizar sus documentos de Google"
 
 #: ../conduit/modules/GoogleModule/GoogleModule.py:1338
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:67
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:69
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -861,11 +854,11 @@ msgstr "Subido por el usuario de encima"
 msgid "YouTube Source"
 msgstr "Fuente YouTube"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:663
+#: ../conduit/modules/iPodModule/iPodModule.py:735
 msgid "Encoding"
 msgstr "Codificación"
 
-#: ../conduit/modules/iPodModule/iPodModule.py:769
+#: ../conduit/modules/iPodModule/iPodModule.py:867
 msgid "Keep converted files"
 msgstr "Mantener archivos convertidos"
 
@@ -963,14 +956,6 @@ msgstr "Música de Rhythmbox"
 msgid "Synchronize songs from your Rhythmbox playlists"
 msgstr "Sincronizr las canciones de sus listas de reproducción de Rhythmbox"
 
-#: ../conduit/modules/RhythmboxModule/config.glade.h:1
-msgid "<b>Synchronize the Following Playlists</b>"
-msgstr "<b>Sincronizar las siguientes listas de reproducción</b>"
-
-#: ../conduit/modules/RhythmboxModule/config.glade.h:2
-msgid "Rhythmbox Playlists"
-msgstr "Listas de reproducción de Rhythmbox"
-
 #: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
 msgid "Shutterfly"
@@ -1009,6 +994,24 @@ msgstr "Firefox"
 #: ../conduit/modules/Firefox3Module/config.glade.h:2
 msgid "Firefox Profile:"
 msgstr "Perfil de Firefox:"
+
+#~ msgid "Folder:"
+#~ msgstr "Carpeta:"
+
+#~ msgid "Tag Name"
+#~ msgstr "Nombre de la etiqueta"
+
+#~ msgid "<b>Return Photos Tagged With</b>"
+#~ msgstr "<b>Devolver fotos etiquetadas con</b>"
+
+#~ msgid "Create Tags: "
+#~ msgstr "Crear etiquetas: "
+
+#~ msgid "<b>Synchronize the Following Playlists</b>"
+#~ msgstr "<b>Sincronizar las siguientes listas de reproducción</b>"
+
+#~ msgid "Rhythmbox Playlists"
+#~ msgstr "Listas de reproducción de Rhythmbox"
 
 #~ msgid "Synchronize your desktop preferences"
 #~ msgstr "Sincronizar sus preferencias del escritorio"
