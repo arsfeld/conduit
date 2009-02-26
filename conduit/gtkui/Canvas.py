@@ -771,7 +771,7 @@ class DataProviderCanvasItem(_CanvasItem):
     WIDGET_HEIGHT = 50
     IMAGE_TO_TEXT_PADDING = 5
     PENDING_MESSAGE = "Pending"
-    MAX_TEXT_LENGTH = 10
+    MAX_TEXT_LENGTH = 8
     MAX_TEXT_LINES = 2
     LINE_WIDTH = 2.0
 

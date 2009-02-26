@@ -1,3 +1,13 @@
+2009-02-27  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/gtkui/Canvas.py: Ellipsize text 
+	a bit better.
+
+	* conduit/modules/iPodModule/Makefile.am:
+	* conduit/modules/iPodModule/config.glade:
+	* conduit/modules/iPodModule/iPodModule.py:
+	Port to new config system.
+
 2009-02-25  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/modules/Firefox3Module/Firefox3Module.py:

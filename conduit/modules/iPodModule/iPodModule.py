@@ -383,8 +383,10 @@ class IPodPhotoSink(IPodBase):
     def __init__(self, *args):
         IPodBase.__init__(self, *args)
         self.db = gpod.PhotoDatabase(self.mountPoint)
-        self.albumName = "Conduit"
         self.album = None
+        self.update_configuration(
+            albumName = "Conduit"
+        )
 
     def _set_sysinfo(self, modelnumstr, model):
         gpod.itdb_device_set_sysinfo(self.db._itdb.device, modelnumstr, model)
@@ -417,10 +419,11 @@ class IPodPhotoSink(IPodBase):
         if albumName == self.SAFE_PHOTO_ALBUM:
             log.warn("Cannot delete album: %s" % self.SAFE_PHOTO_ALBUM)
         else:
-            album = self._get_photo_album(albumName)
-            for photo in album[:]:
-                album.remove(photo)
-            self.db.remove(album)
+            for album in self.db.PhotoAlbums:
+                if album.name == albumName:
+                    for photo in album[:]:
+                        album.remove(photo)
+                    self.db.remove(album)
 
     def _empty_all_photos(self):
         for photo in self.db.PhotoAlbums[0][:]:
@@ -454,61 +457,20 @@ class IPodPhotoSink(IPodBase):
             self.db.remove(photo)
             gpod.itdb_photodb_write(self.db._itdb, None)
 
-    def configure(self, window):
-        import gobject
-        import gtk
-        def build_album_model(albumCombo):
-            self.album_store.clear()
-            album_count = 0
-            album_iter = None
-            for name in self._get_photo_albums():
-                iter = self.album_store.append((name,))
-                if name == self.albumName:
-                    album_iter = iter
-                album_count += 1
+    def config_setup(self, config):
 
-            if album_iter:
-                albumCombo.set_active_iter(album_iter)
-            elif self.albumName:
-                albumCombo.child.set_text(self.albumName)
-            elif album_count:
-                albumCombo.set_active(0)
+        def _delete_click(button):
+            self._delete_album(album_config.get_value())
+            album_config.choices = self._get_photo_albums()
 
-        def delete_click(sender, albumCombo):
-            albumName = albumCombo.get_active_text()
-            if albumName:
-                self._delete_album(albumName)
-                build_album_model(albumCombo)
+        album_config = config.add_item('Album', 'combotext',
+            config_name = 'albumName',
+            choices = self._get_photo_albums(),
+        )
+        config.add_item("Delete", "button",
+            initial_value = _delete_click
+        )    
 
-        #get a whole bunch of widgets
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__,
-                        "config.glade",
-                        "PhotoConfigDialog")
-        albumCombo = tree.get_widget("album_combobox")
-        delete_button = tree.get_widget("delete_button")
-
-        #setup album store
-        self.album_store = gtk.ListStore(gobject.TYPE_STRING)
-        albumCombo.set_model(self.album_store)
-        cell = gtk.CellRendererText()
-        albumCombo.pack_start(cell, True)
-        albumCombo.set_text_column(0)
-
-        #setup widgets
-        build_album_model(albumCombo)
-        delete_button.connect('clicked', delete_click, albumCombo)
-
-        # run dialog
-        dlg = tree.get_widget("PhotoConfigDialog")
-        response = Utils.run_dialog(dlg, window)
-
-        if response == True:
-            #get the values from the widgets
-            self.albumName = albumCombo.get_active_text()
-        dlg.destroy()
-
-        del self.album_store
 
     def is_configured (self, isSource, isTwoWay):
         return len(self.albumName) > 0
@@ -835,54 +797,19 @@ class IPodMediaTwoWay(IPodBase):
             finally:
                 self.unlock_db()
 
-    def get_config_items(self):
-        import gtk
+    def config_setup(self, config):
         #Get an array of encodings, so it can be indexed inside a combobox
-        self.config_encodings = tuple(self.encodings.iteritems())
-        initial_enc = None
-        for (encoding_name, encoding_opts) in self.config_encodings:
-            if encoding_name == self.encoding:
-                initial_enc = encoding_opts.get('description', None) or encoding_name
-
-        def selectEnc(index, text):
-            self.encoding = self.config_encodings[index][0]
-            log.debug('Encoding %s selected' % self.encoding)
+        encodings = [(enc_name, enc_opts.get('description', None) or enc_name)
+                      for enc_name, enc_opts in self.encodings.iteritems()]
         
-        def selectKeep(value):
-            self.keep_converted = value
-            log.debug("Keep converted selected: %s" % (value))
-        
-        return [
-                    {
-                    "Name" : self.FORMAT_CONVERSION_STRING,
-                    "Kind" : "list",
-                    "Callback" : selectEnc,
-                    "Values" : [enc_opts.get('description', None) or enc_name for enc_name, enc_opts in self.config_encodings],
-                    "InitialValue" : initial_enc
-                    },
-                    
-                    {"Name" : _("Keep converted files"),
-                     "Kind" : "check",
-                     "Callback" : selectKeep,
-                     "InitialValue" : self.keep_converted
-                    },
-                ]        
-
-    def configure(self, window):
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, self.get_config_items())
-        dialog.run()
-
-    def set_configuration(self, config):
-        if 'encoding' in config:
-            self.encoding = config['encoding']
-        if 'keep_converted' in config:
-            self.keep_converted = config['keep_converted']
-
-    def get_configuration(self):
-        return {'encoding':self.encoding,
-                'keep_converted': self.keep_converted}
+        config.add_section("Conversion options")
+        config.add_item("Encoding", "combo", 
+            config_name = "encoding",
+            choices = encodings
+        )
+        config.add_item("Keep converted files", "check",
+            config_name = "keep_converted"
+        )
 
     def get_input_conversion_args(self):
         try:
@@ -965,32 +892,16 @@ class IPodVideoTwoWay(IPodMediaTwoWay):
     def _update_track_args(self):
         self.track_args['video_kind'] = self.video_kind
 
-    def get_config_items(self):
-        video_kinds = [('Movie', 'movie'), 
-                       ('Music Video', 'musicvideo'),
-                       ('TV Show', 'tvshow')]
-        initial = None
-        for description, name in video_kinds:
-            if name == self.video_kind:
-                initial = description
-
-        def selectKind(index, text):
-            self.video_kind = video_kinds[index][1]
-            self._update_track_args()
-
-        items = IPodMediaTwoWay.get_config_items(self)
-        items.append( 
-                        {
-                            "Name" : "Video Kind",
-                            "Kind" : "list",
-                            "Callback" : selectKind,
-                            "Values" : [description for description, name in video_kinds],
-                            "InitialValue" : initial
-                        } 
-                    )             
-                    
-        return items
-    
+    def config_setup(self, config):
+        IPodMediaTwoWay.config_setup(self, config)
+        video_kinds = [('movie', 'Movie'), 
+                       ('musicvideo', 'Music Video'),
+                       ('tvshow', 'TV Show')]            
+        config.add_section()
+        config.add_item("Video kind", "combo",
+            config_name = "video_kind",
+            choices = video_kinds)
+        
     def set_configuration(self, config):
         IPodMediaTwoWay.set_configuration(self, config)
         if 'video_kind' in config:
