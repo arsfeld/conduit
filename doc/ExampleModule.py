@@ -7,7 +7,7 @@ log = logging.getLogger("modules.Example")
 
 import conduit
 import conduit.Exceptions as Exceptions
-import conduit.Utils as Utils
+import conduit.utils as Utils
 import conduit.datatypes.DataType as DataType
 import conduit.dataproviders.DataProvider as DataProvider
 
@@ -29,17 +29,23 @@ class ExampleDataProviderTwoWay(DataProvider.TwoWay):
     _in_type_ = "exampledata"
     _out_type_ = "exampledata"
     _icon_ = "applications-internet"
+    _configurable_ = True
 
-    DEFAULT_FOO_VALUE = 42
+    DEFAULT_FOO_VALUE = "bar"
 
     def __init__(self):
         """
         Constructor should call the base constructor and initialize
-        all variables that are restored from configuration
+        all variables to default values. If you wish to have a variable's
+        value saved between sessions, pass it as an 
+        argument to self.update_configuration. Variables can also
+        be accessed via self.foo (for example)
         """
         DataProvider.TwoWay.__init__(self)
         self.data = []
-        self.foo = 0
+        self.update_configuration(
+            foo = ExampleDataProviderTwoWay.DEFAULT_FOO_VALUE
+        )
 
     def _data_exists(self, LUID):
         """
@@ -75,38 +81,16 @@ class ExampleDataProviderTwoWay(DataProvider.TwoWay):
         data.set_UID(random.randint(1,100))
         return data.get_rid()
 
-    def configure(self, window):
+    def config_setup(self, config):
         """
-        Uses the L{conduit.DataProvider.DataProviderSimpleConfigurator} class
-        to show a simple configuration dialog which is just a gtk.Enry
-        where the user can enter one or more GNOME wiki pages names,
-        seperated by commas
+        Call functions on the config object to construct a GUI that
+        the user can use to configure the dataprovider. If the
+        config_name argument matches the value of one passed to
+        update_configuration in __init__ then the updated value is
+        automatically saved.
+        """
+        config.add_item("Enter Foo", "text", config_name = "foo")        
 
-        @param window: The parent window (used for modal dialogs)
-        @type window: C{gtk.Window}
-        """
-        #lazy import gtk so if conduit is run from command line arg, or
-        #a non gtk system, this dp will still load. There should be no need
-        #to use gtk outside of this function
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-        
-        def set_foo(param):
-            self.foo = int(param)
-        
-        items = [
-                    {
-                    "Name" : "Value of Foo:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : set_foo,
-                    "InitialValue" : str(self.foo)
-                    }                    
-                ]
-        #We just use a simple configuration dialog
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        #This call blocks
-        dialog.run()
-        
     def refresh(self):
         """
         The refresh method should do whatever is needed to ensure that a 
@@ -174,25 +158,6 @@ class ExampleDataProviderTwoWay(DataProvider.TwoWay):
         """
         DataProvider.TwoWay.delete(self, LUID)
             
-    def get_configuration(self):
-        """
-        Returns a dict of key:value pairs. Key is the name of an internal
-        variable, and value is its current value to save.
-
-        It is important the the key is the actual name (minus the self.) of the
-        internal variable that should be restored when the user saves
-        their settings. 
-        """
-        return {"foo" : self.foo}
-
-    def set_configuration(self, config):
-        """
-        If you override this function then you are responsible for 
-        checking the sanity of values in the config dict, including setting
-        any instance variables to sane defaults
-        """
-        self.foo = config.get("foo",ExampleDataProviderTwoWay.DEFAULT_FOO_VALUE)
-
     def is_configured(self, isSource, isTwoWay):
         """
         @returns: True if this instance has been correctly configured, and data
