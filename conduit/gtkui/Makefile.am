@@ -7,7 +7,6 @@ conduit_PYTHON = \
 	Database.py \
 	__init__.py \
 	MsgArea.py \
-	SimpleConfigurator.py \
 	Tree.py \
 	Util.py \
 	UI.py \

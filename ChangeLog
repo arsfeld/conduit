@@ -1,5 +1,11 @@
 2009-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/gtkui/Makefile.am:
+	* conduit/gtkui/SimpleConfigurator.py: Delete SimpleConfigurator,
+	it has been obsoleted by the new config system.
+
+2009-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* doc/ExampleModule.py:
 	Port to new config system.
 
