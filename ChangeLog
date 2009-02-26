@@ -1,5 +1,10 @@
 2009-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/NautilusBookmarksModule.py:
+	Update to match conding style, port to new config system.
+
+2009-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/N800Module/N800Module.py:
 	Port to new config system.
 
