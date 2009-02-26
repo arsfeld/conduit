@@ -1,5 +1,10 @@
 2009-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/N800Module/N800Module.py:
+	Port to new config system.
+
+2009-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Canvas.py: Ellipsize text 
 	a bit better.
 

@@ -53,12 +53,8 @@ class N800Base(FileDataProvider.FolderTwoWay):
     
     #Translators: Translate this in derived classes.
     DEFAULT_FOLDER = _("Conduit")
-    #Translators: Format string used to describe the acceptable formats the 
-    #device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
-    #arg is a comma seperated list of encodings
-    FORMAT_CONVERSION_STRING = _("%s Format (%s)")
     #Signifies that a conversion should not take place
-    NO_CONVERSION_STRING = _("unchanged")
+    NO_CONVERSION_STRING = _("None")
 
     _configurable_ = True
 
@@ -73,26 +69,15 @@ class N800Base(FileDataProvider.FolderTwoWay):
         self.mount = mount
         self.udi = udi
         self.encodings =  {}
-        self.encoding = ""
+        self.update_configuration(
+            encoding = ""
+        )
 
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setEnc(param):
-            self.encoding = str(param)
-
-        encodings = self.encodings.keys()+[self.NO_CONVERSION_STRING]
-        items = [
-                    {
-                    "Name" : self.FORMAT_CONVERSION_STRING % (self.DEFAULT_FOLDER, ",".join(encodings)),
-                    "Widget" : gtk.Entry,
-                    "Callback" : setEnc,
-                    "InitialValue" : self.encoding
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
+    def config_setup(self, config):
+        config.add_item(_("Encoding"), "radio",
+            config_name = "encoding",
+            choices = self.encodings.keys()+[self.NO_CONVERSION_STRING]
+        )
 
     def refresh(self):
         d = File.File(URI=self.folder)
@@ -109,9 +94,6 @@ class N800Base(FileDataProvider.FolderTwoWay):
         except KeyError:
             return {}
             
-    def get_configuration(self):
-        return {'encoding':self.encoding}
-
     def get_UID(self):
         return "%s" % self.udi
 
