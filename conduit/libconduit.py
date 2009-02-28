@@ -1,7 +1,9 @@
-import os
+import os.path
 import gobject
 import gtk
 import dbus, dbus.glib
+
+PLUGIN_CONFIG_DIR = os.environ.get("XDG_CONFIG_HOME", os.path.join(os.environ['HOME'], ".config", "conduit", "plugin-config"))
 
 APPLICATION_DBUS_IFACE="org.conduit.Application"
 CONDUIT_DBUS_IFACE="org.conduit.Conduit"
@@ -14,7 +16,7 @@ SYNCSET_NOGUI_PATH = '/syncset/dbus'
 
 class ConduitWrapper:
 
-    CONFIG_PATH='~/.conduit/test-plugin'
+    CONFIG_NAME="test-plugin"
     NAME_IDX=0
     URI_IDX=1
     STATUS_IDX=2
@@ -46,6 +48,14 @@ class ConduitWrapper:
                         dbus_interface=CONDUIT_DBUS_IFACE
                         )
 
+        self.config_path = os.path.join(PLUGIN_CONFIG_DIR, self.CONFIG_NAME)
+        if not os.path.exists(self.config_path):
+            self._debug("Creating config dir: %s" % self.config_path)
+            try:
+                os.makedirs(self.config_path)
+            except OSError:
+                pass
+
     def _debug(self, msg):
         if self.debug:
             print "LCW: ", msg
@@ -55,14 +65,12 @@ class ConduitWrapper:
         Gets the latest configuration for a given
         dataprovider
         """
-        config_path = os.path.expanduser(self.CONFIG_PATH)
         xml = None
-
         try:
-            if not os.path.exists(os.path.join(config_path, self.name)):
+            if not os.path.exists(os.path.join(self.config_path, self.name)):
                 return
 
-            f = open(os.path.join(config_path, self.name), 'r')
+            f = open(os.path.join(self.config_path, self.name), 'r')
             xml = f.read()
             f.close()
         except OSError, e:
@@ -76,13 +84,8 @@ class ConduitWrapper:
         """
         Saves the configuration XML from a given dataprovider again
         """
-        config_path = os.path.expanduser(self.CONFIG_PATH)
-
         try:
-            if not os.path.exists(config_path):
-                os.mkdir(config_path)
-
-            f = open(os.path.join(config_path, self.name), 'w')
+            f = open(os.path.join(self.config_path, self.name), 'w')
             f.write(xml)
             f.close()
         except OSError, e:
@@ -107,7 +110,8 @@ class ConduitWrapper:
             self.conduit.Sync(dbus_interface=CONDUIT_DBUS_IFACE)
 
     def _configure_error_handler(self, error):
-        pass
+        self._debug("CONFIGURE ERROR: %s" % error)
+        self.store.set_value(self._get_rowref(), self.STATUS_IDX, "aborted")
 
     def _on_sync_started(self):
         self.store.set_value(self._get_rowref(), self.STATUS_IDX, "uploading")
@@ -323,6 +327,9 @@ class ConduitApplicationWrapper(gobject.GObject):
         elif startConduit:
             self._debug("Starting conduit via DBus activation")
             self.dbus_iface.StartServiceByName(APPLICATION_DBUS_IFACE, 0)
+            return False
+        else:
+            #not running, not started
             return False
 
     def sync(self):

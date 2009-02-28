@@ -24,7 +24,7 @@ if DEBUG:
 
 class EogConduitWrapper(libconduit.ConduitWrapper):
 
-    CONFIG_PATH='~/.conduit/eog-plugin'
+    CONFIG_NAME="eog-plugin"
 
     def add_rowref(self):
         #store the rowref in the store with the icon conduit gave us
@@ -47,7 +47,7 @@ class ConduitPlugin(eog.Plugin):
                                         debug=self.debug
                                         )
         self.conduit.connect("conduit-started", self._on_conduit_started)
-        self.running = self.conduit.connect_to_conduit(startConduit=True)
+        self.running = self.conduit.connect_to_conduit(startConduit=False)
 
         #dictionary holding items that are set sensitive or not when
         #conduit is started/stopped

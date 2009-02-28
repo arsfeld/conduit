@@ -1,5 +1,14 @@
 2009-02-27  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/libconduit.py:
+	* tools/eog-plugin/conduit.py:
+	* tools/nautilus-extension/conduit.py:
+	* tools/totem-plugin/conduit.py: Store all plugin
+	config data in XDG_CONFIG_HOME, and be more robust when
+	conduit is started and stopped per session
+
+2009-02-27  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/gtkui/Makefile.am:
 	* conduit/gtkui/SimpleConfigurator.py: Delete SimpleConfigurator,
 	it has been obsoleted by the new config system.

@@ -18,7 +18,7 @@ if DEBUG:
 
 class TotemConduitWrapper(libconduit.ConduitWrapper):
 
-    CONFIG_PATH='~/.conduit/totem-plugin'
+    CONFIG_NAME="totem-plugin"
 
     def add_rowref(self):
         #store the rowref in the store with the icon conduit gave us

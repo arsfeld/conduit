@@ -38,7 +38,6 @@ except ImportError:
 DEBUG = True
 FOLDER_TWOWAY = "FolderTwoWay"
 FOLDER_TWOWAY_CONFIG = "<configuration><folder type='string'>%s</folder><folderGroupName type='string'>Home</folderGroupName><includeHidden type='bool'>False</includeHidden></configuration>"
-CONFIG_PATH = '~/.conduit/nautilus-extension'
 SUPPORTED_SINKS = {
     "FlickrTwoWay"      :   "Upload to Flickr",
     "PicasaTwoWay"      :   "Upload to Picasa",
@@ -58,6 +57,13 @@ class ItemCallbackHandler:
         self.sink_name = sink_name
         self.conduitApp = conduitApplication
         self.conduit = None
+
+        self.config_path = os.path.join(libconduit.PLUGIN_CONFIG_DIR, "nautilus-extension")
+        if not os.path.exists(self.config_path):
+            try:
+                os.makedirs(self.config_path)
+            except OSError:
+                pass
 
     def activate_cb(self, menu, folder):
         """
@@ -120,12 +126,10 @@ class ItemCallbackHandler:
         Gets the latest configuration for a given
         dataprovider
         """
-        config_path = os.path.expanduser(CONFIG_PATH)
-
-        if not os.path.exists(os.path.join(config_path, sink_name)):
+        if not os.path.exists(os.path.join(self.config_path, sink_name)):
            return
 
-        f = open(os.path.join(config_path, sink_name), 'r')
+        f = open(os.path.join(self.config_path, sink_name), 'r')
         xml = f.read ()
         f.close()
 
@@ -135,12 +139,7 @@ class ItemCallbackHandler:
         """
         Saves the configuration xml from a given dataprovider again
         """
-        config_path = os.path.expanduser(CONFIG_PATH)
-
-        if not os.path.exists(config_path):
-           os.mkdir(config_path)
-
-        f = open(os.path.join(config_path, sink_name), 'w')
+        f = open(os.path.join(self.config_path, sink_name), 'w')
         f.write(xml)
         f.close()
         
@@ -163,10 +162,8 @@ class ItemCallbackHandler:
         self.conduit.Sync(dbus_interface=libconduit.CONDUIT_DBUS_IFACE)
 
     def _configure_error_handler(self, error):
-        """
-        Nothing to do anymore
-        """
-        pass
+        print "CONFIGURE ERROR: %s" % error
+        self.ss.DeleteConduit(self.conduit, dbus_interface=libconduit.SYNCSET_DBUS_IFACE)
 
 class ConduitExtension(nautilus.MenuProvider):
     """
