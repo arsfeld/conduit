@@ -68,13 +68,15 @@ class RSSSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self)
         self.update_configuration(
             feedUrl = "",
-            limit = 0,
+            limitNum = 1,
+            limit = False,
             randomize = False,
             downloadPhotos = True,
             downloadAudio = True,
             downloadVideo = True,
         )
-        self.files = {}
+        self._files = {}
+        self._count = 0
         
     def _is_allowed_type(self, mimetype):
         ok = False
@@ -89,10 +91,20 @@ class RSSSource(DataProvider.DataSource):
     def _add_file(self, url, title, t):
         log.debug("Got enclosure %s %s (%s)" % (title,url,t))
         if self._is_allowed_type(t):
-            if len(self.files) < self.limit or self.limit == 0 or self.randomize:
-                self.files[url] = (title,t)
+            if url not in self._files:
+                self._files[url] = (title,t,self._count)
+                self._count += 1
         else:
             log.debug("Enclosure %s is an illegal type (%s)" % (title,t))
+
+    def _get_all_files(self):
+        """
+        Returns all files in the correct order
+        """
+        files = self._files.keys()
+        for url, (title,t,count) in self._files.iteritems():
+            files[count] = url
+        return files
 
     def initialize(self):
         return True
@@ -105,14 +117,14 @@ class RSSSource(DataProvider.DataSource):
         )
         config.add_section("Enclosure settings")
         limit_config = config.add_item("Limit downloaded enclosures", "check",
-            initial_value = (self.limit > 0)
+            config_name = 'limit'
         )
         limit_config.connect("value-changed", 
             lambda item, changed, value: limit_spin_config.set_enabled(value)
         )
         limit_spin_config = config.add_item("Limit to", "spin",
-            config_name = 'limit',
-            enabled = (self.limit > 0),
+            config_name = 'limitNum',
+            enabled = self.limit,
         )
         random_config = config.add_item("Randomize enclosures", "check",
             config_name = 'randomize'
@@ -125,8 +137,10 @@ class RSSSource(DataProvider.DataSource):
     
     def refresh(self):
         DataProvider.DataSource.refresh(self)
-        #url : (title, mimetype)
-        self.files = {}
+        #url : (title, mimetype, idx)
+        self._files = {}
+        self._count = 0
+        
         d = feedparser.parse(self.feedUrl)
         for entry in d.entries:
             #check for enclosures first (i.e. podcasts)
@@ -138,23 +152,30 @@ class RSSSource(DataProvider.DataSource):
 
     def get_all(self):
         DataProvider.DataSource.get_all(self)
-        all_files = self.files.keys()
+
+        all_files = self._get_all_files()
+        num_files = len(all_files)
+
+        if self.limit:
+            log.debug("Getting %s/%s files (random: %s)" % (self.limitNum, num_files, self.randomize))
+        else:
+            log.debug("Getting %s files (random: %s)" % (self.limitNum, self.randomize))
 
         if self.randomize:
-            if self.limit == 0:
-                #no need to randomly choose between *all* files,
-                #as order is irellevant, really
-                return all_files
-            else:
-                #randomly choose limit files from all_files
-                lim = self.limit
+            if self.limit and self.limitNum > 0:
+                lim = self.limitNum
                 files = []
                 while lim > 0:
-                    files.append(all_files.pop(random.randint(0,len(all_files)-1)))
+                    files.append(all_files.pop(random.randint(0,num_files-1)))
                     lim -= 1
                 return files
+            else:
+                return all_files
         else:
-            return all_files
+            if self.limit and self.limitNum > 0:
+                return all_files[0:min(self.limitNum, num_files-1)]
+            else:
+                return all_files
             
     def get(self, url):
         DataProvider.DataSource.get(self, url)
@@ -166,7 +187,7 @@ class RSSSource(DataProvider.DataSource):
         
         #create the correct filename and retain the original extension
         try:
-            title,t = self.files[url]
+            title,t,idx = self._files[url]
             f.force_new_filename(title)
             f.force_new_file_extension(ext)
         except:
@@ -176,7 +197,8 @@ class RSSSource(DataProvider.DataSource):
 
     def finish(self, aborted, error, conflict):
         DataProvider.DataSource.finish(self)
-        self.files = {}
+        self._files = {}
+        self._count = 0
 
     def get_UID(self):
         return self.feedUrl

@@ -1,7 +1,7 @@
+import gconf
 import logging
 log = logging.getLogger( "modules.DesktopWallpaper")
 
-import gconf
 import conduit
 import conduit.utils as Utils
 import conduit.dataproviders.File as FileDataProvider
@@ -13,7 +13,7 @@ MODULES = {
 
 class DesktopWallpaperDataProvider(FileDataProvider.FolderTwoWay):
 
-    _name_ = "Desktop Wallpaper"
+    _name_ = "Wallpaper"
     _description_ = "Changes your Desktop Wallpaper"
     _category_ = conduit.dataproviders.CATEGORY_MISC
     _module_type_ = "sink"
@@ -25,7 +25,7 @@ class DesktopWallpaperDataProvider(FileDataProvider.FolderTwoWay):
     def __init__(self, *args):
         #Put photos into the users Pictures dir
         pdir = Utils.exec_command_and_return_result("xdg-user-dir", "PICTURES")
-        if 1:
+        if pdir:
             folder = "file://"+pdir.strip()
         else:
             folder = "file://"+Utils.new_tempdir()
@@ -47,7 +47,7 @@ class DesktopWallpaperDataProvider(FileDataProvider.FolderTwoWay):
         return Utils.get_user_string()
 
     def put(self, vfsFile, overwrite, LUID=None):
-        rid = FileDataProvider.FolderTwoWay.put(self, vfsFile, overwrite, LUID)
+        rid = FileDataProvider.FolderTwoWay.put(self, vfsFile, True, LUID)
 
         #if the file was successfully transferred then set it
         #as the wallpaper

@@ -9,9 +9,9 @@ test = SimpleTest(sourceName="RSSSource")
 
 TESTS = (
     ("Photos",  "http://www.flickr.com/services/feeds/photos_public.gne?id=44124362632@N01&format=rss_200_enc"),
-    ("Audio (ogg)",   "http://www.lugradio.org/episodes.ogg.rss"),
-    ("Audio (mp3)",   "http://feeds.feedburner.com/TheLinuxLinkTechShowMp3Feed"),
-    ("Video",   "http://telemusicvision.com/videos/tmv.rss")
+#    ("Audio (ogg)",   "http://www.lugradio.org/episodes.ogg.rss"),
+#    ("Audio (mp3)",   "http://feeds.feedburner.com/TheLinuxLinkTechShowMp3Feed"),
+#    ("Video",   "http://telemusicvision.com/videos/tmv.rss")
 )
 NUM_ENCLOSURES = 5
 
@@ -20,7 +20,9 @@ for name,url in TESTS:
 
     config = {
         "feedUrl":          url,
-        "limit":            NUM_ENCLOSURES,
+        "limit":            True,
+        "randomize":        False,
+        "limitNum":         NUM_ENCLOSURES,
         "downloadPhotos":   True,
         "downloadAudio":    True,
         "downloadVideo":    True

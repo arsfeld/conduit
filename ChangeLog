@@ -1,3 +1,14 @@
+2009-03-04  John Stowers  <john.stowers@gmail.com>
+
+	* conduit/modules/DesktopWallpaperModule.py: Always overwrite the
+	existing wallpaper so it gets updated.
+
+	* conduit/modules/FeedModule/FeedModule.py:
+	* test/python-tests/TestDataProviderFeed.py: Update FeedModule to
+	consider limit and random orthogonal. One can get a random range within
+	a limited (or not) set. Non random limited sets now retain
+	their order.
+
 2009-02-27  John Stowers  <john.stowers@gmail.com>
 
 	* conduit/libconduit.py:
