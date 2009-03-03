@@ -1,5 +1,10 @@
 2009-03-04  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/modules/GConfModule/GConfModule.py:
+	Add Gnome Terminal to application settings.
+
+2009-03-04  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/DesktopWallpaperModule.py: Always overwrite the
 	existing wallpaper so it gets updated.
 

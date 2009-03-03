@@ -31,7 +31,8 @@ class GConfTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         ("Metacity",                "/apps/metacity/*"),
         ("Nautilus",                "/apps/nautilus/*"),
         ("Preferred Applications",  "/desktop/gnome/applications/*"),
-        ("Desktop Interface",       "/desktop/gnome/interface/*")
+        ("Desktop Interface",       "/desktop/gnome/interface/*"),
+        ("Gnome Terminal",          "/apps/gnome-terminal/*")
     )
 
     def __init__(self, *args):
