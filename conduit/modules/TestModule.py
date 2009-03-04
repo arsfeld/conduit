@@ -112,87 +112,91 @@ class TestEasyConfig(DataProvider.DataProviderBase):
     def __init__(self):
         DataProvider.DataProviderBase.__init__(self)
         self.update_configuration(
-            folder = ('', None, set_folder, get_folder),
-            checktest = 1,
+            folder = ('', self._set_folder, lambda: self.folder),
+            checktest = "Choice 3",
             number = 0,
             items = [],
             password = '',
         )
+
+    def _set_folder(self, f):
+        self.folder = f
         
     def config_setup(self, config):
-        config.add_section("Test1")
-        config.add_item("Select folder", "filebutton", "folder", str, order = 1,
+        status_label = config.add_item("Status label", "label")
+        def status_changed(config, item):
+            status_label.value = "%s: %s" % (item.title, item.value)
+        config.connect("item-changed", status_changed)
+        
+        def change_label_callback(button_item):
+            status_label.value = text_config.value
+        text_config = config.add_item("Type some text", "text", initial_value = "Then click below")    
+        config.add_item("Change label", "button", initial_value = change_label_callback)
+        
+        config.add_section("Section")
+        config.add_item("Select folder", "filebutton", order = 1,
             config_name = "folder",
             directory = True,
         )
+        #The next item shows most choice-based features.
         radio_config = config.add_item("Radio button test", "radio",
             config_name = "checktest",
-            choices = [(1, 'Test 1'), (2, "Test 2"), (3, "Test 3")],
+            choices = [1, ("My value 2", "Choice 2"), "Choice 3"],
         )
-        config.add_section('Test2', order = 1)
-        config.add_section()
+        
+        #Defining a order prioritize sections. The grouping is done by sections
+        #of the same order, then on the order they were declared.
+        #So, even if this is declared here, because it has order 1, it will be
+        #below all other sections, which are order -1 by default.
+        #This allows for subclasses to put sections below or above it's parents
+        #sections.
+        config.add_section('Section', order = 1)
+        combo_config = config.add_item("Combo test", "combo",
+            initial_value = 0,
+            choices = [choice for choice in enumerate(["Choice %s" % i for i in range(5)])],
+        )
+        
         config.add_item("Number", "spin",
             config_name = "number",
             maximum = 100,
-        )        
-        config.add_section("Test1")
+        )
+
+        #These items will actually be added in "Section 1" defined above, 
+        #because by default it will look for existing sections with this title
+        section = config.add_section("Section")
         items_config = config.add_item("Items", "list",
             config_name = "items",
-            choices = ['tst', 'tst2'],
+            # The actual value returned from this list would be either True or
+            # False, but their text would be tst and tst2 respectively
+            choices = [(True,"tst"), (False,"tst2")],
         )
         config.add_item("Password", "text",
             config_name = "password",
             password = True
         )
-        config.add_section("Test3", order = -1)
-        def radio_buttons_clicked(button):
-            #radio_config.set_choices([(1, 'TestI'), (2, 'TestII'), (3, 'TestIII')])
-            radio_config.set_value(2)
-            #radio_config.set_enabled(not items_config.enabled)
-        config.add_item("Radio buttons", "button",
-            initial_value = radio_buttons_clicked
-        )
+        
+        #use_existing allows for duplicate sections with the same title.
+        #By default, and prefereable, adding another with the same title, adds
+        #items to the existing section instead of creating a new one.
+        #Please keep in mind two sections with the same title is very confusing.
+        #config.add_section("Section 1", use_existing = False)
         def button_clicked(button):
-            items_config.set_choices(['Test1', 'Test2', 'Test3', 'Test4', 'Test5'])
-            items_config.set_enabled(not items_config.enabled)
-        config.add_section("Test1", use_existing = False)
-        config.add_item("Check values", "button",
+            #A list is smart enough to detect if choices contain tuples with
+            #values and labels, or just labels.
+            items_config.choices = ['Test1', 'Test2', 'Test3', 'Test4', 'Test5']
+            #items_config.enabled = not items_config.enabled
+            section.enabled = not section.enabled
+            
+        #Adding an empty section actually puts next items unidented in the
+        #configuration dialog, so it looks to be outside a section.
+        config.add_section()            
+        config.add_item("Disable section / Change choices", "button",
             initial_value = button_clicked
         )
 
-    '''
-    def get_configuration(self):            
-        return {'folder': self.folder,
-                'checktest': self.checktest,
-                'number': self.number,
-                'items': self.items,
-                'password': self.password}
-    
-    def set_configuration(self, values):
-        super(TestEasyConfig, self).set_configuration(values,
-            folder = str,
-            checktest = int,
-            number = int,
-            items = list,
-            password = str
-        )
-                if 'folder' in values:
-            self.folder = values['folder']
-        if 'checktest' in values:
-            self.checktest = values['checktest']
-        if 'number' in values:
-            self.number = values['number']
-        if 'items' in values:
-            self.items = values['items']
-        if 'password' in values:
-            self.password = values['password']
-        '''
-
-class _TestBase(DataProvider.DataProviderBase):
+class _TestBase:
     _configurable_ = True
     def __init__(self):
-        DataProvider.DataProviderBase.__init__(self)
-        #Through an error on the nth time through
         self.update_configuration(
             errorAfter = 999,
             errorFatal = False,
@@ -216,98 +220,30 @@ class _TestBase(DataProvider.DataProviderBase):
         return True
 
     def config_setup(self, config):
+        config.add_section("Basic Settings")
         config.add_item("Error at", "spin", config_name = "errorAfter")
         config.add_item("Fatal Error?", "check", config_name = "errorFatal")
-        config.add_item("Take a long time", 'check', config_name = "slow")
         config.add_item("Data gets a new hash", 'check', config_name = 'newHash')
         config.add_item('Data gets a new mtime', 'check', config_name = 'newMtime')
+        config.add_item("Take a long time", 'check', config_name = "slow")
         config.add_item('UID', 'text', config_name = 'UID')
         config.add_item('Num data', 'spin', config_name = 'numData')
         config.add_item('Emit change detected', 'button', initial_value = lambda b: self._change_detected())
         
-    def configure_(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setError(param):
-            self.errorAfter = int(param)
-        def setErrorFatal(param):
-            self.errorFatal = bool(param)
-        def setSlow(param):
-            self.slow = bool(param)
-        def setNewHash(param):
-            self.newHash = bool(param)
-        def setNewMtime(param):
-            self.newMtime = bool(param)
-        def setUID(param):
-            self.UID = str(param)        
-        def setNumData(param):
-            self.numData = int(param)
-        items = [
-                    {
-                    "Name" : "Error At:",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setError,
-                    "InitialValue" : self.errorAfter
-                    },
-                    {
-                    "Name" : "Error is Fatal?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setErrorFatal,
-                    "InitialValue" : self.errorFatal
-                    },
-                    {
-                    "Name" : "Take a Long Time?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setSlow,
-                    "InitialValue" : self.slow
-                    },
-                    {
-                    "Name" : "Data gets a New Hash",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setNewHash,
-                    "InitialValue" : self.newHash
-                    },
-                    {
-                    "Name" : "Data gets a New Mtime",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setNewMtime,
-                    "InitialValue" : self.newMtime
-                    },
-                    {
-                    "Name" : "UID",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setUID,
-                    "InitialValue" : self.UID
-                    },
-                    {
-                    "Name" : "Num Data",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setNumData,
-                    "InitialValue" : self.numData
-                    },
-                    {
-                    "Name" : "Emit Change Detected",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : self._change_detected,
-                    "InitialValue" : False
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
-
     def get_UID(self):
         return self.UID
    
-class _TestConversionBase(DataProvider.DataSink):
+class _TestConversionBase:
     _configurable_ = True
-    def __init__(self, *args):
-        DataProvider.DataSink.__init__(self)
-        self.encodings =  {}
-        self.encoding = "unchanged"
+
+    def __init__(self):
+        self.encodings = {}
+        self.update_configuration(
+            encoding = "ogg",
+        )
 
     def config_setup(self, config):
-
+        config.add_section("Conversion Settings")
         config.add_item("Format:", "combo",
             choices = [(name, opts['description'] or name) for name, opts in self.encodings.iteritems()],
             config_name = 'encoding'
@@ -324,9 +260,6 @@ class _TestConversionBase(DataProvider.DataSink):
             else:
                 return {}
             
-    def get_configuration(self):
-        return {'encoding':self.encoding}
-
     def get_UID(self):
         return Utils.random_string()
 
@@ -343,8 +276,8 @@ class TestSource(_TestBase, DataProvider.DataSource):
     DEFAULT_NUM_DATA = 10
 
     def __init__(self, *args):
+        DataProvider.DataSource.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self)
         self.data = []
         self.numData = self.DEFAULT_NUM_DATA
         
@@ -403,8 +336,8 @@ class TestSink(_TestBase, DataProvider.DataSink):
     _icon_ = "edit-redo"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
         
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)
@@ -444,8 +377,8 @@ class TestFileSource(_TestBase, DataProvider.DataSource):
     _icon_ = "text-x-generic"
     
     def __init__(self, *args):
+        DataProvider.DataSource.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSource.__init__(self)
         self.UID = Utils.random_string()
         
     def get_all(self):
@@ -474,8 +407,8 @@ class TestFileSink(_TestBase, DataProvider.DataSink):
     _icon_ = "text-x-generic"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
         self.folder = "file://"+Utils.new_tempdir()
 
     def put(self, data, overwrite, LUID=None):
@@ -538,13 +471,13 @@ class TestImageSink(_TestBase, Image.ImageSink):
     _category_ = conduit.dataproviders.CATEGORY_TEST
 
     def __init__(self, *args):
+        Image.ImageSink.__init__(self, *args)
         _TestBase.__init__(self)
-        Image.ImageSink.__init__(self)
-
-        self.format = "image/jpeg"
-        self.defaultFormat = "image/jpeg"
-        self.size = "640x480"
-        self.slow = False
+        self.update_configuration(
+            format = "image/jpeg",
+            defaultFormat = "image/jpeg",
+            size = "640x480"
+        )
 
     #ImageSink Methods
     def _upload_photo(self, uploadInfo):
@@ -565,50 +498,14 @@ class TestImageSink(_TestBase, Image.ImageSink):
     def _get_photo_size (self):
         return self.size
 
-    #DataProvider Methods
-    def configure(self, window):
-        import gtk
-        import conduit.gtkui.SimpleConfigurator as SimpleConfigurator
-
-        def setFormat(param):
-            self.format = str(param)
-        def setDefaultFormat(param):
-            self.defaultFormat = str(param)
-        def setSize(param):
-            self.size = str(param)
-        def setSlow(param):
-            self.slow = bool(param)
-
-        items = [
-                    {
-                    "Name" : "Format",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setFormat,
-                    "InitialValue" : self.format
-                    },
-                    {
-                    "Name" : "Default Format",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setDefaultFormat,
-                    "InitialValue" : self.defaultFormat
-                    },
-                    {
-                    "Name" : "Size",
-                    "Widget" : gtk.Entry,
-                    "Callback" : setSize,
-                    "InitialValue" : self.size
-                    },
-                    {
-                    "Name" : "Take a Long Time?",
-                    "Widget" : gtk.CheckButton,
-                    "Callback" : setSlow,
-                    "InitialValue" : self.slow
-                    }
-                ]
-        dialog = SimpleConfigurator.SimpleConfigurator(window, self._name_, items)
-        dialog.run()
+    def config_setup(self, config):
+        _TestBase.config_setup(self, config)
+        config.add_section("Image Settings")
+        config.add_item('Format', 'text', config_name = 'format')
+        config.add_item('Default Format', 'text', config_name = 'defaultFormat')
+        config.add_item('Size', 'text', config_name = 'size')
         
-class TestConversionArgs(_TestConversionBase):
+class TestConversionArgs(_TestConversionBase, TestSink):
 
     _name_ = "Test Conversion Args"
     _description_ = "Pass Arguments to TestConverter"
@@ -619,6 +516,7 @@ class TestConversionArgs(_TestConversionBase):
     _icon_ = "emblem-system"
 
     def __init__(self, *args):
+        TestSink.__init__(self)
         _TestConversionBase.__init__(self)
 
     def put(self, data, overwrite, LUID=None):
@@ -635,9 +533,8 @@ class TestVideoSink(_TestConversionBase, TestFileSink):
     _icon_ = "video-x-generic"
 
     def __init__(self, *args):
-        _TestConversionBase.__init__(self)
         TestFileSink.__init__(self)
-        self.encoding = "ogg"
+        _TestConversionBase.__init__(self)
         self.encodings = Video.PRESET_ENCODINGS.copy()
 
 class TestAudioSink(_TestConversionBase, TestFileSink):
@@ -649,9 +546,8 @@ class TestAudioSink(_TestConversionBase, TestFileSink):
     _icon_ = "audio-x-generic"
 
     def __init__(self, *args):
-        _TestConversionBase.__init__(self)
         TestFileSink.__init__(self)
-        self.encoding = "ogg"
+        _TestConversionBase.__init__(self)
         self.encodings = Audio.PRESET_ENCODINGS.copy()
 
 class TestWebTwoWay(TestTwoWay):
@@ -667,24 +563,46 @@ class TestWebTwoWay(TestTwoWay):
 
     def __init__(self, *args):
         TestTwoWay.__init__(self)
-        self.url = "http://www.google.com"
-        self.browser = conduit.BROWSER_IMPL
+        self.update_configuration(
+            url = "http://www.google.com",
+            browser = conduit.BROWSER_IMPL
+        )
 
     def config_setup(self, config):
+
+        def _login(*args):
+            log.debug("Logging in")
+            Web.LoginMagic("The Internets", self.url, login_function=lambda: True)
+
+        def _login_finished(*args):
+            log.debug("Login finished")
+            #Utils.dialog_reset_cursor(dlg)
+            pass
+
+        def _login_clicked(button):
+            #Utils.dialog_set_busy_cursor(dlg)
+            log.debug("Login clicked")
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            _login_finished,
+                                            _login)
+
+        TestTwoWay.config_setup(self, config)
+        config.add_section("Browser Settings")
         config.add_item("Url", "text",
             config_name = 'url'
         )
         config.add_item("Browser", "text",
             config_name = "browser"
         )
-        
-    def _login(self):
-        return True
+        config.add_item("Launch Browser", "button", 
+            initial_value = _login_clicked
+        )
 
     def refresh(self):
         TestTwoWay.refresh(self)
         log.debug("REFRESH (thread: %s)" % thread.get_ident())
-        Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=self._login)
+        Web.LoginMagic(self._name_, self.url, browser=self.browser, login_function=lambda: True)
 
 class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
 
@@ -697,8 +615,8 @@ class TestSinkNeedConfigure(_TestBase, DataProvider.DataSink):
     _icon_ = "preferences-system"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
         self.isConfigured = False
         
     def configure(self, window):
@@ -738,8 +656,8 @@ class TestConflict(_TestBase, DataProvider.DataSink):
     _icon_ = "dialog-warning"
 
     def __init__(self, *args):
+        DataProvider.DataSink.__init__(self, *args)
         _TestBase.__init__(self)
-        DataProvider.DataSink.__init__(self)
 
     def put(self, data, overwrite, LUID=None):
         DataProvider.DataSink.put(self, data, overwrite, LUID)

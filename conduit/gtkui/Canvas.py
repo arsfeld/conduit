@@ -23,6 +23,7 @@ import conduit.gtkui.Tree
 import conduit.gtkui.Util as GtkUtil
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.gtkui.WindowConfigurator as WindowConfigurator
+import conduit.gtkui.ConfigContainer as ConfigContainer
 
 log.info("Module Information: %s" % Utils.get_module_information(goocanvas, "pygoocanvas_version"))
 
@@ -361,14 +362,16 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             return 
         
         dps = []
-        for dp in selectedItem.model.get_all_dataproviders():
-            if not dp.module: 
+        for dpw in selectedItem.model.get_all_dataproviders():
+            if not dpw.module: 
                 continue
-            container = dp.module.get_config_container(self.configurator)
+            container = dpw.module.get_config_container(
+                                configContainerKlass=ConfigContainer.ConfigContainer,
+                                name=dpw.get_name(),
+                                icon=dpw.get_icon(),
+                                configurator=self.configurator
+            )
             if container:
-                #FIXME: Should be moved inside the container
-                container.icon = dp.get_icon()
-                container.name = dp.get_name()
                 dps.append(container)
         if dps:
             self.configurator.set_containers(dps)
@@ -661,11 +664,18 @@ class Canvas(goocanvas.Canvas, _StyleMixin):
             log.critical("%s using old configuration system" % dpw.get_name())
             dp.configure(self.parentWindow)
         else:
-            config_container = dp.get_config_container(self.configurator)
+            config_container = dp.get_config_container(
+                                configContainerKlass=ConfigContainer.ConfigContainer,
+                                name=dpw.get_name(),
+                                icon=dpw.get_icon(),
+                                configurator=self.configurator
+            )
             self.configurator.run(config_container)
+
         self._check_if_dataprovider_needs_configuration(
                 conduitCanvasItem.model,
-                dpw)
+                dpw
+        )
         self.selectedDataproviderItem.update_appearance()
 
     def on_refresh_dataprovider_clicked(self, widget):

@@ -7,15 +7,13 @@ Copyright: Alexandre Rosenfeld, 2009
 License: GPLv2
 '''
 
-import sys
-import sets
 import gobject
-import gtk, gtk.glade
+import gtk
+import gtk.glade
 import logging
 log = logging.getLogger("gtkui.ConfigContainer")
 
 from gettext import gettext as _ 
-import conduit
 import conduit.gtkui.ConfigItems as ConfigItems
 import conduit.Configurator as Configurator
 
@@ -54,15 +52,6 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self.config_widget = self.widgetTable
         
         self.firstRow = True
-        
-    def __getitem__(self, key):
-        #FIXME: This could be done faster by using a dict (it would changed
-        # other parts of this class, so I left it out for now)
-        for item in self.items:
-            if key == item.config_name:
-                return item
-        else:
-            raise KeyError(key)
 
     def _reset_modified_items(self, empty = True):
         '''
@@ -72,7 +61,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         next time get_modified_items is called.
         '''
         if empty:
-            self.modified_items = sets.Set()
+            self.modified_items = set()
         else:
             self.modified_items = None
         
@@ -156,7 +145,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
                 self.config_values = self.dataprovider.get_configuration()
             else:
                 self.config_values = {}        
-        if kwargs.get('config_name', None) and kwargs.pop('persistent', True):
+        if kwargs.get('config_name', None):
             if kwargs['config_name'] in self.config_values:
                 kwargs['initial_value'] = self.config_values[kwargs['config_name']]
             else:
@@ -173,15 +162,15 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         self.section.add_item(item)
         self._rebuild_widgets()
         return item
-        
+    
     def get_modified_items(self):
         '''
         Return a list of items that has been modified
         '''
         if self.modified_items is None:
-            self.modified_items = sets.Set([item for item in self.items if not item.is_initial_value()])
+            self.modified_items = set([item for item in self.items if not item.is_initial_value()])
         return self.modified_items
-                
+    
     def is_modified(self):
         '''
         Returns true if any item has been modified
@@ -215,14 +204,7 @@ class ConfigContainer(Configurator.BaseConfigContainer):
         '''
         super(ConfigContainer, self).show()
         self.config_widget.show_all()
-        
-    #def set_busy(self, busy):
-    #    if busy:
-    #        self.old_cursor = self.widgetTable.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-    #    else:
-    #        self.widgetTable.set_cursor(self.old_cursor)
-    #    gtk.gdk.flush()
-        
+
     def apply_config(self, items = None, sections = None):
         '''
         Save the current configuration state to the dataprovider and to each 

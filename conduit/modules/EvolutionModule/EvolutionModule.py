@@ -102,48 +102,20 @@ class EvoBase(DataProvider.TwoWay):
         
     def config_setup(self, config, name):
         config.add_section("Select %s" % name)
+        #If we cant find the currently selected item in the availiable list,
+        #selects the first we can find.
+        for name, uri in self.allSourceURIs:
+            if self.selectedSourceURI == uri:
+                break
+        else:
+            self.selectedSourceURI = self.allSourceURIs[0][1]
         config.add_item("%s" % name, "combo",
             choices = [(uri, name) for name, uri in self.allSourceURIs],
             initial_value = self.selectedSourceURI,
             config_name = "sourceURI" )
 
-    def configure_(self, window, name):
-        import gtk
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade",
-                        "EvolutionConfigDialog"
-                        )
-        
-        #get a whole bunch of widgets
-        sourceComboBox = tree.get_widget("sourceComboBox")
-        sourceLabel = tree.get_widget("sourceLabel")
-        sourceLabel.set_text(_("Select %s:") % name)
-
-        #make a combobox with the addressbooks
-        store = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING)
-        sourceComboBox.set_model(store)
-
-        cell = gtk.CellRendererText()
-        sourceComboBox.pack_start(cell, True)
-        sourceComboBox.add_attribute(cell, 'text', 0)
-        sourceComboBox.set_active(0)
-        
-        for name,uri in self.allSourceURIs:
-            rowref = store.append( (name, uri) )
-            if uri == self.selectedSourceURI:
-                sourceComboBox.set_active_iter(rowref)
-        
-        dlg = tree.get_widget("EvolutionConfigDialog")
-        
-        response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self.selectedSourceURI = store.get_value(sourceComboBox.get_active_iter(), 1)
-        dlg.destroy()  
-
     def get_UID(self):
         return self.selectedSourceURI
-
 
 class EvoContactTwoWay(EvoBase):
 

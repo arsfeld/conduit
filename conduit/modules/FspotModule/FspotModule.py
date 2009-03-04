@@ -28,15 +28,6 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
     _icon_ = "f-spot"
     _configurable_ = True
 
-    tags = DataProvider.Property([], "list", config_name = "enabledTags")
-    status = DataProvider.Widget("", "label")
-    tag_name = DataProvider.Widget("", "text")
-    # We add the callback later
-    add_tag = DataProvider.Widget(None, "button")
-    _config_dialog_ = (None, (status),
-                       _("Tags"), (tags),
-                       _("Add tags"), (tag_name, add_tag))
-
     SERVICE_PATH = "org.gnome.FSpot"
     PHOTOREMOTE_IFACE = "org.gnome.FSpot.PhotoRemoteControl"
     PHOTOREMOTE_PATH = "/org/gnome/FSpot/PhotoRemoteControl"
@@ -46,8 +37,12 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
 
     def __init__(self, *args):
         Image.ImageTwoWay.__init__(self)
+
+        self.update_configuration(
+            tags = ([], self.set_tags, self.get_tags),
+        )
         
-        #self.enabledTags = []
+        self.enabledTags = []
         self.photos = []
         self.has_roll = False
         self.photo_remote = None
@@ -220,123 +215,58 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         self.tag_remote = None
 
     def config_setup(self, config):
-        status_label = config["status"]
-        tags_config = config["enabledTags"]
-        
-        #add_tags_section = config.sections["Add tags"]
+        RUNNING_MESSAGE = _("F-Spot is running")
+        STOPPED_MESSAGE = _("Please start F-Spot or activate the D-Bus Extension")
+
+        def start_fspot(button):
+            #would be cleaner if we could autostart using dbus,
+            #dbus.SessionBus().start_service_by_name(self.SERVICE_PATH)
+            gobject.spawn_async(
+                    ("f-spot",), 
+                    flags=gobject.SPAWN_SEARCH_PATH|gobject.SPAWN_STDOUT_TO_DEV_NULL|gobject.SPAWN_STDERR_TO_DEV_NULL
+            )
+
         def watch(name):
             connected = bool(name and self._connect_to_fspot())
-            log.critical("Connected: %s"% connected)
+            start_fspot_config.enabled = not connected
+            tags_config.enabled = connected
             if connected:
-                tags_config.choices = [(tag, tag) for tag in self._get_all_tags()]
-            #add_tags_section.enabled = connected
-            #if config.showing:
-            if connected:
-                status_label.value = "F-Spot is running"
+                tags_config.choices = self._get_all_tags()
             else:
-                status_label.value = "Please start F-Spot and activate the D-Bus Extension"
-        #status_label = config.add_item("Status", "label")
-        #config.add_item("Start F-Spot", "button",
-        #    initial_value = lambda x: dbus.SessionBus().start_service_by_name(self.SERVICE_PATH)
-        #)
-        #config.add_section("Tags")
-        #tags_config = config.add_item("Tags", "list",
-        #    config_name = 'tags',
-        #    choices = [],
-        #)
+                tags_config.choices = tags_config.value
+            add_tags_section.enabled = connected            
+            if connected:
+                status_label.value = RUNNING_MESSAGE
+            else:
+                status_label.value = STOPPED_MESSAGE
+
+        status_label = config.add_item("Status", "label")
+        start_fspot_config = config.add_item("Start F-Spot", "button",
+            initial_value = start_fspot
+        )
+
+        config.add_section("Tags")
+        tags_config = config.add_item("Tags", "list",
+            config_name = 'tags',
+            choices = self.enabledTags,
+        )
+
         def add_tag_cb(button):
             text = tag_name_config.get_value()
-            tags = text.split(',')
-            for tag in tags:
+            newtags = text.split(',')
+            for tag in newtags:
                 self._create_tag (tag.strip ())   
             tags_config.set_choices(self._get_all_tags())
             tag_name_config.set_value('')
-        #add_tags_section = config.add_section("Add tags")
-        #tag_name_config = config.add_item("Tag name", "text",
-        #    initial_value = ""
-        #)
-        #config.add_item("Add tag", "button",
-        #    initial_value = add_tag_cb
-        #)
+
+        add_tags_section = config.add_section("Add tags")
+        tag_name_config = config.add_item("Tag name", "text",
+            initial_value = ""
+        )
+        config.add_item("Add tag", "button",
+            initial_value = add_tag_cb
+        )
         dbus.SessionBus().watch_name_owner(self.SERVICE_PATH, watch)
-
-    def configure_(self, window):
-        import gtk
-        def create_tags_clicked_cb(button):
-            text = self.tags_entry.get_text()
-            if not text:
-                return
-            tags = text.split(',')
-            for tag in tags:
-                self._create_tag (tag.strip ())
-            refresh_list_store()                
-
-        def col1_toggled_cb(cell, path, model ):
-            #not because we get this cb before change state
-            checked = not cell.get_active()
-
-            model[path][1] = checked
-            val = model[path][NAME_IDX]
-
-            if checked and val not in self.enabledTags:
-                self.enabledTags.append(val)
-            elif not checked and val in self.enabledTags:
-                self.enabledTags.remove(val)
-
-            log.debug("Toggle '%s'(%s) to: %s" % (model[path][NAME_IDX], val, checked))
-            return
-
-        def refresh_list_store ():
-            #Build a list of all the tags
-            if not self.list_store:
-                self.list_store = gtk.ListStore(gobject.TYPE_STRING,    #NAME_IDX
-                                                gobject.TYPE_BOOLEAN,   #active
-                                               )
-            else:
-                self.list_store.clear ()                
-            #Fill the list store
-            i = 0
-            for tag in self._get_all_tags():
-                self.list_store.append((tag,tag in self.enabledTags))
-                i += 1
-
-        #Fspot must be running
-        if not self._connect_to_fspot():
-            return
-
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade",
-						"FspotConfigDialog"
-						)
-        tagtreeview = tree.get_widget("tagtreeview")
-        refresh_list_store()
-        tagtreeview.set_model(self.list_store)
-
-        #column 1 is the tag name
-        tagtreeview.append_column(  gtk.TreeViewColumn(_("Tag Name"), 
-                                    gtk.CellRendererText(), 
-                                    text=NAME_IDX)
-                                    )
-        #column 2 is a checkbox for selecting the tag to sync
-        renderer1 = gtk.CellRendererToggle()
-        renderer1.set_property('activatable', True)
-        renderer1.connect( 'toggled', col1_toggled_cb, self.list_store )
-        tagtreeview.append_column(  gtk.TreeViewColumn(_("Enabled"), 
-                                    renderer1, 
-                                    active=1)
-                                    )
-  
-        # Area for creating additional tags
-        create_button = tree.get_widget ('create_button')
-        self.tags_entry = tree.get_widget ('tags_entry')
-        create_button.connect('clicked', create_tags_clicked_cb)
-
-        dlg = tree.get_widget("FspotConfigDialog")
-        dlg.set_transient_for(window)
-
-        response = Utils.run_dialog (dlg, window)
-        dlg.destroy()
 
     def get_UID(self):
         return Utils.get_user_string()

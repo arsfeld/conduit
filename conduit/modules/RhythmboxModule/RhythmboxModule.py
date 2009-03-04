@@ -49,13 +49,6 @@ class RhythmboxSource(DataProvider.DataSource):
     _out_type_ = "file/audio"
     _icon_ = "rhythmbox"
     _configurable_ = True
-    
-    playlists = DataProvider.Property([], 'list')
-    username = DataProvider.Property("", "text")
-    password = DataProvider.Property("", "text", password = True)
-    _config_dialog_ = (_("User account"), (username, password),
-                         _("Playlists"), (playlists),                         
-                         )
 
     PLAYLIST_PATH="~/.gnome2/rhythmbox/playlists.xml"
     RHYTHMDB_PATH="~/.gnome2/rhythmbox/rhythmdb.xml"
@@ -64,6 +57,10 @@ class RhythmboxSource(DataProvider.DataSource):
         DataProvider.DataSource.__init__(self)
         #Names of the playlists we know
         self.allPlaylists = []
+        #Names we wish to sync
+        self.update_configuration(
+            playlists = [],
+        )
         self.songdata = {}
 
     def _parse_playlists(self, path, allowed=[]):
@@ -78,7 +75,7 @@ class RhythmboxSource(DataProvider.DataSource):
         iter = root.getiterator()
         for element in iter:
 
-            if element.tag == "playlist":                
+            if element.tag == "playlist":
                 is_static = False
 
                 if element.keys():
@@ -115,7 +112,12 @@ class RhythmboxSource(DataProvider.DataSource):
 
     def config_setup(self, config):
         self.allPlaylists = [(name, name) for name, songs in self._parse_playlists(RhythmboxSource.PLAYLIST_PATH)]
-        config["playlists"].choices = self.allPlaylists
+
+        config.add_section("Playlists")
+        config.add_item("Playlists", "list", 
+            config_name = "playlists",
+            choices = self.allPlaylists
+        )
 
     def refresh(self):
         DataProvider.DataSource.refresh(self)
@@ -190,6 +192,7 @@ class RhythmDBHandler(handler.ContentHandler):
         'play-count', 'rating', 'duration', 'bitrate')
 
     def __init__(self, searchlist):
+        handler.ContentHandler.__init__(self)
         self.searchlist = searchlist
         self.cleansongs = []
         self.songdata = {}

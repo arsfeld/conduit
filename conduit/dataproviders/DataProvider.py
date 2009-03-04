@@ -15,7 +15,6 @@ import conduit
 import conduit.ModuleWrapper as ModuleWrapper
 import conduit.utils as Utils
 import conduit.Settings as Settings
-import conduit.Property as PropertyBase
 
 STATUS_NONE = _("Ready")
 STATUS_CHANGE_DETECTED = _("New data to sync")
@@ -29,17 +28,6 @@ STATUS_DONE_SYNC_SKIPPED = _("Synchronization Skipped")
 STATUS_DONE_SYNC_CANCELLED = _("Synchronization Cancelled")
 STATUS_DONE_SYNC_CONFLICT = _("Synchronization Conflict")
 STATUS_DONE_SYNC_NOT_CONFIGURED = _("Not Configured")
-
-class Error(Exception):
-    pass
-
-class Widget(PropertyBase.PropertyBase):
-    def __init__(self, *args, **kwargs):
-        kwargs.pop('persistent', None)
-        PropertyBase.PropertyBase.__init__(self, persistent = False, *args, **kwargs)
-
-class Property(PropertyBase.PropertyBase):
-    pass
 
 class DataProviderBase(gobject.GObject):
     """
@@ -71,24 +59,7 @@ class DataProviderBase(gobject.GObject):
         self.status = STATUS_NONE
         self.config_container = None
         self.configuration = {}
-        
-        configuration = {}
-        self._properties = {}
-        for attr_name, attr_value in type(self).__dict__.iteritems():
-            if isinstance(attr_value, conduit.Property.PropertyBase):
-                self._properties[attr_name] = attr_value
-                prop = attr_value
-                #Make sure the property finds it's name (the first call on this
-                # class sets the name, subsequent calls use that name, so we 
-                # either trigger the search routine, or get the cached name,
-                # but we must make sure it is done on dataprovider 
-                # initialization, configuration depends on it)
-                prop.find_name(type(self))
-                #FIXME: Persistent should be a decision made on Property
-                if prop.config_name and prop.persistent:
-                    configuration[prop.config_name] = prop.default
-        self.update_configuration(**configuration)
-    
+
     def __emit_status_changed(self):
         """
         Emits a 'status-changed' signal to the main loop.
@@ -199,9 +170,15 @@ class DataProviderBase(gobject.GObject):
         else:
             return False
 
-    def get_config_container(self, configurator):
+    def get_config_container(self, configContainerKlass, name, icon, configurator):
         """
         Retrieves the configuration container
+        @param configContainerKlass: The class used to instantiate the graphical
+        configuration widget.
+        @param name: The name of the dataprovider being configured. Typically
+        used in the graphical config widget
+        @param icon: The icon of the dataprovider being configured. Typically
+        used in the graphical config widget
         @param configurator: The configurator object
         """
         # If the dataprovider is using the old system, returns None (a message
@@ -209,17 +186,13 @@ class DataProviderBase(gobject.GObject):
         if hasattr(self, "configure"):
             return None
         if not self.config_container:
-            #FIXME: GtkUI is hard-coded because we dont have another interface
-            # yet, but we could make it more modular (we already import it here
-            # not to depend on it on initialization)
-            import conduit.gtkui.ConfigContainer as ConfigContainer
-            self.config_container = ConfigContainer.ConfigContainer(self, configurator)
+            self.config_container = configContainerKlass(self, configurator)
+            self.config_container.name = name
+            self.config_container.icon = icon
             self.config_container.connect('apply', self.config_apply)
             self.config_container.connect('cancel', self.config_cancel)
             self.config_container.connect('show', self.config_show)
             self.config_container.connect('hide', self.config_hide)
-            if hasattr(self, "_config_dialog_"):
-                self._parse_config_dialog_description(self._config_dialog_)
             self.config_setup(self.config_container)
             #FIXME: This is definetely just for debugging (it prints everything
             # that is changed in the configuration dialog)
@@ -227,28 +200,6 @@ class DataProviderBase(gobject.GObject):
             #    log.debug("%s: %s = %s" % (item.title, item.config_name, item.get_value()))
             #self.config_container.connect("item-changed", print_item)
         return self.config_container
-    
-    def _parse_config_dialog_description(self, config_dialog):
-        config_container = self.config_container
-        current_section = None
-        in_section = False
-        for item in config_dialog:      
-            if not in_section and not isinstance(item, tuple):
-                current_section = item
-                config_container.add_section(current_section)
-                in_section = True
-            elif in_section:
-                if not isinstance(item, tuple):
-                    item = (item,)
-                for prop_name in item:
-                    if isinstance(prop_name, conduit.Property.PropertyBase):
-                        prop = prop_name
-                    else:
-                        prop = self._properties[prop_name]
-                    config_container.add_item(prop.title, prop.kind, config_name = prop.config_name, **(prop.kwargs))
-                in_section = False
-            else:
-                raise Error("__config_dialog__ could not be parsed")
     
     def config_setup(self, config_container):
         '''

@@ -276,80 +276,25 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                             target_id=LUID)
 
     def config_setup(self, config):
+
+        def _login_finished(*args):
+            folders = self._get_folders()
+            folders_config.set_choices([(f,f) for f in folders])
+
+        def _load_button_clicked(button):
+            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
+                                            self,
+                                            _login_finished,
+                                            self._login)
+
         config.add_section("Folder")
-        def load_button_clicked(button):
-            self._login()
-            folders_config.set_choices(self._get_folders().keys())
-        config.add_item("Load folders", "button",
-            callback = load_button_clicked
-        )
         folders_config = config.add_item("Folder name", "combotext",
             config_name = "foldername",
             choices = [],
         )
-
-    def configure_(self, window):
-        """
-        Configures the BoxDotNet sink
-        """
-        import gtk
-        import gobject
-        def on_login_finish(*args):
-            if self.token:
-                build_folder_store()
-            Utils.dialog_reset_cursor(dlg)
-            
-        def on_response(sender, responseID):
-            if responseID == gtk.RESPONSE_OK:
-                self.foldername = foldernamecombo.child.get_text()
-                
-        def load_button_clicked(button):
-            Utils.dialog_set_busy_cursor(dlg)
-            conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
-                                            self,
-                                            on_login_finish,
-                                            self._login)
-
-        def build_folder_store():
-            folder_store.clear()
-            folder_count = 0
-            folder_iter = None
-            for folder_name in self._get_folders().keys():
-                iter = folder_store.append((folder_name,))
-                if folder_name != "" and folder_name == self.foldername:
-                    folder_iter = iter
-                folder_count += 1
-
-            if folder_iter:
-                foldernamecombo.set_active_iter(folder_iter)
-            elif self.foldername:
-                foldernamecombo.child.set_text(self.foldername)
-            elif folder_count:
-                foldernamecombo.set_active(0)
-
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__,
-                        "config.glade",
-                        "BoxDotNetConfigDialog")
-
-        #get a whole bunch of widgets
-        foldernamecombo = tree.get_widget("foldernamecombo")
-        load_button = tree.get_widget("load_button")
-        dlg = tree.get_widget("BoxDotNetConfigDialog")
-
-        # setup combobox
-        folder_store = gtk.ListStore(gobject.TYPE_STRING)
-        foldernamecombo.set_model(folder_store)
-        cell = gtk.CellRendererText()
-        foldernamecombo.pack_start(cell, True)
-        foldernamecombo.set_text_column(0)
-
-        # load button
-        load_button.connect('clicked', load_button_clicked)
-        foldernamecombo.child.set_text(self.foldername)
-
-        # run the dialog
-        Utils.run_dialog_non_blocking(dlg, on_response, window)
+        config.add_item("Load folders", "button",
+            initial_value = _load_button_clicked
+        )
 
     def is_configured (self, isSource, isTwoWay):
         return len(self.foldername) > 0

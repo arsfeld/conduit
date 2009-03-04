@@ -104,57 +104,25 @@ class RSSSource(DataProvider.DataSource):
             config_name = 'feedUrl',
         )
         config.add_section("Enclosure settings")
-        limit_config = config.add_item("Limit downloaded enclosures to:", "check",
+        limit_config = config.add_item("Limit downloaded enclosures", "check",
             initial_value = (self.limit > 0)
         )
-        limit_config.connect("value-changed", lambda item, changed, value: limit_spin_config.set_enabled(value))        
-        limit_spin_config = config.add_item("", "spin",
+        limit_config.connect("value-changed", 
+            lambda item, changed, value: limit_spin_config.set_enabled(value)
+        )
+        limit_spin_config = config.add_item("Limit to", "spin",
             config_name = 'limit',
             enabled = (self.limit > 0),
-            needs_label = False)
-
-    def configure_(self, window):
-        tree = Utils.dataprovider_glade_get_widget(
-                        __file__, 
-                        "config.glade",
-                        "RSSSourceConfigDialog"
-                        )
+        )
+        random_config = config.add_item("Randomize enclosures", "check",
+            config_name = 'randomize'
+        )
         
-        #get a whole bunch of widgets
-        url = tree.get_widget("url")
-        limitCb = tree.get_widget("limitdownloads")
-        limitSb = tree.get_widget("limitnumber")        
-        randomize = tree.get_widget("randomize")
-        photosCb = tree.get_widget("downloadphotos")
-        audioCb = tree.get_widget("downloadaudio")
-        videoCb = tree.get_widget("downloadvideo")
-        
-        #preload the widgets
-        if self.limit > 0:
-            limitCb.set_active(True)
-            limitSb.set_value(self.limit)
-        else:
-            limitCb.set_active(False)
-        url.set_text(self.feedUrl)
-        randomize.set_active(self.randomize)
-        photosCb.set_active(self.downloadPhotos)
-        audioCb.set_active(self.downloadAudio)
-        videoCb.set_active(self.downloadVideo)
-                
-        dlg = tree.get_widget("RSSSourceConfigDialog")
-        
-        response = Utils.run_dialog (dlg, window)
-        if response == True:
-            self.feedUrl = url.get_text()
-            if limitCb.get_active():
-                self.limit = int(limitSb.get_value())
-            self.randomize = randomize.get_active()
-            self.downloadPhotos = photosCb.get_active()
-            self.downloadAudio = audioCb.get_active()
-            self.downloadVideo = videoCb.get_active()
-            
-        dlg.destroy()            
-
+        config.add_section("Download types")
+        config.add_item("Download audio files", "check", config_name = "downloadAudio")
+        config.add_item("Download video files", "check", config_name = "downloadVideo")
+        config.add_item("Download photo files", "check", config_name = "downloadPhotos")
+    
     def refresh(self):
         DataProvider.DataSource.refresh(self)
         #url : (title, mimetype)
