@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: conduit\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-01 11:53+0100\n"
-"PO-Revision-Date: 2009-02-01 11:54+0100\n"
+"POT-Creation-Date: 2009-03-04 14:45+0100\n"
+"PO-Revision-Date: 2009-03-04 14:47+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -223,7 +223,7 @@ msgstr "_Arkiv"
 msgid "_Help"
 msgstr "_Hjälp"
 
-#: ../conduit/gtkui/Canvas.py:150
+#: ../conduit/gtkui/Canvas.py:152
 msgid "Drag a Data Provider here to continue"
 msgstr "Dra en dataleverantör hit för att fortsätta"
 
@@ -322,6 +322,15 @@ msgstr "Synkronisering"
 msgid "Description"
 msgstr "Beskrivning"
 
+#: ../conduit/gtkui/ConfigItems.py:688
+#, python-format
+msgid "Total: %d"
+msgstr "Totalt: %d"
+
+#: ../conduit/gtkui/WindowConfigurator.py:14
+msgid "Configure"
+msgstr "Konfigurera"
+
 #: ../conduit/dataproviders/DataProvider.py:19
 msgid "Ready"
 msgstr "Redo"
@@ -379,14 +388,13 @@ msgid "Store things in Backpack Notes"
 msgstr "Lagra saker i Backpack-anteckningar"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:1
-#: ../conduit/modules/FlickrModule/config.glade.h:1
 #: ../conduit/modules/GoogleModule/calendar-config.glade.h:1
 #: ../conduit/modules/GoogleModule/documents-config.glade.h:1
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:1
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:1
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:1
 #: ../conduit/modules/SmugMugModule/config.glade.h:1
-#: ../conduit/modules/ZotoModule/zoto.glade.h:1
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:1
 msgid "<b>Account Details</b>"
 msgstr "<b>Kontodetaljer</b>"
 
@@ -407,12 +415,10 @@ msgid "Save notes in page:"
 msgstr "Spara anteckningar i sida:"
 
 #: ../conduit/modules/BackpackModule/config.glade.h:6
-#: ../conduit/modules/FlickrModule/config.glade.h:8
 #: ../conduit/modules/GoogleModule/picasa-config.glade.h:8
 #: ../conduit/modules/GoogleModule/youtube-config.glade.h:9
 #: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:6
 #: ../conduit/modules/SmugMugModule/config.glade.h:7
-#: ../conduit/modules/ZotoModule/zoto.glade.h:5
 msgid "Username:"
 msgstr "Användarnamn:"
 
@@ -430,8 +436,6 @@ msgid "Playlist Name"
 msgstr "Spellistenamn"
 
 #: ../conduit/modules/BansheeModule/BansheeModule.py:225
-#: ../conduit/modules/FspotModule/FspotModule.py:254
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:153
 msgid "Enabled"
 msgstr "Aktiverad"
 
@@ -444,7 +448,6 @@ msgid "Banshee"
 msgstr "Banshee"
 
 #: ../conduit/modules/BoxDotNetModule/BoxDotNetModule.py:29
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:1
 msgid "Box.net"
 msgstr "Box.net"
 
@@ -452,61 +455,37 @@ msgstr "Box.net"
 msgid "Synchronize your Box.net files"
 msgstr "Synkronisera dina Box.net-filer"
 
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:2
-msgid "Folder:"
-msgstr "Mapp:"
-
-# FIXME. Kolla denna
-#: ../conduit/modules/BoxDotNetModule/config.glade.h:3
-#: ../conduit/modules/FacebookModule/config.glade.h:3
-#: ../conduit/modules/FlickrModule/config.glade.h:4
-msgid "Load"
-msgstr "Läs in"
-
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:108
-#, python-format
-msgid "Select %s:"
-msgstr "Välj %s:"
-
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:147
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:127
 msgid "Evolution Contacts"
 msgstr "Evolution-kontakter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:148
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:128
 msgid "Synchronize your contacts"
 msgstr "Synkronisera dina kontakter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:198
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:178
 msgid "Evolution Calendar"
 msgstr "Evolution-kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:199
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:179
 msgid "Synchronize your calendar"
 msgstr "Synkronisera din kalender"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:260
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:240
 msgid "Evolution Tasks"
 msgstr "Evolution-uppgifter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:261
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:241
 msgid "Synchronize your tasks"
 msgstr "Synkronisera dina uppgifter"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:317
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:297
 msgid "Evolution Memos"
 msgstr "Evolution-memon"
 
-#: ../conduit/modules/EvolutionModule/EvolutionModule.py:318
+#: ../conduit/modules/EvolutionModule/EvolutionModule.py:298
 msgid "Synchronize your memos"
 msgstr "Synkronisera dina memon"
-
-#: ../conduit/modules/EvolutionModule/config.glade.h:1
-msgid "Addressbook:"
-msgstr "Adressbok:"
-
-#: ../conduit/modules/EvolutionModule/config.glade.h:2
-msgid "Evolution"
-msgstr "Evolution"
 
 #: ../conduit/modules/FacebookModule/FacebookModule.py:38
 #: ../conduit/modules/FacebookModule/config.glade.h:2
@@ -517,59 +496,13 @@ msgstr "Facebook"
 msgid "Synchronize your Facebook photos"
 msgstr "Synkronisera dina Facebook-foton"
 
-#: ../conduit/modules/FacebookModule/config.glade.h:1
-#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
-#: ../conduit/modules/iPodModule/config.glade.h:2
-#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
-#: ../conduit/modules/SmugMugModule/config.glade.h:3
-#: ../conduit/modules/ZotoModule/zoto.glade.h:3
-msgid "Album:"
-msgstr "Album:"
-
 #: ../conduit/modules/FeedModule/FeedModule.py:58
-#: ../conduit/modules/FeedModule/config.glade.h:9
 msgid "RSS Feed"
 msgstr "RSS-kanal"
 
 #: ../conduit/modules/FeedModule/FeedModule.py:59
 msgid "Synchronize data from RSS enclosures"
 msgstr "Synkronisera data från RSS-bilagor"
-
-#: ../conduit/modules/FeedModule/config.glade.h:1
-msgid "<b>Enclosure Settings</b>"
-msgstr "<b>Inställningar för bilagor</b>"
-
-#: ../conduit/modules/FeedModule/config.glade.h:2
-msgid "<b>Feed Details</b>"
-msgstr "<b>Detaljer för kanal</b>"
-
-#: ../conduit/modules/FeedModule/config.glade.h:3
-msgid "Download Audio Files"
-msgstr "Hämta ner ljudfiler"
-
-#: ../conduit/modules/FeedModule/config.glade.h:4
-msgid "Download Photos"
-msgstr "Hämta ner foton"
-
-#: ../conduit/modules/FeedModule/config.glade.h:5
-msgid "Download Video Files"
-msgstr "Hämta ner videofiler"
-
-#: ../conduit/modules/FeedModule/config.glade.h:6
-msgid "Feed Address:"
-msgstr "Kanaladress:"
-
-#: ../conduit/modules/FeedModule/config.glade.h:7
-msgid ""
-"Limit the Number of\n"
-"Enclosures Downloaded to:"
-msgstr ""
-"Begränsa antalet bilagor\n"
-"att hämta ner till:"
-
-#: ../conduit/modules/FeedModule/config.glade.h:10
-msgid "Randomize Enclosures"
-msgstr "Slumpa bilagor"
 
 #: ../conduit/modules/FileModule/FileConfiguration.py:99
 msgid "Icon"
@@ -620,6 +553,308 @@ msgstr "Mapp"
 msgid "Synchronize folders"
 msgstr "Synkronisera mappar"
 
+#: ../conduit/modules/FlickrModule/FlickrModule.py:76
+msgid "Flickr"
+msgstr "Flickr"
+
+#: ../conduit/modules/FlickrModule/FlickrModule.py:77
+msgid "Synchronize your Flickr.com photos"
+msgstr "Synkronisera dina Flickr.com-foton"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:25
+msgid "F-Spot"
+msgstr "F-Spot"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:26
+msgid "Synchronize your F-Spot photos"
+msgstr "Synkronisera dina F-Spot-foton"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:152
+msgid "F-Spot DBus interface is operating in read-only mode"
+msgstr "F-Spots DBus-gränssnitt kör i skrivskyddat läge"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:218
+msgid "F-Spot is running"
+msgstr "F-Spot är igång"
+
+#: ../conduit/modules/FspotModule/FspotModule.py:219
+msgid "Please start F-Spot or activate the D-Bus Extension"
+msgstr "Starta F-Spot eller aktivera D-Bus-utökningen"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:21
+msgid "Application Settings"
+msgstr "Programinställningar"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:22
+msgid "Synchronize your application settings"
+msgstr "Synkronisera dina programinställningar"
+
+#: ../conduit/modules/GConfModule/GConfModule.py:137
+msgid "Applications to Synchronize"
+msgstr "Program att synkronisera"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:369
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
+msgid "Google Calendar"
+msgstr "Google Kalender"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:370
+msgid "Synchronize your Google Calendar"
+msgstr "Synkronisera din Google Kalender"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:555
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
+msgid "Picasa"
+msgstr "Picasa"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:556
+msgid "Synchronize your Google Picasa photos"
+msgstr "Synkronisera dina Google Picasa-foton"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:803
+msgid "Google Contacts"
+msgstr "Google-kontakter"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:804
+msgid "Synchronize your Google Mail contacts"
+msgstr "Synkronisera dina Google Mail-kontakter"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1060
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:5
+msgid "Google Documents"
+msgstr "Google Dokument"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1061
+msgid "Synchronize your Google Documents"
+msgstr "Synkronisera dina Google Dokument"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1338
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:69
+msgid "Unknown"
+msgstr "Okänt"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1339
+msgid "miscellaneous"
+msgstr "diverse"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1340
+msgid "No description."
+msgstr "Ingen beskrivning."
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1349
+msgid "YouTube"
+msgstr "YouTube"
+
+#: ../conduit/modules/GoogleModule/GoogleModule.py:1350
+msgid "Synchronize data from YouTube"
+msgstr "Synkronisera data från YouTube"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
+msgid "Calendar:"
+msgstr "Kalender:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:4
+msgid "Email:"
+msgstr "E-post:"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
+msgid "Load Calendars"
+msgstr "Läs in kalendrar"
+
+#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:6
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
+#: ../conduit/modules/SmugMugModule/config.glade.h:4
+msgid "Password:"
+msgstr "Lösenord:"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:2
+msgid "<b>Downloaded Document Format</b>"
+msgstr "<b>Hämtade dokumentformat</b>"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:3
+msgid "Documents"
+msgstr "Dokument"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:7
+msgid "Presentations"
+msgstr "Presentationer"
+
+#: ../conduit/modules/GoogleModule/documents-config.glade.h:8
+msgid "Spreadsheets"
+msgstr "Kalkylblad"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
+#: ../conduit/modules/SmugMugModule/config.glade.h:2
+msgid "<b>Saved Photo Settings</b>"
+msgstr "<b>Inställningar för sparat foto</b>"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:3
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:3
+#: ../conduit/modules/SmugMugModule/config.glade.h:3
+#: ../conduit/modules/FacebookModule/config.glade.h:1
+msgid "Album:"
+msgstr "Album:"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
+msgid "Login"
+msgstr "Inloggning"
+
+#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
+#: ../conduit/modules/SmugMugModule/config.glade.h:5
+msgid "Resize Photos:"
+msgstr "Ändra storlek på foton:"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
+msgid "<b>Download Videos</b>"
+msgstr "<b>Hämta ner videor</b>"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
+msgid "Favorites of above user"
+msgstr "Favoriter för ovanstående användare"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
+msgid "Max retrieved videos (0 is unlimited):"
+msgstr "Maximalt hämtade videor (0 är obegränsat):"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
+msgid "Most viewed"
+msgstr "Mest visade"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
+msgid "Top rated"
+msgstr "Högst betygsatta"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
+msgid "Uploaded by above user"
+msgstr "Uppskickad av ovanstående användare"
+
+#: ../conduit/modules/GoogleModule/youtube-config.glade.h:10
+msgid "YouTube Source"
+msgstr "YouTube-källa"
+
+#: ../conduit/modules/iPodModule/iPodModule.py:694
+#: ../conduit/modules/N800Module/N800Module.py:77
+msgid "Encoding"
+msgstr "Kodning"
+
+#. Translators: Translate this in derived classes.
+#: ../conduit/modules/N800Module/N800Module.py:55
+msgid "Conduit"
+msgstr "Conduit"
+
+#. Signifies that a conversion should not take place
+#: ../conduit/modules/N800Module/N800Module.py:57
+msgid "None"
+msgstr "Ingen"
+
+#: ../conduit/modules/N800Module/N800Module.py:105
+msgid "N800 Files"
+msgstr "N800-filer"
+
+#: ../conduit/modules/N800Module/N800Module.py:106
+msgid "Synchronizes files/folders to a N800 device"
+msgstr "Synkronisera filer/mappar till en N800-enhet"
+
+#. To translators: default backup folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:111
+msgid "Backups"
+msgstr "Säkerhetskopior"
+
+#: ../conduit/modules/N800Module/N800Module.py:126
+msgid "N800 Music"
+msgstr "N800 Musik"
+
+#: ../conduit/modules/N800Module/N800Module.py:127
+msgid "Synchronizes music to a N800 device"
+msgstr "Synkroniserar musik till en N800-enhet"
+
+#. To translators: defaul music folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:133
+msgid "Music"
+msgstr "Musik"
+
+#: ../conduit/modules/N800Module/N800Module.py:150
+msgid "N800 Videos"
+msgstr "N800-videor"
+
+#: ../conduit/modules/N800Module/N800Module.py:151
+msgid "Synchronizes video to a N800 device"
+msgstr "Synkroniserar videor till en N800-enhet"
+
+#. To translators: defaul video folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:157
+msgid "Video"
+msgstr "Video"
+
+#: ../conduit/modules/N800Module/N800Module.py:174
+msgid "N800 Photos"
+msgstr "N800 Foton"
+
+#: ../conduit/modules/N800Module/N800Module.py:175
+msgid "Synchronizes photos to an N800 device"
+msgstr "Synkroniserar bilder till en N800-enhet"
+
+#. To translators: default photos folder of N800
+#: ../conduit/modules/N800Module/N800Module.py:181
+msgid "Photo"
+msgstr "Foto"
+
+#: ../conduit/modules/NetworkModule/Server.py:147
+msgid "Network"
+msgstr "Nätverk"
+
+#: ../conduit/modules/NetworkModule/Server.py:148
+msgid "Enable synchronization via network"
+msgstr "Aktivera synkronisering via nätverk"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:44
+msgid "Rhythmbox Music"
+msgstr "Rhythmbox-musik"
+
+#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:45
+msgid "Synchronize songs from your Rhythmbox playlists"
+msgstr "Synkronisera låtar från dina Rhythmbox-spellistor"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
+#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
+msgid "Shutterfly"
+msgstr "Shutterfly"
+
+#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
+msgid "Synchronize your Shutterfly photos"
+msgstr "Synkronisera dina Shutterfly-foton"
+
+#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
+msgid "%Y-%m-%d %H:%M:%S"
+msgstr "%Y-%m-%d %H.%M.%S"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
+#: ../conduit/modules/SmugMugModule/config.glade.h:6
+msgid "SmugMug"
+msgstr "SmugMug"
+
+#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
+msgid "Synchronize your SmugMug.com photos"
+msgstr "Synkronisera dina SmugMug.com-foton"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:154
+msgid "Zoto"
+msgstr "Zoto"
+
+#: ../conduit/modules/ZotoModule/ZotoModule.py:155
+msgid "Synchronize your Zoto photos"
+msgstr "Synkronisera dina Zoto-foton"
+
+# FIXME. Kolla denna
+#: ../conduit/modules/FacebookModule/config.glade.h:3
+msgid "Load"
+msgstr "Läs in"
+
 #: ../conduit/modules/FileModule/config.glade.h:1
 msgid "<b>Items to Synchronize</b>"
 msgstr "<b>Objekt att synkronisera</b>"
@@ -664,348 +899,106 @@ msgstr "Inkludera dolda filer"
 msgid "Select A Folder"
 msgstr "Välj en mapp"
 
-#: ../conduit/modules/FlickrModule/FlickrModule.py:76
-#: ../conduit/modules/FlickrModule/config.glade.h:3
-msgid "Flickr"
-msgstr "Flickr"
-
-#: ../conduit/modules/FlickrModule/FlickrModule.py:77
-msgid "Synchronize your Flickr.com photos"
-msgstr "Synkronisera dina Flickr.com-foton"
-
-#: ../conduit/modules/FlickrModule/config.glade.h:2
-#: ../conduit/modules/GoogleModule/picasa-config.glade.h:2
-#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:2
-#: ../conduit/modules/SmugMugModule/config.glade.h:2
-#: ../conduit/modules/ZotoModule/zoto.glade.h:2
-msgid "<b>Saved Photo Settings</b>"
-msgstr "<b>Inställningar för sparat foto</b>"
-
-#: ../conduit/modules/FlickrModule/config.glade.h:5
-msgid "Photos are public"
-msgstr "Foton är publika"
-
-#: ../conduit/modules/FlickrModule/config.glade.h:6
-msgid "Photoset Name:"
-msgstr "Namn på fotouppsättning:"
-
-#: ../conduit/modules/FlickrModule/config.glade.h:7
-#: ../conduit/modules/GoogleModule/picasa-config.glade.h:7
-#: ../conduit/modules/SmugMugModule/config.glade.h:5
-msgid "Resize Photos:"
-msgstr "Ändra storlek på foton:"
-
-#: ../conduit/modules/FspotModule/FspotModule.py:25
-#: ../conduit/modules/FspotModule/config.glade.h:3
-msgid "F-Spot"
-msgstr "F-Spot"
-
-#: ../conduit/modules/FspotModule/FspotModule.py:26
-msgid "Synchronize your F-Spot photos"
-msgstr "Synkronisera dina F-Spot-foton"
-
-#: ../conduit/modules/FspotModule/FspotModule.py:127
-msgid "F-Spot DBus interface is operating in read-only mode"
-msgstr "F-Spots DBus-gränssnitt kör i skrivskyddat läge"
-
-#. column 1 is the tag name
-#: ../conduit/modules/FspotModule/FspotModule.py:246
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:145
-msgid "Tag Name"
-msgstr "Taggnamn"
-
-#: ../conduit/modules/FspotModule/config.glade.h:1
-msgid "<b>Return Photos Tagged With</b>"
-msgstr "<b>Returnera foton som är taggade med</b>"
-
-#: ../conduit/modules/FspotModule/config.glade.h:2
-msgid "Create Tags: "
-msgstr "Skapa taggar: "
-
-#: ../conduit/modules/GConfModule/GConfModule.py:21
-msgid "Application Settings"
-msgstr "Programinställningar"
-
-#: ../conduit/modules/GConfModule/GConfModule.py:22
-msgid "Synchronize your application settings"
-msgstr "Synkronisera dina programinställningar"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:369
-#: ../conduit/modules/GoogleModule/calendar-config.glade.h:4
-msgid "Google Calendar"
-msgstr "Google Kalender"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:370
-msgid "Synchronize your Google Calendar"
-msgstr "Synkronisera din Google Kalender"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:555
-#: ../conduit/modules/GoogleModule/picasa-config.glade.h:6
-msgid "Picasa"
-msgstr "Picasa"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:556
-msgid "Synchronize your Google Picasa photos"
-msgstr "Synkronisera dina Google Picasa-foton"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:803
-msgid "Google Contacts"
-msgstr "Google-kontakter"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:804
-msgid "Synchronize your Google Mail contacts"
-msgstr "Synkronisera dina Google Mail-kontakter"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1060
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:5
-msgid "Google Documents"
-msgstr "Google Dokument"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1061
-msgid "Synchronize your Google Documents"
-msgstr "Synkronisera dina Google Dokument"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1338
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:67
-msgid "Unknown"
-msgstr "Okänt"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1339
-msgid "miscellaneous"
-msgstr "diverse"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1340
-msgid "No description."
-msgstr "Ingen beskrivning."
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1349
-msgid "YouTube"
-msgstr "YouTube"
-
-#: ../conduit/modules/GoogleModule/GoogleModule.py:1350
-msgid "Synchronize data from YouTube"
-msgstr "Synkronisera data från YouTube"
-
-#: ../conduit/modules/GoogleModule/calendar-config.glade.h:2
-msgid "Calendar:"
-msgstr "Kalender:"
-
-#: ../conduit/modules/GoogleModule/calendar-config.glade.h:3
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:4
-msgid "Email:"
-msgstr "E-post:"
-
-#: ../conduit/modules/GoogleModule/calendar-config.glade.h:5
-msgid "Load Calendars"
-msgstr "Läs in kalendrar"
-
-#: ../conduit/modules/GoogleModule/calendar-config.glade.h:6
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:6
-#: ../conduit/modules/GoogleModule/picasa-config.glade.h:5
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:6
-#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:4
-#: ../conduit/modules/SmugMugModule/config.glade.h:4
-#: ../conduit/modules/ZotoModule/zoto.glade.h:4
-msgid "Password:"
-msgstr "Lösenord:"
-
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:2
-msgid "<b>Downloaded Document Format</b>"
-msgstr "<b>Hämtade dokumentformat</b>"
-
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:3
-msgid "Documents"
-msgstr "Dokument"
-
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:7
-msgid "Presentations"
-msgstr "Presentationer"
-
-#: ../conduit/modules/GoogleModule/documents-config.glade.h:8
-msgid "Spreadsheets"
-msgstr "Kalkylblad"
-
-#: ../conduit/modules/GoogleModule/picasa-config.glade.h:4
-msgid "Login"
-msgstr "Inloggning"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:2
-msgid "<b>Download Videos</b>"
-msgstr "<b>Hämta ner videor</b>"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:3
-msgid "Favorites of above user"
-msgstr "Favoriter för ovanstående användare"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:4
-msgid "Max retrieved videos (0 is unlimited):"
-msgstr "Maximalt hämtade videor (0 är obegränsat):"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:5
-msgid "Most viewed"
-msgstr "Mest visade"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:7
-msgid "Top rated"
-msgstr "Högst betygsatta"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:8
-msgid "Uploaded by above user"
-msgstr "Uppskickad av ovanstående användare"
-
-#: ../conduit/modules/GoogleModule/youtube-config.glade.h:10
-msgid "YouTube Source"
-msgstr "YouTube-källa"
-
-#: ../conduit/modules/iPodModule/iPodModule.py:663
-msgid "Encoding"
-msgstr "Kodning"
-
-#: ../conduit/modules/iPodModule/iPodModule.py:769
-msgid "Keep converted files"
-msgstr "Behåll konverterade filer"
-
-#: ../conduit/modules/iPodModule/config.glade.h:1
-msgid "<b>Encoding</b>"
-msgstr "<b>Kodning</b>"
-
-#: ../conduit/modules/iPodModule/config.glade.h:3
-msgid "iPod Photos"
-msgstr "iPod-bilder"
-
-#. Translators: Translate this in derived classes.
-#: ../conduit/modules/N800Module/N800Module.py:55
-msgid "Conduit"
-msgstr "Conduit"
-
-#. Translators: Format string used to describe the acceptable formats the
-#. device accepts. The first arg is replaced with DEFAULT_FOLDER and the second
-#. arg is a comma seperated list of encodings
-#: ../conduit/modules/N800Module/N800Module.py:59
-#, python-format
-msgid "%s Format (%s)"
-msgstr "Format för %s (%s)"
-
-#. Signifies that a conversion should not take place
-#: ../conduit/modules/N800Module/N800Module.py:61
-msgid "unchanged"
-msgstr "oförändrad"
-
-#: ../conduit/modules/N800Module/N800Module.py:123
-msgid "N800 Files"
-msgstr "N800-filer"
-
-#: ../conduit/modules/N800Module/N800Module.py:124
-msgid "Synchronizes files/folders to a N800 device"
-msgstr "Synkronisera filer/mappar till en N800-enhet"
-
-#. To translators: default backup folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:129
-msgid "Backups"
-msgstr "Säkerhetskopior"
-
-#: ../conduit/modules/N800Module/N800Module.py:144
-msgid "N800 Music"
-msgstr "N800 Musik"
-
-#: ../conduit/modules/N800Module/N800Module.py:145
-msgid "Synchronizes music to a N800 device"
-msgstr "Synkroniserar musik till en N800-enhet"
-
-#. To translators: defaul music folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:151
-msgid "Music"
-msgstr "Musik"
-
-#: ../conduit/modules/N800Module/N800Module.py:168
-msgid "N800 Videos"
-msgstr "N800-videor"
-
-#: ../conduit/modules/N800Module/N800Module.py:169
-msgid "Synchronizes video to a N800 device"
-msgstr "Synkroniserar videor till en N800-enhet"
-
-#. To translators: defaul video folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:175
-msgid "Video"
-msgstr "Video"
-
-#: ../conduit/modules/N800Module/N800Module.py:192
-msgid "N800 Photos"
-msgstr "N800 Foton"
-
-#: ../conduit/modules/N800Module/N800Module.py:193
-msgid "Synchronizes photos to an N800 device"
-msgstr "Synkroniserar bilder till en N800-enhet"
-
-#. To translators: default photos folder of N800
-#: ../conduit/modules/N800Module/N800Module.py:199
-msgid "Photo"
-msgstr "Foto"
-
-#: ../conduit/modules/NetworkModule/Server.py:147
-msgid "Network"
-msgstr "Nätverk"
-
-#: ../conduit/modules/NetworkModule/Server.py:148
-msgid "Enable synchronization via network"
-msgstr "Aktivera synkronisering via nätverk"
-
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:44
-msgid "Rhythmbox Music"
-msgstr "Rhythmbox-musik"
-
-#: ../conduit/modules/RhythmboxModule/RhythmboxModule.py:45
-msgid "Synchronize songs from your Rhythmbox playlists"
-msgstr "Synkronisera låtar från dina Rhythmbox-spellistor"
-
-#: ../conduit/modules/RhythmboxModule/config.glade.h:1
-msgid "<b>Synchronize the Following Playlists</b>"
-msgstr "<b>Synkronisera följande spellistor</b>"
-
-#: ../conduit/modules/RhythmboxModule/config.glade.h:2
-msgid "Rhythmbox Playlists"
-msgstr "Rhythmbox-spellistor"
-
-#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:26
-#: ../conduit/modules/ShutterflyModule/shutterfly.glade.h:5
-msgid "Shutterfly"
-msgstr "Shutterfly"
-
-#: ../conduit/modules/ShutterflyModule/ShutterflyModule.py:27
-msgid "Synchronize your Shutterfly photos"
-msgstr "Synkronisera dina Shutterfly-foton"
-
-#: ../conduit/modules/ShutterflyModule/shutterfly/shutterfly.py:33
-msgid "%Y-%m-%d %H:%M:%S"
-msgstr "%Y-%m-%d %H.%M.%S"
-
-#: ../conduit/modules/SmugMugModule/SmugMugModule.py:28
-#: ../conduit/modules/SmugMugModule/config.glade.h:6
-msgid "SmugMug"
-msgstr "SmugMug"
-
-#: ../conduit/modules/SmugMugModule/SmugMugModule.py:29
-msgid "Synchronize your SmugMug.com photos"
-msgstr "Synkronisera dina SmugMug.com-foton"
-
-#: ../conduit/modules/ZotoModule/ZotoModule.py:154
-#: ../conduit/modules/ZotoModule/zoto.glade.h:6
-msgid "Zoto"
-msgstr "Zoto"
-
-#: ../conduit/modules/ZotoModule/ZotoModule.py:155
-msgid "Synchronize your Zoto photos"
-msgstr "Synkronisera dina Zoto-foton"
-
-#: ../conduit/modules/Firefox3Module/config.glade.h:1
-msgid "Firefox"
-msgstr "Firefox"
-
-#: ../conduit/modules/Firefox3Module/config.glade.h:2
-msgid "Firefox Profile:"
-msgstr "Firefox-profil:"
-
+#: ../conduit/modules/Firefox3Module/Firefox3Module.py:26
+msgid "Firefox 3 Bookmarks"
+msgstr "Firefox 3-bokmärken"
+
+#: ../conduit/modules/Firefox3Module/Firefox3Module.py:27
+msgid "Syncronize your Firefox 3 Bookmarks"
+msgstr "Synkronisera dina Firefox 3-bokmärken"
+
+#: ../conduit/modules/Firefox3Module/Firefox3Module.py:87
+msgid "Firefox Profile"
+msgstr "Firefox-profil"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:2
+msgid "<b>Connection Settings</b>"
+msgstr "<b>Anslutningsinställningar</b>"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:3
+msgid "<b>Storage Location</b>"
+msgstr "<b>Lagringsplats</b>"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:4
+msgid "AWS Access Key:"
+msgstr "Åtkomstnyckel för AWS:"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:5
+msgid "AWS Secret Access Key:"
+msgstr "Hemlig åtkomstnyckel för AWS:"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:6
+msgid "Amazon S3"
+msgstr "Amazon S3"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:7
+msgid "Bucket name:"
+msgstr "Bucket-namn:"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:8
+msgid "Use SSL:"
+msgstr "Använd SSL:"
+
+#: ../conduit/modules/UNSUPPORTED/AmazonS3Module/config.glade.h:9
+msgid ""
+"Yes\n"
+"No"
+msgstr ""
+"Ja\n"
+"Nej"
+
+#~ msgid "Folder:"
+#~ msgstr "Mapp:"
+#~ msgid "Select %s:"
+#~ msgstr "Välj %s:"
+#~ msgid "Addressbook:"
+#~ msgstr "Adressbok:"
+#~ msgid "Evolution"
+#~ msgstr "Evolution"
+#~ msgid "<b>Feed Details</b>"
+#~ msgstr "<b>Detaljer för kanal</b>"
+#~ msgid "Download Audio Files"
+#~ msgstr "Hämta ner ljudfiler"
+#~ msgid "Download Photos"
+#~ msgstr "Hämta ner foton"
+#~ msgid "Download Video Files"
+#~ msgstr "Hämta ner videofiler"
+#~ msgid "Feed Address:"
+#~ msgstr "Kanaladress:"
+#~ msgid ""
+#~ "Limit the Number of\n"
+#~ "Enclosures Downloaded to:"
+#~ msgstr ""
+#~ "Begränsa antalet bilagor\n"
+#~ "att hämta ner till:"
+#~ msgid "Randomize Enclosures"
+#~ msgstr "Slumpa bilagor"
+#~ msgid "Photos are public"
+#~ msgstr "Foton är publika"
+#~ msgid "Photoset Name:"
+#~ msgstr "Namn på fotouppsättning:"
+#~ msgid "Tag Name"
+#~ msgstr "Taggnamn"
+#~ msgid "<b>Return Photos Tagged With</b>"
+#~ msgstr "<b>Returnera foton som är taggade med</b>"
+#~ msgid "Create Tags: "
+#~ msgstr "Skapa taggar: "
+#~ msgid "Keep converted files"
+#~ msgstr "Behåll konverterade filer"
+#~ msgid "<b>Encoding</b>"
+#~ msgstr "<b>Kodning</b>"
+#~ msgid "iPod Photos"
+#~ msgstr "iPod-bilder"
+#~ msgid "%s Format (%s)"
+#~ msgstr "Format för %s (%s)"
+#~ msgid "unchanged"
+#~ msgstr "oförändrad"
+#~ msgid "<b>Synchronize the Following Playlists</b>"
+#~ msgstr "<b>Synkronisera följande spellistor</b>"
+#~ msgid "Rhythmbox Playlists"
+#~ msgstr "Rhythmbox-spellistor"
+#~ msgid "Firefox"
+#~ msgstr "Firefox"
 #~ msgid "Not Configured Correctly"
 #~ msgstr "Inte konfigurerad korrekt"
 #~ msgid "Synchronize your desktop preferences"
