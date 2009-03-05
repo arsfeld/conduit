@@ -17,7 +17,7 @@ import conduit.Settings as Settings
 
 #Increment this number when the xml settings file
 #changes format
-SETTINGS_VERSION = "1"
+SETTINGS_VERSION = "2"
 
 class SyncSet(gobject.GObject):
     """
