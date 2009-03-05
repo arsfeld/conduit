@@ -56,10 +56,31 @@
 
 2009-02-25  John Stowers  <john.stowers@gmail.com>
 
+	* conduit/Knowledge.py:
+	* conduit/Main.py:
+	* conduit/dataproviders/DataProvider.py:
+	* conduit/dataproviders/__init__.py:
+	* conduit/gtkui/Canvas.py:
+	* conduit/gtkui/UI.py:
+	* conduit/modules/BoxDotNetModule/BoxDotNetModule.py:
+	* conduit/modules/DesktopWallpaperModule.py:
+	* conduit/modules/EvolutionModule/EvolutionModule.py:
+	* conduit/modules/FlickrModule/FlickrModule.py:
+	* conduit/modules/FspotModule/FspotModule.py:
+	* conduit/modules/GConfModule/GConfModule.py:
+	* conduit/modules/GoogleBookmarksModule.py:
+	* conduit/modules/NautilusBookmarksModule.py:
+	* conduit/modules/TomboyModule.py:
+	Mark more strings as translatable.
+	Patch by David Planella.
+
+2009-02-25  John Stowers  <john.stowers@gmail.com>
+
 	* conduit/modules/Firefox3Module/Firefox3Module.py:
 	* conduit/modules/Firefox3Module/Makefile.am:
 	* conduit/modules/Firefox3Module/config.glade:
-	Port to new config system.
+	Port to new config system and make the SQL query
+	on the firefox boomarks sane.
 
 2009-02-25  John Stowers  <john.stowers@gmail.com>
 

@@ -7,9 +7,10 @@ License: GPLv2
 import xml.dom.minidom
 import traceback
 import gobject
-from gettext import gettext as _
 import logging
 log = logging.getLogger("dataproviders.DataProvider")
+
+from gettext import gettext as _
 
 import conduit
 import conduit.ModuleWrapper as ModuleWrapper

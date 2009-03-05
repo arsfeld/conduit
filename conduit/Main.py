@@ -4,6 +4,7 @@ import sys
 import dbus, dbus.service, dbus.mainloop.glib
 import gobject
 import logging
+from gettext import gettext as _
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 dbus.mainloop.glib.threads_init()
@@ -55,51 +56,51 @@ class Application(dbus.service.Object):
         parser = optparse.OptionParser(
                 prog="conduit",
                 version="%%prog %s" % conduit.VERSION,
-                description="Conduit is a synchronization application.")
+                description=_("Conduit is a synchronization application."))
         parser.add_option(
                 "-c", "--console",
                 dest="build_gui", action="store_false", default=True,
-                help="Launch without GUI. [default: %default]")
+                help=_("Launch without GUI. [default: %default]"))
         parser.add_option(
                 "-f", "--config-file",
-                metavar="FILE", default=self.settingsFile,
-                help="Save dataprovider configuration to FILE. [default: %default]")
+                metavar=_("FILE"), default=self.settingsFile,
+                help=_("Save dataprovider configuration to FILE. [default: %default]"))
         parser.add_option(
                 "-i", "--iconify",
                 action="store_true", default=False,
-                help="Iconify on startup. [default: %default]")
+                help=_("Iconify on startup. [default: %default]"))
         parser.add_option(
                 "-u", "--ui",
-                metavar="NAME", default="gtk",
-                help="Run with the specified UI. [default: %default]")
+                metavar=_("NAME"), default="gtk",
+                help=_("Run with the specified UI. [default: %default]"))
         parser.add_option(
                 "-w", "--with-modules",
-                metavar="mod1,mod2",
-                help="Only load modules in the named files. [default: load all modules]")
+                metavar=_("mod1,mod2"),
+                help=_("Only load modules in the named files. [default: load all modules]"))
         parser.add_option(
                 "-x", "--without-modules",
-                metavar="mod1,mod2",
-                help="Do not load modules in the named files. [default: load all modules]")
+                metavar=_("mod1,mod2"),
+                help=_("Do not load modules in the named files. [default: load all modules]"))
         parser.add_option(
                 "-e", "--settings",
-                metavar="key=val,key=val",
-                help="Explicitly set internal Conduit settings (keys) to the given values for this session. [default: do not set]")
+                metavar=_("key=val,key=val"),
+                help=_("Explicitly set internal Conduit settings (keys) to the given values for this session. [default: do not set]"))
         parser.add_option(
                 "-U", "--enable-unsupported",
                 action="store_true", default=False,
-                help="Enable loading of unfinished or unsupported dataproviders. [default: %default]")
+                help=_("Enable loading of unfinished or unsupported dataproviders. [default: %default]"))
         parser.add_option(
                 "-d", "--debug",
                 action="store_true", default=False,
-                help="Generate more debugging information. [default: %default]")
+                help=_("Generate more debugging information. [default: %default]"))
         parser.add_option(
                 "-q", "--quiet",
                 action="store_true", default=False,
-                help="Generate less debugging information. [default: %default]")
+                help=_("Generate less debugging information. [default: %default]"))
         parser.add_option(
                 "-s", "--silent",
                 action="store_true", default=False,
-                help="Generate no debugging information. [default: %default]")
+                help=_("Generate no debugging information. [default: %default]"))
         options, args = parser.parse_args()
 
         whitelist = None

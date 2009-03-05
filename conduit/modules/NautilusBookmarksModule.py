@@ -130,7 +130,7 @@ class NautilusBookmarksDataProviderTwoWay(DataProvider.TwoWay):
                 self._regenerate_bookmarks_file()
         # now return the rid
         if not luid:
-            raise Exceptions.SyncronizeError("Error putting/updating bookmark")
+            raise Exceptions.SyncronizeError(_("Error putting/updating bookmark"))
         else:
             return self.get(luid).get_rid()
 

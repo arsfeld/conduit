@@ -9,7 +9,6 @@ import conduit.utils as Utils
 import conduit.Exceptions as Exceptions
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Photo as Photo
-from conduit.datatypes import Rid
 import conduit.dataproviders.Image as Image
 
 from gettext import gettext as _
@@ -115,7 +114,7 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         if self._connect_to_fspot():
             self.photos = self.photo_remote.Query (self.enabledTags)
         else:
-            raise Exceptions.RefreshError("FSpot not available")
+            raise Exceptions.RefreshError(_("FSpot not available"))
         
     def get_all(self):
         """
@@ -166,9 +165,9 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
         # import the photo
         try:
             id = self.photo_remote.ImportPhoto (uploadInfo.url, True, tags)
-            return Rid(uid=str(id))
+            return conduit.datatypes.Rid(uid=str(id))
         except:
-            raise Exceptions.SynchronizeError ('Import Failed')
+            raise Exceptions.SynchronizeError (_('Import Failed'))
 
     def delete(self, LUID):
         """
@@ -240,13 +239,13 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             else:
                 status_label.value = STOPPED_MESSAGE
 
-        status_label = config.add_item("Status", "label")
-        start_fspot_config = config.add_item("Start F-Spot", "button",
+        status_label = config.add_item(_("Status"), "label")
+        start_fspot_config = config.add_item(_("Start F-Spot"), "button",
             initial_value = start_fspot
         )
 
-        config.add_section("Tags")
-        tags_config = config.add_item("Tags", "list",
+        config.add_section(_("Tags"))
+        tags_config = config.add_item(_("Tags"), "list",
             config_name = 'tags',
             choices = self.enabledTags,
         )
@@ -259,11 +258,11 @@ class FSpotDbusTwoWay(Image.ImageTwoWay):
             tags_config.set_choices(self._get_all_tags())
             tag_name_config.set_value('')
 
-        add_tags_section = config.add_section("Add tags")
-        tag_name_config = config.add_item("Tag name", "text",
+        add_tags_section = config.add_section(_("Add tags"))
+        tag_name_config = config.add_item(_("Tag name"), "text",
             initial_value = ""
         )
-        config.add_item("Add tag", "button",
+        config.add_item(_("Add tag"), "button",
             initial_value = add_tag_cb
         )
         dbus.SessionBus().watch_name_owner(self.SERVICE_PATH, watch)

@@ -279,20 +279,20 @@ class FlickrTwoWay(Image.ImageTwoWay):
         def _login_finished(*args):
             try:
                 if self.logged_in:
-                    status_label.value = 'Loading album list...'
+                    status_label.value = _('Loading album list...')
                     try:
                         #FIXME: Blocks and brings the whole UI with it.
                         photosets = self._get_photosets()
                     except:
-                        status_label.value = '<span foreground="red">Failed to connect.</span>'
+                        status_label.value = _('<span foreground="red">Failed to connect.</span>')
                     else:
                         photoset_config.choices = [name for name, photoSetId in photosets]
-                        status_label.value = 'Album names loaded.'
+                        status_label.value = _('Album names loaded.')
                 else:
                     #FIXME: The red color is pretty eye-candy, but might be too
                     #distracting and unnecessary, we should re-evaluate it's 
                     #usefulness
-                    status_label.value = '<span foreground="red">Failed to login.</span>'
+                    status_label.value = _('<span foreground="red">Failed to login.</span>')
             finally:
                 load_photosets_config.enabled = True
                 
@@ -301,12 +301,12 @@ class FlickrTwoWay(Image.ImageTwoWay):
             #FIXME: This applies the username value before OK/Apply is clicked, 
             #we should do a better job
             username_config.apply()
-            status_label.value = 'Logging in, please wait...'
+            status_label.value = _('Logging in, please wait...')
             conduit.GLOBALS.syncManager.run_blocking_dataprovider_function_calls(
                 self, _login_finished, self._login)
 
-        config.add_section('Account details')
-        username_config = config.add_item('Username', 'text',
+        config.add_section(_('Account details'))
+        username_config = config.add_item(_('Username'), 'text',
             config_name = 'username',
         )
         username_config.connect('value-changed',
@@ -315,19 +315,19 @@ class FlickrTwoWay(Image.ImageTwoWay):
             initial_value = self.status,
             use_markup = True,
         )
-        config.add_section('Saved photo settings')
-        load_photosets_config = config.add_item("Load photosets", "button",
+        config.add_section(_('Saved photo settings'))
+        load_photosets_config = config.add_item(_("Load photosets"), "button",
             initial_value = _load_photosets
         )        
         photoset_config = config.add_item('Photoset name', 'combotext',
             config_name = 'photoSetName',
             choices = [],
         )
-        config.add_item("Resize photos", "combo",
-            choices = [("None", "Do not resize"), "640x480", "800x600", "1024x768"],
+        config.add_item(_("Resize photos"), "combo",
+            choices = [(_("None"), _("Do not resize")), _("640x480"), _("800x600"), _("1024x768")],
             config_name = "imageSize"
         )
-        config.add_item('Photos are public', 'check',
+        config.add_item(_('Photos are public'), 'check',
             config_name = 'showPublic'
         )
        

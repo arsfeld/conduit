@@ -1,12 +1,13 @@
 import fnmatch
 import logging
 log = logging.getLogger("modules.GConf")
-from gettext import gettext as _
 
 try:
     import gconf
 except ImportError: # for maemo
     from gnome import gconf
+
+from gettext import gettext as _
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider

@@ -1,8 +1,9 @@
 import datetime
 import gobject
-from gettext import gettext as _
 import logging
 log = logging.getLogger("modules.Evolution")
+
+from gettext import gettext as _
 
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
@@ -152,7 +153,7 @@ class EvoContactTwoWay(EvoBase):
         if self.book.add_contact(obj):
             return self._get_object(obj.get_uid()).get_rid()
         else:
-            raise Exceptions.SyncronizeError("Error creating contact")
+            raise Exceptions.SyncronizeError(_("Error creating contact"))
 
     def _delete_object(self, uid):
         try:
@@ -169,7 +170,7 @@ class EvoContactTwoWay(EvoBase):
             self.uids.append(i.get_uid())
 
     def config_setup(self, window):
-        EvoBase.config_setup(self, window, "Addressbook")
+        EvoBase.config_setup(self, window, _("Addressbook"))
 
 class EvoCalendarTwoWay(EvoBase):
 
@@ -231,7 +232,7 @@ class EvoCalendarTwoWay(EvoBase):
             self.uids.append(i.get_uid())
 
     def config_setup(self, window):
-        EvoBase.config_setup(self, window, "Calendar")
+        EvoBase.config_setup(self, window, _("Calendar"))
 
 class EvoTasksTwoWay(EvoBase):
 
@@ -356,5 +357,5 @@ class EvoMemoTwoWay(EvoBase):
             self.uids.append(i.get_uid())
 
     def config_setup(self, window):
-        EvoBase.config_setup(self, window, "Memos")
+        EvoBase.config_setup(self, window, _("Memos"))
 

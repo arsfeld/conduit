@@ -29,10 +29,10 @@ import conduit.gtkui.Database as Database
 DEFAULT_CONDUIT_BROWSER = "gtkmozembed"
 DEVELOPER_WEB_LINKS = (
 #name,                      #url
-("Introduction",            "http://www.conduit-project.org/wiki/Development"),
-("Writing a Data Provider", "http://www.conduit-project.org/wiki/WritingADataProvider"),
-("API Documentation",       "http://doc.conduit-project.org/conduit/"),
-("Test Results",            "http://tests.conduit-project.org/")
+(_("Introduction"),            "http://www.conduit-project.org/wiki/Development"),
+(_("Writing a Data Provider"), "http://www.conduit-project.org/wiki/WritingADataProvider"),
+(_("API Documentation"),       "http://doc.conduit-project.org/conduit/"),
+(_("Test Results"),            "http://tests.conduit-project.org/")
 )
 
 #set up the gettext system and locales
@@ -165,7 +165,7 @@ class MainWindow:
         #add the preconfigured Conduit menu
         if conduit.GLOBALS.settings.get("gui_show_hints"):
             self.preconfiguredConduitsMenu = _PreconfiguredConduitMenu()
-            item = gtk.ImageMenuItem("Examples")
+            item = gtk.ImageMenuItem(_("Examples"))
             item.set_image(
                     gtk.image_new_from_stock(gtk.STOCK_OPEN,gtk.ICON_SIZE_MENU))
             item.set_submenu(self.preconfiguredConduitsMenu)
@@ -177,7 +177,7 @@ class MainWindow:
         #to the help menu
         if conduit.IS_DEVELOPMENT_VERSION:
             helpMenu = self.widgets.get_widget("help_menu")
-            developersMenuItem = gtk.ImageMenuItem("Developers")
+            developersMenuItem = gtk.ImageMenuItem(_("Developers"))
             developersMenuItem.set_image(
                                 gtk.image_new_from_icon_name(
                                         "applications-development",

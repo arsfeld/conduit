@@ -4,6 +4,8 @@ import xml.dom.minidom
 import logging
 log = logging.getLogger("modules.GoogleBookmarks")
 
+from gettext import gettext as _
+
 import conduit
 import conduit.dataproviders.DataProvider as DataProvider
 import conduit.datatypes.Bookmark as Bookmark
@@ -14,8 +16,8 @@ MODULES = {
 
 class GoogleBookmarksDataProviderSource(DataProvider.DataSource):
 
-    _name_ = "Google Bookmarks"
-    _description_ = "Sync your Google Bookmarks"
+    _name_ = _("Google Bookmarks")
+    _description_ = _("Sync your Google Bookmarks")
     _category_ = conduit.dataproviders.CATEGORY_BOOKMARKS
     _module_type_ = "source"
     _out_type_ = "bookmark"
@@ -34,7 +36,7 @@ class GoogleBookmarksDataProviderSource(DataProvider.DataSource):
         DataProvider.DataSource.refresh(self)
         self._bookmarks = []
         auth_handler = urllib2.HTTPBasicAuthHandler()
-        auth_handler.add_password('Google Search History', 'www.google.com', self.username, self.password)
+        auth_handler.add_password("Google Search History", "www.google.com", self.username, self.password)
         opener = urllib2.build_opener(auth_handler)
         bookmark_feed = opener.open("https://www.google.com/bookmarks/?output=rss")
         for item in xml.dom.minidom.parse(bookmark_feed).documentElement.getElementsByTagName("item"):
@@ -61,11 +63,11 @@ class GoogleBookmarksDataProviderSource(DataProvider.DataSource):
         return self.username
 
     def config_setup(self, config):
-        config.add_section("Login Details")
-        config.add_item("Username", "text",
+        config.add_section(_("Login Details"))
+        config.add_item(_("Username"), "text",
             config_name = "username",
         )
-        config.add_item("Password", "text",
+        config.add_item(_("Password"), "text",
             config_name = "password",
             password = True
         )

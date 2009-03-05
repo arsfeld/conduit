@@ -287,12 +287,12 @@ class BoxDotNetTwoWay(DataProvider.TwoWay):
                                             _login_finished,
                                             self._login)
 
-        config.add_section("Folder")
-        folders_config = config.add_item("Folder name", "combotext",
+        config.add_section(_("Folder"))
+        folders_config = config.add_item(_("Folder name"), "combotext",
             config_name = "foldername",
             choices = [],
         )
-        config.add_item("Load folders", "button",
+        config.add_item(_("Load folders"), "button",
             initial_value = _load_button_clicked
         )
 

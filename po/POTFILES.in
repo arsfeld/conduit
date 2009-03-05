@@ -17,16 +17,12 @@ conduit/modules/BansheeModule/BansheeModule.py
 conduit/modules/BansheeModule/config.glade
 conduit/modules/BoxDotNetModule/BoxDotNetModule.py
 conduit/modules/EvolutionModule/EvolutionModule.py
-conduit/modules/EvolutionModule/config.glade
 conduit/modules/FacebookModule/FacebookModule.py
 conduit/modules/FacebookModule/config.glade
 conduit/modules/FeedModule/FeedModule.py
-conduit/modules/FeedModule/config.glade
 conduit/modules/FileModule/FileConfiguration.py
 conduit/modules/FileModule/FileModule.py
-conduit/modules/FileModule/config.glade
 conduit/modules/FlickrModule/FlickrModule.py
-conduit/modules/FlickrModule/config.glade
 conduit/modules/FspotModule/FspotModule.py
 conduit/modules/GConfModule/GConfModule.py
 conduit/modules/GoogleModule/GoogleModule.py
@@ -44,5 +40,4 @@ conduit/modules/ShutterflyModule/shutterfly/shutterfly.py
 conduit/modules/SmugMugModule/SmugMugModule.py
 conduit/modules/SmugMugModule/config.glade
 conduit/modules/ZotoModule/ZotoModule.py
-conduit/modules/ZotoModule/zoto.glade
 

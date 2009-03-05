@@ -4,6 +4,8 @@ import logging
 import string
 log = logging.getLogger("modules.Tomboy")
 
+from gettext import gettext as _
+
 import conduit
 import conduit.TypeConverter as TypeConverter
 import conduit.dataproviders.DataProvider as DataProvider
@@ -98,8 +100,8 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
     """
     LUID is the tomboy uid string
     """
-    _name_ = "Tomboy Notes"
-    _description_ = "Synchronize your Tomboy notes"
+    _name_ = _("Tomboy Notes")
+    _description_ = _("Synchronize your Tomboy notes")
     _category_ = conduit.dataproviders.CATEGORY_NOTES
     _module_type_ = "twoway"
     _in_type_ = "note/tomboy"
@@ -200,7 +202,7 @@ class TomboyNoteTwoWay(DataProvider.TwoWay, AutoSync.AutoSync):
         if self._connect_to_tomboy():
             self.notes = [str(i) for i in self.remoteTomboy.ListAllNotes()]
         else:
-            raise Exceptions.RefreshError("Tomboy not available")
+            raise Exceptions.RefreshError(_("Tomboy not available"))
                 
     def get(self, uri):
         DataProvider.TwoWay.get(self, uri)
