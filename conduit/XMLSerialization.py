@@ -23,45 +23,45 @@ class Settings( object ):
     A class to store/retrieve data to/from an XML file
     """
 
-    def __init__( self, xml_text = "<configuration/>" ):
+    def __init__(self, xml_text="<configuration/>"):
         """
         Initializes Settings class
         """
         self.xml_document = parseString(xml_text)
 
-    def __string_to_type__( self, string, desired_type ):
+    def __string_to_type__(self, string, desired_type):
         """
         Converts a string into the desired scalar type
         """
-        if desired_type == "bool": 
-            return self.__bool_from_string__( string )
+        if desired_type == "bool":
+            return self.__bool_from_string__(string)
         elif desired_type == "float":
-            return float( string )
+            return float(string)
         elif desired_type == "int":
-            return int( string )
+            return int(string)
         elif desired_type == "str":
-            return str( string ) # 'just in case'
+            return str(string) # 'just in case'
 
-    def __type_as_string__( self, data_type ):
+    def __type_as_string__(self, data_type):
         """
         Returns string name of given data type
         """
-        if type( data_type ) == list:
+        if type(data_type) == list:
             return "list"
-        elif type( data_type ) == tuple:
+        elif type(data_type) == tuple:
             return "tuple"
-        elif type( data_type ) == dict:
+        elif type(data_type) == dict:
             return "dict"
-        elif type( data_type ) == int:
+        elif type(data_type) == int:
             return "int"
-        elif type( data_type ) == float:
+        elif type(data_type) == float:
             return "float"
-        elif type( data_type ) == str:
+        elif type(data_type) == str:
             return "str"
-        elif type( data_type ) == bool:
+        elif type(data_type) == bool:
             return "bool"
 
-    def __bool_from_string__( self, string ):
+    def __bool_from_string__(self, string):
         """
         Returns a bool from a string representation
         """
@@ -70,97 +70,102 @@ class Settings( object ):
         else:
             return False
 
-    def __getitem__( self, name ):
+    def __getitem__(self, name):
         """
         Called when variable get via subscript interface
         """
-        node = self.__get_data_node__( name )
+        node = self.__get_data_node__(name)
         if node:
-            return self.__node_to_data__( node )
+            return self.__node_to_data__(node)
         else:
-            raise KeyError( name )
-                
-    def __setitem__( self, name, value ):
+            raise KeyError(name)
+
+    def __setitem__(self, name, value):
         """
         Called when variable set via subscript interface
         """
-        newNode = self.__data_to_node__( name, value )
-        oldNode = self.__get_data_node__( name )
+        newNode = self.__data_to_node__(name, value)
+        oldNode = self.__get_data_node__(name)
         if oldNode:
-            self.xml_document.documentElement.replaceChild( newNode, oldNode )
+            self.xml_document.documentElement.replaceChild(newNode, oldNode)
         else:
-            self.xml_document.documentElement.appendChild( newNode )
+            self.xml_document.documentElement.appendChild(newNode)
 
-    def __delitem__( self, name ):
+    def __delitem__(self, name):
         """
         Deletes item from saved file
         """
-        node = self.__get_data_node__( name )
+        node = self.__get_data_node__(name)
         if node:
-            self.xml_document.documentElement.removeChild( node )
+            self.xml_document.documentElement.removeChild(node)
         else:
-            raise KeyError( name )
+            raise KeyError(name)
 
-    def __contains__( self , name ):
+    def __contains__(self, name):
         """
         This gets called by the 'in' construct
         """
-        node = self.__get_data_node__( name )
+        node = self.__get_data_node__(name)
         if node:
             return True
         return False
 
-    def __get_data_node__( self, name ):
+    def __get_data_node__(self, name):
         """
         Returns data node with given name
         """
         for node in self.xml_document.documentElement.childNodes:
-            if node.nodeType == node.ELEMENT_NODE and node.getAttribute( "name" ) == name:
+            if node.nodeType == node.ELEMENT_NODE and node.nodeName == name:
                 return node
-            
+
     def __iter__(self):
         return self.iteritems()
-            
+
     def iteritems(self):
         for node in self.xml_document.documentElement.childNodes:
             if node.nodeType == node.ELEMENT_NODE:
-                #print node.getAttribute("name"), node
-                yield node.getAttribute( "name" ), self.__node_to_data__(node)
+                yield node.nodeName, self.__node_to_data__(node)
 
-    def __data_to_node__( self, name, data ):
+    def __data_to_node__(self, name, data):
         """
         Converts a python data type into an xml node
         """
-        node = self.xml_document.createElement( self.__type_as_string__( data ) )
-        node.setAttribute( "name", str( name ) )
-        if type( data ) == dict:
-            for ( index, value ) in data.iteritems():
-                node.appendChild( self.__data_to_node__( index, value ) )
-        elif type( data ) == list:
-            for ( index, value ) in enumerate( data ):
-                node.appendChild( self.__data_to_node__( index, value ) )
+        node = self.xml_document.createElement(str(name))
+        node.setAttribute("type", self.__type_as_string__(data))
+        #node.setAttribute("name", str(name))
+        if type(data) == dict:
+            for (index, value) in data.iteritems():
+                node.appendChild( self.__data_to_node__(index, value ))
+        elif type(data) == list:
+            for (index, value) in enumerate(data):
+                node.appendChild(self.__data_to_node__("item", value))
         else:
-            node.appendChild( self.xml_document.createTextNode( str( data ) ) )
+            node.appendChild(self.xml_document.createTextNode(str(data)))
         return node
 
-    def __node_to_data__( self, node ):
+    def __node_to_data__(self, node):
         """
         Returns python data from data node
         """
-        if node.nodeName == "dict":
+        node_type = node.getAttribute("type")
+        if node_type == "dict":
             retval = {}
             for childNode in node.childNodes:
                 if childNode.nodeType == node.ELEMENT_NODE:
-                    retval[childNode.getAttribute( "name" )] = self.__node_to_data__( childNode )
+                    retval[childNode.nodeName] = self.__node_to_data__(childNode)
             return retval
-        elif node.nodeName in ( "list", "tuple" ):
+        elif node_type in ("list", "tuple"):
             retval = []
             for childNode in node.childNodes:
                 if childNode.nodeType == node.ELEMENT_NODE:
-                    retval.insert( int( childNode.getAttribute( "name" ) ), self.__node_to_data__( childNode ) )
-            if node.nodeName == "tuple":
-                retval = tuple( retval )
+                    #retval.insert(int(childNode.nodeName), self.__node_to_data__(childNode))
+                    retval.append(self.__node_to_data__(childNode))
+            if node_type == "tuple":
+                retval = tuple(retval)
             return retval
         else:
-            if node.hasChildren
-            return self.__string_to_type__( node.firstChild.data, node.nodeName )           
+            if len(node.childNodes) > 0:
+                return self.__string_to_type__(node.firstChild.data, node_type)
+            else:
+                return ""
+
